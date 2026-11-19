@@ -3,7 +3,7 @@ import { RepoPath } from "@/components/results/Sources";
 import { copy, fillNodes } from "@/lib/copy";
 import type { MethodsFile } from "@/lib/types/contract";
 import styles from "./methods.module.css";
-import { ExperimentStatus, FILE, ProtocolFacts, StageFacts, laneName } from "./parts";
+import { ExperimentStatus, FILE, PartFacts, ProtocolFacts, StageFacts, laneName } from "./parts";
 
 const text = copy.methods.results;
 
@@ -74,6 +74,10 @@ export function ResultsSoFar({ methods }: { methods: MethodsFile }) {
                   </div>
                 ) : null}
                 {experiment.protocol ? <ProtocolFacts protocol={experiment.protocol} field={`${field}.protocol`} /> : null}
+                {(experiment.parts ?? []).length > 0 ? <p className="small">{text.parts}</p> : null}
+                {(experiment.parts ?? []).map((part, index) => (
+                  <PartFacts key={part.label} part={part} field={`${field}.parts[${index}]`} />
+                ))}
                 {experiment.development ? (
                   <StageFacts stage={experiment.development} field={`${field}.development`} />
                 ) : null}

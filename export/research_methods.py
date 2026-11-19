@@ -311,6 +311,11 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                     miss(f"{eid}.{key}", exp[key], f"the {label or key} bullet under {eid}")
             if exp.get("test_not_scored"):
                 problems += _not_scored_problems(eid, exp, repo)
+            if exp.get("writeup") and not exp.get("result_in_writeup") and not exp["backlog_status"].startswith("done"):
+                problems.append(f"{eid}: an experiment with a write-up has run, so it needs a done line in the backlog")
+            labels = [part.get("label") for part in exp.get("parts", [])]
+            if len(set(labels)) != len(labels):
+                problems.append(f"{eid}: every part has its own label")
             if exp.get("result_in_writeup"):
                 if not exp.get("writeup") or not (repo / exp["writeup"]).is_file():
                     problems.append(f"{eid}: a result kept in its write-up needs the write-up")
@@ -335,14 +340,20 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                 problems.append(f"{eid}: the write-up {writeup!r} is not a file under reports/research/")
             notes = exp.get("writeup_notes", [])
             if notes:
-                text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() else ""
                 for note in notes:
                     where, quote = _note_place(note)
-                    paragraphs = verdict_paragraph(text) if where is None else dossier_paragraphs(
+                    # a note may quote a second write-up of the same experiment (genai-E2's 1.5B report)
+                    named = note.get("file", writeup) if isinstance(note, dict) else writeup
+                    if not named or not named.startswith("reports/research/") or not (repo / named).is_file():
+                        problems.append(f"{eid}: a write-up note names {named!r}, not a write-up under "
+                                        "reports/research/")
+                        continue
+                    text = (repo / named).read_text(encoding="utf-8")
+                    note_paragraphs = verdict_paragraph(text) if where is None else dossier_paragraphs(
                         section_text(text, where))
-                    if not is_sentences(quote, paragraphs):
+                    if not is_sentences(quote, note_paragraphs):
                         place = "the verdict paragraph" if where is None else f"the section {where!r}"
-                        problems.append(f"{eid}: a write-up note is not whole sentences of {place} of {writeup} word "
+                        problems.append(f"{eid}: a write-up note is not whole sentences of {place} of {named} word "
                                         f"for word: {quote[:70]!r}")
             protocol = exp.get("protocol")
             if protocol:
@@ -369,28 +380,51 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                                                                         for q in quotes):
                     problems.append(f"{eid}: adopted_as {exp['adopted_as']!r} needs a write-up note that says "
                                     "\"adopted as a research result\"")
-            if results:
+            stage_specs = ([(None, results, exp.get("stages"), exp.get("test_not_scored"))] if results else []) + [
+                (part.get("label"), part.get("results") or {}, part.get("stages"), part.get("test_not_scored"))
+                for part in exp.get("parts", [])]
+            if exp.get("parts") and (results or exp.get("protocol") or exp.get("stages")):
+                problems.append(f"{eid}: an experiment decided part by part has no results, protocol or stages of its "
+                                "own")
+            for label, spec, stages, not_scored in stage_specs:
+                where = eid if label is None else f"{eid} {label}"
                 try:
-                    check_results_spec(results)
+                    check_results_spec(spec)
                 except MethodsProblem as exc:
-                    problems.append(f"{eid}: {exc}")
+                    problems.append(f"{where}: {exc}")
                     continue
-                quote = results.get("rule_quote")
-                if quote:
-                    text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() \
-                        else ""
-                    if not is_sentences(quote["text"], dossier_paragraphs(section_text(text, quote["section"]))):
-                        problems.append(f"{eid}: the rule quote is not whole sentences of the section "
+                text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() else ""
+                for kind in ("rule_quote", "reading_quote"):
+                    quote = spec.get(kind)
+                    if quote and not is_sentences(quote["text"], dossier_paragraphs(section_text(text,
+                                                                                                 quote["section"]))):
+                        problems.append(f"{where}: the {kind.replace('_', ' ')} is not whole sentences of the section "
                                         f"{quote['section']!r} of {writeup} word for word")
-                if _flat(results["interval"]) != bullets.get(eid, {}).get("interval"):
-                    miss(f"{eid}.results.interval", results["interval"], f"the paired test bullet under {eid}")
+                label_of_interval = spec.get("interval_label")
+                source_of_interval = spec.get("interval_from")
+                if source_of_interval in ("dossier_sentence", "writeup_sentence"):
+                    pool = paragraphs if source_of_interval == "dossier_sentence" else dossier_paragraphs(text)
+                    if not is_sentences(spec.get("interval") or "", pool):
+                        problems.append(f"{where}: the interval is not whole sentences of the "
+                                        f"{source_of_interval.split('_')[0]} word for word")
+                else:
+                    if label_of_interval:
+                        want = next((b[m.end():] for b in bullets.get(eid, {}).get("_all", [])
+                                     if (m := re.match(rf"^{re.escape(label_of_interval)}[^.:]*[.:]\s*", b))), None)
+                    else:
+                        want = bullets.get(eid, {}).get("interval")
+                    if _flat(spec.get("interval") or "") != want:
+                        miss(f"{where}.results.interval", spec.get("interval", ""),
+                             f"the {label_of_interval or 'paired test'} bullet under {eid}")
                 for stage in ("development", "test"):
-                    if results[stage] is None and stage == "development" and exp.get("stages") == "test_only":
+                    if spec.get(stage) is None and stage == "development" and stages == "test_only":
                         continue
-                    if results[stage] is None and stage == "test" and exp.get("test_not_scored"):
+                    if spec.get(stage) is None and stage == "test" and not_scored:
                         continue
-                    if results[stage] is None or not results[stage].startswith("reports/research/"):
-                        problems.append(f"{eid}: the {stage} result is a file under reports/research/")
+                    if spec.get(stage) is None or not spec[stage].startswith("reports/research/"):
+                        problems.append(f"{where}: the {stage} result is a file under reports/research/")
+                    elif stage == "development" and stages == "test_only":
+                        problems.append(f"{where}: a test-only part names no development result file")
     for eid in sorted(set(backlog) - listed):
         problems.append(f"{eid}: a row of {source['backlog']} that no lane lists")
     return problems
@@ -402,8 +436,8 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
 SCHEMA_COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above": lambda v, t: v > t,
                   "at_least": lambda v, t: v >= t}
 # How a rule's text states each comparison, right before its threshold.
-COMPARISON_WORDS = {"below": (r"below",), "at_most": (r"at most", r"<="), "above": (r"above",),
-                    "at_least": (r"at least", r">=")}
+COMPARISON_WORDS = {"below": (r"below",), "at_most": (r"at most", r"at or below", r"<="), "above": (r"above",),
+                    "at_least": (r"at least", r"at or above", r">=")}
 # The end of an interval a comparison reads: an interval wholly below (or at most) reads its upper end, an interval
 # above (or at least) its lower end. A condition may read the point value instead, for any comparison.
 BOUND_OF = {"below": "hi", "at_most": "hi", "above": "lo", "at_least": "lo"}
@@ -413,25 +447,55 @@ CONDITION_KEYS = ("label", "value", "lo", "hi", "bound", "comparison", "met", "d
 # its reason in the source.
 FLAGS_OUTSIDE_RULE_ALLOWED = {
     "xfg-E1": {"verdict.width_p95_under_0_01"},            # the site copy rule of the pre-registration
-    "winprob-E1": {"{verdict}.interval_straddles_threshold"},  # a reading printed beside the verdict
+    "winprob-E1": {"{verdict}.interval_straddles_threshold",   # a reading printed beside the verdict
+                   "{verdict}.regulation_only_reading.adopt", "{verdict}.regulation_only_reading.differs",
+                   "{verdict}.ablation.drift_form_adds_beyond_mu_alone"},  # the regulation-only and ablation readings
+    "winprob-E2": {"{verdict}.ablation.forward_beats_grouped"},          # the ablation reading
+    "lineups-E2": {"scored.results.verdict.toward_their_players_supported"},  # the shrinkage ablation reading
 }
 GUARD_KEYS = ("label", "path", "buckets", "worse", "bound", "comparison", "threshold", "digits")
+READING_KINDS = ("met", "not_met", "otherwise")
 
 
 def check_results_spec(results: dict) -> None:
     """The source's description of a stage result, checked before any file is read: a known comparison for the
-    main rule (at most, or strictly below), a list of further conditions (empty when the rule has none), each
-    condition complete, with a threshold (stated, or read from the file with its sign) and the end of its interval
-    that its comparison reads (or its point value), and a guard, when there is one, complete."""
-    if results.get("comparison", "at_most") not in ("at_most", "below"):
-        raise MethodsProblem(f"the main rule's comparison {results.get('comparison')!r} is not at_most or below")
+    main rule, the end its comparison reads (keys.upper, when named, is that end), a list of further conditions
+    (empty when the rule has none), each condition complete, with a threshold (stated, or read from the file with its
+    sign) and the end of its interval that its comparison reads (or its point value), each guard complete, and the
+    way the file states its verdict (a flag, a reading word, or a quoted reading of the write-up)."""
+    comparison = results.get("comparison", "at_most")
+    if comparison not in SCHEMA_COMPARE:
+        raise MethodsProblem(f"the main rule's comparison {comparison!r} is unknown")
+    by_stage = results.get("stage_keys", {})
+    if set(by_stage) - {"development", "test"} or any(set(k) - {"met", "main_met", "reading"} for k in by_stage.values()):
+        raise MethodsProblem("stage_keys names a development or a test stage, and only its met, main_met or reading")
+    for stage_name in ("development", "test"):
+        if results.get(stage_name) is not None and stage_name in by_stage:
+            check_results_spec({**results, "keys": {**results.get("keys", {}), **by_stage[stage_name]},
+                                "stage_keys": {}})
+    if by_stage:
+        return
     keys = results.get("keys", {})
-    if keys.get("upper") != keys.get("hi"):
-        raise MethodsProblem("the main rule (at most, or below) reads the upper end: keys.upper must be keys.hi")
+    end_key = keys.get(BOUND_OF[comparison])
+    if results.get("flip"):
+        if "upper" in keys:
+            raise MethodsProblem("a flipped interval names no keys.upper: the end it reads follows from the flip")
+    elif keys.get("upper", end_key) != end_key:
+        raise MethodsProblem(f"the main rule ({comparison.replace('_', ' ')}) reads the {BOUND_OF[comparison]} end: "
+                             f"keys.upper must be keys.{BOUND_OF[comparison]}")
     if results.get("development") is not None and results.get("development") == results.get("test"):
         raise MethodsProblem("the development and the test result are one file")
     if not isinstance(results.get("conditions"), list):
         raise MethodsProblem("the results name no list of further conditions (an empty list when the rule has none)")
+    if not ("met" in keys or "reading" in keys or results.get("reading_quote")):
+        raise MethodsProblem("the results name how the file states its verdict: keys.met, keys.reading or a "
+                             "reading_quote of the write-up")
+    if ("reading" in keys or results.get("reading_quote")) and not results.get("readings"):
+        raise MethodsProblem("a reading word needs the readings it may take (met, not_met, or a condition)")
+    for word, kind in results.get("readings", {}).items():
+        if kind not in READING_KINDS and not (isinstance(kind, dict) and {"bound", "comparison", "threshold"} <= set(
+                kind) and kind["comparison"] in SCHEMA_COMPARE):
+            raise MethodsProblem(f"the reading {word!r} is not met, not_met, otherwise or a condition on an end")
     for condition in results["conditions"]:
         missing = [key for key in CONDITION_KEYS if key not in condition]
         if "threshold" not in condition and "threshold_key" not in condition:
@@ -447,8 +511,7 @@ def check_results_spec(results: dict) -> None:
         if "threshold_key" in condition and condition.get("sign") not in (1, -1):
             raise MethodsProblem(f"the condition {condition['label']!r} reads its threshold from the file without "
                                  "a sign (1 or -1)")
-    guard = results.get("guard")
-    if guard is not None:
+    for guard in _guards_of(results):
         missing = [key for key in GUARD_KEYS if key not in guard]
         if missing:
             raise MethodsProblem(f"the guard lacks {missing}")
@@ -456,17 +519,33 @@ def check_results_spec(results: dict) -> None:
             raise MethodsProblem(f"the guard reads the {guard['bound']} end with {guard['comparison']!r}")
 
 
+def _guards_of(results: dict) -> list:
+    return ([results["guard"]] if results.get("guard") else []) + list(results.get("guards", []))
+
+
 def states(rule: str, comparison: str, threshold) -> bool:
     """True when a rule's text states `comparison` right before `threshold` ("below 0", "below zero",
-    "at most +0.0005", "at most -0.002", ">= 0.5"). The sign is part of the threshold."""
+    "at most +0.0005", "at most -0.002", ">= 0.5", "at or above -0.05"). The sign is part of the threshold. A
+    threshold read from a file may appear rounded, to three decimals or more ("above 0.038" for 0.0380059...)."""
     rule = _flat(rule)
-    numbers_ = [re.escape(number_text(threshold))] + (["zero"] if float(threshold) == 0 else [])
-    return any(re.search(rf"(?<![\w]){word}\s*\+?{number}(?!\d|\.\d)", rule)
-               for word in COMPARISON_WORDS[comparison] for number in numbers_)
+    for word in COMPARISON_WORDS[comparison]:
+        for m in re.finditer(rf"(?<![\w]){word}\s*(zero|[+-]?\d+(?:\.\d+)?)(?!\d|\.\d)", rule):
+            text = m.group(1)
+            if text == "zero":
+                if float(threshold) == 0:
+                    return True
+                continue
+            written = float(text)
+            decimals = len(text.split(".")[1]) if "." in text else 0
+            if written == float(threshold) or (decimals >= 3 and abs(written - float(threshold)) <= 0.5 * 10 ** -decimals):
+                return True
+    return False
 
 
 def section_text(text: str, heading: str) -> str:
     """The text of the section of a write-up under `## heading`, up to the next `## ` heading ('' when absent)."""
+    if heading == "":                  # the text before the first section: the verdict and its narrow claim
+        return re.split(r"^## ", text, maxsplit=1, flags=re.M)[0]
     m = re.search(rf"^## {re.escape(heading)}\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
     return m.group(1) if m else ""
 
@@ -484,16 +563,41 @@ def number_text(value) -> str:
     return text[:-2] if text.endswith(".0") else text
 
 
-def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str = ""):
+def _flags(value, prefix: str) -> dict:
+    """Every boolean of a verdict object, nested objects included, by its dotted path."""
+    found = {}
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if isinstance(item, bool):
+                found[f"{prefix}.{key}"] = item
+            elif isinstance(item, dict):
+                found.update(_flags(item, f"{prefix}.{key}"))
+    return found
+
+
+def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str = "", extra_mapped=frozenset(),
+           writeup_text: str = ""):
     """The result of one stage, or None when its file does not exist yet. The file's verdict on the main rule, on
-    each further condition and on the guard is recomputed from its numbers, and a file that disagrees is refused.
+    each further condition and on each guard is recomputed from its numbers, and a file that disagrees is refused.
 
     Each comparison, with its threshold and its sign, must be the one the rule's text states: the file's own rule
     (keys["rule"]), else the source's quote of the write-up (`rule_quote`, traced word for word), else `rule_text`,
-    the pre-registered adoption threshold. Every boolean of the file's verdict object other than the overall flag
-    must be the main rule's flag (keys["main_met"]), a condition's flag, or a flag the source names as outside the
-    rule (`flags_outside_rule`, with its reason). A key path may name the stage's own place in its file through
-    `paths` ({data}, {verdict}), so one description reads a development and a test file of different layouts."""
+    the pre-registered adoption threshold. The file states its verdict by a flag (keys.met), by a reading word
+    (keys.reading, which must agree with the recomputed rule as `readings` says), or not at all, when the write-up's
+    quoted reading (`reading_quote`) carries the word instead. Every boolean of the file's verdict object, nested
+    ones included, other than the overall flag must be the main rule's flag (keys["main_met"]), a condition's flag,
+    a flag of another part of the same rule (`extra_mapped`), or a flag the source names as outside the rule
+    (`flags_outside_rule`, on the code's list). A key path may name the stage's own place in its file through
+    `paths` ({data}, {verdict}), so one description reads a development and a test file of different layouts. An
+    interval the file states the other way round (`flip`) is turned: its difference and its ends change sign.
+
+    Further shapes (PLAN.md D116): a stage may state its verdict its own way (`stage_keys`: a flag on development, a
+    reading word on the test set); a reading may be `otherwise`, which holds only when no conditional reading does;
+    a condition or guard whose bar is another statistic's end names that bar in the rule's words (`states`) and
+    reads the number from the file; a flag the file states as the conjunction of parts of the rule
+    (`conjunctions`) must equal them; a flag that only marks the deciding comparison must be true (`true_flags`);
+    a reported value may belong to one stage only (`stage`) or read another result file (`file`, listed as
+    also_read)."""
     check_results_spec(results)
     rel = results[stage]
     if rel is None:
@@ -503,24 +607,34 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         return None
     doc = json.loads(path.read_text(encoding="utf-8"))
     places_of = results.get("paths", {}).get(stage, {})
+    docs = {rel: doc}
 
-    def at(key_path: str):
+    def at(key_path: str, file: str = None):
+        source = doc
+        if file is not None:
+            if not file.startswith("reports/research/") or not (repo / file).is_file():
+                raise MethodsProblem(f"{rel}: a value reads {file!r}, not a file under reports/research/")
+            source = docs.setdefault(file, json.loads((repo / file).read_text(encoding="utf-8")))
         try:
-            return _path_value(doc, key_path.format(**places_of))
+            return _path_value(source, key_path.format(**places_of))
         except (KeyError, IndexError) as exc:
             raise MethodsProblem(f"{rel}: the key path {key_path!r} names an unknown place {exc}") from None
 
-    keys = results["keys"]
+    # a stage may state its verdict its own way (a flag on development, a reading word on the test set)
+    keys = {**results["keys"], **results.get("stage_keys", {}).get(stage, {})}
     comparison = results.get("comparison", "at_most")
     compare = SCHEMA_COMPARE[comparison]
-    met = bool(at(keys["met"]))
+    sign = -1.0 if results.get("flip") else 1.0
+    lo_raw, hi_raw = float(at(keys["lo"])), float(at(keys["hi"]))
+    lo_v, hi_v = (-hi_raw, -lo_raw) if sign < 0 else (lo_raw, hi_raw)
+    diff_v = sign * float(at(keys["diff"])) if "diff" in keys else None
+    upper = lo_v if BOUND_OF[comparison] == "lo" else hi_v
     if "rule" in keys:
         rule = at(keys["rule"])
     elif results.get("rule_quote"):
         rule = results["rule_quote"]["text"]
     else:
         rule = rule_text
-    upper = float(at(keys["upper"]))
     threshold = float(at(keys["threshold"])) if "threshold" in keys else float(results["threshold"])
     if not states(rule, comparison, threshold):
         raise MethodsProblem(f"{rel}: the rule does not state {comparison.replace('_', ' ')} {threshold}: {rule[:90]!r}")
@@ -537,48 +651,66 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
 
     for spec in results["conditions"]:
         bar = bar_of(spec)
-        if not states(rule, spec["comparison"], bar):
+        if spec.get("states"):
+            # a threshold that is another statistic's end is named in words ("above the upper end of the
+            # position-only retriever's interval"): the words must be in the rule, and the number is read from the file
+            if _flat(spec["states"]) not in _flat(rule) or "threshold_key" not in spec:
+                raise MethodsProblem(f"{rel}: the rule does not say {spec['states']!r}, or the condition reads no "
+                                     "threshold from the file")
+        elif not states(rule, spec["comparison"], bar):
             raise MethodsProblem(f"{rel}: the rule does not state {spec['comparison'].replace('_', ' ')} {bar} for "
                                  f"{spec['label']!r}")
-    guard_spec = results.get("guard")
-    if guard_spec and not states(rule, guard_spec["comparison"], guard_spec["threshold"]):
-        raise MethodsProblem(f"{rel}: the rule does not state the guard's {guard_spec['comparison']} "
-                             f"{guard_spec['threshold']}")
-    verdict_path = keys["met"].format(**places_of).rsplit(".", 1)[0]
-    verdict = _path_value(doc, verdict_path)
-    outside = set(results.get("flags_outside_rule", {}))
-    if outside - FLAGS_OUTSIDE_RULE_ALLOWED.get(eid, set()):
-        raise MethodsProblem(f"{rel}: {sorted(outside - FLAGS_OUTSIDE_RULE_ALLOWED.get(eid, set()))} are not on the "
-                             f"list of flags outside the rule for {eid}")
-    rule_flags = {keys["met"]} | ({keys["main_met"]} if "main_met" in keys else set()) | {
-        spec["met"] for spec in results["conditions"]}
+    for guard_spec in _guards_of(results):
+        if guard_spec.get("states"):
+            if _flat(guard_spec["states"]) not in _flat(rule):
+                raise MethodsProblem(f"{rel}: the rule does not say {guard_spec['states']!r}")
+        elif not states(rule, guard_spec["comparison"], guard_spec["threshold"]):
+            raise MethodsProblem(f"{rel}: the rule does not state the guard's {guard_spec['comparison']} "
+                                 f"{guard_spec['threshold']}")
+    for flag in results.get("true_flags", []):
+        # a flag that says which comparison decides ("decides": the Haiku cache arm is H3's deciding arm)
+        if at(flag) is not True:
+            raise MethodsProblem(f"{rel}: {flag} is not true, so this is not the comparison that decides")
+    for a, b in results.get("equalities", []):
+        if float(at(a)) != float(at(b)):
+            raise MethodsProblem(f"{rel}: {a} is not {b}, though the file states them as one number")
+    outside = {flag.format(**places_of) for flag in results.get("flags_outside_rule", {})}
+    allowed = {flag.format(**places_of) for flag in FLAGS_OUTSIDE_RULE_ALLOWED.get(eid, set())}
+    if outside - allowed:
+        raise MethodsProblem(f"{rel}: {sorted(outside - allowed)} are not on the list of flags outside the rule for "
+                             f"{eid}")
+    rule_flags = {k.format(**places_of) for k in [keys.get("met"), keys.get("main_met")] if k} | {
+        spec["met"].format(**places_of) for spec in results["conditions"] if spec["met"]} | {
+        c["flag"].format(**places_of) for c in results.get("conjunctions", [])}
     if outside & rule_flags:
         raise MethodsProblem(f"{rel}: {sorted(outside & rule_flags)} are flags of the rule, not outside it")
-    if "threshold" in verdict:
-        read = {keys.get("threshold", "").format(**places_of)} | {
-            spec["threshold_key"].format(**places_of) for spec in results["conditions"] if "threshold_key" in spec}
-        if f"{verdict_path}.threshold" not in read:
-            raise MethodsProblem(f"{rel}: the file holds {verdict_path}.threshold, so the rule reads it (keys.threshold "
-                                 "or a condition's threshold_key), not a threshold the source states")
-        stated = [spec["threshold"] for spec in results["conditions"] if "threshold" in spec and spec["threshold"]]
-        if stated or ("threshold" not in keys and float(results.get("threshold", 0)) != 0):
-            raise MethodsProblem(f"{rel}: the file holds its threshold, so the source states none but zero bounds")
-    if "upper_95" in verdict and float(verdict["upper_95"]) != float(at(keys["hi"])):
-        raise MethodsProblem(f"{rel}: {verdict_path}.upper_95 is not the upper end of the paired interval")
-    if guard_spec:
-        paired = ".".join(keys["diff"].split(".")[:-2])
-        if not guard_spec["path"].startswith(paired + "."):
+    verdict_key = keys.get("met") or keys.get("reading")
+    if verdict_key:
+        verdict_path = verdict_key.format(**places_of).rsplit(".", 1)[0]
+        verdict = _path_value(doc, verdict_path)
+        if "threshold" in verdict:
+            read = {keys.get("threshold", "").format(**places_of)} | {
+                spec["threshold_key"].format(**places_of) for spec in results["conditions"] if "threshold_key" in spec}
+            if f"{verdict_path}.threshold" not in read:
+                raise MethodsProblem(f"{rel}: the file holds {verdict_path}.threshold, so the rule reads it "
+                                     "(keys.threshold or a condition's threshold_key), not a threshold the source "
+                                     "states")
+            stated = [spec["threshold"] for spec in results["conditions"] if "threshold" in spec and spec["threshold"]]
+            if stated or ("threshold" not in keys and float(results.get("threshold", 0)) != 0):
+                raise MethodsProblem(f"{rel}: the file holds its threshold, so the source states none but zero bounds")
+        if "upper_95" in verdict and float(verdict["upper_95"]) != hi_raw:
+            raise MethodsProblem(f"{rel}: {verdict_path}.upper_95 is not the upper end of the paired interval")
+        mapped = rule_flags | outside | {flag.format(**places_of) for flag in
+                                         set(extra_mapped) | set(results.get("true_flags", []))}
+        loose = sorted(flag for flag in _flags(verdict, verdict_path) if flag not in mapped)
+        if loose:
+            raise MethodsProblem(f"{rel}: the verdict flags {loose} belong to no rule of the source: name them as the "
+                                 "main rule's flag, a condition's flag, or a flag outside the rule")
+    for guard_spec in _guards_of(results):
+        paired = ".".join(keys["diff"].split(".")[:-2]) if "diff" in keys else None
+        if guard_spec.get("same_object", True) and (paired is None or not guard_spec["path"].startswith(paired + ".")):
             raise MethodsProblem(f"{rel}: the guard reads {guard_spec['path']}, not a table of the paired object "
                                  f"{paired} the rule's difference comes from")
-    mapped = {keys["met"].format(**places_of)} | (
-        {keys["main_met"].format(**places_of)} if "main_met" in keys else set()) | {
-        spec["met"].format(**places_of) for spec in results["conditions"]} | {
-        flag.format(**places_of) for flag in results.get("flags_outside_rule", {})}
-    loose = sorted(f"{verdict_path}.{k}" for k, v in verdict.items() if isinstance(v, bool)
-                   and f"{verdict_path}.{k}" not in mapped)
-    if loose:
-        raise MethodsProblem(f"{rel}: the verdict flags {loose} belong to no rule of the source: name them as the "
-                             "main rule's flag, a condition's flag, or a flag outside the rule")
     main = compare(upper, threshold)
     if "main_met" in keys and bool(at(keys["main_met"])) != main:
         raise MethodsProblem(f"{rel}: {keys['main_met']} disagrees with its bound {upper} against {threshold}")
@@ -588,7 +720,7 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         end = {"lo": lo, "hi": hi, "point": value}[spec["bound"]]
         bar = bar_of(spec)
         ok = SCHEMA_COMPARE[spec["comparison"]](end, bar)
-        if bool(at(spec["met"])) != ok:
+        if spec["met"] and bool(at(spec["met"])) != ok:
             raise MethodsProblem(f"{rel}: {spec['met']} disagrees with its {spec['bound']} {end} against {bar}")
         places = spec["digits"]
         while SCHEMA_COMPARE[spec["comparison"]](round(end, places), round(bar, places)) != ok and places < 17:
@@ -596,35 +728,85 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         conditions.append(S.Condition(label=spec["label"], value=round(value, places), lo=round(lo, places),
                                       hi=round(hi, places), bound=spec["bound"], comparison=spec["comparison"],
                                       threshold=round(bar, places), met=ok))
-    guard = None
-    if guard_spec:
+    guards = []
+    for guard_spec in _guards_of(results):
         table = at(guard_spec["path"])
         if sorted(table) != sorted(guard_spec["buckets"]):
             raise MethodsProblem(f"{rel}: the guard reads every bucket of {guard_spec['path']}: {sorted(table)}, "
                                  f"not {guard_spec['buckets']}")
         worse_compare = SCHEMA_COMPARE[guard_spec["comparison"]]
+        cell_of = guard_spec.get("cell", "")
+        names = {"point": guard_spec.get("cell_value", "point"), "lo": guard_spec.get("cell_lo", "lo"),
+                 "hi": guard_spec.get("cell_hi", "hi")}
         buckets, worse_names = [], []
         for name in guard_spec["buckets"]:
-            cell = table[name]
-            end = float(cell[guard_spec["bound"]])
+            cell = _path_value(table[name], cell_of) if cell_of else table[name]
+            point, lo, hi = (float(_path_value(cell, names[k])) for k in ("point", "lo", "hi"))
+            end = lo if guard_spec["bound"] == "lo" else hi
             worse = worse_compare(end, float(guard_spec["threshold"]))
             if worse:
                 worse_names.append(name)
             places = guard_spec["digits"]
             while worse_compare(round(end, places), float(guard_spec["threshold"])) != worse and places < 17:
                 places += 1
-            buckets.append(S.GuardBucket(label=name, value=round(float(cell["point"]), places),
-                                         lo=round(float(cell["lo"]), places), hi=round(float(cell["hi"]), places),
-                                         worse=worse))
+            buckets.append(S.GuardBucket(label=name, value=round(point, places), lo=round(lo, places),
+                                         hi=round(hi, places), worse=worse))
         stated = list(at(guard_spec["worse"]))
         if sorted(stated) != sorted(worse_names):
             raise MethodsProblem(f"{rel}: {guard_spec['worse']} lists {stated}, but its numbers give {worse_names}")
-        guard = S.BucketGuard(label=guard_spec["label"], bound=guard_spec["bound"],
-                              comparison=guard_spec["comparison"], threshold=float(guard_spec["threshold"]),
-                              buckets=buckets, met=not worse_names)
-    reading = main and all(c.met for c in conditions) and (guard is None or guard.met)
-    if met != reading:
-        raise MethodsProblem(f"{rel}: {keys['met']} is {met}, but its rule read on its own numbers gives {reading}")
+        guards.append(S.BucketGuard(label=guard_spec["label"], bound=guard_spec["bound"],
+                                    comparison=guard_spec["comparison"], threshold=float(guard_spec["threshold"]),
+                                    buckets=buckets, met=not worse_names))
+    reading_ok = main and all(c.met for c in conditions) and all(g.met for g in guards)
+    # a flag the file states as the conjunction of some of the rule's parts ("holds against raw") equals it
+    part_of = {keys.get("main_met"): main} | {spec["met"]: c.met for spec, c in zip(results["conditions"], conditions)
+                                              if spec["met"]} | {g_spec["worse"]: g.met for g_spec, g in
+                                                                 zip(_guards_of(results), guards)}
+    for conj in results.get("conjunctions", []):
+        unknown = [f for f in conj["of"] if f not in part_of]
+        if unknown:
+            raise MethodsProblem(f"{rel}: {conj['flag']} is said to join {unknown}, which are no parts of the rule")
+        if bool(at(conj["flag"])) != all(part_of[f] for f in conj["of"]):
+            raise MethodsProblem(f"{rel}: {conj['flag']} disagrees with the parts it joins")
+    reading_word = None
+    if "met" in keys:
+        met = bool(at(keys["met"]))
+        if met != reading_ok:
+            raise MethodsProblem(f"{rel}: {keys['met']} is {met}, but its rule read on its own numbers gives "
+                                 f"{reading_ok}")
+    else:
+        met = reading_ok
+    if "reading" in keys or results.get("reading_quote"):
+        if "reading" in keys:
+            reading_word = str(at(keys["reading"]))
+        else:
+            quote = results["reading_quote"]
+            reading_word = quote["word"]
+            if not is_sentences(quote["text"], dossier_paragraphs(section_text(writeup_text, quote["section"]))):
+                raise MethodsProblem(f"{rel}: the reading quote is not whole sentences of the section "
+                                     f"{quote['section']!r} of the write-up word for word")
+            if reading_word not in quote["text"]:
+                raise MethodsProblem(f"{rel}: the reading quote does not say {reading_word!r}")
+        word = next((w for w in results["readings"] if reading_word == w or reading_word.startswith(w + " ")), None)
+        if word is None:
+            raise MethodsProblem(f"{rel}: the reading {reading_word!r} is none of {sorted(results['readings'])}")
+        kind = results["readings"][word]
+        conditional = [k for k in results["readings"].values() if isinstance(k, dict)]
+
+        def holds(k) -> bool:
+            return SCHEMA_COMPARE[k["comparison"]](lo_v if k["bound"] == "lo" else hi_v, float(k["threshold"]))
+
+        if kind == "otherwise" and any(holds(k) for k in conditional):
+            raise MethodsProblem(f"{rel}: the reading {reading_word!r} is for the case no other reading fits, but "
+                                 "one does")
+        if kind == "met" and not met or kind != "met" and met:
+            raise MethodsProblem(f"{rel}: the reading {reading_word!r} disagrees with the rule read on the numbers "
+                                 f"({'met' if met else 'not met'})")
+        if isinstance(kind, dict):
+            end = lo_v if kind["bound"] == "lo" else hi_v
+            if not SCHEMA_COMPARE[kind["comparison"]](end, float(kind["threshold"])):
+                raise MethodsProblem(f"{rel}: the reading {reading_word!r} needs the {kind['bound']} end "
+                                     f"{kind['comparison']} {kind['threshold']}, and it is {end}")
     # Rounded once, here. The rule's two numbers keep as many decimals as it takes for the rounded comparison to
     # read as the file's own verdict, so rounding can never flip it (an upper end of 0.000502 against 0.0005
     # shows six decimals, not five).
@@ -632,25 +814,31 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     while compare(round(upper, digits), round(threshold, digits)) != main and digits < 17:
         digits += 1
 
-    def num(key: str, places: int = digits) -> float:
-        return round(float(at(keys[key] if key in keys else key)), places)
-
     values = []
     for spec in results["values"]:
-        lo = round(float(at(spec["lo"])), spec["digits"]) if spec.get("lo") else None
-        hi = round(float(at(spec["hi"])), spec["digits"]) if spec.get("hi") else None
-        values.append(S.StageValue(label=spec["label"], value=round(float(at(spec["value"])), spec["digits"]),
+        if spec.get("stage", stage) != stage:      # a value one stage's file reports and the other's does not
+            continue
+        file = spec.get("file")
+        lo = round(float(at(spec["lo"], file)), spec["digits"]) if spec.get("lo") else None
+        hi = round(float(at(spec["hi"], file)), spec["digits"]) if spec.get("hi") else None
+        values.append(S.StageValue(label=spec["label"], value=round(float(at(spec["value"], file)), spec["digits"]),
                                    lo=lo, hi=hi, point_estimate=lo is None))
     rows = "testset" if stage == "test" else "out_of_fold"
     what = ("experiment result: fitted on every development game, scored once on the D71 test set" if stage == "test"
             else "experiment result: out of fold on the development games")
+    sources = sorted({spec["file"] for spec in results["values"] if spec.get("file")} - {rel})
     return S.StageResult(
         stage=stage, source=S.Source(path=rel, what=what, rows=rows),
+        also_read=[S.Source(path=f, what="numbers reported beside the rule, read by no verdict",
+                            rows="out_of_fold" if stage == "development" else "testset") for f in sources],
         design=str(at(results["design"])) if results.get("design") else None, metric=results["metric"],
-        rows=int(at(keys["rows"])), rows_unit=results["rows_unit"], games=int(at(keys["games"])),
-        diff=num("diff"), lo=num("lo"), hi=num("hi"), interval=results["interval"],
-        threshold=round(threshold, digits), upper=num("upper"), comparison=comparison, conditions=conditions,
-        guard=guard, met=met, values=values)
+        rows=int(at(keys["rows"])), rows_unit=results["rows_unit"],
+        games=int(at(keys["games"])) if "games" in keys else None,
+        diff=round(diff_v, digits) if diff_v is not None else None, lo=round(lo_v, digits), hi=round(hi_v, digits),
+        interval=results["interval"], threshold=round(threshold, digits), upper=round(upper, digits),
+        comparison=comparison, conditions=conditions, guard=guards[0] if len(guards) == 1 and results.get("guard")
+        else None, guards=guards if not (len(guards) == 1 and results.get("guard")) else [], met=met,
+        reading=reading_word, values=values)
 
 
 def _protocol_trace(eid: str, exp: dict, protocol: dict, repo: Path) -> list:
@@ -820,6 +1008,45 @@ def _not_scored_problems(eid: str, exp: dict, repo: Path) -> list:
     return problems
 
 
+def _rule_flags(results: dict) -> set:
+    """The flags a stage description reads as parts of its rule (unformatted key paths)."""
+    key_sets = [results.get("keys", {})] + list(results.get("stage_keys", {}).values())
+    return {keys[name] for keys in key_sets for name in ("met", "main_met", "reading") if keys.get(name)} | {
+        c["met"] for c in results.get("conditions", []) if c.get("met")}
+
+
+def _parts(exp: dict, repo: Path, writeup_text: str) -> list:
+    """The parts of an experiment decided part by part, each read through the stage reader. Each part's file
+    flags may name the other parts' flags; a flag no part reads is still refused. A part whose test was not spent
+    must have missed its development bar."""
+    if exp.get("results") or exp.get("protocol") or exp.get("stages") or exp.get("test_not_scored"):
+        raise MethodsProblem(f"{exp['id']}: an experiment decided part by part has no results, protocol, stages or "
+                             "test_not_scored of its own")
+    others = set().union(*(_rule_flags(p["results"]) for p in exp["parts"]))
+    built = []
+    for part in exp["parts"]:
+        results, test_only = part["results"], part.get("stages") == "test_only"
+        dev = None if test_only else _stage(results, "development", repo, exp["threshold"], exp["id"], others,
+                                            writeup_text)
+        test = (_stage(results, "test", repo, exp["threshold"], exp["id"], others, writeup_text)
+                if (dev is not None or test_only) else None)
+        if part.get("test_not_scored") and (results.get("test") is not None or dev is None or dev.met):
+            raise MethodsProblem(f"{exp['id']} {part['label']}: a part left unscored has no test file and missed its "
+                                 "development bar")
+        if test_only:
+            status = "pre_registered" if test is None else "passed_test" if test.met else "not_passed_test"
+        else:
+            status = ("pre_registered" if dev is None else "not_adopted_development" if not dev.met
+                      else "development_met_test_pending" if test is None
+                      else "confirmed" if test.met else "development_met_test_not_met")
+        built.append(S.ExperimentPart(label=part["label"], stages="test_only" if test_only else
+                                      "development_and_test", development=dev, test=test,
+                                      test_not_scored=bool(part.get("test_not_scored")), status=status))
+    if exp.get("writeup") and not any(p.development or p.test for p in built):
+        raise MethodsProblem(f"{exp['id']}: no part has a result file, but the experiment names its write-up")
+    return built
+
+
 def _test_only_status(test) -> str:
     if test is None:
         return "pre_registered"
@@ -869,6 +1096,12 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
         experiments = []
         for exp in lane["experiments"]:
             dev = test = protocol = None
+            writeup_text = _read(repo, exp["writeup"]) if exp.get("writeup") else ""
+            parts = _parts(exp, repo, writeup_text) if exp.get("parts") else []
+            for part in parts:
+                for stage in (part.development, part.test):
+                    if stage is not None:
+                        sources += [stage.source] + list(stage.also_read)
             if exp.get("protocol"):
                 protocol = _protocol(exp["protocol"], repo, exp.get("writeup"))
                 if protocol is not None:
@@ -877,8 +1110,9 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
                                 + [a.interval for a in protocol.adoption] if i]
             test_only = exp.get("stages") == "test_only"
             if exp.get("results"):
-                dev = None if test_only else _stage(exp["results"], "development", repo, exp["threshold"], exp["id"])
-                test = (_stage(exp["results"], "test", repo, exp["threshold"], exp["id"])
+                dev = None if test_only else _stage(exp["results"], "development", repo, exp["threshold"], exp["id"],
+                                                    writeup_text=writeup_text)
+                test = (_stage(exp["results"], "test", repo, exp["threshold"], exp["id"], writeup_text=writeup_text)
                         if (dev is not None or test_only) else None)
                 if exp.get("test_not_scored") and dev is not None and dev.met:
                     raise MethodsProblem(f"{exp['id']}: the development result met its bar, so a test left unscored "
@@ -886,16 +1120,18 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
                 if exp.get("writeup") and dev is None and test is None:
                     raise MethodsProblem(f"{exp['id']}: no result file, but the experiment names its write-up "
                                          f"{exp['writeup']}, so it has run")
-                sources += [stage.source for stage in (dev, test) if stage is not None]
+                for stage in (dev, test):
+                    if stage is not None:
+                        sources += [stage.source] + list(stage.also_read)
             experiments.append(S.Experiment(
                 id=exp["id"], title=exp["title"], what=exp["what"], hypothesis=exp["hypothesis"],
                 threshold=exp["threshold"], rank=exp["rank"], gain=exp["gain"], effort=exp["effort"],
                 test_data=exp["test_data"], backlog_status=exp["backlog_status"],
-                status=("ran_result_in_writeup" if exp.get("result_in_writeup") else
+                status=("decided_by_part" if parts else "ran_result_in_writeup" if exp.get("result_in_writeup") else
                         _protocol_status(protocol) if protocol is not None else _test_only_status(test) if test_only
                         else _status(dev, test, exp.get("adopted_as"))),
                 result_in_writeup=bool(exp.get("result_in_writeup")),
-                test_not_scored=bool(exp.get("test_not_scored")),
+                test_not_scored=bool(exp.get("test_not_scored")), parts=parts,
                 adopted_as=exp.get("adopted_as"),
                 writeup=exp.get("writeup"), writeup_notes=[_note_place(n)[1] for n in exp.get("writeup_notes", [])],
                 stages="test_only" if test_only else "development_and_test", development=dev, test=test,

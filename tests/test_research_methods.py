@@ -186,14 +186,18 @@ def _repo_copy(tmp_path, source) -> Path:
     repo = tmp_path / "repo"
     shutil.copytree(REPO / "docs" / "research", repo / "docs" / "research")
     names = {R.SOURCE}
-    for lane in source["lanes"]:
-        names.add(lane["report"])
-        names.update(v["source"] for row in lane["benchmarks"] for v in row["ours"])
-        for experiment in lane["experiments"]:
-            names.update(n for n in [experiment.get("writeup")] + list((experiment.get("results") or {}).get(
-                stage) for stage in ("development", "test")) + [(experiment.get("protocol") or {}).get(key) for key in
-                                                                  ("development", "intervals")]
-                if n and (REPO / n).exists())
+
+    def walk(value):          # every repository file the source names, at any depth (parts, values, notes)
+        if isinstance(value, dict):
+            for item in value.values():
+                walk(item)
+        elif isinstance(value, list):
+            for item in value:
+                walk(item)
+        elif isinstance(value, str) and value.startswith(("reports/", "docs/")) and (REPO / value).is_file():
+            names.add(value)
+
+    walk(source)
     for name in names:
         (repo / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(REPO / name, repo / name)
@@ -708,7 +712,7 @@ def _lineups_results(doc):
      "width_p95_under_0_01"),
     ("decisions adoption read as at most 0.5", lambda d: _exp(d, "decisions-E1")["protocol"]["adoption"][
         "conditions"][0].update(threshold="at most 0.5"), "does not state 'at most 0.5'"),
-    ("an unknown main comparison", lambda d: _lineups_results(d).update(comparison="under"), "is not at_most or below"),
+    ("an unknown main comparison", lambda d: _lineups_results(d).update(comparison="under"), "is unknown"),
     ("a condition without its bound", lambda d: _lineups_results(d)["conditions"][0].pop("bound"), "lacks ['bound']"),
     ("a condition without its threshold", lambda d: _lineups_results(d)["conditions"][0].pop("threshold"),
      "lacks ['threshold']"),
@@ -948,23 +952,24 @@ def test_a_moved_backlog_rank_fails_the_trace(source, tmp_path):
     assert any("xfg-E1: rank is" in p for p in R.trace_problems(source, repo))
 
 
-def test_both_genai_experiments_ran_and_link_their_write_ups(source):
+def test_both_genai_experiments_ran_and_are_read_part_by_part(source):
     methods = R.build_methods(REPO, source)
     lane = next(lane for lane in methods.lanes if lane.lane == "genai")
     e1, e2 = lane.experiments
-    assert (e1.status, e1.result_in_writeup, e1.writeup) == ("ran_result_in_writeup", True,
-                                                             "reports/research/genai-E1.md")
-    assert (e2.status, e2.result_in_writeup, e2.writeup) == ("ran_result_in_writeup", True,
-                                                             "reports/research/genai-E2.md")
+    assert (e1.status, e1.writeup) == ("decided_by_part", "reports/research/genai-E1.md")
+    assert (e2.status, e2.writeup) == ("decided_by_part", "reports/research/genai-E2.md")
     for e in (e1, e2):
-        assert e.development is None and e.test is None and e.protocol is None
+        assert e.development is None and e.test is None and e.protocol is None and not e.result_in_writeup
     assert lane.benchmarks == []
+    # the shape of a result kept in its write-up is still refused without the write-up
+    kept = {**e1.model_dump(), "parts": [], "status": "ran_result_in_writeup", "result_in_writeup": True}
+    S.Experiment(**kept)
     with pytest.raises(ValidationError, match="kept in its write-up"):
-        S.Experiment(**{**e1.model_dump(), "writeup": None})
+        S.Experiment(**{**kept, "writeup": None})
     pending = next(e for ln in methods.lanes for e in ln.experiments if e.status == "pre_registered")
     with pytest.raises(ValidationError, match="kept in its write-up"):
         S.Experiment(**{**pending.model_dump(), "result_in_writeup": True})
-    # a result kept in its write-up still needs a done line in the backlog
+    # a result still needs a done line in the backlog
     doc = copy.deepcopy(source)
     _exp(doc, "genai-E2").update(backlog_status="proposed")
     assert any("needs a done line" in p for p in R.trace_problems(doc, REPO))
@@ -1041,27 +1046,249 @@ def test_the_contract_keeps_an_unscored_test_to_a_missed_development_bar(source)
         S.Experiment(**{**pilot, "test_not_scored": True})
 
 
-def test_embeddings_e1_ran_and_its_result_is_in_its_write_up(source):
-    """embeddings-E1 (PLAN.md D103) was scored once on Set A; its one-game rule reads a lower bound, which the stage
-    machinery (an upper bound against a threshold) does not fit, so the result is kept in its write-up."""
-    methods = R.build_methods(REPO, source)
-    e = {x.id: x for lane in methods.lanes for x in lane.experiments}["embeddings-E1"]
-    assert e.status == "ran_result_in_writeup" and e.writeup == "reports/research/embeddings-E1.md"
-    assert e.development is None and e.test is None and e.protocol is None
-    final = json.loads((REPO / "reports/research/embeddings-E1-final.json").read_text(encoding="utf-8"))
-    assert final["scored"]["rule"]["passes"] is True and e.backlog_status.startswith("done: passed")
 
 
-def test_gravity_e1_ran_on_development_only_and_its_result_is_in_its_write_up(source):
-    """gravity-E1 (PLAN.md D107, D109): not adopted on development, Set A not scored. Its rule has two parts (an MSE
-    interval and an effect size), which the stage machinery does not read, so the result is kept in its write-up."""
-    methods = R.build_methods(REPO, source)
-    e = {x.id: x for lane in methods.lanes for x in lane.experiments}["gravity-E1"]
-    assert e.status == "ran_result_in_writeup" and e.writeup == "reports/research/gravity-E1.md"
-    assert e.backlog_status.startswith("done: not adopted on development")
-    ledger = json.loads((REPO / "reports/research/scoring_ledger.json").read_text(encoding="utf-8"))
+# ------------------------------------------------------------------------------------------ the D116 results
+
+
+def _built(source):
+    return {x.id: x for lane in R.build_methods(REPO, source).lanes for x in lane.experiments}
+
+
+def _file(name):
+    return json.loads((REPO / "reports" / "research" / name).read_text(encoding="utf-8"))
+
+
+def _part(doc, eid, label_start):
+    return next(p for p in _exp(doc, eid)["parts"] if p["label"].startswith(label_start))
+
+
+def _build_problems(doc, repo=REPO):
+    """The trace problems, or else the builder's refusal, of a changed source."""
+    problems = R.trace_problems(doc, repo)
+    if problems:
+        return problems
+    try:
+        R.build_methods(repo, doc)
+    except R.MethodsProblem as exc:
+        return [str(exc)]
+    return []
+
+
+def test_embeddings_e1_is_a_test_set_pass_on_its_lower_end_against_two_bars(source):
+    e = _built(source)["embeddings-E1"]
+    final = _file("embeddings-E1-final.json")["scored"]
+    rates, rule = final["rates_with_game_bootstrap"], final["rule"]
+    assert (e.status, e.stages, e.development) == ("passed_test", "test_only", None)
+    test = e.test
+    assert (test.comparison, test.threshold, test.met) == ("above", rule["threshold"], True)
+    assert (test.diff, test.lo, test.hi) == tuple(round(rates["pca"][k], 3) for k in ("value", "lo", "hi"))
+    assert test.upper == test.lo == round(rule["lower_end"], 3)
+    (position,) = test.conditions
+    assert (position.bound, position.comparison, position.met) == ("lo", "above", True)
+    assert position.threshold == round(rule["position_upper_end"], 3) == round(rates["position"]["hi"], 3)
+    assert (test.rows, test.games) == (final["queries"], final["games"])
+    assert rule["passes"] is True
+
+
+def test_gravity_e1_reads_both_parts_of_its_rule_on_development_and_leaves_set_a_unscored(source):
+    e = _built(source)["gravity-E1"]
+    dev_file = _file("gravity-E1-dev.json")
+    cell = dev_file["bootstrap"]["intervals"]["candidate_minus_baseline"]
+    assert (e.status, e.test, e.test_not_scored) == ("not_adopted_development", None, True)
+    dev = e.development
+    assert (dev.diff, dev.lo, dev.hi) == tuple(round(cell[k], 4) for k in ("value", "lo", "hi"))
+    assert (dev.comparison, dev.threshold) == ("below", 0)
+    assert dev.hi < 0                      # the MSE part holds
+    (effect,) = dev.conditions
+    assert (effect.bound, effect.comparison, effect.threshold, effect.met) == ("point", "at_least", 0.2, False)
+    assert dev.met is False and dev_file["decision"]["adopted"] is False
+    assert [s.path for s in dev.also_read] == ["reports/research/gravity-E1-posthoc.json"]
+    ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
     assert not [x for x in ledger if x.get("experiment") == "gravity-E1"]
-    dev = json.loads((REPO / "reports/research/gravity-E1-dev.json").read_text(encoding="utf-8"))
-    assert dev["decision"]["adopted"] is False and not (REPO / "reports/research/gravity-E1-final.json").exists()
-    text = (REPO / "reports/research/gravity-E1.md").read_text(encoding="utf-8")
-    assert "not scored" in " ".join(R.verdict_paragraph(text)).lower()
+
+
+def test_matchups_e1_decides_each_part_on_development_and_reads_set_a_as_a_confirmation(source):
+    e = _built(source)["matchups-E1"]
+    dev_file, final = _file("matchups-E1-dev.json"), _file("matchups-E1-final.json")["scored"]["parts"]
+    assert e.status == "decided_by_part" and e.development is None and e.test is None
+    a, b = e.parts
+    assert (a.status, b.status) == ("confirmed", "not_adopted_development")
+    for part, key in ((a, "a"), (b, "b")):
+        cell = dev_file["part_" + key]["defender_minus_no_defender"]
+        assert (part.development.diff, part.development.lo, part.development.hi) == (
+            round(cell["point"], 6), round(cell["ci95"][0], 6), round(cell["ci95"][1], 6))
+        assert part.test.reading == final[key]["reading"]
+    assert a.development.met and a.test.met and a.test.reading.startswith("confirms")
+    assert not b.development.met and not b.test.met and b.test.reading.startswith("inconclusive")
+
+
+def test_matchups_e2_is_a_development_fail_whose_set_a_was_not_scored(source):
+    e = _built(source)["matchups-E2"]
+    cell = _file("matchups-E2-dev.json")["hmm_minus_hungarian"]
+    assert (e.status, e.test, e.test_not_scored) == ("not_adopted_development", None, True)
+    dev = e.development
+    assert (dev.diff, dev.lo, dev.hi) == (round(cell["point"], 6), round(cell["ci95"][0], 6), round(cell["ci95"][1], 6))
+    assert (dev.comparison, dev.threshold, dev.upper, dev.met) == ("above", 0, dev.lo, False)
+
+
+def test_lineups_e2_fails_on_the_test_season_against_rapm_synergy_with_both_baselines_read(source):
+    e = _built(source)["lineups-E2"]
+    results = _file("lineups-E2-final.json")["scored"]["results"]
+    assert (e.status, e.stages) == ("not_adopted_test", "test_only")
+    test = e.test
+    paired = results["paired_lrapm_minus_rapm_synergy"]
+    assert (test.lo, test.hi) == (round(paired["ci95"][0], 4), round(paired["ci95"][1], 4))
+    assert test.hi > 0 and test.met is False and results["verdict"]["passes"] is False
+    d_synergy, raw_diff, d_raw = test.conditions
+    assert (d_synergy.met, raw_diff.met, d_raw.met) == (False, True, True)
+    assert [g.met for g in test.guards] == [True, True]
+    assert [len(g.buckets) for g in test.guards] == [3, 3]
+
+
+def test_genai_e1_reads_both_hypotheses_on_the_test_players(source):
+    e = _built(source)["genai-E1"]
+    diffs = _file("genai-E1-final.json")["scouting"]["bootstrap_by_player"]["differences"]
+    h1, h2 = e.parts
+    assert (h1.status, h2.status) == ("passed_test", "passed_test")
+    lo, hi = diffs["haiku minus template: pass_rate"]
+    assert (h1.test.lo, h1.test.hi) == (round(-hi, 3), round(-lo, 3))       # template minus Haiku, turned
+    assert (h1.test.comparison, h1.test.threshold, h1.test.reading) == ("at_least", -0.05, "holds")
+    assert (h2.test.lo, h2.test.comparison, h2.test.threshold) == (round(diffs["haiku minus template: frame_variety"][0],
+                                                                         3), "above", 0)
+
+
+def test_genai_e2_reads_every_hypothesis_at_both_sizes_as_the_file_reads_it(source):
+    e = _built(source)["genai-E2"]
+    assert len(e.parts) == 14
+    for part in e.parts:
+        size, hypothesis = part.label.split()[:2]
+        name = next(k for k in _file(f"genai-E2-{size}-final.json")["hypotheses"]
+                    if k.startswith(hypothesis) and (k.split()[1].rstrip(":") in part.label)
+                    and ("haiku_cache" in k or not k.startswith("H3")))
+        cell = _file(f"genai-E2-{size}-final.json")["hypotheses"][name]
+        assert part.test.reading == cell["reading"], part.label
+        assert part.status == ("passed_test" if cell["reading"] in ("passes", "non-inferior") else "not_passed_test")
+    statuses = {p.label: p.status for p in e.parts}
+    assert statuses["1.5B H3 scouting: near the API model"] == "passed_test"
+    assert statuses["0.5B H3 scouting: near the API model"] == "not_passed_test"
+
+
+def _mutated_repo(tmp_path, source, name, change):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / "reports" / "research" / name
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    change(doc)
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    return repo
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("embeddings: the second bar not in the rule", lambda d: _exp(d, "embeddings-E1")["results"]["conditions"][0]
+     .update(states="above the lower end of the raw retriever's interval"), "the rule does not say"),
+    ("embeddings: a higher bar than the rule states", lambda d: (
+        _exp(d, "embeddings-E1")["results"]["keys"].pop("threshold"),
+        _exp(d, "embeddings-E1")["results"].update(threshold=0.25)), "does not state above 0.25"),
+    ("embeddings: the second bar read from the wrong end", lambda d: _exp(d, "embeddings-E1")["results"]
+     ["equalities"][1].__setitem__(1, "scored.rates_with_game_bootstrap.position.lo"), "states them as one number"),
+    ("gravity: the effect bar retyped", lambda d: (
+        _exp(d, "gravity-E1")["results"]["conditions"][0].pop("threshold_key"),
+        _exp(d, "gravity-E1")["results"]["conditions"][0].update(threshold=0.01)), "does not state at least 0.01"),
+    ("gravity: the effect part dropped", lambda d: _exp(d, "gravity-E1")["results"].update(conditions=[]),
+     "belong to no rule"),
+    ("gravity: the main flag read as the effect flag", lambda d: _exp(d, "gravity-E1")["results"]["keys"].update(
+        main_met="decision.effect_ok"), "belong to no rule"),
+    ("gravity: Set A said scored", lambda d: _exp(d, "gravity-E1").pop("test_not_scored"), ""),
+    ("matchups-E1: inconclusive read as a pass", lambda d: _part(d, "matchups-E1", "Part (b)")["results"]["readings"]
+     .update(inconclusive="met"), "disagrees with the rule"),
+    ("matchups-E1: a part left unscored with its test file", lambda d: _part(d, "matchups-E1", "Part (b)").update(
+        test_not_scored=True), "a part left unscored"),
+    ("matchups-E1: two parts with one label", lambda d: _part(d, "matchups-E1", "Part (b)").update(
+        label=_part(d, "matchups-E1", "Part (a)")["label"]), "every part has its own label"),
+    ("matchups-E2: a bar below zero", lambda d: _exp(d, "matchups-E2")["results"].update(comparison="below"),
+     "does not state below 0"),
+    ("lineups-E2: a bin guard dropped", lambda d: _exp(d, "lineups-E2")["results"]["guards"].pop(),
+     "is said to join"),
+    ("lineups-E2: the ablation flag unnamed", lambda d: _exp(d, "lineups-E2")["results"].pop("flags_outside_rule"),
+     "belong to no rule"),
+    ("lineups-E2: the d bar loosened", lambda d: _exp(d, "lineups-E2")["results"]["conditions"][0].update(
+        threshold=-0.0001), "does not state at most -0.0001"),
+    ("genai-E1: H1 read unturned", lambda d: _part(d, "genai-E1", "H1")["results"].update(flip=False),
+     "disagrees with the rule"),
+    ("genai-E1: a reading quote not in the write-up", lambda d: _part(d, "genai-E1", "H2")["results"]
+     ["reading_quote"].update(text="H2 holds."), "not whole sentences"),
+    ("genai-E2: the deciding arm unmarked", lambda d: _part(d, "genai-E2", "0.5B H3")["results"].pop("true_flags"),
+     "belong to no rule"),
+    ("genai-E2: a non-inferiority bar of zero", lambda d: _part(d, "genai-E2", "1.5B H3")["results"].update(
+        threshold=0), "does not state at least 0.0"),
+])
+def test_the_d116_results_are_refused_when_the_source_misreads_them(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+    else:
+        assert problems, name
+
+
+@pytest.mark.parametrize("name, file, change, message", [
+    ("matchups-E1 part (b) on Set A said to confirm", "matchups-E1-final.json",
+     lambda d: d["scored"]["parts"]["b"].update(reading="confirms (interval wholly below zero)"),
+     "disagrees with the rule"),
+    ("matchups-E1 part (a) flag against its numbers", "matchups-E1-dev.json",
+     lambda d: d["verdict"].update(part_a_passes=False), "rule read on its own numbers"),
+    ("matchups-E2 said to pass", "matchups-E2-dev.json", lambda d: d["verdict"].update(passes=True),
+     "rule read on its own numbers"),
+    ("gravity-E1 effect flag against its numbers", "gravity-E1-dev.json",
+     lambda d: d["decision"].update(effect_ok=True), "disagrees with its point"),
+    ("lineups-E2 a bin listed as worse", "lineups-E2-final.json",
+     lambda d: d["scored"]["results"]["verdict"]["against_rapm_synergy"].update(bins_worse_beyond_interval=["over_100"]),
+     "but its numbers give"),
+    ("lineups-E2 holds against rapm_synergy", "lineups-E2-final.json",
+     lambda d: d["scored"]["results"]["verdict"]["against_rapm_synergy"].update(holds=True),
+     "disagrees with the parts it joins"),
+    ("embeddings-E1 a pass flag against its numbers", "embeddings-E1-final.json",
+     lambda d: d["scored"]["rates_with_game_bootstrap"]["pca"].update(lo=0.02), "states them as one number"),
+    ("genai-E2 inconclusive where it hurts", "genai-E2-1.5B-final.json",
+     lambda d: d["hypotheses"]["H2 scouting: a2-r1-epoch1 minus a1-epoch1"].update(reading="inconclusive"),
+     "no other reading fits"),
+    ("genai-E2 H3 passes where it is inferior", "genai-E2-0.5B-final.json",
+     lambda d: d["hypotheses"]["H3 scouting: a1-epoch1+repair minus haiku_cache"].update(reading="non-inferior"),
+     "disagrees with the rule"),
+    ("genai-E2 H1 passes under its size bar", "genai-E2-0.5B-final.json",
+     lambda d: d["hypotheses"]["H1 possession: a1-epoch1 minus a0"].update(point=0.05, interval=[0.01, 0.2]),
+     "disagrees with the rule"),
+    ("genai-E2 the deciding flag moved", "genai-E2-0.5B-final.json",
+     lambda d: d["hypotheses"]["H3 scouting: a1-epoch1+repair minus haiku_cache"].update(decides=False),
+     "not the comparison that decides"),
+])
+def test_a_d116_result_file_that_contradicts_its_numbers_is_refused(source, tmp_path, name, file, change, message):
+    repo = _mutated_repo(tmp_path, source, file, change)
+    with pytest.raises(R.MethodsProblem) as caught:
+        R.build_methods(repo, source)
+    assert message in str(caught.value), (name, str(caught.value))
+
+
+def test_the_contract_keeps_a_part_to_the_status_its_stages_give(source):
+    e = _built(source)["matchups-E1"]
+    a, b = (p.model_dump() for p in e.parts)
+    with pytest.raises(ValidationError, match="the results say 'confirmed'"):
+        S.ExperimentPart(**{**a, "status": "development_met_test_not_met"})
+    with pytest.raises(ValidationError, match="the results say 'not_adopted_development'"):
+        S.ExperimentPart(**{**b, "status": "confirmed"})
+    with pytest.raises(ValidationError, match="a missed development bar"):
+        S.ExperimentPart(**{**a, "test": None, "test_not_scored": True, "status": "development_met_test_pending"})
+    with pytest.raises(ValidationError, match="no development result"):
+        S.ExperimentPart(**{**a, "stages": "test_only", "status": "passed_test"})
+    whole = e.model_dump()
+    with pytest.raises(ValidationError, match="decided part by part"):
+        S.Experiment(**{**whole, "development": a["development"]})
+    with pytest.raises(ValidationError, match="decided part by part"):
+        S.Experiment(**{**whole, "status": "passed_test"})
+    with pytest.raises(ValidationError, match="its own label"):
+        S.Experiment(**{**whole, "parts": [a, {**b, "label": a["label"]}]})
+    genai = _built(source)["genai-E1"].parts[0].test.model_dump()
+    assert genai["diff"] is None and genai["games"] is None
+    with pytest.raises(ValidationError, match="the lower end for at least and above"):
+        S.StageResult(**{**genai, "upper": genai["hi"]})

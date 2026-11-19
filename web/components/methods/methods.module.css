@@ -68,6 +68,12 @@
   color: var(--ink);
 }
 
+/* One part of an experiment read part by part: set off by a rule on its left. */
+.part {
+  border-left: 2px solid var(--rule);
+  padding-left: 0.9rem;
+}
+
 .values {
   display: grid;
   gap: 0.6rem;

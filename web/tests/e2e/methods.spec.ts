@@ -126,7 +126,27 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
   if (ran.length === 0) await expect(page.getByTestId("no-results")).toHaveText(copy.methods.results.none);
   for (const experiment of ran) {
     const result = page.locator(`[data-result="${experiment.id}"]`);
-    await expect(result.locator("[data-stage]")).toHaveCount((experiment.development ? 1 : 0) + (experiment.test ? 1 : 0));
+    const parts = experiment.parts ?? [];
+    const partStages = parts.flatMap((part) => [part.development, part.test].filter((stage) => stage != null));
+    await expect(result.locator("[data-stage]")).toHaveCount(
+      (experiment.development ? 1 : 0) + (experiment.test ? 1 : 0) + partStages.length,
+    );
+    // An experiment read part by part shows every part, each with its own state and its own stages.
+    await expect(result.locator("[data-part]")).toHaveCount(parts.length);
+    for (const [index, part] of parts.entries()) {
+      const shown = result.locator("[data-part]").nth(index);
+      await expect(shown).toHaveAttribute("data-part", part.label);
+      await expect(shown).toHaveAttribute("data-part-status", part.status);
+      await expect(shown).toContainText(copy.methods.results.part[part.status]);
+      await expect(shown.locator("[data-stage]")).toHaveCount((part.development ? 1 : 0) + (part.test ? 1 : 0));
+      for (const stage of [part.development, part.test]) {
+        if (!stage) continue;
+        const facts = shown.locator(`[data-stage="${stage.stage}"]`);
+        await expect(facts).toHaveAttribute("data-met", stage.met ? "true" : "false");
+        await expect(facts.getByTestId("reading")).toHaveCount(stage.reading ? 1 : 0);
+        if (stage.reading) await expect(facts.getByTestId("reading")).toContainText(stage.reading);
+      }
+    }
     if (experiment.status === "development_met_test_pending") {
       await expect(result.getByTestId("test-pending")).toHaveText(copy.methods.results.pending);
     }
@@ -160,11 +180,14 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
     for (const stage of [experiment.development, experiment.test]) {
       if (!stage) continue;
       const facts = result.locator(`[data-stage="${stage.stage}"]`);
-      await expect(facts.getByTestId("guard")).toHaveCount(stage.guard ? 1 : 0);
-      if (stage.guard) {
-        await expect(facts.getByTestId("guard").locator("[data-bucket-worse]")).toHaveCount(stage.guard.buckets.length);
-        await expect(facts.getByTestId("guard")).toHaveAttribute("data-guard-met", String(stage.guard.met));
+      const guards = [...(stage.guard ? [stage.guard] : []), ...(stage.guards ?? [])];
+      await expect(facts.getByTestId("guard")).toHaveCount(guards.length);
+      for (const [index, guard] of guards.entries()) {
+        const shown = facts.getByTestId("guard").nth(index);
+        await expect(shown.locator("[data-bucket-worse]")).toHaveCount(guard.buckets.length);
+        await expect(shown).toHaveAttribute("data-guard-met", String(guard.met));
       }
+      await expect(facts.getByTestId("also-read")).toHaveCount((stage.also_read ?? []).length);
       const conditions = stage.conditions ?? [];
       await expect(facts.locator("[data-condition-met]")).toHaveCount(conditions.length);
       for (const [index, condition] of conditions.entries()) {

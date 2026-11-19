@@ -1113,7 +1113,8 @@
             "not_adopted_test",
             "passed_test",
             "adopted_research",
-            "ran_result_in_writeup"
+            "ran_result_in_writeup",
+            "decided_by_part"
           ],
           "title": "Status",
           "type": "string"
@@ -1170,6 +1171,14 @@
           "title": "Test Not Scored",
           "type": "boolean"
         },
+        "parts": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExperimentPart"
+          },
+          "title": "Parts",
+          "type": "array"
+        },
         "development": {
           "anyOf": [
             {
@@ -1218,6 +1227,72 @@
         "status"
       ],
       "title": "Experiment",
+      "type": "object"
+    },
+    "ExperimentPart": {
+      "additionalProperties": false,
+      "description": "One part of an experiment whose pre-registration decides each part on its own (who shoots and make given\nxFG; each hypothesis of a model test). A part has its own stages, read like an experiment's: development decides\nand the test set confirms, or the test set alone decides (`stages` test_only). `status` follows from them;\n`test_not_scored` marks a test deliberately not spent after the development bar was missed.",
+      "properties": {
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "stages": {
+          "default": "development_and_test",
+          "enum": [
+            "development_and_test",
+            "test_only"
+          ],
+          "title": "Stages",
+          "type": "string"
+        },
+        "development": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StageResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "test": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StageResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "test_not_scored": {
+          "default": false,
+          "title": "Test Not Scored",
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "pre_registered",
+            "confirmed",
+            "development_met_test_not_met",
+            "not_adopted_development",
+            "development_met_test_pending",
+            "passed_test",
+            "not_passed_test"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "status"
+      ],
+      "title": "ExperimentPart",
       "type": "object"
     },
     "GameInfo": {
@@ -3935,7 +4010,7 @@
     },
     "StageResult": {
       "additionalProperties": false,
-      "description": "One stage of an experiment, read from its result file under reports/research/: development (out of fold on\nthe development games) or test (the D71 test set, scored once); `design` is the file's own words for how the\nstage was run (its folds or its forward chaining). `diff` is the paired difference the adoption\nrule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the\nbound the rule reads) compares with `threshold` as `comparison` says (at most, or strictly below), and every\nfurther condition of the same rule (`conditions`) is met too. Numbers are rounded once, here in the export.",
+      "description": "One stage of an experiment, read from its result file under reports/research/: development (out of fold on\nthe development games) or test (the D71 test set, scored once); `design` is the file's own words for how the\nstage was run (its folds or its forward chaining). `diff` is the difference the adoption rule reads, with its\n95 percent interval (`interval` names the method); `diff` is null when the file states the interval only. The\nrule is met when `upper`, the end of the interval the rule reads (the upper end for at most and below, the lower\nend for at least and above), compares with `threshold` as `comparison` says, and every further condition\n(`conditions`) and every guard (`guard`, `guards`) is met too. `reading` is the file's or the write-up's own word\nfor the outcome (confirms, inconclusive, passes, hurts), checked against the rule. `also_read` names further\nfiles whose numbers are reported beside the rule. Numbers are rounded once, here in the export.",
       "properties": {
         "stage": {
           "enum": [
@@ -3947,6 +4022,14 @@
         },
         "source": {
           "$ref": "#/$defs/Source"
+        },
+        "also_read": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "title": "Also Read",
+          "type": "array"
         },
         "design": {
           "anyOf": [
@@ -3975,12 +4058,28 @@
           "type": "string"
         },
         "games": {
-          "title": "Games",
-          "type": "integer"
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Games"
         },
         "diff": {
-          "title": "Diff",
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Diff"
         },
         "lo": {
           "title": "Lo",
@@ -4006,8 +4105,10 @@
         "comparison": {
           "default": "at_most",
           "enum": [
+            "below",
             "at_most",
-            "below"
+            "above",
+            "at_least"
           ],
           "title": "Comparison",
           "type": "string"
@@ -4031,9 +4132,29 @@
           ],
           "default": null
         },
+        "guards": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/BucketGuard"
+          },
+          "title": "Guards",
+          "type": "array"
+        },
         "met": {
           "title": "Met",
           "type": "boolean"
+        },
+        "reading": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reading"
         },
         "values": {
           "items": {
@@ -4049,8 +4170,6 @@
         "metric",
         "rows",
         "rows_unit",
-        "games",
-        "diff",
         "lo",
         "hi",
         "interval",
