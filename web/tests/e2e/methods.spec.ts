@@ -122,6 +122,11 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
     }
   }
   const ran = methods.lanes.flatMap((lane) => lane.experiments.filter((e) => e.status !== "pre_registered"));
+  // On real data winprob-E2 is left unscored by name, so the not-scored check below cannot pass by finding no such
+  // experiment. The synthetic fixture has no winprob lane.
+  if (!ran.some((e) => e.id.startsWith("fixture-"))) {
+    expect(ran.find((e) => e.id === "winprob-E2")?.test_not_scored).toBe(true);
+  }
   await expect(page.locator("[data-result]")).toHaveCount(ran.length);
   if (ran.length === 0) await expect(page.getByTestId("no-results")).toHaveText(copy.methods.results.none);
   for (const experiment of ran) {
@@ -150,6 +155,11 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
     if (experiment.status === "development_met_test_pending") {
       await expect(result.getByTestId("test-pending")).toHaveText(copy.methods.results.pending);
     }
+    // The line saying the test was kept unused shows for an experiment left unscored (winprob-E2, gravity-E1,
+    // matchups-E2) and for a part left unscored, and nowhere else.
+    const unscored = (experiment.test_not_scored ? 1 : 0) + (experiment.parts ?? []).filter((p) => p.test_not_scored).length;
+    await expect(result.getByTestId("test-not-scored")).toHaveCount(unscored);
+    if (unscored > 0) await expect(result.getByTestId("test-not-scored").first()).toHaveText(copy.methods.results.notScored);
     const protocol = experiment.protocol;
     await expect(result.locator("[data-protocol]")).toHaveCount(protocol ? 1 : 0);
     if (protocol) {

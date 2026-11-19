@@ -1393,6 +1393,13 @@ class Experiment(Strict):
     @model_validator(mode="after")
     def _status(self):
         dev, test = self.development, self.test
+        # Checked before any shape returns early: a test left unscored belongs only to a development result that
+        # missed its bar, with no test result, never to a result kept in its write-up, a protocol, a test-only
+        # experiment or one decided part by part (each part carries its own flag).
+        if self.test_not_scored and (self.result_in_writeup or self.protocol is not None or self.parts
+                                     or self.stages == "test_only" or dev is None or dev.met or test is not None):
+            raise ValueError(f"{self.id}: a test left unscored belongs to a development result that missed its bar, "
+                             "with no test result")
         if self.parts or self.status == "decided_by_part":
             if not (self.parts and self.status == "decided_by_part" and self.writeup and dev is None and test is None
                     and self.protocol is None and not self.result_in_writeup and self.adopted_as is None

@@ -989,6 +989,9 @@ def _protocol_status(protocol) -> str:
 LEDGER = "reports/research/scoring_ledger.json"
 
 
+NOT_SCORED = re.compile(r"\b(?:Set A|[Tt]he test (?:season|set|games))(?: was| were)? not scored\b")
+
+
 def _not_scored_problems(eid: str, exp: dict, repo: Path) -> list:
     """A test left unscored on purpose: the source names no test file, the write-up's verdict paragraph says the
     test was not scored, and the scoring ledger holds no entry for the experiment."""
@@ -999,7 +1002,9 @@ def _not_scored_problems(eid: str, exp: dict, repo: Path) -> list:
         problems.append(f"{eid}: a test left unscored has a development file, no test file, and no other shape")
     writeup = exp.get("writeup")
     text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() else ""
-    if "not scored" not in " ".join(verdict_paragraph(text)).lower():
+    # the verdict paragraph names the test set and says it was not scored ("Set A was not scored", "the test
+    # season was not scored", "Set A not scored"), not merely the words "not scored" about something else
+    if not NOT_SCORED.search(" ".join(verdict_paragraph(text))):
         problems.append(f"{eid}: the verdict paragraph of {writeup} does not say the test was not scored")
     ledger_path = repo / LEDGER
     entries = json.loads(ledger_path.read_text(encoding="utf-8")) if ledger_path.is_file() else []

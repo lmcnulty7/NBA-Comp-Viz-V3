@@ -1292,3 +1292,30 @@ def test_the_contract_keeps_a_part_to_the_status_its_stages_give(source):
     assert genai["diff"] is None and genai["games"] is None
     with pytest.raises(ValidationError, match="the lower end for at least and above"):
         S.StageResult(**{**genai, "upper": genai["hi"]})
+
+
+@pytest.mark.parametrize("eid, extra", [
+    ("embeddings-E1", {}),                                     # test only
+    ("decisions-E1", {}),                                      # a protocol
+    ("lineups-E2", {}),                                        # test only, failed
+    ("matchups-E1", {}),                                       # decided part by part
+    ("genai-E2", {"parts": [], "status": "ran_result_in_writeup", "result_in_writeup": True}),   # kept in a write-up
+])
+def test_the_contract_refuses_a_test_left_unscored_on_any_other_shape(source, eid, extra):
+    """A test left unscored belongs only to a development result that missed its bar; the check runs before any
+    shape's early return (review finding on export/schemas.py)."""
+    whole = {**_built(source)[eid].model_dump(), **extra}
+    S.Experiment(**whole)                                      # valid as it is
+    with pytest.raises(ValidationError, match="a test left unscored"):
+        S.Experiment(**{**whole, "test_not_scored": True})
+
+
+@pytest.mark.parametrize("sentence, ok", [
+    ("The test season was not scored.", True),
+    ("Set A was not scored (PLAN.md D109).", True),
+    ("**Verdict: not adopted, on development; Set A not scored.**", True),
+    ("The ablation was not scored on its own.", False),
+    ("Not scored: nothing.", False),
+])
+def test_the_not_scored_sentence_names_the_test_set(sentence, ok):
+    assert bool(R.NOT_SCORED.search(sentence)) is ok
