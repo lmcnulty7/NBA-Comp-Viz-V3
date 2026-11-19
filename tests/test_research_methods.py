@@ -56,7 +56,8 @@ def test_the_committed_source_traces_and_builds(source):
         assert (REPO / item.path).is_file(), item.path
 
 
-RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2")   # the experiments with a result file today
+RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
+       "embeddings-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -1038,3 +1039,14 @@ def test_the_contract_keeps_an_unscored_test_to_a_missed_development_bar(source)
     pilot = next(e for lane in methods.lanes for e in lane.experiments if e.id == "xfg-E1").model_dump()
     with pytest.raises(ValidationError, match="test left unscored"):
         S.Experiment(**{**pilot, "test_not_scored": True})
+
+
+def test_embeddings_e1_ran_and_its_result_is_in_its_write_up(source):
+    """embeddings-E1 (PLAN.md D103) was scored once on Set A; its one-game rule reads a lower bound, which the stage
+    machinery (an upper bound against a threshold) does not fit, so the result is kept in its write-up."""
+    methods = R.build_methods(REPO, source)
+    e = {x.id: x for lane in methods.lanes for x in lane.experiments}["embeddings-E1"]
+    assert e.status == "ran_result_in_writeup" and e.writeup == "reports/research/embeddings-E1.md"
+    assert e.development is None and e.test is None and e.protocol is None
+    final = json.loads((REPO / "reports/research/embeddings-E1-final.json").read_text(encoding="utf-8"))
+    assert final["scored"]["rule"]["passes"] is True and e.backlog_status.startswith("done: passed")

@@ -1,16 +1,20 @@
 # embeddings-E1: does the style embedding find the same player in other games?
 
-Written 2026-11-18. Stage: **development done; the one-game test is not scored yet** (it waits for the lead's go,
-PLAN.md D103). Pre-registration: docs/research/embeddings.md, "embeddings-E1", and its amendment (D103), written and
-committed (131d0ec3) before any code ran. Code: tools/research_embeddings.py, committed (d848e20a) before the frame
-pass. Every number below is copied from reports/research/embeddings-E1-dev.json.
+Written 2026-11-18; the test section added 2026-11-19 after the single score. Pre-registration:
+docs/research/embeddings.md, "embeddings-E1", and its amendment (PLAN.md D103), written and committed (131d0ec3)
+before any code ran. Code: tools/research_embeddings.py, committed (d848e20a) before the frame pass; the score ran on
+57fcc7b3 with a clean tree. Development numbers are copied from reports/research/embeddings-E1-dev.json; test numbers
+from reports/research/embeddings-E1-final.json, whose summary is the one embeddings-E1 entry of
+reports/research/scoring_ledger.json.
 
-**Development result.** Built from one half of a player's games, the frozen PCA embedding finds the same player's
-other half among its 5 nearest neighbours 92.0 percent of the time (0.920 [0.894, 0.944]; chance 0.014; the
-position-only retriever 0.042). From a single game, it finds the player's rest-of-season embedding 47.2 percent of
-the time (0.472 [0.460, 0.482]; chance 0.0125; position-only 0.037). The 19 standardised features without PCA do
-better than the embedding in both checks, and the movement features carry most of a player's identity. No adoption
-rule reads this stage; the one-game test on Set A is the only rule (D103).
+**Verdict: passes.** On the 10 Set A games, scored once, the frozen PCA embedding built from a single game finds the
+same player's full-season development embedding among its 5 nearest neighbours 47.4 percent of the time (0.474
+[0.384, 0.558], 171 players; chance 0.0125; the position-only retriever 0.037 [0.036, 0.038]). The lower end, 0.384,
+is above 0.10 and above 0.038, so by D103 the embedding is reported as validated on held-out games. This is the
+embeddings lane's first held-out score. The pre-score sensitivity interval agrees (0.476 [0.372, 0.580]). The 19
+standardised features without PCA retrieve better on the same test players (0.561 [0.491, 0.631]; paired difference
+-0.088 [-0.140, -0.040]), as they did on the development games, and the movement features carry most of a player's
+identity.
 
 ## What is tested
 
@@ -109,8 +113,8 @@ resamples; interval by player bootstrap):
 
 ## Before the score: commitments
 
-These hold for the one-game test and were fixed before any test data was read (the Set A data has not been opened by
-this experiment; the scoring ledger has no embeddings-E1 entry).
+These held for the one-game test and were fixed before any test data was read (when they were written, the Set A
+data had not been opened by this experiment and the scoring ledger had no embeddings-E1 entry).
 
 1. The rule is D103's, unchanged: queries with at least 50 possessions in their Set A game and a development
    embedding. The pass needs the lower 95 percent end (bootstrap of the 10 test games, 2000 resamples) above 0.10,
@@ -143,4 +147,45 @@ this experiment; the scoring ledger has no embeddings-E1 entry).
 8. The test pool and fit are the frozen fit, unchanged. The test games are on 2015-12-05, inside the development
    season. The full-season development embeddings include games before and after that date, but not the test games.
 
-Waiting for the lead's go to run e1-final once.
+
+## Test set (Set A, the 10 games of 2015-12-05, scored once)
+
+The lead gave the go after the pre-score review. e1-final ran once, on 57fcc7b3, under the lock (6 s). No refusal
+fired. Test players: 204 player-games in the 10 games, 171 with at least 50 possessions; all 171 have a development
+embedding, so 171 queries from 10 games, against the 399 full-season development embeddings (chance 5/399 = 0.0125).
+
+| retriever | test, top-5 self-retrieval (bootstrap of the 10 games) | pre-score sensitivity t interval (mean of per-game means, report only) | development, one game (for comparison) |
+| --- | --- | --- | --- |
+| PCA embedding (frozen) | 0.474 [0.384, 0.558] | 0.476 [0.372, 0.580] | 0.472 [0.460, 0.482] |
+| 19 standardised features, no PCA | 0.561 [0.491, 0.631] | 0.562 [0.477, 0.647] | 0.544 [0.532, 0.555] |
+| movement block only (11) | 0.456 [0.349, 0.544] | 0.458 [0.338, 0.578] | 0.443 [0.431, 0.455] |
+| shot block only (8) | 0.158 [0.118, 0.202] | 0.158 [0.104, 0.212] | 0.152 [0.145, 0.159] |
+| position-only retriever | 0.037 [0.036, 0.038] | 0.037 [0.036, 0.038] | 0.037 [0.037, 0.037] |
+
+| paired difference (test) | bootstrap of the 10 games | pre-score sensitivity t interval |
+| --- | --- | --- |
+| PCA minus 19 standardised features | -0.088 [-0.140, -0.040] | -0.086 [-0.149, -0.022] |
+| PCA minus movement block | +0.018 [-0.066, +0.108] | +0.018 [-0.090, +0.125] |
+| PCA minus shot block | +0.316 [+0.229, +0.405] | +0.318 [+0.213, +0.423] |
+| PCA minus position-only retriever | +0.437 [+0.347, +0.521] | +0.439 [+0.335, +0.543] |
+
+The rule (D103), read exactly: the lower end of the embedding's 95 percent interval is 0.384. That is above 0.10 and
+above 0.038, the upper end of the position-only retriever's interval, so the one-game test passes. The pre-score
+sensitivity t interval reads no rule. Its lower end, 0.372, is on the same side of both numbers, so the two agree.
+The bootstrap value (0.474) is the pooled mean over the 171 queries, and the t interval's centre (0.476) is the mean
+of the 10 per-game means.
+
+## What the test means
+
+- The embedding's neighbour list now has a tested hit rate on games it never saw. From one game, the player's own
+  season row is in the top 5 about 47 percent of the time, against about 1 percent by chance and 4 percent for a
+  same-position guess. The rate on Set A matches the development estimate (0.472), which was computed before the
+  score from games the fit had seen. So the fit seeing a game did not inflate the development number by much.
+- Position labels, the lane's only check until now, explain almost none of this, as Golovkine and Gunning's
+  finding (dossier, section 5) suggests.
+- PCA costs identity on the test set too: the standardised features without PCA retrieve better by about 0.09.
+  Whether to show neighbours in the 19-feature space is a lane decision; this experiment tested the frozen embedding
+  and reports it as validated, not the alternative.
+- Movement features carry the identity, and shot shares alone are weak from one game.
+- The test is one date of 10 games, so the interval is wide (0.384 to 0.558); the pass does not depend on that width,
+  since the lower end is far above both thresholds. Set B was not scored (commitment 5).

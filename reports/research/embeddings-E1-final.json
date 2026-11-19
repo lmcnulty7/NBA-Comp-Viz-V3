@@ -1,0 +1,177 @@
+{
+  "experiment": "embeddings-E1",
+  "code_commit": "57fcc7b33e6f0c80ed3099d16e4cd2352faffcd8",
+  "scored": {
+    "experiment": "embeddings-E1",
+    "stage": "the D103 one-game test, scored once on the D71 test set",
+    "code_commit": "57fcc7b33e6f0c80ed3099d16e4cd2352faffcd8",
+    "gate_files_sha256": {
+      "tracking_partials.parquet": "9fcf901b571d8b1eba229691165b881ed556d71a15fa0a0ed0b8b9c63d279176",
+      "shot_partials.parquet": "6cfebe5eb3e4a9afdbc0e7f1f1830e10ddb276abead20a506020a52f4169f0f5"
+    },
+    "dev_json_sha256": "82f08827bd6c8139c163ed55d1e407f9ac5a736d1045651afc5a18c3057ff5e1",
+    "games": 10,
+    "counts": {
+      "player_games": 204,
+      "with_50_possessions": 171,
+      "no_development_embedding": 0
+    },
+    "queries": 171,
+    "games_with_queries": 10,
+    "pool": 399,
+    "chance": 0.012531328320802004,
+    "rates_with_game_bootstrap": {
+      "pca": {
+        "value": 0.47368421052631576,
+        "lo": 0.38416929444225467,
+        "hi": 0.5581566347469219
+      },
+      "raw": {
+        "value": 0.5614035087719298,
+        "lo": 0.4909551586482208,
+        "hi": 0.6309680451127818
+      },
+      "movement": {
+        "value": 0.45614035087719296,
+        "lo": 0.3488372093023256,
+        "hi": 0.5443786982248521
+      },
+      "shot": {
+        "value": 0.15789473684210525,
+        "lo": 0.11797752808988764,
+        "hi": 0.20238095238095238
+      },
+      "position": {
+        "value": 0.036885767813929535,
+        "lo": 0.03572544363857556,
+        "hi": 0.03800597429150354
+      },
+      "pca_minus_raw": {
+        "value": -0.08771929824561403,
+        "lo": -0.1404494382022472,
+        "hi": -0.040229885057471264
+      },
+      "pca_minus_position": {
+        "value": 0.4367984427123862,
+        "lo": 0.34748075342246665,
+        "hi": 0.5210776837704718
+      },
+      "pca_minus_movement": {
+        "value": 0.017543859649122806,
+        "lo": -0.06587818339225164,
+        "hi": 0.10795454545454546
+      },
+      "pca_minus_shot": {
+        "value": 0.3157894736842105,
+        "lo": 0.22941176470588234,
+        "hi": 0.40476190476190477
+      }
+    },
+    "rule": {
+      "lower_end": 0.38416929444225467,
+      "position_upper_end": 0.03800597429150354,
+      "threshold": 0.1,
+      "passes": true
+    },
+    "pre_score_sensitivity_t_interval_of_game_means": {
+      "pca": {
+        "mean_of_game_means": 0.4759885620915033,
+        "lo": 0.3722032967983641,
+        "hi": 0.5797738273846424,
+        "games": 10
+      },
+      "raw": {
+        "mean_of_game_means": 0.5618218954248365,
+        "lo": 0.47695041067543364,
+        "hi": 0.6466933801742394,
+        "games": 10
+      },
+      "movement": {
+        "mean_of_game_means": 0.45810457516339864,
+        "lo": 0.33843704908862116,
+        "hi": 0.5777721012381761,
+        "games": 10
+      },
+      "shot": {
+        "mean_of_game_means": 0.15802287581699345,
+        "lo": 0.10448348197642274,
+        "hi": 0.21156226965756417,
+        "games": 10
+      },
+      "position": {
+        "mean_of_game_means": 0.03693118240486822,
+        "lo": 0.03552787764069837,
+        "hi": 0.038334487169038076,
+        "games": 10
+      },
+      "pca_minus_raw": {
+        "mean_of_game_means": -0.08583333333333334,
+        "lo": -0.14919177434892594,
+        "hi": -0.02247489231774076,
+        "games": 10
+      },
+      "pca_minus_position": {
+        "mean_of_game_means": 0.43905737968663505,
+        "lo": 0.33540582730268215,
+        "hi": 0.542708932070588,
+        "games": 10
+      },
+      "pca_minus_movement": {
+        "mean_of_game_means": 0.017883986928104577,
+        "lo": -0.08956719352288592,
+        "hi": 0.12533516737909506,
+        "games": 10
+      },
+      "pca_minus_shot": {
+        "mean_of_game_means": 0.31796568627450983,
+        "lo": 0.21335862837863373,
+        "hi": 0.4225727441703859,
+        "games": 10
+      }
+    }
+  },
+  "setup": {
+    "gate": {
+      "experiment": "embeddings-E1",
+      "name": "embeddings",
+      "compared": "the frozen features rebuilt from per-game partials of the development games with the frozen functions, against the stored player_season_features of tools.frozen_models (D45); the experiment's sums-of-partials features against the frozen path; the refit PCA embedding against the stored one; the 5-NN position accuracy against reports/embeddings.md",
+      "games": 604,
+      "rows": 448,
+      "fit_rows": 399,
+      "frozen_vs_stored": {
+        "n": 448,
+        "nan_mismatch": 0,
+        "max_abs_diff": 0.0
+      },
+      "counts_equal": true,
+      "experiment_path_vs_frozen": {
+        "n": 448,
+        "nan_mismatch": 0,
+        "max_abs_diff": 7.105427357601002e-14
+      },
+      "experiment_counts_equal": true,
+      "embedding_max_abs_diff": 0.0,
+      "tolerances": {
+        "features": 1e-09,
+        "embedding": 1e-06
+      },
+      "knn_accuracy": {
+        "recomputed": 0.7682619647355163,
+        "printed": "0.768",
+        "ok": true
+      },
+      "passed": true,
+      "files": {
+        "tracking_partials.parquet": "9fcf901b571d8b1eba229691165b881ed556d71a15fa0a0ed0b8b9c63d279176",
+        "shot_partials.parquet": "6cfebe5eb3e4a9afdbc0e7f1f1830e10ddb276abead20a506020a52f4169f0f5"
+      },
+      "written": "2026-11-19T04:31:13Z"
+    },
+    "one_game_test_rule": {
+      "min_possessions": 50,
+      "lower_end_above": 0.1,
+      "and_above": "the upper end of the position-only retriever's interval",
+      "source": "PLAN.md D103"
+    }
+  }
+}
