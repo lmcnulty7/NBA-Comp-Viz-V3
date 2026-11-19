@@ -1,6 +1,6 @@
 # embeddings-E1: does the style embedding find the same player in other games?
 
-Written 2026-11-18; the test section added 2026-11-19 after the single score. Pre-registration:
+Written 2026-11-19 (UTC); the test section added the same day after the single score (04:47 UTC, the ledger's time). Pre-registration:
 docs/research/embeddings.md, "embeddings-E1", and its amendment (PLAN.md D103), written and committed (131d0ec3)
 before any code ran. Code: tools/research_embeddings.py, committed (d848e20a) before the frame pass; the score ran on
 57fcc7b3 with a clean tree. Development numbers are copied from reports/research/embeddings-E1-dev.json; test numbers
@@ -10,15 +10,18 @@ reports/research/scoring_ledger.json.
 **Verdict: passes.** On the 10 Set A games, scored once, the frozen PCA embedding built from a single game finds the
 same player's full-season development embedding among its 5 nearest neighbours 47.4 percent of the time (0.474
 [0.384, 0.558], 171 players; chance 0.0125; the position-only retriever 0.037 [0.036, 0.038]). The lower end, 0.384,
-is above 0.10 and above 0.038, so by D103 the embedding is reported as validated on held-out games. This is the
+is above 0.10 and above 0.038, so the frozen embedding passed the D103 one-game test (self-retrieval). This is the
 embeddings lane's first held-out score. The pre-score sensitivity interval agrees (0.476 [0.372, 0.580]). The 19
 standardised features without PCA retrieve better on the same test players (0.561 [0.491, 0.631]; paired difference
 -0.088 [-0.140, -0.040]), as they did on the development games, and the movement features carry most of a player's
 identity.
 
+The claim is narrow: from one held-out game, the frozen embedding finds the same player far above chance. It is not
+a test of what the style map means, of whether a player's listed neighbours play alike, or of any one player.
+
 ## What is tested
 
-The embeddings lane has no held-out score: the frozen check is 5-NN position accuracy on the fitted players. This
+The embeddings lane had no held-out score before this experiment: the frozen check is 5-NN position accuracy on the fitted players. This
 experiment asks whether the embedding identifies a player's style across games it was not built from, with no labels.
 
 - Hypothesis (dossier): a player's embedding has their own embedding from other games among its 5 nearest neighbours
@@ -32,7 +35,8 @@ experiment asks whether the embedding identifies a player's style across games i
   full-season development embeddings. It passes if the lower end of its 95 percent interval (bootstrap of the 10 test
   games) is above 0.10 and above the upper end of the position-only retriever's interval.
 - Matched development comparator (D103): leave one game out. Each development player's one-game embedding retrieves
-  their rest-of-season embedding among every player's rest-of-season embedding.
+  their rest-of-season embedding among every player's rest-of-season embedding. The development fit saw every
+  development game, including the left-out one; stated, not repaired.
 
 The amendment's commitments (queries, the retrieval rule, the exact position retriever, the comparators, the halves,
 and every interval) are in the dossier, dated before any run.
@@ -150,7 +154,7 @@ data had not been opened by this experiment and the scoring ledger had no embedd
 
 ## Test set (Set A, the 10 games of 2015-12-05, scored once)
 
-The lead gave the go after the pre-score review. e1-final ran once, on 57fcc7b3, under the lock (6 s). No refusal
+The lead gave the go after the pre-score review. e1-final ran once, on 57fcc7b3, under the lock. No refusal
 fired. Test players: 204 player-games in the 10 games, 171 with at least 50 possessions; all 171 have a development
 embedding, so 171 queries from 10 games, against the 399 full-season development embeddings (chance 5/399 = 0.0125).
 
@@ -177,15 +181,16 @@ of the 10 per-game means.
 
 ## What the test means
 
-- The embedding's neighbour list now has a tested hit rate on games it never saw. From one game, the player's own
+- Self-retrieval now has a tested hit rate on games the fit never saw. From one game, the player's own
   season row is in the top 5 about 47 percent of the time, against about 1 percent by chance and 4 percent for a
-  same-position guess. The rate on Set A matches the development estimate (0.472), which was computed before the
-  score from games the fit had seen. So the fit seeing a game did not inflate the development number by much.
+  same-position guess. The test rate is close to the development estimate. With 10 games, the test cannot rule out a
+  gap of up to about 0.09 (computed: the development estimate 0.472 minus the test's lower end 0.384 is 0.088, and the
+  test's upper end 0.558 minus 0.472 is 0.086).
 - Position labels, the lane's only check until now, explain almost none of this, as Golovkine and Gunning's
   finding (dossier, section 5) suggests.
 - PCA costs identity on the test set too: the standardised features without PCA retrieve better by about 0.09.
   Whether to show neighbours in the 19-feature space is a lane decision; this experiment tested the frozen embedding
-  and reports it as validated, not the alternative.
+  (it passed the D103 one-game test), not the alternative.
 - Movement features carry the identity, and shot shares alone are weak from one game.
 - The test is one date of 10 games, so the interval is wide (0.384 to 0.558); the pass does not depend on that width,
   since the lower end is far above both thresholds. Set B was not scored (commitment 5).
