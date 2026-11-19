@@ -1,0 +1,16 @@
+{
+  "experiment": "gravity-E1",
+  "stage": "post hoc, development games only, after the development result and its review; read by no rule",
+  "sum_only_effect_per_sd": {
+    "value": 0.10909306574455752,
+    "lo": 0.05332879042285198,
+    "hi": 0.16685983085688585
+  },
+  "seed_sequence": [
+    0,
+    4
+  ],
+  "resamples": 2000,
+  "attempts": 62358,
+  "games": 604
+}
