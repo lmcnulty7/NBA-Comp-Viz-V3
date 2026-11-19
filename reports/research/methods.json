@@ -797,8 +797,10 @@
      "gain": 3,
      "effort": 2,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted (adopted on development: 1.0 s rollout minus stand-in -1.295 [-1.322, -1.269] ft; Set A's D113 reading inconsistent: -1.117 [-1.154, -1.085] excludes the development estimate, which stops the adoption; the size reading, report only, has the gain past the 0.10 ft bar; reports/research/ghosting-E1.md)",
+     "results": null,
+     "writeup": "reports/research/ghosting-E1.md",
+     "result_in_writeup": true
     },
     {
      "id": "ghosting-E2",

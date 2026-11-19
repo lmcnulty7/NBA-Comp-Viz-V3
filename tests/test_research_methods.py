@@ -57,7 +57,7 @@ def test_the_committed_source_traces_and_builds(source):
 
 
 RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
-       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2")   # the experiments with a result file today
+       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -1065,3 +1065,18 @@ def test_gravity_e1_ran_on_development_only_and_its_result_is_in_its_write_up(so
     assert dev["decision"]["adopted"] is False and not (REPO / "reports/research/gravity-E1-final.json").exists()
     text = (REPO / "reports/research/gravity-E1.md").read_text(encoding="utf-8")
     assert "not scored" in " ".join(R.verdict_paragraph(text)).lower()
+
+
+
+def test_ghosting_e1_was_scored_once_and_its_result_is_in_its_write_up(source):
+    """ghosting-E1 (PLAN.md D113, D115, D119): adopted on development, stopped by Set A's D113 reading. Its rule has
+    three development parts and a Set A reading, which the stage machinery does not read, so the result is kept in
+    its write-up."""
+    methods = R.build_methods(REPO, source)
+    e = {x.id: x for lane in methods.lanes for x in lane.experiments}["ghosting-E1"]
+    assert e.status == "ran_result_in_writeup" and e.writeup == "reports/research/ghosting-E1.md"
+    assert e.backlog_status.startswith("done: not adopted")
+    ledger = json.loads((REPO / "reports/research/scoring_ledger.json").read_text(encoding="utf-8"))
+    assert [x["status"] for x in ledger if x.get("experiment") == "ghosting-E1"] == ["scored"]
+    final = json.loads((REPO / "reports/research/ghosting-E1-final.json").read_text(encoding="utf-8"))
+    assert final["scored"]["reading"] == "inconsistent" and final["scored"]["report_only_size_reading"]["below"] is True

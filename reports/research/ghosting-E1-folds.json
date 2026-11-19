@@ -1,0 +1,115 @@
+{
+  "experiment": "ghosting-E1",
+  "stage": "pre-score description (PLAN.md D115), development folds only; read by no rule",
+  "folds": [
+    {
+      "fold": 0,
+      "games": 121,
+      "mean_error_1s": {
+        "persistence": 5.410296346228491,
+        "constant_velocity": 3.6193706915071835,
+        "mlp": 3.5498804671168003,
+        "onestep": 3.7468167357046345,
+        "rollout": 2.3592512009058844
+      },
+      "rollout_minus_mlp": -1.190629266210916,
+      "rollout_minus_constant_velocity": -1.2601194906012991,
+      "rollout_minus_onestep": -1.38756553479875,
+      "per_game_sd_rollout_minus_mlp": 0.08197945105901158,
+      "final_epoch_loss": {
+        "onestep": 5.114775499240337,
+        "rollout": 7.7659579115391635
+      },
+      "epochs_from": "fold0/superseded_gate_bug/fold.json"
+    },
+    {
+      "fold": 1,
+      "games": 121,
+      "mean_error_1s": {
+        "persistence": 5.392532993746083,
+        "constant_velocity": 3.602496333706265,
+        "mlp": 3.4952198125006038,
+        "onestep": 3.8923051240929523,
+        "rollout": 2.3338443390291266
+      },
+      "rollout_minus_mlp": -1.1613754734714772,
+      "rollout_minus_constant_velocity": -1.2686519946771386,
+      "rollout_minus_onestep": -1.5584607850638257,
+      "per_game_sd_rollout_minus_mlp": 0.05445052562924092,
+      "final_epoch_loss": {
+        "onestep": 5.207519329826486,
+        "rollout": 7.7606168482836715
+      },
+      "epochs_from": "fold1/fold.json"
+    },
+    {
+      "fold": 2,
+      "games": 121,
+      "mean_error_1s": {
+        "persistence": 5.391586511001138,
+        "constant_velocity": 3.5896361360175724,
+        "mlp": 3.5392339561307193,
+        "onestep": 3.7715124418088553,
+        "rollout": 2.3475290869713334
+      },
+      "rollout_minus_mlp": -1.191704869159386,
+      "rollout_minus_constant_velocity": -1.242107049046239,
+      "rollout_minus_onestep": -1.4239833548375218,
+      "per_game_sd_rollout_minus_mlp": 0.06615601667404912,
+      "final_epoch_loss": {
+        "onestep": 5.093215982469072,
+        "rollout": 7.806589971819232
+      },
+      "epochs_from": "fold2/fold.json"
+    },
+    {
+      "fold": 3,
+      "games": 121,
+      "mean_error_1s": {
+        "persistence": 5.4404466935462255,
+        "constant_velocity": 3.6532082545209676,
+        "mlp": 4.265900731365556,
+        "onestep": 3.740925635465914,
+        "rollout": 2.334356525387911
+      },
+      "rollout_minus_mlp": -1.9315442059776449,
+      "rollout_minus_constant_velocity": -1.3188517291330566,
+      "rollout_minus_onestep": -1.406569110078003,
+      "per_game_sd_rollout_minus_mlp": 0.08825534204612935,
+      "final_epoch_loss": {
+        "onestep": 4.9729196859680345,
+        "rollout": 7.684340821906783
+      },
+      "epochs_from": "fold3/fold.json"
+    },
+    {
+      "fold": 4,
+      "games": 120,
+      "mean_error_1s": {
+        "persistence": 5.406954198750017,
+        "constant_velocity": 3.6231612275760297,
+        "mlp": 3.4397040533753467,
+        "onestep": 3.7182443760454307,
+        "rollout": 2.4376053064329755
+      },
+      "rollout_minus_mlp": -1.0020987469423712,
+      "rollout_minus_constant_velocity": -1.1855559211430542,
+      "rollout_minus_onestep": -1.2806390696124552,
+      "per_game_sd_rollout_minus_mlp": 0.07475559921564259,
+      "final_epoch_loss": {
+        "onestep": 5.187382887787591,
+        "rollout": 7.749496414302694
+      },
+      "epochs_from": "fold4/fold.json"
+    }
+  ],
+  "expected_set_a_half_width_1s": {
+    "from_sd_min": 0.033748785433227776,
+    "from_sd_max": 0.054701227722426804,
+    "formula": "1.96 x per-game SD / sqrt(10), normal approximation"
+  },
+  "rollout_final_epoch_loss_range": [
+    7.684340821906783,
+    7.806589971819232
+  ]
+}

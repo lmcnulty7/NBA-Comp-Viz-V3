@@ -2021,5 +2021,69 @@
         }
       }
     }
+  },
+  {
+    "experiment": "ghosting-E1",
+    "source": "sportvu_2015_16_untouched",
+    "sha256": "4f70c95d5fae88d464049d30433fd96221aa41230ad631d091167fb0e503ccc3",
+    "games": 10,
+    "started_at": "2026-11-19T19:43:52+00:00",
+    "status": "scored",
+    "scored_at": "2026-11-19T19:44:01+00:00",
+    "summary": {
+      "experiment": "ghosting-E1",
+      "stage": "D113 consistency check, scored once on the D71 test set",
+      "code_commit": "eae3cb6f473afd125f6fc7b3409ce7843fdc3101",
+      "gate_sha256": "30d528b5b7b9a1f54b4d6e48eccd6d43db09596c7f70b1bb3bc402099f6a5787",
+      "dev_json_sha256": "8a3dc93f53371fa1b4f7c20893071cee8f6e5177eef0989ac2c6c6afbd9b2e24",
+      "rollout_weights_sha256": "0a4cdd68be676f709658bb5922a9ee23100fa4d53f4ffd99d1d3c356869b10b2",
+      "stand_in_pickle_sha256": "b34387b5d5c6ef8526a85f2b939f980a0f83ecc52609bba3d3e49a1fd7f67c0c",
+      "rollout_epochs_sha256": "7c69436d9a8ce0329fe05b4ea5a2cbc54fbd5f3b49ba3c064a5ba8449ff97e6d",
+      "rollout_final_epoch_loss": 7.681,
+      "fit_rows": 7147100,
+      "refit_note": "PLAN.md D119: the saved all-development rollout refit, scored as it is",
+      "games": 10,
+      "0.2": {
+        "rows": 556040,
+        "mlp": 0.42130870575600643,
+        "rollout": 0.38746327058330365,
+        "rollout_minus_mlp": {
+          "diff": -0.033845435172702776,
+          "lo": -0.039192907772117355,
+          "hi": -0.03028579462565969,
+          "excludes_zero": true
+        },
+        "report_only_t": {
+          "mean_of_game_values": -0.03443820412035549,
+          "lo": -0.04074062340905295,
+          "hi": -0.028135784831658035,
+          "games": 10
+        }
+      },
+      "1.0": {
+        "rows": 522180,
+        "mlp": 3.471131614338266,
+        "rollout": 2.354225979980888,
+        "rollout_minus_mlp": {
+          "diff": -1.1169056343573778,
+          "lo": -1.1537996817231009,
+          "hi": -1.0851032142200325,
+          "excludes_zero": true
+        },
+        "report_only_t": {
+          "mean_of_game_values": -1.1206601333311261,
+          "lo": -1.1638688193429825,
+          "hi": -1.0774514473192698,
+          "games": 10
+        }
+      },
+      "development_estimate_1s": -1.2948593908258532,
+      "reading": "inconsistent",
+      "report_only_size_reading": {
+        "rule": "the 1.0 s interval's upper end below -0.1 ft (D115)",
+        "upper_end": -1.0851032142200325,
+        "below": true
+      }
+    }
   }
 ]
