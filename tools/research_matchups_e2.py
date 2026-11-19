@@ -496,14 +496,15 @@ MODELS = ("hungarian", "hmm", "emission", "no_defender", "pre_hungarian", "pre_h
 PIECES = ("em",) + tuple(f"oof_{m}" for m in MODELS) + tuple(f"lambda_{m}" for m in MODELS) + ("reported",)
 
 
-def dev(artifacts=None, max_minutes: float = 25.0) -> dict:
+def dev(artifacts=None, max_minutes: float = 25.0, pieces_commit=None) -> dict:
     """The development stage in cached pieces keyed by the code commit; the run that finds every piece done writes
-    reports/research/matchups-E2-dev.json."""
+    reports/research/matchups-E2-dev.json. pieces_commit names an earlier commit whose cached pieces are used (when
+    only code outside the pieces changed since); the record names both commits."""
     import numpy as np
     t0 = time.time()
     head = E1.clean_head()
     gate = E1.require_gate(artifacts)
-    cache = work_dir(artifacts) / "dev_cache" / head
+    cache = work_dir(artifacts) / "dev_cache" / (pieces_commit or head)
     cache.mkdir(parents=True, exist_ok=True)
     d = DevE2(artifacts)
     D = None
@@ -525,7 +526,8 @@ def dev(artifacts=None, max_minutes: float = 25.0) -> dict:
             if name.startswith("oof_"):
                 m = name[4:]
                 r = E1.oof(D[m])
-                np.savez(f, z=r["z"], y=D[m].y, groups=D[m].groups, fold_lambdas=np.array(r["fold_lambdas"]))
+                np.savez(f, z=r["z"], y=D[m].y, groups=np.asarray(D[m].groups, dtype=str),
+                         fold_lambdas=np.array(r["fold_lambdas"]))
             elif name.startswith("lambda_"):
                 m = name[7:]
                 lam, curve = E1.choose_lambda(D[m], np.arange(len(D[m].y)))
@@ -535,6 +537,7 @@ def dev(artifacts=None, max_minutes: float = 25.0) -> dict:
                                         allow_nan=False) + "\n")
         print(f"[matchups-E2] piece {name} done {round(time.time() - t0)} s", flush=True)
     out = assemble(cache, head, gate)
+    out["pieces_commit"] = pieces_commit or head
     RESULTS.mkdir(parents=True, exist_ok=True)
     (RESULTS / f"{EXPERIMENT}-dev.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
     return out
@@ -556,7 +559,7 @@ def reported(d: DevE2, assigned: dict) -> dict:
 
 def losses(cache: Path, m: str):
     import numpy as np
-    z = np.load(cache / f"oof_{m}.npz")
+    z = np.load(cache / f"oof_{m}.npz", allow_pickle=True)          # our own file: the game ids are strings
     return E1.row_loss(z["y"], z["z"]), z["groups"].astype(str), z["fold_lambdas"]
 
 
@@ -612,12 +615,13 @@ def main(argv=None) -> int:
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--pieces-commit", default=None, help="e2-dev: use the cached pieces of this earlier commit")
     a = ap.parse_args(argv)
     with heavy_job(f"research matchups-E2 {a.command}"):
         if a.command == "e2-cache":
             out = cache_pass(a.artifacts, a.max_minutes, a.limit)
         else:
-            out = dev(a.artifacts, a.max_minutes)
+            out = dev(a.artifacts, a.max_minutes, a.pieces_commit)
     print(json.dumps(_plain(out.get("verdict", out)), indent=2, default=str))
     return 0
 
