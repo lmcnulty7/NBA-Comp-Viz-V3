@@ -160,6 +160,44 @@ estimate on the site. The pre-registration below is unchanged.
   model already has more contest features than their M4. Effort 3: new frame-reading feature code under tools/, a
   full pass over the tracking frames.
 
+#### xfg-E2 commitments, fixed before any development number (2026-11-19, PLAN.md D121)
+
+- Feasibility, read before any development number from out-of-fold training rows only: Set A (10 games, about 1,668
+  shots) has a projected half-width of about 0.002 (xfg-E1's own Set A interval, two near-identical calibrators) to
+  about 0.010 (10 random training games, 300 draws: hgb minus location-only 0.0117, hgb minus contest_logistic
+  0.0099), against a threshold of 0.001. It cannot decide; development (about 600 games, about 0.0003 to 0.0016)
+  is borderline at the threshold and decisive from about 0.002.
+- Decision (D121). Development decides: adopt when the paired difference (new minus baseline) is at most -0.001 and
+  its 95 percent interval excludes 0. If development adopts, Set A is scored once (score_once, entry "xfg-E2") as a
+  confirmation read as D108: "confirms" when the interval lies wholly below 0, "inconclusive at 10 games" when it
+  straddles 0, "contradiction" when it lies wholly above 0, which stops the adoption; a t interval on the 10
+  per-game mean differences is reported beside it (D80), and the projected test half-width from the development
+  per-game variance is reported before the score. If development does not adopt, Set A is not scored (D109).
+- The three features, measured at the stored release frame (shot_frames, as the frozen features use it) for the
+  resolved shooter of the frozen feature frame (its player_id), only where the frozen contest features exist
+  (has_contest 1); NaN elsewhere, which the booster handles as it does the frozen contest features:
+  - second_defender_dist_ft: distance from the shooter to the second nearest opponent at release (NaN with fewer
+    than 2 opponents tracked).
+  - contest_angle_deg: the angle at the shooter between the line to the target rim and the line to the closest
+    defender at release, 0 to 180 degrees (0: the defender is straight between shooter and rim; 90: at the side).
+  - defender_speed_to_line_ftps: the closest defender's (closest at release) speed toward the line through the
+    shooter's release position and the target rim, (distance to that line 0.4 s before release minus at release)
+    over 0.4 s, positive when moving toward it; NaN under the frozen closing-speed rule (window across a period,
+    not 10 consecutive frames, or a missing position).
+  - The target rim is the rim the shooter's team attacks in that period by the frozen vote
+    (analytics.decisions.features.baskets_by_team_period on the game's possessions), else the rim nearer the
+    shooter at release.
+- Arms: the baseline is the frozen hgb_contest_prior refit with the frozen functions (gate: the refit on all 607
+  training games under the frozen folds must reproduce the stored out-of-fold p_selected, as in xfg-E1); the new arm
+  adds the three columns to the same design, every other setting unchanged (HGB_PARAMS, the shooter prior, the
+  isotonic step on 3 inner folds, seed 0); the ablation adds second_defender_dist_ft only.
+- Development: every development game (tools.research_testset.dev_games), 5 grouped outer folds, seed 0, the
+  calibrated p of each arm; paired per-shot log loss difference with a 2000-resample bootstrap by game; Brier,
+  calibration slope and 10-bin equal-mass ECE per arm with game-bootstrap intervals, as in xfg-E1.
+- Compute: features from training-game frames, one game at a time under the lock, in resumable jobs of at most
+  about 30 minutes; no held-out game is read (the frozen guards run on every game id); Set A frames are read only
+  inside the score_once scorer.
+
 ## 7. Sources checked (all fetched 2026-11-16)
 
 | source | link | what was read |
