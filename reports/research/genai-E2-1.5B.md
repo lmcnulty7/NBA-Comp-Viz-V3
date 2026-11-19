@@ -15,8 +15,8 @@ training lifts Qwen2.5-1.5B-Instruct from a few-shot pass rate of 0.012 to 0.914
 0.821 to 1.000 on the 480 test possessions, under the primary checker. Rejection sampling lowers the scouting pass
 rate (0.642, mostly on reading grade). With one repair attempt the trained model passes on 0.914 of players against
 0.802 for the Haiku texts, at no spend per text and 1.20 s per text single attempt on the Mac (the repair arm's time
-is not recorded). Constrained decoding has nothing to fix. Read beside the pass rate: every possession text of the trained model is identical to the template's, and on
-scouting it writes with far less variety than Haiku.
+is not recorded). Constrained decoding has nothing to fix. Read beside the pass rate: every possession text of the
+trained model is identical to the template's, and on scouting it writes with far less variety than Haiku.
 
 ## What was tested
 
