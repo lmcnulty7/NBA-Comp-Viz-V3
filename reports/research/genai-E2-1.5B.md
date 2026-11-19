@@ -14,8 +14,8 @@ read on its own, and no hypothesis compares the two sizes.
 training lifts Qwen2.5-1.5B-Instruct from a few-shot pass rate of 0.012 to 0.914 on the 81 test players, and from
 0.821 to 1.000 on the 480 test possessions, under the primary checker. Rejection sampling lowers the scouting pass
 rate (0.642, mostly on reading grade). With one repair attempt the trained model passes on 0.914 of players against
-0.802 for the Haiku texts, at no spend per text and 1.20 s per text on the Mac. Constrained decoding has nothing to
-fix. Read beside the pass rate: every possession text of the trained model is identical to the template's, and on
+0.802 for the Haiku texts, at no spend per text and 1.20 s per text single attempt on the Mac (the repair arm's time
+is not recorded). Constrained decoding has nothing to fix. Read beside the pass rate: every possession text of the trained model is identical to the template's, and on
 scouting it writes with far less variety than Haiku.
 
 ## What was tested
@@ -29,7 +29,7 @@ scouting it writes with far less variety than Haiku.
 - Memory changes during the run, none changing a result (docs/research/genai.md, amendment o): the training loss
   keeps logits only for the answer tokens, and rejection sampling runs 2 items of 4 candidates at a time and saves
   in chunks. The equality of the answer-token loss with the model's own loss was checked on the 0.5B model in
-  float32 (within 7e-7 on two train examples), not on the 1.5B model in bfloat16.
+  float32 (within 1e-6 on two train examples, commit 101f3a3a), not on the 1.5B model in bfloat16.
 
 ## Development (dev json)
 
@@ -117,9 +117,10 @@ below their point estimates; read them as ranges of plausible values, as in gena
 - Possession: the trained model's pass rate of 1.000 is a pure template copy: every one of its 480 possession texts
   is identical to the template's text of the same item. Its targets were template texts (no Haiku possession text
   exists on a training game), as D101 expected.
-- Scouting: A1 passes more often than Haiku (0.914 against 0.802) with about a sixth of Haiku's frame variety (0.106
-  against 0.612, computed ratio 0.17). 89 percent of its frames are not template frames (computed: 1 minus 0.114).
-  Rejection sampling doubled the scouting frame variety (0.220) and cost readability (grade failures 0.346).
+- Scouting: A1's pass rate is 0.914 against Haiku's 0.802 (H3 reads non-inferior; no superiority reading is
+  pre-registered), with about a sixth of Haiku's frame variety (0.106 against 0.612, computed ratio 0.17). 89 percent
+  of its frames are not template frames (computed: 1 minus 0.114). Rejection sampling doubled the scouting frame
+  variety (0.220, computed ratio 2.1) and cost readability (grade failures 0.346).
 
 ### Cost and time
 
