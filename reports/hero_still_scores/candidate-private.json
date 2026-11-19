@@ -1,0 +1,664 @@
+{
+  "schema": "polish-score/1",
+  "label": "hero candidate private",
+  "variant": "private",
+  "basePath": "",
+  "synthetic": false,
+  "dataBuild": "site-20a4eb8c8b7e",
+  "commit": "2f2b6934e1c3",
+  "dirty": false,
+  "measuredWith": {
+    "browsers": {
+      "chromium": "159.0.8154.6",
+      "webkit": "27.2"
+    },
+    "axe": "4.14.0",
+    "axeTags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ],
+    "a11yWidths": [
+      390,
+      1280
+    ],
+    "timingViewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "chromiumThrottle": {
+      "latencyMs": 40,
+      "downloadKbps": 10000,
+      "uploadKbps": 5000,
+      "cpuSlowdown": 4
+    },
+    "loadsPerPage": 7,
+    "repeat": 1
+  },
+  "weights": {
+    "a11yWeighted": 0.25,
+    "firstViewChromiumMs": 0.2,
+    "firstViewWebkitMs": 0.05,
+    "firstLoadJsKb": 0.2,
+    "pageWeightKb": 0.1,
+    "readingGrade": 0.2
+  },
+  "check": {
+    "ran": true,
+    "variant": "private",
+    "passed": true,
+    "failedAt": null,
+    "steps": [
+      {
+        "name": "check (static steps)",
+        "passed": true,
+        "seconds": 33.1
+      },
+      {
+        "name": "build (private)",
+        "passed": true,
+        "seconds": 37.1
+      },
+      {
+        "name": "browser (private)",
+        "passed": true,
+        "seconds": 159.2
+      }
+    ]
+  },
+  "copy": {
+    "problems": 0,
+    "files": 18
+  },
+  "reading": {
+    "problems": 0,
+    "generatedTexts": 3027,
+    "copyGrade": {
+      "grade": 3.792,
+      "words": 4071,
+      "sentences": 217,
+      "perFile": {
+        "home.json": 3.74,
+        "methods.json": 2.99,
+        "prep.json": 4.73,
+        "results.json": 4.94,
+        "review.json": 3.31,
+        "site.json": 4.39,
+        "talk/boxes.md": 3.67,
+        "talk/built.md": 3.78,
+        "talk/checks.md": 5.75,
+        "talk/clip.md": 4.19,
+        "talk/contract.md": 3.29,
+        "talk/deck.json": 1.94,
+        "talk/headline.md": 6.08,
+        "talk/map.md": 3.21,
+        "talk/next.md": 4.97,
+        "talk/results.md": 2.37,
+        "talk/swap.md": 3.86,
+        "talk/truth.md": 3.48
+      }
+    },
+    "script": [
+      {
+        "where": "scene 0 (headline)",
+        "grade": 7,
+        "upper": 7
+      },
+      {
+        "where": "scene 1 (clip)",
+        "grade": 3.7,
+        "upper": 3.7
+      },
+      {
+        "where": "scene 2 (boxes)",
+        "grade": 3.3,
+        "upper": 4.3
+      },
+      {
+        "where": "scene 3 (map)",
+        "grade": 2.6,
+        "upper": 2.6
+      },
+      {
+        "where": "scene 4 (truth)",
+        "grade": 3.2,
+        "upper": 4.9
+      },
+      {
+        "where": "scene 5 (swap)",
+        "grade": 3.5,
+        "upper": 4.6
+      },
+      {
+        "where": "scene 6 (next)",
+        "grade": 4.7,
+        "upper": 5.6
+      },
+      {
+        "where": "talk/headline.md",
+        "grade": 7,
+        "upper": 7
+      },
+      {
+        "where": "talk/clip.md",
+        "grade": 4,
+        "upper": 4
+      },
+      {
+        "where": "talk/boxes.md",
+        "grade": 3,
+        "upper": 4
+      },
+      {
+        "where": "talk/map.md",
+        "grade": 2.4,
+        "upper": 2.4
+      },
+      {
+        "where": "talk/truth.md",
+        "grade": 3.2,
+        "upper": 4.7
+      },
+      {
+        "where": "talk/swap.md",
+        "grade": 3.6,
+        "upper": 4.5
+      },
+      {
+        "where": "talk/next.md",
+        "grade": 4.2,
+        "upper": 5.1
+      },
+      {
+        "where": "talk/built.md",
+        "grade": 3,
+        "upper": 3
+      },
+      {
+        "where": "talk/contract.md",
+        "grade": 3,
+        "upper": 3
+      },
+      {
+        "where": "talk/checks.md",
+        "grade": 5.1,
+        "upper": 5.1
+      },
+      {
+        "where": "talk/results.md",
+        "grade": 2.1,
+        "upper": 2.1
+      },
+      {
+        "where": "methods page",
+        "grade": 2.3,
+        "upper": 2.3
+      }
+    ]
+  },
+  "routes": {
+    "count": 3602,
+    "hash": "4b540cce3abfa223",
+    "sampled": [
+      {
+        "pattern": "",
+        "route": ""
+      },
+      {
+        "pattern": "404/",
+        "route": "404/"
+      },
+      {
+        "pattern": "methods/",
+        "route": "methods/"
+      },
+      {
+        "pattern": "prep/",
+        "route": "prep/"
+      },
+      {
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/"
+      },
+      {
+        "pattern": "results/",
+        "route": "results/"
+      },
+      {
+        "pattern": "review/",
+        "route": "review/"
+      },
+      {
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/"
+      },
+      {
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/"
+      },
+      {
+        "pattern": "talk/",
+        "route": "talk/"
+      },
+      {
+        "pattern": "talk/*/",
+        "route": "talk/boxes/"
+      }
+    ]
+  },
+  "bundles": {
+    "home": {
+      "jsFiles": 9,
+      "jsRawKb": 518.3,
+      "jsGzipKb": 157.3,
+      "cssGzipKb": 7.1
+    },
+    "404/": {
+      "jsFiles": 7,
+      "jsRawKb": 486,
+      "jsGzipKb": 146.4,
+      "cssGzipKb": 3.4
+    },
+    "methods/": {
+      "jsFiles": 7,
+      "jsRawKb": 486,
+      "jsGzipKb": 146.4,
+      "cssGzipKb": 3.9
+    },
+    "prep/": {
+      "jsFiles": 8,
+      "jsRawKb": 491.9,
+      "jsGzipKb": 148.6,
+      "cssGzipKb": 3.9
+    },
+    "prep/aaron-brooks/": {
+      "jsFiles": 8,
+      "jsRawKb": 486.9,
+      "jsGzipKb": 146.9,
+      "cssGzipKb": 7.1
+    },
+    "results/": {
+      "jsFiles": 7,
+      "jsRawKb": 486,
+      "jsGzipKb": 146.4,
+      "cssGzipKb": 3.4
+    },
+    "review/": {
+      "jsFiles": 7,
+      "jsRawKb": 486,
+      "jsGzipKb": 146.4,
+      "cssGzipKb": 7.1
+    },
+    "review/2015-10-30-mia-at-cle/": {
+      "jsFiles": 8,
+      "jsRawKb": 492.2,
+      "jsGzipKb": 148.6,
+      "cssGzipKb": 3.9
+    },
+    "review/2015-10-30-mia-at-cle/0/": {
+      "jsFiles": 8,
+      "jsRawKb": 522.5,
+      "jsGzipKb": 158.7,
+      "cssGzipKb": 7.1
+    },
+    "talk/": {
+      "jsFiles": 7,
+      "jsRawKb": 486,
+      "jsGzipKb": 146.4,
+      "cssGzipKb": 7.1
+    },
+    "talk/boxes/": {
+      "jsFiles": 9,
+      "jsRawKb": 521.1,
+      "jsGzipKb": 158.3,
+      "cssGzipKb": 7.1
+    }
+  },
+  "a11y": {
+    "weighted": 0,
+    "violations": 0,
+    "nodes": 0,
+    "findings": {}
+  },
+  "timings": [
+    [
+      {
+        "browser": "chromium",
+        "pattern": "",
+        "route": "",
+        "dclMs": 115.7,
+        "loadMs": 637.4,
+        "lcpMs": 584,
+        "firstViewMs": 584,
+        "kb": 684.9,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "404/",
+        "route": "404/",
+        "dclMs": 136.9,
+        "loadMs": 361.9,
+        "lcpMs": 136,
+        "firstViewMs": 136,
+        "kb": 183.3,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "methods/",
+        "route": "methods/",
+        "dclMs": 323.1,
+        "loadMs": 493.7,
+        "lcpMs": 316,
+        "firstViewMs": 316,
+        "kb": 433.7,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "prep/",
+        "route": "prep/",
+        "dclMs": 159.3,
+        "loadMs": 420.8,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 275,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/",
+        "dclMs": 112.1,
+        "loadMs": 392.6,
+        "lcpMs": 244,
+        "firstViewMs": 244,
+        "kb": 215.1,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "results/",
+        "route": "results/",
+        "dclMs": 111.4,
+        "loadMs": 398.3,
+        "lcpMs": 260,
+        "firstViewMs": 260,
+        "kb": 234.9,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/",
+        "route": "review/",
+        "dclMs": 112.5,
+        "loadMs": 391.7,
+        "lcpMs": 240,
+        "firstViewMs": 240,
+        "kb": 205.1,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/",
+        "dclMs": 105.4,
+        "loadMs": 401.9,
+        "lcpMs": 240,
+        "firstViewMs": 240,
+        "kb": 232.7,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/",
+        "dclMs": 115.4,
+        "loadMs": 406.4,
+        "lcpMs": 244,
+        "firstViewMs": 244,
+        "kb": 219.3,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "talk/",
+        "route": "talk/",
+        "dclMs": 137,
+        "loadMs": 362.1,
+        "lcpMs": 140,
+        "firstViewMs": 140,
+        "kb": 187.9,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "talk/*/",
+        "route": "talk/boxes/",
+        "dclMs": 154.8,
+        "loadMs": 499.3,
+        "lcpMs": 480,
+        "firstViewMs": 480,
+        "kb": 381,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "",
+        "route": "",
+        "dclMs": 18,
+        "loadMs": 78,
+        "lcpMs": 68,
+        "firstViewMs": 68,
+        "kb": 11925,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "404/",
+        "route": "404/",
+        "dclMs": 8,
+        "loadMs": 28,
+        "lcpMs": 31,
+        "firstViewMs": 31,
+        "kb": 309.9,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "methods/",
+        "route": "methods/",
+        "dclMs": 92,
+        "loadMs": 117,
+        "lcpMs": 89,
+        "firstViewMs": 89,
+        "kb": 493.9,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "prep/",
+        "route": "prep/",
+        "dclMs": 18,
+        "loadMs": 55,
+        "lcpMs": 53,
+        "firstViewMs": 53,
+        "kb": 400.9,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/",
+        "dclMs": 15,
+        "loadMs": 44,
+        "lcpMs": 44,
+        "firstViewMs": 44,
+        "kb": 341.1,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "results/",
+        "route": "results/",
+        "dclMs": 13,
+        "loadMs": 47,
+        "lcpMs": 58,
+        "firstViewMs": 58,
+        "kb": 361.2,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/",
+        "route": "review/",
+        "dclMs": 13,
+        "loadMs": 35,
+        "lcpMs": 20,
+        "firstViewMs": 20,
+        "kb": 331.3,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/",
+        "dclMs": 13,
+        "loadMs": 44,
+        "lcpMs": 55,
+        "firstViewMs": 55,
+        "kb": 358.5,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/",
+        "dclMs": 14,
+        "loadMs": 39,
+        "lcpMs": 39,
+        "firstViewMs": 39,
+        "kb": 345.3,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "talk/",
+        "route": "talk/",
+        "dclMs": 8,
+        "loadMs": 32,
+        "lcpMs": 16,
+        "firstViewMs": 16,
+        "kb": 314.3,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "talk/*/",
+        "route": "talk/boxes/",
+        "dclMs": 10,
+        "loadMs": 35,
+        "lcpMs": 44,
+        "firstViewMs": 44,
+        "kb": 506.5,
+        "kbCounted": "declared"
+      }
+    ]
+  ],
+  "pageFailures": [],
+  "navigationRetries": 0,
+  "values": {
+    "a11yWeighted": 0,
+    "firstViewChromiumMs": 285.1,
+    "firstViewWebkitMs": 47,
+    "firstLoadJsKb": 150.04,
+    "pageWeightKb": 295.7,
+    "readingGrade": 3.792
+  },
+  "reference": {
+    "values": {
+      "a11yWeighted": 0,
+      "firstViewChromiumMs": 302.9,
+      "firstViewWebkitMs": 43.6,
+      "firstLoadJsKb": 150.03,
+      "pageWeightKb": 316.6,
+      "readingGrade": 3.792
+    },
+    "from": "hero baseline private"
+  },
+  "cost": 0.9856,
+  "terms": {
+    "a11yWeighted": 1,
+    "firstViewChromiumMs": 0.9412,
+    "firstViewWebkitMs": 1.078,
+    "firstLoadJsKb": 1.0001,
+    "pageWeightKb": 0.934,
+    "readingGrade": 1
+  },
+  "runs": [
+    {
+      "values": {
+        "a11yWeighted": 0,
+        "firstViewChromiumMs": 285.1,
+        "firstViewWebkitMs": 47,
+        "firstLoadJsKb": 150.04,
+        "pageWeightKb": 295.7,
+        "readingGrade": 3.792
+      },
+      "cost": 0.9856,
+      "terms": {
+        "a11yWeighted": 1,
+        "firstViewChromiumMs": 0.9412,
+        "firstViewWebkitMs": 1.078,
+        "firstLoadJsKb": 1.0001,
+        "pageWeightKb": 0.934,
+        "readingGrade": 1
+      },
+      "failures": []
+    }
+  ],
+  "noise": {
+    "runs": 3,
+    "costs": [
+      1.0006,
+      0.9991,
+      1
+    ],
+    "costSpread": 0.0015,
+    "perMetric": {
+      "a11yWeighted": {
+        "min": 0,
+        "max": 0
+      },
+      "firstViewChromiumMs": {
+        "min": 300,
+        "max": 302.9
+      },
+      "firstViewWebkitMs": {
+        "min": 42.8,
+        "max": 45.8
+      },
+      "firstLoadJsKb": {
+        "min": 150.03,
+        "max": 150.03
+      },
+      "pageWeightKb": {
+        "min": 316.5,
+        "max": 316.7
+      },
+      "readingGrade": {
+        "min": 3.792,
+        "max": 3.792
+      }
+    }
+  },
+  "gate": {
+    "passed": true,
+    "against": "hero baseline private",
+    "reasons": []
+  }
+}

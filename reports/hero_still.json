@@ -1,0 +1,449 @@
+{
+  "what": "Smaller encodings of the cold-open stills, chosen by the rule of tools/hero_still.py (PLAN.md D116).",
+  "rule": {
+    "ssim_floor_vs_committed": 0.97,
+    "webp_margin": 0.15,
+    "ffmpeg_q": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "pillow_quality": [
+      40,
+      45,
+      50,
+      55,
+      60,
+      65,
+      70,
+      75,
+      80,
+      85,
+      90
+    ],
+    "ssim": "Wang et al. 2004, luma BT.601, Gaussian sigma 1.5, K1 0.01, K2 0.03, range 255"
+  },
+  "stills": {
+    "scene-1": {
+      "window": "gsw_phx_2016_s08_w00",
+      "frame": 1746,
+      "committed_bytes": 201078,
+      "gray_mean_abs_diff_by_frame": {
+        "1743": 6.7939,
+        "1744": 5.2303,
+        "1745": 3.4798,
+        "1746": 2.13,
+        "1747": 3.1911,
+        "1748": 4.6791,
+        "1749": 6.3074
+      },
+      "nearest_margin": 1.061
+    },
+    "scene-2": {
+      "window": "gsw_phx_2016_s02_w00",
+      "frame": 894,
+      "committed_bytes": 188148,
+      "gray_mean_abs_diff_by_frame": {
+        "891": 14.9442,
+        "892": 11.3342,
+        "893": 7.1291,
+        "894": 2.038,
+        "895": 6.6024,
+        "896": 10.9374,
+        "897": 14.3392
+      },
+      "nearest_margin": 4.5643
+    },
+    "scene-3": {
+      "window": "gsw_phx_2016_s07_w00",
+      "frame": 2353,
+      "committed_bytes": 211785,
+      "gray_mean_abs_diff_by_frame": {
+        "2350": 4.7258,
+        "2351": 3.9815,
+        "2352": 3.1257,
+        "2353": 2.1236,
+        "2354": 3.1126,
+        "2355": 4.0656,
+        "2356": 4.8138
+      },
+      "nearest_margin": 0.989
+    },
+    "scene-4": {
+      "window": "gsw_phx_2016_s06_w00",
+      "frame": 354,
+      "committed_bytes": 133255,
+      "gray_mean_abs_diff_by_frame": {
+        "351": 25.2946,
+        "352": 22.5721,
+        "353": 16.2586,
+        "354": 1.9373,
+        "355": 16.0848,
+        "356": 22.2559,
+        "357": 25.0475
+      },
+      "nearest_margin": 14.1475
+    }
+  },
+  "committed_total_bytes": 734266,
+  "committed_ssim_vs_source": {
+    "scene-1": 0.98406,
+    "scene-2": 0.98424,
+    "scene-3": 0.9848,
+    "scene-4": 0.98645
+  },
+  "candidates": [
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 3,
+      "total_bytes": 918184,
+      "hero_bytes": 249986,
+      "min_ssim_vs_committed": 0.99276,
+      "min_ssim_vs_source": 0.98452
+    },
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 4,
+      "total_bytes": 770074,
+      "hero_bytes": 209697,
+      "min_ssim_vs_committed": 0.97797,
+      "min_ssim_vs_source": 0.97805
+    },
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 5,
+      "total_bytes": 682336,
+      "hero_bytes": 185860,
+      "min_ssim_vs_committed": 0.9708,
+      "min_ssim_vs_source": 0.97262
+    },
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 6,
+      "total_bytes": 607644,
+      "hero_bytes": 165396,
+      "min_ssim_vs_committed": 0.96429,
+      "min_ssim_vs_source": 0.96615
+    },
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 7,
+      "total_bytes": 554781,
+      "hero_bytes": 150577,
+      "min_ssim_vs_committed": 0.96231,
+      "min_ssim_vs_source": 0.95983
+    },
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 8,
+      "total_bytes": 508148,
+      "hero_bytes": 137595,
+      "min_ssim_vs_committed": 0.95629,
+      "min_ssim_vs_source": 0.95233
+    },
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 9,
+      "total_bytes": 477426,
+      "hero_bytes": 129211,
+      "min_ssim_vs_committed": 0.94868,
+      "min_ssim_vs_source": 0.94685
+    },
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 10,
+      "total_bytes": 449010,
+      "hero_bytes": 121297,
+      "min_ssim_vs_committed": 0.942,
+      "min_ssim_vs_source": 0.94067
+    },
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 11,
+      "total_bytes": 423435,
+      "hero_bytes": 114058,
+      "min_ssim_vs_committed": 0.93643,
+      "min_ssim_vs_source": 0.93382
+    },
+    {
+      "kind": "ffmpeg-jpeg",
+      "quality": 12,
+      "total_bytes": 402146,
+      "hero_bytes": 108189,
+      "min_ssim_vs_committed": 0.93248,
+      "min_ssim_vs_source": 0.92732
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 40,
+      "total_bytes": 398200,
+      "hero_bytes": 107426,
+      "min_ssim_vs_committed": 0.94887,
+      "min_ssim_vs_source": 0.94879
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 45,
+      "total_bytes": 426762,
+      "hero_bytes": 115126,
+      "min_ssim_vs_committed": 0.953,
+      "min_ssim_vs_source": 0.95421
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 50,
+      "total_bytes": 451287,
+      "hero_bytes": 121796,
+      "min_ssim_vs_committed": 0.95708,
+      "min_ssim_vs_source": 0.95831
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 55,
+      "total_bytes": 475492,
+      "hero_bytes": 128337,
+      "min_ssim_vs_committed": 0.96118,
+      "min_ssim_vs_source": 0.9618
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 60,
+      "total_bytes": 506364,
+      "hero_bytes": 136611,
+      "min_ssim_vs_committed": 0.96518,
+      "min_ssim_vs_source": 0.96563
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 65,
+      "total_bytes": 542748,
+      "hero_bytes": 146472,
+      "min_ssim_vs_committed": 0.9694,
+      "min_ssim_vs_source": 0.96938
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 70,
+      "total_bytes": 587607,
+      "hero_bytes": 158594,
+      "min_ssim_vs_committed": 0.97402,
+      "min_ssim_vs_source": 0.97343
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 75,
+      "total_bytes": 635501,
+      "hero_bytes": 171271,
+      "min_ssim_vs_committed": 0.97631,
+      "min_ssim_vs_source": 0.97692
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 80,
+      "total_bytes": 708955,
+      "hero_bytes": 190781,
+      "min_ssim_vs_committed": 0.97757,
+      "min_ssim_vs_source": 0.98097
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 85,
+      "total_bytes": 810793,
+      "hero_bytes": 217871,
+      "min_ssim_vs_committed": 0.98038,
+      "min_ssim_vs_source": 0.98517
+    },
+    {
+      "kind": "pillow-jpeg",
+      "quality": 90,
+      "total_bytes": 976471,
+      "hero_bytes": 261827,
+      "min_ssim_vs_committed": 0.98317,
+      "min_ssim_vs_source": 0.98955
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 40,
+      "total_bytes": 287216,
+      "hero_bytes": 79126,
+      "min_ssim_vs_committed": 0.95172,
+      "min_ssim_vs_source": 0.9547
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 45,
+      "total_bytes": 304612,
+      "hero_bytes": 84056,
+      "min_ssim_vs_committed": 0.95489,
+      "min_ssim_vs_source": 0.95794
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 50,
+      "total_bytes": 320302,
+      "hero_bytes": 89044,
+      "min_ssim_vs_committed": 0.95733,
+      "min_ssim_vs_source": 0.96052
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 55,
+      "total_bytes": 338104,
+      "hero_bytes": 93916,
+      "min_ssim_vs_committed": 0.95985,
+      "min_ssim_vs_source": 0.96331
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 60,
+      "total_bytes": 356186,
+      "hero_bytes": 98376,
+      "min_ssim_vs_committed": 0.96234,
+      "min_ssim_vs_source": 0.96646
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 65,
+      "total_bytes": 375684,
+      "hero_bytes": 104178,
+      "min_ssim_vs_committed": 0.96481,
+      "min_ssim_vs_source": 0.96928
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 70,
+      "total_bytes": 395936,
+      "hero_bytes": 109840,
+      "min_ssim_vs_committed": 0.96596,
+      "min_ssim_vs_source": 0.97106
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 75,
+      "total_bytes": 419004,
+      "hero_bytes": 115716,
+      "min_ssim_vs_committed": 0.96746,
+      "min_ssim_vs_source": 0.9728
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 80,
+      "total_bytes": 495976,
+      "hero_bytes": 138132,
+      "min_ssim_vs_committed": 0.97295,
+      "min_ssim_vs_source": 0.97957
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 85,
+      "total_bytes": 596512,
+      "hero_bytes": 165008,
+      "min_ssim_vs_committed": 0.97649,
+      "min_ssim_vs_source": 0.98439
+    },
+    {
+      "kind": "pillow-webp",
+      "quality": 90,
+      "total_bytes": 758788,
+      "hero_bytes": 207356,
+      "min_ssim_vs_committed": 0.97976,
+      "min_ssim_vs_source": 0.98931
+    }
+  ],
+  "choice": {
+    "kind": "pillow-webp",
+    "quality": 80,
+    "total_bytes": 495976,
+    "hero_bytes": 138132,
+    "min_ssim_vs_committed": 0.97295,
+    "min_ssim_vs_source": 0.97957,
+    "stills": {
+      "scene-1": {
+        "bytes": 138132,
+        "ssim_vs_committed": 0.97295,
+        "ssim_vs_source": 0.97957
+      },
+      "scene-2": {
+        "bytes": 128010,
+        "ssim_vs_committed": 0.97432,
+        "ssim_vs_source": 0.97965
+      },
+      "scene-3": {
+        "bytes": 146276,
+        "ssim_vs_committed": 0.97339,
+        "ssim_vs_source": 0.9797
+      },
+      "scene-4": {
+        "bytes": 83558,
+        "ssim_vs_committed": 0.97886,
+        "ssim_vs_source": 0.98216
+      }
+    }
+  },
+  "why": "WebP clears the floor and beats the best JPEG by the margin",
+  "written": {
+    "scene-1": {
+      "jpeg_bytes": 201078,
+      "jpeg_same_as_committed": true,
+      "webp_bytes": 138132,
+      "webp_ssim_vs_committed": 0.97295,
+      "webp_ssim_vs_source": 0.97957,
+      "webp_alignment_by_shift": {
+        "-2": 5.0748,
+        "-1": 3.4762,
+        "0": 2.0699,
+        "1": 3.1158,
+        "2": 4.5262
+      }
+    },
+    "scene-2": {
+      "jpeg_bytes": 188148,
+      "jpeg_same_as_committed": true,
+      "webp_bytes": 128010,
+      "webp_ssim_vs_committed": 0.97432,
+      "webp_ssim_vs_source": 0.97965,
+      "webp_alignment_by_shift": {
+        "-2": 11.062,
+        "-1": 6.8425,
+        "0": 2.022,
+        "1": 6.2958,
+        "2": 10.6235
+      }
+    },
+    "scene-3": {
+      "jpeg_bytes": 211785,
+      "jpeg_same_as_committed": true,
+      "webp_bytes": 146276,
+      "webp_ssim_vs_committed": 0.97339,
+      "webp_ssim_vs_source": 0.9797,
+      "webp_alignment_by_shift": {
+        "-2": 3.9973,
+        "-1": 3.1671,
+        "0": 2.165,
+        "1": 3.169,
+        "2": 4.0518
+      }
+    },
+    "scene-4": {
+      "jpeg_bytes": 133255,
+      "jpeg_same_as_committed": true,
+      "webp_bytes": 83558,
+      "webp_ssim_vs_committed": 0.97886,
+      "webp_ssim_vs_source": 0.98216,
+      "webp_alignment_by_shift": {
+        "-2": 22.4109,
+        "-1": 15.9629,
+        "0": 1.6353,
+        "1": 15.765,
+        "2": 22.0827
+      }
+    }
+  }
+}
