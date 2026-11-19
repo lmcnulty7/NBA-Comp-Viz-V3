@@ -444,8 +444,9 @@ def game_bootstrap(games, per_shot: dict, n: int = BOOT, seed=SEED) -> dict:
     return {"games": int(len(uniq)), "shots": int(len(g)), "resamples": n, "intervals": out}
 
 
-def effect_bootstrap(games, y_res, X_res, n: int = BOOT, seed=SEED) -> dict:
-    """The effect slopes (gravity sum, gravity maximum) with percentile intervals from resampling games."""
+def effect_bootstrap(games, y_res, X_res, n: int = BOOT, seed=SEED, names=("sum", "max")) -> dict:
+    """The effect slopes (by default gravity sum and gravity maximum) with percentile intervals from resampling
+    games."""
     import numpy as np
     g = np.asarray(games)
     uniq, inv = np.unique(g, return_inverse=True)
@@ -458,7 +459,7 @@ def effect_bootstrap(games, y_res, X_res, n: int = BOOT, seed=SEED) -> dict:
         draws.append(slope(y_res, X_res, c[inv]))
     draws = np.array(draws)
     return {name: {"value": float(point[i]), "lo": float(np.percentile(draws[:, i], 2.5)),
-                   "hi": float(np.percentile(draws[:, i], 97.5))} for i, name in enumerate(("sum", "max"))}
+                   "hi": float(np.percentile(draws[:, i], 97.5))} for i, name in enumerate(names)}
 
 
 def per_game_t(values) -> dict:
@@ -567,6 +568,27 @@ def dev(artifacts=None) -> dict:
     RESULTS.mkdir(parents=True, exist_ok=True)
     (RESULTS / f"{EXPERIMENT}-dev.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
     return {"decision": decision, "mse_difference": diff}
+
+
+def posthoc(artifacts=None) -> dict:
+    """Post hoc, after the development result and its review; no rule reads it. The sum-only cross-fitted slope:
+    the release-distance residual on the gravity-sum residual alone (the maximum not held fixed), with the same
+    out-of-fold nuisance ridges on the same development folds. It answers whether a total effect of the sum could
+    reach 0.2 ft per SD, which the committed estimand (sum with the maximum held fixed) does not. Development data
+    only; bootstrap by game, 2000 resamples, seed sequence [0, 4]."""
+    import numpy as np
+    d = load_dev(artifacts)
+    data = d["data"]
+    o = oof_models(data)
+    eff = effect_bootstrap(data["sportvu_game"].to_numpy(), o["y"] - o["base"],
+                           (data["z_g_sum"] - o["zg_sum"]).to_numpy()[:, None], BOOT, [SEED, 4], names=("sum_only",))
+    out = {"experiment": EXPERIMENT, "stage": "post hoc, development games only, after the development result and its "
+                                              "review; read by no rule",
+           "sum_only_effect_per_sd": eff["sum_only"], "seed_sequence": [SEED, 4], "resamples": BOOT,
+           "attempts": int(len(data)), "games": int(data["sportvu_game"].nunique())}
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    (RESULTS / f"{EXPERIMENT}-posthoc.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
+    return out
 
 
 # ----------------------------------------------------------------------------- Set A (D107)
@@ -713,7 +735,7 @@ def final(artifacts=None) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e1-pass", "e1-gate", "e1-dev", "e1-final"))
+    ap.add_argument("command", choices=("e1-pass", "e1-gate", "e1-dev", "e1-posthoc", "e1-final"))
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
     a = ap.parse_args(argv)
@@ -721,7 +743,7 @@ def main(argv=None) -> int:
         if a.command == "e1-pass":
             out = frame_pass(a.artifacts, a.max_minutes)
         else:
-            out = {"e1-gate": gate, "e1-dev": dev, "e1-final": final}[a.command](a.artifacts)
+            out = {"e1-gate": gate, "e1-dev": dev, "e1-posthoc": posthoc, "e1-final": final}[a.command](a.artifacts)
     if a.command == "e1-final":
         out = {"reading": out.get("reading"), "verdict": out.get("verdict")}
     print(json.dumps(_plain(out), indent=2, default=str))
