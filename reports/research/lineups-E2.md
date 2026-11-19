@@ -1,17 +1,26 @@
 # lineups-E2: lineup ratings shrunk toward their players (L-RAPM)
 
-Draft written 2026-11-18, before the test score. Pre-registration: docs/research/lineups.md, section 6, "lineups-E2";
-PLAN.md D102 and D104. Scoring code: tools/research_lineups_e2.py; the development numbers come from commit 7b2d30d1
-(recorded in the dev json as code_commit). Every number below is copied from reports/research/lineups-E2-dev.json,
-except where marked: the paper's settings (penalties 4000 and 6000, unseen players at -1, unseen lineups reported
+Written 2026-11-18. Pre-registration: docs/research/lineups.md, section 6, "lineups-E2"; PLAN.md D102 and D104. The
+sections up to and including "Commitments before the test score" were committed before the score (commits dbb4e885,
+7b2d30d1, 12ae4935); only the verdict line and the section "Test season" were written after it. Scoring code:
+tools/research_lineups_e2.py; the development numbers come from commit 7b2d30d1 and the test score from 12ae4935 (each
+recorded as code_commit in its json). Every number below is copied from reports/research/lineups-E2-dev.json or
+reports/research/lineups-E2-final.json, except where marked: the paper's settings (penalties 4000 and 6000, unseen players at -1, unseen lineups reported
 apart) are quoted from Petridis and Pelechrinis (2026); the projected half-widths in commitment 6 are computed from the
-dev json's intervals; 99 percent and 30 percent are thresholds set here before the score. The test season (2025-26)
-has not been scored by this experiment. It has been scored once each by lineups-E1 and winprob-E1 (the two entries of
-reports/research/scoring_ledger.json for that source); this is its third use, as its own ledger entry. Intervals are 95
+dev json's intervals; 99 percent and 30 percent are thresholds set here before the score. Before this score the test season (2025-26) had been
+scored once each by lineups-E1 and winprob-E1; this was its third use, as its own entry of
+reports/research/scoring_ledger.json. Intervals are 95
 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with every arm paired on the same
 resampled games.
 
-**Verdict: not scored yet.**
+**Verdict: fails as pre-registered (PLAN.md D104, both baselines).** On the 2025-26 season (1095 games in 30
+predicted weeks), shrunk lineup ratings (lrapm) show no detectable gain over the frozen rapm_synergy ratings: d -0.0005
+[-0.0015, +0.0002], far from the -0.01 bar, with an interval that touches zero. Player priors show no detectable gain
+over pure shrinkage either: lrapm minus shrink_zero -0.0002 [-0.0009, +0.0004]. Beside it, not as the headline: the
+rule holds against the raw baseline (d -0.3204 [-0.3607, -0.2619]), which is weak by construction here (commitment 2).
+No data-fault line is crossed. The lineups lane gains a clean negative result: inside a season, lineup ratings shrunk
+toward their players predict next week's points per possession no better than ratings that already pool players
+(rapm_synergy) or shrink toward the league average.
 
 ## What is tested
 
@@ -152,6 +161,43 @@ rapm_synergy refit on the same seasons, and the penalties chosen above (400 each
    test-season number. The reading against both baselines (item 1) was fixed after the development numbers, by D104,
    in the direction that makes a pass harder.
 
-## Test season
+## Test season (2025-26, scored once)
 
-Not scored yet.
+The fit is the one fixed above (priors on 5059 games, 836 players, penalties 1000 and 3000; rapm_synergy with 253
+lineup terms; penalty 400 for every ridge arm).
+
+- Games: 1316 listed, all with play-by-play. The frozen builder dropped 16 whole (shifted period labels); no listed
+  game lacked play-by-play, no game was built without stints, no game lacked kept stints. 41799 stints built, 40276
+  kept. The season has 34 weeks; the 205 games of the first 4 weeks only train, so 1095 games in 30 weeks are
+  predicted (67144 observations). No value is non-finite.
+- Data checks: the whole-game stint margin equals the schedule's final margin in 1298 of 1300 checked games (share
+  0.998, above the 99 percent line). 20.6 percent of player slots belong to players the prior fit never saw (under the
+  30 percent line; 8.1 and 7.3 percent in development, higher as expected after the skipped season). 59.8 percent of
+  predicted possessions involve a lineup not seen in earlier weeks.
+
+Against rapm_synergy (baseline 2):
+
+- Mean weekly RMSE (points per possession): lrapm 0.7891 [0.7715, 0.8034], rapm_synergy 0.7895 [0.7720, 0.8038].
+- d: -0.0005 [-0.0015, +0.0002]; RMSE difference -0.0004 [-0.0012, +0.0001]. d is above -0.01 and the interval touches
+  zero: the rule does not hold. Read as committed (item 4): no detectable gain over rapm_synergy.
+- Bins, lrapm minus rapm_synergy: under 25 (61608 observations) -0.0004 [-0.0007, -0.0001]; 25 to 100 (4402) -0.0010
+  [-0.0024, +0.0004]; over 100 (1134) -0.0007 [-0.0045, +0.0028]. No bin is worse beyond its interval.
+
+Against raw (baseline 1), beside the verdict and never its headline: d -0.3204 [-0.3607, -0.2619]; RMSE difference
+-0.3720 [-0.4432, -0.2790]; bins, d of lrapm against raw: under 25 -0.4007 [-0.4738, -0.3178], 25 to 100 -0.0469
+[-0.0558, -0.0386], over 100 -0.0168 [-0.0278, -0.0074]. The rule holds against raw.
+
+Ablation and context, reading no verdict:
+
+- lrapm minus shrink_zero: -0.0002 [-0.0009, +0.0004]. Read as committed: no detectable gain from player information
+  over pure shrinkage, so "toward their players" is not claimed. In development it was -0.0009 and -0.0007 with
+  intervals below zero; that small gain does not carry to the test season.
+- Mean weekly RMSE of the other arms: shrink_zero 0.7893 [0.7718, 0.8033], lrapm_net_prior 0.7888 [0.7711, 0.8031].
+  All the shrunk and pooled arms sit within 0.0007 of each other; raw is the only arm far away (1.1611 [1.0664,
+  1.2308]).
+
+What this means for the lane. lineups-E1 showed that player RAPM carries game-margin information across seasons. This
+experiment shows that, inside a season, shrinking lineup ratings toward those player ratings adds nothing detectable
+over pooling players (rapm_synergy) or plain shrinkage, at the stint-side resolution used here. The large gap to raw
+ratings is a property of tiny estimated possession counts, not evidence for the player prior. Lineup ranks stay
+inconclusive (lineups-E1).

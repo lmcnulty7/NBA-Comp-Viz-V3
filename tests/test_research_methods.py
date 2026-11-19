@@ -56,7 +56,7 @@ def test_the_committed_source_traces_and_builds(source):
         assert (REPO / item.path).is_file(), item.path
 
 
-RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2")   # the experiments with a result file today
+RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2", "lineups-E2")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
