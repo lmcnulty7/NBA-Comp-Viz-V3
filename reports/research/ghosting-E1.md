@@ -21,8 +21,8 @@ end, -1.085, is below -0.10 ft, so on the test games the gain is at least the pr
 before the score why the reading could be "inconsistent": the development estimate pools five stand-in refits that
 differ from one another (fold 3's at 4.266 ft), while Set A scores one. On Set A the rollout ghost's error (2.354 ft)
 sits inside its five development folds (2.33 to 2.44). The stand-in refit's error (3.471 ft) sits inside the other
-four folds' stand-ins (3.44 to 3.55). The gap to -1.295 comes from the pooled development estimate, not from the
-rollout ghost. The rule stands as written.
+four folds' stand-ins (3.44 to 3.55). The gap to -1.295 is consistent with the pooled development estimate including
+fold 3's outlying stand-in. The rule stands as written.
 
 ## What was tested
 
@@ -121,10 +121,11 @@ research_ghosting_pass.log, in the artifacts folder). Every fold's network weigh
 development record. Training on MPS is not bit-reproducible, so the numbers trace to those
 weights.
 
+The section below was written before the score and is kept as written.
+
 ## Before the score: commitments (Set A, D113)
 
-Written before the score and kept as written. Development adopted, so under D113 Set A was scored once, as a
-consistency check, on the lead's go:
+Development adopts, so under D113 Set A is scored once, as a consistency check, on the lead's go:
 
 1. e1-final runs on a clean tree, only if the gate passed and development adopted. It first refits the stand-in and
    the rollout network on every development fit row with the same settings (no Set A data is read for that). It then
@@ -157,18 +158,21 @@ consistency check, on the lead's go:
 
 The first e1-final run refit both models on every development fit row. Its pre-score check then refused before
 score_once was called, so nothing was spent. The rollout network's final-epoch training loss was 7.6810, 0.0033 below
-the five folds' range of 7.6843 to 7.8066 (ghosting-E1-folds.json). The check was there to catch a broken refit:
-non-finite weights or a diverged loss. A slightly lower training loss on about 25 percent more rows is the expected
-direction, not a failure, and a training loss says nothing about Set A. D119, decided knowing the value: the check
-became one-sided (finite weights and a final-epoch loss not above 7.8066), and the saved refit was scored as it is,
-with no retraining and no second refit of the rollout network. Its epoch losses were transcribed from the log of the
-run that trained it (rollout_epochs.json, with the log's hash). The stand-in's refit is deterministic (seed 0, one
-thread); it was refit and saved. The hashes of both models' weights, the epoch record and the 7.6810 loss are in the
+the five folds' range of 7.6843 to 7.8066 (ghosting-E1-folds.json; computed: 7.6843 - 7.6810). The check was there to catch a broken refit:
+non-finite weights or a diverged loss. A slightly lower training loss on about 25 percent more rows (computed: 7147100 fit rows against
+5704715 to 5730095 in the folds' training sets, 1.247 to 1.253 times as many) is the expected direction, not a failure, and a training loss says nothing about Set A. D119, decided knowing the value: the check
+became one-sided (finite weights and a final-epoch loss not above 7.8066), and the saved rollout refit was scored as
+it is: D119's "no retraining, no second refit" applies to the rollout network. Its epoch losses were transcribed from
+the log of the run that trained it (rollout_epochs.json, with the log's hash). The stand-in was refit once more, in
+the scored run, because the refused run kept none of it; it was saved this time. Its refit is deterministic (seed 0,
+one thread), which the gate supports (the out-of-fold refits matched the stored ghosts within 7.35e-6 ft on 68935605
+rows), but this refit was not hash-verified against the refused run's. The hashes of both models' weights, the epoch record and the 7.6810 loss are in the
 final record.
 
 ## Set A (the 10 games of 2015-12-05, scored once)
 
-e1-final ran once on eae3cb6f with a clean tree, under the lock (1401 s, peak 5.6 GB). No refusal fired. Both ghosts
+e1-final ran once on eae3cb6f with a clean tree, under the lock (1401 s, peak 5.6 GB, from the lock's line in the run
+log, research_ghosting_final2.log in the artifacts folder). No refusal fired. Both ghosts
 covered the same origins in every game: 522180 at 1.0 s and 556040 at 0.2 s.
 
 | quantity | 1.0 s | 0.2 s |
@@ -189,8 +193,9 @@ covered the same origins in every game: 522180 at 1.0 s and 556040 at 0.2 s.
 ## What Set A means
 
 - The rollout ghost behaves on unseen games as it did on development folds: 2.354 ft at 1.0 s against 2.33 to 2.44.
-  What moved is the baseline. The pooled development difference includes fold 3's outlying stand-in, and one refit
-  pair cannot match a pooled estimate to within a 0.034 ft half-width. That is the case described before the score.
+  What moved is the baseline. The gap is consistent with the pooled development estimate including fold 3's outlying
+  stand-in, and one refit pair is not expected to match a pooled estimate to within a 0.034 ft half-width. That is
+  the case described before the score.
 - The pre-registered rule reads Set A against the development estimate, not against the bar, so the method is not
   adopted. The size reading, which reads no rule, says the gain on the test games is about 11 times the 0.10 ft bar
   (computed: 1.117 / 0.10).
