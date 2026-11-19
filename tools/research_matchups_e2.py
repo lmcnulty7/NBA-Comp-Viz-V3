@@ -375,6 +375,7 @@ def defended_fg(assigned, rows_all, shots, n: int = E1.BOOT, seed: int = E1.SEED
     ox = a[[f"ox{i}" for i in range(K)]].to_numpy()[np.arange(len(a)), j]
     oy = a[[f"oy{i}" for i in range(K)]].to_numpy()[np.arange(len(a)), j]
     a["dist"] = np.hypot(a["dx"] - ox, a["dy"] - oy)
+    a = a[np.isfinite(a["dist"].to_numpy(dtype=float))]      # a frame left out of the cache gives no distance
     near = a.sort_values("dist").drop_duplicates(["sportvu_game", "event"])
     near["far"] = near["dist"] > 4.0
     g = near.groupby(["sportvu_game", "far"])["made"].agg(["sum", "count"]).unstack(fill_value=0)
@@ -609,9 +610,202 @@ def assemble(cache: Path, head: str, gate: dict) -> dict:
             "peak_gb": round(peak_rss_gb(), 2)}
 
 
+# ----------------------------------------------------------------------------- the Set A path
+
+def final_models(artifacts, dev_json: dict) -> dict:
+    """Every part (a) model fitted on all development rows under its assignment, with the penalties the development
+    stage chose; the EM parameters of the development record. Templates keep the column maps only."""
+    import numpy as np
+    cache = work_dir(artifacts) / "dev_cache" / dev_json.get("pieces_commit", dev_json["code_commit"])
+    d = DevE2(artifacts)
+    D = designs(d, assignments(d, dev_json["em"]["params"], cache))
+    out = {"params": dev_json["em"]["params"], "default_p": None}
+    for m in MODELS:
+        lam = float(dev_json["test_fit"][m])
+        out[m] = {"template": D[m], "lambda": lam,
+                  "beta": E1.fit_logit(D[m].X, D[m].y, D[m].offset, E1._penalty_vector(D[m].shape[1], D[m].n_free, lam))}
+        D[m].X = D[m].X[:0]
+    from analytics.matchups import train as T
+    out["default_p"] = T.default_probability(E1.stored_xfg(Path(os.environ["DATA_ROOT"])))
+    del np
+    return out
+
+
+def game_parts(g: dict) -> dict:
+    """One game's frozen assignment parts (matchups-E1) and its HMM cache rows, from one read of its frames."""
+    from analytics.matchups import features as F
+    frames = clean_frames(g)
+    mf, info, _counts = F.frame_assignments(frames, g["possessions"])
+    shots = F.possession_shots(g, mf, info, None, frames=frames)
+    zones = E1.zone_mix(frames, info)
+    gid = str(g["sportvu_game"])
+    cells, ccounts = frame_rows(frames, info, gid)
+    del frames
+    zones.insert(0, "sportvu_game", gid)
+    return {"mf": mf, "info": info, "shots": shots, "zones": zones, "cells": cells, "cell_counts": ccounts}
+
+
+def reading(ci, dev_passed=True, context=False) -> str:
+    """D112 and D80: the Set A reading of an HMM-minus-Hungarian gain interval, given the development decision; a
+    context arm gets no D112 reading."""
+    if context:
+        return "context, reads no verdict"
+    lo, hi = ci
+    if lo <= 0 <= hi:
+        return "inconclusive at 10 games (the interval straddles zero; not evidence against)"
+    if dev_passed:
+        return ("confirms (interval wholly above zero)" if lo > 0 else
+                "contradiction (interval wholly below zero): blocks adopting the HMM assignment for any site use")
+    return ("confirms the development fail (interval wholly below zero)" if hi < 0 else
+            "wholly above zero; does not overturn the development fail (D112)")
+
+
+def evaluate_games(root, games, models: dict, dev_passed: bool = True) -> dict:
+    """The HMM and Hungarian part (a) gains, the ablation and the pre-shot context on the given games of a root, with
+    the final models: frozen assignment and HMM cache per game (frames read once each), rows, per-row losses, a
+    bootstrap of the games and a t interval of per-game means. Shared by the scorer and the dry run."""
+    import pandas as pd
+    from analytics.matchups import train as T
+    empty = pd.DataFrame(columns=["sportvu_game", "event", "p_selected"])
+    mps, shots, zones, mfs, cells = [], [], [], [], []
+    for g in E1.game_dicts(root, games):
+        pt = game_parts(g)
+        gid = str(g["sportvu_game"])
+        t = T.matchup_tables({gid: {"mf": pt["mf"], "info": pt["info"], "shots": pt["shots"]}}, empty,
+                             models["default_p"])
+        mps.append(t["matchup_possessions"]); shots.append(t["shots"]); zones.append(pt["zones"])
+        mfs.append((gid, pt["mf"], pt["shots"])); cells.append(pt["cells"])
+        del g, pt
+    mp, sh, zn = (pd.concat(x, ignore_index=True) for x in (mps, shots, zones))
+    rows_all = complete_cells(pd.concat(cells, ignore_index=True))
+    a_rows, a_shares, a_counts = E1.part_a_rows(mp, sh, zn)
+    pre_rows, pre_shares = E1.pre_shot_shares(iter(mfs), a_rows)
+    p = models["params"]
+    assigned = {"hmm": decode(Chains(rows_all), p, "hmm"), "emission": decode(Chains(rows_all), p, "emission")}
+    pre_cells = pre_shot_cut(rows_all, sh)
+    assigned["hmm_pre"] = decode(Chains(pre_cells), p, "hmm")
+    keep = lambda t, rows: t.merge(rows[["sportvu_game", "possession", "off_player_id"]], how="inner",
+                                   on=["sportvu_game", "possession", "off_player_id"])
+    shares = {"hungarian": a_shares, "hmm": keep(shares_of(assigned["hmm"], rows_all), a_rows),
+              "emission": keep(shares_of(assigned["emission"], rows_all), a_rows), "no_defender": a_shares,
+              "pre_hungarian": pre_shares, "pre_hmm": keep(shares_of(assigned["hmm_pre"], pre_cells), pre_rows),
+              "pre_no_defender": pre_shares}
+    L = {}
+    for m in MODELS:
+        rows = pre_rows if m.startswith("pre_") else a_rows
+        Dm = models[m]["template"].like(rows, shares[m])
+        L[m] = E1.row_loss(Dm.y, Dm.offset + Dm.X @ models[m]["beta"])
+    g_main = a_rows["sportvu_game"].astype(str).to_numpy()
+    g_pre = pre_rows["sportvu_game"].astype(str).to_numpy()
+    main = E1.game_bootstrap(g_main, {"gain_hungarian": L["no_defender"] - L["hungarian"],
+                                      "gain_hmm": L["no_defender"] - L["hmm"],
+                                      "hmm_minus_hungarian": L["hungarian"] - L["hmm"],
+                                      "emission_minus_hungarian": L["hungarian"] - L["emission"],
+                                      "hmm_minus_emission": L["emission"] - L["hmm"]})
+    pre = E1.game_bootstrap(g_pre, {"gain_hungarian": L["pre_no_defender"] - L["pre_hungarian"],
+                                    "gain_hmm": L["pre_no_defender"] - L["pre_hmm"],
+                                    "hmm_minus_hungarian": L["pre_hungarian"] - L["pre_hmm"]})
+    d = main["hmm_minus_hungarian"]
+    counts = {"games": len(games), "cells": int(len(rows_all)),
+              "cells_left_out_missing_position": int(rows_all.attrs.get("cells_left_out_missing_position", 0)),
+              "pre_shot_cells": int(len(pre_cells)), "a": a_counts, "pre_shot_rows": int(len(pre_rows)),
+              "games_with_part_a_rows": int(a_rows["sportvu_game"].nunique()),
+              "games_with_cells": int(rows_all["sportvu_game"].nunique())}
+    return {"counts": counts, "rows": main["rows"],
+            "gains": {k: main[k] for k in ("gain_hungarian", "gain_hmm")},
+            "hmm_minus_hungarian": {**d, "t_interval_of_game_means": E1.t_interval(g_main, L["hungarian"] - L["hmm"]),
+                                    "reading": reading(d["ci95"], dev_passed)},
+            "ablation": {"emission_minus_hungarian": main["emission_minus_hungarian"],
+                         "hmm_minus_emission": main["hmm_minus_emission"], "reading": reading(None, context=True)},
+            "pre_shot_context": {"rows": pre["rows"], **{k: pre[k] for k in ("gain_hungarian", "gain_hmm",
+                                                                             "hmm_minus_hungarian")},
+                                 "reading": reading(None, context=True)},
+            "switches": {"hmm": switches(assigned["hmm"]), "emission": switches(assigned["emission"])}}
+
+
+def make_scorer(models: dict, provenance: dict = None, dev_passed: bool = True):
+    """The scorer score_once runs on Set A. The test data is reached only here, through the research data root. It refuses before computing anything if a test game lacks
+    frames, possessions, shot rows or a roster; it refuses if any test game gives no part (a) row or no HMM cell; a
+    summary with any non-finite number is returned as a refused verdict."""
+    from tools import research_testset as RT
+
+    def scorer(test_games):
+        if RT._SCORING is None or RT._SCORING[1] != TRACKING:
+            raise SystemExit(f"{WHO}: the test data is read only inside the scorer that score_once runs")
+        from tools.research_xfg import research_data_root
+        root = research_data_root(None)
+        games = sorted(str(g) for g in test_games)
+        head = {"experiment": EXPERIMENT, "stage": "Set A, scored once as the D112 confirmation", **(provenance or {})}
+        miss = E1.missing_tables(root, games)
+        if miss:
+            return {**head, "verdict": {"refused": True, "reading": f"{len(miss)} test game(s) lack a needed table"},
+                    "missing": miss}
+        res = evaluate_games(root, games, models, dev_passed)
+        c = res["counts"]
+        if c["games_with_part_a_rows"] != len(games) or c["games_with_cells"] != len(games):
+            return {**head, "verdict": {"refused": True, "reading": "not every test game gives part (a) rows and HMM "
+                                                                   "cells; scored all or none"}, "counts": c}
+        bad = E1.non_finite(res)
+        if bad:
+            return {**head, "verdict": {"refused": True, "reading": f"{len(bad)} non-finite value(s), for example "
+                                                                   f"{bad[0]}"}, "counts": c}
+        return {**head, **res}
+
+    return scorer
+
+
+def dryrun(artifacts=None, n_games: int = 3) -> dict:
+    """The Set A path on the first development games, read from DATA_ROOT, with the final models (mechanics only:
+    these games are in sample), and the in-scorer cache rows of two of them against the stored cache."""
+    import pandas as pd
+    E1.require_gate(artifacts)
+    dev_json = json.loads((RESULTS / f"{EXPERIMENT}-dev.json").read_text())
+    models = final_models(artifacts, dev_json)
+    root = Path(os.environ["DATA_ROOT"])
+    games = E1.development_games(root)[:n_games]
+    res = evaluate_games(root, games, models, bool(dev_json["verdict"]["passes"]))
+    same = {}
+    for g in E1.game_dicts(root, games[:2]):
+        gid = str(g["sportvu_game"])
+        new = game_parts(g)["cells"].reset_index(drop=True)
+        old = pd.read_parquet(cache_dir(artifacts) / f"{gid}.parquet").reset_index(drop=True)
+        try:
+            pd.testing.assert_frame_equal(new, old, check_dtype=False)
+            same[gid] = True
+        except AssertionError:
+            same[gid] = False
+    return {"games": games, "counts": res["counts"], "readings": {"main": res["hmm_minus_hungarian"]["reading"],
+                                                                  "ablation": res["ablation"]["reading"],
+                                                                  "pre_shot": res["pre_shot_context"]["reading"]},
+            "non_finite": E1.non_finite(res), "cache_rows_equal": same,
+            "note": "mechanics only; these games are in the development fit"}
+
+
+def final(artifacts=None) -> dict:
+    head = E1.clean_head()
+    from tools.research_xfg import test_root_ready
+    E1.require_gate(artifacts)
+    dev_path = RESULTS / f"{EXPERIMENT}-dev.json"
+    if not dev_path.exists():
+        raise SystemExit(f"{WHO}: run e2-dev first; Set A is scored after the development result exists")
+    dev_json = json.loads(dev_path.read_text())
+    if not test_root_ready(None):
+        raise SystemExit(f"{WHO}: the research data root has no ingested games; run tools.research_ingest first")
+    models = final_models(artifacts, dev_json)
+    provenance = {"code_commit": head, "dev_code_commit": dev_json["code_commit"],
+                  "development_verdict": dev_json["verdict"]}
+    scorer = make_scorer(models, provenance, bool(dev_json["verdict"]["passes"]))
+    out = score_once(EXPERIMENT, TRACKING, scorer)
+    record = {"experiment": EXPERIMENT, "code_commit": head, "scored": out,
+              "setup": {"em": dev_json["em"], "lambdas": {m: models[m]["lambda"] for m in MODELS},
+                        "projected_set_a": dev_json["projected_set_a"]}}
+    (RESULTS / f"{EXPERIMENT}-final.json").write_text(json.dumps(_plain(record), indent=2, allow_nan=False) + "\n")
+    return record
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e2-cache", "e2-dev"))
+    ap.add_argument("command", choices=("e2-cache", "e2-dev", "e2-dryrun", "e2-final"))
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
     ap.add_argument("--limit", type=int, default=None)
@@ -620,8 +814,10 @@ def main(argv=None) -> int:
     with heavy_job(f"research matchups-E2 {a.command}"):
         if a.command == "e2-cache":
             out = cache_pass(a.artifacts, a.max_minutes, a.limit)
-        else:
+        elif a.command == "e2-dev":
             out = dev(a.artifacts, a.max_minutes, a.pieces_commit)
+        else:
+            out = {"e2-dryrun": dryrun, "e2-final": final}[a.command](a.artifacts)
     print(json.dumps(_plain(out.get("verdict", out)), indent=2, default=str))
     return 0
 

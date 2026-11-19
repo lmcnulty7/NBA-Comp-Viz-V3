@@ -86,6 +86,9 @@ ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
            # matchups-E1 imports the two from research_xfg and calls them only inside its scorer
            # (tests/test_research_matchups.py checks that)
            "tools/research_matchups.py": ("research_data_root", "test_features"),
+           # matchups-E2 imports it from research_xfg and calls it only inside its scorer
+           # (tests/test_research_matchups_e2.py checks that)
+           "tools/research_matchups_e2.py": ("research_data_root",),
            "tools/research_lineups_e2.py": ("scoring_data_root",),
            # gravity-E1 imports the two from research_xfg and calls them only inside its scorer
            # (tests/test_research_gravity.py checks that)
