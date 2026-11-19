@@ -7,9 +7,10 @@ the section "Set A" changed. Scoring code: tools/research_matchups_e2.py, reusin
 (matchups-E1). The development pieces were computed at commit 09432573; the dev json was assembled at b72fe4e7 (it
 records both, as pieces_commit and code_commit). Between the two only the assembly's loader of the cached game ids, the
 Set A scorer (never run) and the defended FG% statistic changed; the reported piece (switches and defended FG%) was
-recomputed at b72fe4e7, every other piece is the cached one of 09432573. Every number below is copied from reports/research/matchups-E2-dev.json,
-except where marked: Franks et al.'s weights are quoted from the paper (docs/research/matchups.md), and the dry run's
-counts from its printed output. Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games
+recomputed at b72fe4e7, every other piece is the cached one of 09432573. The json's pieces_commit field does not
+record that recompute; this header does. Every number below is copied from reports/research/matchups-E2-dev.json,
+except where marked: Franks et al.'s weights are quoted from the paper (docs/research/matchups.md), the old defended
+FG% values (item 6) from the first committed dev json (550212bb), and ratios marked computed. Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games
 (seed 0), with every assignment paired on the same rows and the same resampled games.
 
 **Verdict: not adopted, on development (D112, D114); Set A not scored (D114).** The HMM assignment carries less
@@ -29,7 +30,9 @@ cost with the hidden Markov model of Franks et al. (2015) and asks whether that 
 - Ablation (pre-registered): the same fitted emission without the transition (the most likely attacker at each frame).
 - Metric (pre-registered): the E1 part (a) gain (no-defender minus defender log loss, out of fold) under each
   assignment. The rows and the no-defender model are the same under every assignment, so HMM minus Hungarian is the
-  per-row Hungarian defender-model loss minus the HMM defender-model loss.
+  per-row Hungarian defender-model loss minus the HMM defender-model loss. The pre-registration writes the E1 gain the
+  other way round (defender minus no-defender log loss, where negative is better); here a larger gain means more
+  defender signal. This sign convention was fixed in the code's docstring before any number.
 - Threshold (pre-registered): the HMM's gain larger, the difference above zero with its interval wholly above zero.
   D112: the development games decide; Set A is scored once as a confirmation.
 - Context (D112, reads no verdict): the same difference with pre-shot shares (assignments from frames at least 2
@@ -55,10 +58,11 @@ cost with the hidden Markov model of Franks et al. (2015) and asks whether that 
 | Emission only (ablation) | 0.002248 [0.001976, 0.002507] | 3.04 | 0.122 | 0.0062 [-0.0014, +0.0142] |
 
 - HMM minus Hungarian: -0.003156 [-0.003417, -0.002893]. Wholly below zero: the HMM loses about two thirds of the
-  defender signal. Fails.
+  defender signal (computed: 1 - 0.001418 / 0.004574 = 0.69). Fails.
 - Ablation: emission only minus Hungarian -0.002325 [-0.002548, -0.002094]; HMM minus emission only -0.000830
   [-0.000975, -0.000693]. Both steps lose signal: the fitted emission (attacker, ball and basket) carries less than the
-  hand-set cost, and the temporal smoothing loses more.
+  hand-set cost, and the temporal smoothing loses a further 0.000830. The emission step changes two things at once: the
+  fitted mean, and the one-to-one constraint of the Hungarian matching, which it drops (doubles allowed).
 - Context, reads no verdict: with pre-shot shares, Hungarian gain 0.002162 [0.001879, 0.002423], HMM 0.000766
   [0.000553, 0.000984], difference -0.001396 [-0.001621, -0.001167]. The HMM also loses before the shot, so its loss is
   not only the late switch onto the shooter.
@@ -81,12 +85,15 @@ cost with the hidden Markov model of Franks et al. (2015) and asks whether that 
    wholly below "contradiction".) The ablation and the pre-shot context read no verdict on Set A either. A t interval on
    the 10 per-game means is reported beside each bootstrap interval (report only, as D80).
 3. **What the fail supports.** Under the E1 part (a) test, the fitted HMM assignment carries less information on who
-   takes the shot than the hand-set Hungarian cost. It does not show the HMM's matchups are wrong: there is no
+   takes the shot than the hand-set Hungarian cost. About half of the Hungarian gain comes from frames at and after the
+   release (matchups-E1's pre-shot context), so the E1 gain alone cannot tell a better assignment from one that removes
+   that shot-moment signal; the pre-shot arm shows the HMM also loses before the shot (-0.001396 [-0.001621,
+   -0.001167]). It does not show the HMM's matchups are wrong: there is no
    ground-truth matchup record, and this metric judges an assignment only by how much defender signal it carries. The
    HMM is smoother (fewer switches) and keeps the defended FG% gap; it is a different, not a better-tested, assignment.
    The site keeps the frozen assignment.
 4. **Projected power.** At a half-width of about 0.0020 Set A will most likely read "confirms the development fail" if
-   the development effect holds (it is about 1.6 half-widths).
+   the development effect holds (it is about 1.6 half-widths; computed: 0.003156 / 0.0020).
 5. **Choices fixed in the code's docstring before any development number.** Chains break when the attackers change;
    frames without five attackers or without the ball are left out; the initial state is uniform; EM starts from
    Franks et al.'s weights, rho 0.9, and stops at a relative log-likelihood gain under 1e-7 (it took 8 iterations);
@@ -99,7 +106,8 @@ cost with the hidden Markov model of Franks et al. (2015) and asks whether that 
    b72fe4e7 and only that piece recomputed, with the lead's agreement. The Hungarian gap moved from 0.0256 [0.0187,
    0.0333] (26,025 attempts within 4 ft) to 0.0267 [0.0196, 0.0344] (25,696); the HMM and emission-only figures did not
    change, because their assignments exist only at frames in the cache. The old piece is kept aside in the work
-   folder.
+   folder. The frame cache (e2-cache) was built by working-tree code between the amendment commit (708b831b) and the
+   code commit (09432573): positions only, no metric; its function frame_rows did not change before that commit.
 7. **Refusals.** The scorer refuses before computing anything if a test game lacks frames, possessions, shot rows or a
    roster, if any test game gives no part (a) row or no HMM cell, or if any value is non-finite; a refusal is reported
    as such, never as a fail.

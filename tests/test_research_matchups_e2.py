@@ -207,3 +207,14 @@ def test_the_scorer_refuses_a_test_game_without_a_table(tmp_path, monkeypatch):
     out = R.score_once("matchups-E2-rehearsal", R.TRACKING, H.make_scorer(models, {}), testset_path=testset,
                        ledger_path=ledger)
     assert out["verdict"]["refused"] and out["missing"] == {test[0]: ["rosters"]}
+
+
+def test_final_refuses_when_the_development_verdict_did_not_pass(tmp_path, monkeypatch):
+    """PLAN.md D114: with a failed development verdict the Set A score is refused before anything is read."""
+    from tools import research_matchups as E1
+    monkeypatch.setattr(E1, "clean_head", lambda: "x")
+    monkeypatch.setattr(E1, "require_gate", lambda artifacts=None: {"passed": True})
+    monkeypatch.setattr(H, "RESULTS", tmp_path)
+    (tmp_path / f"{H.EXPERIMENT}-dev.json").write_text(json.dumps({"verdict": {"passes": False}}))
+    with pytest.raises(SystemExit, match="D114"):
+        H.final(None)

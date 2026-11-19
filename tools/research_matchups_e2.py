@@ -18,8 +18,9 @@ e2-dev     EM for the HMM on the development games only, Viterbi assignments (HM
            assignments (the emission-only ablation), their shares, and matchups-E1 part (a) under the Hungarian, HMM and
            emission-only shares, out of fold, in cached pieces keyed by the code commit. Writes
            reports/research/matchups-E2-dev.json when every piece is done.
-e2-dryrun  The Set A path on three development games read from DATA_ROOT (mechanics only).
-e2-final   The one Set A score through tools.research_testset.score_once.
+e2-dryrun  The Set A path on three development games read from DATA_ROOT (mechanics only). Never run: D114.
+e2-final   The one Set A score through tools.research_testset.score_once. Never run: D114 decided that Set A is not
+           scored because development failed; final() refuses when the development verdict did not pass.
 
 The model (Franks, Miller, Bornn and Goldsberry 2015, section 3), fixed in this file before any development number:
 - A defender's chain is his run of consecutive sampled frames in one possession while the five attackers stay the
@@ -171,7 +172,8 @@ def cache_pass(artifacts=None, max_minutes: float = 25.0, limit=None) -> dict:
 
 class Chains:
     """Defender chains bucketed by length: per bucket Xh (n, T, 2), D (n, T, K, 2), Bh (n, T, 2) relative to the basket,
-    and the keys to map decoded states back (row index of each cell, attacker ids per chain)."""
+    and cells (n, T), the row of self.rows behind each cell (self.rows holds the attackers' ids that a decoded state
+    maps back to)."""
 
     def __init__(self, rows):
         import numpy as np
@@ -789,6 +791,8 @@ def final(artifacts=None) -> dict:
     if not dev_path.exists():
         raise SystemExit(f"{WHO}: run e2-dev first; Set A is scored after the development result exists")
     dev_json = json.loads(dev_path.read_text())
+    if not dev_json["verdict"]["passes"]:
+        raise SystemExit(f"{WHO}: the development verdict did not pass; PLAN.md D114: Set A is not scored")
     if not test_root_ready(None):
         raise SystemExit(f"{WHO}: the research data root has no ingested games; run tools.research_ingest first")
     models = final_models(artifacts, dev_json)
