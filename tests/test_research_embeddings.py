@@ -236,3 +236,10 @@ def test_results_are_written_only_to_the_research_results_and_the_work_folder():
             else:
                 assert _bound_to_work_dir(fn, base), f"{fn.name}: {text}"
     assert checked >= 6
+
+
+def test_the_t_interval_sensitivity_check_uses_one_mean_per_game():
+    groups = np.array([0] * 10 + [1] * 2 + [2] * 5)
+    vals = {"x": np.concatenate([np.ones(10), np.zeros(2), np.full(5, 0.5)])}
+    out = E.game_mean_t_interval(groups, vals)["x"]
+    assert out["games"] == 3 and np.isclose(out["mean_of_game_means"], 0.5) and out["lo"] < 0.5 < out["hi"]

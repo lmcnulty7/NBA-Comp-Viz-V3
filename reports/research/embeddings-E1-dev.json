@@ -1,0 +1,229 @@
+{
+  "experiment": "embeddings-E1",
+  "stage": "development games (gate passed); no adoption rule reads this stage",
+  "games": 604,
+  "player_seasons": 448,
+  "fit_rows": 399,
+  "split_half": {
+    "players": 358,
+    "queries": 716,
+    "chance": 0.013966480446927373,
+    "players_with_position": 356,
+    "rates_with_player_bootstrap": {
+      "pca": {
+        "value": 0.9203910614525139,
+        "lo": 0.8938547486033519,
+        "hi": 0.9441340782122905
+      },
+      "raw": {
+        "value": 0.9497206703910615,
+        "lo": 0.9287709497206704,
+        "hi": 0.9678770949720671
+      },
+      "movement": {
+        "value": 0.9371508379888268,
+        "lo": 0.9120111731843575,
+        "hi": 0.9594972067039106
+      },
+      "shot": {
+        "value": 0.6284916201117319,
+        "lo": 0.5824022346368715,
+        "hi": 0.6745810055865922
+      },
+      "position": {
+        "value": 0.04197746637121188,
+        "lo": 0.04035721841114223,
+        "hi": 0.04363025627583902
+      },
+      "pca_minus_raw": {
+        "value": -0.029329608938547486,
+        "lo": -0.0446927374301676,
+        "hi": -0.015363128491620111
+      },
+      "pca_minus_position": {
+        "value": 0.8784135950813021,
+        "lo": 0.8516030072336672,
+        "hi": 0.9020661438861365
+      },
+      "pca_minus_movement": {
+        "value": -0.01675977653631285,
+        "lo": -0.040502793296089384,
+        "hi": 0.00558659217877095
+      },
+      "pca_minus_shot": {
+        "value": 0.2918994413407821,
+        "lo": 0.25,
+        "hi": 0.33519553072625696
+      }
+    },
+    "pre_registered_game_bootstrap_range": {
+      "pca": {
+        "lo": 0.7932960893854749,
+        "hi": 0.8477653631284916
+      },
+      "raw": {
+        "lo": 0.8240223463687151,
+        "hi": 0.8756983240223464
+      },
+      "movement": {
+        "lo": 0.7709148044692737,
+        "hi": 0.8365921787709497
+      },
+      "shot": {
+        "lo": 0.3756983240223464,
+        "hi": 0.4594972067039106
+      },
+      "position": {
+        "lo": 0.04197746637121188,
+        "hi": 0.04197746637121188
+      },
+      "pca_minus_raw": {
+        "lo": -0.046089385474860335,
+        "hi": -0.009776536312849162
+      },
+      "pca_minus_position": {
+        "lo": 0.751318623014263,
+        "hi": 0.8057878967572798
+      },
+      "pca_minus_movement": {
+        "lo": -0.015363128491620111,
+        "hi": 0.051675977653631286
+      },
+      "pca_minus_shot": {
+        "lo": 0.36312849162011174,
+        "hi": 0.4441340782122905
+      }
+    },
+    "game_range_note": "pre-registered (resample games, rebuild the halves, re-embed); a game resample adds sampling noise to every multi-game player value, so this range is not read as a confidence interval (amendment, commitment 6; PLAN.md D86)",
+    "player_bootstrap_note": "valid interval fixed in the amendment: queries resampled by player, pool fixed"
+  },
+  "leave_one_game_out": {
+    "games_with_queries": 604,
+    "queries": 10491,
+    "players": 391,
+    "pool_size": {
+      "mean": 398.94039735099335,
+      "min": 397,
+      "max": 399
+    },
+    "chance": 0.01253320521749435,
+    "rates_with_game_bootstrap": {
+      "pca": {
+        "value": 0.47164236011819655,
+        "lo": 0.4604432368634146,
+        "hi": 0.482189666816865
+      },
+      "raw": {
+        "value": 0.5441807263368602,
+        "lo": 0.5324240953185364,
+        "hi": 0.5549853493605243
+      },
+      "movement": {
+        "value": 0.44276046134782193,
+        "lo": 0.43050292128978995,
+        "hi": 0.45499699836860114
+      },
+      "shot": {
+        "value": 0.1523210370794014,
+        "lo": 0.14500438934448123,
+        "hi": 0.15900955558581867
+      },
+      "position": {
+        "value": 0.037077550145616596,
+        "lo": 0.0369283037216816,
+        "hi": 0.03721630502806888
+      },
+      "pca_minus_raw": {
+        "value": -0.07253836621866362,
+        "lo": -0.0798853456907169,
+        "hi": -0.06591014175849907
+      },
+      "pca_minus_position": {
+        "value": 0.43456480997257996,
+        "lo": 0.42334757676714935,
+        "hi": 0.44513966352357215
+      },
+      "pca_minus_movement": {
+        "value": 0.028881898770374607,
+        "lo": 0.01682863922730148,
+        "hi": 0.03942639663941183
+      },
+      "pca_minus_shot": {
+        "value": 0.3193213230387952,
+        "lo": 0.30851636412749706,
+        "hi": 0.330066844451927
+      }
+    },
+    "note": "matched to the one-game test (D103); the development fit saw every game, stated not repaired; the game bootstrap resamples queries by game and adds no noise to any value"
+  },
+  "discrimination": {
+    "players": 399,
+    "explained_variance_ratio": [
+      0.30599237470995344,
+      0.23530090065974063,
+      0.10491577423632252,
+      0.0864586998391614,
+      0.06317612267662583,
+      0.05928245718805341,
+      0.03935213096826053,
+      0.032440466805902145
+    ],
+    "components": [
+      {
+        "component": 1,
+        "discrimination": 0.9893863782268145,
+        "lo": 0.9872118773331254,
+        "hi": 0.9910624824537284
+      },
+      {
+        "component": 2,
+        "discrimination": 0.9826850914500574,
+        "lo": 0.9791651629592095,
+        "hi": 0.9853859107502162
+      },
+      {
+        "component": 3,
+        "discrimination": 0.9705565561980082,
+        "lo": 0.9652128041331532,
+        "hi": 0.9748989478963572
+      },
+      {
+        "component": 4,
+        "discrimination": 0.9386602902936262,
+        "lo": 0.9253693097553533,
+        "hi": 0.9491210387290401
+      },
+      {
+        "component": 5,
+        "discrimination": 0.9381097680690568,
+        "lo": 0.9246814170593513,
+        "hi": 0.9484396847627605
+      },
+      {
+        "component": 6,
+        "discrimination": 0.9109380486688647,
+        "lo": 0.8917195949514976,
+        "hi": 0.9256097388145382
+      },
+      {
+        "component": 7,
+        "discrimination": 0.7976170364440875,
+        "lo": 0.7320937579580579,
+        "hi": 0.8419063388960512
+      },
+      {
+        "component": 8,
+        "discrimination": 0.8123510829896673,
+        "lo": 0.7667906990272062,
+        "hi": 0.8477442787801592
+      }
+    ],
+    "note": "BV from 2000 game resamples; interval by player bootstrap (amendment, commitment 7); no verdict"
+  },
+  "one_game_test_rule": {
+    "min_possessions": 50,
+    "lower_end_above": 0.1,
+    "and_above": "the upper end of the position-only retriever's interval",
+    "source": "PLAN.md D103"
+  }
+}

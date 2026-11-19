@@ -699,12 +699,31 @@ def one_game_summary(P_test, d: dict, n: int = BOOT) -> dict:
         games_of.append(np.full(len(q), g))
     hit = {s: np.concatenate(hitv[s]).astype(bool) for s in SPACES}
     v = query_values(hit, np.concatenate(hitv["position"]))
-    boot = cluster_bootstrap(np.concatenate(games_of), v, n, [SEED, 21])
+    g_of = np.concatenate(games_of)
+    boot = cluster_bootstrap(g_of, v, n, [SEED, 21])
     iv = boot["intervals"]
     rule = {"lower_end": iv["pca"]["lo"], "position_upper_end": iv["position"]["hi"], "threshold": TEST_LO_MIN,
             "passes": bool(iv["pca"]["lo"] > TEST_LO_MIN and iv["pca"]["lo"] > iv["position"]["hi"])}
     return {"games": P_test.G, "counts": counted, "queries": boot["queries"], "pool": int(len(pool_players)),
-            "chance": float(K / len(pool_players)), "rates_with_game_bootstrap": iv, "rule": rule}
+            "chance": float(K / len(pool_players)), "rates_with_game_bootstrap": iv, "rule": rule,
+            "sensitivity_t_interval_of_game_means": game_mean_t_interval(g_of, v)}
+
+
+def game_mean_t_interval(groups, values: dict) -> dict:
+    """Sensitivity check proposed before the score, reported only (as D80 for xfg-E1): a 95 percent t interval on the
+    per-game mean of each value, one value per game, because a percentile bootstrap of few games under-covers. No
+    rule reads it; if it and the bootstrap disagree on the rule, the report says so."""
+    import numpy as np
+    from scipy import stats
+    groups = np.asarray(groups)
+    out = {}
+    for k, v in values.items():
+        means = np.array([np.mean(np.asarray(v, dtype=float)[groups == g]) for g in np.unique(groups)])
+        half = float(stats.t.ppf(0.975, len(means) - 1) * means.std(ddof=1) / np.sqrt(len(means))) \
+            if len(means) > 1 else float("nan")
+        out[k] = {"mean_of_game_means": float(means.mean()), "lo": float(means.mean() - half),
+                  "hi": float(means.mean() + half), "games": int(len(means))}
+    return out
 
 
 def dryrun(artifacts=None, n_games: int = 3) -> dict:
