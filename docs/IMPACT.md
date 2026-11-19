@@ -43,11 +43,22 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
   whether that shot goes in, given its expected value: -0.000003 [-0.000140, +0.000121] on the training games. The
   report says plainly that part (a) is confounded by role (teams put their best defender on the first option), so
   it is not defensive skill. Source: `reports/research/matchups-E1.md`
+- Matchups, second test (matchups-E2): not adopted on the training games. A hidden Markov model of who guards whom
+  carries less defender signal than the frozen matching: its gain minus the old gain is -0.003156 [-0.003417,
+  -0.002893], where a higher gain means more signal. It does switch far less. Its test games were not scored.
+  Source: `reports/research/matchups-E2.md`
 - Gravity (gravity-E1): not adopted on the training games. A shot is not more open by the bar of 0.2 ft for each
   standard deviation of the teammates' gravity: the effect is 0.014 ft (interval -0.066 to 0.102, 62358 attempts),
   so an effect of 0.2 ft is ruled out for that measure. A later check, read by no rule, gives 0.109 [0.053, 0.167]
   for the gravity sum alone, also under 0.2. Its test games were not scored, since they could not change the
   outcome. Source: `reports/research/gravity-E1.md`
+- Defender ghost (ghosting-E1): not adopted, by its test reading. Trained on its own 5-step path, the ghost model
+  cut the 1.0 s error by about 35 percent on the training games: -1.295 [-1.322, -1.269] ft. On the 10 test games
+  the gain was -1.117 [-1.154, -1.085] ft. That range leaves out the training value, so the rule set in advance
+  reads it as inconsistent, and that stops the adoption. The report said before the score why this could happen:
+  the training value pools five fits of the old model, and one of them was an outlier. Read by no rule, the gain on
+  the test games is about 11 times the bar. A lower mean error does not show the paths are more lifelike. Source:
+  `reports/research/ghosting-E1.md`
 - Win chances (winprob-E1): passed on both stages. A pregame strength term changed mean bucket Brier by -0.0124
   [-0.0161, -0.0086] on the test season (lower is better), with no time bucket worse. It is kept as a research result; the site did
   not change. Source: `reports/research/winprob-E1.md`
