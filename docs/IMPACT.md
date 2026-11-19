@@ -28,6 +28,15 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
 - Lineups (lineups-E1): passed. Player ratings predicted each game's margin better than raw lineup plus-minus on the
   test season of 1300 games: RMSE difference -1.15 [-1.59, -0.77] points, R squared over home court alone 0.098
   [0.065, 0.132]. The claim is narrow: game margin, given who played. Source: `reports/research/lineups-E1.md`
+- Lineups, second test (lineups-E2): fails as set up. On 1095 games of the test season, lineup ratings shrunk
+  toward their players showed no detectable gain over the frozen ratings that already pool players: d -0.0005
+  [-0.0015, +0.0002], far from the -0.01 bar. Beside it, not as the headline: the rule holds against the raw
+  baseline, which is weak by construction (d -0.3204 [-0.3607, -0.2619]). Source: `reports/research/lineups-E2.md`
+- Player style (embeddings-E1): passes the one-game test. Built from a single held-out game, the frozen style map
+  finds the same player among its 5 nearest neighbours 0.474 [0.384, 0.558] of the time (171 players; chance
+  0.0125). The lower end is above the bar of 0.10 and above 0.038, the top of a retriever that knows only position.
+  The claim is narrow: it shows the map finds the same player, not what the map means. The 19 raw features without
+  the map retrieve better, 0.561 [0.491, 0.631]. Source: `reports/research/embeddings-E1.md`
 - Win chances (winprob-E1): passed on both stages. A pregame strength term changed mean bucket Brier by -0.0124
   [-0.0161, -0.0086] on the test season (lower is better), with no time bucket worse. It is kept as a research result; the site did
   not change. Source: `reports/research/winprob-E1.md`
