@@ -134,26 +134,142 @@ def test_score_once_is_never_aliased_or_reached_by_name():
     assert problems == []
 
 
-def test_the_scoring_ledger_only_grows_across_its_whole_history():
-    """Every committed version of the ledger is a prefix of the next and of the working tree, and an entry that was
-    "scored" in any version is byte-identical in every later one."""
+LEDGER_REL = "reports/research/scoring_ledger.json"
+
+
+def _entry_key(entry: dict) -> tuple:
+    return entry["experiment"], entry["source"], entry["started_at"]
+
+
+def ledger_growth_problems(parent: list, child: list, where: str) -> list:
+    """How a child version of the ledger fails to grow from one parent version (PLAN.md D105): every parent entry is
+    in the child with the same experiment, source and start time; an entry the parent holds as scored is
+    byte-identical in the child; and the parent's entries keep their order in the child (a subsequence, so entries
+    appended on another branch may sit between them)."""
+    problems, at = [], {}
+    for i, entry in enumerate(child):
+        at.setdefault(_entry_key(entry), i)
+    last = -1
+    for entry in parent:
+        key = _entry_key(entry)
+        if key not in at:
+            problems.append(f"{where}: the entry {key} was removed")
+            continue
+        if entry.get("status") == "scored" and json.dumps(entry, sort_keys=True) != json.dumps(child[at[key]],
+                                                                                               sort_keys=True):
+            problems.append(f"{where}: the scored entry {key} was edited")
+        if at[key] < last:
+            problems.append(f"{where}: the entry {key} moved before an entry that came before it")
+        last = max(last, at[key])
+    return problems
+
+
+def ledger_history_problems(repo, rel: str = LEDGER_REL, working_tree: bool = True) -> list:
+    """Every commit that touches the ledger, compared with each of its own parents (a merge with both of them), and
+    the working tree with HEAD. --full-history keeps the merges that bring an entry in from one side. A parent
+    without the file holds an empty ledger."""
     import subprocess
-    rel = "reports/research/scoring_ledger.json"
-    shas = subprocess.run(["git", "log", "--reverse", "--format=%H", "--", rel], cwd=REPO, capture_output=True,
-                          text=True).stdout.split()
-    versions = []
-    for sha in shas:
-        shown = subprocess.run(["git", "show", f"{sha}:{rel}"], cwd=REPO, capture_output=True, text=True)
-        if shown.returncode == 0:
-            versions.append(json.loads(shown.stdout))
-    if R.LEDGER_FILE.exists():
-        versions.append(json.loads(R.LEDGER_FILE.read_text()))
-    for older, newer in zip(versions, versions[1:]):
-        assert len(newer) >= len(older), "a ledger entry was removed"
-        for old, new in zip(older, newer):
-            assert (old["experiment"], old["source"], old["started_at"]) == (new["experiment"], new["source"], new["started_at"])
-            if old.get("status") == "scored":
-                assert json.dumps(old, sort_keys=True) == json.dumps(new, sort_keys=True), "a scored entry was edited"
+
+    def version(rev: str) -> list:
+        shown = subprocess.run(["git", "show", f"{rev}:{rel}"], cwd=repo, capture_output=True, text=True)
+        return json.loads(shown.stdout) if shown.returncode == 0 else []
+
+    lines = subprocess.run(["git", "log", "--full-history", "--format=%H %P", "--", rel], cwd=repo,
+                           capture_output=True, text=True, check=True).stdout.splitlines()
+    problems = []
+    for line in lines:
+        sha, *parents = line.split()
+        child = version(sha)
+        for parent in parents:
+            problems += ledger_growth_problems(version(parent), child, f"{sha[:8]} against its parent {parent[:8]}")
+    path = Path(repo) / rel
+    if working_tree and path.exists():
+        problems += ledger_growth_problems(version("HEAD"), json.loads(path.read_text()), "the working tree")
+    return problems
+
+
+def test_the_scoring_ledger_only_grows_across_its_whole_history():
+    """PLAN.md D105: each ledger-touching commit grows from each of its own parents, and the working tree from HEAD.
+    On a linear history this is the old prefix check; it also holds across merges of parallel branches."""
+    assert ledger_history_problems(REPO) == []
+
+
+def _git(repo, *args) -> str:
+    import subprocess
+    return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=fixture", "-c",
+                           "commit.gpgsign=false", *args], cwd=repo, capture_output=True, text=True,
+                          check=True).stdout
+
+
+def _ledger_entry(experiment: str, status: str = "scored", summary=None) -> dict:
+    return {"experiment": experiment, "source": "s", "sha256": "0" * 64, "games": 1,
+            "started_at": f"2026-11-17T00:00:0{len(experiment) % 10}+00:00", "status": status,
+            **({"scored_at": "2026-11-17T01:00:00+00:00", "summary": summary or {"n": 1}} if status == "scored" else {})}
+
+
+def _commit_ledger(repo, entries: list, message: str) -> None:
+    path = Path(repo) / LEDGER_REL
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(entries, indent=2) + "\n")
+    _git(repo, "add", LEDGER_REL)
+    _git(repo, "commit", "-q", "-m", message)
+
+
+@pytest.fixture
+def two_branch_ledger(tmp_path):
+    """A ledger [a] on main; branch x appends b, branch y appends c; y is merged into x with [a, b, c]."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    a, b, c = _ledger_entry("a-E1"), _ledger_entry("b-E10"), _ledger_entry("c-E100")
+    _commit_ledger(repo, [a], "a")
+    _git(repo, "checkout", "-q", "-b", "y")
+    _commit_ledger(repo, [a, c], "c")
+    _git(repo, "checkout", "-q", "main")
+    _git(repo, "checkout", "-q", "-b", "x")
+    _commit_ledger(repo, [a, b], "b")
+    return repo, (a, b, c)
+
+
+def _merge(repo, entries: list) -> None:
+    import subprocess
+    subprocess.run(["git", "merge", "-q", "--no-ff", "--no-commit", "y"], cwd=repo, capture_output=True, text=True)
+    _commit_ledger(repo, entries, "merge y")
+
+
+def test_a_ledger_grown_on_two_branches_and_merged_passes(two_branch_ledger):
+    repo, (a, b, c) = two_branch_ledger
+    _merge(repo, [a, b, c])
+    assert ledger_history_problems(repo) == []
+    assert len(_git(repo, "log", "--full-history", "--format=%H", "--", LEDGER_REL).split()) == 4
+
+
+def test_a_merge_that_drops_an_entry_fails(two_branch_ledger):
+    repo, (a, b, c) = two_branch_ledger
+    _merge(repo, [a, b])
+    assert any("was removed" in p for p in ledger_history_problems(repo))
+
+
+def test_a_merge_that_edits_a_scored_entry_fails(two_branch_ledger):
+    repo, (a, b, c) = two_branch_ledger
+    _merge(repo, [a, b, {**c, "summary": {"n": 2}}])
+    assert any("was edited" in p for p in ledger_history_problems(repo))
+
+
+def test_a_merge_that_reorders_entries_fails(two_branch_ledger):
+    repo, (a, b, c) = two_branch_ledger
+    _merge(repo, [b, a, c])
+    assert any("moved before" in p for p in ledger_history_problems(repo))
+
+
+def test_the_working_tree_is_checked_against_head(two_branch_ledger):
+    repo, (a, b, c) = two_branch_ledger
+    _merge(repo, [a, b, c])
+    (Path(repo) / LEDGER_REL).write_text(json.dumps([a, c], indent=2) + "\n")
+    assert any("the working tree" in p and "was removed" in p for p in ledger_history_problems(repo))
+    started = _ledger_entry("d-E1", status="started")
+    finished = {**started, "status": "scored", "scored_at": "x", "summary": {"n": 1}}
+    assert ledger_growth_problems([a, started], [a, finished], "w") == []       # a started entry may be completed
 
 
 def test_each_experiment_module_has_at_most_one_final_scoring_call_and_it_is_not_in_a_loop():
