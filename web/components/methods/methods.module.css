@@ -108,3 +108,10 @@
 .state :global(.status) {
   white-space: normal;
 }
+
+/* A result quotes code names and paths as they are written ("analytics.eval.paired_bootstrap_by_game"); a token
+   longer than a phone's width breaks rather than push the page sideways. */
+.result {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

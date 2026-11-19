@@ -160,7 +160,9 @@ def is_sentences(note: str, paragraphs: list) -> bool:
             before = paragraph[:start].rstrip()
             after = paragraph[start + len(note):]
             lead = before.rstrip("*").rstrip()     # a bold lead that ends a sentence ("**Caveats written now.**")
-            inline_item = before == "-" or before.endswith(" -")   # an inline list item ("... size. - H2, ...")
+            # an inline list item ("... size. - H2, ..."): the hyphen follows the end of a sentence or a colon,
+            # never a hyphen inside a sentence ("7.6810). The check ..." is not one)
+            inline_item = before == "-" or (before.endswith(" -") and before[:-2].rstrip()[-1:] in (".", "?", "!", ":"))
             if (not before or before[-1] in ".?!" or inline_item or (before.endswith("**") and lead[-1:] in (
                     ".", "?", "!"))) and (
                     not after or after[0] == " "):
@@ -405,6 +407,11 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                     problems.append(f"{where}: {exc}")
                     continue
                 text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() else ""
+                for value in spec.get("values", []):
+                    for sentence in (value.get("reading_quote") or {}).get("texts", []):
+                        if not is_sentences(sentence, paragraphs):
+                            problems.append(f"{where}: the reading rule of {value['label']!r} is not whole sentences "
+                                            f"of {lane['dossier']} word for word: {sentence[:70]!r}")
                 quote = spec.get("rule_quote")
                 if quote and quote.get("from") == "dossier":
                     for sentence in quote["texts"]:
@@ -640,6 +647,10 @@ def _hypothesis_rule(results: dict, keys: dict, rel: str) -> str:
                                  "that rule")
     if not keys.get("diff", "").startswith(f"hypotheses.{label} "):
         raise MethodsProblem(f"{rel}: {label} reads {keys.get('diff')!r}, not a key of its own hypothesis")
+    if "failure rate as amendment" in " ".join(texts) and not any(
+            v.get("reading") and "number_value" in v["reading"] for v in results.get("values", [])):
+        raise MethodsProblem(f"{rel}: {label} is read on its number failure rate too, so it shows that value with "
+                             "its reading")
     # the rule read is the quoted rule of the hypothesis that decides (H4's pass rate: H2's), not its own preamble
     if re.search(r"read by the (H\d+) rule", " ".join(texts)):
         return " ".join(s for s in texts if not s.startswith(f"{label}, "))
@@ -684,6 +695,31 @@ def _readings_in_rule(rule: str, results: dict, comparison: str, threshold: floa
     if met_clause is None:
         raise MethodsProblem(f"{rel}: the quoted rule has no reading for the bar met")
     return met_clause
+
+
+def _value_rule_in_quote(spec: dict, rel: str) -> None:
+    """A reading the file states beside a value (genai-E2 H4's number failure rate) follows a rule quoted from the
+    dossier (`reading_quote`, traced there word for word): each of its words is in that rule with its comparison
+    and bar ("fewer wrong numbers" when its whole 95 percent interval is below 0), and otherwise says otherwise."""
+    quote = spec.get("reading_quote") or {}
+    if quote.get("from") != "dossier" or not quote.get("texts"):
+        raise MethodsProblem(f"{rel}: the reading of {spec['label']!r} quotes its rule from the dossier")
+    text = " ".join(quote["texts"])
+    clauses = [c.strip() for c in re.split(r";|,\s|(?<=\.)\s+", text) if c.strip()]
+    for word, kind in spec["reading_rule"].items():
+        clause = next((c for c in clauses if f'"{word}"' in c), None)
+        if clause is None:
+            raise MethodsProblem(f"{rel}: the reading {word!r} is not in the quoted rule")
+        if isinstance(kind, dict):
+            if not states(clause, kind["comparison"], float(kind["threshold"])) or not (
+                    "whole" in clause or any(w in clause.lower() for w in BOUND_WORDS[kind["bound"]])):
+                raise MethodsProblem(f"{rel}: the clause of {word!r} does not state its {kind['bound']} end "
+                                     f"{kind['comparison']} {kind['threshold']}: {clause!r}")
+        elif kind != "otherwise" or not _has_word(clause, "otherwise"):
+            raise MethodsProblem(f"{rel}: the reading {word!r} is neither on an end nor said otherwise")
+    quoted = re.findall(r'"([^"]+)"', text)
+    if sorted(quoted) != sorted(spec["reading_rule"]):
+        raise MethodsProblem(f"{rel}: the quoted rule reads {sorted(quoted)}, the source {sorted(spec['reading_rule'])}")
 
 
 def _uncovered_bars(text: str, comparison: str, threshold: float, conditions: list, bar_of, guards=()) -> list:
@@ -1023,6 +1059,7 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         hi = round(float(at(spec["hi"], file)), spec["digits"]) if spec.get("hi") else None
         value_reading = None
         if spec.get("reading"):
+            _value_rule_in_quote(spec, rel)
             # a reading the file states beside a reported value (genai-E2 H4's number failure rate, amendment (d)),
             # checked against its own rule: each word with the end and bar it needs, otherwise the remaining word
             value_reading = str(at(spec["reading"], file))
@@ -1044,7 +1081,11 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         # test players and possessions, reports/research/genai-splits.json) names its own test set and never D71.
         ledger_path = repo / LEDGER
         ledger = json.loads(ledger_path.read_text(encoding="utf-8")) if ledger_path.is_file() else []
-        in_ledger = any(isinstance(e, dict) and e.get("experiment") == eid for e in ledger)
+        entry = next((e for e in ledger if isinstance(e, dict) and e.get("experiment") == eid), None)
+        in_ledger = entry is not None
+        stated = (entry or {}).get("summary", {}).get("stage") if in_ledger else None
+        if stated:                       # the ledger's own words for what was scored (a season, a one-game test)
+            what = f"experiment result: {stated}"
         own = results.get("test_set")
         if own:
             if in_ledger or "D71" in own["what"] or "test games" in own["heading"].lower():
@@ -1278,6 +1319,18 @@ def _refuse_missing_parts(exp: dict, repo: Path) -> None:
         diff = part["results"].get("keys", {}).get("diff", "")
         if diff.startswith("hypotheses."):
             read.setdefault(part["results"]["test"], set()).add(diff[len("hypotheses."):].rsplit(".", 1)[0])
+    if read:
+        # every final file of the experiment is read by some part: those on disk under its name, and those its
+        # write-ups name (genai-E2-1.5B.md names genai-E2-1.5B-final.json)
+        eid = exp["id"]
+        expected = {f"reports/research/{path.name}" for path in (repo / "reports" / "research").glob(f"{eid}-*-final.json")}
+        writeups = [exp.get("writeup")] + [n.get("file") for n in exp.get("writeup_notes", []) if isinstance(n, dict)]
+        for writeup in {w for w in writeups if w and (repo / w).is_file()}:
+            expected |= set(re.findall(rf"reports/research/{re.escape(eid)}-[\w.-]*final\.json",
+                                       (repo / writeup).read_text(encoding="utf-8")))
+        unread_files = sorted(expected - set(read))
+        if unread_files:
+            raise MethodsProblem(f"{eid}: no part reads {unread_files}")
     for file, keys in read.items():
         entries = json.loads((repo / file).read_text(encoding="utf-8"))["hypotheses"]
         unread = sorted(k for k, v in entries.items() if k not in keys and v.get("decides", True) is not False)

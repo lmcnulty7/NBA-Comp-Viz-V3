@@ -1507,9 +1507,14 @@ def test_genai_stages_name_their_own_test_set_and_h4_shows_its_failure_rate_read
         for part in built[eid].parts:
             assert "D71" not in part.test.source.what and "genai-splits.json" in part.test.source.what
             assert part.test.test_set and "test games" not in part.test.test_set.lower()
-    for eid in ("embeddings-E1", "lineups-E2", "matchups-E1", "ghosting-E1"):
+    # a test stage the scoring ledger holds says what was scored in the ledger's own words when it has them
+    ledger = {e["experiment"]: e for e in json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))}
+    for eid in ("embeddings-E1", "lineups-E1", "lineups-E2", "winprob-E1", "matchups-E1", "ghosting-E1", "xfg-E1"):
         stages = [built[eid].test] if built[eid].test else [p.test for p in built[eid].parts if p.test]
-        assert all("D71" in s.source.what and s.test_set is None for s in stages), eid
+        stated = ledger[eid].get("summary", {}).get("stage")
+        want = (f"experiment result: {stated}" if stated else
+                "experiment result: fitted on every development game, scored once on the D71 test set")
+        assert stages and all(s.source.what == want and s.test_set is None for s in stages), eid
     h4 = [p for p in built["genai-E2"].parts if " H4 " in p.label]
     assert len(h4) == 4 and all(p.test.values[0].reading == "inconclusive" for p in h4)
     h2 = next(p for p in built["genai-E1"].parts if p.label.startswith("H2"))
@@ -1521,3 +1526,47 @@ def test_genai_stages_name_their_own_test_set_and_h4_shows_its_failure_rate_read
 def test_a_tiny_condition_value_keeps_its_first_digit(source):
     p = _built(source)["ghosting-E1"].development.conditions[3]
     assert p.value != 0 and f"{p.value:.0e}" == "2e-20"
+
+
+# ------------------------------------------------------------------------------------------ the re-review probes
+
+
+def _drop_size(size):
+    return lambda d: _exp(d, "genai-E2").update(parts=[p for p in _exp(d, "genai-E2")["parts"]
+                                                       if not p["label"].startswith(size)])
+
+
+def _h4_values(d, change):
+    for part in _exp(d, "genai-E2")["parts"]:
+        if " H4 " in part["label"]:
+            change(part["results"])
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("1. every 1.5B part dropped", _drop_size("1.5B"), "no part reads ['reports/research/genai-E2-1.5B-final.json']"),
+    ("4. the H4 failure-rate rule cut to otherwise", lambda d: _h4_values(d, lambda r: r["values"][0].update(
+        reading_rule={"inconclusive": "otherwise"})), "the quoted rule reads"),
+    ("4. the H4 failure-rate bar moved", lambda d: _h4_values(d, lambda r: r["values"][0]["reading_rule"][
+        "fewer wrong numbers"].update(threshold=-0.01)), "does not state its hi end below -0.01"),
+    ("4. the H4 value dropped", lambda d: _h4_values(d, lambda r: r.update(values=[])),
+     "read on its number failure rate too"),
+    ("4. the H4 failure-rate rule not from the dossier", lambda d: _h4_values(d, lambda r: r["values"][0][
+        "reading_quote"]["texts"].__setitem__(0, 'It reads "fewer wrong numbers" when its whole interval is below 0, '
+                                                 '"more wrong numbers" when the whole interval is above 0, and '
+                                                 '"inconclusive" otherwise.')), "not whole sentences"),
+])
+def test_the_re_review_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_a_note_cannot_start_after_a_hyphen_inside_a_sentence():
+    # ghosting-E1.md: "... 7.6843 - 7.6810). The check was there ..." is not an inline list item
+    paragraph = "the range (computed: 7.6843 - 7.6810). The check was there to catch a broken refit."
+    assert R.is_sentences("The check was there to catch a broken refit.", [paragraph])
+    assert not R.is_sentences("7.6810). The check was there to catch a broken refit.", [paragraph])
+    assert R.is_sentences("H2, the checker.", ["Rule one holds. - H2, the checker."])
+    assert R.is_sentences("H2, the checker.", ["Rules, fixed now: - H2, the checker."])
+    assert not R.is_sentences("H2, the checker.", ["a minus - H2, the checker."])

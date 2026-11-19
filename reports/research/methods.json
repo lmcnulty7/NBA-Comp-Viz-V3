@@ -3914,7 +3914,13 @@
            },
            "inconclusive": "otherwise"
           },
-          "digits": 3
+          "digits": 3,
+          "reading_quote": {
+           "from": "dossier",
+           "texts": [
+            "Wording corrected on 2026-11-18 to the code's rule: the change in failure rate reads \"fewer wrong numbers\" when its whole 95 percent interval is below 0, \"more wrong numbers\" when the whole interval is above 0, and \"inconclusive\" otherwise."
+           ]
+          }
          }
         ],
         "hypothesis": "H4",
@@ -3981,7 +3987,13 @@
            },
            "inconclusive": "otherwise"
           },
-          "digits": 3
+          "digits": 3,
+          "reading_quote": {
+           "from": "dossier",
+           "texts": [
+            "Wording corrected on 2026-11-18 to the code's rule: the change in failure rate reads \"fewer wrong numbers\" when its whole 95 percent interval is below 0, \"more wrong numbers\" when the whole interval is above 0, and \"inconclusive\" otherwise."
+           ]
+          }
          }
         ],
         "hypothesis": "H4",
@@ -4295,7 +4307,13 @@
            },
            "inconclusive": "otherwise"
           },
-          "digits": 3
+          "digits": 3,
+          "reading_quote": {
+           "from": "dossier",
+           "texts": [
+            "Wording corrected on 2026-11-18 to the code's rule: the change in failure rate reads \"fewer wrong numbers\" when its whole 95 percent interval is below 0, \"more wrong numbers\" when the whole interval is above 0, and \"inconclusive\" otherwise."
+           ]
+          }
          }
         ],
         "hypothesis": "H4",
@@ -4362,7 +4380,13 @@
            },
            "inconclusive": "otherwise"
           },
-          "digits": 3
+          "digits": 3,
+          "reading_quote": {
+           "from": "dossier",
+           "texts": [
+            "Wording corrected on 2026-11-18 to the code's rule: the change in failure rate reads \"fewer wrong numbers\" when its whole 95 percent interval is below 0, \"more wrong numbers\" when the whole interval is above 0, and \"inconclusive\" otherwise."
+           ]
+          }
          }
         ],
         "hypothesis": "H4",

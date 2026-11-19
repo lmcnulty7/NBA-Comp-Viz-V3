@@ -34,7 +34,7 @@ export function ResultsSoFar({ methods }: { methods: MethodsFile }) {
               <li
                 key={experiment.id}
                 id={`result-${experiment.id}`}
-                className={`stack ${styles.anchor}`}
+                className={`stack ${styles.anchor} ${styles.result}`}
                 data-result={experiment.id}
                 data-status={experiment.status}
               >
