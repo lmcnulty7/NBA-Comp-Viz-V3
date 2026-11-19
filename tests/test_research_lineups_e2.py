@@ -122,10 +122,19 @@ def test_score_rows_reads_the_verdict_and_refuses_on_a_non_finite_value():
     rows = pd.DataFrame({"game_id": [f"g{i % 400}" for i in range(n)], "week": (np.arange(n) % 400) // 50 + 4,
                          "w": 5.0, "y": y, "bin_poss": rng.choice([0.0, 50.0, 500.0], n)})
     rows["pred_raw"] = 1.1 + rng.normal(0, 0.3, n)
-    for a in ("lrapm", "shrink_zero", "rapm_synergy", "lrapm_net_prior"):
+    for a in ("lrapm", "shrink_zero", "lrapm_net_prior"):
         rows[f"pred_{a}"] = 1.1
+    rows["pred_rapm_synergy"] = 1.1 + rng.normal(0, 0.15, n)
     out = L.score_rows(rows, n=200)
-    assert out["relative_improvement_vs_raw"]["lrapm"]["point"] < -0.01 and out["verdict"]["passes"]
+    v = out["verdict"]
+    assert out["relative_improvement_vs_raw"]["lrapm"]["point"] < -0.01 and v["passes"]
+    assert v["against_raw"]["holds"] and v["against_rapm_synergy"]["holds"]
+    assert out["paired_lrapm_minus_rapm_synergy"]["ci95"][1] < 0
+    assert not v["toward_their_players_supported"]                   # lrapm equals shrink_zero here
+    # equal to rapm_synergy: the rule fails against it, so the verdict fails
+    rows2 = rows.assign(pred_rapm_synergy=1.1)
+    v2 = L.score_rows(rows2, n=100)["verdict"]
+    assert v2["against_raw"]["holds"] and not v2["against_rapm_synergy"]["holds"] and not v2["passes"]
     assert set(out["bins"]) == {"under_25", "25_to_100", "over_100"}
     rows.loc[5, "pred_lrapm"] = np.nan
     bad = L.score_rows(rows, n=50)

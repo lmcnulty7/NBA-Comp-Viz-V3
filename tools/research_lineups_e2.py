@@ -38,10 +38,10 @@ Definitions, fixed in this file before any test score (the pre-registration leav
                    counts 0 (frozen behaviour; the paper uses -1). The paper's priors include the league average in
                    both O and D; it cancels in O_A - D_B and is left out.
   shrink_zero      the ablation: the same ridge with every prior 0 (pure shrinkage to league average).
-  rapm_synergy     the frozen candidate refit with frozen code on the development seasons (fit_candidates), fixed for
-                   the whole season: its stint margin per 100 d (home minus away) is split evenly, y_home = league
-                   average + d / 200 and y_away = league average - d / 200, the league average from earlier weeks.
-                   Compared beside raw; reads no verdict.
+  rapm_synergy     the second pre-registered baseline: the frozen candidate refit with frozen code on the development
+                   seasons (fit_candidates), fixed for the whole season: its stint margin per 100 d (home minus away)
+                   is split evenly, y_home = league average + d / 200 and y_away = league average - d / 200, the
+                   league average from earlier weeks. Handicapped by construction (no in-season update).
   lrapm_net_prior  context, not pre-registered, reads no verdict: L-RAPM with the prior from the frozen net RAPM
                    split in halves (each player gives rapm / 200 to O and rapm / 200 to D).
   Every penalty (lrapm, shrink_zero, lrapm_net_prior, each its own) is chosen on the development stage's expanding
@@ -51,9 +51,11 @@ Definitions, fixed in this file before any test score (the pre-registration leav
   improvement d = (mean RMSE(lrapm) - mean RMSE(raw)) / mean RMSE(raw) (the paper's equation 1). Bins by the
   possessions of the less-seen of the two lineups in earlier weeks: under 25, 25 to 100, over 100, each a pooled RMSE
   over all predicted weeks. Every interval: 2000 resamples of games (seed 0), all arms paired on the same games.
-- Verdict (pre-registered): lrapm is adopted when d is at most -0.01, the paired interval of mean RMSE(lrapm) minus
-  mean RMSE(raw) lies wholly below zero, and no bin's paired interval of RMSE(lrapm) minus RMSE(raw) lies wholly
-  above zero. A non-finite value refuses the verdict.
+- Verdict (pre-registered, read against both named baselines, PLAN.md D104): lrapm is adopted when, against raw and
+  against rapm_synergy each, d is at most -0.01, the paired interval of mean RMSE(lrapm) minus the baseline's lies
+  wholly below zero, and no bin's paired interval of RMSE(lrapm) minus the baseline's lies wholly above zero.
+  "Toward their players" is claimed only when the interval of lrapm minus shrink_zero lies wholly below zero. A
+  non-finite value refuses the verdict.
 """
 
 import argparse
@@ -82,7 +84,7 @@ THRESHOLD = -0.01
 BINS = (("under_25", 0.0, 25.0), ("25_to_100", 25.0, 100.0), ("over_100", 100.0, math.inf))
 PRIOR_ARMS = ("lrapm", "shrink_zero", "lrapm_net_prior")
 ARMS = ("raw", "lrapm", "shrink_zero", "rapm_synergy", "lrapm_net_prior")
-CONTEXT = {"rapm_synergy": "pre-registered second baseline, reads no verdict",
+CONTEXT = {"rapm_synergy": "pre-registered second baseline; the verdict needs the rule against it too (PLAN.md D104)",
            "lrapm_net_prior": "not pre-registered, reads no verdict"}
 DRY_SEASON, DRY_PRIOR = "2023-24", ("2020-21", "2021-22", "2022-23")
 CHECK_SEASON, CHECK_PRIOR = "2022-23", ("2020-21", "2021-22")
@@ -389,6 +391,10 @@ def score_rows(rows, arms=ARMS, n: int = BOOT, seed: int = SEED) -> dict:
         out["paired_minus_raw"][a] = {"point": float(diff[0]), "ci95": ci(diff)}
     d = mw["lrapm"] - mw["shrink_zero"]
     out["paired_lrapm_minus_shrink_zero"] = {"point": float(d[0]), "ci95": ci(d)}
+    d = mw["lrapm"] - mw["rapm_synergy"]
+    rel = d / mw["rapm_synergy"]
+    out["paired_lrapm_minus_rapm_synergy"] = {"point": float(d[0]), "ci95": ci(d)}
+    out["relative_improvement_vs_rapm_synergy"] = {"point": float(rel[0]), "ci95": ci(rel)}
     for j, (name, _lo, _hi) in enumerate(BINS):
         b = {"observations": int((binlab == j).sum()), "possessions": float(w[binlab == j].sum()), "rmse": {}, "minus_raw": {},
              "relative_vs_raw": {}}
@@ -399,14 +405,30 @@ def score_rows(rows, arms=ARMS, n: int = BOOT, seed: int = SEED) -> dict:
                 b["minus_raw"][a] = {"point": float(r[a][0] - r["raw"][0]), "ci95": ci(r[a] - r["raw"])}
                 b["relative_vs_raw"][a] = {"point": float((r[a][0] - r["raw"][0]) / r["raw"][0]),
                                            "ci95": ci((r[a] - r["raw"]) / r["raw"])}
+        ds = r["lrapm"] - r["rapm_synergy"]
+        b["lrapm_minus_rapm_synergy"] = {"point": float(ds[0]), "ci95": ci(ds)}
+        b["lrapm_relative_vs_rapm_synergy"] = {"point": float(ds[0] / r["rapm_synergy"][0]), "ci95": ci(ds / r["rapm_synergy"])}
         out["bins"][name] = b
-    rel, diff = out["relative_improvement_vs_raw"]["lrapm"], out["paired_minus_raw"]["lrapm"]
-    worse = [name for name in out["bins"] if out["bins"][name]["minus_raw"]["lrapm"]["ci95"][0] > 0]
-    v = {"rule": ("lrapm adopted when d <= -0.01, the paired interval of mean weekly RMSE(lrapm) - RMSE(raw) lies "
-                  "wholly below 0, and no bin's interval of RMSE(lrapm) - RMSE(raw) lies wholly above 0"),
-         "d_at_most_minus_0_01": bool(rel["point"] <= THRESHOLD), "diff_ci_below_zero": bool(diff["ci95"][1] < 0),
-         "bins_worse_beyond_interval": worse}
-    v["passes"] = bool(v["d_at_most_minus_0_01"] and v["diff_ci_below_zero"] and not worse)
+    def rule(rel, diff, bin_key):
+        worse = [n for n in out["bins"] if out["bins"][n][bin_key]["ci95"][0] is not None
+                 and out["bins"][n][bin_key]["ci95"][0] > 0]
+        r = {"d": rel["point"], "d_at_most_minus_0_01": bool(rel["point"] <= THRESHOLD),
+             "diff_ci_below_zero": bool(diff["ci95"][1] < 0), "bins_worse_beyond_interval": worse}
+        r["holds"] = bool(r["d_at_most_minus_0_01"] and r["diff_ci_below_zero"] and not worse)
+        return r
+
+    for n in out["bins"]:
+        out["bins"][n]["lrapm_minus_raw"] = out["bins"][n]["minus_raw"]["lrapm"]
+    v = {"rule": ("PLAN.md D104: lrapm adopted when, against each pre-registered baseline (raw and rapm_synergy), d <= "
+                  "-0.01, the paired interval of mean weekly RMSE(lrapm) minus the baseline's lies wholly below 0, and "
+                  "no bin's interval of RMSE(lrapm) minus the baseline's lies wholly above 0"),
+         "against_raw": rule(out["relative_improvement_vs_raw"]["lrapm"], out["paired_minus_raw"]["lrapm"], "lrapm_minus_raw"),
+         "against_rapm_synergy": rule(out["relative_improvement_vs_rapm_synergy"], out["paired_lrapm_minus_rapm_synergy"],
+                                      "lrapm_minus_rapm_synergy"),
+         "rapm_synergy_note": ("rapm_synergy is handicapped by construction: fixed from the development seasons, no "
+                               "in-season update, its stint margin split evenly between the two sides"),
+         "toward_their_players_supported": bool(out["paired_lrapm_minus_shrink_zero"]["ci95"][1] < 0)}
+    v["passes"] = bool(v["against_raw"]["holds"] and v["against_rapm_synergy"]["holds"])
     if out["non_finite_rows"]:
         v = {"rule": v["rule"], "passes": None, "refused": f"{out['non_finite_rows']} row(s) carry a non-finite value"}
     out["verdict"] = v
@@ -511,6 +533,7 @@ def synergy_gate(feats_dev) -> dict:
     rec = {"compared": "rapm_synergy lineup coefficients refit on 2020-21 to 2023-24 against stored synergy_per100 "
                        "(DATA_ROOT analytics/lineups/2023-24/lineup_ratings)",
            "lineups_compared": int(len(stored)), "gated_lineups": len(coef), "alpha": fits["rapm_synergy"]["alpha"],
+           "non_zero_stored_compared": int((stored["synergy_per100"] != 0).sum()),
            "max_abs_diff": float(diff.max()), "tolerance": SYNERGY_TOLERANCE}
     rec["passed"] = bool(rec["max_abs_diff"] <= SYNERGY_TOLERANCE and len(stored) > 0)
     if not rec["passed"]:
@@ -520,6 +543,7 @@ def synergy_gate(feats_dev) -> dict:
 
 def dev(artifacts=None) -> dict:
     t0 = time.time()
+    head = clean_head()
     gate = E1.require_gate(artifacts)
     points = stint_points(artifacts)
     feats_all, obs_all = dev_tables(artifacts, DEV_SEASONS)
@@ -558,7 +582,8 @@ def dev(artifacts=None) -> dict:
     from analytics.eval import fit_threads
     with fit_threads():
         od_all = fit_player_od(obs_all)
-    out = {"experiment": EXPERIMENT, "stage": "development seasons only (2020-21 to 2023-24); no 2024-25 or 2025-26 row read",
+    out = {"experiment": EXPERIMENT, "code_commit": head,
+           "stage": "development seasons only (2020-21 to 2023-24); no 2024-25 or 2025-26 row read",
            "inputs": {"lineups_e1_gate_passed": gate["passed"], "stint_points": points, "synergy_gate": syn_gate},
            "dry_run": dry, "check_season": check,
            "test_fit": {"what": "priors and synergy fitted on every development season; the penalties of the dry run",
