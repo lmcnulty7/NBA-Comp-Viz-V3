@@ -5,7 +5,8 @@ PLAN.md D113). Pre-registration: docs/research/ghosting.md, "ghosting-E1", and i
 committed (f8c5349d) before any code ran. Code: tools/research_ghosting.py, committed (a6c2cba7) before the frame
 pass, with one gate fix (fe259133) before any result was read. The development numbers below come from
 reports/research/ghosting-E1-dev.json, run on fe259133; the gate numbers from reports/research/ghosting-E1-gate.json;
-0.437, 3.657 and 346 / 258 from reports/ghosting.md. Numbers marked computed are arithmetic on those.
+0.437, 3.657 and 346 / 258 from reports/ghosting.md; the per-fold numbers from reports/research/ghosting-E1-folds.json
+(a pre-score description, PLAN.md D115, read by no rule). Numbers marked computed are arithmetic on those.
 
 **Verdict: adopted on development, on all three pre-registered parts.** Trained on its own 5-step rollout, the same
 64x64 window network puts the 1.0 s ghost 1.295 ft closer to where the defender went than the frozen one-step
@@ -83,25 +84,34 @@ Decision (D113): 1.0 s, -1.295 at most -0.10 with the interval below zero (yes);
 - The measured weakness was error growth from 0.2 s to 1.0 s. Training on the rollout cuts the 1.0 s error by about
   35 percent (computed: 1.295 / 3.657), the largest change any ghosting variant has shown here.
 - The objective is the cause. The torch network trained on one step is a little worse than the sklearn stand-in.
-  Trained on the rollout with the same shape, optimiser and budget, it is 1.41 ft better than that one-step version.
+  Trained on the rollout with the same shape, the same epochs and optimiser steps, it is 1.41 ft better than that
+  one-step version.
 - At 1.0 s the frozen stand-in was no better than the constant-velocity floor (+0.040 [+0.012, +0.070] ft worse),
   the floor the dossier said was never reported. The rollout ghost beats that floor by 1.255 ft (computed:
   3.6175 - 2.3623).
 - The rollout ghost's deviation is more strongly tied to points allowed (414 / 190 against 346 / 258). This is the
   lane's own validation, read on development games.
 - Not measured, the dossier's risk: rollout training can pull a ghost's motion toward the average, which lowers the
-  error but can make paths less lifelike. No path-shape check was pre-registered, so none is claimed.
+  error but can make paths less lifelike. A lower mean error does not show the paths are more lifelike. No
+  path-shape check was pre-registered, so none is claimed.
 - Leakage checks done by reading the code, not by a statistic: every model is scored by the same frozen roll_forward
   on the same origins. Training reads only the training folds' fit rows, and the stored folds match. The actual
   future positions enter only the loss. At every rollout step the inputs use everyone else's positions one step
-  before the target, as at scoring.
+  before the target, as at scoring. By the lane's definition the ghost reads the actual other nine players up to
+  0.2 s before each step; that is available to every model alike, the stand-in included.
+- Per fold (pre-score description): rollout minus stand-in at 1.0 s is -1.191, -1.161, -1.192, -1.932 and -1.002 ft,
+  and the rollout's 1.0 s error is 2.33 to 2.44 ft in every fold. The spread comes from the stand-in: fold 3's
+  stand-in has 4.266 ft against 3.44 to 3.55 in the others. The gain does not depend on fold 3: against constant
+  velocity the rollout gains 1.19 to 1.32 ft and against the one-step torch net 1.28 to 1.56 ft in every fold.
 
 ## Compute
 
 Five folds, each its own lock job on the system Python (torch 2.15 on MPS, watermarks 0.6 / 0.5): 877 s, 1473 s, 1292
 s, 1445 s and 1273 s, peak RSS 5.0 to 6.9 GB. Fold 0's figure is its rescore, which reused the saved network weights;
-its first run took 1561 s (the superseded fold record, kept in the artifacts folder). The frame pass over the 604 games took 326 s. Every fold's network weights are saved with
-their hashes in the development record. Training on MPS is not bit-reproducible, so the numbers trace to those
+its first run took 1561 s, and its training epochs are recorded in that first run's fold record
+(fold0/superseded_gate_bug/fold.json in the artifacts folder). The frame pass over the 604 games took 326 s (its log,
+research_ghosting_pass.log, in the artifacts folder). Every fold's network weights are saved with their hashes in the
+development record. Training on MPS is not bit-reproducible, so the numbers trace to those
 weights.
 
 ## Before the score: commitments (Set A, D113)
@@ -113,13 +123,24 @@ Development adopts, so under D113 Set A is scored once, as a consistency check, 
    scores the 10 test games once through score_once, recording the commit, the gate and development records'
    hashes and the rollout weights' hash, with the summary nested under "scored".
 2. It reports the 1.0 s and 0.2 s paired differences (rollout minus stand-in) with the lane's bootstrap of the 10
-   games (2000 resamples), and a report-only t interval on the per-game differences (as D80).
+   games (2000 resamples), and a report-only t interval on the per-game differences (as D80; report_only_t).
 3. The reading uses the 1.0 s bootstrap interval, in D113's order: "inconsistent" if it excludes the development
    estimate (-1.295); otherwise "confirms" if it excludes zero on that side; otherwise "consistent". Only
    "inconsistent" stops the adoption.
 4. Refusals: the scorer gives a reason and no number unless every test game has frames, possessions and at least one
-   1.0 s origin; a summary with any non-finite number is a refused verdict, never a NaN.
-5. Power, from the amendment: at 10 games the 1.0 s half-width is about 0.20 ft, so the check separates the
-   development estimate from zero easily; whether it also falls inside the test interval is the open question.
-6. The scorer was rehearsed through score_once on a synthetic root with a temporary test set and ledger, including a
+   1.0 s origin, and unless both ghosts cover the same origins in every game and horizon; a summary with any
+   non-finite number is a refused verdict, never a NaN. Before score_once, e1-final also refuses (and never retrains
+   to fit) when a refit weight is not finite or the rollout's final-epoch loss lies outside the folds' range (7.68 to
+   7.81, ghosting-E1-folds.json).
+5. What the reading can be expected to say (D115, written before the score). The amendment's projection of a 0.20 ft
+   half-width came from a different pair of models. Within each development fold the per-game SD of the rollout's
+   difference is 0.054 to 0.088 ft, so at 10 games the 1.0 s half-width should be about 0.034 to 0.055 ft (computed:
+   1.96 x SD / sqrt(10), ghosting-E1-folds.json). The development estimate -1.295 pools five fold pairs whose
+   differences run from -1.00 to -1.93, because the stand-in varies from refit to refit (fold 3's at 4.266 ft). Set A
+   scores one new refit pair. Its interval may therefore exclude -1.295 because of where that one stand-in refit
+   lands, not because rollout training failed. An "inconsistent" reading of that kind is explained here in advance.
+   D113's reading still decides.
+6. Beside it, report only and fixed before the score (D115): whether the Set A 1.0 s interval's upper end is below
+   -0.10 ft, that is, whether the rollout gain is at least the pre-registered bar on the test games.
+7. The scorer was rehearsed through score_once on a synthetic root with a temporary test set and ledger, including a
    refusal (tests/test_research_ghosting.py).
