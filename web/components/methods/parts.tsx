@@ -226,7 +226,7 @@ export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; fi
         </div>
         <div>
           <dt>{r.verdict}</dt>
-          <dd>
+          <dd className={styles.state}>
             <Status
               tone={stage.met ? "pass" : "fail"}
               text={comparison === "contains" ? (stage.met ? r.holds : r.notHolds) : stage.met ? r.met : r.missed}
