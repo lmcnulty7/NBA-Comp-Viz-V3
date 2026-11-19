@@ -2,7 +2,8 @@
 
 Written 2026-11-18. Pre-registration: docs/research/lineups.md, section 6, "lineups-E2"; PLAN.md D102 and D104. The
 sections up to and including "Commitments before the test score" were committed before the score (commits dbb4e885,
-7b2d30d1, 12ae4935); only the verdict line and the section "Test season" were written after it. Scoring code:
+7b2d30d1, 12ae4935); only the intro paragraph's tense, the verdict line and the section "Test season" were written
+after it. Scoring code:
 tools/research_lineups_e2.py; the development numbers come from commit 7b2d30d1 and the test score from 12ae4935 (each
 recorded as code_commit in its json). Every number below is copied from reports/research/lineups-E2-dev.json or
 reports/research/lineups-E2-final.json, except where marked: the paper's settings (penalties 4000 and 6000, unseen players at -1, unseen lineups reported
@@ -14,8 +15,9 @@ percent percentile intervals of a 2000-resample bootstrap of games (seed 0), wit
 resampled games.
 
 **Verdict: fails as pre-registered (PLAN.md D104, both baselines).** On the 2025-26 season (1095 games in 30
-predicted weeks), shrunk lineup ratings (lrapm) show no detectable gain over the frozen rapm_synergy ratings: d -0.0005
-[-0.0015, +0.0002], far from the -0.01 bar, with an interval that touches zero. Player priors show no detectable gain
+predicted weeks), shrunk lineup ratings (lrapm) show no detectable gain overall over the frozen rapm_synergy ratings: d -0.0005
+[-0.0015, +0.0002], far from the -0.01 bar, with an interval that touches zero; only the under-25 bin shows a tiny
+gain, -0.0004 [-0.0007, -0.0001], far under the 1 percent bar. Player priors show no detectable gain
 over pure shrinkage either: lrapm minus shrink_zero -0.0002 [-0.0009, +0.0004]. Beside it, not as the headline: the
 rule holds against the raw baseline (d -0.3204 [-0.3607, -0.2619]), which is weak by construction here (commitment 2).
 No data-fault line is crossed. The lineups lane gains a clean negative result: inside a season, lineup ratings shrunk
@@ -193,11 +195,12 @@ Ablation and context, reading no verdict:
   over pure shrinkage, so "toward their players" is not claimed. In development it was -0.0009 and -0.0007 with
   intervals below zero; that small gain does not carry to the test season.
 - Mean weekly RMSE of the other arms: shrink_zero 0.7893 [0.7718, 0.8033], lrapm_net_prior 0.7888 [0.7711, 0.8031].
-  All the shrunk and pooled arms sit within 0.0007 of each other; raw is the only arm far away (1.1611 [1.0664,
+  All the shrunk and pooled arms sit within 0.001 of each other; raw is the only arm far away (1.1611 [1.0664,
   1.2308]).
 
 What this means for the lane. lineups-E1 showed that player RAPM carries game-margin information across seasons. This
-experiment shows that, inside a season, shrinking lineup ratings toward those player ratings adds nothing detectable
-over pooling players (rapm_synergy) or plain shrinkage, at the stint-side resolution used here. The large gap to raw
+experiment shows that, inside a season, shrinking lineup ratings toward those player ratings adds no detectable gain
+overall over pooling players (rapm_synergy) or plain shrinkage, at the stint-side resolution used here; only the
+under-25 bin shows a tiny gain over rapm_synergy, -0.0004 [-0.0007, -0.0001], far under the 1 percent bar. The large gap to raw
 ratings is a property of tiny estimated possession counts, not evidence for the player prior. Lineup ranks stay
 inconclusive (lineups-E1).
