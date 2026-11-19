@@ -1656,8 +1656,10 @@
      "gain": 3,
      "effort": 3,
      "test_data": "2025-26 season",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted (no detectable gain over rapm_synergy, d -0.0005 [-0.0015, +0.0002]; player priors add nothing detectable over pure shrinkage; the gain over raw lineup ratings is not the headline; reports/research/lineups-E2.md)",
+     "results": null,
+     "result_in_writeup": true,
+     "writeup": "reports/research/lineups-E2.md"
     }
    ]
   },
