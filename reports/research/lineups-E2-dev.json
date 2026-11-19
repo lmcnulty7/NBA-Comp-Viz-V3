@@ -1,5 +1,6 @@
 {
   "experiment": "lineups-E2",
+  "code_commit": "7b2d30d169522a1123b78f52fed8f7a8def8108c",
   "stage": "development seasons only (2020-21 to 2023-24); no 2024-25 or 2025-26 row read",
   "inputs": {
     "lineups_e1_gate_passed": true,
@@ -30,6 +31,7 @@
       "lineups_compared": 15320,
       "gated_lineups": 253,
       "alpha": 3000.0,
+      "non_zero_stored_compared": 88,
       "max_abs_diff": 0.0,
       "tolerance": 1e-06,
       "passed": true
@@ -98,7 +100,7 @@
     "resamples": 2000,
     "seed": 0,
     "context": {
-      "rapm_synergy": "pre-registered second baseline, reads no verdict",
+      "rapm_synergy": "pre-registered second baseline; the verdict needs the rule against it too (PLAN.md D104)",
       "lrapm_net_prior": "not pre-registered, reads no verdict"
     },
     "non_finite_rows": 0,
@@ -299,6 +301,27 @@
               -0.3700062118691947
             ]
           }
+        },
+        "lrapm_minus_rapm_synergy": {
+          "point": -0.0012578399831821852,
+          "ci95": [
+            -0.0016806123857629168,
+            -0.0008206454448703357
+          ]
+        },
+        "lrapm_relative_vs_rapm_synergy": {
+          "point": -0.0016648957430220545,
+          "ci95": [
+            -0.0022245056182522483,
+            -0.0010855294721956049
+          ]
+        },
+        "lrapm_minus_raw": {
+          "point": -0.651397396125971,
+          "ci95": [
+            -0.8733889238649392,
+            -0.44163834695153514
+          ]
         }
       },
       "25_to_100": {
@@ -400,6 +423,27 @@
               -0.036857602203092886
             ]
           }
+        },
+        "lrapm_minus_rapm_synergy": {
+          "point": -0.0021141674529677745,
+          "ci95": [
+            -0.0038311195125274923,
+            -0.0003922674492774588
+          ]
+        },
+        "lrapm_relative_vs_rapm_synergy": {
+          "point": -0.0035139624318362033,
+          "ci95": [
+            -0.006368288793536465,
+            -0.0006547508569902671
+          ]
+        },
+        "lrapm_minus_raw": {
+          "point": -0.02919621007650297,
+          "ci95": [
+            -0.03428943510040389,
+            -0.023981611580092127
+          ]
         }
       },
       "over_100": {
@@ -501,6 +545,27 @@
               -0.010154223360193233
             ]
           }
+        },
+        "lrapm_minus_rapm_synergy": {
+          "point": -0.0008221815013708667,
+          "ci95": [
+            -0.00376275897456467,
+            0.0022986224540159977
+          ]
+        },
+        "lrapm_relative_vs_rapm_synergy": {
+          "point": -0.0018445380078462932,
+          "ci95": [
+            -0.008436241269932086,
+            0.005155383513468178
+          ]
+        },
+        "lrapm_minus_raw": {
+          "point": -0.007596947065485304,
+          "ci95": [
+            -0.011235536254067204,
+            -0.003907245247676728
+          ]
         }
       }
     },
@@ -511,12 +576,39 @@
         -0.0001849187549083482
       ]
     },
+    "paired_lrapm_minus_rapm_synergy": {
+      "point": -0.0006717176216413101,
+      "ci95": [
+        -0.0012224825406225547,
+        -0.00015213625193560571
+      ]
+    },
+    "relative_improvement_vs_rapm_synergy": {
+      "point": -0.0009246305478210334,
+      "ci95": [
+        -0.0016616262509246457,
+        -0.0002136592381498434
+      ]
+    },
     "verdict": {
-      "rule": "lrapm adopted when d <= -0.01, the paired interval of mean weekly RMSE(lrapm) - RMSE(raw) lies wholly below 0, and no bin's interval of RMSE(lrapm) - RMSE(raw) lies wholly above 0",
-      "d_at_most_minus_0_01": true,
-      "diff_ci_below_zero": true,
-      "bins_worse_beyond_interval": [],
-      "passes": true
+      "rule": "PLAN.md D104: lrapm adopted when, against each pre-registered baseline (raw and rapm_synergy), d <= -0.01, the paired interval of mean weekly RMSE(lrapm) minus the baseline's lies wholly below 0, and no bin's interval of RMSE(lrapm) minus the baseline's lies wholly above 0",
+      "against_raw": {
+        "d": -0.3908423394543288,
+        "d_at_most_minus_0_01": true,
+        "diff_ci_below_zero": true,
+        "bins_worse_beyond_interval": [],
+        "holds": true
+      },
+      "against_rapm_synergy": {
+        "d": -0.0009246305478210334,
+        "d_at_most_minus_0_01": false,
+        "diff_ci_below_zero": true,
+        "bins_worse_beyond_interval": [],
+        "holds": false
+      },
+      "rapm_synergy_note": "rapm_synergy is handicapped by construction: fixed from the development seasons, no in-season update, its stint margin split evenly between the two sides",
+      "toward_their_players_supported": true,
+      "passes": false
     }
   },
   "check_season": {
@@ -548,7 +640,7 @@
     "resamples": 2000,
     "seed": 0,
     "context": {
-      "rapm_synergy": "pre-registered second baseline, reads no verdict",
+      "rapm_synergy": "pre-registered second baseline; the verdict needs the rule against it too (PLAN.md D104)",
       "lrapm_net_prior": "not pre-registered, reads no verdict"
     },
     "non_finite_rows": 0,
@@ -749,6 +841,27 @@
               -0.3578985962851805
             ]
           }
+        },
+        "lrapm_minus_rapm_synergy": {
+          "point": -0.000353592723391416,
+          "ci95": [
+            -0.0007359599118349381,
+            3.1406262563418406e-05
+          ]
+        },
+        "lrapm_relative_vs_rapm_synergy": {
+          "point": -0.00045610748006518506,
+          "ci95": [
+            -0.0009478167916311602,
+            4.024187744454929e-05
+          ]
+        },
+        "lrapm_minus_raw": {
+          "point": -0.6254984610003692,
+          "ci95": [
+            -0.8295560926375045,
+            -0.4323802053635986
+          ]
         }
       },
       "25_to_100": {
@@ -850,6 +963,27 @@
               -0.03630132326286415
             ]
           }
+        },
+        "lrapm_minus_rapm_synergy": {
+          "point": -0.0020749693900286026,
+          "ci95": [
+            -0.003601662021964469,
+            -0.000585236903639336
+          ]
+        },
+        "lrapm_relative_vs_rapm_synergy": {
+          "point": -0.003340964893552856,
+          "ci95": [
+            -0.005838463033789826,
+            -0.0009446702341841858
+          ]
+        },
+        "lrapm_minus_raw": {
+          "point": -0.030711001420834716,
+          "ci95": [
+            -0.036784461115032877,
+            -0.024711753706428027
+          ]
         }
       },
       "over_100": {
@@ -951,6 +1085,27 @@
               -0.01824607132414762
             ]
           }
+        },
+        "lrapm_minus_rapm_synergy": {
+          "point": 0.002415524794885382,
+          "ci95": [
+            0.00045111045162713473,
+            0.004579618240437369
+          ]
+        },
+        "lrapm_relative_vs_rapm_synergy": {
+          "point": 0.004797389463149757,
+          "ci95": [
+            0.0008894246080642011,
+            0.009342770706643732
+          ]
+        },
+        "lrapm_minus_raw": {
+          "point": -0.012781028245026138,
+          "ci95": [
+            -0.016707160495665594,
+            -0.009524094855208009
+          ]
         }
       }
     },
@@ -961,12 +1116,41 @@
         -0.00024968478089151027
       ]
     },
+    "paired_lrapm_minus_rapm_synergy": {
+      "point": -0.0002053313999955675,
+      "ci95": [
+        -0.0007961170422596753,
+        0.00034420044253865575
+      ]
+    },
+    "relative_improvement_vs_rapm_synergy": {
+      "point": -0.00027849173547380985,
+      "ci95": [
+        -0.001074391107313981,
+        0.0004641917897694013
+      ]
+    },
     "verdict": {
-      "rule": "lrapm adopted when d <= -0.01, the paired interval of mean weekly RMSE(lrapm) - RMSE(raw) lies wholly below 0, and no bin's interval of RMSE(lrapm) - RMSE(raw) lies wholly above 0",
-      "d_at_most_minus_0_01": true,
-      "diff_ci_below_zero": true,
-      "bins_worse_beyond_interval": [],
-      "passes": true
+      "rule": "PLAN.md D104: lrapm adopted when, against each pre-registered baseline (raw and rapm_synergy), d <= -0.01, the paired interval of mean weekly RMSE(lrapm) minus the baseline's lies wholly below 0, and no bin's interval of RMSE(lrapm) minus the baseline's lies wholly above 0",
+      "against_raw": {
+        "d": -0.37984341568565266,
+        "d_at_most_minus_0_01": true,
+        "diff_ci_below_zero": true,
+        "bins_worse_beyond_interval": [],
+        "holds": true
+      },
+      "against_rapm_synergy": {
+        "d": -0.00027849173547380985,
+        "d_at_most_minus_0_01": false,
+        "diff_ci_below_zero": false,
+        "bins_worse_beyond_interval": [
+          "over_100"
+        ],
+        "holds": false
+      },
+      "rapm_synergy_note": "rapm_synergy is handicapped by construction: fixed from the development seasons, no in-season update, its stint margin split evenly between the two sides",
+      "toward_their_players_supported": true,
+      "passes": false
     }
   },
   "test_fit": {
@@ -995,6 +1179,6 @@
       "projected_test_half_width_d": 0.052389456279595834
     }
   },
-  "seconds": 118.6,
-  "peak_memory_gb": 0.79
+  "seconds": 114.8,
+  "peak_memory_gb": 0.85
 }
