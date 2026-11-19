@@ -163,3 +163,14 @@ def test_results_are_written_only_to_the_research_results_and_the_work_folder():
                 continue
             raise AssertionError(f"{fn.name}: {text}")
     assert checked >= 6
+
+
+def test_the_gate_merge_matches_a_float32_horizon():
+    import pandas as pd
+    a = pd.DataFrame({"k": [1, 2], "horizon_s": [0.2, 1.0]})
+    b = pd.DataFrame({"k": [1, 2], "horizon_s": np.array([0.2, 1.0], dtype=np.float32)})
+    assert len(a.merge(b, on=["k", "horizon_s"])) == 1                  # the bug the rounding fixes
+    a2 = a.assign(horizon_s=a["horizon_s"].astype(float).round(1))
+    b2 = b.assign(horizon_s=b["horizon_s"].astype(float).round(1))
+    assert len(a2.merge(b2, on=["k", "horizon_s"])) == 2
+    assert "round(1)" in SOURCE.read_text()

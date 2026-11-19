@@ -358,6 +358,8 @@ def evaluate_game(root: Path, g: str, preds: dict, fold: int) -> dict:
     mine = err[err["candidate"] == "mlp"][keys + ["horizon_s", "ghost_x", "ghost_y"]]
     stored = pd.read_parquet(Path(os.environ["DATA_ROOT"]) / "analytics" / "ghosting" / SEASON /
                              f"ghost_frames_{g}.parquet", columns=keys + ["horizon_s", "ghost_x", "ghost_y", "fold"])
+    mine = mine.assign(horizon_s=mine["horizon_s"].astype(float).round(1))
+    stored = stored.assign(horizon_s=stored["horizon_s"].astype(float).round(1))   # stored as float32: 0.2 != 0.2f
     m = mine.merge(stored, on=keys + ["horizon_s"], how="outer", suffixes=("", "_stored"), indicator=True)
     both = m["_merge"] == "both"
     diff = np.hypot(m.loc[both, "ghost_x"] - m.loc[both, "ghost_x_stored"], m.loc[both, "ghost_y"] - m.loc[both, "ghost_y_stored"])
