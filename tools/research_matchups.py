@@ -471,24 +471,28 @@ def row_loss(y, z):
 
 def choose_lambda(D, rows_idx, n_folds: int = FOLDS, seed: int = SEED, grid=LAMBDA_GRID) -> tuple:
     """Inner grouped CV by game over rows_idx: the penalty with the lowest out-of-fold log loss (ties to the larger;
-    the grid grows by threes past whichever end wins, up to LAMBDA_MAX and down to LAMBDA_MIN)."""
+    the grid grows by threes past whichever end wins, up to LAMBDA_MAX and down to LAMBDA_MIN). Each fold's fits are
+    warm-started from its fit at the nearest penalty already done (the optimum does not depend on the start)."""
     import numpy as np
     from analytics.eval import grouped_folds
     X, y, off, g = D.X[rows_idx], D.y[rows_idx], D.offset[rows_idx], D.groups[rows_idx]
     games = np.unique(g)
     folds = grouped_folds(games, n_folds=min(n_folds, len(games)), seed=seed)
-    curve = {}
+    masks = [np.isin(g, te) for _tr, te in folds]
+    curve, betas = {}, {}
     grid = sorted(grid, reverse=True)
     while True:
         for lam in grid:
             if lam in curve:
                 continue
-            total = 0.0
-            for _tr, te in folds:
-                m = np.isin(g, te)
-                b = fit_logit(X[~m], y[~m], off[~m], _penalty_vector(X.shape[1], D.n_free, lam))
+            near = min(betas, key=lambda l: abs(math.log(l) - math.log(lam))) if betas else None
+            total, fitted = 0.0, []
+            for i, m in enumerate(masks):
+                b = fit_logit(X[~m], y[~m], off[~m], _penalty_vector(X.shape[1], D.n_free, lam),
+                              None if near is None else betas[near][i])
+                fitted.append(b)
                 total += float(row_loss(y[m], off[m] + X[m] @ b).sum())
-            curve[lam] = total / len(y)
+            curve[lam], betas[lam] = total / len(y), fitted
         best = min(curve, key=lambda l: (curve[l], -l))
         if best == max(curve) and best * 3 <= LAMBDA_MAX:
             grid = [best * 3]
@@ -579,17 +583,24 @@ def part_result(name: str, D_def, D_nodef, log=print) -> dict:
             "projected_set_a": projected_half_width(D_def.groups, l_def - l_no)}
 
 
-def pre_shot_shares(artifacts, games, rows):
-    """Context for part (a), not pre-registered: the defender shares recomputed from the sampled frames at least
-    PRE_SHOT_GAP seconds before the sampled frame at or before the last attempt's release, so a defender who reaches
-    the shooter only at the shot gains no share. -> (rows of the possessions that keep a frame, shares)."""
+def stored_mf_shots(artifacts, games):
+    """(game, matchup_frames, shots) of the assignment pass, one game at a time."""
     import pandas as pd
     folder = games_dir(artifacts)
+    for g in games:
+        yield g, pd.read_parquet(folder / f"{g}.mf.parquet"), pd.read_parquet(folder / f"{g}.shots.parquet")
+
+
+def pre_shot_shares(mf_shots, rows):
+    """Context for part (a), not pre-registered: the defender shares recomputed from the sampled frames at least
+    PRE_SHOT_GAP seconds before the sampled frame at or before the last attempt's release, so a defender who reaches
+    the shooter only at the shot gains no share. mf_shots yields (game, matchup_frames, shots). -> (rows of the
+    possessions that keep a frame, shares)."""
+    import pandas as pd
     keep_rows, shares = [], []
     want = rows[["sportvu_game", "possession"]].drop_duplicates()
-    for g in games:
-        mf = pd.read_parquet(folder / f"{g}.mf.parquet")
-        sh = pd.read_parquet(folder / f"{g}.shots.parquet").sort_values(["possession", "event"])
+    for g, mf, sh in mf_shots:
+        sh = sh.sort_values(["possession", "event"])
         last_k = sh.groupby("possession")["k"].last()
         poss = set(want.loc[want["sportvu_game"] == g, "possession"].astype(int))
         mf = mf[mf["possession"].isin(poss)]
@@ -678,57 +689,115 @@ def game_date_of(g: str):
     return (int(y), int(m), int(d))
 
 
-def dev(artifacts=None) -> dict:
+class DevData:
+    """The development tables and designs, built once per run and only when a piece needs them."""
+
+    def __init__(self, artifacts):
+        self.artifacts = artifacts
+        self._built = False
+
+    def build(self):
+        if self._built:
+            return self
+        import pandas as pd
+        from analytics.matchups import train as T
+        root = Path(os.environ["DATA_ROOT"])
+        self.root, self.games = root, development_games(root)
+        xfg = stored_xfg(root)
+        self.mp, self.shots, zones = tables(self.artifacts, self.games, xfg, T.default_probability(xfg))
+        pmap = {(str(a), int(e)): float(p) for a, e, p, f in zip(xfg["sportvu_game"], xfg["event"], xfg["p_selected"],
+                                                                 xfg["fold"]) if f >= 0}
+        self.a_rows, self.a_shares, self.a_counts = part_a_rows(self.mp, self.shots, zones)
+        self.b_rows, self.b_counts = part_b_rows(self.shots, pmap)
+        self.pre_rows, self.pre_shares = pre_shot_shares(stored_mf_shots(self.artifacts, self.games), self.a_rows)
+        self.D = {"a": Design("a", self.a_rows, self.a_shares),
+                  "a0": Design("a", self.a_rows, self.a_shares, with_defenders=False),
+                  "b": Design("b", self.b_rows), "b0": Design("b", self.b_rows, with_defenders=False),
+                  "p": Design("a", self.pre_rows, self.pre_shares),
+                  "p0": Design("a", self.pre_rows, self.pre_shares, with_defenders=False)}
+        self.pts = T.possession_points([{"possessions": pd.read_parquet(root / "analytics" / "possessions" / SEASON /
+                                                                        f"{x}.parquet")} for x in self.games])
+        self._built = True
+        return self
+
+
+def _piece(name: str, d: DevData):
+    """One cached piece of the development stage."""
     import numpy as np
-    import pandas as pd
-    from analytics.matchups import train as T
+    d.build()
+    D = d.D
+    if name == "counts":
+        return {"a": d.a_counts, "b": d.b_counts,
+                "pre_shot_possessions": int(d.pre_rows[["sportvu_game", "possession"]].drop_duplicates().shape[0])}
+    if name == "part_a":
+        return part_result("a", D["a"], D["a0"])
+    if name == "part_b":
+        return part_result("b", D["b"], D["b0"])
+    if name == "pre_shot":
+        r = part_result("a", D["p"], D["p0"])
+        return {"what": ("context, not pre-registered, reads no verdict: part (a) with the defender shares taken only "
+                         f"from sampled frames at least {PRE_SHOT_GAP} s before the sampled frame at or before the "
+                         "release of the possession's last attempt (possessions without such a frame left out)"),
+                "possessions": int(d.pre_rows[["sportvu_game", "possession"]].drop_duplicates().shape[0]), **r}
+    if name == "ablation":
+        return ablation(d.mp, d.shots, d.pts)
+    if name.startswith("lambda_"):
+        key = {"lambda_a": "a", "lambda_a_no_defender": "a0", "lambda_b": "b", "lambda_pre_shot": "p",
+               "lambda_pre_shot_no_defender": "p0"}[name]
+        lam, curve = choose_lambda(D[key], np.arange(len(D[key].y)))
+        return {"lambda": lam, "curve": curve}
+    if name == "stability":
+        raise SystemExit("stability needs the final penalties; it is computed in the assembly")
+    raise ValueError(name)
+
+
+PIECES = ("counts", "part_a", "part_b", "pre_shot", "ablation", "lambda_a", "lambda_a_no_defender", "lambda_b",
+          "lambda_pre_shot", "lambda_pre_shot_no_defender")
+
+
+def dev(artifacts=None, max_minutes: float = 25.0) -> dict:
+    """The development stage in cached pieces (keyed by the code commit): each run computes pieces until max_minutes,
+    then stops; the run that finds every piece done assembles reports/research/matchups-E1-dev.json."""
     t0 = time.time()
     head = clean_head()
     g = require_gate(artifacts)
-    root = Path(os.environ["DATA_ROOT"])
-    games = development_games(root)
-    xfg = stored_xfg(root)
-    default_p = T.default_probability(xfg)
-    mp, shots, zones = tables(artifacts, games, xfg, default_p)
-    pmap = {(str(a), int(e)): float(p) for a, e, p, f in zip(xfg["sportvu_game"], xfg["event"], xfg["p_selected"],
-                                                             xfg["fold"]) if f >= 0}
-    a_rows, a_shares, a_counts = part_a_rows(mp, shots, zones)
-    b_rows, b_counts = part_b_rows(shots, pmap)
-    Da, Da0 = Design("a", a_rows, a_shares), Design("a", a_rows, a_shares, with_defenders=False)
-    Db, Db0 = Design("b", b_rows), Design("b", b_rows, with_defenders=False)
-    part_a = part_result("a", Da, Da0)
-    pre_rows, pre_shares = pre_shot_shares(artifacts, games, a_rows)
-    pre = part_result("a", Design("a", pre_rows, pre_shares), Design("a", pre_rows, pre_shares, with_defenders=False))
-    pre = {"what": ("context, not pre-registered, reads no verdict: part (a) with the defender shares taken only from "
-                    f"sampled frames at least {PRE_SHOT_GAP} s before the sampled frame at or before the release of the "
-                    "possession's last attempt (possessions without such a frame left out)"),
-           "possessions": int(pre_rows[["sportvu_game", "possession"]].drop_duplicates().shape[0]), **pre}
-    print(f"[matchups-E1] pre-shot (a) {pre['defender_minus_no_defender']} {round(time.time() - t0)} s", flush=True)
-    print(f"[matchups-E1] part (a) {part_a['defender_minus_no_defender']} {round(time.time() - t0)} s", flush=True)
-    part_b = part_result("b", Db, Db0)
-    print(f"[matchups-E1] part (b) {part_b['defender_minus_no_defender']} {round(time.time() - t0)} s", flush=True)
-    pts = T.possession_points([{"possessions": pd.read_parquet(root / "analytics" / "possessions" / SEASON / f"{x}.parquet")}
-                               for x in games])
-    abl = ablation(mp, shots, pts)
-    lam_a, curve_a = choose_lambda(Da, np.arange(len(Da.y)))
-    lam_b, curve_b = choose_lambda(Db, np.arange(len(Db.y)))
-    dates = {x: game_date_of(x) for x in games}
-    stab = {"a": stability(Da, a_rows, a_shares, "a", lam_a, dates, mp), "b": stability(Db, b_rows, None, "b", lam_b, dates)}
+    cache = work_dir(artifacts) / "dev_cache" / head
+    cache.mkdir(parents=True, exist_ok=True)
+    d = DevData(artifacts)
+    for name in PIECES:
+        f = cache / f"{name}.json"
+        if f.exists():
+            continue
+        if (time.time() - t0) / 60 > max_minutes:
+            return {"status": "stopped for the lock budget; run e1-dev again to resume",
+                    "done": sorted(p.stem for p in cache.glob("*.json")), "seconds": round(time.time() - t0, 1)}
+        out = _piece(name, d)
+        f.write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
+        print(f"[matchups-E1] piece {name} done {round(time.time() - t0)} s", flush=True)
+    P = {name: json.loads((cache / f"{name}.json").read_text()) for name in PIECES}
+    stab_file = cache / "stability.json"
+    if not stab_file.exists():
+        d.build()
+        dates = {x: game_date_of(x) for x in d.games}
+        stab = {"a": stability(d.D["a"], d.a_rows, d.a_shares, "a", P["lambda_a"]["lambda"], dates, d.mp),
+                "b": stability(d.D["b"], d.b_rows, None, "b", P["lambda_b"]["lambda"], dates)}
+        stab_file.write_text(json.dumps(_plain(stab), indent=2, allow_nan=False) + "\n")
+    stab = json.loads(stab_file.read_text())
     out = {"experiment": EXPERIMENT, "code_commit": head,
            "stage": "development games, out of fold under 5 grouped folds by game (seed 0); no Set A or held-out row read",
            "gate": {k: g[k] for k in ("games", "rows_rebuilt", "rows_stored", "keys_equal", "max_abs_diff", "ridge",
                                       "passed")},
            "frozen_reference_possession_points": g["frozen_reference_possession_points"],
-           "rows": {"a": a_counts, "b": b_counts}, "part_a": part_a, "part_b": part_b, "ablation": abl,
-           "part_a_pre_shot_context": pre,
-           "stability": stab,
+           "rows": P["counts"], "part_a": P["part_a"], "part_b": P["part_b"], "ablation": P["ablation"],
+           "part_a_pre_shot_context": P["pre_shot"], "stability": stab,
            "test_fit": {"what": "penalties of the final fits on every development game (grouped CV, 5 folds, seed 0)",
-                        "lambda_a": lam_a, "curve_a": curve_a, "lambda_b": lam_b, "curve_b": curve_b},
+                        **{k: P[k]["lambda"] for k in PIECES if k.startswith("lambda_")},
+                        "curves": {k: P[k]["curve"] for k in PIECES if k.startswith("lambda_")}},
            "verdict": {"rule": ("D108: each part passes when the out-of-fold log loss difference, defender model minus "
                                 "no-defender model, is below zero with its 95 percent interval wholly below zero, on the "
                                 "development games; Set A is a later confirmation read as D80"),
-                       "part_a_passes": part_a["passes"], "part_b_passes": part_b["passes"]},
-           "seconds": round(time.time() - t0, 1), "peak_gb": round(peak_rss_gb(), 2)}
+                       "part_a_passes": P["part_a"]["passes"], "part_b_passes": P["part_b"]["passes"]},
+           "peak_gb": round(peak_rss_gb(), 2)}
     RESULTS.mkdir(parents=True, exist_ok=True)
     (RESULTS / f"{EXPERIMENT}-dev.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
     return out
@@ -745,9 +814,229 @@ def clean_head() -> str:
                           check=True).stdout.strip()
 
 
+# ----------------------------------------------------------------------------- the Set A path
+
+PATH_TABLES = {"frames": ("sportvu_contract", "{g}.parquet"), "possessions": ("analytics/possessions/2015-16", "{g}.parquet"),
+               "shot_frames": ("analytics/shot_frames/2015-16", "{g}.parquet"), "rosters": ("analytics/rosters/2015-16", "{g}.parquet")}
+
+
+def missing_tables(root, games) -> dict:
+    """game -> the needed tables it lacks (paths only, nothing read)."""
+    out = {}
+    for g in games:
+        miss = [k for k, (d, f) in PATH_TABLES.items() if not (Path(root) / d / f.format(g=g)).exists()]
+        if miss:
+            out[g] = miss
+    return out
+
+
+def final_models(artifacts, lambdas: dict) -> dict:
+    """Every model fitted on all development rows with the penalties the development stage chose -> templates (column
+    maps) and coefficients."""
+    import numpy as np
+    from analytics.matchups import train as T
+    root = Path(os.environ["DATA_ROOT"])
+    games = development_games(root)
+    xfg = stored_xfg(root)
+    default_p = T.default_probability(xfg)
+    mp, shots, zones = tables(artifacts, games, xfg, default_p)
+    pmap = {(str(a), int(e)): float(p) for a, e, p, f in zip(xfg["sportvu_game"], xfg["event"], xfg["p_selected"],
+                                                             xfg["fold"]) if f >= 0}
+    a_rows, a_shares, _ = part_a_rows(mp, shots, zones)
+    b_rows, _ = part_b_rows(shots, pmap)
+    pre_rows, pre_shares = pre_shot_shares(stored_mf_shots(artifacts, games), a_rows)
+    designs = {"a": (Design("a", a_rows, a_shares), lambdas["lambda_a"]),
+               "a0": (Design("a", a_rows, a_shares, with_defenders=False), lambdas["lambda_a_no_defender"]),
+               "b": (Design("b", b_rows), lambdas["lambda_b"]),
+               "b0": (Design("b", b_rows, with_defenders=False), 0.0),
+               "p": (Design("a", pre_rows, pre_shares), lambdas["lambda_pre_shot"]),
+               "p0": (Design("a", pre_rows, pre_shares, with_defenders=False), lambdas["lambda_pre_shot_no_defender"])}
+    out = {"default_p": default_p}
+    for k, (D, lam) in designs.items():
+        out[k] = {"template": D, "lambda": lam,
+                  "beta": fit_logit(D.X, D.y, D.offset, _penalty_vector(D.shape[1], D.n_free, lam))}
+        D.X = D.X[:0]                                      # keep the column maps, drop the development rows
+    del np
+    return out
+
+
+def t_interval(groups, diff) -> dict:
+    """Report-only sensitivity check (PLAN.md D80): a t interval on the per-game mean differences."""
+    import numpy as np
+    import pandas as pd
+    from scipy import stats
+    m = pd.Series(diff).groupby(pd.Series(groups)).mean().to_numpy()
+    if len(m) < 2:
+        return {"games": int(len(m)), "mean_of_game_means": float(m.mean()) if len(m) else None, "lo": None, "hi": None}
+    half = float(stats.t.ppf(0.975, len(m) - 1) * m.std(ddof=1) / np.sqrt(len(m)))
+    return {"games": int(len(m)), "mean_of_game_means": float(m.mean()), "lo": float(m.mean() - half),
+            "hi": float(m.mean() + half)}
+
+
+def reading(ci) -> str:
+    """D108 and D80: the Set A reading of a defender-minus-no-defender interval."""
+    lo, hi = ci
+    if hi < 0:
+        return "confirms (interval wholly below zero)"
+    if lo > 0:
+        return "contradiction (interval wholly above zero): blocks any site defender table for this part"
+    return "inconclusive at 10 games (the interval straddles zero; not evidence against)"
+
+
+def evaluate_games(root, games, pmap: dict, models: dict) -> dict:
+    """Parts (a) and (b) and the pre-shot context on the given games of a root, with the final models: the frozen
+    assignment per game (frames read once each), the rows, the per-row log losses of both models of each part, a
+    bootstrap of the games and a t interval of per-game means. Mechanics shared by the scorer and the dry run."""
+    import numpy as np
+    import pandas as pd
+    from analytics.matchups import train as T
+    mps, shots, zones, mfs = [], [], [], []
+    xfg_df = pd.DataFrame([{"sportvu_game": g, "event": e, "p_selected": p} for (g, e), p in pmap.items()],
+                          columns=["sportvu_game", "event", "p_selected"])
+    for g in game_dicts(root, games):
+        pt = assign_game(g)
+        gid = str(g["sportvu_game"])
+        t = T.matchup_tables({gid: {"mf": pt["mf"], "info": info_dict(pt["info"]), "shots": pt["shots"]}}, xfg_df,
+                             models["default_p"])
+        mps.append(t["matchup_possessions"]); shots.append(t["shots"]); zones.append(pt["zones"])
+        mfs.append((gid, pt["mf"], pt["shots"]))
+        del g, pt
+    mp, sh, zn = (pd.concat(x, ignore_index=True) for x in (mps, shots, zones))
+    a_rows, a_shares, a_counts = part_a_rows(mp, sh, zn)
+    b_rows, b_counts = part_b_rows(sh, pmap)
+    pre_rows, pre_shares = pre_shot_shares(iter(mfs), a_rows)
+    counts = {"games": len(games), "matchup_rows": int(len(mp)), "attempts": int(len(sh)), "a": a_counts, "b": b_counts,
+              "pre_shot_possessions": int(pre_rows[["sportvu_game", "possession"]].drop_duplicates().shape[0]),
+              "games_with_part_a_rows": int(a_rows["sportvu_game"].nunique()),
+              "games_with_part_b_rows": int(b_rows["sportvu_game"].nunique()),
+              "part_b_rows_per_game_min": int(b_rows.groupby("sportvu_game").size().min()) if len(b_rows) else 0,
+              "defenders_in_part_b_without_a_development_coefficient": int(
+                  len(set(b_rows["assigned_def_id"].astype(int)) - set(models["b"]["template"].defenders)))}
+    out = {"counts": counts, "parts": {}}
+    for name, rows, shares, kd, k0 in (("a", a_rows, a_shares, "a", "a0"), ("b", b_rows, None, "b", "b0"),
+                                       ("a_pre_shot_context", pre_rows, pre_shares, "p", "p0")):
+        if len(rows) == 0:
+            out["parts"][name] = None
+            continue
+        loss = {}
+        for k in (kd, k0):
+            D = models[k]["template"].like(rows, shares)
+            loss[k] = row_loss(D.y, D.offset + D.X @ models[k]["beta"])
+        groups = rows["sportvu_game"].astype(str).to_numpy()
+        stats = game_bootstrap(groups, {"log_loss_defender": loss[kd], "log_loss_no_defender": loss[k0],
+                                        "defender_minus_no_defender": loss[kd] - loss[k0]})
+        d = stats["defender_minus_no_defender"]
+        out["parts"][name] = {"rows": stats["rows"], "games": stats["games"],
+                              "log_loss": {"defender": stats["log_loss_defender"],
+                                           "no_defender": stats["log_loss_no_defender"]},
+                              "defender_minus_no_defender": d,
+                              "t_interval_of_game_means": t_interval(groups, loss[kd] - loss[k0]),
+                              "reading": reading(d["ci95"])}
+    del np
+    return out
+
+
+def non_finite(value, path: str = "") -> list:
+    """Paths of every float in a JSON-like value that is NaN or infinite."""
+    if isinstance(value, dict):
+        return [p for k, v in value.items() for p in non_finite(v, f"{path}.{k}" if path else str(k))]
+    if isinstance(value, (list, tuple)):
+        return [p for i, v in enumerate(value) for p in non_finite(v, f"{path}[{i}]")]
+    if hasattr(value, "item") and not isinstance(value, (str, bytes)):
+        value = value.item()
+    return [path] if isinstance(value, float) and not math.isfinite(value) else []
+
+
+def make_scorer(models: dict, xfg_artifacts=None, provenance: dict = None, xfg_p=None):
+    """The scorer score_once runs on Set A. The test data is reached only here: the research data root and the frozen
+    xFG features of the test attempts (tools.research_xfg). Before anything is computed it refuses unless every test
+    game has frames, possessions, shot rows and a roster; it refuses unless every game gives rows to both parts; a
+    summary with any non-finite number is returned as a refused verdict. xfg_p replaces the frozen xFG model in the
+    rehearsal test only."""
+    import numpy as np
+    from tools import research_testset as RT
+    from tools.frozen_models import load_xfg
+
+    def scorer(test_games):
+        if RT._SCORING is None or RT._SCORING[1] != TRACKING:
+            raise SystemExit(f"{WHO}: the test data is read only inside the scorer that score_once runs")
+        from tools.research_xfg import research_data_root, test_features
+        root = research_data_root(xfg_artifacts)
+        games = sorted(str(g) for g in test_games)
+        head = {"experiment": EXPERIMENT, "stage": "Set A, scored once as the D108 confirmation", **(provenance or {})}
+        miss = missing_tables(root, games)
+        if miss:
+            return {**head, "verdict": {"refused": True, "reading": f"{len(miss)} test game(s) lack a needed table"},
+                    "missing": miss}
+        if xfg_p is not None:
+            pmap = xfg_p(games)
+        else:
+            feats = test_features(games, xfg_artifacts)
+            p = load_xfg(xfg_artifacts).predict(feats)
+            pmap = {(str(g), int(e)): float(v) for g, e, v in zip(feats["sportvu_game"], feats["event"], np.asarray(p))}
+        res = evaluate_games(root, games, pmap, models)
+        c = res["counts"]
+        if c["games_with_part_a_rows"] != len(games) or c["games_with_part_b_rows"] != len(games):
+            return {**head, "verdict": {"refused": True, "reading": "not every test game gives rows to both parts; "
+                                                                   "scored all or none"}, "counts": c}
+        bad = non_finite(res)
+        if bad:
+            return {**head, "verdict": {"refused": True, "reading": f"{len(bad)} non-finite value(s), for example "
+                                                                   f"{bad[0]}"}, "counts": c}
+        return {**head, **res}
+
+    return scorer
+
+
+def dryrun(artifacts=None, xfg_artifacts=None, n_games: int = 3) -> dict:
+    """The Set A path (evaluate_games and the frozen xFG model) on the first development games, read from DATA_ROOT,
+    with models fitted on every development game: mechanics only, these games are in sample."""
+    import pandas as pd
+    from tools.frozen_models import load_xfg
+    from tools.research_xfg import features_path
+    require_gate(artifacts)
+    dev_json = json.loads((RESULTS / f"{EXPERIMENT}-dev.json").read_text())
+    models = final_models(artifacts, dev_json["test_fit"])
+    root = Path(os.environ["DATA_ROOT"])
+    games = development_games(root)[:n_games]
+    feats = pd.read_parquet(features_path(xfg_artifacts), filters=[("sportvu_game", "in", games)])
+    p = load_xfg(xfg_artifacts).predict(feats)
+    pmap = {(str(g), int(e)): float(v) for g, e, v in zip(feats["sportvu_game"], feats["event"], p)}
+    res = evaluate_games(root, games, pmap, models)
+    return {"games": games, "counts": res["counts"], "parts": sorted(k for k, v in res["parts"].items() if v),
+            "non_finite": non_finite(res), "note": "mechanics only; these games are in the development fit"}
+
+
+def final(artifacts=None, xfg_artifacts=None) -> dict:
+    head = clean_head()
+    from tools.research_xfg import test_root_ready
+    gate_record = require_gate(artifacts)
+    dev_path = RESULTS / f"{EXPERIMENT}-dev.json"
+    if not dev_path.exists():
+        raise SystemExit(f"{WHO}: run e1-dev first; Set A is scored after the development result exists")
+    dev_json = json.loads(dev_path.read_text())
+    if not test_root_ready(xfg_artifacts):
+        raise SystemExit(f"{WHO}: the research data root has no ingested games; run tools.research_ingest first")
+    models = final_models(artifacts, dev_json["test_fit"])
+    provenance = {"code_commit": head, "dev_code_commit": dev_json["code_commit"],
+                  "development_verdict": dev_json["verdict"]}
+    scorer = make_scorer(models, xfg_artifacts, provenance)
+    out = score_once(EXPERIMENT, TRACKING, scorer)
+    record = {"experiment": EXPERIMENT, "code_commit": head, "scored": out,
+              "setup": {"gate": {k: gate_record[k] for k in ("games", "rows_rebuilt", "keys_equal", "passed")},
+                        "lambdas": {k: models[k]["lambda"] for k in ("a", "a0", "b", "b0", "p", "p0")},
+                        "projected_set_a": {"a": dev_json["part_a"]["projected_set_a"],
+                                            "b": dev_json["part_b"]["projected_set_a"]}}}
+    (RESULTS / f"{EXPERIMENT}-final.json").write_text(json.dumps(_plain(record), indent=2, allow_nan=False) + "\n")
+    return record
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e1-assign", "e1-gate", "e1-dev"))
+    ap.add_argument("command", choices=("e1-assign", "e1-gate", "e1-dev", "e1-dryrun", "e1-final"))
+    ap.add_argument("--xfg-artifacts", default=os.environ.get("V3_XFG_ARTIFACTS"),
+                    help="the artifacts folder holding the gated frozen xFG model (tools.frozen_models) and the xFG "
+                         "research features (default: V3_XFG_ARTIFACTS)")
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
     ap.add_argument("--limit", type=int, default=None)
@@ -755,8 +1044,12 @@ def main(argv=None) -> int:
     with heavy_job(f"research matchups {a.command}"):
         if a.command == "e1-assign":
             out = assign_pass(a.artifacts, a.max_minutes, a.limit)
+        elif a.command in ("e1-dryrun", "e1-final"):
+            out = {"e1-dryrun": dryrun, "e1-final": final}[a.command](a.artifacts, a.xfg_artifacts)
+        elif a.command == "e1-dev":
+            out = dev(a.artifacts, a.max_minutes)
         else:
-            out = {"e1-gate": gate, "e1-dev": dev}[a.command](a.artifacts)
+            out = {"e1-gate": gate}[a.command](a.artifacts)
     print(json.dumps(_plain(out.get("verdict", out)), indent=2, default=str))
     return 0
 
