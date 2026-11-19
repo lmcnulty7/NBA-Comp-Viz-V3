@@ -200,7 +200,7 @@ export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; fi
           </dd>
         </div>
         <div>
-          <dt>{label(r.end, endOf(comparison))}</dt>
+          <dt>{label(r.end, comparison === "contains" ? (stage.upper === stage.lo ? "lo" : "hi") : endOf(comparison))}</dt>
           <dd>
             <DataValue file={FILE} field={`${field}.upper`} value={stage.upper} signed />
           </dd>
@@ -255,12 +255,14 @@ export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; fi
                   <DataText file={FILE} field={`${at}.label`} text={condition.label} />
                   <span className="estimate">
                     <DataValue file={FILE} field={`${at}.value`} value={condition.value} />
-                    <span className="note" data-interval="true">
-                      {fillNodes(copy.site.estimate.range, {
-                        lo: <DataValue file={FILE} field={`${at}.lo`} value={condition.lo} />,
-                        hi: <DataValue file={FILE} field={`${at}.hi`} value={condition.hi} />,
-                      })}
-                    </span>
+                    {condition.lo != null && condition.hi != null ? (
+                      <span className="note" data-interval="true">
+                        {fillNodes(copy.site.estimate.range, {
+                          lo: <DataValue file={FILE} field={`${at}.lo`} value={condition.lo} />,
+                          hi: <DataValue file={FILE} field={`${at}.hi`} value={condition.hi} />,
+                        })}
+                      </span>
+                    ) : null}
                   </span>
                   <span className="note">
                     {fillNodes(r.condition.line, {

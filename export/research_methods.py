@@ -200,15 +200,20 @@ def experiment_bullets(text: str) -> dict:
 
 
 def _path_value(doc: dict, path: str):
-    """The value at a dotted path of a result file; a whole-number segment indexes a list (an interval's ends)."""
-    value = doc
-    for key in path.split("."):
+    """The value at a dotted path of a result file; a whole-number segment indexes a list (an interval's ends). A
+    key that holds a dot itself ("1.0", a horizon in seconds) is matched whole: at each level the shortest run of
+    segments that names a key is taken."""
+    value, parts, at = doc, path.split("."), 0
+    while at < len(parts):
+        key = parts[at]
         if isinstance(value, list) and key.isdigit() and int(key) < len(value):
-            value = value[int(key)]
-        elif isinstance(value, dict) and key in value:
-            value = value[key]
-        else:
+            value, at = value[int(key)], at + 1
+            continue
+        width = next((w for w in range(1, len(parts) - at + 1)
+                      if isinstance(value, dict) and ".".join(parts[at:at + w]) in value), None)
+        if width is None:
             raise MethodsProblem(f"the result file has no {path}")
+        value, at = value[".".join(parts[at:at + width])], at + width
     return value
 
 
@@ -386,6 +391,10 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             if exp.get("parts") and (results or exp.get("protocol") or exp.get("stages")):
                 problems.append(f"{eid}: an experiment decided part by part has no results, protocol or stages of its "
                                 "own")
+            stage_specs = [(label if not spec.get("by_stage") else f"{label or ''} ({name})".strip(),
+                            _for_stage(spec, name) if spec.get("by_stage") else spec, stages, not_scored)
+                           for label, spec, stages, not_scored in stage_specs
+                           for name in (spec.get("by_stage") or {"all": None})]
             for label, spec, stages, not_scored in stage_specs:
                 where = eid if label is None else f"{eid} {label}"
                 try:
@@ -451,10 +460,21 @@ FLAGS_OUTSIDE_RULE_ALLOWED = {
                    "{verdict}.regulation_only_reading.adopt", "{verdict}.regulation_only_reading.differs",
                    "{verdict}.ablation.drift_form_adds_beyond_mu_alone"},  # the regulation-only and ablation readings
     "winprob-E2": {"{verdict}.ablation.forward_beats_grouped"},          # the ablation reading
-    "lineups-E2": {"scored.results.verdict.toward_their_players_supported"},  # the shrinkage ablation reading
+    "lineups-E2": {"scored.results.verdict.toward_their_players_supported"},
+    # Set A's D113 reading is the consistency check; whether each interval excludes zero is reported beside it, and
+    # the size reading is report only (D115), read by no rule
+    "ghosting-E1": {"scored.0.2.rollout_minus_mlp.excludes_zero", "scored.1.0.rollout_minus_mlp.excludes_zero",
+                    "scored.report_only_size_reading.below"},  # the shrinkage ablation reading
 }
 GUARD_KEYS = ("label", "path", "buckets", "worse", "bound", "comparison", "threshold", "digits")
 READING_KINDS = ("met", "not_met", "otherwise")
+
+
+def _for_stage(results: dict, stage: str) -> dict:
+    """A stage description with the stage's own overrides (`by_stage`) in place: a test-set check read by another
+    rule than development's (ghosting-E1's D113 consistency check) describes its comparison, keys, conditions and
+    readings there."""
+    return {**{k: v for k, v in results.items() if k != "by_stage"}, **results.get("by_stage", {}).get(stage, {})}
 
 
 def check_results_spec(results: dict) -> None:
@@ -463,9 +483,23 @@ def check_results_spec(results: dict) -> None:
     (empty when the rule has none), each condition complete, with a threshold (stated, or read from the file with its
     sign) and the end of its interval that its comparison reads (or its point value), each guard complete, and the
     way the file states its verdict (a flag, a reading word, or a quoted reading of the write-up)."""
+    overrides = results.get("by_stage", {})
+    if overrides:
+        if set(overrides) - {"development", "test"} or set().union(*map(set, overrides.values())) & {
+                "development", "test", "by_stage"}:
+            raise MethodsProblem("by_stage overrides a development or a test stage's own description, never its file")
+        for stage_name in ("development", "test"):
+            if results.get(stage_name) is not None:
+                check_results_spec(_for_stage(results, stage_name))
+        return
     comparison = results.get("comparison", "at_most")
-    if comparison not in SCHEMA_COMPARE:
+    if comparison not in SCHEMA_COMPARE and comparison != "contains":
         raise MethodsProblem(f"the main rule's comparison {comparison!r} is unknown")
+    if comparison == "contains" and not (results.get("main_states") and "threshold" in results.get("keys", {})
+                                         and "threshold_development" in results.get("keys", {})):
+        raise MethodsProblem("a rule that the range must hold a number names that number's key, the same number "
+                             "in the development file (keys.threshold_development) and the rule's words for it "
+                             "(main_states)")
     by_stage = results.get("stage_keys", {})
     if set(by_stage) - {"development", "test"} or any(set(k) - {"met", "main_met", "reading"} for k in by_stage.values()):
         raise MethodsProblem("stage_keys names a development or a test stage, and only its met, main_met or reading")
@@ -476,8 +510,11 @@ def check_results_spec(results: dict) -> None:
     if by_stage:
         return
     keys = results.get("keys", {})
-    end_key = keys.get(BOUND_OF[comparison])
-    if results.get("flip"):
+    end_key = keys.get(BOUND_OF.get(comparison, "lo"))
+    if comparison == "contains":
+        if "upper" in keys or results.get("flip"):
+            raise MethodsProblem("a rule that the range must hold a number reads both ends: no keys.upper, no flip")
+    elif results.get("flip"):
         if "upper" in keys:
             raise MethodsProblem("a flipped interval names no keys.upper: the end it reads follows from the flip")
     elif keys.get("upper", end_key) != end_key:
@@ -497,7 +534,9 @@ def check_results_spec(results: dict) -> None:
                 kind) and kind["comparison"] in SCHEMA_COMPARE):
             raise MethodsProblem(f"the reading {word!r} is not met, not_met, otherwise or a condition on an end")
     for condition in results["conditions"]:
-        missing = [key for key in CONDITION_KEYS if key not in condition]
+        # a condition on a point statistic with no interval (a count, a p value) names no lo or hi and reads its point
+        point_only = "lo" not in condition and "hi" not in condition and condition.get("bound") == "point"
+        missing = [key for key in CONDITION_KEYS if key not in condition and not (point_only and key in ("lo", "hi"))]
         if "threshold" not in condition and "threshold_key" not in condition:
             missing.append("threshold")
         if missing:
@@ -599,6 +638,7 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     a reported value may belong to one stage only (`stage`) or read another result file (`file`, listed as
     also_read)."""
     check_results_spec(results)
+    results = _for_stage(results, stage)
     rel = results[stage]
     if rel is None:
         return None
@@ -623,12 +663,11 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     # a stage may state its verdict its own way (a flag on development, a reading word on the test set)
     keys = {**results["keys"], **results.get("stage_keys", {}).get(stage, {})}
     comparison = results.get("comparison", "at_most")
-    compare = SCHEMA_COMPARE[comparison]
+    compare = SCHEMA_COMPARE.get(comparison)
     sign = -1.0 if results.get("flip") else 1.0
     lo_raw, hi_raw = float(at(keys["lo"])), float(at(keys["hi"]))
     lo_v, hi_v = (-hi_raw, -lo_raw) if sign < 0 else (lo_raw, hi_raw)
     diff_v = sign * float(at(keys["diff"])) if "diff" in keys else None
-    upper = lo_v if BOUND_OF[comparison] == "lo" else hi_v
     if "rule" in keys:
         rule = at(keys["rule"])
     elif results.get("rule_quote"):
@@ -636,7 +675,26 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     else:
         rule = rule_text
     threshold = float(at(keys["threshold"])) if "threshold" in keys else float(results["threshold"])
-    if not states(rule, comparison, threshold):
+    if comparison == "contains" and "threshold_development" in keys:
+        # the number the range must hold is the development estimate, as the development file states it
+        dev_doc = json.loads((repo / results["development"]).read_text(encoding="utf-8"))
+        if float(_path_value(dev_doc, keys["threshold_development"])) != threshold:
+            raise MethodsProblem(f"{rel}: {keys['threshold']} is not {keys['threshold_development']} of "
+                                 f"{results['development']}, the development estimate the range must hold")
+    if comparison == "contains":
+        # the range must hold a number of the file (D113: Set A's interval holds the development estimate); the
+        # end shown is the one nearer that number, the end that decides
+        upper = lo_v if abs(threshold - lo_v) <= abs(threshold - hi_v) else hi_v
+
+        def compare(_end, bar, lo=lo_v, hi=hi_v):
+            return lo <= bar <= hi
+        if _flat(results["main_states"]) not in _flat(rule):
+            raise MethodsProblem(f"{rel}: the rule does not say {results['main_states']!r}")
+    else:
+        upper = lo_v if BOUND_OF[comparison] == "lo" else hi_v
+    if comparison == "contains":
+        pass
+    elif not states(rule, comparison, threshold):
         raise MethodsProblem(f"{rel}: the rule does not state {comparison.replace('_', ' ')} {threshold}: {rule[:90]!r}")
     if "rule" in keys and "threshold" not in keys and number_text(threshold) not in numbers(rule):
         raise MethodsProblem(f"{rel}: the rule {keys['rule']} does not name the threshold {threshold}")
@@ -654,9 +712,13 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         if spec.get("states"):
             # a threshold that is another statistic's end is named in words ("above the upper end of the
             # position-only retriever's interval"): the words must be in the rule, and the number is read from the file
-            if _flat(spec["states"]) not in _flat(rule) or "threshold_key" not in spec:
-                raise MethodsProblem(f"{rel}: the rule does not say {spec['states']!r}, or the condition reads no "
-                                     "threshold from the file")
+            # without a key the words carry the number itself, its size at least ("lower by at least 0.10"
+            # for at most -0.10, "p < 0.05")
+            named = "threshold_key" in spec or number_text(abs(bar)) in {number_text(abs(float(n))) for n in
+                                                                        numbers(spec["states"])}
+            if _flat(spec["states"]) not in _flat(rule) or not named:
+                raise MethodsProblem(f"{rel}: the rule does not say {spec['states']!r}, or the condition names no "
+                                     "threshold")
         elif not states(rule, spec["comparison"], bar):
             raise MethodsProblem(f"{rel}: the rule does not state {spec['comparison'].replace('_', ' ')} {bar} for "
                                  f"{spec['label']!r}")
@@ -716,7 +778,8 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         raise MethodsProblem(f"{rel}: {keys['main_met']} disagrees with its bound {upper} against {threshold}")
     conditions = []
     for spec in results["conditions"]:
-        lo, hi, value = float(at(spec["lo"])), float(at(spec["hi"])), float(at(spec["value"]))
+        value = float(at(spec["value"]))
+        lo, hi = (float(at(spec["lo"])), float(at(spec["hi"]))) if "lo" in spec else (None, None)
         end = {"lo": lo, "hi": hi, "point": value}[spec["bound"]]
         bar = bar_of(spec)
         ok = SCHEMA_COMPARE[spec["comparison"]](end, bar)
@@ -725,9 +788,10 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         places = spec["digits"]
         while SCHEMA_COMPARE[spec["comparison"]](round(end, places), round(bar, places)) != ok and places < 17:
             places += 1
-        conditions.append(S.Condition(label=spec["label"], value=round(value, places), lo=round(lo, places),
-                                      hi=round(hi, places), bound=spec["bound"], comparison=spec["comparison"],
-                                      threshold=round(bar, places), met=ok))
+        conditions.append(S.Condition(label=spec["label"], value=round(value, places),
+                                      lo=round(lo, places) if lo is not None else None,
+                                      hi=round(hi, places) if hi is not None else None, bound=spec["bound"],
+                                      comparison=spec["comparison"], threshold=round(bar, places), met=ok))
     guards = []
     for guard_spec in _guards_of(results):
         table = at(guard_spec["path"])
@@ -762,10 +826,26 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     part_of = {keys.get("main_met"): main} | {spec["met"]: c.met for spec, c in zip(results["conditions"], conditions)
                                               if spec["met"]} | {g_spec["worse"]: g.met for g_spec, g in
                                                                  zip(_guards_of(results), guards)}
+    part_of["@main"] = main
+    part_of.update({f"@{index}": c.met for index, c in enumerate(conditions)})
+    bars = {"@main": None if comparison == "contains" else threshold} | {
+        f"@{index}": (None if "threshold_key" in spec else float(spec["threshold"]))
+        for index, spec in enumerate(results["conditions"])}
     for conj in results.get("conjunctions", []):
         unknown = [f for f in conj["of"] if f not in part_of]
         if unknown:
             raise MethodsProblem(f"{rel}: {conj['flag']} is said to join {unknown}, which are no parts of the rule")
+        if conj.get("rule"):
+            # the file states the joined rule ("diff <= -0.1 and hi < 0"): it has as many parts as the source joins,
+            # and names each stated bar, so no part of it can be left out
+            stated = str(at(conj["rule"]))
+            if len(re.split(r"\s+and\s+", stated)) != len(conj["of"]):
+                raise MethodsProblem(f"{rel}: {conj['rule']} ({stated!r}) has another number of parts than "
+                                     f"{conj['of']}")
+            named = {number_text(abs(float(n))) for n in numbers(stated)}
+            missing = [f for f in conj["of"] if bars.get(f) is not None and number_text(abs(bars[f])) not in named]
+            if missing:
+                raise MethodsProblem(f"{rel}: {conj['rule']} does not name the bars of {missing}")
         if bool(at(conj["flag"])) != all(part_of[f] for f in conj["of"]):
             raise MethodsProblem(f"{rel}: {conj['flag']} disagrees with the parts it joins")
     reading_word = None
@@ -811,8 +891,12 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     # read as the file's own verdict, so rounding can never flip it (an upper end of 0.000502 against 0.0005
     # shows six decimals, not five).
     digits = results["digits"]
-    while compare(round(upper, digits), round(threshold, digits)) != main and digits < 17:
-        digits += 1
+    if comparison == "contains":
+        while (round(lo_v, digits) <= round(threshold, digits) <= round(hi_v, digits)) != main and digits < 17:
+            digits += 1
+    else:
+        while compare(round(upper, digits), round(threshold, digits)) != main and digits < 17:
+            digits += 1
 
     values = []
     for spec in results["values"]:

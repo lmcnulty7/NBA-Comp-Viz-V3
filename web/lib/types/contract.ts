@@ -1021,7 +1021,7 @@ export interface StageResult {
   interval: string;
   threshold: number;
   upper: number;
-  comparison?: "below" | "at_most" | "above" | "at_least";
+  comparison?: "below" | "at_most" | "above" | "at_least" | "contains";
   conditions?: Condition[];
   guard?: BucketGuard | null;
   guards?: BucketGuard[];
@@ -1041,8 +1041,8 @@ export interface StageResult {
 export interface Condition {
   label: string;
   value: number;
-  lo: number;
-  hi: number;
+  lo?: number | null;
+  hi?: number | null;
   bound: "lo" | "hi" | "point";
   comparison: "below" | "at_most" | "above" | "at_least";
   threshold: number;

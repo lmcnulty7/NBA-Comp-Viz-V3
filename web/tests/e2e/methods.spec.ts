@@ -198,6 +198,9 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
         await expect(shown).toHaveAttribute("data-guard-met", String(guard.met));
       }
       await expect(facts.getByTestId("also-read")).toHaveCount((stage.also_read ?? []).length);
+      // a reading word the file states (ghosting-E1's D113 reading on Set A) is shown as written
+      await expect(facts.getByTestId("reading")).toHaveCount(stage.reading ? 1 : 0);
+      if (stage.reading) await expect(facts.getByTestId("reading")).toContainText(stage.reading);
       const conditions = stage.conditions ?? [];
       await expect(facts.locator("[data-condition-met]")).toHaveCount(conditions.length);
       for (const [index, condition] of conditions.entries()) {

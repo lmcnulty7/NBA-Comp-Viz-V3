@@ -1015,6 +1015,10 @@ _COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above"
             "at_least": lambda v, t: v >= t}
 
 
+# A stage's main rule may also require its range to hold a number of the file (`contains`: D113's consistency check)
+StageComparison = Literal["below", "at_most", "above", "at_least", "contains"]
+
+
 def _is_number_text(text: Optional[str]) -> bool:
     return text is None or bool(re.fullmatch(r"[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?", text))
 
@@ -1116,8 +1120,8 @@ class Condition(Strict):
 
     label: str = Field(min_length=1)
     value: float
-    lo: float
-    hi: float
+    lo: Optional[float] = None
+    hi: Optional[float] = None
     bound: Literal["lo", "hi", "point"]
     comparison: Comparison
     threshold: float
@@ -1125,7 +1129,9 @@ class Condition(Strict):
 
     @model_validator(mode="after")
     def _met(self):
-        if not (self.lo <= self.value <= self.hi):
+        if (self.lo is None) != (self.hi is None) or (self.lo is None and self.bound != "point"):
+            raise ValueError(f"{self.label}: a condition has both ends or neither, and with neither reads its point")
+        if self.lo is not None and not (self.lo <= self.value <= self.hi):
             raise ValueError(f"{self.label}: the value lies inside its interval")
         end = {"lo": self.lo, "hi": self.hi, "point": self.value}[self.bound]
         if self.met != _COMPARE[self.comparison](end, self.threshold):
@@ -1197,7 +1203,7 @@ class StageResult(Strict):
     interval: str = Field(min_length=1)
     threshold: float
     upper: float
-    comparison: Comparison = "at_most"
+    comparison: StageComparison = "at_most"
     conditions: list["Condition"] = []
     guard: Optional[BucketGuard] = None
     guards: list[BucketGuard] = []
@@ -1209,13 +1215,18 @@ class StageResult(Strict):
     def _rule(self):
         if self.lo > self.hi or (self.diff is not None and not (self.lo <= self.diff <= self.hi)):
             raise ValueError("the difference lies inside its interval")
-        end = self.lo if self.comparison in ("above", "at_least") else self.hi
+        if self.comparison == "contains":
+            # the range must hold the threshold; the end shown is the one nearer it, the end that decides
+            end = self.lo if abs(self.threshold - self.lo) <= abs(self.threshold - self.hi) else self.hi
+            main = self.lo <= self.threshold <= self.hi
+        else:
+            end = self.lo if self.comparison in ("above", "at_least") else self.hi
+            main = _COMPARE[self.comparison](self.upper, self.threshold)
         if self.upper != end:
             raise ValueError("the main rule reads the upper end for at most and below, the lower end for at least "
-                             "and above")
+                             "and above, and the end nearer its number for contains")
         guards = ([self.guard] if self.guard else []) + list(self.guards)
-        if self.met != (_COMPARE[self.comparison](self.upper, self.threshold) and all(c.met for c in self.conditions)
-                         and all(g.met for g in guards)):
+        if self.met != (main and all(c.met for c in self.conditions) and all(g.met for g in guards)):
             raise ValueError("met says whether the bound meets the threshold and every further condition is met")
         expected = "testset" if self.stage == "test" else "out_of_fold"
         if self.source.rows != expected or any(s.rows != expected for s in self.also_read):

@@ -24,7 +24,7 @@
     "development_met_test_pending": "Cleared its bar on training games. Test score pending.",
     "not_adopted_development": "Fell short on training games. Not adopted.",
     "adopted": "Cleared its bar on training games and on the test games. Adopted.",
-    "not_adopted_test": "Fell short on the test games. Not adopted.",
+    "not_adopted_test": "Did not pass its check on the test games. Not adopted.",
     "passed_test": "Cleared its bar on the test games, scored once.",
     "adopted_research": "Cleared its bar on training games and on the test games. Adopted as a research result only; the site does not change.",
     "ran_result_in_writeup": "Has run. Its result is in its write-up and is not shown on this page yet.",
@@ -51,7 +51,8 @@
       "at_most": "The bar: at most",
       "below": "The bar: below",
       "above": "The bar: above",
-      "at_least": "The bar: at least"
+      "at_least": "The bar: at least",
+      "contains": "The range must hold"
     },
     "verdict": "Against the bar",
     "met": "Cleared the bar",

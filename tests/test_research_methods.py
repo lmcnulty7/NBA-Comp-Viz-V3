@@ -57,7 +57,7 @@ def test_the_committed_source_traces_and_builds(source):
 
 
 RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
-       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2")   # the experiments with a result file today
+       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -1319,3 +1319,101 @@ def test_the_contract_refuses_a_test_left_unscored_on_any_other_shape(source, ei
 ])
 def test_the_not_scored_sentence_names_the_test_set(sentence, ok):
     assert bool(R.NOT_SCORED.search(sentence)) is ok
+
+
+# ------------------------------------------------------------------------------------------ ghosting-E1 (D113, D115, D119)
+
+
+def _ghost(doc):
+    return _exp(doc, "ghosting-E1")["results"]
+
+
+def test_ghosting_e1_met_its_three_parts_on_development_and_set_a_read_inconsistent(source):
+    e = _built(source)["ghosting-E1"]
+    dev_file, scored = _file("ghosting-E1-dev.json"), _file("ghosting-E1-final.json")["scored"]
+    # adopted on development, stopped by Set A's D113 reading: the status never says adopted
+    assert e.status == "not_adopted_test" and e.adopted_as is None
+    dev, test = e.development, e.test
+    cell = dev_file["paired_ft"]["1.0"]["rollout_minus_mlp"]
+    assert (dev.diff, dev.lo, dev.hi) == tuple(round(cell[k], 3) for k in ("diff", "lo", "hi"))
+    assert (dev.comparison, dev.threshold, dev.met) == ("below", 0, True) and dev_file["decision"]["adopted"] is True
+    size, guard, signs, p = dev.conditions
+    assert (size.bound, size.comparison, size.threshold, size.met) == ("point", "at_most", -0.1, True)
+    assert (guard.bound, guard.comparison, guard.threshold, guard.met) == ("hi", "below", 0.02, True)
+    assert (signs.value, signs.threshold, signs.lo, p.lo) == (414, 190, None, None)
+    assert p.value > 0 and p.met                     # a tiny p value is rounded to its first digit, never to zero
+    # Set A: the D113 consistency check, the range must hold the development estimate
+    one = scored["1.0"]["rollout_minus_mlp"]
+    assert (test.lo, test.hi) == (round(one["lo"], 4), round(one["hi"], 4))
+    assert (test.comparison, test.threshold) == ("contains", round(scored["development_estimate_1s"], 4))
+    assert test.threshold < test.lo and test.upper == test.lo and test.met is False
+    assert test.reading == scored["reading"] == "inconsistent"
+    report_only = [v for v in test.values if v.label.startswith("Report only (D115)")]
+    assert len(report_only) == 1 and report_only[0].value == round(scored["report_only_size_reading"]["upper_end"], 4)
+    ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
+    assert [x["status"] for x in ledger if x.get("experiment") == "ghosting-E1"] == ["scored"]
+
+
+def _ghost_test(doc):
+    return _ghost(doc)["by_stage"]["test"]
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("the size part dropped", lambda d: _ghost(d)["conjunctions"][0].update(of=["@main"]), "another number of parts"),
+    ("the size bar retyped", lambda d: _ghost(d)["conditions"][0].update(threshold=-0.01,
+                                                                          states="1.0 s error lower by at least 0.01"),
+     ""),
+    ("the sign test read against a made-up bar", lambda d: _ghost(d)["conditions"][3].update(threshold=0.5),
+     "names no threshold"),
+    ("the guard bar loosened", lambda d: _ghost(d)["conditions"][1].update(threshold=0.2), "does not state below 0.2"),
+    ("the Set A check reads another number", lambda d: _ghost_test(d)["keys"].update(threshold="scored.0.2.rows"),
+     "the development estimate the range must hold"),
+    ("the Set A check without the development file's number", lambda d: _ghost_test(d)["keys"].pop(
+        "threshold_development"), "keys.threshold_development"),
+    ("the Set A check's words not in the rule", lambda d: _ghost_test(d).update(main_states="lies near zero"),
+     "the rule does not say"),
+    ("inconsistent read as a pass", lambda d: _ghost_test(d)["readings"].update(inconsistent="met"),
+     "disagrees with the rule"),
+    ("the size reading left unnamed", lambda d: _ghost_test(d)["flags_outside_rule"].pop(
+        "scored.report_only_size_reading.below"), "belong to no rule"),
+    ("a stage override that names a file", lambda d: _ghost(d)["by_stage"]["test"].update(
+        test="reports/research/ghosting-E1-dev.json"), "are one file"),
+])
+def test_ghosting_e1_is_refused_when_the_source_misreads_it(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert problems, name
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("name, file, change, message", [
+    ("Set A said consistent", "ghosting-E1-final.json", lambda d: d["scored"].update(reading="consistent"),
+     "disagrees with the rule"),
+    ("the development estimate moved", "ghosting-E1-final.json",
+     lambda d: d["scored"].update(development_estimate_1s=-1.2), "the development estimate the range must hold"),
+    ("the sign test flag against its numbers", "ghosting-E1-dev.json",
+     lambda d: d["sign_test"]["rollout"].update(p_value=0.2), "states them as one number"),
+    ("the guard flag against its numbers", "ghosting-E1-dev.json",
+     lambda d: d["decision"]["guard_02s"].update(ok=False), "disagrees with its hi"),
+])
+def test_a_ghosting_e1_file_that_contradicts_its_numbers_is_refused(source, tmp_path, name, file, change, message):
+    repo = _mutated_repo(tmp_path, source, file, change)
+    with pytest.raises(R.MethodsProblem) as caught:
+        R.build_methods(repo, source)
+    assert message in str(caught.value), (name, str(caught.value))
+
+
+def test_the_contract_reads_a_contains_rule_and_a_point_only_condition(source):
+    e = _built(source)["ghosting-E1"]
+    test = e.test.model_dump()
+    with pytest.raises(ValidationError, match="the end nearer its number"):
+        S.StageResult(**{**test, "upper": test["hi"]})
+    with pytest.raises(ValidationError, match="met says whether"):
+        S.StageResult(**{**test, "met": True})
+    signs = e.development.conditions[2].model_dump()
+    with pytest.raises(ValidationError, match="both ends or neither"):
+        S.Condition(**{**signs, "lo": 100})
+    with pytest.raises(ValidationError, match="both ends or neither"):
+        S.Condition(**{**signs, "bound": "lo"})

@@ -1051,8 +1051,228 @@
      "gain": 3,
      "effort": 2,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted (adopted on development: 1.0 s rollout minus stand-in -1.295 [-1.322, -1.269] ft; Set A's D113 reading inconsistent: -1.117 [-1.154, -1.085] excludes the development estimate, which stops the adoption; the size reading, report only, has the gain past the 0.10 ft bar; reports/research/ghosting-E1.md)",
+     "writeup": "reports/research/ghosting-E1.md",
+     "writeup_notes": [
+      "On development the rollout-trained network met all three pre-registered parts: at 1.0 s it puts the ghost 1.295 ft closer than the frozen one-step stand-in (2.362 against 3.657 ft; paired -1.295 [-1.322, -1.269], 604 games), it is better at 0.2 s (-0.054 [-0.055, -0.053]), and its deviation tracks points allowed in 414 games against 190 (p = 2e-20).",
+      "That interval excludes the development estimate (-1.295), so D113's reading is \"inconsistent\", and under D113 that stops the adoption.",
+      "Beside it, report only and fixed before the score (D115): the interval's upper end, -1.085, is below -0.10 ft, so on the test games the gain is at least the pre-registered bar.",
+      "The report said before the score why the reading could be \"inconsistent\": the development estimate pools five stand-in refits that differ from one another (fold 3's at 4.266 ft), while Set A scores one.",
+      "The rule stands as written."
+     ],
+     "results": {
+      "metric": "Mean position error of the ghost at 1.0 s (ft), rollout-trained network minus the frozen stand-in",
+      "rows_unit": "origins at 1.0 s",
+      "interval_from": "dossier_sentence",
+      "interval": "Intervals: the lane's paired bootstrap by game of pooled means (analytics.eval.paired_bootstrap_by_game on per-game error sums and counts), 2000 resamples, seed 0.",
+      "development": "reports/research/ghosting-E1-dev.json",
+      "test": "reports/research/ghosting-E1-final.json",
+      "design": "stage",
+      "comparison": "below",
+      "threshold": 0,
+      "keys": {
+       "rows": "mean_error_ft.1.0.rows",
+       "games": "games",
+       "diff": "paired_ft.1.0.rollout_minus_mlp.diff",
+       "lo": "paired_ft.1.0.rollout_minus_mlp.lo",
+       "hi": "paired_ft.1.0.rollout_minus_mlp.hi",
+       "met": "decision.adopted"
+      },
+      "conditions": [
+       {
+        "label": "1.0 s gain at least 0.10 ft (the difference itself)",
+        "value": "paired_ft.1.0.rollout_minus_mlp.diff",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold": -0.1,
+        "met": null,
+        "digits": 3,
+        "states": "1.0 s error lower by at least 0.10 ft"
+       },
+       {
+        "label": "0.2 s guard: rollout minus stand-in at 0.2 s (ft)",
+        "value": "paired_ft.0.2.rollout_minus_mlp.diff",
+        "lo": "paired_ft.0.2.rollout_minus_mlp.lo",
+        "hi": "paired_ft.0.2.rollout_minus_mlp.hi",
+        "bound": "hi",
+        "comparison": "below",
+        "threshold": 0.02,
+        "met": "decision.guard_02s.ok",
+        "digits": 3
+       },
+       {
+        "label": "Deviation sign test: games where the deviation tracks points allowed (against the games where it does not)",
+        "value": "sign_test.rollout.n_pos",
+        "bound": "point",
+        "comparison": "above",
+        "threshold_key": "sign_test.rollout.n_neg",
+        "sign": 1,
+        "met": null,
+        "digits": 0,
+        "states": "the deviation sign test still positive"
+       },
+       {
+        "label": "Deviation sign test: one-sided p value",
+        "value": "sign_test.rollout.p_value",
+        "bound": "point",
+        "comparison": "below",
+        "threshold": 0.05,
+        "met": null,
+        "digits": 20,
+        "states": "one-sided p < 0.05"
+       }
+      ],
+      "conjunctions": [
+       {
+        "flag": "decision.one_s.ok",
+        "of": [
+         "@main",
+         "@0"
+        ],
+        "rule": "decision.one_s.rule"
+       },
+       {
+        "flag": "decision.guard_02s.ok",
+        "of": [
+         "@1"
+        ],
+        "rule": "decision.guard_02s.rule"
+       },
+       {
+        "flag": "decision.sign_test.ok",
+        "of": [
+         "@2",
+         "@3"
+        ],
+        "rule": "decision.sign_test.rule"
+       }
+      ],
+      "equalities": [
+       [
+        "decision.one_s.diff",
+        "paired_ft.1.0.rollout_minus_mlp.diff"
+       ],
+       [
+        "decision.one_s.hi",
+        "paired_ft.1.0.rollout_minus_mlp.hi"
+       ],
+       [
+        "decision.guard_02s.hi",
+        "paired_ft.0.2.rollout_minus_mlp.hi"
+       ],
+       [
+        "decision.sign_test.n_pos",
+        "sign_test.rollout.n_pos"
+       ],
+       [
+        "decision.sign_test.n_neg",
+        "sign_test.rollout.n_neg"
+       ],
+       [
+        "decision.sign_test.p",
+        "sign_test.rollout.p_value"
+       ]
+      ],
+      "digits": 3,
+      "values": [
+       {
+        "label": "Rollout network, mean error at 1.0 s (ft)",
+        "value": "mean_error_ft.1.0.rollout.point",
+        "lo": "mean_error_ft.1.0.rollout.lo",
+        "hi": "mean_error_ft.1.0.rollout.hi",
+        "digits": 3
+       },
+       {
+        "label": "Frozen stand-in, mean error at 1.0 s (ft)",
+        "value": "mean_error_ft.1.0.mlp.point",
+        "lo": "mean_error_ft.1.0.mlp.lo",
+        "hi": "mean_error_ft.1.0.mlp.hi",
+        "digits": 3
+       },
+       {
+        "label": "Ablation: the same network trained on one step, minus the stand-in at 1.0 s (ft)",
+        "value": "paired_ft.1.0.onestep_minus_mlp.diff",
+        "lo": "paired_ft.1.0.onestep_minus_mlp.lo",
+        "hi": "paired_ft.1.0.onestep_minus_mlp.hi",
+        "digits": 3
+       }
+      ],
+      "by_stage": {
+       "test": {
+        "metric": "Set A consistency check (D113): rollout minus the stand-in refit at 1.0 s (ft), against the development estimate",
+        "interval_from": "dossier_sentence",
+        "interval": "Set A (D113), scored once only if development adopts: the 1.0 s and 0.2 s paired differences with a bootstrap of the 10 games (2000 resamples) and a report-only t interval on per-game values (as D80).",
+        "design": "scored.stage",
+        "comparison": "contains",
+        "main_states": "excludes the development estimate",
+        "keys": {
+         "rows": "scored.1.0.rows",
+         "games": "scored.games",
+         "diff": "scored.1.0.rollout_minus_mlp.diff",
+         "lo": "scored.1.0.rollout_minus_mlp.lo",
+         "hi": "scored.1.0.rollout_minus_mlp.hi",
+         "threshold": "scored.development_estimate_1s",
+         "rule": "setup.rule.set_a",
+         "reading": "scored.reading",
+         "threshold_development": "paired_ft.1.0.rollout_minus_mlp.diff"
+        },
+        "readings": {
+         "inconsistent": "not_met",
+         "confirms": "met",
+         "consistent": "met"
+        },
+        "conditions": [],
+        "conjunctions": [],
+        "equalities": [
+         [
+          "scored.development_estimate_1s",
+          "setup.rule.development_decides.one_s.diff"
+         ],
+         [
+          "scored.report_only_size_reading.upper_end",
+          "scored.1.0.rollout_minus_mlp.hi"
+         ]
+        ],
+        "flags_outside_rule": {
+         "scored.0.2.rollout_minus_mlp.excludes_zero": "reported beside the reading, not part of D113's rule",
+         "scored.1.0.rollout_minus_mlp.excludes_zero": "reported beside the reading; D113 reads it only after the consistency check",
+         "scored.report_only_size_reading.below": "the report-only size reading of D115, read by no rule"
+        },
+        "digits": 4,
+        "values": [
+         {
+          "label": "Report only (D115), read by no rule: the 1.0 s interval's upper end, against the 0.10 ft bar",
+          "value": "scored.report_only_size_reading.upper_end",
+          "digits": 4
+         },
+         {
+          "label": "Rollout minus stand-in at 0.2 s on Set A (ft)",
+          "value": "scored.0.2.rollout_minus_mlp.diff",
+          "lo": "scored.0.2.rollout_minus_mlp.lo",
+          "hi": "scored.0.2.rollout_minus_mlp.hi",
+          "digits": 4
+         },
+         {
+          "label": "Report-only t interval on the per-game differences at 1.0 s (ft)",
+          "value": "scored.1.0.report_only_t.mean_of_game_values",
+          "lo": "scored.1.0.report_only_t.lo",
+          "hi": "scored.1.0.report_only_t.hi",
+          "digits": 4
+         },
+         {
+          "label": "Rollout network, mean error at 1.0 s on Set A (ft)",
+          "value": "scored.1.0.rollout",
+          "digits": 4
+         },
+         {
+          "label": "Stand-in refit, mean error at 1.0 s on Set A (ft)",
+          "value": "scored.1.0.mlp",
+          "digits": 4
+         }
+        ]
+       }
+      }
+     }
     },
     {
      "id": "ghosting-E2",

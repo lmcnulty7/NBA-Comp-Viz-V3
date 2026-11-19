@@ -449,12 +449,28 @@
           "type": "number"
         },
         "lo": {
-          "title": "Lo",
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lo"
         },
         "hi": {
-          "title": "Hi",
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hi"
         },
         "bound": {
           "enum": [
@@ -487,8 +503,6 @@
       "required": [
         "label",
         "value",
-        "lo",
-        "hi",
         "bound",
         "comparison",
         "threshold",
@@ -4108,7 +4122,8 @@
             "below",
             "at_most",
             "above",
-            "at_least"
+            "at_least",
+            "contains"
           ],
           "title": "Comparison",
           "type": "string"
