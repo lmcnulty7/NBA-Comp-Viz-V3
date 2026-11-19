@@ -174,7 +174,7 @@ def with_new_features(artifacts=None):
     new = pd.concat(parts, ignore_index=True).set_index("row")
     for c in NEW_FEATURES:
         frame[c] = np.nan
-        frame.loc[new.index, c] = new[c].to_numpy()
+        frame.loc[new.index, c] = new[c].astype(float).to_numpy()
     return frame
 
 
