@@ -134,6 +134,17 @@ out-of-fold predictions only (fold >= 0).
 - What a coach gains: matchup lines that follow real switches and not noise.
 - Backlog: expected gain 2 (the assignment already passes its checks; the gain only shows through E1). Effort 3 (an
   EM implementation and a second pass of E1).
+- Amendment (PLAN.md D112, 2026-11-19, written before any development number): matchups-E1 part (a) passed, so E2
+  runs. Set A (10 games) very likely cannot decide the difference of two E1 gains (projected half-width about 0.0008
+  to 0.0018 against a plausible effect of 0.0002 to 0.0009); the 604 development games can. As D107 and D108: the
+  development out-of-fold result decides; before the Set A score, the projected Set A half-width from the
+  development per-game variance of the difference is reported; Set A is then scored once as a confirmation read as
+  PLAN.md D80: an interval that straddles zero is "inconclusive at 10 games", not evidence against; an interval wholly
+  against the HMM is a contradiction that blocks adopting the HMM assignment for any site use. A context arm reads no
+  verdict: the same difference with pre-shot shares (assignments from sampled frames at least 2 sampled frames before
+  the release only) under both assignments, because about half of the E1 part (a) gain comes from frames at and after
+  the release and the HMM's transition smoothing could change that part rather than the assignment itself. The
+  pre-registered ablation (emission only, no transition) is unchanged.
 
 ## 7. Sources checked (all fetched 2026-11-16)
 

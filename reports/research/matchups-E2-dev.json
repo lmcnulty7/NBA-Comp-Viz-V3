@@ -1,0 +1,227 @@
+{
+  "experiment": "matchups-E2",
+  "code_commit": "b72fe4e7f0f6718a2129342ba8deb9c955d40d5a",
+  "stage": "development games, out of fold under matchups-E1's 5 grouped folds by game (seed 0); no Set A or held-out row read",
+  "matchups_e1_gate_passed": true,
+  "em": {
+    "params": {
+      "gO": 0.6521566375244184,
+      "gB": 0.10613924511274607,
+      "gH": 0.24170411736283548,
+      "rho": 0.9370463541470779,
+      "s2": 27.613764159737933
+    },
+    "iterations": 8,
+    "chains": 632682,
+    "cells": 8725037,
+    "converged": true
+  },
+  "em_loglik_first_last": [
+    -63671777.46215052,
+    -56402695.54382796
+  ],
+  "rows": 430555,
+  "games": 604,
+  "fold_lambdas": {
+    "hungarian": [
+      0.004115226337448559,
+      0.037037037037037035,
+      0.037037037037037035,
+      0.012345679012345678,
+      0.037037037037037035
+    ],
+    "hmm": [
+      0.1111111111111111,
+      0.1111111111111111,
+      0.1111111111111111,
+      0.3333333333333333,
+      0.1111111111111111
+    ],
+    "emission": [
+      0.1111111111111111,
+      0.1111111111111111,
+      0.1111111111111111,
+      0.3333333333333333,
+      0.037037037037037035
+    ],
+    "no_defender": [
+      0.0013717421124828531,
+      0.1111111111111111,
+      0.1111111111111111,
+      0.1111111111111111,
+      0.004115226337448559
+    ],
+    "pre_hungarian": [
+      0.037037037037037035,
+      0.012345679012345678,
+      0.037037037037037035,
+      0.1111111111111111,
+      0.037037037037037035
+    ],
+    "pre_hmm": [
+      0.3333333333333333,
+      0.1111111111111111,
+      0.3333333333333333,
+      0.3333333333333333,
+      0.012345679012345678
+    ],
+    "pre_no_defender": [
+      0.037037037037037035,
+      0.1111111111111111,
+      0.1111111111111111,
+      0.1111111111111111,
+      0.012345679012345678
+    ]
+  },
+  "gains": {
+    "gain_hungarian": {
+      "point": 0.004573837596980429,
+      "ci95": [
+        0.004230305917182035,
+        0.004904084486660913
+      ]
+    },
+    "gain_hmm": {
+      "point": 0.001418284014957496,
+      "ci95": [
+        0.001163713148348633,
+        0.0016658480808430128
+      ]
+    },
+    "gain_emission": {
+      "point": 0.0022484393478675005,
+      "ci95": [
+        0.001975562962167205,
+        0.0025067071543242413
+      ]
+    }
+  },
+  "hmm_minus_hungarian": {
+    "point": -0.003155553582022933,
+    "ci95": [
+      -0.0034173364776745765,
+      -0.002893035753737796
+    ]
+  },
+  "ablation": {
+    "emission_minus_hungarian": {
+      "point": -0.002325398249112929,
+      "ci95": [
+        -0.0025484556226278788,
+        -0.002093756882421806
+      ]
+    },
+    "hmm_minus_emission": {
+      "point": -0.0008301553329100041,
+      "ci95": [
+        -0.0009745374140632029,
+        -0.0006931736521894115
+      ]
+    }
+  },
+  "pre_shot_context": {
+    "what": "context, reads no verdict (D112): pre-shot shares under both assignments",
+    "rows": 417844,
+    "gain_hungarian": {
+      "point": 0.0021620419044552463,
+      "ci95": [
+        0.0018785262163569954,
+        0.002423276887105945
+      ]
+    },
+    "gain_hmm": {
+      "point": 0.0007663398088163007,
+      "ci95": [
+        0.0005531492929436658,
+        0.0009840207998537652
+      ]
+    },
+    "hmm_minus_hungarian": {
+      "point": -0.0013957020956389455,
+      "ci95": [
+        -0.0016214328990231915,
+        -0.0011668034905888201
+      ]
+    }
+  },
+  "projected_set_a": {
+    "random_10_game_sets_half_width": 0.0020119941738807783,
+    "dev_half_width_scaled": 0.002026825060513748,
+    "development_games": 604
+  },
+  "reported": {
+    "switches": {
+      "hungarian": {
+        "mean_switches": 2.4429440389294403,
+        "no_switch_share": 0.18393484725601514,
+        "defender_possessions": 591840
+      },
+      "hmm": {
+        "mean_switches": 0.734014519577766,
+        "no_switch_share": 0.4695350861624536,
+        "defender_possessions": 591615
+      },
+      "emission": {
+        "mean_switches": 3.040685242936707,
+        "no_switch_share": 0.12228560803901185,
+        "defender_possessions": 591615
+      }
+    },
+    "defended_fg": {
+      "hungarian": {
+        "attempts_within_4ft": 25696,
+        "attempts_beyond": 69935,
+        "fg_within": 0.4268757783312578,
+        "fg_beyond": 0.45353542575248446,
+        "beyond_minus_within": {
+          "point": 0.026659647421226673,
+          "ci95": [
+            0.01964230869456204,
+            0.03439850666089926
+          ]
+        }
+      },
+      "hmm": {
+        "attempts_within_4ft": 24266,
+        "attempts_beyond": 58524,
+        "fg_within": 0.42606939751092066,
+        "fg_beyond": 0.44959332923245166,
+        "beyond_minus_within": {
+          "point": 0.023523931721531,
+          "ci95": [
+            0.016350991824126023,
+            0.03141320963188072
+          ]
+        }
+      },
+      "emission": {
+        "attempts_within_4ft": 27024,
+        "attempts_beyond": 46846,
+        "fg_within": 0.42976613380698636,
+        "fg_beyond": 0.43598172736199464,
+        "beyond_minus_within": {
+          "point": 0.006215593555008281,
+          "ci95": [
+            -0.0013771412216634013,
+            0.014156747301826042
+          ]
+        }
+      }
+    }
+  },
+  "test_fit": {
+    "hungarian": 0.037037037037037035,
+    "hmm": 0.3333333333333333,
+    "emission": 0.3333333333333333,
+    "no_defender": 0.1111111111111111,
+    "pre_hungarian": 0.1111111111111111,
+    "pre_hmm": 0.3333333333333333,
+    "pre_no_defender": 0.1111111111111111
+  },
+  "verdict": {
+    "rule": "the E1 part (a) gain under the HMM larger than under the Hungarian assignment: the difference above zero with its 95 percent interval wholly above zero, on the development games (D112); Set A is a later confirmation read as D80",
+    "passes": false
+  },
+  "peak_gb": 3.42,
+  "pieces_commit": "09432573889133f56c399e75c9c5fa324b7795f9"
+}

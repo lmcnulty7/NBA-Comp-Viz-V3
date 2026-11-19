@@ -31,7 +31,7 @@ Set B (10 Liga ACB games) as an out-of-distribution check, and the 2025-26 NBA s
 | 21 | embeddings-E2 | embeddings | a spatial shot basis by NMF (Miller et al.) | 2 | 2 | 1.0 | Set A | proposed |
 | 22 | ghosting-E2 | ghosting | attention over 10 players and the ball, 4 s of history | 3 | 4 | 0.75 | Set A | proposed |
 | 23 | xfg-E2 | xfg | second defender and contest geometry | 2 | 3 | 0.67 | Set A | proposed |
-| 24 | matchups-E2 | matchups | hidden Markov assignment with fitted weights (runs only if matchups-E1(a) passes) | 2 | 3 | 0.67 | Set A | proposed |
+| 24 | matchups-E2 | matchups | hidden Markov assignment with fitted weights (runs only if matchups-E1(a) passes) | 2 | 3 | 0.67 | Set A | done: not adopted on development (the HMM's E1 part (a) gain is smaller, HMM minus Hungarian -0.003156 [-0.003417, -0.002893]; it switches far less, 0.73 against 2.44 per defender-possession); Set A not scored (D114); reports/research/matchups-E2.md |
 | 25 | gravity-E2 | gravity | an expectation that knows where the teammates are | 2 | 3 | 0.67 | Set A | proposed |
 | 26 | epv-E2 | epv | multi-entity attention over raw positions (runs after epv-E1) | 3 | 5 | 0.6 | Set A | proposed |
 
