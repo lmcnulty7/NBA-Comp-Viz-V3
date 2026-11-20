@@ -68,7 +68,7 @@ happened after real decisions.
 | 4 | 484 | 120 | 344383 | 160.9 |
 
 - State builder: the state rows built at any frame reproduce the stored states_1hz rows on the 13 games checked
-  (37415 rows; positions within 1.9e-6 ft, no id mismatch; elapsed differs by at most 0.5 s by design, continuous
+  (37415 rows; positions within 2e-6 ft, no id mismatch; elapsed differs by at most 0.5 s by design, continuous
   time against the whole-second grid).
 - Frame pass: 604 games, 518421 decisions, 3622555 state rows scored. 757 decisions have no stored state at or
   before their frame (for example a possession of about 1 s of game clock that has no state at all), so no outcome.
@@ -83,13 +83,14 @@ happened after real decisions.
 - **The completion model estimates completion among attempts that resolved cleanly.** The 61110 attempts the D123
   label leaves out (17.79 percent) are the contested ones: a defender held the ball, then the offence held it again
   or the possession did not end in a turnover. Left-out share by fold: 17.83, 17.31, 17.85, 17.98, 18.01 percent; by
-  game, 10.0 to 35.5 percent (median 16.86).
+  game, 10.0 to 35.5 percent (median 16.85).
 - **The drive value needs the shot clock.** The drive model uses the shot clock; 31356 decisions are in frames with
-  no shot clock, 12 games have none at all, so 31366 decisions have no drive value (6.05 percent; by fold 7.07,
+  no shot clock (computed after the result from the frame-pass artifacts, the shot_clock_s column of
+  games/*.decisions.parquet; not in the json), 12 games have none at all, so 31366 decisions have no drive value (6.05 percent; by fold 7.07,
   6.17, 6.28, 4.86, 5.85 percent). Shot values are missing for none; hold and pass values for 12.
 - **Primary rows** (commitment 8: every value finite in both arms): 486448 decisions in 592 games. Left out: 31973
   (6.17 percent); by fold 7.17, 6.29, 6.40, 5.02, 5.93 percent; by kind drive 5.00, pass 6.62, shot 7.03 percent;
-  by game median 3.96 percent, with the 12 games without a shot clock left out whole.
+  by game median 3.95 percent, with the 12 games without a shot clock left out whole.
 
 ## Development games (592 games, 486448 decisions)
 
@@ -101,8 +102,8 @@ difference resamples the same games for both arms.
 | --- | --- | --- |
 | **slope of points_to_end on the chosen value** | **0.3972 [0.3710, 0.4236]** | 0.1760 [0.1638, 0.1876] |
 | **coefficient on regret** (points_to_end on hold value plus regret) | **0.0700 [0.0405, 0.1005]** | 0.1655 [0.1520, 0.1781] |
-| mean chosen value (points) | 1.0013 | 0.6435 |
-| mean regret (points) | -0.0928 | -0.4065 |
+| mean chosen value (points; point estimates) | 1.0013 | 0.6435 |
+| mean regret (points; point estimates) | -0.0928 | -0.4065 |
 
 - **Paired difference in the regret coefficient, new minus frozen: -0.0956 [-0.1289, -0.0624].**
 - Ablation (pre-registered, report only; it uses 1 s of the future by design): the change in EPV over the chosen

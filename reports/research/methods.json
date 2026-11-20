@@ -1377,7 +1377,7 @@
      "gain": 4,
      "effort": 4,
      "test_data": "Set A",
-     "backlog_status": "done: not adopted on development (regret coefficient on the EPV scale 0.0700 [0.0405, 0.1005], new minus frozen -0.0956 [-0.1289, -0.0624], chosen-value slope 0.3972 [0.3710, 0.4236] outside 0.8 to 1.2; the new metric tracks decision mix more than the frozen one; Set A not scored, PLAN.md D122; reports/research/decisions-E2.md)",
+     "backlog_status": "done: not adopted on development (regret coefficient on the EPV scale 0.0700 [0.0405, 0.1005], new minus frozen -0.0956 [-0.1289, -0.0624], chosen-value slope 0.3972 [0.3710, 0.4236] outside 0.8 to 1.2; the new metric tracks decision mix more than the frozen one (report only, point estimates); Set A not scored, PLAN.md D122; reports/research/decisions-E2.md)",
      "results": null,
      "writeup": "reports/research/decisions-E2.md",
      "result_in_writeup": true
