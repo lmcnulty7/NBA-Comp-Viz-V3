@@ -4,8 +4,8 @@ Written 2026-11-19. Pre-registration: docs/research/rebounds.md, section 6, "reb
 (PLAN.md D124, D125, D126). Scoring code: tools/research_rebounds.py. The five fold pieces were computed at commit
 58ef8a9b; the gate was rerun and the dev json assembled at e8909861 (the dev json records it as code_commit and each
 fold's commit in per_fold), which differs from 58ef8a9b only in the gate tolerance (D126). Every number below is copied
-from reports/research/rebounds-E1-dev.json, except where marked: the frozen lane's numbers are from reports/rebounds.md,
-and the first gate run's numbers from its log (fit1.log in the work folder). Intervals are 95 percent percentile
+from reports/research/rebounds-E1-dev.json (the frozen 1.6009 from its gate record), except the first gate run's
+numbers, which are from its log (fit1.log in the work folder). Intervals are 95 percent percentile
 intervals of a 2000-resample bootstrap of games (seed 0), with all arms paired on the same misses and the same
 resampled games.
 
@@ -68,7 +68,7 @@ fitted the same way on each outer fold's inner out-of-fold rows.
 Separate sharpening per candidate type is a real but small improvement: its interval lies well below zero, and nearly
 all of it comes from the slopes, the defense candidates sharper than the offense ones and the team-rebound row much
 sharper. The pre-registered bar asked for more than this (at least 0.005 nats), so it is not adopted. The favourite
-stays over-confident under E1 (slope 1.300), so the calibration problem the lane named is reduced, not solved.
+stays over-confident under E1 (slope 1.300): the hypothesis's calibration part moves the right way but not far.
 
 ## Set A
 
