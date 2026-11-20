@@ -428,8 +428,8 @@ def game_pass(root: Path, g: str, ev):
         tov = (pinfo["end_kind"].astype(str).to_numpy() == "turnover") & (pinfo["end_frame"].to_numpy() <= dec["frame"].to_numpy() + win)
         dec["drive_kept"] = np.where(dec["decision_kind"].astype(str) == "drive", (~(lost | tov)).astype(float), np.nan)
         dec["state_ok"] = keep
-        dec["not_ok_reason"] = np.where(keep, "", np.where(h < 0, "decision player not on the floor",
-                                                           actual["not_ok_reason"].to_numpy()))
+        why = actual["not_ok_reason"].to_numpy()
+        dec["not_ok_reason"] = np.where(keep, "", np.where(why != "", why, "decision player not on the floor"))
         box.update(dec=dec, cf=cf, att=att, att_counts=att_counts, fps=fps)
 
     bundles = DV.load_root_bundles(root, SEASON, root, games=[g])
