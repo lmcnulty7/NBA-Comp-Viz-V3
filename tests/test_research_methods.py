@@ -57,7 +57,7 @@ def test_the_committed_source_traces_and_builds(source):
 
 
 RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
-       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2")   # the experiments with a result file today
+       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "epv-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -1064,4 +1064,21 @@ def test_gravity_e1_ran_on_development_only_and_its_result_is_in_its_write_up(so
     dev = json.loads((REPO / "reports/research/gravity-E1-dev.json").read_text(encoding="utf-8"))
     assert dev["decision"]["adopted"] is False and not (REPO / "reports/research/gravity-E1-final.json").exists()
     text = (REPO / "reports/research/gravity-E1.md").read_text(encoding="utf-8")
+    assert "not scored" in " ".join(R.verdict_paragraph(text)).lower()
+
+
+def test_epv_e1_ran_on_development_only_and_its_result_is_in_its_write_up(source):
+    """epv-E1 (PLAN.md D117): not adopted on development, Set A not scored and no Set A path written; the rule has two
+    parts (an MSE interval and a 0 to 4 s slope band), so the result is kept in its write-up."""
+    methods = R.build_methods(REPO, source)
+    e = {x.id: x for lane in methods.lanes for x in lane.experiments}["epv-E1"]
+    assert e.status == "ran_result_in_writeup" and e.writeup == "reports/research/epv-E1.md"
+    assert e.development is None and e.test is None and e.protocol is None
+    assert e.backlog_status.startswith("done: not adopted on development")
+    ledger = json.loads((REPO / "reports/research/scoring_ledger.json").read_text(encoding="utf-8"))
+    assert not [x for x in ledger if x.get("experiment") == "epv-E1"]
+    dev = json.loads((REPO / "reports/research/epv-E1-dev.json").read_text(encoding="utf-8"))
+    assert dev["verdict"]["passes"] is False and not (REPO / "reports/research/epv-E1-final.json").exists()
+    assert dev["gates"]["a_baseline_reproduces_frozen_oof"]["passed"] and dev["gates"]["b_nested_xfg_log_loss"]["passed"]
+    text = (REPO / "reports/research/epv-E1.md").read_text(encoding="utf-8")
     assert "not scored" in " ".join(R.verdict_paragraph(text)).lower()
