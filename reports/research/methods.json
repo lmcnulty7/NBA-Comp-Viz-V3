@@ -538,8 +538,76 @@
      "gain": 2,
      "effort": 1,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted on development (E1 minus baseline per-miss log loss -0.004628 [-0.005472, -0.003816], below zero but short of the -0.005 bar); Set A not scored (D125); reports/research/rebounds-E1.md",
+     "writeup": "reports/research/rebounds-E1.md",
+     "test_not_scored": true,
+     "writeup_notes": [
+      "Separate sharpening per candidate type lowers the per-miss log loss by -0.004628 [-0.005472, -0.003816]: the interval excludes zero, but the point does not reach the pre-registered bar of -0.005.",
+      "Almost all of E1's gain comes from a separate slope per type, not from the offsets.",
+      "The site keeps the frozen single tau."
+     ],
+     "results": {
+      "metric": "Out-of-fold per-miss log loss, E1 (a slope and an offset per candidate type) minus the frozen single tau (nats per miss; below zero favours E1)",
+      "rows_unit": "misses",
+      "interval_from": "writeup_sentence",
+      "interval": "Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with all arms paired on the same misses and the same resampled games.",
+      "development": "reports/research/rebounds-E1-dev.json",
+      "test": null,
+      "design": "stage",
+      "rule_quote": {
+       "section": "What is tested",
+       "text": "Read as two parts: the point at most -0.005, and the interval below zero."
+      },
+      "comparison": "below",
+      "threshold": 0,
+      "keys": {
+       "rows": "misses",
+       "games": "games",
+       "diff": "e1_minus_baseline.point",
+       "lo": "e1_minus_baseline.ci95.0",
+       "hi": "e1_minus_baseline.ci95.1",
+       "upper": "e1_minus_baseline.ci95.1",
+       "met": "verdict.passes",
+       "main_met": "verdict.interval_excludes_zero"
+      },
+      "conditions": [
+       {
+        "label": "Size: the paired difference itself, at most -0.005",
+        "value": "e1_minus_baseline.point",
+        "lo": "e1_minus_baseline.ci95.0",
+        "hi": "e1_minus_baseline.ci95.1",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold": -0.005,
+        "met": "verdict.at_most_threshold",
+        "digits": 6
+       }
+      ],
+      "digits": 6,
+      "values": [
+       {
+        "label": "Per-miss log loss, frozen single tau (baseline)",
+        "value": "log_loss.baseline.point",
+        "lo": "log_loss.baseline.ci95.0",
+        "hi": "log_loss.baseline.ci95.1",
+        "digits": 5
+       },
+       {
+        "label": "Per-miss log loss, E1",
+        "value": "log_loss.e1.point",
+        "lo": "log_loss.e1.ci95.0",
+        "hi": "log_loss.e1.ci95.1",
+        "digits": 5
+       },
+       {
+        "label": "Ablation, read by no rule: shared slope with the two offsets, minus baseline",
+        "value": "ablation_minus_baseline.point",
+        "lo": "ablation_minus_baseline.ci95.0",
+        "hi": "ablation_minus_baseline.ci95.1",
+        "digits": 6
+       }
+      ]
+     }
     },
     {
      "id": "rebounds-E2",

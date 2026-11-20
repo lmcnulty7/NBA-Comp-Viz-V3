@@ -58,7 +58,7 @@ def test_the_committed_source_traces_and_builds(source):
 
 RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
        "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1", "epv-E1",
-       "embeddings-E2", "decisions-E2", "xfg-E2")   # the experiments with a result file today
+       "embeddings-E2", "decisions-E2", "xfg-E2", "rebounds-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -1258,6 +1258,26 @@ def test_matchups_e2_is_a_development_fail_whose_set_a_was_not_scored(source):
     assert (dev.diff, dev.lo, dev.hi) == (round(cell["point"], 6), round(cell["ci95"][0], 6), round(cell["ci95"][1], 6))
     assert (dev.comparison, dev.threshold, dev.upper, dev.met) == ("above", 0, dev.lo, False)
 
+
+def test_rebounds_e1_clears_zero_but_not_its_size_bar_on_development_and_leaves_set_a_unscored(source):
+    """rebounds-E1 (PLAN.md D125): the interval of E1 minus baseline lies below zero, but the point is above -0.005, so
+    the size part fails and development does not adopt. Set A is not scored and the ledger holds no entry."""
+    e = _built(source)["rebounds-E1"]
+    dev_file = _file("rebounds-E1-dev.json")
+    cell = dev_file["e1_minus_baseline"]
+    assert (e.status, e.test, e.test_not_scored) == ("not_adopted_development", None, True)
+    dev = e.development
+    assert (dev.diff, dev.lo, dev.hi) == (round(cell["point"], 6), round(cell["ci95"][0], 6), round(cell["ci95"][1], 6))
+    assert (dev.comparison, dev.threshold, dev.upper, dev.met) == ("below", 0, dev.hi, False)
+    (size,) = dev.conditions
+    assert (size.bound, size.comparison, size.threshold, size.met) == ("point", "at_most", -0.005, False)
+    assert dev.hi < 0 < dev.diff + 0.005
+    verdict = dev_file["verdict"]
+    assert (verdict["interval_excludes_zero"], verdict["at_most_threshold"], verdict["passes"]) == (True, False, False)
+    assert dev_file["gate_a"]["passed"] is True and dev_file["gate_a"]["tolerance"] == 2 ** -24     # PLAN.md D126
+    assert not (REPO / "reports" / "research" / "rebounds-E1-final.json").exists()
+    ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
+    assert not [x for x in ledger if x.get("experiment") == "rebounds-E1"]
 
 def test_lineups_e2_fails_on_the_test_season_against_rapm_synergy_with_both_baselines_read(source):
     e = _built(source)["lineups-E2"]

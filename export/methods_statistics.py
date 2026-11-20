@@ -223,6 +223,15 @@ RULE_STATISTICS = {
             },
         },
     },
+    'rebounds-E1': {
+        '|development': {
+            "main": 'e1_minus_baseline.point | e1_minus_baseline.ci95.0 | e1_minus_baseline.ci95.1',
+            "conditions": {
+                'verdict.at_most_threshold':
+                    'e1_minus_baseline.point | e1_minus_baseline.ci95.0 | e1_minus_baseline.ci95.1',
+            },
+        },
+    },
     'winprob-E1': {
         '|development': {
             "main": 'pooled_forward.paired.e1_minus_baseline.mean_bucket_brier.point | pooled_forward.paired.e1_minus_baseline.mean_bucket_brier.lo | pooled_forward.paired.e1_minus_baseline.mean_bucket_brier.hi',
