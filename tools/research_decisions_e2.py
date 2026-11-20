@@ -1070,13 +1070,16 @@ def development(artifacts=None, log=print) -> dict:
 
 def _pass_counts(artifacts=None) -> dict:
     gdir = work_dir(artifacts) / "games"
-    tot = {"games": 0, "decisions": 0, "state_ok": 0, "attempts": 0, "no_next_holder": 0, "shot_between": 0}
+    tot = {"games": 0, "decisions": 0, "state_ok": 0, "attempts": 0, "no_next_holder": 0, "shot_between": 0,
+           "no_outcome": 0, "state_rows": 0, "not_ok_by_reason": {}}
     checks = []
     for f in sorted(gdir.glob("*.json")):
         r = json.loads(f.read_text())
         tot["games"] += 1
-        for k in ("decisions", "state_ok", "attempts"):
+        for k in ("decisions", "state_ok", "attempts", "no_outcome", "state_rows"):
             tot[k] += int(r.get(k, 0))
+        for k, n in r.get("not_ok_by_reason", {}).items():
+            tot["not_ok_by_reason"][k] = tot["not_ok_by_reason"].get(k, 0) + int(n)
         for k in ("no_next_holder", "shot_between"):
             tot[k] += int(r.get("attempt_counts", {}).get(k, 0))
         if "builder_check" in r:
