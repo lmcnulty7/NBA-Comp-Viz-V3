@@ -325,6 +325,13 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             labels = [part.get("label") for part in exp.get("parts", [])]
             if len(set(labels)) != len(labels):
                 problems.append(f"{eid}: every part has its own label")
+            unknown = set(exp) - EXPERIMENT_KEYS
+            if unknown:
+                problems.append(f"{eid}: {sorted(unknown)} are no keys of an experiment")
+            if exp.get("result_in_writeup") and any((repo / f"reports/research/{eid}-{kind}.json").is_file()
+                                                    for kind in ("dev", "final")):
+                problems.append(f"{eid}: its result files exist, so its result is read through them, not kept in "
+                                "its write-up")
             if exp.get("result_in_writeup"):
                 if not exp.get("writeup") or not (repo / exp["writeup"]).is_file():
                     problems.append(f"{eid}: a result kept in its write-up needs the write-up")
@@ -414,8 +421,10 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                                             f"of {lane['dossier']} word for word: {sentence[:70]!r}")
                 quote = spec.get("rule_quote")
                 if quote and quote.get("from") == "dossier":
+                    # from the experiment's own section of the dossier (its bullets and amendments), not elsewhere
+                    own_section = [_flat(x) for x in bullets.get(eid, {}).get("_all", [])]
                     for sentence in quote["texts"]:
-                        if not is_sentences(sentence, paragraphs):
+                        if not is_sentences(sentence, own_section):
                             problems.append(f"{where}: the rule quote is not whole sentences of {lane['dossier']} "
                                             f"word for word: {sentence[:70]!r}")
                 for kind in ("rule_quote", "reading_quote"):
@@ -483,6 +492,9 @@ FLAGS_OUTSIDE_RULE_ALLOWED = {
     "ghosting-E1": {"scored.0.2.rollout_minus_mlp.excludes_zero", "scored.1.0.rollout_minus_mlp.excludes_zero",
                     "scored.report_only_size_reading.below"},
 }
+EXPERIMENT_KEYS = {"adopted_as", "backlog_status", "effort", "gain", "hypothesis", "hypothesis_label", "id", "parts",
+                   "protocol", "rank", "result_in_writeup", "results", "stages", "test_data", "test_not_scored",
+                   "threshold", "threshold_label", "title", "what", "writeup", "writeup_notes"}
 GUARD_KEYS = ("label", "path", "buckets", "worse", "bound", "comparison", "threshold", "digits")
 READING_KINDS = ("met", "not_met", "otherwise", "met_otherwise")
 
@@ -722,35 +734,115 @@ def _value_rule_in_quote(spec: dict, rel: str) -> None:
         raise MethodsProblem(f"{rel}: the quoted rule reads {sorted(quoted)}, the source {sorted(spec['reading_rule'])}")
 
 
-def _uncovered_bars(text: str, comparison: str, threshold: float, conditions: list, bar_of, guards=()) -> list:
-    """The comparisons a rule's text states that no part of the source reads: each "below zero", "at least 0.2",
-    "above the upper end of ..." of the text is the main rule, a condition with that comparison and bar, or inside a
-    condition's own words (`states`). A dropped condition leaves its bar here."""
-    covered = [(comparison, threshold)] + [(c["comparison"], bar_of(c)) for c in conditions] + [
-        (g["comparison"], float(g["threshold"])) for g in guards]
-    phrases = [_flat(c["states"]) for c in list(conditions) + list(guards) if c.get("states")]
+def _close(a: float, b: float) -> bool:
+    return abs(a - b) <= 5e-4 * max(1.0, abs(b))
+
+
+def _bar_matches(text: str, comparison: str, threshold: float, conditions: list, bar_of, guards=(),
+                 main_bound: str = "hi", repeats: int = 1) -> list:
+    """The rule's text and the source's parts, matched one to one. Each bar the text states ("below zero", "at least
+    0.2", "inside 0.9 to 1.1" as two bars, "above the upper end of ...", a condition's own words) is an occurrence;
+    the main rule, each condition and each guard claims its own occurrence, so a part the text does not state (an
+    extra condition riding on a bar already read) is refused, and every distinct bar of the text must be read by some
+    part, so a dropped part is refused too. The same bar written twice for one statistic ("below zero with its
+    interval wholly below zero") needs one part. A condition read on its point may not claim a bar whose clause speaks
+    of the interval. `repeats` reads a rule stated once for several baselines ("against raw and against rapm_synergy
+    each"). Returns the problems."""
     flat = _flat(text)
-    spans = [(m.start(), m.start() + len(p)) for p in phrases for m in re.finditer(re.escape(p), flat)]
-    missing, seen = [], []
-    # a band ("inside 0.9 to 1.1") is two bars: at least its lower number and at most its upper one
+    occurrences, seen = [], []           # (kind, comparison or phrase, value, clause)
+
+    seps = (",", ";", ". ", " with ", " and ")
+
+    def clause_of(start: int) -> str:          # the words around one bar, up to the nearest join
+        left = max(flat.rfind(sep, 0, start) for sep in seps)
+        right = [i for i in (flat.find(sep, start) for sep in seps) if i != -1]
+        return flat[left + 1:min(right) if right else len(flat)]
+
+    phrases = {_flat(c["states"]) for c in list(conditions) + list(guards)
+               if c.get("states") and "inside" not in c["states"]}
+    for phrase in phrases:
+        for m in re.finditer(re.escape(phrase), flat):
+            occurrences.append(("phrase", phrase, None, phrase))
+            seen.append((m.start(), m.start() + len(phrase)))
     for m in re.finditer(r"inside\s+([+-]?\d+(?:\.\d+)?)\s+to\s+([+-]?\d+(?:\.\d+)?)", flat):
+        seen.append((m.start(), m.end()))
         for comp, said in (("at_least", m.group(1)), ("at_most", m.group(2))):
-            if not any(c == comp and abs(v - float(said)) <= 5e-4 * max(1.0, abs(float(said))) for c, v in covered):
-                missing.append(f"{m.group(0)} ({comp.replace('_', ' ')} {said})")
+            occurrences.append(("bar", comp, float(said), clause_of(m.start())))
     # longer words first, so "at or above -0.05" is read once, as at least, and not again as "above -0.05"
+    problems = []
     for word, comp in sorted(((w, c) for c, ws in COMPARISON_WORDS.items() for w in ws), key=lambda x: -len(x[0])):
         for m in re.finditer(rf"(?<![\w]){word}\s*(zero|[+-]?\d+(?:\.\d+)?|the\s[^,;.]*)", flat):
-            if any(a <= m.start() < b for a, b in spans) or any(a <= m.start() < b for a, b in seen):
+            if any(a <= m.start() < b for a, b in seen):
                 continue
             seen.append((m.start(), m.end()))
             said = m.group(1)
             if said.startswith("the"):
-                missing.append(m.group(0))
+                problems.append(f"{m.group(0)!r} is read by no part")
                 continue
-            value = 0.0 if said == "zero" else float(said)
-            if not any(c == comp and abs(v - value) <= 5e-4 * max(1.0, abs(value)) for c, v in covered):
-                missing.append(m.group(0))
-    return missing
+            occurrences.append(("bar", comp, 0.0 if said == "zero" else float(said), clause_of(m.start())))
+    occurrences = occurrences * repeats
+    parts = [("the main rule", ("bar", comparison, threshold), main_bound)]
+    for spec in list(conditions) + list(guards):
+        bound = spec.get("bound", "lo")
+        name = f"the condition {spec['label']!r}"
+        if spec.get("states") and "inside" not in spec["states"]:
+            parts.append((name, ("phrase", _flat(spec["states"]), None), bound))
+        else:
+            bar = bar_of(spec) if "worse" not in spec else float(spec["threshold"])
+            parts.append((name, ("bar", spec["comparison"], bar), bound))
+    claimed = [False] * len(occurrences)
+    for name, (kind, what, value), bound in parts:
+        pick = next((i for i, (k, w, v, clause) in enumerate(occurrences) if not claimed[i] and k == kind and w == what
+                     and (kind == "phrase" or _close(v, value))
+                     and not (kind == "bar" and bound == "point" and "interval" in clause)
+                     and not (kind == "bar" and name != "the main rule" and bound in ("lo", "hi")
+                              and not re.search(r"interval|bound|\bend\b", clause))), None)
+        if pick is None:
+            said = what if kind == "phrase" else f"{what.replace('_', ' ')} {value}"
+            problems.append(f"{name} reads {said!r}, which the rule does not state for it (or states once, for "
+                            "another part, or of an interval the condition does not read)")
+        else:
+            claimed[pick] = True
+    for i, (kind, what, value, clause) in enumerate(occurrences):
+        if not claimed[i] and not any(claimed[j] and occurrences[j][:2] == (kind, what) and (
+                kind == "phrase" or _close(occurrences[j][2], value)) for j in range(len(occurrences))):
+            said = what if kind == "phrase" else f"{what.replace('_', ' ')} {value}"
+            problems.append(f"{said!r} is read by no part")
+    return problems
+
+
+# Words of a result file's path that name an arm other than the one a rule reads: a frozen or baseline arm, an
+# ablation, a control, a report-only or secondary reading. A rule may read such an arm only inside a paired
+# difference ("candidate_minus_baseline"); a report-only reading never.
+OTHER_ARMS = ("frozen", "baseline", "ablation", "three_only", "control", "secondary", "shrink_zero")
+RULE_PATH_KEYS = ("diff", "lo", "hi", "upper", "rows", "games", "met", "main_met", "threshold", "reading")
+
+
+def rule_path_problems(results: dict) -> list:
+    """The paths a rule reads (its keys, each condition's and guard's) name the rule's own statistic: none passes
+    through a report-only reading, and none reads another arm except inside a paired difference. A reported value
+    on a report-only path says so in its label."""
+    paths = [results.get("keys", {}).get(k) for k in RULE_PATH_KEYS]
+    for stage_keys in results.get("stage_keys", {}).values():
+        paths += [stage_keys.get(k) for k in RULE_PATH_KEYS]
+    for spec in results.get("conditions", []):
+        paths += [spec.get(k) for k in ("value", "lo", "hi", "met", "threshold_key")]
+    for spec in _guards_of(results):
+        paths += [spec.get(k) for k in ("path", "worse", "cell")]
+    problems = []
+    for path in (p for p in paths if isinstance(p, str)):
+        for segment in path.split("."):
+            if "report_only" in segment:
+                problems.append(f"the rule reads {path!r}, a report-only reading")
+            elif "minus" not in segment and any(arm in segment.split("_") or arm == segment or
+                                                (len(arm.split("_")) > 1 and arm in segment) for arm in OTHER_ARMS):
+                problems.append(f"the rule reads {path!r}, another arm than the one it judges")
+    for value in results.get("values", []):
+        named = [value.get(k) for k in ("value", "lo", "hi") if isinstance(value.get(k), str)]
+        if any("report_only" in p for p in named) and not re.search(r"report[ -]only|read by no rule",
+                                                                    value["label"], re.I):
+            problems.append(f"the value {value['label']!r} is a report-only reading and its label does not say so")
+    return problems
 
 
 def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str = "", extra_mapped=frozenset(),
@@ -781,6 +873,9 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     rel = results[stage]
     if rel is None:
         return None
+    path_problems = rule_path_problems(results)      # before any number is read
+    if path_problems:
+        raise MethodsProblem(f"{rel}: {path_problems}")
     path = repo / rel
     if not path.is_file():
         return None
@@ -879,10 +974,16 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     else:
         met_text = rule
     if "rule" not in keys and comparison != "contains":
-        missing = _uncovered_bars(met_text, comparison, threshold, results["conditions"], bar_of,
-                                  _guards_of(results))
+        repeats = results.get("repeats")
+        if repeats and (_flat(repeats["states"]) not in _flat(met_text)
+                        or repeats["times"] != len(re.findall(r"\bagainst\b", repeats["states"]))):
+            raise MethodsProblem(f"{rel}: the rule does not say {repeats['states']!r} of {repeats['times']} "
+                                 "baselines, so it is stated once")
+        missing = _bar_matches(met_text, comparison, threshold, results["conditions"], bar_of, _guards_of(results),
+                               main_bound=BOUND_OF[comparison], repeats=repeats["times"] if repeats else 1)
         if missing:
-            raise MethodsProblem(f"{rel}: the rule states {missing}, which no part of the source reads")
+            raise MethodsProblem(f"{rel}: the rule and the source's parts do not match: {missing}")
+
     for flag in results.get("true_flags", []):
         # a flag that says which comparison decides ("decides": the Haiku cache arm is H3's deciding arm)
         if at(flag) is not True:
@@ -1004,6 +1105,18 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
                 raise MethodsProblem(f"{rel}: {conj['rule']} does not name the bars of {missing}")
         if bool(at(conj["flag"])) != all(part_of[f] for f in conj["of"]):
             raise MethodsProblem(f"{rel}: {conj['flag']} disagrees with the parts it joins")
+        # when the flag's own object states the numbers it was decided on (verdict.slope_0_4_e1), each joined
+        # condition reads one of them, so it cannot read another arm's statistic that happens to agree
+        parent = conj["flag"].rsplit(".", 1)[0]
+        stated = [v for v in _path_value(doc, parent.format(**places_of)).values()
+                  if isinstance(v, (int, float)) and not isinstance(v, bool)]
+        for item in conj["of"]:
+            if stated and item.startswith("@") and item != "@main":
+                spec = results["conditions"][int(item[1:])]
+                read = [float(at(spec[k])) for k in ("value", "lo", "hi") if k in spec]
+                if not any(r == float(v) for r in read for v in stated):
+                    raise MethodsProblem(f"{rel}: {conj['flag']} was decided on {stated}, but its condition {item} "
+                                         f"reads {read}")
     reading_word = None
     if "met" in keys:
         met = bool(at(keys["met"]))

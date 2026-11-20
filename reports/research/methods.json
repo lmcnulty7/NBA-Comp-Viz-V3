@@ -1774,7 +1774,7 @@
       "conditions": [
        {
         "label": "Calibration slope of e1 at 0 to 4 s, at least 0.9 (point estimate)",
-        "value": "buckets.0-4.slope_e1",
+        "value": "verdict.slope_0_4_e1",
         "bound": "point",
         "comparison": "at_least",
         "threshold": 0.9,
@@ -1784,7 +1784,7 @@
        },
        {
         "label": "Calibration slope of e1 at 0 to 4 s, at most 1.1 (point estimate)",
-        "value": "buckets.0-4.slope_e1",
+        "value": "verdict.slope_0_4_e1",
         "bound": "point",
         "comparison": "at_most",
         "threshold": 1.1,
@@ -2267,10 +2267,6 @@
        "text": "The regret on the EPV scale carries less signal than the frozen regret. The frozen regret coefficient is larger and the paired interval is wholly below zero."
       },
       {
-       "section": "Report only",
-       "text": "The first e2-dev run used a looser filter than commitment 8 (see below): 509852 decisions, slope 0.4163 [0.3910, 0.4408], regret coefficient 0.1306 [0.1017, 0.1595], paired difference -0.0393 [-0.0710, -0.0084]. Same decision."
-      },
-      {
        "section": "Set A",
        "text": "Not scored (PLAN.md D122): the test set is scored only if development adopts, and it does not."
       }
@@ -2726,7 +2722,11 @@
         "hi": "scored.results.mean_weekly_rmse.raw.ci95.1",
         "digits": 4
        }
-      ]
+      ],
+      "repeats": {
+       "times": 2,
+       "states": "against raw and against rapm_synergy each"
+      }
      }
     }
    ]

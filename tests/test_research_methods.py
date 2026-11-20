@@ -1195,9 +1195,9 @@ def _dec2(doc):
 
 @pytest.mark.parametrize("name, change, message", [
     ("epv: the slope band dropped", lambda d: _epv(d).update(conditions=[], conjunctions=[]),
-     "which no part of the source reads"),
+     "is read by no part"),
     ("epv: one end of the band dropped", lambda d: (_epv(d)["conditions"].pop(), _epv(d)["conjunctions"][0].update(
-        of=["@0"])), "inside 0.9 to 1.1"),
+        of=["@0"])), "'at most 1.1' is read by no part"),
     ("epv: the band widened", lambda d: _epv(d)["conditions"][1].update(threshold=1.3), "names no threshold"),
     ("epv: the MSE bar read below", lambda d: _epv(d).update(comparison="below"), "does not state below 0"),
     ("epv: a rule quote not in the dossier", lambda d: _epv(d)["rule_quote"]["texts"].__setitem__(
@@ -1206,7 +1206,7 @@ def _dec2(doc):
     ("decisions-E2: the paired check dropped", lambda d: _dec2(d)["conditions"].pop(0), ""),
     ("decisions-E2: the slope band dropped", lambda d: (_dec2(d)["conditions"].__delitem__(slice(1, 3)),
                                                         _dec2(d).update(conjunctions=[])),
-     "which no part of the source reads"),
+     "is read by no part"),
     ("decisions-E2: the slope read as passing", lambda d: _dec2(d)["conditions"][1].update(threshold=0.3),
      "names no threshold"),
     ("decisions-E2: the main flag read as the paired flag", lambda d: _dec2(d)["keys"].update(
@@ -1322,7 +1322,7 @@ def _mutated_repo(tmp_path, source, name, change):
         _exp(d, "gravity-E1")["results"]["conditions"][0].pop("threshold_key"),
         _exp(d, "gravity-E1")["results"]["conditions"][0].update(threshold=0.01)), "does not state at least 0.01"),
     ("gravity: the effect part dropped", lambda d: _exp(d, "gravity-E1")["results"].update(conditions=[]),
-     "which no part of the source reads"),
+     "is read by no part"),
     ("gravity: the main flag read as the effect flag", lambda d: _exp(d, "gravity-E1")["results"]["keys"].update(
         main_met="decision.effect_ok"), "belong to no rule"),
     ("gravity: Set A said scored", lambda d: _exp(d, "gravity-E1").pop("test_not_scored"), ""),
@@ -1598,9 +1598,9 @@ def _hide_development(d):
     ("(b) genai-E1 H2 dropped", _drop_part("genai-E1", "H2: the model writes with more variety"),
      "the dossier names"),
     ("(c) embeddings' position-only bar dropped", lambda d: _exp(d, "embeddings-E1")["results"].update(conditions=[]),
-     "which no part of the source reads"),
+     "is read by no part"),
     ("(c) genai-E2 H1's +0.10 bar dropped", lambda d: _genai_part(d, "genai-E2", "1.5B H1 scouting: training helps")
-     ["results"].update(conditions=[]), "which no part of the source reads"),
+     ["results"].update(conditions=[]), "is read by no part"),
     ("(d) matchups-E1 part (b) read test only", _hide_development, "record a development verdict"),
     ("M1: a genai test stage without its own test set", lambda d: _genai_part(
         d, "genai-E1", "H1: the checker does not separate a template from the model")["results"].pop("test_set"),
@@ -1696,3 +1696,99 @@ def test_a_note_cannot_start_after_a_hyphen_inside_a_sentence():
     assert R.is_sentences("H2, the checker.", ["Rule one holds. - H2, the checker."])
     assert R.is_sentences("H2, the checker.", ["Rules, fixed now: - H2, the checker."])
     assert not R.is_sentences("H2, the checker.", ["a minus - H2, the checker."])
+
+
+# ------------------------------------------------------------------------------------------ methods-results2 review probes
+
+
+FIRST_RUN = "report_only_first_run_filter."
+
+
+def _first_run(spec, keys=("value", "lo", "hi")):
+    for k in keys:
+        spec[k] = FIRST_RUN + spec[k]
+
+
+def _first_run_extra(d):
+    extra = copy.deepcopy(_dec2(d)["conditions"][0])
+    extra.update(label="first run paired", met=None)
+    _first_run(extra)
+    _dec2(d)["conditions"].append(extra)
+
+
+def _swap(spec, old, new, keys=("value", "lo", "hi")):
+    for k in keys:
+        if k in spec:
+            spec[k] = spec[k].replace(old, new)
+
+
+@pytest.mark.parametrize("name, change, message", [
+    # 1. a report-only reading never decides
+    ("the main rule on the first run", lambda d: _first_run(_dec2(d)["keys"], ("diff", "lo", "hi")),
+     "a report-only reading"),
+    ("the paired condition on the first run", lambda d: _first_run(_dec2(d)["conditions"][0]), "a report-only reading"),
+    ("the slope on the first run", lambda d: [_first_run(c) for c in _dec2(d)["conditions"][1:]],
+     "a report-only reading"),
+    ("an extra condition on the first run", _first_run_extra, "a report-only reading"),
+    ("the rows of the first run", lambda d: _dec2(d)["keys"].update(rows=FIRST_RUN + "rows"), "a report-only reading"),
+    ("a report-only value without its label", lambda d: _dec2(d)["values"][3].update(
+        label="Paired difference, new minus frozen"), "its label does not say so"),
+    # 2. a rule part reads the statistic it names, and no extra part rides on a bar already read
+    ("epv slope read on the baseline", lambda d: [c.update(value="buckets.0-4.slope_baseline")
+                                                  for c in _epv(d)["conditions"]], "another arm"),
+    ("epv slope read on the threes-only ablation", lambda d: [c.update(value="buckets.0-4.slope_three_only")
+                                                              for c in _epv(d)["conditions"]], "another arm"),
+    ("decisions-E2 main read on the frozen arm", lambda d: _swap(_dec2(d)["keys"], "metrics.new.", "metrics.frozen.",
+                                                                  ("diff", "lo", "hi")), "another arm"),
+    ("decisions-E2 slope read on the frozen arm", lambda d: [_swap(c, "metrics.new.", "metrics.frozen.")
+                                                             for c in _dec2(d)["conditions"][1:]], "another arm"),
+    ("decisions-E2 main read on the ablation", lambda d: _swap(_dec2(d)["keys"], "metrics.new.regret_coef",
+                                                                "metrics.ablation_delta_epv_coef", ("diff", "lo", "hi")),
+     "another arm"),
+    ("an extra condition on the kind-share R squared", lambda d: _dec2(d)["conditions"].append(
+        {"label": "x", "value": "secondary_report_only.new.r2_on_kind_shares", "bound": "point",
+         "comparison": "above", "threshold": 0, "met": None, "digits": 4}), "a report-only reading"),
+    ("an extra condition riding on the rule's own bar", lambda d: _dec2(d)["conditions"].append(
+        {"label": "x", "value": "metrics.new.slope.point", "lo": "metrics.new.slope.lo", "hi": "metrics.new.slope.hi",
+         "bound": "lo", "comparison": "above", "threshold": 0, "met": None, "digits": 4}),
+     "the rule does not state for it"),
+    ("an extra condition on epv's ablation", lambda d: _epv(d)["conditions"].append(
+        {"label": "x", "value": "overall.baseline_minus_three_only.point", "lo": "overall.baseline_minus_three_only.ci95.0",
+         "hi": "overall.baseline_minus_three_only.ci95.1", "bound": "lo", "comparison": "above", "threshold": 0,
+         "met": None, "digits": 5}), "the rule does not state for it"),
+    ("epv slope on a value its verdict was not decided on", lambda d: [c.update(value="buckets.4-10.slope_e1")
+                                                                        for c in _epv(d)["conditions"]],
+     "was decided on"),
+    # 4. a bar said of an interval is read on the interval's end, and a bar on the value on its point
+    ("decisions-E2 paired difference read on its point", lambda d: _dec2(d)["conditions"][0].update(bound="point"),
+     "the rule does not state for it"),
+    ("decisions-E2 slope read on its lower end", lambda d: _dec2(d)["conditions"][1].update(bound="lo"),
+     "the rule does not state for it"),
+    # 5. a dossier rule quote comes from the experiment's own section
+    ("epv's rule quoted from epv-E2's section", lambda d: _epv(d)["rule_quote"].update(
+        texts=[_e2_threshold_sentence()]), "not whole sentences"),
+    # the shapes around it
+    ("an unknown experiment key", lambda d: _exp(d, "epv-E1").update(test_only=True), "are no keys of an experiment"),
+    ("a result back in the write-up with its files on disk", lambda d: _exp(d, "epv-E1").update(
+        results=None, result_in_writeup=True, test_not_scored=False), "read through them"),
+    ("a repeat the rule does not state", lambda d: _exp(d, "decisions-E2")["results"].update(
+        repeats={"times": 2, "states": "against raw and against rapm_synergy each"}), "so it is stated once"),
+])
+def test_the_methods_results2_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def _e2_threshold_sentence():
+    bullets = R.experiment_bullets((REPO / "docs/research/epv.md").read_text(encoding="utf-8"))["epv-E2"]["_all"]
+    line = next(b for b in bullets if b.startswith("Adoption threshold"))
+    return line.split(". ")[0].rstrip(".") + "."
+
+
+def test_the_first_run_is_a_labelled_value_and_not_a_note(source):
+    e = _built(source)["decisions-E2"]
+    assert not any("first e2-dev run" in note for note in e.writeup_notes)
+    first = [v for v in e.development.values if "first run" in v.label]
+    assert len(first) == 1 and first[0].label.startswith("Report only")
