@@ -139,6 +139,36 @@ reports/rebounds.md; hgb beats the prior by -0.5371 [-0.5477, -0.5283].
 - Backlog scores. Expected gain 3: it attacks the cause the archive names, and the jump from the binary-logistic
   approximation (1.7558) to boosting (1.6009) shows how much model form matters here. Effort 3: custom objective
   code, tests, a second library in the experiment path.
+- Amendment (D125's pattern, 2026-11-20, written before any rebounds-E2 development number). Baseline: rebounds-E1
+  is not adopted on development (E1 minus baseline -0.0046 [-0.0055, -0.0038], above its -0.005 bar;
+  reports/research/rebounds-E1-dev.json), so E2's baseline is the frozen hgb with tau, as fixed above. Its
+  out-of-fold probabilities are rebounds-E1's refit, reused, not refitted: the fold pieces of tools/research_rebounds.py
+  (commit e8909861), whose gate A passed (all 537,175 candidate rows matched, largest difference 2.98e-8 within the
+  2^-24 tolerance of D126, per-miss log loss 1.600912 against the frozen 1.6009). Feasibility, before any E2 number,
+  on the frozen stored out-of-fold rows of the 604 development games (tools/research_rebounds_e2.py, e2-feasibility),
+  with the frozen logit against the frozen hgb as a proxy for replacing the model: per-miss SD of the difference
+  0.714 (49,288 misses); random 10-game sets give a half-width of 0.0515, about five times the -0.010 bar; the
+  development games give 0.0063. Set A cannot decide at the bar. As D125: the development games decide (softmax minus
+  baseline at most -0.010 with the 95 percent interval excluding zero). Commitments, fixed now (code:
+  tools/research_rebounds_e2.py):
+  1. Folds and rows are rebounds-E1's: its five outer folds (grouped by game, seed 0), its candidate rows (rebuilt with
+     the frozen code and checked against the frozen record), and for each fold its training and test rows. The
+     softmax arm and the binary ablation are fitted on a fold's training rows and predict its test rows; each miss's
+     rows are checked contiguous with one rebounder, and every arm's probabilities sum to 1 per miss.
+  2. The interval is a bootstrap of the 604 development games, 2000 resamples, seed 0, paired on the same misses.
+     Reported beside the rule and read by none: binary minus baseline, softmax minus binary, top-1, the favourite's
+     calibration slope (point estimate) and the binary arm's tau per fold.
+  3. Before any score, the Set A half-width is projected from the development per-game spread of the softmax minus
+     baseline difference, as D125 does.
+  4. If development adopts, Set A is scored once as a confirmation with D108's readings: "confirms" if the interval
+     lies wholly below zero, "inconclusive at 10 games" if it straddles zero, "contradiction" if it lies wholly above
+     zero, which stops the adoption; a t interval on the 10 per-game means beside it (report only). The scorer builds
+     Set A's rebound frames with the frozen builder inside score_once. With a projected half-width near 0.05,
+     "inconclusive at 10 games" is the expected reading and is said so now. If development does not adopt, Set A is
+     not scored.
+  5. Known before this run: rebounds-E1's development result. Nothing in E2 was chosen after it: the model, its
+     settings, the ablation and the bar are the pre-registration's, and the code was committed (ff0860ff) before
+     E1 decided.
 
 ## 7. Sources checked (all fetched 2026-11-16)
 
