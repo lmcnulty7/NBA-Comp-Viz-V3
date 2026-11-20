@@ -1495,8 +1495,88 @@
      "gain": 2,
      "effort": 2,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted on development (split-half top-5 self-retrieval, NMF minus frozen +0.032 [+0.006, +0.060] against the pre-registered +0.05; one game -0.016 [-0.028, -0.004]; Set A was not scored, PLAN.md D118; reports/research/embeddings-E2.md)",
+     "results": {
+      "metric": "Paired difference in split-half top-5 self-retrieval, NMF spatial-basis features minus the frozen embedding",
+      "rows_unit": "queries",
+      "interval_from": "writeup_sentence",
+      "interval": "The deciding interval resamples the split-half queries by player, 2000 resamples, with the pool held fixed.",
+      "development": "reports/research/embeddings-E2-dev.json",
+      "test": null,
+      "design": "stage",
+      "rule_quote": {
+       "section": "What was tested",
+       "text": "Decision (D118, development games): split-half top-5 self-retrieval, NMF minus frozen, paired on the same queries, at least +0.05 with the lower end of its player-bootstrap interval above zero."
+      },
+      "comparison": "above",
+      "threshold": 0,
+      "keys": {
+       "rows": "split_half.queries",
+       "games": "gate.games",
+       "diff": "verdict.difference",
+       "lo": "verdict.lo",
+       "hi": "verdict.hi",
+       "met": "verdict.adopt",
+       "main_met": "verdict.interval_above_zero"
+      },
+      "conditions": [
+       {
+        "label": "Size: the paired difference itself, at least +0.05",
+        "value": "verdict.difference",
+        "lo": "verdict.lo",
+        "hi": "verdict.hi",
+        "bound": "point",
+        "comparison": "at_least",
+        "threshold_key": "verdict.threshold",
+        "sign": 1,
+        "met": "verdict.size_at_least_threshold",
+        "digits": 3
+       }
+      ],
+      "equalities": [
+       [
+        "verdict.difference",
+        "split_half.rates_with_player_bootstrap.nmf_minus_frozen.value"
+       ]
+      ],
+      "digits": 3,
+      "values": [
+       {
+        "label": "Split-half rate, frozen embedding (control)",
+        "value": "split_half.rates_with_player_bootstrap.frozen.value",
+        "lo": "split_half.rates_with_player_bootstrap.frozen.lo",
+        "hi": "split_half.rates_with_player_bootstrap.frozen.hi",
+        "digits": 3
+       },
+       {
+        "label": "Split-half rate, NMF shot and court bases",
+        "value": "split_half.rates_with_player_bootstrap.nmf.value",
+        "lo": "split_half.rates_with_player_bootstrap.nmf.lo",
+        "hi": "split_half.rates_with_player_bootstrap.nmf.hi",
+        "digits": 3
+       },
+       {
+        "label": "Ablation, read by no rule: shot basis only minus frozen, split-half",
+        "value": "split_half.rates_with_player_bootstrap.nmf_shot_minus_frozen.value",
+        "lo": "split_half.rates_with_player_bootstrap.nmf_shot_minus_frozen.lo",
+        "hi": "split_half.rates_with_player_bootstrap.nmf_shot_minus_frozen.hi",
+        "digits": 3
+       },
+       {
+        "label": "Leave one game out, read by no rule: NMF minus frozen",
+        "value": "leave_one_game_out.rates_with_game_bootstrap.nmf_minus_frozen.value",
+        "lo": "leave_one_game_out.rates_with_game_bootstrap.nmf_minus_frozen.lo",
+        "hi": "leave_one_game_out.rates_with_game_bootstrap.nmf_minus_frozen.hi",
+        "digits": 3
+       }
+      ]
+     },
+     "writeup": "reports/research/embeddings-E2.md",
+     "test_not_scored": true,
+     "writeup_notes": [
+      "The paired difference is +0.032 [+0.006, +0.060]: the interval lies above zero, but the difference is smaller than the pre-registered +0.05.",
+      "As D118 fixes, Set A was not scored, and the scoring ledger has no embeddings-E2 entry."
+     ]
     }
    ]
   },
