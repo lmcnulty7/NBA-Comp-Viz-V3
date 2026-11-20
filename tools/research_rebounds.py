@@ -57,7 +57,8 @@ SEASON = "2015-16"
 SEED, BOOT, FOLDS = 0, 2000, 5
 FROZEN_RECORD = {"rows": 537175, "misses": 49288, "games": 604}
 FROZEN_LOGLOSS = 1.6009                    # reports/rebounds.md, out-of-fold per-miss log loss of hgb (4 decimals)
-GATE_TOL = 1e-9
+GATE_TOL = 2 ** -24                        # PLAN.md D126: the stored p_selected is 32-bit float (pyarrow float), so a
+                                           # refit equal in 64 bits differs by up to half an ulp, 2^-25 in [0.5, 1)
 THRESHOLD = -0.005
 FOLD_MINUTES = 10.0
 
