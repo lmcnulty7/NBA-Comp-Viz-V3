@@ -20,10 +20,11 @@ measurement.
 - Tests: on the deployed code, 1624 Python tests passed, 552 browser tests passed on the public copy and 633 on the
   private copy. Source: `PLAN.md`
 
-## Results that held up on sealed test sets
+## Experiments, each set up before it ran
 
-Each new method was set up in writing before it ran, then scored once on games set apart and hashed in advance. A
-ledger allows one score per experiment. Source: `reports/research/scoring_ledger.json`
+Each new method was written down before it ran. Those that went on to a test were then scored once on games or
+seasons set apart and hashed in advance, and a ledger allows one score each. The others stopped at the training games
+and were not scored, so that one score stays unspent. Source: `reports/research/scoring_ledger.json`
 
 - Lineups (lineups-E1): passed. Player ratings predicted each game's margin better than raw lineup plus-minus on the
   test season of 1300 games: RMSE difference -1.15 [-1.59, -0.77] points, R squared over home court alone 0.098
