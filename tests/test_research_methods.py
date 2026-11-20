@@ -876,7 +876,7 @@ def _drop_threshold_key(d):
 
 @pytest.mark.parametrize("name, change, message", [
     ("(a) a guard read from another paired object", lambda d: _win(d)["guard"].update(
-        path="{data}.paired.ablation_minus_baseline.bucket_brier"), "not a table of the paired object"),
+        path="{data}.paired.ablation_minus_baseline.bucket_brier"), "another arm"),
     ("(b) a rule flag named as outside the rule", lambda d: _win(d)["flags_outside_rule"].update(
         {"{verdict}.size_at_least_threshold": "a flag the size condition reads"}), "not on the list"),
     ("(b) an allowed flag that a condition reads", lambda d: _win(d)["conditions"][0].update(
@@ -1755,7 +1755,7 @@ def _swap(spec, old, new, keys=("value", "lo", "hi")):
     ("an extra condition on epv's ablation", lambda d: _epv(d)["conditions"].append(
         {"label": "x", "value": "overall.baseline_minus_three_only.point", "lo": "overall.baseline_minus_three_only.ci95.0",
          "hi": "overall.baseline_minus_three_only.ci95.1", "bound": "lo", "comparison": "above", "threshold": 0,
-         "met": None, "digits": 5}), "the rule does not state for it"),
+         "met": None, "digits": 5}), "another arm"),
     ("epv slope on a value its verdict was not decided on", lambda d: [c.update(value="buckets.4-10.slope_e1")
                                                                         for c in _epv(d)["conditions"]],
      "was decided on"),
@@ -1792,3 +1792,86 @@ def test_the_first_run_is_a_labelled_value_and_not_a_note(source):
     assert not any("first e2-dev run" in note for note in e.writeup_notes)
     first = [v for v in e.development.values if "first run" in v.label]
     assert len(first) == 1 and first[0].label.startswith("Report only")
+
+
+# ------------------------------------------------------------------------------------------ methods-harden probes
+
+
+def _set_main(results, stat, ends=("ci95.0", "ci95.1"), value="point"):
+    results["keys"].update(diff=f"{stat}.{value}", lo=f"{stat}.{ends[0]}", hi=f"{stat}.{ends[1]}")
+
+
+_ABLATION_CONDITION = {"label": "abl", "value": "overall.baseline_minus_three_only.point",
+                       "lo": "overall.baseline_minus_three_only.ci95.0", "hi": "overall.baseline_minus_three_only.ci95.1",
+                       "bound": "lo", "comparison": "above", "met": None, "digits": 5}
+
+
+@pytest.mark.parametrize("name, change, message", [
+    # 1. inside a paired difference only the frozen or baseline comparator may appear
+    ("epv main on baseline minus three_only (an ablation)", lambda d: _set_main(_epv(d), "overall.baseline_minus_three_only"),
+     "another arm"),
+    ("decisions-E2 slope on the ablation", lambda d: [c.update(value="metrics.ablation_delta_epv_coef.point",
+                                                                lo="metrics.ablation_delta_epv_coef.lo",
+                                                                hi="metrics.ablation_delta_epv_coef.hi")
+                                                       for c in _dec2(d)["conditions"][1:]], "another arm"),
+    # 2. each part reads the statistic held for it
+    ("decisions-E2 main on the new arm's slope", lambda d: _set_main(_dec2(d), "metrics.new.slope", ("lo", "hi")),
+     "not the statistics held for it"),
+    ("decisions-E2 slope on the new arm's regret coefficient", lambda d: [
+        c.update(value="metrics.new.regret_coef.point", lo="metrics.new.regret_coef.lo", hi="metrics.new.regret_coef.hi")
+        for c in _dec2(d)["conditions"][1:]], "not the statistics held for it"),
+    ("epv main on one time bucket", lambda d: _set_main(_epv(d), "buckets.0-4.baseline_minus_e1"),
+     "not the statistics held for it"),
+    ("epv slope on the overall slope", lambda d: [c.update(value="slope_all.e1") for c in _epv(d)["conditions"]],
+     "was decided on"),
+    ("epv slope on the old bucket path", lambda d: [c.update(value="buckets.0-4.slope_e1")
+                                                    for c in _epv(d)["conditions"]], "not the statistics held for it"),
+    ("decisions-E2 extra condition on the regret coefficient again", lambda d: _dec2(d)["conditions"].append(
+        {"label": "x", "value": "metrics.new.regret_coef.point", "lo": "metrics.new.regret_coef.lo",
+         "hi": "metrics.new.regret_coef.hi", "bound": "lo", "comparison": "above", "threshold": 0, "met": None,
+         "digits": 4}), ""),
+    # 3. a condition's own words state its bar after a comparison
+    ("an epv condition on '95 percent'", lambda d: _epv(d)["conditions"].append(
+        {"label": "x", "value": "overall.baseline_minus_e1.point", "bound": "point", "comparison": "above",
+         "threshold": 95, "met": None, "digits": 5, "states": "95 percent"}), "names no threshold"),
+    ("an epv condition on 'interval above 0'", lambda d: _epv(d)["conditions"].append(
+        dict(_ABLATION_CONDITION, threshold=0, states="interval above 0")), ""),
+    # rule quotes from another experiment's section
+    ("decisions-E2 rule quote from decisions-E1", lambda d: _dec2(d)["rule_quote"].update(
+        texts=["Ablation: kind-adjusted without the court-zone term."]), "not whole sentences"),
+])
+def test_the_methods_harden_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert problems, name
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_every_rule_has_its_statistics_held_in_code_and_the_controls_build(source):
+    from export.methods_statistics import RULE_STATISTICS
+    R.COLLECT_STATISTICS = {}
+    try:
+        R.build_methods(REPO, source)
+        seen = R.COLLECT_STATISTICS
+    finally:
+        R.COLLECT_STATISTICS = None
+    assert seen == RULE_STATISTICS
+    # controls: a report-only value labelled so, and the experiment's own adoption bullet as its rule, still build
+    doc = copy.deepcopy(source)
+    _dec2(doc)["values"].append({"label": "Paired difference, first run (report-only)",
+                                 "value": FIRST_RUN + "metrics.paired_regret_coef_new_minus_frozen.point", "digits": 4})
+    _dec2(doc)["rule_quote"].update(texts=[
+        "Adoption threshold: the regret coefficient's 95 percent interval above 0, the paired difference (new minus "
+        "frozen) in that coefficient with interval above 0, and the chosen-value calibration slope inside 0.8 to 1.2, "
+        "all on development games."])
+    assert _build_problems(doc) == []
+
+
+def test_a_states_bar_follows_a_comparison():
+    assert R._states_bar("1.0 s error lower by at least 0.10 ft", -0.1)
+    assert R._states_bar("one-sided p < 0.05", 0.05)
+    assert R._states_bar("inside 0.9 to 1.1", 0.9) and R._states_bar("inside 0.9 to 1.1", 1.1)
+    assert not R._states_bar("95 percent", 95)
+    assert not R._states_bar("its 95 percent interval above 0", 95)
