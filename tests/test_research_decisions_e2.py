@@ -219,3 +219,12 @@ def test_fold_model_saves_and_reloads_bit_for_bit(tmp_path):
     h = E.save_model(m, tmp_path, X)
     again = E.load_model(tmp_path)
     assert np.array_equal(again.predict(X), m.predict(X)) and h == E.model_hash(tmp_path)
+
+
+def test_primary_rows_need_every_value():
+    base = {"v_shot": 1.0, "v_hold": 1.0, "v_drive": 0.9, "chosen": 1.0, "regret": 0.0, "frozen_chosen": 0.5,
+            "frozen_hold": 1.0, "frozen_regret": -0.1, "shot_value": 1.0, "drive_value": 0.8, "points_to_end": 2.0,
+            "state_ok": True, **{f"tm{k}_id": 5 for k in range(1, 5)}, **{f"v_pass{k}": 0.7 for k in range(1, 5)}}
+    v = pd.DataFrame([base, {**base, "v_drive": np.nan}, {**base, "v_pass3": np.nan},
+                      {**base, "v_pass3": np.nan, "tm3_id": -1}])
+    assert list(E.primary_rows(v)) == [True, False, False, True]

@@ -1013,6 +1013,19 @@ def exclusions(v, att, finite) -> dict:
     return out
 
 
+def primary_rows(v):
+    """Commitment 8: the decisions with every value finite in both arms: the new arm's shot, hold and drive values
+    and the value of every existing teammate slot, its chosen value and regret; the frozen arm's chosen, hold,
+    regret, shot and drive values; the outcome; and a usable state."""
+    import numpy as np
+    new = ["v_shot", "v_hold", "v_drive", "chosen", "regret"]
+    old = ["frozen_chosen", "frozen_hold", "frozen_regret", "shot_value", "drive_value", "points_to_end"]
+    ok = np.isfinite(v[new + old].to_numpy(float)).all(axis=1) & v["state_ok"].to_numpy(bool)
+    for k in range(1, 5):
+        ok &= (v[f"tm{k}_id"].to_numpy() < 0) | np.isfinite(v[f"v_pass{k}"].to_numpy(float))
+    return ok
+
+
 def decide(m: dict) -> dict:
     new = m["new"]
     checks = {"regret_coef_above_zero": new["regret_coef"]["lo"] > 0,
@@ -1027,17 +1040,24 @@ def development(artifacts=None, log=print) -> dict:
     dec, att, fold_of = load_dev(artifacts)
     dec, fits = option_models(dec, att)
     v = values(dec)
+    finite = primary_rows(v)
     need = ["chosen", "v_hold", "regret", "frozen_chosen", "frozen_hold", "frozen_regret", "points_to_end"]
-    finite = np.isfinite(v[need].to_numpy(float)).all(axis=1) & v["state_ok"].to_numpy(bool)
+    loose = np.isfinite(v[need].to_numpy(float)).all(axis=1) & v["state_ok"].to_numpy(bool)
     counts = {"decisions": int(len(v)), "finite_both_arms": int(finite.sum()),
               "by_kind": {k: int(c) for k, c in v.loc[finite, "decision_kind"].astype(str).value_counts().items()},
               "left_out_by_kind": {k: int(c) for k, c in v.loc[~finite, "decision_kind"].astype(str).value_counts().items()},
               "games": int(v.loc[finite, "sportvu_game"].nunique()), "pass_attempts_d123": attempt_counts(att)}
     vf = v[finite].reset_index(drop=True)
     m = metric_set(vf)
+    loose_m = metric_set(v[loose].reset_index(drop=True))
     out = {"experiment": EXPERIMENT, "stage": "development games (D122: development decides)", "counts": counts,
            "metrics": m, "decision": decide(m), "overlap": overlap(vf), "option_models": fits,
            "secondary_report_only": secondary(vf, artifacts), "exclusions": exclusions(v, att, finite),
+           "report_only_first_run_filter": {
+               "note": "the first e2-dev run kept decisions whose chosen, hold and regret values were finite, so a "
+                       "decision with no drive value (no shot clock in the frames) kept a regret over fewer options; "
+                       "commitment 8 says every value finite, which the primary rows above follow",
+               "rows": int(loose.sum()), "metrics": loose_m, "decision": decide(loose_m)},
            "folds": {str(k): require_fold(artifacts, k) for k in range(FOLDS)},
            "pass_counts": _pass_counts(artifacts)}
     RESULTS.mkdir(parents=True, exist_ok=True)
