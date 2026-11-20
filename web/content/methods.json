@@ -131,7 +131,8 @@
     "holds": "The range holds it",
     "notHolds": "The range does not hold it",
     "notContradicted": "Not contradicted",
-    "contradicted": "Contradicted"
+    "contradicted": "Contradicted",
+    "beside": "Read beside it, by no rule"
   },
   "lane": {
     "foundations": "Built on",

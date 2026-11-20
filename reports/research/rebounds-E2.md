@@ -35,7 +35,9 @@ cross entropy of the true rebounder as the loss (Cao et al. 2007, one winner per
 - Ablation: the same XGBoost settings with the binary objective and the frozen tau procedure, so that a gain cannot be
   a library difference.
 - Decision (D127, development games): softmax minus baseline per-miss log loss at most -0.010, with the 95 percent
-  interval excluding zero. Same five outer folds as the frozen lane and rebounds-E1.
+  interval excluding zero. Same five outer folds as the frozen lane and rebounds-E1. The 2026-11-16 threshold line
+  also asked for a Set A pass; D127 (26b0694b, fixed before any development number) replaced that with a
+  confirmation read.
 
 ## Development result (604 games, 49,288 misses, 537,175 candidate rows)
 

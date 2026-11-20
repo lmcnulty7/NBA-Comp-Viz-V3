@@ -332,15 +332,12 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                 problems.append(f"{eid}: every part has its own label")
             d_label = re.match(r"(?:Decision \(|Amendment \(PLAN\.md )(D\d+)", exp.get("threshold_label") or "")
             if d_label and bullets.get(eid, {}).get("threshold") and _flat(exp["threshold"]) != bullets[eid]["threshold"]:
-                # the rule shown is a D line's, not the pre-registered adoption threshold: the write-up notes say
-                # so, naming the D line and that it replaced the original threshold (or reading the original
-                # threshold, report only, beside it)
-                quoted = [_note_place(n)[1] for n in exp.get("writeup_notes", [])]
-                names_d = any(d_label.group(1) in q for q in quoted)
-                says_original = any("replaced" in q or "original threshold" in q for q in quoted)
-                if not (names_d and says_original):
-                    problems.append(f"{eid}: the rule shown is {d_label.group(1)}'s, so a write-up note names "
-                                    f"{d_label.group(1)} and one says it replaced the original threshold")
+                # the rule shown is a D line's, not the pre-registered adoption threshold: a note quotes the
+                # write-up saying that D line replaced it
+                if not any(d_label.group(1) in _note_place(n)[1] and "replaced" in _note_place(n)[1]
+                           for n in exp.get("writeup_notes", [])):
+                    problems.append(f"{eid}: the rule shown is {d_label.group(1)}'s, so a write-up note says "
+                                    f"{d_label.group(1)} replaced the original threshold")
             unknown = set(exp) - EXPERIMENT_KEYS
             if unknown:
                 problems.append(f"{eid}: {sorted(unknown)} are no keys of an experiment")
@@ -1274,7 +1271,7 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         while compare(round(upper, digits), round(threshold, digits)) != main and digits < 17:
             digits += 1
 
-    values = []
+    values, beside = [], []          # beside: report-only values shown in the stage itself, next to the verdict
     for spec in results["values"]:
         if spec.get("stage", stage) != stage:      # a value one stage's file reports and the other's does not
             continue
@@ -1293,7 +1290,10 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
             expected = fits[0] if fits else next(w for w, k in spec["reading_rule"].items() if k == "otherwise")
             if value_reading != expected:
                 raise MethodsProblem(f"{rel}: {spec['reading']} reads {value_reading!r}, its numbers give {expected!r}")
-        values.append(S.StageValue(label=spec["label"], reading=value_reading,
+        target = beside if spec.get("beside") else values
+        if spec.get("beside") and not re.search(r"report[ -]only|read by no rule", spec["label"], re.I):
+            raise MethodsProblem(f"{rel}: a value shown beside the rule, {spec['label']!r}, says it is report only")
+        target.append(S.StageValue(label=spec["label"], reading=value_reading,
                                    value=round(float(at(spec["value"], file)), spec["digits"]),
                                    lo=lo, hi=hi, point_estimate=lo is None))
     rows = "testset" if stage == "test" else "out_of_fold"
@@ -1340,7 +1340,7 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         interval=results["interval"], threshold=round(threshold, digits), upper=round(upper, digits),
         comparison=comparison, conditions=conditions, guard=guards[0] if len(guards) == 1 and results.get("guard")
         else None, guards=guards if not (len(guards) == 1 and results.get("guard")) else [], met=met,
-        reading=reading_word, values=values, test_set=test_set)
+        reading=reading_word, values=values, beside=beside, test_set=test_set)
 
 
 def _protocol_trace(eid: str, exp: dict, protocol: dict, repo: Path) -> list:

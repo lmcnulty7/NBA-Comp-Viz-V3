@@ -2109,10 +2109,13 @@ def test_rebounds_e2_is_a_research_adoption_set_a_confirms(source):
     test = e.test
     assert (test.comparison, test.threshold, test.met, test.reading) == ("not_wholly_above", 0, True, "confirms")
     assert test.hi < 0 and scored["reading"] == "confirms"
-    t_interval = [v for v in test.values if v.label.startswith("Report only (D80)")]
-    assert len(t_interval) == 1 and t_interval[0].lo < 0 < t_interval[0].hi       # the disagreement, shown beside
+    # the disagreement is shown in the Set A stage itself, beside its verdict, not only among the further numbers
+    t_interval = [v for v in test.beside if v.label.startswith("Report only (D80)")]
+    assert len(t_interval) == 1 and t_interval[0].lo < 0 < t_interval[0].hi
+    assert not any(v.label.startswith("Report only (D80)") for v in test.values)
     assert e.threshold.startswith("Baseline: rebounds-E1 is not adopted on development")   # D127's amendment
-    assert any("original threshold of 2026-11-16" in note for note in e.writeup_notes)
+    assert any("original threshold of 2026-11-16" in note for note in e.writeup_notes)      # report only
+    assert any("D127 (26b0694b" in note and "replaced" in note for note in e.writeup_notes)
     ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
     assert [x["status"] for x in ledger if x.get("experiment") == "rebounds-E2"] == ["scored"]
 
@@ -2127,8 +2130,12 @@ _REB2_ADOPTION = ("Paired difference at most -0.010 with its 95 percent interval
     ("the 2026-11-16 threshold shown in place of D127's", lambda d: (
         _exp(d, "rebounds-E2").pop("threshold_label"), _exp(d, "rebounds-E2").update(threshold=_REB2_ADOPTION)),
      "rebounds-E2.threshold"),
-    ("the original-threshold note dropped", lambda d: _exp(d, "rebounds-E2")["writeup_notes"].pop(),
+    ("the D127 note dropped", lambda d: _exp(d, "rebounds-E2")["writeup_notes"].pop(1),
      "replaced the original threshold"),
+    ("the D127 note paraphrased", lambda d: _exp(d, "rebounds-E2")["writeup_notes"][1].update(
+        text="D127 replaced the Set A pass."), "not whole sentences"),
+    ("the t interval beside the verdict without its label", lambda d: _reb2(d)["by_stage"]["test"]["values"][0]
+     .update(label="Set A t interval"), "its label does not say so"),
     ("the t interval in the Set A rule", lambda d: _reb2(d)["by_stage"]["test"]["keys"].update(
         diff="scored.t_interval_softmax_minus_baseline_per_game.mean_of_game_means",
         lo="scored.t_interval_softmax_minus_baseline_per_game.lo",

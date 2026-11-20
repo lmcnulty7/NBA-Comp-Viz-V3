@@ -1032,6 +1032,7 @@ export interface StageResult {
   reading?: string | null;
   values: StageValue[];
   test_set?: string | null;
+  beside?: StageValue[];
 }
 /**
  * A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the

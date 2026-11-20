@@ -1217,6 +1217,8 @@ class StageResult(Strict):
     values: list[StageValue]
     # the heading of a test stage scored on a test set of its own (the genai test players), never the D71 test games
     test_set: Optional[str] = None
+    # report-only values shown in the stage itself, next to its verdict (a t interval that reads otherwise)
+    beside: list[StageValue] = []
 
     @model_validator(mode="after")
     def _rule(self):

@@ -281,6 +281,16 @@ export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; fi
           </dd>
         </div>
       </dl>
+      {(stage.beside ?? []).length > 0 ? (
+        <div className="stack stack-tight" data-testid="beside">
+          <Side className={styles.side}>{r.beside}</Side>
+          <ul className={styles.values}>
+            {(stage.beside ?? []).map((value, index) => (
+              <StageNumber key={value.label} value={value} field={`${field}.beside[${index}]`} />
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {(stage.conditions ?? []).length > 0 ? (
         <div className="stack stack-tight" data-testid="conditions">
           <Side className={styles.side}>{r.condition.title}</Side>

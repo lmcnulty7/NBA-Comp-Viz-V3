@@ -4200,6 +4200,14 @@
           ],
           "default": null,
           "title": "Test Set"
+        },
+        "beside": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/StageValue"
+          },
+          "title": "Beside",
+          "type": "array"
         }
       },
       "required": [

@@ -734,7 +734,8 @@
           "value": "scored.t_interval_softmax_minus_baseline_per_game.mean_of_game_means",
           "lo": "scored.t_interval_softmax_minus_baseline_per_game.lo",
           "hi": "scored.t_interval_softmax_minus_baseline_per_game.hi",
-          "digits": 6
+          "digits": 6,
+          "beside": true
          },
          {
           "label": "Ablation, read by no rule: binary minus the frozen model on Set A",
@@ -752,6 +753,10 @@
      "adopted_as": "research_result",
      "writeup_notes": [
       "Verdict: adopted as a research result on development; Set A, scored once, reads \"confirms\" under D127.",
+      {
+       "section": "What is tested",
+       "text": "The 2026-11-16 threshold line also asked for a Set A pass; D127 (26b0694b, fixed before any development number) replaced that with a confirmation read."
+      },
       "Beside it, plainly: the report-only t interval on the 10 per-game means, [-0.031839, +0.000153], just reaches above zero and would read \"inconclusive at 10 games\".",
       "The rule reads the bootstrap, as committed; with 10 games, read the confirmation as modest.",
       "The site's rebound model is unchanged.",
