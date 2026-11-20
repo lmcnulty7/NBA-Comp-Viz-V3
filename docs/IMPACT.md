@@ -63,6 +63,14 @@ and were not scored, so that one score stays unspent. Source: `reports/research/
   own. Log loss per miss changed by -0.004628 [-0.005472, -0.003816] (lower is better). That is a real gain, but it
   falls short of the bar of -0.005. Almost all of it came from letting each kind be more or less sure, not from a
   fixed shift. Its test games were not scored. Source: `reports/research/rebounds-E1.md`
+- Rebounds, second test (rebounds-E2): adopted as a research result on the training games. The rebound model was
+  trained on the whole miss, so the players who could get the ball compete with each other. Log loss per miss
+  changed by -0.019327 [-0.021138, -0.017642] (lower is better), past the bar of -0.010. The same library with the
+  usual training goal was a little worse than the old model (+0.004680), so the gain comes from the goal, not the
+  library. On the 10 test games, scored once, the change was -0.015837 [-0.028443, -0.003126]. That range lies below
+  zero, which the rule set in advance reads as confirms. A second range, read by no rule, just reaches above zero
+  (+0.000153), so read the test result as modest. The site's rebound model is unchanged. Source:
+  `reports/research/rebounds-E2.md`
 - Gravity (gravity-E1): not adopted on the training games. A shot is not more open by the bar of 0.2 ft for each
   standard deviation of the teammates' gravity: the effect is 0.014 ft (interval -0.066 to 0.102, 62358 attempts),
   so an effect of 0.2 ft is ruled out for that measure. A later check, read by no rule, gives 0.109 [0.053, 0.167]
