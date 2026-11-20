@@ -238,6 +238,11 @@ def kl_transform(X, H, tol: float = TOL, max_iter: int = MAX_ITER, chunk: int = 
     from scipy import sparse
     X = sparse.csr_matrix(X, dtype=float)
     n, k = X.shape[0], H.shape[0]
+    dead = np.flatnonzero(H.sum(axis=0) <= 0)
+    if len(dead):
+        hit = np.asarray((X[:, dead] > 0).sum(axis=1)).ravel() > 0
+        if hit.any():                     # KL is infinite there: the row would come out NaN, so refuse, never impute
+            raise ValueError(f"{WHO}: {int(hit.sum())} row(s) have mass in a cell where every basis map is zero")
     W = np.zeros((n, k))
     iters = np.zeros(n, dtype=int)
     left = 0
@@ -395,6 +400,8 @@ class Model:
         self.fit_idx = np.searchsorted(P.players, fit_rows["player_id"].to_numpy(dtype=np.int64))
         full_court = hists.player_sums("court")[self.fit_idx]
         full_shot = hists.player_sums("shot")[self.fit_idx]
+        self.transform_record = {name: {"calls": 0, "rows": 0, "not_converged": 0, "max_iterations": 0}
+                                 for name in ("court", "shot")}
         started = time.time()
         self.basis = basis or {"court": fit_basis(full_court), "shot": fit_basis(full_shot)}
         if log and basis is None:
@@ -405,9 +412,20 @@ class Model:
         self.fits = {arm: fit_arm(*feats[arm]) for arm in ("nmf", "nmf_shot")}
 
     def shares_of(self, court_rows, shot_rows):
-        cw, _ = kl_transform(rates(court_rows), self.basis["court"]["H"])
-        sw, _ = kl_transform(rates(shot_rows), self.basis["shot"]["H"])
-        return shares(cw), shares(sw)
+        """Shares of both bases; every call's convergence is added to transform_record, and a weight row that is
+        not finite is refused (never imputed)."""
+        out = []
+        for name, rows in (("court", court_rows), ("shot", shot_rows)):
+            W, info = kl_transform(rates(rows), self.basis[name]["H"])
+            if not np.isfinite(W).all():
+                raise SystemExit(f"{WHO}: a {name} weight row is not finite; refused, not imputed")
+            rec = self.transform_record[name]
+            rec["calls"] += 1
+            rec["rows"] += info["rows"]
+            rec["not_converged"] += info["not_converged"]
+            rec["max_iterations"] = max(rec["max_iterations"], info["max_iterations"])
+            out.append(shares(W))
+        return out[0], out[1]
 
     def represent(self, X19, court_rows, shot_rows) -> dict:
         """Every retrieval space for rows given as frozen features (n x 19) and histograms (n x CELLS)."""
@@ -589,6 +607,7 @@ def stage_logo(artifacts=None, max_minutes: float = 25.0) -> dict:
     parts = {k: np.concatenate([x[k] for x in loaded]) for k in loaded[0]}
     out = logo_summary(parts)
     out["seconds_last_run"] = round(time.time() - started, 1)
+    out["transform_record_last_run"] = model.transform_record
     (work_dir(artifacts) / "logo.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
     return {k: out["rates_with_game_bootstrap"][k] for k in ("frozen", "nmf", "nmf_minus_frozen")}
 
@@ -663,6 +682,7 @@ def stage_split(artifacts=None) -> dict:
     model = load(artifacts)
     out = split_half(model)
     out["seconds"] = round(time.time() - started, 1)
+    out["transform_record"] = model.transform_record
     (work_dir(artifacts) / "split.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
     return {k: out["rates_with_player_bootstrap"][k] for k in ("frozen", "nmf", "nmf_minus_frozen")}
 
@@ -690,7 +710,10 @@ def dev(artifacts=None) -> dict:
     if draws:
         rng_out["range"] = {k: {"lo": float(np.percentile([r[k] for r in draws], 2.5)),
                                 "hi": float(np.percentile([r[k] for r in draws], 97.5))} for k in draws[0]}
-    out = {"experiment": EXPERIMENT,
+    import subprocess
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True,
+                          check=True).stdout.strip()
+    out = {"experiment": EXPERIMENT, "code_commit": head,
            "stage": "development games (gates passed); development decides (PLAN.md D118)",
            "pre_registration": "docs/research/embeddings.md, embeddings-E2 and its amendment (D118)",
            "gate": {k: v for k, v in gate_record.items() if k != "files"},

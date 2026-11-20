@@ -1574,7 +1574,7 @@
      "writeup": "reports/research/embeddings-E2.md",
      "test_not_scored": true,
      "writeup_notes": [
-      "The paired difference is +0.032 [+0.006, +0.060]: real, since the interval lies above zero, but smaller than the pre-registered +0.05.",
+      "The paired difference is +0.032 [+0.006, +0.060]: the interval lies above zero, but the difference is smaller than the pre-registered +0.05.",
       "As D118 fixes, Set A was not scored, and the scoring ledger has no embeddings-E2 entry."
      ]
     }

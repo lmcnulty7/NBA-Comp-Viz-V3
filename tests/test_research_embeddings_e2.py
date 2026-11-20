@@ -157,3 +157,20 @@ def test_the_module_reads_no_test_data_and_never_calls_score_once():
     assert "score_once" not in calls and "scoring_data_root" not in calls and "research_data_root" not in calls
     for bad in ("testset.json", "_research-data", "V3_RESEARCH_DATA", "made"):
         assert f'"{bad}"' not in text and f"'{bad}'" not in text, bad
+
+
+def test_a_row_with_mass_where_every_basis_map_is_zero_is_refused_not_imputed():
+    H = basis()
+    H[:, 7] = 0.0
+    X = sparse.csr_matrix((2, E2.CELLS))
+    X[0, 3] = 1.0
+    E2.kl_transform(E2.rates(X), H)                      # a row away from the dead cell is fine
+    X[1, 7] = 1.0
+    with pytest.raises(ValueError, match="every basis map is zero"):
+        E2.kl_transform(E2.rates(X), H)
+
+
+def test_future_runs_record_convergence_and_the_code_commit():
+    text = (REPO / "tools" / "research_embeddings_e2.py").read_text()
+    assert '"code_commit": head' in text and 'out["transform_record"] = model.transform_record' in text
+    assert 'out["transform_record_last_run"] = model.transform_record' in text

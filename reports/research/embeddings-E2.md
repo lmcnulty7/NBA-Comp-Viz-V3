@@ -2,16 +2,21 @@
 
 Written 2026-11-19. Pre-registration: docs/research/embeddings.md, "embeddings-E2", and its amendment (PLAN.md D118),
 written and committed (f5bb5b51) before any code ran. Code: tools/research_embeddings_e2.py, building on
-tools/research_embeddings.py (embeddings-E1). Every number below is copied from
+tools/research_embeddings.py (embeddings-E1). The development stages ran on commit bb888bc4; that commit is not
+written inside the development json (its writer now records it, for future runs; this json is not rewritten). No stage
+log was kept, so the timeline rests on the file times and on the cache, whose files are hash-checked against the gate
+record. Every number below is copied from
 reports/research/embeddings-E2-dev.json; a number marked "computed" is worked out from the copied ones. Intervals are
 95 percent percentile intervals of 2000 resamples.
 
 **Verdict: not adopted on development. Set A was not scored.** On the split-half check of the development games,
 replacing the twelve zone shares with weights on two NMF spatial bases (shots and offensive court positions) raises
-top-5 self-retrieval from 0.920 to 0.953. The paired difference is +0.032 [+0.006, +0.060]: real, since the interval
-lies above zero, but smaller than the pre-registered +0.05. The ceiling stated before any number held: a pass needed
+top-5 self-retrieval from 0.920 to 0.953. The paired difference is +0.032 [+0.006, +0.060]: the interval lies above
+zero, but the difference is smaller than the pre-registered +0.05. The ceiling stated before any number held: a pass needed
 0.970 or better. From one game (leave one game out, reported, deciding nothing) the NMF features retrieve slightly
-worse than the frozen embedding (-0.016 [-0.028, -0.004]). As D118 fixes, Set A was not scored, and the scoring ledger
+worse than the frozen embedding (-0.016 [-0.028, -0.004]). The NMF bases and arm fits saw every development game,
+including both halves of every split-half player and every left-out game, as the frozen fit did; any bias from that
+favours NMF, so it cannot change "not adopted". The player bootstrap holds the fits fixed. As D118 fixes, Set A was not scored, and the scoring ledger
 has no embeddings-E2 entry.
 
 ## What was tested
@@ -76,17 +81,26 @@ One game, leave one game out (10491 queries from 391 players, 604 games; pool 39
 
 ## What this means
 
-- Over half a season, a finer spatial description helps a little. Almost all of the split-half gain comes from the
-  shot basis (+0.028 alone; the court basis adds +0.004 [-0.011, +0.018] on top). Where a player shoots, described on
-  a 1 ft grid, is a more reliable fingerprint than six shot zones.
+- Over half a season, a finer spatial description helps a little. The shot basis alone also gains, +0.028 [+0.001,
+  +0.057]; the court basis adds +0.004 [-0.011, +0.018] on top of it.
 - From one game it hurts. A single game has a handful of shots, and ten weights fitted to them are noisier than six
   zone shares. The shot basis alone loses 0.042 against the frozen embedding on one game; the court basis, built from
   thousands of frames even in one game, wins back 0.026.
 - The gain the pre-registration asked for (+0.05) is larger than what was left: the frozen embedding already finds the
   same player in 92 percent of halves, so the most any change could add was 0.080 (computed), and the 19 raw features
-  without PCA had reached only 0.950.
+  without PCA had reached only 0.950 (embeddings-E1).
 - The frozen embedding stays as it is. A coach-facing map of where a player shoots could still use these bases as a
   description, but this experiment does not show that they make the "plays like" list more reliable at the size asked.
+
+## Limits
+
+- The transform's convergence record was kept for the full-season fit rows (no row unconverged), not for the
+  half-season and one-game rows of the split-half and leave-one-game-out stages. For future runs the code now records
+  it from every transform and writes it with each stage.
+- One development attempt (player 203921, 11.10.2015.NYK.at.TOR, cell 1353) fell in a shot cell where every map of
+  the shot basis is zero, which would give a non-finite weight row for any set of games holding it. That player has
+  89 development possessions, so is in no fit, query or pool row, and no number above is affected. No court cell was
+  affected. For future runs the code now refuses such a row instead of imputing it.
 
 ## Set A
 
