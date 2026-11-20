@@ -57,6 +57,53 @@ def test_the_new_arm_adds_exactly_the_three_columns():
     assert X.THRESHOLD == -0.001
 
 
-def test_the_module_has_no_test_set_scoring_yet():
-    text = (X.__file__ and open(X.__file__, encoding="utf-8").read())
-    assert "score_once(" not in text
+DOOR_NAMES = ("research_data_root", "test_features")
+
+
+def _tree():
+    import ast
+    return ast.parse(open(X.__file__, encoding="utf-8").read())
+
+
+def test_test_data_is_reached_only_inside_the_scorer_given_to_score_once():
+    import ast
+    tree = _tree()
+    once = [c for c in ast.walk(tree) if isinstance(c, ast.Call)
+            and getattr(c.func, "id", getattr(c.func, "attr", None)) == "score_once"]
+    assert len(once) == 1 and [ast.unparse(a) for a in once[0].args] == ["EXPERIMENT", "TRACKING", "scorer"]
+    scorer = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "scorer")
+    inside = {id(n) for n in ast.walk(scorer)}
+    seen = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            for a in node.names:
+                assert not (a.name in DOOR_NAMES and a.asname), "aliased import"
+                if a.name in DOOR_NAMES:
+                    seen.add(a.name)
+                    continue
+        name = node.id if isinstance(node, ast.Name) else node.attr if isinstance(node, ast.Attribute) else None
+        if name in DOOR_NAMES:
+            seen.add(name)
+            assert id(node) in inside, f"{ast.unparse(node)} outside the scorer"
+        if isinstance(node, ast.Constant) and node.value in DOOR_NAMES:
+            raise AssertionError("named as a string")
+    assert seen == set(DOOR_NAMES)
+    assert "_SCORING" in ast.unparse(scorer)
+    assert X.EXPERIMENT == "xfg-E2"
+
+
+def test_final_checks_a_clean_tree_first():
+    import ast
+    final = next(n for n in _tree().body if isinstance(n, ast.FunctionDef) and n.name == "final")
+    assert "clean_head()" in ast.unparse(final.body[1]) or "clean_head()" in ast.unparse(final.body[0])
+
+
+@pytest.mark.parametrize("lo,hi,want", [(-0.004, -0.0001, "confirms"), (-0.003, 0.002, "inconclusive at 10 games"),
+                                        (0.0001, 0.003, "contradiction"), (-0.001, 0.0, "inconclusive at 10 games")])
+def test_the_d121_readings(lo, hi, want):
+    assert X.reading(lo, hi) == want
+
+
+def test_the_scorer_refuses_outside_score_once():
+    with pytest.raises(SystemExit, match="only inside the scorer"):
+        X.make_scorer({}, None)(["g"])

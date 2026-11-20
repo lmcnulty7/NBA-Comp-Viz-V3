@@ -19,8 +19,9 @@ dev       Every development game (tools.research_testset.dev_games), 5 grouped o
           differences with a 2000-resample game bootstrap; per-arm Brier, calibration slope and ECE with intervals.
           Writes reports/research/xfg-E2-dev.json.
 
-The Set A score is not in this module yet: under D121 it exists only if development adopts, and it waits for the
-lead's review. Everything runs under the heavy-job lock; artifacts go only under the artifacts folder.
+rehearse  The scorer's path on 10 development games in place of Set A (not a result; artifacts only).
+final     The one Set A score, score_once("xfg-E2"), only when development adopts and the rehearsal ran; it waits for
+          the lead's go. Writes reports/research/xfg-E2-final.json. Everything runs under the heavy-job lock; artifacts go only under the artifacts folder.
 """
 
 import argparse
@@ -117,13 +118,42 @@ def game_features(rows, frames, possessions) -> dict:
     return {int(i): row_features(G, int(r.release_frame), int(r.player_id), rims) for i, r in rows.iterrows()}
 
 
+def new_features_of_game(root: Path, frame, game: str) -> dict:
+    """{row index of `frame`: the three features} for one game of a data root in the DATA_ROOT layout: the rows with
+    has_contest 1, a release frame and a shooter, from the game's frames read with the lane's columns and cleaning
+    (as the frozen feature build reads them) and its possessions table (the target-rim vote). The development build
+    and the Set A scorer both call this."""
+    import pandas as pd
+    from analytics import schema as contract_tables
+    from analytics.xfg import validate as V
+    rows = frame[(frame["sportvu_game"].astype(str) == game) & (frame["has_contest"] == 1)
+                 & (frame["release_frame"] >= 0) & frame["player_id"].notna()]
+    if not len(rows):
+        return {}
+    frames, _summary = V.clean_frames(pd.read_parquet(Path(root) / "sportvu_contract" / f"{game}.parquet",
+                                                      columns=V.FRAME_COLUMNS))
+    poss = pd.read_parquet(contract_tables.table_path(Path(root) / "analytics", "possessions", "2015-16", game))
+    return game_features(rows, frames, poss)
+
+
+def add_new_features(root: Path, rows):
+    """`rows` (a frozen feature frame of some games) with the three columns built game by game."""
+    import numpy as np
+    rows = rows.reset_index(drop=True)
+    for c in NEW_FEATURES:
+        rows[c] = np.nan
+    for game in sorted(rows["sportvu_game"].astype(str).unique()):
+        for i, v in new_features_of_game(root, rows, game).items():
+            for c in NEW_FEATURES:
+                rows.at[i, c] = v[c]
+    return rows
+
+
 def build_features(artifacts=None, max_minutes: float = 25.0) -> dict:
     """Resumable: one parquet per game under out_dir; stops before max_minutes."""
     import os
     import pandas as pd
-    from analytics import schema as contract_tables
     from analytics.eval import is_heldout_game
-    from analytics.xfg import validate as V
     started = time.time()
     root = Path(os.environ["DATA_ROOT"])
     frame = RX._features(artifacts)
@@ -140,16 +170,7 @@ def build_features(artifacts=None, max_minutes: float = 25.0) -> dict:
             break
         if is_heldout_game(game):
             raise SystemExit(f"{WHO}: {game} is a held-out game")
-        rows = frame[(frame["sportvu_game"].astype(str) == game) & (frame["has_contest"] == 1)
-                     & (frame["release_frame"] >= 0) & frame["player_id"].notna()]
-        feats = {}
-        if len(rows):
-            # the frames as the frozen feature build read them: the lane's columns and its cleaning
-            frames, _summary = V.clean_frames(pd.read_parquet(root / "sportvu_contract" / f"{game}.parquet",
-                                                              columns=V.FRAME_COLUMNS))
-            poss = pd.read_parquet(contract_tables.table_path(root / "analytics", "possessions", "2015-16", game))
-            feats = game_features(rows, frames, poss)
-            del frames
+        feats = new_features_of_game(root, frame, game)
         out = pd.DataFrame([{"row": i, **v} for i, v in feats.items()],
                            columns=["row"] + NEW_FEATURES)
         out.insert(0, "sportvu_game", game)
@@ -301,6 +322,141 @@ def dev(artifacts=None) -> dict:
     return out
 
 
+# ----------------------------------------------------------------------------- the Set A confirmation (D121)
+
+EXPERIMENT = "xfg-E2"
+REHEARSAL_GAMES = 10
+
+
+def reading(lo: float, hi: float) -> str:
+    """D121 with D108's readings: confirms (wholly below 0), contradiction (wholly above 0, stops the adoption),
+    else inconclusive at 10 games."""
+    if hi < 0:
+        return "confirms"
+    if lo > 0:
+        return "contradiction"
+    return "inconclusive at 10 games"
+
+
+def score_rows(rows, parts: dict) -> dict:
+    """Both arms on rows built by the scorer's path; every number of the confirmation."""
+    import numpy as np
+    g = rows["sportvu_game"].astype(str).to_numpy()
+    y = rows["made"].astype(int).to_numpy()
+    p = {a: predict_arm(parts[a], rows) for a in ("baseline", "new")}
+    if not all(np.isfinite(v).all() for v in p.values()):
+        raise SystemExit(f"{WHO}: a prediction is not finite")
+    loss = {a: RX.per_shot_loss(y, v) for a, v in p.items()}
+    paired = RX.paired_by_game(g, loss["new"], loss["baseline"])
+    return {"shots": int(len(y)), "games": int(len(set(g))),
+            "has_contest_share": float(rows["has_contest"].mean()),
+            "new_feature_coverage": {c: float(np.isfinite(rows[c].to_numpy(float)).mean()) for c in NEW_FEATURES},
+            "arms": {a: RX._arm_metrics(y, v) for a, v in p.items()},
+            "arm_intervals_95": {a: RX.arm_intervals(g, y, v) for a, v in p.items()},
+            "paired_new_minus_baseline": paired,
+            "t_interval_new_minus_baseline_per_game": RX.per_game_t_interval(g, loss["new"], loss["baseline"]),
+            "reading": reading(paired["lo"], paired["hi"])}
+
+
+def fit_dev_arms(frame, games) -> dict:
+    rows = frame[frame["sportvu_game"].astype(str).isin(set(games))].reset_index(drop=True)
+    cols = arm_columns()
+    return {a: fit_arm(rows, cols[a]) for a in ("baseline", "new")}
+
+
+def clean_head() -> str:
+    import subprocess
+    dirty = subprocess.run(["git", "status", "--porcelain"], cwd=REPO_ROOT, capture_output=True, text=True,
+                           check=True).stdout.strip()
+    if dirty:
+        raise SystemExit(f"{WHO}: the working tree is not clean; commit first:\n{dirty}")
+    return subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True,
+                          check=True).stdout.strip()
+
+
+def sha256_of(path) -> str:
+    import hashlib
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def rehearse(artifacts=None) -> dict:
+    """The scorer's path on 10 development games drawn with seed 0 in place of Set A, both arms fitted on the other
+    development games, rows built from DATA_ROOT by the frozen feature code and add_new_features. Its rows and new
+    features must equal the cached development ones of those games. Not a result: written under the artifacts
+    folder."""
+    import os
+    import random
+    import numpy as np
+    from analytics.xfg import train as T
+    from tools.frozen_common import MemoryGuard
+    from tools.frozen_models import xfg_tables
+    require_passed(RX.research_dir(artifacts) / "xfg_e2_gate", "xfg")
+    frame = with_new_features(artifacts)
+    games = dev_games(frame["sportvu_game"].astype(str).unique(), WHO)
+    stand_in = sorted(random.Random(SEED).sample(games, REHEARSAL_GAMES))
+    parts = fit_dev_arms(frame, [g for g in games if g not in set(stand_in)])
+    root = Path(os.environ["DATA_ROOT"])
+    built, held = T.assemble(xfg_tables(root, MemoryGuard()))       # held-out labels blanked; held rows never used
+    del held
+    built = built[built["sportvu_game"].astype(str).isin(set(stand_in))].reset_index(drop=True)
+    built = add_new_features(root, built)
+    cached = frame[frame["sportvu_game"].astype(str).isin(set(stand_in))].reset_index(drop=True)
+    keys = len(built) == len(cached) and bool(
+        (built[RX.STORED_KEYS].astype(str).to_numpy() == cached[RX.STORED_KEYS].astype(str).to_numpy()).all())
+    same = {c: bool(keys and np.allclose(built[c].to_numpy(float), cached[c].to_numpy(float), equal_nan=True,
+                                         atol=1e-9)) for c in NEW_FEATURES}
+    out = {"what": "rehearsal of the xfg-E2 scorer on 10 development games in place of Set A; not a result",
+           "stand_in_games": len(stand_in), "rows_match_cache": keys, "new_features_match_cache": same,
+           **score_rows(built, parts)}
+    (RX.research_dir(artifacts) / "xfg_e2_rehearsal.json").write_text(json.dumps(out, indent=2) + "\n")
+    if not keys or not all(same.values()):
+        raise SystemExit(f"{WHO}: the scorer's rows or features differ from the development ones: {same}")
+    return out
+
+
+def make_scorer(parts: dict, artifacts=None):
+    """The scorer score_once runs. The test data is reached only here."""
+    from tools import research_testset as RT
+    from tools.research_testset import TRACKING
+    from tools.research_xfg import research_data_root, test_features
+
+    def scorer(test_games):
+        if RT._SCORING is None or RT._SCORING[1] != TRACKING:
+            raise SystemExit(f"{WHO}: the test data is read only inside the scorer that score_once runs")
+        rows = add_new_features(research_data_root(artifacts), test_features(sorted(test_games), artifacts))
+        return {"experiment": EXPERIMENT, "stage": "fitted on every development game, scored once on the D71 test "
+                "set as a D121 confirmation", **score_rows(rows, parts)}
+
+    return scorer
+
+
+def final(artifacts=None) -> dict:
+    """The one Set A score (D121): only when development adopts and the rehearsal ran."""
+    head = clean_head()
+    from tools.research_testset import TRACKING, score_once
+    gate_record = require_passed(RX.research_dir(artifacts) / "xfg_e2_gate", "xfg")
+    dev_path = RESULTS / "xfg-E2-dev.json"
+    dev_out = json.loads(dev_path.read_text())
+    if not dev_out["verdict"]["adopts_on_development"]:
+        raise SystemExit(f"{WHO}: development does not adopt, so Set A is not scored (D121, D109)")
+    if not (RX.research_dir(artifacts) / "xfg_e2_rehearsal.json").exists():
+        raise SystemExit(f"{WHO}: rehearse the scorer first")
+    if not RX.test_root_ready(artifacts):
+        raise SystemExit(f"{WHO}: the research data root has no ingested games; run tools.research_ingest first")
+    frame = with_new_features(artifacts)
+    parts = fit_dev_arms(frame, dev_games(frame["sportvu_game"].astype(str).unique(), WHO))
+    scorer = make_scorer(parts, artifacts)
+    out = score_once(EXPERIMENT, TRACKING, scorer)
+    record = {"experiment": EXPERIMENT, "code_commit": head, "dev_json_sha256": sha256_of(dev_path),
+              "gate": gate_record, "rule": "D121 with D108's readings: confirms if the 95 percent interval of new "
+              "minus baseline lies wholly below 0, inconclusive at 10 games if it straddles 0, contradiction if "
+              "wholly above 0 (stops the adoption); the t interval on the per-game means is reported beside it",
+              "projected_10_game_half_width": dev_out["per_game_sd_new_minus_baseline"]["projected_10_game_half_width"],
+              "scored": out}
+    (RESULTS / "xfg-E2-final.json").write_text(json.dumps(record, indent=2) + "\n")
+    return out
+
+
 def per_game_sd(games, a, b) -> dict:
     """The spread of the per-game mean differences, and the half-width a 10-game test would have from it (normal
     approximation, shot-weighted), reported before any Set A score (D121)."""
@@ -314,7 +470,7 @@ def per_game_sd(games, a, b) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("features", "gate", "dev"))
+    ap.add_argument("command", choices=("features", "gate", "dev", "rehearse", "final"))
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
     a = ap.parse_args(argv)
@@ -323,8 +479,12 @@ def main(argv=None) -> int:
             out = build_features(a.artifacts, a.max_minutes)
         elif a.command == "gate":
             out = gate(a.artifacts)
-        else:
+        elif a.command == "dev":
             out = dev(a.artifacts)
+        elif a.command == "rehearse":
+            out = rehearse(a.artifacts)
+        else:
+            out = final(a.artifacts)
     print(json.dumps(out.get("verdict", out) if isinstance(out, dict) else out, indent=2, default=str))
     return 0
 
