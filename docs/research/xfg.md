@@ -137,6 +137,11 @@ estimate on the site. The pre-registration below is unchanged.
 
 ### xfg-E2: second defender and contest geometry
 
+**Result (2026-11-19, reports/research/xfg-E2.md): adopted as a research result on development; Set A reads
+"inconclusive at 10 games", which is not a contradiction, so the adoption stands (D121).** Development: new minus
+baseline -0.00182 [-0.00222, -0.00141] over 607 games. Set A, scored once: -0.00224 [-0.00657, +0.00192]. The frozen
+xFG model on the site is unchanged. The pre-registration below is unchanged; its commitments are dated.
+
 - Hypothesis. Adding the second closest defender's distance, the angle between the shooter-to-basket line and the
   shooter-to-closest-defender line (contest from the front or from the side), and the closest defender's speed
   toward the shooter's line of shot, all at the release frame, lowers out-of-fold log loss.

@@ -58,7 +58,7 @@ def test_the_committed_source_traces_and_builds(source):
 
 RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
        "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1", "epv-E1",
-       "embeddings-E2", "decisions-E2")   # the experiments with a result file today
+       "embeddings-E2", "decisions-E2", "xfg-E2")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -1875,3 +1875,4 @@ def test_a_states_bar_follows_a_comparison():
     assert R._states_bar("inside 0.9 to 1.1", 0.9) and R._states_bar("inside 0.9 to 1.1", 1.1)
     assert not R._states_bar("95 percent", 95)
     assert not R._states_bar("its 95 percent interval above 0", 95)
+
