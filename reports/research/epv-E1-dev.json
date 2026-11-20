@@ -1,0 +1,278 @@
+{
+  "experiment": "epv-E1",
+  "code_commit": "135bea28654443f188e4c86d4937a13d109e80ab",
+  "stage": "development games only, out of fold under the frozen 5 grouped folds by game (seed 0); no Set A or held-out row read; Set A is not scored (D117)",
+  "piece_commits": [
+    "135bea28654443f188e4c86d4937a13d109e80ab"
+  ],
+  "gates": {
+    "a_baseline_reproduces_frozen_oof": {
+      "states_mine": 1739119,
+      "states_stored": 1739119,
+      "matched": 1739119,
+      "only_mine": 0,
+      "only_stored": 0,
+      "fold_mismatches": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 1e-05,
+      "passed": true
+    },
+    "b_nested_xfg_log_loss": {
+      "log_loss_by_epv_fold": {
+        "0": 0.6292873570291709,
+        "1": 0.6298150661395168,
+        "2": 0.6297892481616169,
+        "3": 0.6296707373898649,
+        "4": 0.6291217120655492
+      },
+      "frozen_interval": [
+        0.6277,
+        0.6316
+      ],
+      "passed": true
+    }
+  },
+  "states": 1739119,
+  "games": 604,
+  "labels": {
+    "0": {
+      "e1": {
+        "states_smoothed": 936201,
+        "possessions_smoothed": 66344
+      },
+      "three_only": {
+        "states_smoothed": 267795,
+        "possessions_smoothed": 19014
+      },
+      "attempts": 66344
+    },
+    "1": {
+      "e1": {
+        "states_smoothed": 934049,
+        "possessions_smoothed": 66284
+      },
+      "three_only": {
+        "states_smoothed": 265203,
+        "possessions_smoothed": 18854
+      },
+      "attempts": 66284
+    },
+    "2": {
+      "e1": {
+        "states_smoothed": 932803,
+        "possessions_smoothed": 66147
+      },
+      "three_only": {
+        "states_smoothed": 266815,
+        "possessions_smoothed": 18966
+      },
+      "attempts": 66147
+    },
+    "3": {
+      "e1": {
+        "states_smoothed": 934342,
+        "possessions_smoothed": 66205
+      },
+      "three_only": {
+        "states_smoothed": 265833,
+        "possessions_smoothed": 18830
+      },
+      "attempts": 66205
+    },
+    "4": {
+      "e1": {
+        "states_smoothed": 936801,
+        "possessions_smoothed": 66420
+      },
+      "three_only": {
+        "states_smoothed": 264302,
+        "possessions_smoothed": 18912
+      },
+      "attempts": 66420
+    }
+  },
+  "overall": {
+    "mse_baseline": {
+      "point": 1.2155396719762996,
+      "ci95": [
+        1.2078891791267052,
+        1.2226545907869752
+      ]
+    },
+    "mse_e1": {
+      "point": 1.238005796282938,
+      "ci95": [
+        1.2293510400338967,
+        1.2458893527241464
+      ]
+    },
+    "mse_three_only": {
+      "point": 1.2207096007491518,
+      "ci95": [
+        1.2127076126045375,
+        1.2281690061383579
+      ]
+    },
+    "brier_baseline": {
+      "point": 0.23500308022197616,
+      "ci95": [
+        0.2345328722904461,
+        0.23546609615525385
+      ]
+    },
+    "brier_e1": {
+      "point": 0.23630896510712807,
+      "ci95": [
+        0.23585640587802278,
+        0.2367530519158511
+      ]
+    },
+    "brier_three_only": {
+      "point": 0.23487631012178017,
+      "ci95": [
+        0.23441950833693165,
+        0.23532782289653734
+      ]
+    },
+    "baseline_minus_e1": {
+      "point": -0.022466124306638583,
+      "ci95": [
+        -0.02432569052909203,
+        -0.020528650844557437
+      ]
+    },
+    "baseline_minus_three_only": {
+      "point": -0.00516992877285233,
+      "ci95": [
+        -0.0061387328844917655,
+        -0.004147019710426743
+      ]
+    }
+  },
+  "slope_all": {
+    "baseline": 0.9640285084853377,
+    "e1": 0.9877703024279864,
+    "three_only": 1.0251491338100047
+  },
+  "buckets": {
+    "0-4": {
+      "states": 443333,
+      "mse_baseline": {
+        "point": 1.2859279261851864,
+        "ci95": [
+          1.279197366926783,
+          1.2922725549645206
+        ]
+      },
+      "mse_e1": {
+        "point": 1.2945129696379765,
+        "ci95": [
+          1.286614080608014,
+          1.3018074053550053
+        ]
+      },
+      "mse_three_only": {
+        "point": 1.284832430332656,
+        "ci95": [
+          1.277655526618404,
+          1.291642774780114
+        ]
+      },
+      "baseline_minus_e1": {
+        "point": -0.008585043452790111,
+        "ci95": [
+          -0.010561434162865273,
+          -0.006561912119006823
+        ]
+      },
+      "slope_baseline": 0.91622449789238,
+      "slope_e1": 0.9219457295219384,
+      "slope_three_only": 0.9358002332196045,
+      "brier_baseline": 0.24885062160438964,
+      "brier_e1": 0.2483202828677933,
+      "brier_three_only": 0.24837108246955794
+    },
+    "4-10": {
+      "states": 585059,
+      "mse_baseline": {
+        "point": 1.2576895555909284,
+        "ci95": [
+          1.2501739050989547,
+          1.2648351430256544
+        ]
+      },
+      "mse_e1": {
+        "point": 1.2751150678773375,
+        "ci95": [
+          1.2668647115178482,
+          1.283062026422775
+        ]
+      },
+      "mse_three_only": {
+        "point": 1.261346904762024,
+        "ci95": [
+          1.2536420790171667,
+          1.268617754655716
+        ]
+      },
+      "baseline_minus_e1": {
+        "point": -0.017425512286409168,
+        "ci95": [
+          -0.019417208254864357,
+          -0.01548292959164414
+        ]
+      },
+      "slope_baseline": 1.0052434852199588,
+      "slope_e1": 1.015604964045207,
+      "slope_three_only": 1.0672615570855748,
+      "brier_baseline": 0.2421443248578322,
+      "brier_e1": 0.2429046351942632,
+      "brier_three_only": 0.2421885641854903
+    },
+    "10-24": {
+      "states": 710727,
+      "mse_baseline": {
+        "point": 1.136936207269204,
+        "ci95": [
+          1.1268003685155614,
+          1.1464307182887785
+        ]
+      },
+      "mse_e1": {
+        "point": 1.1722103389346774,
+        "ci95": [
+          1.1611078128860166,
+          1.1824105530502111
+        ]
+      },
+      "mse_three_only": {
+        "point": 1.1472594759386254,
+        "ci95": [
+          1.1368775893028396,
+          1.1570397544048945
+        ]
+      },
+      "baseline_minus_e1": {
+        "point": -0.03527413166547343,
+        "ci95": [
+          -0.0378923193026392,
+          -0.03258251511508271
+        ]
+      },
+      "slope_baseline": 0.9519664035823666,
+      "slope_e1": 0.9837992275838551,
+      "slope_three_only": 1.0153815295086597,
+      "brier_baseline": 0.2204867870276885,
+      "brier_e1": 0.22338716856317015,
+      "brier_three_only": 0.22043929286266567
+    }
+  },
+  "verdict": {
+    "rule": "MSE(baseline) - MSE(e1) with its 95 percent interval above 0 and e1's 0 to 4 s calibration slope inside 0.9 to 1.1, out of fold on the development games (D117)",
+    "diff_ci_above_zero": false,
+    "slope_0_4_e1": 0.9219457295219384,
+    "slope_inside": true,
+    "passes": false
+  },
+  "peak_gb": 1.61
+}

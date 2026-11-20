@@ -107,6 +107,14 @@ No paper we could check reports an expected-points error for basketball possessi
 - Backlog: expected gain 2 of 5 (the shuffled check and the 0 to 4 s table say most outcome noise is irreducible; a
   label with less noise can only help estimation, not remove that noise). Effort 2 of 5 (one new label column, refits
   with frozen code, no new data).
+- Amendment (PLAN.md D117, 2026-11-19, written before any development number): the D71 test set is Set A, 10 games of
+  one date (about 25,000 to 30,000 states), which cannot decide the paired MSE difference (projected half-width about
+  0.010 against a plausible effect of a few thousandths) or the 0 to 4 s calibration slope; the 604 development games
+  can (paired half-width about 0.0013). Development decides, as pre-registered: the paired difference MSE(baseline)
+  minus MSE(E1) with its 95 percent interval above 0, and the 0 to 4 s slope inside 0.9 to 1.1, out of fold, with the
+  full pre-registered ablation. Two gates come first: the baseline GRU refit out of fold reproduces the frozen
+  out-of-fold record, and the xFG refit inside each EPV fold reproduces the frozen xFG out-of-fold log loss within its
+  interval. Set A is not scored whatever development shows; no Set A path is written.
 
 ### epv-E2: multi-entity attention over raw positions
 

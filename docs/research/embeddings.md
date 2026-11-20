@@ -178,6 +178,58 @@ number exists:
   readable basis maps.
 - Backlog: expected gain 2 (plausible but unproven gain in reliability); effort 2 (reuses E1's pass and metric).
 
+#### Amendment (PLAN.md D118, 2026-11-19, written before any development number or run)
+
+Why: read through D103, the test above is E1's one-game test on Set A, scored for both arms: NMF minus frozen, paired,
+on the Set A players with at least 50 possessions in their test game, with a bootstrap of the 10 games. From
+embeddings-E1's only test-set paired interval (raw features minus PCA, +0.088 [0.040, 0.140], half-width about 0.05),
+that test has about 50 percent power at the +0.05 threshold, so a fail would say little. D118 therefore applies the
+D107 pattern, keeping the pre-registered metric and threshold:
+
+- Development decides, on the pre-registered development metric: split-half top-5 self-retrieval, NMF minus frozen,
+  paired on the same queries. Adopted if the difference is at least +0.05 and the lower end of its 95 percent
+  interval is above zero. The interval is a bootstrap of the queries by player, 2000 resamples, pool held fixed (E1's
+  commitment 6; PLAN.md D86). The pre-registered game bootstrap (resample games, rebuild the halves, re-transform and
+  re-embed with the fixed fits) is computed and shown as a range, not read.
+- Known before any number: the split-half ceiling makes a pass hard. The frozen arm's split-half rate is 0.920 and the
+  19 raw features reach 0.950 (embeddings-E1), so a pass needs 0.970 or better.
+- Leave one game out (D103's matched comparator) is reported beside it, NMF minus frozen with a bootstrap of games,
+  and decides nothing.
+- Set A: if development adopts, Set A is scored once (entry "embeddings-E2") as a consistency check of the one-game
+  paired difference, NMF minus frozen, bootstrap of the 10 games, 2000 resamples, with D107's readings: "confirms" if
+  the interval excludes zero in the development direction, "consistent" if it contains the development estimate,
+  "inconsistent" if it excludes it. Only "inconsistent" stops an adoption. If development does not adopt, Set A is not
+  scored. Set A was read once before, by embeddings-E1, whose frozen arm is this experiment's control.
+
+Design, fixed now (code: tools/research_embeddings_e2.py):
+
+1. Two non-negative bases on a 1 ft half-court grid (47 by 50 cells, the offence attacking the left basket, cell
+   (floor(x), floor(y)), coordinates outside the half clipped to the edge cells):
+   - Shot basis: the attempt locations of the frozen shot table (court_x, court_y, left-basket frame), shooters
+     resolved as the frozen lane resolves them. No outcome column is read.
+   - Court basis: the player's offensive frames in the attacked half, positions mirrored as the frozen lane mirrors
+     them (the same frames the frozen zone shares count).
+2. Each basis has 10 maps, fitted by sklearn NMF (Kullback-Leibler loss, multiplicative updates, nndsvda
+   initialisation, seed 0, at most 1000 iterations) on the full-season development rates (histogram over its total)
+   of the 399 player-seasons of the frozen fit; for the shot basis, those with at least one attempt. No smoothing: a
+   stated deviation from Miller et al., who smooth with a log-Gaussian Cox process.
+3. Weights for any set of games (full season, half, one game, rest of season) come from the rates of that set with
+   the basis held fixed: the same multiplicative updates on the weights only, from the same constant start for every
+   row (never a player's own values), to a fixed tolerance. Weights are divided by their sum, as the shares they
+   replace sum over zones. A set with no attempt (or no offensive half-court frame) has no weights (missing), as the
+   frozen shares are missing then.
+4. NMF arm: the six shot-zone shares become the 10 shot-basis weights and the six court-zone shares the 10
+   court-basis weights; the other 7 of the 19 features are unchanged (27 features). Ablation: the shot basis only (the
+   six shot-zone shares become the 10 shot-basis weights; the court-zone shares stay; 23 features). Each arm then runs
+   the frozen pipeline unchanged (median imputation, standardisation, PCA to 8), fitted on the same 399 rows.
+5. Gate on the new data path: the histogram pass reads each development game's frames once, one game at a time, and
+   also counts the frozen six zone cells from its own mirrored positions; per player and game these must equal the
+   frozen partials of embeddings-E1's gate exactly, and each court histogram must sum to the six zone counts. Each
+   player-game's shot histogram must sum to the frozen attempts. The frozen arm is E1's gated rebuild, unchanged.
+6. Queries, pools, halves, possession floors, the retrieval rule, the position-only retriever and every interval are
+   embeddings-E1's (commitments 1 to 6 of its amendment). The 17 spent held-out games are never read; Set A is read
+   only inside score_once.
+
 ## 7. Sources checked (all fetched 2026-11-16)
 
 - Miller, Bornn, Adams and Goldsberry 2014: [arXiv abstract](https://arxiv.org/abs/1401.0942), [PMLR proceedings page](https://proceedings.mlr.press/v32/miller14.html).
