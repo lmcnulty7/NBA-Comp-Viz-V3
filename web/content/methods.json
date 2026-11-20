@@ -29,7 +29,8 @@
     "adopted_research": "Cleared its bar on training games and on the test games. Adopted as a research result only; the site does not change.",
     "ran_result_in_writeup": "Has run. Its result is in its write-up and is not shown on this page yet.",
     "decided_by_part": "Read part by part. Each part has its own result.",
-    "adopted_research_not_contradicted": "Cleared its bar on training games. The test games did not contradict it. Adopted as a research result only; the site does not change."
+    "adopted_research_not_contradicted": "Cleared its bar on training games. The test games did not contradict it. Adopted as a research result only; the site does not change.",
+    "adopted_research_confirmed": "Cleared its bar on training games. The test games confirm its direction. Adopted as a research result only; the site does not change."
   },
   "results": {
     "title": "Tests run so far",
@@ -130,7 +131,8 @@
     "holds": "The range holds it",
     "notHolds": "The range does not hold it",
     "notContradicted": "Not contradicted",
-    "contradicted": "Contradicted"
+    "contradicted": "Contradicted",
+    "beside": "Read beside it, by no rule"
   },
   "lane": {
     "foundations": "Built on",

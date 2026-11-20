@@ -957,7 +957,8 @@ export interface Experiment {
     | "adopted_research"
     | "ran_result_in_writeup"
     | "decided_by_part"
-    | "adopted_research_not_contradicted";
+    | "adopted_research_not_contradicted"
+    | "adopted_research_confirmed";
   writeup?: string | null;
   writeup_notes?: string[];
   stages?: "development_and_test" | "test_only";
@@ -1031,6 +1032,7 @@ export interface StageResult {
   reading?: string | null;
   values: StageValue[];
   test_set?: string | null;
+  beside?: StageValue[];
 }
 /**
  * A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the

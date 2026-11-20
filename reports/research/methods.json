@@ -618,13 +618,153 @@
      "title": "train on the whole miss (within-miss softmax objective)",
      "what": "train on the whole miss (within-miss softmax)",
      "hypothesis": "A boosted model trained with the within-miss softmax cross entropy (the listwise loss of Cao et al. 2007 for one winner per list), on the same features, beats the frozen binary model plus temperature in per-miss log loss, because it learns that candidates compete.",
-     "threshold": "Paired difference at most -0.010 with its 95 percent interval excluding 0, on development games and again on the D71 test set scored once. The bar is higher than E1 because it replaces the model, not a calibration step.",
+     "threshold": "Baseline: rebounds-E1 is not adopted on development (E1 minus baseline -0.0046 [-0.0055, -0.0038], above its -0.005 bar; reports/research/rebounds-E1-dev.json), so E2's baseline is the frozen hgb with tau, as fixed above. Its out-of-fold probabilities are rebounds-E1's refit, reused, not refitted: the fold pieces of tools/research_rebounds.py (commit e8909861), whose gate A passed (all 537,175 candidate rows matched, largest difference 2.98e-8 within the 2^-24 tolerance of D126, per-miss log loss 1.600912 against the frozen 1.6009). Feasibility, before any E2 number, on the frozen stored out-of-fold rows of the 604 development games (tools/research_rebounds_e2.py, e2-feasibility), with the frozen logit against the frozen hgb as a proxy for replacing the model: per-miss SD of the difference 0.714 (49,288 misses); random 10-game sets give a half-width of 0.0515, about five times the -0.010 bar; the development games give 0.0063. Set A cannot decide at the bar. As D125: the development games decide (softmax minus baseline at most -0.010 with the 95 percent interval excluding zero). Commitments, fixed now (code: tools/research_rebounds_e2.py): 1. Folds and rows are rebounds-E1's: its five outer folds (grouped by game, seed 0), its candidate rows (rebuilt with the frozen code and checked against the frozen record), and for each fold its training and test rows. The softmax arm and the binary ablation are fitted on a fold's training rows and predict its test rows; each miss's rows are checked contiguous with one rebounder, and every arm's probabilities sum to 1 per miss. 2. The interval is a bootstrap of the 604 development games, 2000 resamples, seed 0, paired on the same misses. Reported beside the rule and read by none: binary minus baseline, softmax minus binary, top-1, the favourite's calibration slope (point estimate) and the binary arm's tau per fold. 3. Before any score, the Set A half-width is projected from the development per-game spread of the softmax minus baseline difference, as D125 does. 4. If development adopts, Set A is scored once as a confirmation with D108's readings: \"confirms\" if the interval lies wholly below zero, \"inconclusive at 10 games\" if it straddles zero, \"contradiction\" if it lies wholly above zero, which stops the adoption; a t interval on the 10 per-game means beside it (report only). The scorer builds Set A's rebound frames with the frozen builder inside score_once. With a projected half-width near 0.05, \"inconclusive at 10 games\" is the expected reading and is said so now. If development does not adopt, Set A is not scored. 5. Known before this run: rebounds-E1's development result. Nothing in E2 was chosen after it: the model, its settings, the ablation and the bar are the pre-registration's, and the code was committed (ff0860ff) before E1 decided.",
      "rank": 18,
      "gain": 3,
      "effort": 3,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: adopted as a research result on development (softmax minus baseline per-miss log loss -0.019327 [-0.021138, -0.017642]); Set A scored once, confirms under D127 (-0.015837 [-0.028443, -0.003126]); the report-only t interval just reaches above zero; the site's rebound model is unchanged; reports/research/rebounds-E2.md",
+     "results": {
+      "metric": "Out-of-fold per-miss log loss, softmax (whole miss) minus the frozen model",
+      "rows_unit": "misses",
+      "interval": "Bootstrap by game, 2000 resamples, 95 percent interval.",
+      "development": "reports/research/rebounds-E2-dev.json",
+      "test": "reports/research/rebounds-E2-final.json",
+      "design": "stage",
+      "rule_quote": {
+       "from": "dossier",
+       "texts": [
+        "As D125: the development games decide (softmax minus baseline at most -0.010 with the 95 percent interval excluding zero)."
+       ]
+      },
+      "comparison": "below",
+      "threshold": 0,
+      "main_states": "the 95 percent interval excluding zero",
+      "keys": {
+       "rows": "misses",
+       "games": "games",
+       "diff": "paired.softmax_minus_baseline.value",
+       "lo": "paired.softmax_minus_baseline.lo",
+       "hi": "paired.softmax_minus_baseline.hi",
+       "met": "verdict.met",
+       "main_met": "verdict.interval_excludes_zero"
+      },
+      "conditions": [
+       {
+        "label": "Size: the paired difference itself, at most -0.010",
+        "value": "paired.softmax_minus_baseline.value",
+        "lo": "paired.softmax_minus_baseline.lo",
+        "hi": "paired.softmax_minus_baseline.hi",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold_key": "verdict.threshold",
+        "sign": 1,
+        "met": "verdict.size_at_most_threshold",
+        "digits": 6
+       }
+      ],
+      "equalities": [
+       [
+        "verdict.difference",
+        "paired.softmax_minus_baseline.value"
+       ],
+       [
+        "verdict.lo",
+        "paired.softmax_minus_baseline.lo"
+       ],
+       [
+        "verdict.hi",
+        "paired.softmax_minus_baseline.hi"
+       ]
+      ],
+      "digits": 6,
+      "values": [
+       {
+        "label": "Ablation, read by no rule: XGBoost with the binary objective and tau, minus the frozen model",
+        "value": "paired.binary_minus_baseline.value",
+        "lo": "paired.binary_minus_baseline.lo",
+        "hi": "paired.binary_minus_baseline.hi",
+        "digits": 6
+       },
+       {
+        "label": "Report only: softmax minus the binary ablation",
+        "value": "paired.softmax_minus_binary.value",
+        "lo": "paired.softmax_minus_binary.lo",
+        "hi": "paired.softmax_minus_binary.hi",
+        "digits": 6
+       },
+       {
+        "label": "Projected half-width of the 10-game Set A interval, reported before the score (point estimate)",
+        "value": "projected_set_a.random_10_game_sets_half_width",
+        "digits": 6
+       }
+      ],
+      "by_stage": {
+       "test": {
+        "metric": "Set A, scored once as a confirmation (D127, D108): per-miss log loss, softmax minus the frozen model, both fitted on every development game",
+        "design": "scored.stage",
+        "comparison": "not_wholly_above",
+        "threshold": 0,
+        "main_states": "contradiction if wholly above 0",
+        "keys": {
+         "rows": "scored.misses",
+         "games": "scored.games",
+         "diff": "scored.paired.softmax_minus_baseline.value",
+         "lo": "scored.paired.softmax_minus_baseline.lo",
+         "hi": "scored.paired.softmax_minus_baseline.hi",
+         "rule": "setup.rule",
+         "reading": "scored.reading"
+        },
+        "readings": {
+         "confirms": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0,
+          "met": true
+         },
+         "inconclusive": "met_otherwise",
+         "contradiction": "not_met"
+        },
+        "conditions": [],
+        "equalities": [],
+        "digits": 6,
+        "values": [
+         {
+          "label": "Report only (D80), read by no rule: t interval on the 10 per-game mean differences; it just reaches above zero and would read inconclusive",
+          "value": "scored.t_interval_softmax_minus_baseline_per_game.mean_of_game_means",
+          "lo": "scored.t_interval_softmax_minus_baseline_per_game.lo",
+          "hi": "scored.t_interval_softmax_minus_baseline_per_game.hi",
+          "digits": 6,
+          "beside": true
+         },
+         {
+          "label": "Ablation, read by no rule: binary minus the frozen model on Set A",
+          "value": "scored.paired.binary_minus_baseline.value",
+          "lo": "scored.paired.binary_minus_baseline.lo",
+          "hi": "scored.paired.binary_minus_baseline.hi",
+          "digits": 6
+         }
+        ]
+       }
+      }
+     },
+     "threshold_label": "Amendment (PLAN.md D127, D125's pattern, 2026-11-20, written before any rebounds-E2 development number)",
+     "writeup": "reports/research/rebounds-E2.md",
+     "adopted_as": "research_result",
+     "writeup_notes": [
+      "Verdict: adopted as a research result on development; Set A, scored once, reads \"confirms\" under D127.",
+      {
+       "section": "What is tested",
+       "text": "The 2026-11-16 threshold line also asked for a Set A pass; D127 (26b0694b, fixed before any development number) replaced that with a confirmation read."
+      },
+      "Beside it, plainly: the report-only t interval on the 10 per-game means, [-0.031839, +0.000153], just reaches above zero and would read \"inconclusive at 10 games\".",
+      "The rule reads the bootstrap, as committed; with 10 games, read the confirmation as modest.",
+      "The site's rebound model is unchanged.",
+      {
+       "section": "Set A (D127 confirmation, scored once)",
+       "text": "Report only, read by no rule and not leaned on: under the original threshold of 2026-11-16 (at most -0.010 with the interval excluding zero), the Set A point -0.015837 and its bootstrap interval would also have met it."
+      }
+     ]
     }
    ]
   },

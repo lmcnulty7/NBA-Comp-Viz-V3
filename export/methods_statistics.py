@@ -283,4 +283,18 @@ RULE_STATISTICS = {
             },
         },
     },
+    'rebounds-E2': {
+        '|development': {
+            "main": 'paired.softmax_minus_baseline.value | paired.softmax_minus_baseline.lo | paired.softmax_minus_baseline.hi',
+            "conditions": {
+                'verdict.size_at_most_threshold':
+                    'paired.softmax_minus_baseline.value | paired.softmax_minus_baseline.lo | paired.softmax_minus_baseline.hi',
+            },
+        },
+        '|test': {
+            "main": 'scored.paired.softmax_minus_baseline.value | scored.paired.softmax_minus_baseline.lo | scored.paired.softmax_minus_baseline.hi',
+            "conditions": {
+            },
+        },
+    },
 }

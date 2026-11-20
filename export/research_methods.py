@@ -330,14 +330,14 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             labels = [part.get("label") for part in exp.get("parts", [])]
             if len(set(labels)) != len(labels):
                 problems.append(f"{eid}: every part has its own label")
-            d_label = re.match(r"Decision \((D\d+)\)", exp.get("threshold_label") or "")
+            d_label = re.match(r"(?:Decision \(|Amendment \(PLAN\.md )(D\d+)", exp.get("threshold_label") or "")
             if d_label and bullets.get(eid, {}).get("threshold") and _flat(exp["threshold"]) != bullets[eid]["threshold"]:
                 # the rule shown is a D line's, not the pre-registered adoption threshold: a note quotes the
                 # write-up saying that D line replaced it
                 if not any(d_label.group(1) in _note_place(n)[1] and "replaced" in _note_place(n)[1]
                            for n in exp.get("writeup_notes", [])):
                     problems.append(f"{eid}: the rule shown is {d_label.group(1)}'s, so a write-up note says "
-                                    f"{d_label.group(1)} replaced the adoption threshold")
+                                    f"{d_label.group(1)} replaced the original threshold")
             unknown = set(exp) - EXPERIMENT_KEYS
             if unknown:
                 problems.append(f"{eid}: {sorted(unknown)} are no keys of an experiment")
@@ -586,6 +586,8 @@ def check_results_spec(results: dict) -> None:
         missing = [key for key in CONDITION_KEYS if key not in condition and not (point_only and key in ("lo", "hi"))]
         if "threshold" not in condition and "threshold_key" not in condition:
             missing.append("threshold")
+        if "threshold_key" in condition and not isinstance(condition["threshold_key"], str):
+            missing.append("threshold_key (a key path)")
         if missing:
             raise MethodsProblem(f"the condition {condition.get('label')!r} lacks {missing}")
         if condition["comparison"] not in SCHEMA_COMPARE:
@@ -778,6 +780,12 @@ def _rule_statistics(results: dict, places_of: dict) -> dict:
     return out
 
 
+def _d108_reading(lo: float, hi: float, bar: float) -> str:
+    """D108's reading of an interval against its bar: confirms wholly below, contradiction wholly above, else
+    inconclusive."""
+    return "confirms" if hi < bar else "contradiction" if lo > bar else "inconclusive"
+
+
 def _close(a: float, b: float) -> bool:
     return abs(a - b) <= 5e-4 * max(1.0, abs(b))
 
@@ -861,6 +869,9 @@ def _bar_matches(text: str, comparison: str, threshold: float, conditions: list,
 # difference ("candidate_minus_baseline"); a report-only reading never.
 OTHER_ARMS = ("frozen", "baseline", "ablation", "three_only", "control", "secondary", "shrink_zero")
 COMPARATOR_ARMS = ("frozen", "baseline")
+# Arm names that are an ablation in some experiment (rebounds-E2's binary objective): a value read from one says it
+# is report only in its label. They are not refused in a rule path, where the held statistics already decide.
+ABLATION_VALUE_WORDS = ("binary",)
 RULE_PATH_KEYS = ("diff", "lo", "hi", "upper", "rows", "games", "met", "main_met", "threshold", "reading")
 
 
@@ -888,7 +899,7 @@ def rule_path_problems(results: dict) -> list:
     for value in results.get("values", []):
         named = [value.get(k) for k in ("value", "lo", "hi") if isinstance(value.get(k), str)]
         other_arm = any(arm in segment for p in named for segment in p.split(".")
-                        for arm in OTHER_ARMS if arm not in COMPARATOR_ARMS)
+                        for arm in OTHER_ARMS + ABLATION_VALUE_WORDS if arm not in COMPARATOR_ARMS)
         if any("report_only" in p or "t_interval" in p for p in named) or other_arm:
             if not re.search(r"report[ -]only|read by no rule|^ablation|^sensitivity check", value["label"], re.I):
                 problems.append(f"the value {value['label']!r} is a report-only reading and its label does not say so")
@@ -1018,7 +1029,8 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         if comparison not in ("below", "above") or "interval" not in results["main_states"]:
             raise MethodsProblem(f"{rel}: a bar stated in words is the interval's, read strictly (below or above)")
         if _flat(results["main_states"]) not in _flat(rule) or not re.search(
-                rf"(?:excludes|excluding|below|above)\s+{re.escape(number_text(threshold))}\b",
+                rf"(?:excludes|excluding|below|above)\s+(?:{re.escape(number_text(threshold))}\b"
+                + (r"|zero\b)" if threshold == 0 else ")"),
                 _flat(results["main_states"])):
             raise MethodsProblem(f"{rel}: the rule does not say {results['main_states']!r} with its bar {threshold}")
     elif not states(rule, comparison, threshold):
@@ -1265,7 +1277,7 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         while compare(round(upper, digits), round(threshold, digits)) != main and digits < 17:
             digits += 1
 
-    values = []
+    values, beside = [], []          # beside: report-only values shown in the stage itself, next to the verdict
     for spec in results["values"]:
         if spec.get("stage", stage) != stage:      # a value one stage's file reports and the other's does not
             continue
@@ -1284,9 +1296,33 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
             expected = fits[0] if fits else next(w for w, k in spec["reading_rule"].items() if k == "otherwise")
             if value_reading != expected:
                 raise MethodsProblem(f"{rel}: {spec['reading']} reads {value_reading!r}, its numbers give {expected!r}")
-        values.append(S.StageValue(label=spec["label"], reading=value_reading,
+        named_paths = [spec.get(k) for k in ("value", "lo", "hi") if isinstance(spec.get(k), str)]
+        if comparison == "not_wholly_above" and any("t_interval" in p for p in named_paths):
+            # a second interval of the statistic (the t interval, D80) read by D108's words: shown beside the verdict
+            # exactly when it reads otherwise than the rule's interval
+            reads_otherwise = _d108_reading(float(at(spec["lo"], file)), float(at(spec["hi"], file)),
+                                            threshold) != _d108_reading(lo_v, hi_v, threshold)
+            if bool(spec.get("beside")) != reads_otherwise:
+                raise MethodsProblem(f"{rel}: the t interval {spec['label']!r} reads "
+                                     f"{_d108_reading(float(at(spec['lo'], file)), float(at(spec['hi'], file)), threshold)!r}"
+                                     f" against the rule's {_d108_reading(lo_v, hi_v, threshold)!r}, so beside is "
+                                     f"{reads_otherwise}")
+        elif spec.get("beside"):
+            raise MethodsProblem(f"{rel}: only a second interval of the rule's statistic that reads otherwise (a t "
+                                 f"interval) is shown beside the verdict, not {spec['label']!r}")
+        target = beside if spec.get("beside") else values
+        if spec.get("beside") and not re.search(r"report[ -]only|read by no rule", spec["label"], re.I):
+            raise MethodsProblem(f"{rel}: a value shown beside the rule, {spec['label']!r}, says it is report only")
+        target.append(S.StageValue(label=spec["label"], reading=value_reading,
                                    value=round(float(at(spec["value"], file)), spec["digits"]),
                                    lo=lo, hi=hi, point_estimate=lo is None))
+    if comparison == "not_wholly_above":
+        # every t interval the file holds beside the confirmation is shown: none can be left off the page
+        scored_keys = [k for k in (doc.get("scored") or {}) if k.startswith("t_interval")]
+        shown = " ".join(str(spec.get(k)) for spec in results["values"] for k in ("value", "lo", "hi"))
+        unshown = [k for k in scored_keys if f"scored.{k}." not in shown]
+        if unshown:
+            raise MethodsProblem(f"{rel}: the file holds {unshown} beside the confirmation, which no value shows")
     rows = "testset" if stage == "test" else "out_of_fold"
     what = ("experiment result: fitted on every development game, scored once on the D71 test set" if stage == "test"
             else "experiment result: out of fold on the development games")
@@ -1331,7 +1367,7 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         interval=results["interval"], threshold=round(threshold, digits), upper=round(upper, digits),
         comparison=comparison, conditions=conditions, guard=guards[0] if len(guards) == 1 and results.get("guard")
         else None, guards=guards if not (len(guards) == 1 and results.get("guard")) else [], met=met,
-        reading=reading_word, values=values, test_set=test_set)
+        reading=reading_word, values=values, beside=beside, test_set=test_set)
 
 
 def _protocol_trace(eid: str, exp: dict, protocol: dict, repo: Path) -> list:
@@ -1621,8 +1657,9 @@ def _status(dev, test, adopted_as=None) -> str:
         return "development_met_test_pending"
     if not test.met:
         return "not_adopted_test"
-    if test.comparison == "not_wholly_above":       # a confirmation read: not contradicted, not passed
-        return "adopted_research_not_contradicted"
+    if test.comparison == "not_wholly_above":       # a confirmation read: confirmed, or only not contradicted
+        return ("adopted_research_confirmed" if (test.reading or "").startswith("confirms")
+                else "adopted_research_not_contradicted")
     return "adopted_research" if adopted_as == "research_result" else "adopted"
 
 

@@ -203,6 +203,8 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
         await expect(shown).toHaveAttribute("data-guard-met", String(guard.met));
       }
       await expect(facts.getByTestId("also-read")).toHaveCount((stage.also_read ?? []).length);
+      // a report-only value the stage shows beside its verdict (rebounds-E2's t interval) is in the stage itself
+      await expect(facts.getByTestId("beside").locator("li")).toHaveCount((stage.beside ?? []).length);
       // a reading word the file states (ghosting-E1's D113 reading on Set A) is shown as written
       await expect(facts.getByTestId("reading")).toHaveCount(stage.reading ? 1 : 0);
       if (stage.reading) await expect(facts.getByTestId("reading")).toContainText(stage.reading);
