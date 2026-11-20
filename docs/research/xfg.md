@@ -198,6 +198,26 @@ estimate on the site. The pre-registration below is unchanged.
   about 30 minutes; no held-out game is read (the frozen guards run on every game id); Set A frames are read only
   inside the score_once scorer.
 
+#### xfg-E2 Set A confirmation, fixed after the development result and before any score (2026-11-19)
+
+- Development adopts (reports/research/xfg-E2-dev.json: new minus baseline -0.00182 [-0.00222, -0.00141] over 607
+  games), so Set A is scored once as D121 says. The projected 10-game half-width from the development per-game
+  spread is 0.0034 (normal approximation, the spread of 607 per-game mean differences, 0.0055).
+- The scorer fits the baseline and the new arm on every development game (the same fit as development, seed 0), then,
+  inside score_once("xfg-E2", Set A), builds the Set A rows with the frozen feature code from the research data root
+  (as xfg-E1's scorer) and the three new features from the same root's frames and possessions with the code that
+  built the development features, and scores both arms once.
+- Readings (D121, D108): the paired per-shot log loss difference (new minus baseline) with a 2000-resample bootstrap
+  of the 10 games: "confirms" if its 95 percent interval lies wholly below 0, "inconclusive at 10 games" if it
+  straddles 0, "contradiction" if it lies wholly above 0, which stops the adoption. Beside it, reported and read by
+  no rule: the t interval on the 10 per-game mean differences (D80), per-arm log loss, Brier, calibration slope and
+  ECE with game-bootstrap intervals, the share of Set A rows with contest features, and the ablation is not scored
+  on Set A.
+- Before the score the scorer is rehearsed: the same function on 10 development games drawn with seed 0 in place of
+  Set A, with both arms fitted on the other development games and the rows built from DATA_ROOT by the scorer's own
+  path; its new features must equal the cached development features of those games. The rehearsal's numbers are not
+  a result and are not reported as one.
+
 ## 7. Sources checked (all fetched 2026-11-16)
 
 | source | link | what was read |

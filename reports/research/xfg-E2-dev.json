@@ -1,0 +1,137 @@
+{
+  "experiment": "xfg-E2",
+  "stage": "development games, 5 grouped outer folds, seed 0",
+  "shots": 101853,
+  "games": 607,
+  "new_feature_coverage": {
+    "second_defender_dist_ft": 0.6125200043199513,
+    "contest_angle_deg": 0.6091425878471916,
+    "defender_speed_to_line_ftps": 0.6074636976819534
+  },
+  "arms": {
+    "baseline": {
+      "log_loss": 0.6294352293918248,
+      "brier": 0.22090462396526844,
+      "calibration_slope": 1.000061790722339,
+      "ece_equal_mass_10": 0.0030663064561626562,
+      "ece_debiased_squared_signed": -9.413122924026067e-06
+    },
+    "new": {
+      "log_loss": 0.6276152398187511,
+      "brier": 0.22013384356676016,
+      "calibration_slope": 1.0016724725716126,
+      "ece_equal_mass_10": 0.00296307938879994,
+      "ece_debiased_squared_signed": -7.814402315428522e-06
+    },
+    "ablation": {
+      "log_loss": 0.6290947330493241,
+      "brier": 0.22073811088877635,
+      "calibration_slope": 0.9961385492394936,
+      "ece_equal_mass_10": 0.002480636611678273,
+      "ece_debiased_squared_signed": -8.066531818583572e-06
+    }
+  },
+  "arm_intervals_95": {
+    "baseline": {
+      "log_loss": [
+        0.6272590337688659,
+        0.6316219306471632
+      ],
+      "brier": [
+        0.2199533694453403,
+        0.22185236913763887
+      ],
+      "calibration_slope": [
+        0.9758963057061969,
+        1.0254100896624532
+      ],
+      "ece_equal_mass_10": [
+        0.0026569526025404244,
+        0.006961103042495499
+      ],
+      "ece_debiased_squared_signed": [
+        -1.0655919831847115e-05,
+        4.691200664401629e-05
+      ]
+    },
+    "new": {
+      "log_loss": [
+        0.6253882310794158,
+        0.6298243214724236
+      ],
+      "brier": [
+        0.21919216245521803,
+        0.22109506680649202
+      ],
+      "calibration_slope": [
+        0.9786460229210356,
+        1.0271413224943213
+      ],
+      "ece_equal_mass_10": [
+        0.002695744806688535,
+        0.006816661301358345
+      ],
+      "ece_debiased_squared_signed": [
+        -1.0379575567151955e-05,
+        4.657537991614603e-05
+      ]
+    },
+    "ablation": {
+      "log_loss": [
+        0.6268815039055865,
+        0.6313021356566672
+      ],
+      "brier": [
+        0.2197892999767645,
+        0.2216740053780823
+      ],
+      "calibration_slope": [
+        0.9728206383191131,
+        1.021432249425455
+      ],
+      "ece_equal_mass_10": [
+        0.0029111624282688402,
+        0.007121403629497234
+      ],
+      "ece_debiased_squared_signed": [
+        -8.366893548501747e-06,
+        5.16765461917172e-05
+      ]
+    }
+  },
+  "paired_new_minus_baseline": {
+    "diff": -0.0018199895730737596,
+    "lo": -0.002223313222634949,
+    "hi": -0.0014069780027855098,
+    "games": 607,
+    "resamples": 2000
+  },
+  "paired_ablation_minus_baseline": {
+    "diff": -0.00034049634250079425,
+    "lo": -0.0006530606535730178,
+    "hi": -2.2977180128509978e-05,
+    "games": 607,
+    "resamples": 2000
+  },
+  "paired_new_minus_ablation": {
+    "diff": -0.0014794932305729654,
+    "lo": -0.001854988918821625,
+    "hi": -0.0011208427036855616,
+    "games": 607,
+    "resamples": 2000
+  },
+  "per_game_sd_new_minus_baseline": {
+    "games": 607,
+    "sd_of_game_means": 0.005521315356943537,
+    "mean_shots_per_game": 167.79736408566723,
+    "projected_10_game_half_width": 0.003422146712769401
+  },
+  "verdict": {
+    "threshold": -0.001,
+    "diff": -0.0018199895730737596,
+    "lo": -0.002223313222634949,
+    "hi": -0.0014069780027855098,
+    "adopts_on_development": true,
+    "set_a": "scored once as a D108 confirmation (D121)"
+  }
+}
