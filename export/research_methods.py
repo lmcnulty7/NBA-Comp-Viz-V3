@@ -732,6 +732,11 @@ def _uncovered_bars(text: str, comparison: str, threshold: float, conditions: li
     flat = _flat(text)
     spans = [(m.start(), m.start() + len(p)) for p in phrases for m in re.finditer(re.escape(p), flat)]
     missing, seen = [], []
+    # a band ("inside 0.9 to 1.1") is two bars: at least its lower number and at most its upper one
+    for m in re.finditer(r"inside\s+([+-]?\d+(?:\.\d+)?)\s+to\s+([+-]?\d+(?:\.\d+)?)", flat):
+        for comp, said in (("at_least", m.group(1)), ("at_most", m.group(2))):
+            if not any(c == comp and abs(v - float(said)) <= 5e-4 * max(1.0, abs(float(said))) for c, v in covered):
+                missing.append(f"{m.group(0)} ({comp.replace('_', ' ')} {said})")
     # longer words first, so "at or above -0.05" is read once, as at least, and not again as "above -0.05"
     for word, comp in sorted(((w, c) for c, ws in COMPARISON_WORDS.items() for w in ws), key=lambda x: -len(x[0])):
         for m in re.finditer(rf"(?<![\w]){word}\s*(zero|[+-]?\d+(?:\.\d+)?|the\s[^,;.]*)", flat):
@@ -805,7 +810,9 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     if "rule" in keys:
         rule = at(keys["rule"])
     elif results.get("rule_quote", {}).get("from") == "dossier":
-        rule = _hypothesis_rule(results, keys, rel)
+        # a hypothesis of several (genai-E2) reads its own quoted rule; any other rule is the quoted sentences
+        rule = (_hypothesis_rule(results, keys, rel) if results.get("hypothesis")
+                else " ".join(results["rule_quote"]["texts"]))
     elif results.get("rule_quote"):
         rule = results["rule_quote"]["text"]
     else:
@@ -1258,7 +1265,7 @@ def _protocol_status(protocol) -> str:
 LEDGER = "reports/research/scoring_ledger.json"
 
 
-NOT_SCORED = re.compile(r"\b(?:Set A|[Tt]he test (?:season|set|games))(?: was| were)? not scored\b")
+NOT_SCORED = re.compile(r"\b(?:Set A|[Tt]he test (?:season|set|games))(?: was| were| is)? not scored\b")
 
 
 def _not_scored_problems(eid: str, exp: dict, repo: Path) -> list:
@@ -1273,7 +1280,9 @@ def _not_scored_problems(eid: str, exp: dict, repo: Path) -> list:
     text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() else ""
     # the verdict paragraph names the test set and says it was not scored ("Set A was not scored", "the test
     # season was not scored", "Set A not scored"), not merely the words "not scored" about something else
-    if not NOT_SCORED.search(" ".join(verdict_paragraph(text))):
+    # or the write-up's own Set A section opens by saying so ("## Set A" then "Not scored (PLAN.md D122): ...")
+    set_a = dossier_paragraphs(section_text(text, "Set A"))
+    if not NOT_SCORED.search(" ".join(verdict_paragraph(text))) and not (set_a and set_a[0].startswith("Not scored")):
         problems.append(f"{eid}: the verdict paragraph of {writeup} does not say the test was not scored")
     ledger_path = repo / LEDGER
     entries = json.loads(ledger_path.read_text(encoding="utf-8")) if ledger_path.is_file() else []

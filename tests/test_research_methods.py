@@ -1144,21 +1144,110 @@ def test_matchups_e1_decides_each_part_on_development_and_reads_set_a_as_a_confi
     assert not b.development.met and not b.test.met and b.test.reading.startswith("inconclusive")
 
 
-def test_epv_e1_is_a_development_fail_kept_in_its_write_up_with_set_a_unscored(source):
-    """epv-E1 (PLAN.md D117): not adopted on development, Set A not scored and no Set A path written. Its rule has two
-    parts (an MSE interval and a 0 to 4 s slope band), so the result stays in its write-up."""
+def test_epv_e1_reads_both_parts_of_its_rule_on_development_and_leaves_set_a_unscored(source):
+    """epv-E1 (PLAN.md D117): the paired MSE difference with its interval above 0 fails; the 0 to 4 s slope band (a
+    point estimate, no interval in the file) holds. Set A is not scored and no Set A path exists."""
     e = _built(source)["epv-E1"]
-    assert (e.status, e.result_in_writeup, e.writeup) == ("ran_result_in_writeup", True, "reports/research/epv-E1.md")
-    assert e.development is None and e.test is None and e.protocol is None and not e.parts
-    assert e.backlog_status.startswith("done: not adopted on development")
-    dev = _file("epv-E1-dev.json")
-    assert dev["verdict"]["passes"] is False and dev["verdict"]["diff_ci_above_zero"] is False
-    assert dev["gates"]["a_baseline_reproduces_frozen_oof"]["passed"] and dev["gates"]["b_nested_xfg_log_loss"]["passed"]
+    dev_file = _file("epv-E1-dev.json")
+    cell = dev_file["overall"]["baseline_minus_e1"]
+    assert (e.status, e.test, e.test_not_scored) == ("not_adopted_development", None, True)
+    dev = e.development
+    assert (dev.diff, dev.lo, dev.hi) == (round(cell["point"], 5), round(cell["ci95"][0], 5), round(cell["ci95"][1], 5))
+    assert (dev.comparison, dev.threshold, dev.upper, dev.met) == ("above", 0, dev.lo, False)
+    low, high = dev.conditions
+    slope = round(dev_file["buckets"]["0-4"]["slope_e1"], 3)
+    assert (low.value, low.lo, low.comparison, low.threshold, low.met) == (slope, None, "at_least", 0.9, True)
+    assert (high.value, high.comparison, high.threshold, high.met) == (slope, "at_most", 1.1, True)
+    assert dev_file["verdict"]["passes"] is False and dev_file["verdict"]["slope_inside"] is True
     assert not (REPO / "reports" / "research" / "epv-E1-final.json").exists()
     ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
     assert not [x for x in ledger if x.get("experiment") == "epv-E1"]
-    text = (REPO / "reports" / "research" / "epv-E1.md").read_text(encoding="utf-8")
-    assert "not scored" in " ".join(R.verdict_paragraph(text)).lower()
+
+
+def test_decisions_e2_reads_its_three_checks_on_development_and_leaves_set_a_unscored(source):
+    """decisions-E2 (PLAN.md D122): the regret coefficient above 0 passes; the paired difference above 0 and the slope
+    inside 0.8 to 1.2 fail. Set A is not scored; the first run's looser filter is shown as report only."""
+    e = _built(source)["decisions-E2"]
+    dev_file = _file("decisions-E2-dev.json")
+    regret = dev_file["metrics"]["new"]["regret_coef"]
+    assert (e.status, e.test, e.test_not_scored) == ("not_adopted_development", None, True)
+    dev = e.development
+    assert (dev.diff, dev.lo, dev.hi) == tuple(round(regret[k], 4) for k in ("point", "lo", "hi"))
+    assert (dev.comparison, dev.threshold, dev.met) == ("above", 0, False) and dev.lo > 0
+    paired, low, high = dev.conditions
+    assert (paired.bound, paired.comparison, paired.met) == ("lo", "above", False)
+    assert (low.bound, low.threshold, low.met, high.threshold, high.met) == ("point", 0.8, False, 1.2, True)
+    checks = dev_file["decision"]["checks"]
+    assert (checks["regret_coef_above_zero"], checks["paired_difference_above_zero"], checks["slope_in_band"]) == (
+        True, False, False)
+    assert any(v.label.startswith("Report only (first run") for v in dev.values)
+    ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
+    assert not [x for x in ledger if x.get("experiment") == "decisions-E2"]
+
+
+def _epv(doc):
+    return _exp(doc, "epv-E1")["results"]
+
+
+def _dec2(doc):
+    return _exp(doc, "decisions-E2")["results"]
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("epv: the slope band dropped", lambda d: _epv(d).update(conditions=[], conjunctions=[]),
+     "which no part of the source reads"),
+    ("epv: one end of the band dropped", lambda d: (_epv(d)["conditions"].pop(), _epv(d)["conjunctions"][0].update(
+        of=["@0"])), "inside 0.9 to 1.1"),
+    ("epv: the band widened", lambda d: _epv(d)["conditions"][1].update(threshold=1.3), "names no threshold"),
+    ("epv: the MSE bar read below", lambda d: _epv(d).update(comparison="below"), "does not state below 0"),
+    ("epv: a rule quote not in the dossier", lambda d: _epv(d)["rule_quote"]["texts"].__setitem__(
+        0, "Development decides: the 0 to 4 s slope inside 0.9 to 1.1."), "not whole sentences"),
+    ("epv: Set A said scored", lambda d: _exp(d, "epv-E1").pop("test_not_scored"), ""),
+    ("decisions-E2: the paired check dropped", lambda d: _dec2(d)["conditions"].pop(0), ""),
+    ("decisions-E2: the slope band dropped", lambda d: (_dec2(d)["conditions"].__delitem__(slice(1, 3)),
+                                                        _dec2(d).update(conjunctions=[])),
+     "which no part of the source reads"),
+    ("decisions-E2: the slope read as passing", lambda d: _dec2(d)["conditions"][1].update(threshold=0.3),
+     "names no threshold"),
+    ("decisions-E2: the main flag read as the paired flag", lambda d: _dec2(d)["keys"].update(
+        main_met="decision.checks.paired_difference_above_zero"), ""),
+])
+def test_epv_e1_and_decisions_e2_are_refused_when_the_source_misreads_them(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert problems, name
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("name, file, change, message", [
+    ("epv said to pass", "epv-E1-dev.json", lambda d: d["verdict"].update(passes=True), "rule read on its own numbers"),
+    ("epv slope flag against its numbers", "epv-E1-dev.json", lambda d: d["verdict"].update(slope_inside=False),
+     "disagrees with the parts it joins"),
+    ("epv slope moved out of the band", "epv-E1-dev.json", lambda d: d["buckets"]["0-4"].update(slope_e1=0.85),
+     "states them as one number"),
+    ("decisions-E2 said to adopt", "decisions-E2-dev.json", lambda d: d["decision"].update(adopt_on_development=True),
+     "rule read on its own numbers"),
+    ("decisions-E2 slope said in band", "decisions-E2-dev.json",
+     lambda d: d["decision"]["checks"].update(slope_in_band=True), "disagrees with the parts it joins"),
+    ("decisions-E2 paired flag against its numbers", "decisions-E2-dev.json",
+     lambda d: d["decision"]["checks"].update(paired_difference_above_zero=True), "disagrees with its lo"),
+])
+def test_an_epv_e1_or_decisions_e2_file_that_contradicts_its_numbers_is_refused(source, tmp_path, name, file, change,
+                                                                                  message):
+    repo = _mutated_repo(tmp_path, source, file, change)
+    with pytest.raises(R.MethodsProblem) as caught:
+        R.build_methods(repo, source)
+    assert message in str(caught.value), (name, str(caught.value))
+
+
+def test_a_set_a_section_that_does_not_open_with_not_scored_is_refused(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / "reports" / "research" / "decisions-E2.md"
+    path.write_text(path.read_text(encoding="utf-8").replace("Not scored (PLAN.md D122)", "Scored later (PLAN.md D122)"),
+                    encoding="utf-8")
+    assert any("decisions-E2: the verdict paragraph" in p for p in R.trace_problems(source, repo))
 
 
 def test_matchups_e2_is_a_development_fail_whose_set_a_was_not_scored(source):
