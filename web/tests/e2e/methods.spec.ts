@@ -122,14 +122,49 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
     }
   }
   const ran = methods.lanes.flatMap((lane) => lane.experiments.filter((e) => e.status !== "pre_registered"));
+  // On real data winprob-E2 is left unscored by name, so the not-scored check below cannot pass by finding no such
+  // experiment. The synthetic fixture has no winprob lane.
+  if (!ran.some((e) => e.id.startsWith("fixture-"))) {
+    expect(ran.find((e) => e.id === "winprob-E2")?.test_not_scored).toBe(true);
+  }
   await expect(page.locator("[data-result]")).toHaveCount(ran.length);
   if (ran.length === 0) await expect(page.getByTestId("no-results")).toHaveText(copy.methods.results.none);
   for (const experiment of ran) {
     const result = page.locator(`[data-result="${experiment.id}"]`);
-    await expect(result.locator("[data-stage]")).toHaveCount((experiment.development ? 1 : 0) + (experiment.test ? 1 : 0));
+    const parts = experiment.parts ?? [];
+    const partStages = parts.flatMap((part) => [part.development, part.test].filter((stage) => stage != null));
+    await expect(result.locator("[data-stage]")).toHaveCount(
+      (experiment.development ? 1 : 0) + (experiment.test ? 1 : 0) + partStages.length,
+    );
+    // An experiment read part by part shows every part, each with its own state and its own stages.
+    await expect(result.locator("[data-part]")).toHaveCount(parts.length);
+    for (const [index, part] of parts.entries()) {
+      const shown = result.locator("[data-part]").nth(index);
+      await expect(shown).toHaveAttribute("data-part", part.label);
+      await expect(shown).toHaveAttribute("data-part-status", part.status);
+      await expect(shown).toContainText(copy.methods.results.part[part.status]);
+      await expect(shown.locator("[data-stage]")).toHaveCount((part.development ? 1 : 0) + (part.test ? 1 : 0));
+      await expect(shown.getByTestId("part-notes").locator("q")).toHaveCount((part.notes ?? []).length);
+      // a test stage on a test set of its own (the genai test players) is headed by that set, never "test games"
+      if (part.test?.test_set) {
+        await expect(shown.locator('[data-stage="test"] h4').first()).toHaveText(part.test.test_set);
+      }
+      for (const stage of [part.development, part.test]) {
+        if (!stage) continue;
+        const facts = shown.locator(`[data-stage="${stage.stage}"]`);
+        await expect(facts).toHaveAttribute("data-met", stage.met ? "true" : "false");
+        await expect(facts.getByTestId("reading")).toHaveCount(stage.reading ? 1 : 0);
+        if (stage.reading) await expect(facts.getByTestId("reading")).toContainText(stage.reading);
+      }
+    }
     if (experiment.status === "development_met_test_pending") {
       await expect(result.getByTestId("test-pending")).toHaveText(copy.methods.results.pending);
     }
+    // The line saying the test was kept unused shows for an experiment left unscored (winprob-E2, gravity-E1,
+    // matchups-E2) and for a part left unscored, and nowhere else.
+    const unscored = (experiment.test_not_scored ? 1 : 0) + (experiment.parts ?? []).filter((p) => p.test_not_scored).length;
+    await expect(result.getByTestId("test-not-scored")).toHaveCount(unscored);
+    if (unscored > 0) await expect(result.getByTestId("test-not-scored").first()).toHaveText(copy.methods.results.notScored);
     const protocol = experiment.protocol;
     await expect(result.locator("[data-protocol]")).toHaveCount(protocol ? 1 : 0);
     if (protocol) {
@@ -160,18 +195,27 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
     for (const stage of [experiment.development, experiment.test]) {
       if (!stage) continue;
       const facts = result.locator(`[data-stage="${stage.stage}"]`);
-      await expect(facts.getByTestId("guard")).toHaveCount(stage.guard ? 1 : 0);
-      if (stage.guard) {
-        await expect(facts.getByTestId("guard").locator("[data-bucket-worse]")).toHaveCount(stage.guard.buckets.length);
-        await expect(facts.getByTestId("guard")).toHaveAttribute("data-guard-met", String(stage.guard.met));
+      const guards = [...(stage.guard ? [stage.guard] : []), ...(stage.guards ?? [])];
+      await expect(facts.getByTestId("guard")).toHaveCount(guards.length);
+      for (const [index, guard] of guards.entries()) {
+        const shown = facts.getByTestId("guard").nth(index);
+        await expect(shown.locator("[data-bucket-worse]")).toHaveCount(guard.buckets.length);
+        await expect(shown).toHaveAttribute("data-guard-met", String(guard.met));
       }
+      await expect(facts.getByTestId("also-read")).toHaveCount((stage.also_read ?? []).length);
+      // a reading word the file states (ghosting-E1's D113 reading on Set A) is shown as written
+      await expect(facts.getByTestId("reading")).toHaveCount(stage.reading ? 1 : 0);
+      if (stage.reading) await expect(facts.getByTestId("reading")).toContainText(stage.reading);
       const conditions = stage.conditions ?? [];
       await expect(facts.locator("[data-condition-met]")).toHaveCount(conditions.length);
       for (const [index, condition] of conditions.entries()) {
         await expect(facts.locator("[data-condition-met]").nth(index)).toHaveAttribute("data-condition-met", String(condition.met));
       }
       await expect(facts).toHaveAttribute("data-met", stage.met ? "true" : "false");
-      await expect(facts).toContainText(stage.met ? copy.methods.results.met : copy.methods.results.missed);
+      const verdict = stage.comparison === "contains"
+        ? (stage.met ? copy.methods.results.holds : copy.methods.results.notHolds)
+        : (stage.met ? copy.methods.results.met : copy.methods.results.missed);
+      await expect(facts).toContainText(verdict);
       const url = repoFileUrl(stage.source.path);
       if (url) await expect(facts.locator(`a[data-report="${stage.source.path}"]`)).toHaveAttribute("href", url);
     }

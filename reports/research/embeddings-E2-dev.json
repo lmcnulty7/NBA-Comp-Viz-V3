@@ -1,0 +1,278 @@
+{
+  "experiment": "embeddings-E2",
+  "stage": "development games (gates passed); development decides (PLAN.md D118)",
+  "pre_registration": "docs/research/embeddings.md, embeddings-E2 and its amendment (D118)",
+  "gate": {
+    "experiment": "embeddings-E2",
+    "games": 604,
+    "player_games": 12897,
+    "compared": "the six frozen zone counts recounted from the histogram pass's own mirrored positions against embeddings-E1's gated frozen partials, per (game, player); each court histogram against those six counts; each shot histogram against the frozen attempts",
+    "rows_on_one_side_only": 0,
+    "zone_count_mismatches": 0,
+    "court_histograms_not_summing_to_zone_counts": 0,
+    "shot_histograms_not_summing_to_attempts": 0,
+    "court_frames_counted": 180951859,
+    "shots_counted": 101058,
+    "e1_gate_files": {
+      "tracking_partials.parquet": "9fcf901b571d8b1eba229691165b881ed556d71a15fa0a0ed0b8b9c63d279176",
+      "shot_partials.parquet": "6cfebe5eb3e4a9afdbc0e7f1f1830e10ddb276abead20a506020a52f4169f0f5"
+    },
+    "passed": true,
+    "written": "2026-11-19T20:29:03Z"
+  },
+  "bases": {
+    "court": {
+      "rows": 399,
+      "n_iter": 290,
+      "converged": true,
+      "reconstruction_err": 7.478266575706936,
+      "transform_check": {
+        "max_abs_diff_of_shares_vs_sklearn_transform": 0.01936082216732144,
+        "rows": 399,
+        "max_iterations": 740,
+        "not_converged": 0
+      }
+    },
+    "shot": {
+      "rows": 397,
+      "n_iter": 120,
+      "converged": true,
+      "reconstruction_err": 31.848024734847318,
+      "transform_check": {
+        "max_abs_diff_of_shares_vs_sklearn_transform": 0.01782000132984396,
+        "rows": 397,
+        "max_iterations": 240,
+        "not_converged": 0
+      }
+    }
+  },
+  "arm_fits": {
+    "nmf": {
+      "columns": [
+        "avg_speed_ftps",
+        "dist_per_poss_ft",
+        "ball_share",
+        "nearest_teammate_ft",
+        "offball_ball_dist_ft",
+        "shot_share_3pt",
+        "attempts_per_poss",
+        "court_basis_0",
+        "court_basis_1",
+        "court_basis_2",
+        "court_basis_3",
+        "court_basis_4",
+        "court_basis_5",
+        "court_basis_6",
+        "court_basis_7",
+        "court_basis_8",
+        "court_basis_9",
+        "shot_basis_0",
+        "shot_basis_1",
+        "shot_basis_2",
+        "shot_basis_3",
+        "shot_basis_4",
+        "shot_basis_5",
+        "shot_basis_6",
+        "shot_basis_7",
+        "shot_basis_8",
+        "shot_basis_9"
+      ],
+      "explained_variance_ratio": [
+        0.2560965966761486,
+        0.11124843569284922,
+        0.0730359492929944,
+        0.05908686416925817,
+        0.050744303983821175,
+        0.042844094032210726,
+        0.04213198343128448,
+        0.04069236564889505
+      ]
+    },
+    "nmf_shot": {
+      "columns": [
+        "avg_speed_ftps",
+        "dist_per_poss_ft",
+        "zone_near_left",
+        "zone_near_right",
+        "zone_mid_left",
+        "zone_mid_right",
+        "zone_far_left",
+        "zone_far_right",
+        "ball_share",
+        "nearest_teammate_ft",
+        "offball_ball_dist_ft",
+        "shot_share_3pt",
+        "attempts_per_poss",
+        "shot_basis_0",
+        "shot_basis_1",
+        "shot_basis_2",
+        "shot_basis_3",
+        "shot_basis_4",
+        "shot_basis_5",
+        "shot_basis_6",
+        "shot_basis_7",
+        "shot_basis_8",
+        "shot_basis_9"
+      ],
+      "explained_variance_ratio": [
+        0.21814854703365635,
+        0.1645211345253795,
+        0.08221810736943301,
+        0.0630138666204803,
+        0.05355939191619481,
+        0.05111336127553863,
+        0.04735691311916874,
+        0.04646324144401491
+      ]
+    }
+  },
+  "frozen_arm_equals_embeddings_E1": {
+    "split_half": [
+      0.9203910614525139,
+      0.9203910614525139
+    ],
+    "leave_one_game_out": [
+      0.47164236011819655,
+      0.47164236011819655
+    ]
+  },
+  "split_half": {
+    "players": 358,
+    "queries": 716,
+    "chance": 0.013966480446927373,
+    "rates_with_player_bootstrap": {
+      "frozen": {
+        "value": 0.9203910614525139,
+        "lo": 0.8938547486033519,
+        "hi": 0.9441340782122905
+      },
+      "nmf": {
+        "value": 0.952513966480447,
+        "lo": 0.9315642458100558,
+        "hi": 0.9706703910614525
+      },
+      "nmf_shot": {
+        "value": 0.9483240223463687,
+        "lo": 0.9273743016759777,
+        "hi": 0.9664804469273743
+      },
+      "position": {
+        "value": 0.04197746637121188,
+        "lo": 0.04035721841114223,
+        "hi": 0.04363025627583902
+      },
+      "nmf_minus_frozen": {
+        "value": 0.03212290502793296,
+        "lo": 0.00558659217877095,
+        "hi": 0.06005586592178771
+      },
+      "nmf_shot_minus_frozen": {
+        "value": 0.027932960893854747,
+        "lo": 0.0013966480446927375,
+        "hi": 0.05726256983240224
+      },
+      "nmf_minus_nmf_shot": {
+        "value": 0.004189944134078212,
+        "lo": -0.0111731843575419,
+        "hi": 0.018156424581005588
+      }
+    },
+    "note": "the deciding interval (D118, E1 amendment commitment 6): queries resampled by player, pool fixed",
+    "seconds": 11.2
+  },
+  "split_half_game_bootstrap_range_not_read": {
+    "resamples_done": 2000,
+    "resamples_planned": 2000,
+    "range": {
+      "frozen": {
+        "lo": 0.7932960893854749,
+        "hi": 0.8477653631284916
+      },
+      "nmf": {
+        "lo": 0.8226256983240223,
+        "hi": 0.8812849162011173
+      },
+      "nmf_shot": {
+        "lo": 0.8058659217877095,
+        "hi": 0.86731843575419
+      },
+      "position": {
+        "lo": 0.04197746637121188,
+        "hi": 0.04197746637121188
+      },
+      "nmf_minus_frozen": {
+        "lo": -0.002793296089385475,
+        "hi": 0.06284916201117319
+      },
+      "nmf_shot_minus_frozen": {
+        "lo": -0.01675977653631285,
+        "hi": 0.04748603351955307
+      },
+      "nmf_minus_nmf_shot": {
+        "lo": -0.0111731843575419,
+        "hi": 0.04189944134078212
+      }
+    }
+  },
+  "leave_one_game_out": {
+    "games_with_queries": 604,
+    "queries": 10491,
+    "players": 391,
+    "pool_size": {
+      "mean": 398.94039735099335,
+      "min": 397,
+      "max": 399
+    },
+    "rates_with_game_bootstrap": {
+      "frozen": {
+        "value": 0.47164236011819655,
+        "lo": 0.4604432368634146,
+        "hi": 0.482189666816865
+      },
+      "nmf": {
+        "value": 0.4552473548756077,
+        "lo": 0.44549074709206815,
+        "hi": 0.46523511289026054
+      },
+      "nmf_shot": {
+        "value": 0.42960632923458203,
+        "lo": 0.41985295121010846,
+        "hi": 0.44011176509098265
+      },
+      "position": {
+        "value": 0.037077550145616596,
+        "lo": 0.0369283037216816,
+        "hi": 0.03721630502806888
+      },
+      "nmf_minus_frozen": {
+        "value": -0.016395005242588887,
+        "lo": -0.028279580517174368,
+        "hi": -0.00391685172754031
+      },
+      "nmf_shot_minus_frozen": {
+        "value": -0.042036030883614524,
+        "lo": -0.0516511859180195,
+        "hi": -0.03149416702359503
+      },
+      "nmf_minus_nmf_shot": {
+        "value": 0.02564102564102564,
+        "lo": 0.01609653371978177,
+        "hi": 0.03484282762506986
+      }
+    },
+    "note": "D103's matched comparator, reported beside the verdict and deciding nothing (D118); the fits saw every development game, stated not repaired",
+    "seconds_last_run": 261.9
+  },
+  "verdict": {
+    "rule": "split-half top-5 self-retrieval, NMF minus frozen, at least +0.05 with the player-bootstrap interval above zero (D118)",
+    "difference": 0.03212290502793296,
+    "lo": 0.00558659217877095,
+    "hi": 0.06005586592178771,
+    "threshold": 0.05,
+    "size_at_least_threshold": false,
+    "interval_above_zero": true,
+    "adopt": false,
+    "reading": "not adopted on development: the gain is real (interval above zero) but smaller than +0.05",
+    "set_a": "not scored"
+  }
+}

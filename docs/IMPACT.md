@@ -20,10 +20,11 @@ measurement.
 - Tests: on the deployed code, 1624 Python tests passed, 552 browser tests passed on the public copy and 633 on the
   private copy. Source: `PLAN.md`
 
-## Results that held up on sealed test sets
+## Experiments, each set up before it ran
 
-Each new method was set up in writing before it ran, then scored once on games set apart and hashed in advance. A
-ledger allows one score per experiment. Source: `reports/research/scoring_ledger.json`
+Each new method was written down before it ran. Those that went on to a test were then scored once on games or
+seasons set apart and hashed in advance, and a ledger allows one score each. The others stopped at the training games
+and were not scored, so that one score stays unspent. Source: `reports/research/scoring_ledger.json`
 
 - Lineups (lineups-E1): passed. Player ratings predicted each game's margin better than raw lineup plus-minus on the
   test season of 1300 games: RMSE difference -1.15 [-1.59, -0.77] points, R squared over home court alone 0.098
@@ -37,6 +38,11 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
   0.0125). The lower end is above the bar of 0.10 and above 0.038, the top of a retriever that knows only position.
   The claim is narrow: it shows the map finds the same player, not what the map means. The 19 raw features without
   the map retrieve better, 0.561 [0.491, 0.631]. Source: `reports/research/embeddings-E1.md`
+- Player style, second test (embeddings-E2): not adopted on the training games. Maps of where a player shoots and
+  stands, fitted to the data, took the place of the zone shares in the style map. Over half a season they found the
+  same player a little more often: +0.032 [+0.006, +0.060], short of the bar of +0.05. Most of that gain came from
+  the shot map. From one game they did a bit worse, -0.016 [-0.028, -0.004], a check that decides nothing. Its test
+  games were not scored. Source: `reports/research/embeddings-E2.md`
 - Matchups (matchups-E1): part (a) passes and the test games confirm it; part (b) fails. Knowing the defenders
   helps predict which attacker takes the last shot: -0.004574 [-0.004904, -0.004230] on the training games and
   -0.007284 [-0.009136, -0.005454] on the 10 test games (log loss, lower is better). It adds nothing detectable on
@@ -47,6 +53,11 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
   carries less defender signal than the frozen matching: its gain minus the old gain is -0.003156 [-0.003417,
   -0.002893], where a higher gain means more signal. It does switch far less. Its test games were not scored.
   Source: `reports/research/matchups-E2.md`
+- Possession value (epv-E1): not adopted on the training games. The value model was trained on the expected value
+  of each last shot instead of whether it went in. That made its error against the points scored worse, not better:
+  the old model's error minus the new one's is -0.02247 [-0.02433, -0.02053], about 1.8 percent, and the new model
+  is worse in every fold. Both checks that the old model was rebuilt exactly passed. Its test games were not scored.
+  Source: `reports/research/epv-E1.md`
 - Gravity (gravity-E1): not adopted on the training games. A shot is not more open by the bar of 0.2 ft for each
   standard deviation of the teammates' gravity: the effect is 0.014 ft (interval -0.066 to 0.102, 62358 attempts),
   so an effect of 0.2 ft is ruled out for that measure. A later check, read by no rule, gives 0.109 [0.053, 0.167]
@@ -72,6 +83,13 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
 - Decision quality (decisions-E1): not adopted. The target proved reliable (r 0.420 [0.295, 0.519]), so the lane's
   earlier failure counts against the metric. Kind of decision explains about a third of the player spread (R
   squared 0.342 [0.258, 0.434]). Source: `reports/research/decisions-E1.md`
+- Decision quality, second test (decisions-E2): not adopted on the training games. Each option of a decision, a
+  shot, a pass, a drive or holding the ball, got a value on one scale: the points the team should expect from there.
+  Bad choices do go with fewer points: 0.0700 [0.0405, 0.1005]. But the values are far off scale, with a slope of
+  0.3972 [0.3710, 0.4236] where the bar was 0.8 to 1.2. They also carry less signal than the old values: -0.0956
+  [-0.1289, -0.0624]. Its test games were not scored. The faults found on the way were fixed and are listed in the
+  report. One fix came after the first numbers were seen: it put back the rule for which rows count, as set in
+  advance, and the verdict stayed the same. Source: `reports/research/decisions-E2.md`
 
 ## Honesty work
 

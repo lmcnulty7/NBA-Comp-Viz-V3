@@ -162,6 +162,93 @@ We do not invent one.
   fail on hundreds of thousands of decisions instead of 17 or 603 game-level correlations). Effort 4 of 5 (new option
   models, counterfactual EPV states, a frame pass over all development games).
 
+#### Amendment (PLAN.md D122, 2026-11-19 UTC, written before any development number or run)
+
+Why: Set A (about 8,600 decisions in about 1,700 possessions) gives the regret coefficient a 95 percent half-width
+of about 0.13 to 0.16 and barely reads the 0.8 to 1.2 slope band; development (half-width about 0.02) decides, as
+this pre-registration already says. D122 fixes the Set A reading.
+
+- Decision (development games only, as written above): the regret coefficient's interval above 0, the paired
+  difference (new minus frozen) in that coefficient with its interval above 0, and the chosen-value calibration slope
+  inside 0.8 to 1.2.
+- Set A (D122), scored once only if development adopts, read against the bar and not against the development
+  estimate: "confirms" if the regret coefficient's interval (bootstrap of the 10 games) lies above zero;
+  "contradicts" if it lies below zero, which stops the adoption; otherwise "inconclusive at 10 games". Beside it,
+  report only: the slope, the paired difference, and a t interval on per-game values. If development does not
+  adopt, Set A is not scored.
+
+Commitments fixed with this amendment (code: tools/research_decisions_e2.py), before any number. Items 3, 5, 6 and 7
+read the pre-registration's words in a definite way; item 4 departs from them, and says why.
+
+1. Decisions and baseline: the frozen decisions of the development games and their frozen option values, from the
+   decisions-E1 gate (tools/research_decisions.py: the frozen lane refit with frozen code, reproduced exactly). Both
+   arms value the same decisions. The frozen detector finds completed passes only (a teammate's holding segment
+   starts within 1.5 s), so pass decisions are selected on completion in both arms; this is stated, not repaired.
+2. Outcome: points_to_end of the possession's last 1 Hz state at or before the decision frame (the frozen EPV
+   target, which subtracts points logged before the state); a decision with no such state is left out of both arms.
+3. EPV, out of fold: the frozen EPV sequence model refit on each of the lane's 5 grouped folds of the development
+   games (seed 0) with the frozen functions (fold_features, lagged, fit_sequence), its inner isotonic map left out
+   (it changes P(points > 0), not expected points). Gate per fold: its expected points on the fold's stored states
+   equal the stored out-of-fold epv_points within 1e-5. Every EPV of a decision in game g uses the fold model that
+   did not see g.
+4. One value scale, every option valued at the decision frame from what is known then:
+   - hold: the EPV of the actual state built at the decision frame (the state row of the frozen builder, at that
+     frame), scored as the last state of a sequence made of the possession's stored 1 Hz states before it;
+   - pass to teammate j: P(completion to j) times the EPV of the same state with j as handler and the ball at j's
+     position (Cervone et al.'s travel-time caveat applies);
+   - drive: P(drive keeps the ball) times the EPV of a modelled state 1 s later: the handler and the ball moved 8 ft
+     toward the basket along the line to it (the frozen drive geometry, never nearer than 3 ft), everyone else where
+     they are, the clocks advanced 1 s. The chosen drive uses the same modelled state, not its observed path: the
+     observed path would carry 1 s of the outcome into the chosen value that the primary metric regresses on the
+     outcome. This departs from the pre-registration's wording for the chosen drive;
+   - shot: the frozen shot value (points times the xFG lane's out-of-fold probability for a taken shot; for a
+     decision that is not a shot, the frozen location-only value with its contest term, since the xFG lane predicts
+     taken shots only).
+   Chosen value = the value of the option taken; regret = chosen minus the best of shot, every pass, hold and drive.
+5. Completion model: pass attempts detected from frames (any player's holding segment, the frozen thresholds 2.5 ft,
+   8 ft, 3 frames): an offensive holder's segment followed within 1.5 s, with no shot release, by a teammate's
+   (completed) or a defender's (failed; the intended receiver is the offensive teammate nearest the ball where the
+   defender took it). Attempts with no next holder within 1.5 s are left out and counted. A logistic regression
+   (standardised) on pass length, the receiver's nearest-defender distance, the smallest defender distance to the
+   passing lane, the number of defenders within 3 ft of the lane and the receiver's distance to the basket, fitted
+   on the training folds' attempts.
+6. Drive model: the frozen drive decisions, labelled kept unless a defender holds the ball or the possession ends
+   with a turnover within 1 s; a logistic regression on the handler's speed toward the basket, distance to the
+   basket, nearest-defender distance, defenders within 6 ft between the handler and the basket, and the shot clock,
+   fitted on the training folds' drives and applied to every decision.
+7. Overlap report (report only): a multinomial logistic choice model of the decision kind (shot, pass, drive) on the
+   decision-frame features above; the share of decisions whose best option's kind has a choice probability below
+   0.05. Hold is not a decision kind and has no choice probability; decisions whose best option is hold are counted
+   apart.
+8. Primary metric, per arm, on the decisions with every value finite in both arms: the slope of points_to_end on
+   the chosen value (least squares with an intercept); the coefficient on regret in points_to_end on the arm's hold
+   value plus regret. Intervals: a bootstrap of games, 2000 resamples, seed 0, of the fixed per-decision values
+   (no value is refit in a resample). The paired difference resamples the same games for both arms.
+9. Ablation (pre-registered, report only): the change in EPV over the chosen action, the EPV of the actual state 1 s
+   after the decision frame minus the EPV at it (same fold model); its coefficient in points_to_end on hold plus
+   that change. It uses 1 s of the future by design.
+10. Compute: frames read one game at a time from DATA_ROOT; development games only; every job under the lock,
+    resumable, under 30 minutes; one fold measured first. Set A, if scored: the EPV, completion, drive and choice
+    models refit on every development game and loaded before score_once; a clean tree; the commit and the hashes of
+    the gate records, the development record and the models recorded; refusals (a test game without frames,
+    possessions, states or a decision; any non-finite value) give a reason and no number.
+
+#### Amendment to commitment 5 (PLAN.md D123, 2026-11-19 UTC, before any development number)
+
+The smoke run on two development games (01.01.2016.CHA.at.TOR and 01.01.2016.DAL.at.MIA) showed that the failed
+label of commitment 5 does not mark failed passes. A defender's holding segment after an offensive holder's labelled
+177 and 167 attempts failed (a completion rate near 75 percent). In those attempts the defender was the player
+nearest the ball for a median 0.28 s, starting a median 0.08 s after the holder's last frame (0.48 s for completed
+passes); the offence held the ball again later in the possession in 57 and 62 percent of them; and 18 and 9 of them
+ended the possession in a turnover with no offensive hold again. They are tight on-ball defence or a dribble near a
+defender, not failed passes. No outcome metric had been computed.
+
+Commitment 5 now reads: an attempt is completed when the next holder within 1.5 s is a teammate; failed when the
+next holder is a defender, the offence never holds the ball again in the possession, and the possession ends in a
+turnover; every other attempt is left out and counted, by game. The report states the completion rate this label
+gives on development and the excluded count. The frame pass records the raw fields; the label is applied before the
+completion model is fitted. Nothing else changes.
+
 ## 7. Sources checked (all fetched 2026-11-16)
 
 - Cervone et al. 2014, POINTWISE, PDF (pages 1 to 3 read): https://raw.githubusercontent.com/papers-we-love/papers-we-love/refs/heads/main/sports_analytics/2014-ssac-pointwise-predicting-points-and-valuing-decisions-in-real-time.pdf
