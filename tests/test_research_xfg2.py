@@ -138,3 +138,36 @@ def test_the_rehearsal_check_fails_a_reordered_row():
     built = built.iloc[[1, 0, 2]].reset_index(drop=True)
     out = X.rehearsal_check(built, cached)
     assert out["rows_match_cache"] is False and not any(out["new_features_match_cache"].values())
+
+
+def test_the_rehearsal_check_also_compares_the_shared_frozen_columns():
+    built, cached = _pair()
+    built["made"] = [1, 0, 1]
+    cached["made"] = [1, 0, 0]
+    out = X.rehearsal_check(built, cached)
+    assert out["shared_columns_match_cache"]["made"] is False and not X.rehearsal_passed(out)
+
+
+def _rehearsal_json(tmp_path, **change):
+    built, cached = _pair()
+    record = {"code_commit": "a" * 40, **X.rehearsal_check(built, cached)}
+    record.update(change)
+    path = tmp_path / "xfg_e2_rehearsal.json"
+    import json as _json
+    path.write_text(_json.dumps(record))
+    return path
+
+
+def test_final_refuses_a_failed_rehearsal_and_one_from_another_commit(tmp_path):
+    good = _rehearsal_json(tmp_path)
+    assert X.check_rehearsal(good, "a" * 40)["code_commit"] == "a" * 40
+    with pytest.raises(SystemExit, match="did not pass"):
+        X.check_rehearsal(_rehearsal_json(tmp_path, rows_match_cache=False), "a" * 40)
+    flags = X.rehearsal_check(*_pair())["new_features_match_cache"]
+    with pytest.raises(SystemExit, match="did not pass"):
+        X.check_rehearsal(_rehearsal_json(tmp_path, new_features_match_cache={**flags, "contest_angle_deg": False}),
+                          "a" * 40)
+    with pytest.raises(SystemExit, match="not at this HEAD"):
+        X.check_rehearsal(_rehearsal_json(tmp_path), "b" * 40)
+    with pytest.raises(SystemExit, match="rehearse the scorer first"):
+        X.check_rehearsal(tmp_path / "missing.json", "a" * 40)

@@ -295,6 +295,7 @@ def gate(artifacts=None) -> dict:
 
 def dev(artifacts=None) -> dict:
     import numpy as np
+    head = clean_head()
     require_passed(RX.research_dir(artifacts) / "xfg_e2_gate", "xfg")
     frame = with_new_features(artifacts)
     games = dev_games(frame["sportvu_game"].astype(str).unique(), WHO)
@@ -304,7 +305,7 @@ def dev(artifacts=None) -> dict:
     y = rows["made"].astype(int).to_numpy()
     loss = {a: RX.per_shot_loss(y, p) for a, p in arms.items()}
     out = {"experiment": "xfg-E2", "stage": "development games, 5 grouped outer folds, seed 0",
-           "shots": int(len(y)), "games": int(len(set(g))),
+           "code_commit": head, "shots": int(len(y)), "games": int(len(set(g))),
            "new_feature_coverage": {c: float(np.isfinite(rows[c].to_numpy(float)).mean()) for c in NEW_FEATURES},
            "arms": {a: RX._arm_metrics(y, p) for a, p in arms.items()},
            "arm_intervals_95": {a: RX.arm_intervals(g, y, p) for a, p in arms.items()},
@@ -386,10 +387,10 @@ def rehearse(artifacts=None) -> dict:
     folder."""
     import os
     import random
-    import numpy as np
     from analytics.xfg import train as T
     from tools.frozen_common import MemoryGuard
     from tools.frozen_models import xfg_tables
+    head = clean_head()
     require_passed(RX.research_dir(artifacts) / "xfg_e2_gate", "xfg")
     frame = with_new_features(artifacts)
     games = dev_games(frame["sportvu_game"].astype(str).unique(), WHO)
@@ -406,12 +407,11 @@ def rehearse(artifacts=None) -> dict:
     built = add_new_features(root, built)
     cached = frame[frame["sportvu_game"].astype(str).isin(set(stand_in))].reset_index(drop=True)
     check = rehearsal_check(built, cached)
-    keys, same = check["rows_match_cache"], check["new_features_match_cache"]
     out = {"what": "rehearsal of the xfg-E2 scorer on 10 development games in place of Set A; not a result",
-           "stand_in_games": len(stand_in), **check, **score_rows(built, parts)}
+           "code_commit": head, "stand_in_games": len(stand_in), **check, **score_rows(built, parts)}
     (RX.research_dir(artifacts) / "xfg_e2_rehearsal.json").write_text(json.dumps(out, indent=2) + "\n")
-    if not keys or not all(same.values()):
-        raise SystemExit(f"{WHO}: the scorer's rows or features differ from the development ones: {same}")
+    if not rehearsal_passed(out):
+        raise SystemExit(f"{WHO}: the scorer's rows or columns differ from the development ones: {check}")
     return out
 
 
@@ -425,14 +425,34 @@ def key_tuples(rows) -> list:
                     [-1 if pd.isna(v) else int(v) for v in shooter]))
 
 
-def rehearsal_check(built, cached) -> dict:
-    """The rehearsal's exact check: the same rows in the same order (typed keys), and for each new feature the same
-    NaN placement and exactly the same values (no tolerance)."""
+def same_column(a, b) -> bool:
+    """Two columns hold the same values in the same order: numbers exactly, with the same NaN placement; anything else
+    value by value, a missing value matching only a missing value. No tolerance."""
     import numpy as np
+    import pandas as pd
+    if len(a) != len(b):
+        return False
+    try:
+        return bool(np.array_equal(pd.to_numeric(a).to_numpy(float), pd.to_numeric(b).to_numpy(float), equal_nan=True))
+    except (TypeError, ValueError):
+        return [None if pd.isna(x) else x for x in a] == [None if pd.isna(x) else x for x in b]
+
+
+def rehearsal_check(built, cached) -> dict:
+    """The rehearsal's exact check: the same rows in the same order (typed keys); for each new feature, and for every
+    other column the two frames share (the frozen features and made), the same values with the same NaN placement,
+    exactly (no tolerance)."""
     rows = len(built) == len(cached) and key_tuples(built) == key_tuples(cached)
-    same = {c: bool(rows and np.array_equal(built[c].to_numpy(float), cached[c].to_numpy(float), equal_nan=True))
-            for c in NEW_FEATURES}
-    return {"rows_match_cache": bool(rows), "new_features_match_cache": same}
+    same = {c: bool(rows and same_column(built[c], cached[c])) for c in NEW_FEATURES}
+    shared = sorted((set(built.columns) & set(cached.columns)) - set(NEW_FEATURES))
+    others = {c: bool(rows and same_column(built[c], cached[c])) for c in shared}
+    return {"rows_match_cache": bool(rows), "new_features_match_cache": same, "shared_columns_match_cache": others}
+
+
+def rehearsal_passed(record: dict) -> bool:
+    return bool(record.get("rows_match_cache")) and all(record.get("new_features_match_cache", {}).values()) \
+        and bool(record.get("new_features_match_cache")) and all(record.get("shared_columns_match_cache", {}).values()) \
+        and bool(record.get("shared_columns_match_cache"))
 
 
 def make_scorer(parts: dict, artifacts=None):
@@ -451,6 +471,20 @@ def make_scorer(parts: dict, artifacts=None):
     return scorer
 
 
+def check_rehearsal(path, head: str) -> dict:
+    """SystemExit unless the rehearsal json exists, every one of its checks passed, and it ran at commit `head`."""
+    path = Path(path)
+    if not path.exists():
+        raise SystemExit(f"{WHO}: rehearse the scorer first")
+    record = json.loads(path.read_text())
+    if not rehearsal_passed(record):
+        raise SystemExit(f"{WHO}: the rehearsal did not pass; fix and rehearse again before any score")
+    if record.get("code_commit") != head:
+        raise SystemExit(f"{WHO}: the rehearsal ran at {record.get('code_commit')}, not at this HEAD {head}; rehearse "
+                         "again at this commit")
+    return record
+
+
 def final(artifacts=None) -> dict:
     """The one Set A score (D121): only when development adopts and the rehearsal ran."""
     head = clean_head()
@@ -460,15 +494,17 @@ def final(artifacts=None) -> dict:
     dev_out = json.loads(dev_path.read_text())
     if not dev_out["verdict"]["adopts_on_development"]:
         raise SystemExit(f"{WHO}: development does not adopt, so Set A is not scored (D121, D109)")
-    if not (RX.research_dir(artifacts) / "xfg_e2_rehearsal.json").exists():
-        raise SystemExit(f"{WHO}: rehearse the scorer first")
+    check_rehearsal(RX.research_dir(artifacts) / "xfg_e2_rehearsal.json", head)
+    rehearsal_sha = sha256_of(RX.research_dir(artifacts) / "xfg_e2_rehearsal.json")
+    dev_sha = sha256_of(dev_path)
     if not RX.test_root_ready(artifacts):
         raise SystemExit(f"{WHO}: the research data root has no ingested games; run tools.research_ingest first")
     frame = with_new_features(artifacts)
     parts = fit_dev_arms(frame, dev_games(frame["sportvu_game"].astype(str).unique(), WHO))
     scorer = make_scorer(parts, artifacts)
     out = score_once(EXPERIMENT, TRACKING, scorer)
-    record = {"experiment": EXPERIMENT, "code_commit": head, "dev_json_sha256": sha256_of(dev_path),
+    record = {"experiment": EXPERIMENT, "code_commit": head, "dev_json_sha256": dev_sha,
+              "rehearsal_json_sha256": rehearsal_sha,
               "gate": gate_record, "rule": "D121 with D108's readings: confirms if the 95 percent interval of new "
               "minus baseline lies wholly below 0, inconclusive at 10 games if it straddles 0, contradiction if "
               "wholly above 0 (stops the adoption); the t interval on the per-game means is reported beside it",
@@ -480,7 +516,7 @@ def final(artifacts=None) -> dict:
 
 def per_game_sd(games, a, b) -> dict:
     """The spread of the per-game mean differences, and the half-width a 10-game test would have from it (normal
-    approximation, shot-weighted), reported before any Set A score (D121)."""
+    approximation), reported before any Set A score (D121)."""
     import numpy as np
     import pandas as pd
     d = pd.DataFrame({"g": games, "d": a - b}).groupby("g")["d"].agg(["mean", "count"])
