@@ -139,7 +139,7 @@ reports/rebounds.md; hgb beats the prior by -0.5371 [-0.5477, -0.5283].
 - Backlog scores. Expected gain 3: it attacks the cause the archive names, and the jump from the binary-logistic
   approximation (1.7558) to boosting (1.6009) shows how much model form matters here. Effort 3: custom objective
   code, tests, a second library in the experiment path.
-- Amendment (D125's pattern, 2026-11-20, written before any rebounds-E2 development number). Baseline: rebounds-E1
+- Amendment (PLAN.md D127, D125's pattern, 2026-11-20, written before any rebounds-E2 development number). Baseline: rebounds-E1
   is not adopted on development (E1 minus baseline -0.0046 [-0.0055, -0.0038], above its -0.005 bar;
   reports/research/rebounds-E1-dev.json), so E2's baseline is the frozen hgb with tau, as fixed above. Its
   out-of-fold probabilities are rebounds-E1's refit, reused, not refitted: the fold pieces of tools/research_rebounds.py
