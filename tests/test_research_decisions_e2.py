@@ -165,3 +165,14 @@ def test_completion_label_d123():
     c = E.attempt_counts(E.completion_label(att))
     assert c["excluded"] == 2 and c["excluded_by_game"] == {"a": 1, "b": 1}
     assert c["completion_rate"] == pytest.approx(2 / 3)
+
+
+def test_join_events_ignores_the_index():
+    """The frozen decisions of a later game keep their table index; the join must not align on it."""
+    keys = E.EVENT_KEYS[1:]
+    base = pd.DataFrame({"possession": [1, 1], "frame": [10, 20], "player_id": [7, 8], "decision_kind": ["drive", "pass"],
+                         "event": [-1, -1], "receiver_id": [-1, 7]})
+    ev = base.assign(sportvu_game="g", chosen_value=[0.5, 0.6]).set_index(pd.Index([500, 501]))
+    ctx = base.assign(sportvu_game="g", heldout=False, x=[1.0, 2.0])
+    out = E._join_events(ctx, ev)
+    assert list(out["decision_kind"]) == ["drive", "pass"] and list(out["x"]) == [1.0, 2.0]

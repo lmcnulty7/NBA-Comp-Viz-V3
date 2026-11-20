@@ -341,8 +341,9 @@ def _join_events(ctx, ev):
     import pandas as pd
     keys = EVENT_KEYS[1:]
     ints = {k: "int64" for k in keys if k != "decision_kind"}
-    c = ctx.astype(ints).assign(decision_kind=ctx["decision_kind"].astype(str))
-    e = ev.reset_index(drop=True).astype(ints).assign(decision_kind=ev["decision_kind"].astype(str))
+    ctx, ev = ctx.reset_index(drop=True), ev.reset_index(drop=True)      # positional: no index alignment below
+    c = ctx.astype(ints).assign(decision_kind=ctx["decision_kind"].astype(str).to_numpy())
+    e = ev.astype(ints).assign(decision_kind=ev["decision_kind"].astype(str).to_numpy())
     c = c.drop(columns=[x for x in c.columns if x in e.columns and x not in keys])
     m = e.merge(c, on=keys, how="left", validate="one_to_one", indicator=True)
     if (m["_merge"] != "both").any():
@@ -360,12 +361,11 @@ def game_pass(root: Path, g: str, ev):
     box = {}
 
     def per_game(c):
-        frames = c["frames"]() if callable(c["frames"]) else c["frames"]
-        frames = frames.sort_values(["frame", "player_id"], kind="stable").reset_index(drop=True)
-        c = {**c, "frames": frames}
+        raw = c["frames"]() if callable(c["frames"]) else c["frames"]
+        ctx = DF.decision_contexts({**c, "frames": raw}, {})        # the frozen function on the bundle as loaded
+        frames = raw.sort_values(["frame", "player_id"], kind="stable").reset_index(drop=True)
         poss, sf = c["possessions"], c["shot_frames"]
         fps = DF.fps_of(frames)
-        ctx = DF.decision_contexts(c, {})
         fv = frames["frame"].to_numpy()
         baskets = DF.baskets_by_team_period(frames, fv, poss)
         att, att_counts = pass_attempts(frames, poss, sf, baskets, fps, g)
