@@ -8,12 +8,27 @@ fixes after it are listed under "Faults found and fixed"). Source of every numbe
 reports/research/decisions-E2-dev.json, written by `e2-dev` at a682d9ad. Numbers marked computed are arithmetic on
 it.
 
-**Verdict: not adopted on development.** Valued on one EPV scale, the chosen option's value predicts the points that
-followed better than the frozen values do (slope 0.397 against 0.176), but far from the pre-registered slope of 0.8
-to 1.2. The regret on that scale does carry signal (coefficient 0.070, interval 0.041 to 0.101), but less than the
-frozen regret (0.166): new minus frozen is -0.096, interval -0.129 to -0.062, wholly below zero. Two of the three
-adoption checks fail. Set A was not read, the scoring ledger has no decisions-E2 entry, and no Set A scorer was
-written.
+**Verdict: not adopted on development.** Of the three adoption checks, the regret coefficient alone passes; the
+paired difference and the slope fail.
+
+- Regret coefficient on the EPV scale: 0.0700 [0.0405, 0.1005], above zero. Passes.
+- Paired difference in that coefficient, new minus frozen: -0.0956 [-0.1289, -0.0624], wholly below zero. Fails:
+  the frozen regret carries more signal (0.1655).
+- Chosen-value slope: 0.3972 [0.3710, 0.4236], outside 0.8 to 1.2. Fails (the frozen slope is 0.1760).
+
+These are on 486448 decisions in 592 games. 12 development games are left out entirely: their frames have no shot
+clock, which the committed drive model needs, so none of their decisions has a drive value.
+
+The first e2-dev run's numbers were seen before a fault in its rows was fixed. That run kept a decision when its
+chosen, hold and regret values were finite, so a decision with no drive value kept a regret over fewer options.
+Commitment 8 says every value finite in both arms; the fix (e2c7b624) restores commitment 8 as written and is not a
+new choice. The corrected run above is the primary reading. The first run, on 509852 decisions, gave regret
+coefficient 0.1306 [0.1017, 0.1595], paired difference -0.0393 [-0.0710, -0.0084] and slope 0.4163 [0.3910,
+0.4408]: the same verdict, not adopted, with the same two checks failing.
+
+Report only, point estimates: the new metric depends more on decision mix than the frozen one (R squared of the
+player value on kind shares 0.5712 against 0.3350). Set A was not read, the scoring ledger has no decisions-E2
+entry, and no Set A scorer was written.
 
 ## What was tested
 
@@ -117,7 +132,7 @@ Decision (D122): regret coefficient above zero (yes); paired difference above ze
 - The regret on the EPV scale carries less signal than the frozen regret. The frozen regret coefficient is larger and
   the paired interval is wholly below zero. The hand-set values, uncalibrated as they are, rank good and bad choices
   against what followed better than the EPV values do.
-- The new metric is more a function of decision mix, not less: at the player level, kind shares explain 0.571 of its
+- Report only, point estimates: the new metric is more a function of decision mix, not less. At the player level, kind shares explain 0.571 of its
   variance against 0.335 for the frozen one. This experiment does not fix decisions-E1's finding; it sharpens it.
 - About one decision in five has hold as its best option, and about one in six of the others has a best option the
   player would almost never choose there (choice probability under 0.05). Those values are extrapolated.
