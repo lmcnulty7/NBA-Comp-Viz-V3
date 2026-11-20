@@ -7,7 +7,7 @@ import { storyData, storyLines } from "@/components/coldopen/story";
 import { BoxesVisual, ClipVisual, MapVisual, SwapVisual, TruthVisual } from "@/components/coldopen/Visuals";
 import { copy } from "@/lib/copy";
 import { getServerSource } from "@/lib/data/server";
-import { stillUrl } from "@/lib/media";
+import { stillUrl, stillWebpUrl } from "@/lib/media";
 import { VARIANT } from "@/lib/site";
 import { loadSlide, slideIds, talkCopy, type Slide } from "@/lib/talk";
 import { renderLine, type TokenData } from "@/lib/tokens";
@@ -43,7 +43,7 @@ async function siteData(): Promise<TokenData> {
 
 /** What sits beside the copy of a slide: the same pictures as the cold open, live where they play. */
 async function visualOf(slide: Slide, data: TokenData) {
-  const story = storyData(data, VARIANT, stillUrl);
+  const story = storyData(data, VARIANT, stillUrl, stillWebpUrl);
   switch (slide.visual) {
     case "none":
       return null;

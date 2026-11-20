@@ -68,6 +68,12 @@
   color: var(--ink);
 }
 
+/* One part of an experiment read part by part: set off by a rule on its left. */
+.part {
+  border-left: 2px solid var(--rule);
+  padding-left: 0.9rem;
+}
+
 .values {
   display: grid;
   gap: 0.6rem;
@@ -101,4 +107,11 @@
 /* A state is a sentence: it wraps on a phone instead of widening the page. */
 .state :global(.status) {
   white-space: normal;
+}
+
+/* A result quotes code names and paths as they are written ("analytics.eval.paired_bootstrap_by_game"); a token
+   longer than a phone's width breaks rather than push the page sideways. */
+.result {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }

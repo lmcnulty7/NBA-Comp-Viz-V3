@@ -5,7 +5,7 @@ import { previewLanes } from "@/components/coldopen/model";
 import { storyData, storyLines, storyScenes } from "@/components/coldopen/story";
 import { copy } from "@/lib/copy";
 import { getServerSource } from "@/lib/data/server";
-import { stillUrl } from "@/lib/media";
+import { stillUrl, stillWebpUrl } from "@/lib/media";
 import { VARIANT } from "@/lib/site";
 import { renderLine, type TokenData } from "@/lib/tokens";
 
@@ -27,7 +27,7 @@ export default async function HomePage() {
     source.demoFrames(),
   ]);
   const data: TokenData = { manifest, scorecard, players, swap, frames };
-  const story = storyData(data, VARIANT, stillUrl);
+  const story = storyData(data, VARIANT, stillUrl, stillWebpUrl);
 
   const firstGame = manifest.games.find((game) => game.n_featured > 0) ?? manifest.games[0];
   let preview: { gameSlug: string; possession: number } | null = null;

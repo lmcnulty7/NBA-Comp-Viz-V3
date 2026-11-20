@@ -38,7 +38,9 @@ Outputs
 - <out>/demo/swap.json and <out>/demo/frames.json, validated against export/schemas.py.
 - <artifacts>/demo/possessions.json: the possessions that overlap a window (the site data marks them), and
   <artifacts>/demo/media_check.json: what was measured on the clips and stills.
-- <media>/<scene>.mp4 (private, never committed) and <stills>/<scene>.jpg (public).
+- <media>/<scene>.mp4 (private, never committed) and <stills>/<scene>.jpg (public), with <stills>/<scene>.webp beside
+  it: the same frame in about two thirds of the bytes, which the page shows where the browser takes WebP and the
+  JPEG elsewhere (D116; the encoding was chosen against a quality floor by tools/hero_still.py).
 
 Nothing here fits, tunes, calibrates or scores anything, and no outcome column is read.
 """
@@ -72,6 +74,7 @@ SCENE_MAX_S = 12.0               # a scene runs at most this long from the start
 CLIP_CAP_S = 15.0                # PLAN.md M2: no clip longer than this
 TOTAL_CAP_S = 60.0               # PLAN.md M2: all clips together
 CLIP_MAX_WIDTH = 1280            # clips are at most this wide
+STILL_WEBP_QUALITY = 80          # the WebP still beside each JPEG: chosen by tools/hero_still.py's rule (D116)
 GHOST_HORIZON_S = 1.0            # the ghosting comparison uses the 1.0 s ghosts
 GHOST_STRIDE = 5                 # the ghosting lane samples every fifth sensor frame of a possession
 SENSOR_HZ = 25.0                 # sensor frames a second (docs/DATA_CONTRACT.md section 4)
@@ -1286,10 +1289,21 @@ def cut_clip(source, target, first: int, n_frames: int, max_width: int = CLIP_MA
 
 
 def cut_still(source, target, frame: int, max_width: int = CLIP_MAX_WIDTH) -> None:
-    """One source frame, selected by number, as a JPEG at most `max_width` wide."""
+    """One source frame, selected by number, as a JPEG at most `max_width` wide, and the same frame as a WebP beside
+    it (`target` with the suffix .webp), encoded from a lossless cut of the frame at STILL_WEBP_QUALITY."""
+    from PIL import Image
     chain = f"select=eq(n\\,{frame}),scale='min({max_width},iw)':-2"
     subprocess.run([_tool("ffmpeg"), "-y", "-v", "error", "-i", str(source), "-vf", chain, "-fps_mode", "passthrough",
                     "-frames:v", "1", "-q:v", "3", "-update", "1", str(target)], check=True)
+    target = Path(target)
+    lossless = target.with_name(f".{target.stem}.lossless.png")
+    try:
+        subprocess.run([_tool("ffmpeg"), "-y", "-v", "error", "-i", str(source), "-vf", chain, "-fps_mode", "passthrough",
+                        "-frames:v", "1", "-update", "1", str(lossless)], check=True)
+        with Image.open(lossless) as picture:
+            picture.convert("RGB").save(target.with_suffix(".webp"), "WEBP", quality=STILL_WEBP_QUALITY, method=6)
+    finally:
+        lossless.unlink(missing_ok=True)
 
 
 def read_gray(path, wanted, size=None) -> dict:
@@ -1410,14 +1424,18 @@ def make_media(state: State, scenes: list, clips: dict, cv_root, media, stills, 
                                        if first + j + s >= 0}, size)
         cut = nearest_shift({j: frames[j] for j in probes if j in frames}, reference, first)
         motion = motion_scores(frames, rows)
-        picture = cv2.imread(str(still), cv2.IMREAD_GRAYSCALE)
-        if picture is None or (picture.shape[1], picture.shape[0]) != (shape["width"], shape["height"]):
-            problems.append("the still is not a picture of the clip's size")
-            still_cut = {}
-        else:
-            still_cut = nearest_shift({still_at: cv2.resize(picture, size, interpolation=cv2.INTER_AREA)}, reference, first)
-            if _best(still_cut, largest=False) != "0":
-                problems.append("the still is not the frame of its row")
+        still_cuts = {}
+        for kind, path in (("jpeg", still), ("webp", still.with_suffix(".webp"))):
+            picture = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+            if picture is None or (picture.shape[1], picture.shape[0]) != (shape["width"], shape["height"]):
+                problems.append(f"the {kind} still is not a picture of the clip's size")
+                still_cuts[kind] = {}
+                continue
+            still_cuts[kind] = nearest_shift({still_at: cv2.resize(picture, size, interpolation=cv2.INTER_AREA)},
+                                             reference, first)
+            if _best(still_cuts[kind], largest=False) != "0":
+                problems.append(f"the {kind} still is not the frame of its row")
+        still_cut = still_cuts["jpeg"]
         if _best(cut, largest=False) != "0":
             problems.append("the clip is not cut at the planned frame")
         if not motion["boxes"] or _best(motion["scores"], largest=True) != "0":
@@ -1426,7 +1444,9 @@ def make_media(state: State, scenes: list, clips: dict, cv_root, media, stills, 
             "window": w.name, "decoder_late_frames": scene["late"], "source_first_frame": first, "frames": n,
             "clip": seen, "index_first": index_first(clip), "clip_bytes": clip.stat().st_size,
             "still_bytes": still.stat().st_size, "cut_mean_abs_diff_by_shift": cut,
-            "still_mean_abs_diff_by_shift": still_cut, "motion_inside_minus_around_by_shift": motion["scores"],
+            "still_mean_abs_diff_by_shift": still_cut,
+            "still_webp_bytes": still.with_suffix(".webp").stat().st_size if still.with_suffix(".webp").exists() else None,
+            "still_webp_mean_abs_diff_by_shift": still_cuts["webp"], "motion_inside_minus_around_by_shift": motion["scores"],
             "motion_boxes": motion["boxes"], "problems": problems, "passed": not problems}
     total = sum(s["clip"]["duration_s"] for s in report["scenes"].values())
     report["total_clip_s"] = round(total, 3)

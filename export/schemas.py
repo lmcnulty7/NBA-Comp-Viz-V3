@@ -1005,11 +1005,18 @@ NUMBER_TEXT_RE = re.compile(r"(?<![\w.])[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?")
 ComparabilityClass = Literal["roughly", "not_directly", "none"]
 ExperimentStatus = Literal["pre_registered", "development_met_test_pending", "not_adopted_development",
                            "adopted", "not_adopted_test", "passed_test", "adopted_research",
-                           "ran_result_in_writeup"]
+                           "ran_result_in_writeup", "decided_by_part"]
+# The state of one part of an experiment whose rule is decided part by part.
+PartStatus = Literal["pre_registered", "confirmed", "development_met_test_not_met", "not_adopted_development",
+                     "development_met_test_pending", "passed_test", "not_passed_test"]
 # How a rule compares the end of an interval it reads with its threshold.
 Comparison = Literal["below", "at_most", "above", "at_least"]
 _COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above": lambda v, t: v > t,
             "at_least": lambda v, t: v >= t}
+
+
+# A stage's main rule may also require its range to hold a number of the file (`contains`: D113's consistency check)
+StageComparison = Literal["below", "at_most", "above", "at_least", "contains"]
 
 
 def _is_number_text(text: Optional[str]) -> bool:
@@ -1095,6 +1102,8 @@ class StageValue(Strict):
     lo: Optional[float] = None
     hi: Optional[float] = None
     point_estimate: bool
+    # the file's reading of this value, checked against its pre-registered rule (genai-E2 H4's number failure rate)
+    reading: Optional[str] = None
 
     @model_validator(mode="after")
     def _interval(self):
@@ -1113,8 +1122,8 @@ class Condition(Strict):
 
     label: str = Field(min_length=1)
     value: float
-    lo: float
-    hi: float
+    lo: Optional[float] = None
+    hi: Optional[float] = None
     bound: Literal["lo", "hi", "point"]
     comparison: Comparison
     threshold: float
@@ -1122,7 +1131,9 @@ class Condition(Strict):
 
     @model_validator(mode="after")
     def _met(self):
-        if not (self.lo <= self.value <= self.hi):
+        if (self.lo is None) != (self.hi is None) or (self.lo is None and self.bound != "point"):
+            raise ValueError(f"{self.label}: a condition has both ends or neither, and with neither reads its point")
+        if self.lo is not None and not (self.lo <= self.value <= self.hi):
             raise ValueError(f"{self.label}: the value lies inside its interval")
         end = {"lo": self.lo, "hi": self.hi, "point": self.value}[self.bound]
         if self.met != _COMPARE[self.comparison](end, self.threshold):
@@ -1172,41 +1183,60 @@ class BucketGuard(Strict):
 class StageResult(Strict):
     """One stage of an experiment, read from its result file under reports/research/: development (out of fold on
     the development games) or test (the D71 test set, scored once); `design` is the file's own words for how the
-    stage was run (its folds or its forward chaining). `diff` is the paired difference the adoption
-    rule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the
-    bound the rule reads) compares with `threshold` as `comparison` says (at most, or strictly below), and every
-    further condition of the same rule (`conditions`) is met too. Numbers are rounded once, here in the export."""
+    stage was run (its folds or its forward chaining). `diff` is the difference the adoption rule reads, with its
+    95 percent interval (`interval` names the method); `diff` is null when the file states the interval only. The
+    rule is met when `upper`, the end of the interval the rule reads (the upper end for at most and below, the lower
+    end for at least and above), compares with `threshold` as `comparison` says, and every further condition
+    (`conditions`) and every guard (`guard`, `guards`) is met too. `reading` is the file's or the write-up's own word
+    for the outcome (confirms, inconclusive, passes, hurts), checked against the rule. `also_read` names further
+    files whose numbers are reported beside the rule. Numbers are rounded once, here in the export."""
 
     stage: Literal["development", "test"]
     source: Source
+    also_read: list[Source] = []
     design: Optional[str] = None
     metric: str = Field(min_length=1)
     rows: int
     rows_unit: str = Field(min_length=1)
-    games: int
-    diff: float
+    games: Optional[int] = None
+    diff: Optional[float] = None
     lo: float
     hi: float
     interval: str = Field(min_length=1)
     threshold: float
     upper: float
-    comparison: Literal["at_most", "below"] = "at_most"
+    comparison: StageComparison = "at_most"
     conditions: list["Condition"] = []
     guard: Optional[BucketGuard] = None
+    guards: list[BucketGuard] = []
     met: bool
+    reading: Optional[str] = None
     values: list[StageValue]
+    # the heading of a test stage scored on a test set of its own (the genai test players), never the D71 test games
+    test_set: Optional[str] = None
 
     @model_validator(mode="after")
     def _rule(self):
-        if not (self.lo <= self.diff <= self.hi):
+        if self.lo > self.hi or (self.diff is not None and not (self.lo <= self.diff <= self.hi)):
             raise ValueError("the difference lies inside its interval")
-        if self.upper != self.hi:
-            raise ValueError("the main rule (at most, or below) reads the upper end of the interval")
-        if self.met != (_COMPARE[self.comparison](self.upper, self.threshold) and all(c.met for c in self.conditions)
-                         and (self.guard is None or self.guard.met)):
+        if self.comparison == "contains":
+            # the range must hold the threshold; the end shown is the one nearer it, the end that decides
+            end = self.lo if abs(self.threshold - self.lo) <= abs(self.threshold - self.hi) else self.hi
+            main = self.lo <= self.threshold <= self.hi
+        else:
+            end = self.lo if self.comparison in ("above", "at_least") else self.hi
+            main = _COMPARE[self.comparison](self.upper, self.threshold)
+        if self.upper != end:
+            raise ValueError("the main rule reads the upper end for at most and below, the lower end for at least "
+                             "and above, and the end nearer its number for contains")
+        guards = ([self.guard] if self.guard else []) + list(self.guards)
+        if self.met != (main and all(c.met for c in self.conditions) and all(g.met for g in guards)):
             raise ValueError("met says whether the bound meets the threshold and every further condition is met")
+        if self.test_set is not None and (self.stage != "test" or "D71" in self.source.what
+                                          or "test games" in self.test_set.lower()):
+            raise ValueError("a test set of its own heads a test stage and names neither D71 nor test games")
         expected = "testset" if self.stage == "test" else "out_of_fold"
-        if self.source.rows != expected:
+        if self.source.rows != expected or any(s.rows != expected for s in self.also_read):
             raise ValueError(f"a {self.stage} result reads rows {expected}")
         return self
 
@@ -1300,6 +1330,43 @@ class ProtocolResult(Strict):
         return self
 
 
+class ExperimentPart(Strict):
+    """One part of an experiment whose pre-registration decides each part on its own (who shoots and make given
+    xFG; each hypothesis of a model test). A part has its own stages, read like an experiment's: development decides
+    and the test set confirms, or the test set alone decides (`stages` test_only). `status` follows from them;
+    `test_not_scored` marks a test deliberately not spent after the development bar was missed."""
+
+    label: str = Field(min_length=1)
+    stages: Literal["development_and_test", "test_only"] = "development_and_test"
+    development: Optional[StageResult] = None
+    test: Optional[StageResult] = None
+    test_not_scored: bool = False
+    # sentences of the write-up quoted word for word beside this part
+    notes: list[str] = []
+    status: PartStatus
+
+    @model_validator(mode="after")
+    def _status(self):
+        dev, test = self.development, self.test
+        if (dev and dev.stage != "development") or (test and test.stage != "test"):
+            raise ValueError(f"{self.label}: a stage result sits under its own stage")
+        if self.stages == "test_only":
+            if dev is not None or self.test_not_scored:
+                raise ValueError(f"{self.label}: a test-only part has no development result")
+            expected = "pre_registered" if test is None else "passed_test" if test.met else "not_passed_test"
+        else:
+            if test is not None and dev is None:
+                raise ValueError(f"{self.label}: the test set is scored after the development result exists")
+            if self.test_not_scored and (dev is None or dev.met or test is not None):
+                raise ValueError(f"{self.label}: a test left unscored belongs to a missed development bar")
+            expected = ("pre_registered" if dev is None else "not_adopted_development" if not dev.met
+                        else "development_met_test_pending" if test is None
+                        else "confirmed" if test.met else "development_met_test_not_met")
+        if self.status != expected:
+            raise ValueError(f"{self.label}: status is {self.status!r}, the results say {expected!r}")
+        return self
+
+
 class Experiment(Strict):
     """A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,
     fixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and
@@ -1338,6 +1405,7 @@ class Experiment(Strict):
     adopted_as: Optional[Literal["research_result"]] = None
     result_in_writeup: bool = False
     test_not_scored: bool = False
+    parts: list[ExperimentPart] = []
     development: Optional[StageResult] = None
     test: Optional[StageResult] = None
     protocol: Optional[ProtocolResult] = None
@@ -1345,6 +1413,22 @@ class Experiment(Strict):
     @model_validator(mode="after")
     def _status(self):
         dev, test = self.development, self.test
+        # Checked before any shape returns early: a test left unscored belongs only to a development result that
+        # missed its bar, with no test result, never to a result kept in its write-up, a protocol, a test-only
+        # experiment or one decided part by part (each part carries its own flag).
+        if self.test_not_scored and (self.result_in_writeup or self.protocol is not None or self.parts
+                                     or self.stages == "test_only" or dev is None or dev.met or test is not None):
+            raise ValueError(f"{self.id}: a test left unscored belongs to a development result that missed its bar, "
+                             "with no test result")
+        if self.parts or self.status == "decided_by_part":
+            if not (self.parts and self.status == "decided_by_part" and self.writeup and dev is None and test is None
+                    and self.protocol is None and not self.result_in_writeup and self.adopted_as is None
+                    and not self.test_not_scored and self.stages == "development_and_test"):
+                raise ValueError(f"{self.id}: an experiment decided part by part has its parts, its write-up, no "
+                                 "stage or protocol of its own, and the status decided_by_part")
+            if len({part.label for part in self.parts}) != len(self.parts):
+                raise ValueError(f"{self.id}: every part has its own label")
+            return self
         if self.result_in_writeup or self.status == "ran_result_in_writeup":
             if not (self.result_in_writeup and self.status == "ran_result_in_writeup" and self.writeup
                     and dev is None and test is None and self.protocol is None and self.adopted_as is None):

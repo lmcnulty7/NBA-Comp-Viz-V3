@@ -113,6 +113,63 @@ nothing is fitted on the 17 spent held-out games, which are never scored again. 
   ghosting papers; the short horizon limits the size). Effort 2 (same features, network and scoring; the new piece
   is a differentiable rollout that recomputes the defender's own relative features).
 
+#### Amendment (PLAN.md D113, 2026-11-19 UTC, written before any development number or run)
+
+Why: Set A has 10 games. The shared rule bootstraps the per-game mean error difference by game, and the frozen paired
+1.0 s intervals between two fitted networks at 604 games have a half-width of about 0.026 ft (reports/ghosting.md,
+reports/ghosting_torch.md), a per-game SD of about 0.31 to 0.33 ft. At 10 games that is a standard error of about
+0.10 ft: about 17 percent power at the 0.10 ft threshold, and the 0.2 s guard cannot be read. Development is well
+powered. D113 therefore fixes: development decides all three parts; Set A is a pre-declared consistency check.
+
+- Decision (development games only): the rollout network minus the frozen stand-in at 1.0 s is at most -0.10 ft with
+  its paired 95 percent interval wholly below zero; at 0.2 s the upper bound of the same difference is under +0.02
+  ft; the deviation sign test of the rollout ghost has more positive than negative games with one-sided p < 0.05.
+- Set A (D113), scored once only if development adopts: the 1.0 s and 0.2 s paired differences with a bootstrap of the
+  10 games (2000 resamples) and a report-only t interval on per-game values (as D80). Readings, from the 1.0 s
+  bootstrap interval, in this order: "inconsistent" if it excludes the development estimate; otherwise "confirms" if
+  it excludes zero on the development estimate's side; otherwise "consistent". Only "inconsistent" stops an
+  adoption. If development does not adopt, Set A is not scored (as D109).
+
+Commitments fixed with this amendment (code: tools/research_ghosting.py), before any number:
+
+1. Baseline: the frozen MLP stand-in (analytics.ghosting.train.fit_mlp, unchanged: StandardScaler, MLPRegressor 64x64,
+   early stopping, seed 0, one thread) refit out of fold under the lane's 5 grouped folds (seed 0) on the 1 Hz fit
+   rows of the development games, built by the frozen check_frames, check_possessions, build_panel_game,
+   feature_frame and fit_rows one game at a time. Gate: its out-of-fold ghosts at both horizons equal the stored
+   ghost_frames (every row, keys identical) within 1e-3 ft (the D49 ghosting cap), and its 0.2 s and 1.0 s mean
+   errors and the deviation sign test equal the printed 0.437, 3.657 and 346 / 258.
+2. The two torch networks have the stand-in's shape: the 155-column window, standardised by the training folds'
+   scaler, through 64 and 64 ReLU units to the 2-d displacement. Adam, learning rate 0.001, batch 1024, no weight
+   decay, 10 epochs, torch seed 0, the final weights kept (no early stopping, no validation split, nothing tuned on
+   any development number). Training rows: the same 1 Hz fit rows of the training folds.
+3. One-step network (the ablation): the squared error of the one-step displacement for all 10 epochs.
+4. Rollout network: the same budget, the horizon grown 1, 2, 3, 4, 5 steps (two epochs each). At horizon h a row is
+   rolled forward h steps from its fit row: the network's own position is fed back, the defender's own features are
+   recomputed from it as the frozen base_features does (relative vectors to everyone, basket distance, velocity over
+   0.4 s, absolute position), and everyone else stays actual, as the frozen roll_forward does at scoring. The loss is
+   the mean over the valid steps 1..h of the squared position error; a step past the sequence's end is left out.
+5. Scoring: the frozen roll_forward from every 5 Hz origin row of each test fold's games (rebuilt from frames one
+   game at a time), every model on the same origins; mean position error at 0.2 s and 1.0 s, pooled over rows.
+   Reference only: persistence, and a constant-velocity ghost (displacement = the defender's lag-1 velocity times
+   0.2 s, recomputed along the roll).
+6. Intervals: the lane's paired bootstrap by game of pooled means (analytics.eval.paired_bootstrap_by_game on per-game
+   error sums and counts), 2000 resamples, seed 0. It resamples games of fixed per-row errors, so it adds no noise to
+   any value (unlike the reliability statistics of decisions-E1, D86). The sign test is the lane's sign_test on the
+   rollout ghost's possessions.
+7. Reported beside, read by no rule: the one-step torch network minus the stand-in, the rollout network minus the
+   one-step torch network (which separates the rollout objective from the framework), persistence, constant
+   velocity, and every run's time and peak memory.
+8. Compute: the system Python as it stands (torch 2.15 with MPS, the version the genai venv holds; the venv lacks
+   scikit-learn, which the frozen stand-in needs), nothing installed. The MPS pool is capped
+   (PYTORCH_MPS_HIGH_WATERMARK_RATIO 0.6, LOW 0.5, as genai-E2). Every job runs under the lock, checkpointed by fold
+   and by epoch, each stretch under 3 hours; caches and weights live in the artifacts folder outside the repository.
+   Training on MPS is not bit-reproducible: the seed is fixed and every fold's weights are saved with their hashes,
+   so every number traces to saved weights. One fold is run and measured first.
+9. Set A, if scored: the stand-in and the rollout network refit on every development fit row with the same settings;
+   the scorer refuses, with its reason and no number, unless every test game has frames and possessions and at least
+   one 1.0 s origin; any non-finite number is a refused verdict, never a NaN; a clean tree, the commit, the gate files'
+   hashes and the development record's hash are recorded, and the summary is nested under "scored".
+
 ### ghosting-E2: multi-entity attention with 4 s of history
 
 - Hypothesis: a permutation-equivariant attention model over the 10 players and the ball with 4 s of history (20
