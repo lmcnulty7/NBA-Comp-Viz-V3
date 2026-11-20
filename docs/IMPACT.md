@@ -38,6 +38,11 @@ and were not scored, so that one score stays unspent. Source: `reports/research/
   0.0125). The lower end is above the bar of 0.10 and above 0.038, the top of a retriever that knows only position.
   The claim is narrow: it shows the map finds the same player, not what the map means. The 19 raw features without
   the map retrieve better, 0.561 [0.491, 0.631]. Source: `reports/research/embeddings-E1.md`
+- Player style, second test (embeddings-E2): not adopted on the training games. Maps of where a player shoots and
+  stands, fitted to the data, took the place of the zone shares in the style map. Over half a season they found the
+  same player a little more often: +0.032 [+0.006, +0.060], short of the bar of +0.05. Most of that gain came from
+  the shot map. From one game they did a bit worse, -0.016 [-0.028, -0.004], a check that decides nothing. Its test
+  games were not scored. Source: `reports/research/embeddings-E2.md`
 - Matchups (matchups-E1): part (a) passes and the test games confirm it; part (b) fails. Knowing the defenders
   helps predict which attacker takes the last shot: -0.004574 [-0.004904, -0.004230] on the training games and
   -0.007284 [-0.009136, -0.005454] on the 10 test games (log loss, lower is better). It adds nothing detectable on
