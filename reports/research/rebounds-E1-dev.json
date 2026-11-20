@@ -1,0 +1,256 @@
+{
+  "experiment": "rebounds-E1",
+  "code_commit": "e890986190a1715ce496a492b8ec3ca9d2479326",
+  "stage": "development games, out of fold under the frozen 5 grouped folds by game (seed 0); no Set A game read; no held-out row fitted or scored",
+  "gate_a": {
+    "rows_mine": 537175,
+    "rows_stored": 537175,
+    "matched": 537175,
+    "only_mine": 0,
+    "only_stored": 0,
+    "fold_mismatches": 0,
+    "max_abs_diff": 2.979989754958723e-08,
+    "tolerance": 5.960464477539063e-08,
+    "per_miss_log_loss": 1.600912138611828,
+    "frozen_log_loss": 1.6009,
+    "passed": true
+  },
+  "misses": 49288,
+  "games": 604,
+  "candidate_rows": 537175,
+  "per_fold": [
+    {
+      "fold": 0,
+      "tau": 1.2566428764306066,
+      "e1": {
+        "params": [
+          1.1234590145405277,
+          1.350306415638978,
+          2.9005174147628012,
+          0.3876386724703883,
+          3.8180408250644837
+        ],
+        "inner_log_loss": 1.5987098853234283,
+        "start_log_loss": 1.6029253985284058,
+        "converged": true
+      },
+      "ablation": {
+        "params": [
+          1.2629544699229482,
+          -0.08412204581613243,
+          -0.11557639425434783
+        ],
+        "inner_log_loss": 1.6023236132759577,
+        "start_log_loss": 1.6029253985284058,
+        "converged": true
+      },
+      "code_commit": "58ef8a9b333e12f75bf923976ffbacae6f313b9c"
+    },
+    {
+      "fold": 1,
+      "tau": 1.255430082981632,
+      "e1": {
+        "params": [
+          1.1209958695418731,
+          1.3483862663193706,
+          3.8232445591954067,
+          0.38861710862463267,
+          5.8553847268339485
+        ],
+        "inner_log_loss": 1.5979709321228026,
+        "start_log_loss": 1.6026302229272054,
+        "converged": true
+      },
+      "ablation": {
+        "params": [
+          1.261579723576462,
+          -0.08498613835194221,
+          -0.11727928799273583
+        ],
+        "inner_log_loss": 1.6020145358890203,
+        "start_log_loss": 1.6026302229272054,
+        "converged": true
+      },
+      "code_commit": "58ef8a9b333e12f75bf923976ffbacae6f313b9c"
+    },
+    {
+      "fold": 2,
+      "tau": 1.254782239736162,
+      "e1": {
+        "params": [
+          1.121981152222136,
+          1.3463249235272061,
+          2.8328683541093147,
+          0.38744453783438637,
+          3.658108448232948
+        ],
+        "inner_log_loss": 1.5972909810821951,
+        "start_log_loss": 1.6014850516548373,
+        "converged": true
+      },
+      "ablation": {
+        "params": [
+          1.2608840516794781,
+          -0.08182896472253301,
+          -0.11716953222996454
+        ],
+        "inner_log_loss": 1.6008939100475137,
+        "start_log_loss": 1.6014850516548373,
+        "converged": true
+      },
+      "code_commit": "58ef8a9b333e12f75bf923976ffbacae6f313b9c"
+    },
+    {
+      "fold": 3,
+      "tau": 1.2557281045285669,
+      "e1": {
+        "params": [
+          1.1125501322060454,
+          1.3533926096026123,
+          3.2892329889945287,
+          0.42522029841011927,
+          4.6882575985317265
+        ],
+        "inner_log_loss": 1.5980004487640187,
+        "start_log_loss": 1.6029881015857523,
+        "converged": true
+      },
+      "ablation": {
+        "params": [
+          1.2611927008176753,
+          -0.07756973908514396,
+          -0.11245873598293914
+        ],
+        "inner_log_loss": 1.6024449789198425,
+        "start_log_loss": 1.6029881015857523,
+        "converged": true
+      },
+      "code_commit": "58ef8a9b333e12f75bf923976ffbacae6f313b9c"
+    },
+    {
+      "fold": 4,
+      "tau": 1.2562178700739155,
+      "e1": {
+        "params": [
+          1.1179978987830408,
+          1.350005175272976,
+          3.4158408098487936,
+          0.4059073388865007,
+          4.939336194439758
+        ],
+        "inner_log_loss": 1.5979110110226793,
+        "start_log_loss": 1.602641480151341,
+        "converged": true
+      },
+      "ablation": {
+        "params": [
+          1.2618003257042019,
+          -0.07967853770963643,
+          -0.11787604728180984
+        ],
+        "inner_log_loss": 1.602059325367495,
+        "start_log_loss": 1.602641480151341,
+        "converged": true
+      },
+      "code_commit": "58ef8a9b333e12f75bf923976ffbacae6f313b9c"
+    }
+  ],
+  "log_loss": {
+    "baseline": {
+      "point": 1.600912138611828,
+      "ci95": [
+        1.5887286231428726,
+        1.6127307886812838
+      ]
+    },
+    "e1": {
+      "point": 1.5962844903673454,
+      "ci95": [
+        1.5842281775445437,
+        1.608078587914262
+      ]
+    },
+    "ablation": {
+      "point": 1.6003311021949833,
+      "ci95": [
+        1.588103083401278,
+        1.6123755224626528
+      ]
+    }
+  },
+  "top1": {
+    "baseline": {
+      "point": 0.4796806524914787,
+      "ci95": [
+        0.474740595271631,
+        0.48482756794490345
+      ]
+    },
+    "e1": {
+      "point": 0.4773474273656874,
+      "ci95": [
+        0.47235342381126916,
+        0.4823229369489868
+      ]
+    },
+    "ablation": {
+      "point": 0.4821153221879565,
+      "ci95": [
+        0.47703232550883345,
+        0.48712403670521054
+      ]
+    }
+  },
+  "favourite_calibration": {
+    "baseline": {
+      "slope": 1.3675048553702245,
+      "ece_equal_mass_10": 0.041119021556982036
+    },
+    "e1": {
+      "slope": 1.3003181848807253,
+      "ece_equal_mass_10": 0.03210171104380765
+    },
+    "ablation": {
+      "slope": 1.345673246643821,
+      "ece_equal_mass_10": 0.04162574716439229
+    }
+  },
+  "team_accuracy_player_rebounds": {
+    "baseline": 0.7748675624673169,
+    "e1": 0.7733669826978605,
+    "ablation": 0.7770502239501625
+  },
+  "e1_minus_baseline": {
+    "point": -0.004627648244482412,
+    "ci95": [
+      -0.005472459107886607,
+      -0.0038159088480677647
+    ]
+  },
+  "ablation_minus_baseline": {
+    "point": -0.0005810364168445215,
+    "ci95": [
+      -0.0009126146846576078,
+      -0.0002552579838160969
+    ]
+  },
+  "e1_minus_ablation": {
+    "point": -0.004046611827637891,
+    "ci95": [
+      -0.004835760013904408,
+      -0.0032807141298151986
+    ]
+  },
+  "projected_set_a": {
+    "random_10_game_sets_half_width": 0.0065627186854350684,
+    "dev_half_width_scaled": 0.006462071342624063,
+    "development_games": 604
+  },
+  "verdict": {
+    "rule": "D125: E1 minus baseline per-miss log loss at most -0.005 with its 95 percent interval excluding zero, out of fold on the development games",
+    "at_most_threshold": false,
+    "interval_excludes_zero": true,
+    "passes": false
+  },
+  "peak_gb": 0.59
+}
