@@ -52,6 +52,7 @@ export function storyData(
   data: Partial<TokenData>,
   variant: Variant,
   stillUrl: (still: string) => string | null,
+  stillWebpUrl: (still: string) => string | null = () => null,
 ): StoryData {
   const scene = storyScene(data);
   const fillShare = renderLine("{swap.fill_share}", null, data);
@@ -61,6 +62,7 @@ export function storyData(
       ? {
           clip: variant === "private" ? assetUrl(`clips/${scene.clip}`) : null,
           still: stillUrl(scene.still),
+          stillWebp: stillUrl(scene.still) ? stillWebpUrl(scene.still) : null,
           width: scene.width,
           height: scene.height,
         }

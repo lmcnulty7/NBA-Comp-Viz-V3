@@ -24,10 +24,11 @@
     "development_met_test_pending": "Cleared its bar on training games. Test score pending.",
     "not_adopted_development": "Fell short on training games. Not adopted.",
     "adopted": "Cleared its bar on training games and on the test games. Adopted.",
-    "not_adopted_test": "Fell short on the test games. Not adopted.",
+    "not_adopted_test": "Did not pass its check on the test games. Not adopted.",
     "passed_test": "Cleared its bar on the test games, scored once.",
     "adopted_research": "Cleared its bar on training games and on the test games. Adopted as a research result only; the site does not change.",
-    "ran_result_in_writeup": "Has run. Its result is in its write-up and is not shown on this page yet."
+    "ran_result_in_writeup": "Has run. Its result is in its write-up and is not shown on this page yet.",
+    "decided_by_part": "Read part by part. Each part has its own result."
   },
   "results": {
     "title": "Tests run so far",
@@ -41,15 +42,27 @@
     },
     "metric": "What is compared",
     "difference": "Difference",
-    "upper": "Upper end of the range",
-    "threshold": "The bar: at most",
+    "rangeOnly": "Range",
+    "end": {
+      "lo": "Lower end of the range",
+      "hi": "Upper end of the range"
+    },
+    "bar": {
+      "at_most": "The bar: at most",
+      "below": "The bar: below",
+      "above": "The bar: above",
+      "at_least": "The bar: at least",
+      "contains": "The range must hold"
+    },
     "verdict": "Against the bar",
     "met": "Cleared the bar",
     "missed": "Fell short of the bar",
+    "reading": "What the file calls it",
     "sample": "Sample",
     "games": "{n} games",
     "method": "How the range was found",
     "file": "Read from {path}",
+    "alsoRead": "Also read from {path}",
     "more": "More numbers from the same run",
     "writeup": "Write-up: {path}",
     "listed": "In the list of tests: {status}",
@@ -74,7 +87,6 @@
       "intervals": "Post hoc ranges read from {path}",
       "sample": "{n} {unit} in {games} games"
     },
-    "thresholdBelow": "The bar: below",
     "condition": {
       "title": "The rule also needs",
       "comparison": {
@@ -93,7 +105,7 @@
     "notes": "From the write-up",
     "design": "How it was run",
     "guard": {
-      "title": "No time bucket worse",
+      "title": "No group worse than the bar allows",
       "worse": "Worse",
       "notWorse": "Not worse",
       "line": "A bucket is worse when its {end} is {comparison} {threshold}",
@@ -102,7 +114,19 @@
         "hi": "upper end"
       }
     },
-    "notScored": "Its test games were not scored: it missed its bar on the training games, so its one test score was kept unused."
+    "notScored": "Its test games were not scored: it missed its bar on the training games, so its one test score was kept unused.",
+    "parts": "Its plan reads each part on its own. Each part has its own bar and result.",
+    "part": {
+      "pre_registered": "Set up, not run yet",
+      "confirmed": "Cleared its bar on training games. The test games agree.",
+      "development_met_test_not_met": "Cleared its bar on training games, not on the test games.",
+      "not_adopted_development": "Fell short on training games.",
+      "development_met_test_pending": "Cleared its bar on training games. Test score pending.",
+      "passed_test": "Cleared its bar on the test set, scored once.",
+      "not_passed_test": "Did not clear its bar on the test set."
+    },
+    "holds": "The range holds it",
+    "notHolds": "The range does not hold it"
   },
   "lane": {
     "foundations": "Built on",

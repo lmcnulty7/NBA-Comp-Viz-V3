@@ -5,7 +5,9 @@ import { copy, fillNodes, label } from "@/lib/copy";
 import { numberText } from "@/lib/format";
 import type {
   Benchmark,
+  BucketGuard,
   Experiment,
+  ExperimentPart,
   OurValue,
   PostHocInterval,
   ProtocolResult,
@@ -33,7 +35,23 @@ export const STATUS_TONE: Record<Experiment["status"], StatusTone> = {
   passed_test: "pass",
   adopted_research: "pass",
   ran_result_in_writeup: "plain",
+  decided_by_part: "plain",
 };
+
+export const PART_TONE: Record<ExperimentPart["status"], StatusTone> = {
+  pre_registered: "plain",
+  confirmed: "pass",
+  development_met_test_not_met: "warn",
+  not_adopted_development: "fail",
+  development_met_test_pending: "warn",
+  passed_test: "pass",
+  not_passed_test: "fail",
+};
+
+/** The end of the range a comparison reads: the lower end for a bar to clear from below, else the upper end. */
+function endOf(comparison: StageResult["comparison"]): "lo" | "hi" {
+  return comparison === "above" || comparison === "at_least" ? "lo" : "hi";
+}
 
 /** The plain name of a lane, or the lane key with its underscores as spaces when copy names no such lane. */
 export function laneName(lane: string): string {
@@ -88,17 +106,87 @@ function StageNumber({ value, field }: { value: StageValue; field: string }) {
               })
             : text.lane.point}
         </span>
+        {value.reading ? (
+          <span className="note" data-testid="value-reading">
+            {text.results.reading}
+            {": "}
+            <DataText file={FILE} field={`${field}.reading`} text={value.reading} />
+          </span>
+        ) : null}
       </span>
     </li>
   );
 }
 
-/** One stage of a test that has run: the paired difference against its bar, the sample, and the file. */
-export function StageFacts({ stage, field }: { stage: StageResult; field: string }) {
+function GuardFacts({ guard, field, depth }: { guard: BucketGuard; field: string; depth: 3 | 4 }) {
   const r = text.results;
+  const Side = depth === 3 ? "h4" : "h5";
+  return (
+    <div className="stack stack-tight" data-testid="guard" data-guard-met={guard.met ? "true" : "false"}>
+      <Side className={styles.side}>{r.guard.title}</Side>
+      <p className="small">
+        <DataText file={FILE} field={`${field}.label`} text={guard.label} />
+        <span className="note">
+          {fillNodes(r.guard.line, {
+            end: label(r.guard.end, guard.bound),
+            comparison: label(r.condition.comparison, guard.comparison),
+            threshold: <DataValue file={FILE} field={`${field}.threshold`} value={guard.threshold} />,
+          })}
+        </span>
+      </p>
+      <ul className={styles.values}>
+        {guard.buckets.map((bucket, index) => {
+          const at = `${field}.buckets[${index}]`;
+          return (
+            <li key={bucket.label} className={styles.value} data-bucket-worse={bucket.worse ? "true" : "false"}>
+              <DataText file={FILE} field={`${at}.label`} text={bucket.label} />
+              <span className="estimate">
+                <DataValue file={FILE} field={`${at}.value`} value={bucket.value} signed />
+                <span className="note" data-interval="true">
+                  {fillNodes(copy.site.estimate.range, {
+                    lo: <DataValue file={FILE} field={`${at}.lo`} value={bucket.lo} />,
+                    hi: <DataValue file={FILE} field={`${at}.hi`} value={bucket.hi} />,
+                  })}
+                </span>
+              </span>
+              <span className={styles.state}>
+                <Status tone={bucket.worse ? "fail" : "plain"} text={bucket.worse ? r.guard.worse : r.guard.notWorse} />
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * One stage of a test that has run: the paired difference (or its range alone, when the file states no point)
+ * against its bar, the reading word the file states, the sample, and the files it reads. `depth` is the heading
+ * level of the stage: 3 under an experiment, 4 under one part of it.
+ */
+export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; field: string; depth?: 3 | 4 }) {
+  const r = text.results;
+  const Title = depth === 3 ? "h3" : "h4";
+  const Side = depth === 3 ? "h4" : "h5";
+  const comparison = stage.comparison ?? "at_most";
+  const guards = [
+    ...(stage.guard ? [{ guard: stage.guard, at: `${field}.guard` }] : []),
+    ...(stage.guards ?? []).map((guard, index) => ({ guard, at: `${field}.guards[${index}]` })),
+  ];
+  const range = fillNodes(copy.site.estimate.range, {
+    lo: <DataValue file={FILE} field={`${field}.lo`} value={stage.lo} />,
+    hi: <DataValue file={FILE} field={`${field}.hi`} value={stage.hi} />,
+  });
   return (
     <div className="stack stack-tight" data-stage={stage.stage} data-met={stage.met ? "true" : "false"}>
-      <h3 className={styles.stage}>{label(r.stage, stage.stage)}</h3>
+      <Title className={styles.stage}>
+        {stage.test_set ? (
+          <DataText file={FILE} field={`${field}.test_set`} text={stage.test_set} />
+        ) : (
+          label(r.stage, stage.stage)
+        )}
+      </Title>
       {stage.design ? (
         <p className="small">
           {r.design}
@@ -108,37 +196,51 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
       ) : null}
       <dl className="facts">
         <div>
-          <dt>{r.difference}</dt>
+          <dt>{stage.diff != null ? r.difference : r.rangeOnly}</dt>
           <dd>
-            <span className="estimate">
-              <DataValue file={FILE} field={`${field}.diff`} value={stage.diff} signed />
-              <span className="note" data-interval="true">
-                {fillNodes(copy.site.estimate.range, {
-                  lo: <DataValue file={FILE} field={`${field}.lo`} value={stage.lo} />,
-                  hi: <DataValue file={FILE} field={`${field}.hi`} value={stage.hi} />,
-                })}
+            {stage.diff != null ? (
+              <span className="estimate">
+                <DataValue file={FILE} field={`${field}.diff`} value={stage.diff} signed />
+                <span className="note" data-interval="true">
+                  {range}
+                </span>
               </span>
-            </span>
+            ) : (
+              <span className="estimate" data-interval="true">
+                {range}
+              </span>
+            )}
           </dd>
         </div>
         <div>
-          <dt>{r.upper}</dt>
+          <dt>{label(r.end, comparison === "contains" ? (stage.upper === stage.lo ? "lo" : "hi") : endOf(comparison))}</dt>
           <dd>
             <DataValue file={FILE} field={`${field}.upper`} value={stage.upper} signed />
           </dd>
         </div>
         <div>
-          <dt>{stage.comparison === "below" ? r.thresholdBelow : r.threshold}</dt>
+          <dt>{label(r.bar, comparison)}</dt>
           <dd>
             <DataValue file={FILE} field={`${field}.threshold`} value={stage.threshold} signed />
           </dd>
         </div>
         <div>
           <dt>{r.verdict}</dt>
-          <dd>
-            <Status tone={stage.met ? "pass" : "fail"} text={stage.met ? r.met : r.missed} />
+          <dd className={styles.state}>
+            <Status
+              tone={stage.met ? "pass" : "fail"}
+              text={comparison === "contains" ? (stage.met ? r.holds : r.notHolds) : stage.met ? r.met : r.missed}
+            />
           </dd>
         </div>
+        {stage.reading ? (
+          <div data-testid="reading">
+            <dt>{r.reading}</dt>
+            <dd>
+              <DataText file={FILE} field={`${field}.reading`} text={stage.reading} />
+            </dd>
+          </div>
+        ) : null}
         <div>
           <dt>{r.sample}</dt>
           <dd>
@@ -148,17 +250,19 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
                 unit: <DataText file={FILE} field={`${field}.rows_unit`} text={stage.rows_unit} />,
               })}
             </span>
-            <span className="note">
-              {fillNodes(r.games, {
-                n: <DataValue file={FILE} field={`${field}.games`} value={stage.games} shown="count, as stored" />,
-              })}
-            </span>
+            {stage.games != null ? (
+              <span className="note">
+                {fillNodes(r.games, {
+                  n: <DataValue file={FILE} field={`${field}.games`} value={stage.games} shown="count, as stored" />,
+                })}
+              </span>
+            ) : null}
           </dd>
         </div>
       </dl>
       {(stage.conditions ?? []).length > 0 ? (
         <div className="stack stack-tight" data-testid="conditions">
-          <h4 className={styles.side}>{r.condition.title}</h4>
+          <Side className={styles.side}>{r.condition.title}</Side>
           <ul className={styles.values}>
             {(stage.conditions ?? []).map((condition, index) => {
               const at = `${field}.conditions[${index}]`;
@@ -167,12 +271,14 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
                   <DataText file={FILE} field={`${at}.label`} text={condition.label} />
                   <span className="estimate">
                     <DataValue file={FILE} field={`${at}.value`} value={condition.value} />
-                    <span className="note" data-interval="true">
-                      {fillNodes(copy.site.estimate.range, {
-                        lo: <DataValue file={FILE} field={`${at}.lo`} value={condition.lo} />,
-                        hi: <DataValue file={FILE} field={`${at}.hi`} value={condition.hi} />,
-                      })}
-                    </span>
+                    {condition.lo != null && condition.hi != null ? (
+                      <span className="note" data-interval="true">
+                        {fillNodes(copy.site.estimate.range, {
+                          lo: <DataValue file={FILE} field={`${at}.lo`} value={condition.lo} />,
+                          hi: <DataValue file={FILE} field={`${at}.hi`} value={condition.hi} />,
+                        })}
+                      </span>
+                    ) : null}
                   </span>
                   <span className="note">
                     {fillNodes(r.condition.line, {
@@ -190,43 +296,9 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
           </ul>
         </div>
       ) : null}
-      {stage.guard ? (
-        <div className="stack stack-tight" data-testid="guard" data-guard-met={stage.guard.met ? "true" : "false"}>
-          <h4 className={styles.side}>{r.guard.title}</h4>
-          <p className="small">
-            <DataText file={FILE} field={`${field}.guard.label`} text={stage.guard.label} />
-            <span className="note">
-              {fillNodes(r.guard.line, {
-                end: label(r.guard.end, stage.guard.bound),
-                comparison: label(r.condition.comparison, stage.guard.comparison),
-                threshold: <DataValue file={FILE} field={`${field}.guard.threshold`} value={stage.guard.threshold} />,
-              })}
-            </span>
-          </p>
-          <ul className={styles.values}>
-            {stage.guard.buckets.map((bucket, index) => {
-              const at = `${field}.guard.buckets[${index}]`;
-              return (
-                <li key={bucket.label} className={styles.value} data-bucket-worse={bucket.worse ? "true" : "false"}>
-                  <DataText file={FILE} field={`${at}.label`} text={bucket.label} />
-                  <span className="estimate">
-                    <DataValue file={FILE} field={`${at}.value`} value={bucket.value} signed />
-                    <span className="note" data-interval="true">
-                      {fillNodes(copy.site.estimate.range, {
-                        lo: <DataValue file={FILE} field={`${at}.lo`} value={bucket.lo} />,
-                        hi: <DataValue file={FILE} field={`${at}.hi`} value={bucket.hi} />,
-                      })}
-                    </span>
-                  </span>
-                  <span className={styles.state}>
-                    <Status tone={bucket.worse ? "fail" : "plain"} text={bucket.worse ? r.guard.worse : r.guard.notWorse} />
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : null}
+      {guards.map(({ guard, at }) => (
+        <GuardFacts key={at} guard={guard} field={at} depth={depth} />
+      ))}
       <p className="small">
         {r.metric}
         {": "}
@@ -238,6 +310,11 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
         <DataText file={FILE} field={`${field}.interval`} text={stage.interval} />
       </p>
       <p className="small">{fillNodes(r.file, { path: <RepoPath path={stage.source.path} /> })}</p>
+      {(stage.also_read ?? []).map((source) => (
+        <p key={source.path} className="small" data-testid="also-read">
+          {fillNodes(r.alsoRead, { path: <RepoPath path={source.path} /> })}
+        </p>
+      ))}
       {stage.values.length > 0 ? (
         <details className="sources">
           <summary>{r.more}</summary>
@@ -247,6 +324,46 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
             ))}
           </ul>
         </details>
+      ) : null}
+    </div>
+  );
+}
+
+/** One part of an experiment decided part by part: its label, its state, and its own stages. */
+export function PartFacts({ part, field }: { part: ExperimentPart; field: string }) {
+  const r = text.results;
+  // a part that did not clear its bar with an inconclusive reading is not shown as a fail
+  const inconclusive = part.status === "not_passed_test" && (part.test?.reading ?? "").startsWith("inconclusive");
+  return (
+    <div className={`stack stack-tight ${styles.part}`} data-part={part.label} data-part-status={part.status}>
+      <h3 className={styles.stage}>
+        <DataText file={FILE} field={`${field}.label`} text={part.label} />
+      </h3>
+      <p>
+        <span className={styles.state}>
+          <Status tone={inconclusive ? "warn" : PART_TONE[part.status]} text={label(r.part, part.status)} />
+        </span>
+      </p>
+      {(part.notes ?? []).length > 0 ? (
+        <div className="stack stack-tight" data-testid="part-notes">
+          {(part.notes ?? []).map((note, index) => (
+            <q key={note} className={styles.quote}>
+              <DataText file={FILE} field={`${field}.notes[${index}]`} text={note} />
+            </q>
+          ))}
+        </div>
+      ) : null}
+      {part.development ? <StageFacts stage={part.development} field={`${field}.development`} depth={4} /> : null}
+      {part.test ? (
+        <StageFacts stage={part.test} field={`${field}.test`} depth={4} />
+      ) : part.test_not_scored ? (
+        <p className="small" data-testid="test-not-scored">
+          {r.notScored}
+        </p>
+      ) : part.status === "development_met_test_pending" ? (
+        <p className="small" data-testid="test-pending">
+          {r.pending}
+        </p>
       ) : null}
     </div>
   );
