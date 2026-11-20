@@ -780,6 +780,12 @@ def _rule_statistics(results: dict, places_of: dict) -> dict:
     return out
 
 
+def _d108_reading(lo: float, hi: float, bar: float) -> str:
+    """D108's reading of an interval against its bar: confirms wholly below, contradiction wholly above, else
+    inconclusive."""
+    return "confirms" if hi < bar else "contradiction" if lo > bar else "inconclusive"
+
+
 def _close(a: float, b: float) -> bool:
     return abs(a - b) <= 5e-4 * max(1.0, abs(b))
 
@@ -1290,12 +1296,33 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
             expected = fits[0] if fits else next(w for w, k in spec["reading_rule"].items() if k == "otherwise")
             if value_reading != expected:
                 raise MethodsProblem(f"{rel}: {spec['reading']} reads {value_reading!r}, its numbers give {expected!r}")
+        named_paths = [spec.get(k) for k in ("value", "lo", "hi") if isinstance(spec.get(k), str)]
+        if comparison == "not_wholly_above" and any("t_interval" in p for p in named_paths):
+            # a second interval of the statistic (the t interval, D80) read by D108's words: shown beside the verdict
+            # exactly when it reads otherwise than the rule's interval
+            reads_otherwise = _d108_reading(float(at(spec["lo"], file)), float(at(spec["hi"], file)),
+                                            threshold) != _d108_reading(lo_v, hi_v, threshold)
+            if bool(spec.get("beside")) != reads_otherwise:
+                raise MethodsProblem(f"{rel}: the t interval {spec['label']!r} reads "
+                                     f"{_d108_reading(float(at(spec['lo'], file)), float(at(spec['hi'], file)), threshold)!r}"
+                                     f" against the rule's {_d108_reading(lo_v, hi_v, threshold)!r}, so beside is "
+                                     f"{reads_otherwise}")
+        elif spec.get("beside"):
+            raise MethodsProblem(f"{rel}: only a second interval of the rule's statistic that reads otherwise (a t "
+                                 f"interval) is shown beside the verdict, not {spec['label']!r}")
         target = beside if spec.get("beside") else values
         if spec.get("beside") and not re.search(r"report[ -]only|read by no rule", spec["label"], re.I):
             raise MethodsProblem(f"{rel}: a value shown beside the rule, {spec['label']!r}, says it is report only")
         target.append(S.StageValue(label=spec["label"], reading=value_reading,
                                    value=round(float(at(spec["value"], file)), spec["digits"]),
                                    lo=lo, hi=hi, point_estimate=lo is None))
+    if comparison == "not_wholly_above":
+        # every t interval the file holds beside the confirmation is shown: none can be left off the page
+        scored_keys = [k for k in (doc.get("scored") or {}) if k.startswith("t_interval")]
+        shown = " ".join(str(spec.get(k)) for spec in results["values"] for k in ("value", "lo", "hi"))
+        unshown = [k for k in scored_keys if f"scored.{k}." not in shown]
+        if unshown:
+            raise MethodsProblem(f"{rel}: the file holds {unshown} beside the confirmation, which no value shows")
     rows = "testset" if stage == "test" else "out_of_fold"
     what = ("experiment result: fitted on every development game, scored once on the D71 test set" if stage == "test"
             else "experiment result: out of fold on the development games")

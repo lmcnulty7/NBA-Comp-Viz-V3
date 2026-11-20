@@ -2134,8 +2134,16 @@ _REB2_ADOPTION = ("Paired difference at most -0.010 with its 95 percent interval
      "replaced the original threshold"),
     ("the D127 note paraphrased", lambda d: _exp(d, "rebounds-E2")["writeup_notes"][1].update(
         text="D127 replaced the Set A pass."), "not whole sentences"),
-    ("the t interval beside the verdict without its label", lambda d: _reb2(d)["by_stage"]["test"]["values"][0]
-     .update(label="Set A t interval"), "its label does not say so"),
+    ("the beside t interval dropped", lambda d: _reb2(d)["by_stage"]["test"]["values"].pop(0),
+     "which no value shows"),
+    ("the beside flag removed", lambda d: _reb2(d)["by_stage"]["test"]["values"][0].pop("beside"),
+     "so beside is True"),
+    ("the beside flag set false", lambda d: _reb2(d)["by_stage"]["test"]["values"][0].update(beside=False),
+     "so beside is True"),
+    ("the Set A ablation flagged beside", lambda d: _reb2(d)["by_stage"]["test"]["values"][1].update(beside=True),
+     "only a second interval of the rule's statistic"),
+    ("xfg-E2's agreeing t interval flagged beside", lambda d: _xfg2(d)["by_stage"]["test"]["values"][0].update(
+        beside=True), "so beside is False"),
     ("the t interval in the Set A rule", lambda d: _reb2(d)["by_stage"]["test"]["keys"].update(
         diff="scored.t_interval_softmax_minus_baseline_per_game.mean_of_game_means",
         lo="scored.t_interval_softmax_minus_baseline_per_game.lo",

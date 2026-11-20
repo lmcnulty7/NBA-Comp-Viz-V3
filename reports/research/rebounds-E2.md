@@ -1,6 +1,6 @@
 # rebounds-E2: train on the whole miss (within-miss softmax objective)
 
-Written 2026-11-20; the Set A section added the same day after the single score (05:24 UTC, the ledger's time). Pre-registration:
+Written 2026-11-20; the Set A section and one sentence in What is tested added the same day after the single score (05:24 UTC, the ledger's time). Pre-registration:
 docs/research/rebounds.md, "rebounds-E2", with its amendment (PLAN.md D127) and the commitments before the Set A score,
 all in the dossier. Code: tools/research_rebounds_e2.py; the development stage ran on commit d12b130c. The code did
 not check that the tree was clean for that run. The evidence that it ran on committed code: d12b130c was committed at
