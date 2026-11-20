@@ -192,3 +192,17 @@ def test_state_rows_flag_frames_that_are_not_five_on_five(season):
     rows = E.state_rows(frames.drop(drop), poss, g, states["frame"][:2], states["possession"][:2])
     assert not rows["ok"].iloc[0] and rows["not_ok_reason"].iloc[0] == "not five on five"
     assert np.isnan(rows["handler_nearest_def_dist_ft"].iloc[0]) and rows["ok"].iloc[1]
+
+
+def test_exclusions_by_fold_and_game():
+    att = E.completion_label(pd.DataFrame({"sportvu_game": ["a", "a", "b"], "fold": [0, 0, 1], "completed": [1, 0, 0],
+                                           "offense_regains": [False, True, False],
+                                           "possession_turnover": [False, False, True]}))
+    v = pd.DataFrame({"sportvu_game": ["a", "b"], "fold": [0, 1], "decision_kind": ["shot", "drive"],
+                      "v_shot": [1.0, np.nan], "v_drive": [0.5, 0.4], "v_hold": [1.0, 1.0],
+                      **{f"v_pass{k}": [0.3, np.nan] for k in range(1, 5)},
+                      **{f"tm{k}_id": [5, 6 if k == 1 else -1] for k in range(1, 5)}})
+    x = E.exclusions(v, att, np.array([True, False]))
+    assert x["attempts_by_fold"]["by"]["0"] == {"excluded": 1, "of": 2, "share": 0.5}
+    assert x["option_shot_by_game"]["by"]["b"]["excluded"] == 1 and x["option_pass_any_by_fold"]["by"]["1"]["excluded"] == 1
+    assert x["primary_left_out_by_kind"]["by"]["drive"]["excluded"] == 1

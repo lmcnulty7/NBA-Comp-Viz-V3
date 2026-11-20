@@ -933,6 +933,45 @@ def secondary(v, artifacts=None) -> dict:
     return out
 
 
+def _share(mask, keys) -> dict:
+    """Excluded count and share, overall and per key value."""
+    import pandas as pd
+    s = pd.DataFrame({"k": keys, "x": mask}).groupby("k")["x"].agg(["sum", "size"])
+    return {"excluded": int(mask.sum()), "of": int(len(mask)), "share": float(mask.mean()) if len(mask) else float("nan"),
+            "by": {str(k): {"excluded": int(r["sum"]), "of": int(r["size"]), "share": float(r["sum"] / r["size"])}
+                   for k, r in s.iterrows()}}
+
+
+def exclusions(v, att, finite) -> dict:
+    """What each estimate leaves out, by fold and by game (lead's note on D123): the attempts the completion label
+    leaves out (contested attempts: a defender held the ball and the offence got it back, or the possession did
+    not end in a turnover), so the completion model estimates completion among attempts that resolved cleanly; the
+    decisions whose shot, drive, hold or pass value is not finite; the decisions left out of the primary metric."""
+    import numpy as np
+    lab = att["label"].to_numpy(float)
+    ex_att = ~np.isfinite(lab)
+    out = {"attempts_note": "excluded attempts are the contested ones (a defender held the ball, then the offence "
+                            "held it again or the possession did not end in a turnover); the completion model "
+                            "estimates completion among attempts that resolved cleanly",
+           "attempts_by_fold": _share(ex_att, att["fold"].to_numpy()),
+           "attempts_by_game": _share(ex_att, att["sportvu_game"].astype(str).to_numpy())}
+    opts = {"shot": ["v_shot"], "drive": ["v_drive"], "hold": ["v_hold"],
+            "pass_any": [f"v_pass{k}" for k in range(1, 5)]}
+    for name, cols in opts.items():
+        val = v[cols].to_numpy(float)
+        if name == "pass_any":                                 # a teammate slot that exists but has no value
+            slots = np.column_stack([v[f"tm{k}_id"].to_numpy() >= 0 for k in range(1, 5)])
+            miss = (slots & ~np.isfinite(val)).any(axis=1)
+        else:
+            miss = ~np.isfinite(val[:, 0])
+        out[f"option_{name}_by_fold"] = _share(miss, v["fold"].to_numpy())
+        out[f"option_{name}_by_game"] = _share(miss, v["sportvu_game"].astype(str).to_numpy())
+    out["primary_left_out_by_fold"] = _share(~finite, v["fold"].to_numpy())
+    out["primary_left_out_by_kind"] = _share(~finite, v["decision_kind"].astype(str).to_numpy())
+    out["primary_left_out_by_game"] = _share(~finite, v["sportvu_game"].astype(str).to_numpy())
+    return out
+
+
 def decide(m: dict) -> dict:
     new = m["new"]
     checks = {"regret_coef_above_zero": new["regret_coef"]["lo"] > 0,
@@ -957,7 +996,7 @@ def development(artifacts=None, log=print) -> dict:
     m = metric_set(vf)
     out = {"experiment": EXPERIMENT, "stage": "development games (D122: development decides)", "counts": counts,
            "metrics": m, "decision": decide(m), "overlap": overlap(vf), "option_models": fits,
-           "secondary_report_only": secondary(vf, artifacts),
+           "secondary_report_only": secondary(vf, artifacts), "exclusions": exclusions(v, att, finite),
            "folds": {str(k): require_fold(artifacts, k) for k in range(FOLDS)},
            "pass_counts": _pass_counts(artifacts)}
     RESULTS.mkdir(parents=True, exist_ok=True)
