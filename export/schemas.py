@@ -1005,7 +1005,8 @@ NUMBER_TEXT_RE = re.compile(r"(?<![\w.])[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?")
 ComparabilityClass = Literal["roughly", "not_directly", "none"]
 ExperimentStatus = Literal["pre_registered", "development_met_test_pending", "not_adopted_development",
                            "adopted", "not_adopted_test", "passed_test", "adopted_research",
-                           "ran_result_in_writeup", "decided_by_part", "adopted_research_not_contradicted"]
+                           "ran_result_in_writeup", "decided_by_part", "adopted_research_not_contradicted",
+                           "adopted_research_confirmed"]
 # The state of one part of an experiment whose rule is decided part by part.
 PartStatus = Literal["pre_registered", "confirmed", "development_met_test_not_met", "not_adopted_development",
                      "development_met_test_pending", "passed_test", "not_passed_test"]
@@ -1229,6 +1230,8 @@ class StageResult(Strict):
             if self.stage != "test":
                 raise ValueError("a confirmation read (not wholly above) belongs to a test stage only")
             end, main = self.lo, self.lo <= self.threshold
+            if (self.reading or "").startswith("confirms") and not self.hi < self.threshold:
+                raise ValueError("a confirmation reads confirms only when its whole interval lies below the bar")
         else:
             end = self.lo if self.comparison in ("above", "at_least") else self.hi
             main = _COMPARE[self.comparison](self.upper, self.threshold)
@@ -1484,8 +1487,12 @@ class Experiment(Strict):
             # only ever a research result
             if self.adopted_as != "research_result":
                 raise ValueError(f"{self.id}: a confirmation read on the test set adopts a research result only")
-            expected = "adopted_research_not_contradicted"
-        if self.adopted_as is not None and expected not in ("adopted_research", "adopted_research_not_contradicted"):
+            # D108's "confirms" (the interval wholly below the bar) is told apart from a test that only did not
+            # contradict, and from a test set that met the bar itself (adopted_research)
+            expected = ("adopted_research_confirmed" if (test.reading or "").startswith("confirms")
+                        else "adopted_research_not_contradicted")
+        if self.adopted_as is not None and expected not in ("adopted_research", "adopted_research_not_contradicted",
+                                                            "adopted_research_confirmed"):
             raise ValueError(f"{self.id}: adopted as a research result needs the bar met on both stages")
         if self.status != expected:
             raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")

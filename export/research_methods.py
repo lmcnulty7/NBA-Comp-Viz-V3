@@ -330,14 +330,17 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             labels = [part.get("label") for part in exp.get("parts", [])]
             if len(set(labels)) != len(labels):
                 problems.append(f"{eid}: every part has its own label")
-            d_label = re.match(r"Decision \((D\d+)\)", exp.get("threshold_label") or "")
+            d_label = re.match(r"(?:Decision \(|Amendment \(PLAN\.md )(D\d+)", exp.get("threshold_label") or "")
             if d_label and bullets.get(eid, {}).get("threshold") and _flat(exp["threshold"]) != bullets[eid]["threshold"]:
-                # the rule shown is a D line's, not the pre-registered adoption threshold: a note quotes the
-                # write-up saying that D line replaced it
-                if not any(d_label.group(1) in _note_place(n)[1] and "replaced" in _note_place(n)[1]
-                           for n in exp.get("writeup_notes", [])):
-                    problems.append(f"{eid}: the rule shown is {d_label.group(1)}'s, so a write-up note says "
-                                    f"{d_label.group(1)} replaced the adoption threshold")
+                # the rule shown is a D line's, not the pre-registered adoption threshold: the write-up notes say
+                # so, naming the D line and that it replaced the original threshold (or reading the original
+                # threshold, report only, beside it)
+                quoted = [_note_place(n)[1] for n in exp.get("writeup_notes", [])]
+                names_d = any(d_label.group(1) in q for q in quoted)
+                says_original = any("replaced" in q or "original threshold" in q for q in quoted)
+                if not (names_d and says_original):
+                    problems.append(f"{eid}: the rule shown is {d_label.group(1)}'s, so a write-up note names "
+                                    f"{d_label.group(1)} and one says it replaced the original threshold")
             unknown = set(exp) - EXPERIMENT_KEYS
             if unknown:
                 problems.append(f"{eid}: {sorted(unknown)} are no keys of an experiment")
@@ -586,6 +589,8 @@ def check_results_spec(results: dict) -> None:
         missing = [key for key in CONDITION_KEYS if key not in condition and not (point_only and key in ("lo", "hi"))]
         if "threshold" not in condition and "threshold_key" not in condition:
             missing.append("threshold")
+        if "threshold_key" in condition and not isinstance(condition["threshold_key"], str):
+            missing.append("threshold_key (a key path)")
         if missing:
             raise MethodsProblem(f"the condition {condition.get('label')!r} lacks {missing}")
         if condition["comparison"] not in SCHEMA_COMPARE:
@@ -861,6 +866,9 @@ def _bar_matches(text: str, comparison: str, threshold: float, conditions: list,
 # difference ("candidate_minus_baseline"); a report-only reading never.
 OTHER_ARMS = ("frozen", "baseline", "ablation", "three_only", "control", "secondary", "shrink_zero")
 COMPARATOR_ARMS = ("frozen", "baseline")
+# Arm names that are an ablation in some experiment (rebounds-E2's binary objective): a value read from one says it
+# is report only in its label. They are not refused in a rule path, where the held statistics already decide.
+ABLATION_VALUE_WORDS = ("binary",)
 RULE_PATH_KEYS = ("diff", "lo", "hi", "upper", "rows", "games", "met", "main_met", "threshold", "reading")
 
 
@@ -888,7 +896,7 @@ def rule_path_problems(results: dict) -> list:
     for value in results.get("values", []):
         named = [value.get(k) for k in ("value", "lo", "hi") if isinstance(value.get(k), str)]
         other_arm = any(arm in segment for p in named for segment in p.split(".")
-                        for arm in OTHER_ARMS if arm not in COMPARATOR_ARMS)
+                        for arm in OTHER_ARMS + ABLATION_VALUE_WORDS if arm not in COMPARATOR_ARMS)
         if any("report_only" in p or "t_interval" in p for p in named) or other_arm:
             if not re.search(r"report[ -]only|read by no rule|^ablation|^sensitivity check", value["label"], re.I):
                 problems.append(f"the value {value['label']!r} is a report-only reading and its label does not say so")
@@ -1018,7 +1026,8 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         if comparison not in ("below", "above") or "interval" not in results["main_states"]:
             raise MethodsProblem(f"{rel}: a bar stated in words is the interval's, read strictly (below or above)")
         if _flat(results["main_states"]) not in _flat(rule) or not re.search(
-                rf"(?:excludes|excluding|below|above)\s+{re.escape(number_text(threshold))}\b",
+                rf"(?:excludes|excluding|below|above)\s+(?:{re.escape(number_text(threshold))}\b"
+                + (r"|zero\b)" if threshold == 0 else ")"),
                 _flat(results["main_states"])):
             raise MethodsProblem(f"{rel}: the rule does not say {results['main_states']!r} with its bar {threshold}")
     elif not states(rule, comparison, threshold):
@@ -1621,8 +1630,9 @@ def _status(dev, test, adopted_as=None) -> str:
         return "development_met_test_pending"
     if not test.met:
         return "not_adopted_test"
-    if test.comparison == "not_wholly_above":       # a confirmation read: not contradicted, not passed
-        return "adopted_research_not_contradicted"
+    if test.comparison == "not_wholly_above":       # a confirmation read: confirmed, or only not contradicted
+        return ("adopted_research_confirmed" if (test.reading or "").startswith("confirms")
+                else "adopted_research_not_contradicted")
     return "adopted_research" if adopted_as == "research_result" else "adopted"
 
 

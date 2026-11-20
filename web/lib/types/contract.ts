@@ -957,7 +957,8 @@ export interface Experiment {
     | "adopted_research"
     | "ran_result_in_writeup"
     | "decided_by_part"
-    | "adopted_research_not_contradicted";
+    | "adopted_research_not_contradicted"
+    | "adopted_research_confirmed";
   writeup?: string | null;
   writeup_notes?: string[];
   stages?: "development_and_test" | "test_only";

@@ -37,6 +37,7 @@ export const STATUS_TONE: Record<Experiment["status"], StatusTone> = {
   ran_result_in_writeup: "plain",
   decided_by_part: "plain",
   adopted_research_not_contradicted: "pass",
+  adopted_research_confirmed: "pass",
 };
 
 export const PART_TONE: Record<ExperimentPart["status"], StatusTone> = {

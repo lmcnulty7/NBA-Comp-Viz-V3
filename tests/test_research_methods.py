@@ -58,7 +58,7 @@ def test_the_committed_source_traces_and_builds(source):
 
 RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
        "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1", "epv-E1",
-       "embeddings-E2", "decisions-E2", "xfg-E2", "rebounds-E1")   # the experiments with a result file today
+       "embeddings-E2", "decisions-E2", "xfg-E2", "rebounds-E1", "rebounds-E2")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -2027,7 +2027,7 @@ def _xt(doc):
     ("the ablation relabelled plainly", lambda d: _xfg2(d)["values"][0].update(
         label="Second defender's distance alone, minus baseline"), "its label does not say so"),
     # the note that D121 replaced the 2026-11-16 threshold stays
-    ("the D121 note dropped", lambda d: _exp(d, "xfg-E2")["writeup_notes"].pop(1), "D121 replaced"),
+    ("the D121 note dropped", lambda d: _exp(d, "xfg-E2")["writeup_notes"].pop(1), "replaced the original threshold"),
     ("the D121 note paraphrased", lambda d: _exp(d, "xfg-E2")["writeup_notes"][1].update(
         text="D121 replaced the Set A pass with a confirmation read."), "not whole sentences"),
 ])
@@ -2083,3 +2083,104 @@ def test_a_bold_lead_is_quoted_without_its_marks_only_as_a_verdict():
     paragraph = "**Verdict: kept.** More here. Rules: **Not a verdict: here.** End."
     assert R.is_sentences("Verdict: kept.", [paragraph])
     assert not R.is_sentences("Not a verdict: here.", [paragraph])
+
+
+# ------------------------------------------------------------------------------------------ rebounds-E2 (D127)
+
+
+def _reb2(doc):
+    return _exp(doc, "rebounds-E2")["results"]
+
+
+def test_rebounds_e2_is_a_research_adoption_set_a_confirms(source):
+    """rebounds-E2 (PLAN.md D127): development decides (at most -0.010 with the interval excluding zero); Set A is a
+    D108 confirmation and reads "confirms". Its status tells it apart from xfg-E2 (inconclusive, not contradicted)
+    and from winprob-E1 (the test season met the bar itself)."""
+    built = _built(source)
+    e = built["rebounds-E2"]
+    dev_file, scored = _file("rebounds-E2-dev.json"), _file("rebounds-E2-final.json")["scored"]
+    assert (e.status, e.adopted_as) == ("adopted_research_confirmed", "research_result")
+    assert len({e.status, built["xfg-E2"].status, built["winprob-E1"].status}) == 3
+    cell = dev_file["paired"]["softmax_minus_baseline"]
+    assert (e.development.diff, e.development.lo, e.development.hi) == tuple(
+        round(cell[k], 6) for k in ("value", "lo", "hi"))
+    (size,) = e.development.conditions
+    assert (size.comparison, size.threshold, size.met) == ("at_most", dev_file["verdict"]["threshold"], True)
+    test = e.test
+    assert (test.comparison, test.threshold, test.met, test.reading) == ("not_wholly_above", 0, True, "confirms")
+    assert test.hi < 0 and scored["reading"] == "confirms"
+    t_interval = [v for v in test.values if v.label.startswith("Report only (D80)")]
+    assert len(t_interval) == 1 and t_interval[0].lo < 0 < t_interval[0].hi       # the disagreement, shown beside
+    assert e.threshold.startswith("Baseline: rebounds-E1 is not adopted on development")   # D127's amendment
+    assert any("original threshold of 2026-11-16" in note for note in e.writeup_notes)
+    ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
+    assert [x["status"] for x in ledger if x.get("experiment") == "rebounds-E2"] == ["scored"]
+
+
+_REB2_ADOPTION = ("Paired difference at most -0.010 with its 95 percent interval excluding 0, on development games and "
+                  "again on the D71 test set scored once.")
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("the 2026-11-16 threshold as the rule", lambda d: _reb2(d)["rule_quote"].update(texts=[_REB2_ADOPTION]),
+     "the rule does not say"),
+    ("the 2026-11-16 threshold shown in place of D127's", lambda d: (
+        _exp(d, "rebounds-E2").pop("threshold_label"), _exp(d, "rebounds-E2").update(threshold=_REB2_ADOPTION)),
+     "rebounds-E2.threshold"),
+    ("the original-threshold note dropped", lambda d: _exp(d, "rebounds-E2")["writeup_notes"].pop(),
+     "replaced the original threshold"),
+    ("the t interval in the Set A rule", lambda d: _reb2(d)["by_stage"]["test"]["keys"].update(
+        diff="scored.t_interval_softmax_minus_baseline_per_game.mean_of_game_means",
+        lo="scored.t_interval_softmax_minus_baseline_per_game.lo",
+        hi="scored.t_interval_softmax_minus_baseline_per_game.hi"), "needs the hi end below 0"),
+    ("the t interval relabelled plainly", lambda d: _reb2(d)["by_stage"]["test"]["values"][0].update(
+        label="Set A t interval"), "its label does not say so"),
+    ("the binary ablation as the development rule", lambda d: _reb2(d)["keys"].update(
+        diff="paired.binary_minus_baseline.value", lo="paired.binary_minus_baseline.lo",
+        hi="paired.binary_minus_baseline.hi"), ""),
+    ("the binary ablation relabelled plainly", lambda d: _reb2(d)["values"][0].update(
+        label="XGBoost binary minus the frozen model"), "its label does not say so"),
+    ("the size bar loosened", lambda d: (_reb2(d)["conditions"][0].pop("threshold_key"),
+                                         _reb2(d)["conditions"][0].pop("sign"),
+                                         _reb2(d)["conditions"][0].update(threshold=-0.001)), ""),
+    ("the size bar's key emptied", lambda d: _reb2(d)["conditions"][0].update(threshold_key=None),
+     "threshold_key (a key path)"),
+    ("confirms read as not contradicted only", lambda d: _reb2(d)["by_stage"]["test"]["readings"].update(
+        confirms="met_otherwise"), "D108's readings exactly"),
+])
+def test_rebounds_e2_is_refused_when_the_source_misreads_it(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert problems, name
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("inconclusive for an interval wholly below", lambda d: d["scored"].update(reading="inconclusive at 10 games"),
+     "no other reading fits"),
+    ("confirms for a straddling interval", lambda d: d["scored"]["paired"]["softmax_minus_baseline"].update(
+        hi=0.001), "needs the hi end below 0"),
+    ("the rule without 'stops the adoption'", lambda d: d["setup"].update(
+        rule="D127 with D108's readings: confirms if the 95 percent interval of softmax minus baseline lies wholly "
+             "below 0, inconclusive at 10 games if it straddles 0, contradiction if wholly above 0"),
+     "stops the adoption"),
+])
+def test_a_rebounds_e2_final_file_that_contradicts_its_numbers_is_refused(source, tmp_path, name, change, message):
+    repo = _mutated_repo(tmp_path, source, "rebounds-E2-final.json", change)
+    with pytest.raises(R.MethodsProblem) as caught:
+        R.build_methods(repo, source)
+    assert message in str(caught.value), (name, str(caught.value))
+
+
+def test_the_contract_tells_a_confirmed_research_adoption_apart(source):
+    built = _built(source)
+    reb = built["rebounds-E2"].model_dump()
+    with pytest.raises(ValidationError, match="the results say 'adopted_research_confirmed'"):
+        S.Experiment(**{**reb, "status": "adopted_research_not_contradicted"})
+    xfg = built["xfg-E2"].model_dump()
+    with pytest.raises(ValidationError, match="the results say 'adopted_research_not_contradicted'"):
+        S.Experiment(**{**xfg, "status": "adopted_research_confirmed"})
+    with pytest.raises(ValidationError, match="reads confirms only when its whole interval lies below"):
+        S.StageResult(**{**xfg["test"], "reading": "confirms"})
