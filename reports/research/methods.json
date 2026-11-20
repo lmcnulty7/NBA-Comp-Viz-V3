@@ -555,11 +555,15 @@
       "test": null,
       "design": "stage",
       "rule_quote": {
-       "section": "What is tested",
-       "text": "Read as two parts: the point at most -0.005, and the interval below zero."
+       "from": "dossier",
+       "texts": [
+        "Paired difference (new minus baseline) at most -0.005 with its 95 percent interval excluding 0, on development games and again on the D71 test set scored once.",
+        "As D121: the development games decide (difference at most -0.005 with the 95 percent interval excluding zero)."
+       ]
       },
       "comparison": "below",
       "threshold": 0,
+      "main_states": "its 95 percent interval excluding 0",
       "keys": {
        "rows": "misses",
        "games": "games",

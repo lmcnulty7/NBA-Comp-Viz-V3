@@ -26,8 +26,6 @@ fitted the same way on each outer fold's inner out-of-fold rows.
 - Metric: out-of-fold per-miss multinomial log loss (lower is better).
 - Threshold (pre-registered, D125): E1 minus baseline at most -0.005 with its 95 percent interval excluding zero, on
   the development games.
-- Read as two parts: the point at most -0.005, and the interval below zero. With the point at most -0.005, an interval
-  that excludes zero lies below it (the code tests both ends, upper end below zero or lower end above zero).
 
 ## Inputs and the gate
 
