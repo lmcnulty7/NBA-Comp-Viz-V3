@@ -388,8 +388,9 @@ page of the site shows the same content in full; `export/research_methods.py` ch
 dossier and every number of ours against its report before the page is built. Every proposal, ranked by expected
 gain over effort, is in [docs/research/BACKLOG.md](docs/research/BACKLOG.md). An experiment is first run on the
 training games, then scored once on a test set fixed and hashed before any experiment ran
-(`reports/research/testset.json`), and is adopted only if it clears its bar on both; the held-out games of the
-frozen models are never scored again.
+(`reports/research/testset.json`), and is adopted only if it clears its bar on both or, where a D line fixed before
+any development number says so (D108, D121), when it clears it on the training games and the test set does not
+contradict it; the held-out games of the frozen models are never scored again.
 
 | Lane | Built on | Our number next to the published one | Experiments |
 | --- | --- | --- | --- |

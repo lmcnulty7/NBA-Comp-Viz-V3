@@ -9,7 +9,7 @@
       "Our numbers are copied from the reports in the code. Each one links to its file.",
       "Published numbers are quoted from the notes we keep for each model. Those notes cite the paper and the table the number comes from.",
       "Few papers measure a number the way we do. So each pair carries a verdict, quoted from those notes, on how far the two can be compared.",
-      "Each new test had its bar fixed before it ran. It runs first on the training games, then once on games set apart for it. It is adopted only if it clears the bar on both.",
+      "Each new test had its bar fixed before it ran. It runs first on the training games, then once on games set apart for it. It is adopted only if it clears the bar on both. Some tests, as their plan says, are adopted when they clear the bar on the training games and the test games do not go against them.",
       "Some tests have no bar on the training games; they are scored once on the test games and say so."
     ],
     "kinds": "The verdicts fall into three kinds"

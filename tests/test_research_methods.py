@@ -1926,7 +1926,7 @@ _ADOPTION_2026_11_16 = ("Paired log loss difference (new minus baseline) at most
         diff="paired_ablation_minus_baseline.diff", lo="paired_ablation_minus_baseline.lo",
         hi="paired_ablation_minus_baseline.hi"), "another arm"),
     ("inconclusive read as a contradiction", lambda d: _xfg2(d)["by_stage"]["test"]["readings"].update(
-        inconclusive="not_met"), "disagrees with the rule"),
+        inconclusive="not_met"), "D108's readings exactly"),
     ("adopted as a plain result", lambda d: _exp(d, "xfg-E2").pop("adopted_as"), "research_result"),
 ])
 def test_xfg_e2_is_refused_when_the_source_misreads_it(source, name, change, message):
@@ -1960,3 +1960,97 @@ def test_the_contract_keeps_a_confirmation_read_to_a_research_result(source):
         S.Experiment(**{**e, "status": "adopted_research"})
     with pytest.raises(ValidationError, match="the end nearer its number"):
         S.StageResult(**{**e["test"], "upper": e["test"]["hi"]})
+
+
+# ------------------------------------------------------------------------------------------ xfg-E2 review probes
+
+
+def _xt(doc):
+    return _xfg2(doc)["by_stage"]["test"]
+
+
+@pytest.mark.parametrize("name, change, message", [
+    # 4. D108's readings exactly, in order
+    ("contradiction dropped", lambda d: _xt(d)["readings"].pop("contradiction"), "D108's readings exactly"),
+    ("confirms dropped", lambda d: _xt(d)["readings"].pop("confirms"), "D108's readings exactly"),
+    ("inconclusive read as met", lambda d: _xt(d)["readings"].update(inconclusive="met"), "D108's readings exactly"),
+    ("confirms on the lower end", lambda d: _xt(d)["readings"]["confirms"].update(bound="lo"),
+     "D108's readings exactly"),
+    ("the readings reordered", lambda d: _xt(d).update(readings={
+        "contradiction": "not_met", "inconclusive": "met_otherwise", "confirms": _xt(d)["readings"]["confirms"]}),
+     "D108's readings exactly"),
+    # 5. the stopping reading and the file's rule
+    ("main_states cut to 'wholly above 0'", lambda d: _xt(d).update(main_states="wholly above 0"),
+     "the stopping reading is"),
+    ("the bar moved to 0.01", lambda d: _xt(d).update(threshold=0.01), ""),
+    ("the file's rule dropped", lambda d: _xt(d)["keys"].pop("rule"), "reads the lower end, the file's own rule"),
+    # 3. a confirmation read belongs to a whole experiment's test stage
+    ("development read as a confirmation", lambda d: _xfg2(d)["by_stage"].update(development={
+        "comparison": "not_wholly_above", "main_states": "its 95 percent interval excludes 0"}), ""),
+    # the development bar stated in words reads the interval strictly
+    ("development main_states 'excludes 0' only", lambda d: _xfg2(d).update(main_states="excludes 0"),
+     "a bar stated in words is the interval's"),
+    ("development read at most 0", lambda d: _xfg2(d).update(comparison="at_most"),
+     "a bar stated in words is the interval's"),
+    # report-only values say so
+    ("the t interval relabelled plainly", lambda d: _xt(d)["values"][0].update(label="Set A t interval"),
+     "its label does not say so"),
+    ("the ablation relabelled plainly", lambda d: _xfg2(d)["values"][0].update(
+        label="Second defender's distance alone, minus baseline"), "its label does not say so"),
+    # the note that D121 replaced the 2026-11-16 threshold stays
+    ("the D121 note dropped", lambda d: _exp(d, "xfg-E2")["writeup_notes"].pop(1), "D121 replaced"),
+    ("the D121 note paraphrased", lambda d: _exp(d, "xfg-E2")["writeup_notes"][1].update(
+        text="D121 replaced the Set A pass with a confirmation read."), "not whole sentences"),
+])
+def test_the_xfg_e2_review_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert problems, name
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("a bare 'inconclusive'", lambda d: d["scored"].update(reading="inconclusive"), "is not one the file's rule names"),
+    ("'not contradicted'", lambda d: d["scored"].update(reading="not contradicted"), "is not one the file's rule names"),
+    ("the rule rewritten as a pass", lambda d: d.update(
+        rule="pass if below 0; inconclusive at 10 games otherwise; contradiction if wholly above 0; confirms"), ""),
+    ("the rule without 'stops the adoption'", lambda d: d.update(
+        rule="confirms if the 95 percent interval lies wholly below 0, inconclusive at 10 games if it straddles 0, "
+             "contradiction if wholly above 0"), "stops the adoption"),
+    ("an interval wholly above read inconclusive", lambda d: d["scored"]["paired_new_minus_baseline"].update(
+        lo=0.0001, diff=0.001), ""),
+])
+def test_an_xfg_e2_final_file_that_misstates_d108_is_refused(source, tmp_path, name, change, message):
+    repo = _mutated_repo(tmp_path, source, "xfg-E2-final.json", change)
+    with pytest.raises(R.MethodsProblem) as caught:
+        R.build_methods(repo, source)
+    assert message in str(caught.value), (name, str(caught.value))
+
+
+def test_the_contract_keeps_a_confirmation_read_to_a_development_adoption(source):
+    e = _built(source)["xfg-E2"].model_dump()
+    missed = copy.deepcopy(e)
+    missed["development"].update(hi=0.0001, upper=0.0001, met=False)
+    # 2. a missed development bar is never an adoption, whatever Set A says
+    with pytest.raises(ValidationError, match="needs the bar met on both stages"):
+        S.Experiment(**missed)
+    S.Experiment(**{**missed, "adopted_as": None, "status": "not_adopted_development"})
+    # 3. a confirmation read is a test stage of a whole experiment
+    dev = copy.deepcopy(e["development"])
+    dev.update(comparison="not_wholly_above", conditions=[], upper=dev["lo"])
+    with pytest.raises(ValidationError, match="test stage only"):
+        S.StageResult(**dev)
+    part = dict(label="p", development=e["development"], test=e["test"], status="confirmed")
+    with pytest.raises(ValidationError, match="never a part"):
+        S.ExperimentPart(**part)
+    with pytest.raises(ValidationError, match="never a test-only experiment"):
+        S.Experiment(**{**e, "stages": "test_only", "development": None, "adopted_as": None,
+                        "status": "passed_test"})
+
+
+def test_a_bold_lead_is_quoted_without_its_marks_only_as_a_verdict():
+    paragraph = "**Verdict: kept.** More here. Rules: **Not a verdict: here.** End."
+    assert R.is_sentences("Verdict: kept.", [paragraph])
+    assert not R.is_sentences("Not a verdict: here.", [paragraph])

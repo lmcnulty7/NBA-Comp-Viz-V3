@@ -1226,6 +1226,8 @@ class StageResult(Strict):
             end = self.lo if abs(self.threshold - self.lo) <= abs(self.threshold - self.hi) else self.hi
             main = self.lo <= self.threshold <= self.hi
         elif self.comparison == "not_wholly_above":
+            if self.stage != "test":
+                raise ValueError("a confirmation read (not wholly above) belongs to a test stage only")
             end, main = self.lo, self.lo <= self.threshold
         else:
             end = self.lo if self.comparison in ("above", "at_least") else self.hi
@@ -1354,6 +1356,9 @@ class ExperimentPart(Strict):
         dev, test = self.development, self.test
         if (dev and dev.stage != "development") or (test and test.stage != "test"):
             raise ValueError(f"{self.label}: a stage result sits under its own stage")
+        if test is not None and test.comparison == "not_wholly_above":
+            raise ValueError(f"{self.label}: a confirmation read (not wholly above) confirms a whole experiment's "
+                             "development adoption, never a part")
         if self.stages == "test_only":
             if dev is not None or self.test_not_scored:
                 raise ValueError(f"{self.label}: a test-only part has no development result")
@@ -1458,6 +1463,9 @@ class Experiment(Strict):
         if self.stages == "test_only":
             if dev is not None or self.protocol is not None:
                 raise ValueError(f"{self.id}: a test-only experiment has no development verdict")
+            if test is not None and test.comparison == "not_wholly_above":
+                raise ValueError(f"{self.id}: a confirmation read (not wholly above) needs the development adoption "
+                                 "it confirms, so never a test-only experiment")
             expected = "pre_registered" if test is None else "passed_test" if test.met else "not_adopted_test"
             if self.status != expected:
                 raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")
@@ -1471,7 +1479,7 @@ class Experiment(Strict):
                     else "development_met_test_pending" if test is None
                     else ("adopted_research" if self.adopted_as == "research_result" else "adopted") if test.met
                     else "not_adopted_test")
-        if test is not None and test.met and test.comparison == "not_wholly_above":
+        if test is not None and test.met and test.comparison == "not_wholly_above" and dev is not None and dev.met:
             # the test set did not contradict a development adoption: never shown as a pass on the test set, and
             # only ever a research result
             if self.adopted_as != "research_result":

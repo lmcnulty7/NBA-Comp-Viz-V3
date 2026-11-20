@@ -229,7 +229,14 @@ export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; fi
           <dt>{r.verdict}</dt>
           <dd className={styles.state}>
             <Status
-              tone={stage.met ? "pass" : "fail"}
+              tone={
+                // a confirmation that is not contradicted but not confirmed either is not shown as a pass
+                comparison === "not_wholly_above" && stage.met && !(stage.reading ?? "").startsWith("confirms")
+                  ? "warn"
+                  : stage.met
+                    ? "pass"
+                    : "fail"
+              }
               text={
                 comparison === "contains"
                   ? stage.met

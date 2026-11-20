@@ -164,7 +164,8 @@ def is_sentences(note: str, paragraphs: list) -> bool:
             # never a hyphen inside a sentence ("7.6810). The check ..." is not one)
             inline_item = before == "-" or (before.endswith(" -") and before[:-2].rstrip()[-1:] in (".", "?", "!", ":"))
             # a bold verdict lead quoted without its marks ("**Verdict: ... unchanged.**" as "Verdict: ... unchanged.")
-            bold_open = before.endswith("**") and (not before[:-2].rstrip() or before[:-2].rstrip()[-1] in ".?!:")
+            bold_open = (note.startswith("Verdict") and before.endswith("**")
+                         and (not before[:-2].rstrip() or before[:-2].rstrip()[-1] in ".?!"))
             if after.startswith("**") and bold_open:
                 after = after[2:]
             if (not before or before[-1] in ".?!" or inline_item or bold_open or (before.endswith("**") and lead[-1:] in (
@@ -329,6 +330,14 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             labels = [part.get("label") for part in exp.get("parts", [])]
             if len(set(labels)) != len(labels):
                 problems.append(f"{eid}: every part has its own label")
+            d_label = re.match(r"Decision \((D\d+)\)", exp.get("threshold_label") or "")
+            if d_label and bullets.get(eid, {}).get("threshold") and _flat(exp["threshold"]) != bullets[eid]["threshold"]:
+                # the rule shown is a D line's, not the pre-registered adoption threshold: a note quotes the
+                # write-up saying that D line replaced it
+                if not any(d_label.group(1) in _note_place(n)[1] and "replaced" in _note_place(n)[1]
+                           for n in exp.get("writeup_notes", [])):
+                    problems.append(f"{eid}: the rule shown is {d_label.group(1)}'s, so a write-up note says "
+                                    f"{d_label.group(1)} replaced the adoption threshold")
             unknown = set(exp) - EXPERIMENT_KEYS
             if unknown:
                 problems.append(f"{eid}: {sorted(unknown)} are no keys of an experiment")
@@ -878,9 +887,11 @@ def rule_path_problems(results: dict) -> list:
                 problems.append(f"the rule reads {path!r}, another arm than the one it judges")
     for value in results.get("values", []):
         named = [value.get(k) for k in ("value", "lo", "hi") if isinstance(value.get(k), str)]
-        if any("report_only" in p for p in named) and not re.search(r"report[ -]only|read by no rule",
-                                                                    value["label"], re.I):
-            problems.append(f"the value {value['label']!r} is a report-only reading and its label does not say so")
+        other_arm = any(arm in segment for p in named for segment in p.split(".")
+                        for arm in OTHER_ARMS if arm not in COMPARATOR_ARMS)
+        if any("report_only" in p or "t_interval" in p for p in named) or other_arm:
+            if not re.search(r"report[ -]only|read by no rule|^ablation|^sensitivity check", value["label"], re.I):
+                problems.append(f"the value {value['label']!r} is a report-only reading and its label does not say so")
     return problems
 
 
@@ -968,8 +979,29 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         if _flat(results["main_states"]) not in _flat(rule):
             raise MethodsProblem(f"{rel}: the rule does not say {results['main_states']!r}")
     elif comparison == "not_wholly_above":
-        # a confirmation read (D108, D121): only an interval wholly above the bar ("contradiction") stops it
+        # a confirmation read (D108, D121): only an interval wholly above the bar ("contradiction") stops it. Test
+        # stage only; D108's three readings exactly, in their order; the file's rule holds all three and says
+        # which one stops the adoption
         upper = lo_v
+        if stage != "test":
+            raise MethodsProblem(f"{rel}: a confirmation read (not wholly above) belongs to the test stage only")
+        bar_text = number_text(threshold)
+        d108 = [("confirms", {"bound": "hi", "comparison": "below", "threshold": threshold, "met": True}),
+                ("inconclusive", "met_otherwise"), ("contradiction", "not_met")]
+        given = [(w, {**k, "threshold": float(k["threshold"])} if isinstance(k, dict) else k)
+                 for w, k in results.get("readings", {}).items()]
+        if given != d108:
+            raise MethodsProblem(f"{rel}: a confirmation read takes D108's readings exactly, in order: {d108}")
+        named = re.findall(r"(?:^|[:,;]\s*)([a-z][a-z0-9 ]*?) if ", _flat(rule))
+        word_read = str(at(keys["reading"]))
+        if word_read not in named:
+            raise MethodsProblem(f"{rel}: the reading {word_read!r} is not one the file's rule names: {named}")
+        if _flat(results["main_states"]) != f"contradiction if wholly above {bar_text}":
+            raise MethodsProblem(f"{rel}: the stopping reading is 'contradiction if wholly above {bar_text}'")
+        for phrase in ("confirms if", f"wholly below {bar_text}", "inconclusive", f"straddles {bar_text}",
+                       f"contradiction if wholly above {bar_text}", "stops the adoption"):
+            if phrase not in _flat(rule):
+                raise MethodsProblem(f"{rel}: the file's rule does not say {phrase!r}")
 
         def compare(end, bar):
             return end <= bar
@@ -981,8 +1013,10 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     if comparison in ("contains", "not_wholly_above"):
         pass
     elif results.get("main_states"):
-        # a main bar the rule states in words ("its 95 percent interval excludes 0"): the words are in the rule and
-        # name the bar right after their verb
+        # a main bar the rule states in words ("its 95 percent interval excludes 0"): the words are in the rule,
+        # speak of the interval, name the bar right after their verb, and read strictly (excluding is not touching)
+        if comparison not in ("below", "above") or "interval" not in results["main_states"]:
+            raise MethodsProblem(f"{rel}: a bar stated in words is the interval's, read strictly (below or above)")
         if _flat(results["main_states"]) not in _flat(rule) or not re.search(
                 rf"(?:excludes|excluding|below|above)\s+{re.escape(number_text(threshold))}\b",
                 _flat(results["main_states"])):
