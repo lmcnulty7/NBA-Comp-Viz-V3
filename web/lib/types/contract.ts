@@ -955,24 +955,54 @@ export interface Experiment {
     | "not_adopted_test"
     | "passed_test"
     | "adopted_research"
-    | "ran_result_in_writeup";
+    | "ran_result_in_writeup"
+    | "decided_by_part";
   writeup?: string | null;
   writeup_notes?: string[];
   stages?: "development_and_test" | "test_only";
   adopted_as?: "research_result" | null;
   result_in_writeup?: boolean;
   test_not_scored?: boolean;
+  parts?: ExperimentPart[];
   development?: StageResult | null;
   test?: StageResult | null;
   protocol?: ProtocolResult | null;
 }
 /**
+ * One part of an experiment whose pre-registration decides each part on its own (who shoots and make given
+ * xFG; each hypothesis of a model test). A part has its own stages, read like an experiment's: development decides
+ * and the test set confirms, or the test set alone decides (`stages` test_only). `status` follows from them;
+ * `test_not_scored` marks a test deliberately not spent after the development bar was missed.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "ExperimentPart".
+ */
+export interface ExperimentPart {
+  label: string;
+  stages?: "development_and_test" | "test_only";
+  development?: StageResult | null;
+  test?: StageResult | null;
+  test_not_scored?: boolean;
+  notes?: string[];
+  status:
+    | "pre_registered"
+    | "confirmed"
+    | "development_met_test_not_met"
+    | "not_adopted_development"
+    | "development_met_test_pending"
+    | "passed_test"
+    | "not_passed_test";
+}
+/**
  * One stage of an experiment, read from its result file under reports/research/: development (out of fold on
  * the development games) or test (the D71 test set, scored once); `design` is the file's own words for how the
- * stage was run (its folds or its forward chaining). `diff` is the paired difference the adoption
- * rule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the
- * bound the rule reads) compares with `threshold` as `comparison` says (at most, or strictly below), and every
- * further condition of the same rule (`conditions`) is met too. Numbers are rounded once, here in the export.
+ * stage was run (its folds or its forward chaining). `diff` is the difference the adoption rule reads, with its
+ * 95 percent interval (`interval` names the method); `diff` is null when the file states the interval only. The
+ * rule is met when `upper`, the end of the interval the rule reads (the upper end for at most and below, the lower
+ * end for at least and above), compares with `threshold` as `comparison` says, and every further condition
+ * (`conditions`) and every guard (`guard`, `guards`) is met too. `reading` is the file's or the write-up's own word
+ * for the outcome (confirms, inconclusive, passes, hurts), checked against the rule. `also_read` names further
+ * files whose numbers are reported beside the rule. Numbers are rounded once, here in the export.
  *
  * This interface was referenced by `SiteContract`'s JSON-Schema
  * via the `definition` "StageResult".
@@ -980,22 +1010,26 @@ export interface Experiment {
 export interface StageResult {
   stage: "development" | "test";
   source: Source;
+  also_read?: Source[];
   design?: string | null;
   metric: string;
   rows: number;
   rows_unit: string;
-  games: number;
-  diff: number;
+  games?: number | null;
+  diff?: number | null;
   lo: number;
   hi: number;
   interval: string;
   threshold: number;
   upper: number;
-  comparison?: "at_most" | "below";
+  comparison?: "below" | "at_most" | "above" | "at_least" | "contains";
   conditions?: Condition[];
   guard?: BucketGuard | null;
+  guards?: BucketGuard[];
   met: boolean;
+  reading?: string | null;
   values: StageValue[];
+  test_set?: string | null;
 }
 /**
  * A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the
@@ -1009,8 +1043,8 @@ export interface StageResult {
 export interface Condition {
   label: string;
   value: number;
-  lo: number;
-  hi: number;
+  lo?: number | null;
+  hi?: number | null;
   bound: "lo" | "hi" | "point";
   comparison: "below" | "at_most" | "above" | "at_least";
   threshold: number;
@@ -1060,6 +1094,7 @@ export interface StageValue {
   lo?: number | null;
   hi?: number | null;
   point_estimate: boolean;
+  reading?: string | null;
 }
 /**
  * The development result of an experiment whose pre-registration is a protocol of hypotheses (statements on

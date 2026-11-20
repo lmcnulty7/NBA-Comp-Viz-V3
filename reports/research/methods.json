@@ -538,9 +538,156 @@
      "effort": 3,
      "test_data": "Set A",
      "backlog_status": "done: part (a) passes and Set A confirms (who shoots, defender minus no defender -0.004574 [-0.004904, -0.004230] on development, -0.007284 [-0.009136, -0.005454] on Set A; about half from frames at and after the release, and confounded by role, so not defensive skill); part (b) fails (make given xFG, -0.000003 [-0.000140, +0.000121]; Set A inconclusive at 10 games); no site table; reports/research/matchups-E1.md",
-     "results": null,
-     "result_in_writeup": true,
-     "writeup": "reports/research/matchups-E1.md"
+     "writeup": "reports/research/matchups-E1.md",
+     "writeup_notes": [
+      "The lane's original target, possession points, still shows no defender signal."
+     ],
+     "parts": [
+      {
+       "label": "Part (a): who takes the possession's last shot",
+       "results": {
+        "metric": "Out-of-fold log loss, defender model minus no-defender model (nats per row)",
+        "rows_unit": "attacker rows",
+        "interval_from": "writeup_sentence",
+        "interval": "Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with both models of a part paired on the same resampled games.",
+        "development": "reports/research/matchups-E1-dev.json",
+        "test": "reports/research/matchups-E1-final.json",
+        "paths": {
+         "development": {
+          "p": "part_a",
+          "stage": "stage"
+         },
+         "test": {
+          "p": "scored.parts.a",
+          "stage": "scored.stage"
+         }
+        },
+        "design": "{stage}",
+        "rule_quote": {
+         "section": "What is tested",
+         "text": "Threshold (pre-registered): for each part, defender model minus no-defender model below zero with its interval wholly below zero."
+        },
+        "comparison": "below",
+        "threshold": 0,
+        "keys": {
+         "rows": "{p}.rows",
+         "games": "{p}.games",
+         "diff": "{p}.defender_minus_no_defender.point",
+         "lo": "{p}.defender_minus_no_defender.ci95.0",
+         "hi": "{p}.defender_minus_no_defender.ci95.1"
+        },
+        "conditions": [],
+        "digits": 6,
+        "values": [
+         {
+          "label": "Report-only t interval on the per-game means",
+          "value": "{p}.t_interval_of_game_means.mean_of_game_means",
+          "lo": "{p}.t_interval_of_game_means.lo",
+          "hi": "{p}.t_interval_of_game_means.hi",
+          "digits": 6,
+          "stage": "test"
+         }
+        ],
+        "stage_keys": {
+         "development": {
+          "met": "verdict.part_a_passes",
+          "main_met": "part_a.passes"
+         },
+         "test": {
+          "reading": "scored.parts.a.reading"
+         }
+        },
+        "readings": {
+         "confirms": "met",
+         "inconclusive": "otherwise",
+         "contradiction": {
+          "bound": "lo",
+          "comparison": "above",
+          "threshold": 0
+         }
+        },
+        "by_stage": {
+         "test": {
+          "metric": "Log loss on Set A, defender model minus no-defender model, both fitted on every development game (nats per row)"
+         }
+        }
+       },
+       "notes": [
+        "Beside part (a), as committed: about half of it comes from frames at and after the release (the pre-shot context keeps -0.003525 of -0.007284 on Set A), and it is confounded by role (opponents put their best defender on the first option), so it is not defensive skill and not proof that a defender keeps his man from shooting."
+       ]
+      },
+      {
+       "label": "Part (b): make given xFG",
+       "results": {
+        "metric": "Out-of-fold log loss, defender model minus no-defender model (nats per row)",
+        "rows_unit": "attempts",
+        "interval_from": "writeup_sentence",
+        "interval": "Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with both models of a part paired on the same resampled games.",
+        "development": "reports/research/matchups-E1-dev.json",
+        "test": "reports/research/matchups-E1-final.json",
+        "paths": {
+         "development": {
+          "p": "part_b",
+          "stage": "stage"
+         },
+         "test": {
+          "p": "scored.parts.b",
+          "stage": "scored.stage"
+         }
+        },
+        "design": "{stage}",
+        "rule_quote": {
+         "section": "What is tested",
+         "text": "Threshold (pre-registered): for each part, defender model minus no-defender model below zero with its interval wholly below zero."
+        },
+        "comparison": "below",
+        "threshold": 0,
+        "keys": {
+         "rows": "{p}.rows",
+         "games": "{p}.games",
+         "diff": "{p}.defender_minus_no_defender.point",
+         "lo": "{p}.defender_minus_no_defender.ci95.0",
+         "hi": "{p}.defender_minus_no_defender.ci95.1"
+        },
+        "conditions": [],
+        "digits": 6,
+        "values": [
+         {
+          "label": "Report-only t interval on the per-game means",
+          "value": "{p}.t_interval_of_game_means.mean_of_game_means",
+          "lo": "{p}.t_interval_of_game_means.lo",
+          "hi": "{p}.t_interval_of_game_means.hi",
+          "digits": 6,
+          "stage": "test"
+         }
+        ],
+        "stage_keys": {
+         "development": {
+          "met": "verdict.part_b_passes",
+          "main_met": "part_b.passes"
+         },
+         "test": {
+          "reading": "scored.parts.b.reading"
+         }
+        },
+        "readings": {
+         "confirms": "met",
+         "inconclusive": "otherwise",
+         "contradiction": {
+          "bound": "lo",
+          "comparison": "above",
+          "threshold": 0
+         },
+         "wholly": "met"
+        },
+        "by_stage": {
+         "test": {
+          "metric": "Log loss on Set A, defender model minus no-defender model, both fitted on every development game (nats per row)"
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "id": "matchups-E2",
@@ -553,9 +700,54 @@
      "effort": 3,
      "test_data": "Set A",
      "backlog_status": "done: not adopted on development (the HMM's E1 part (a) gain is smaller, HMM minus Hungarian -0.003156 [-0.003417, -0.002893]; it switches far less, 0.73 against 2.44 per defender-possession); Set A not scored (D114); reports/research/matchups-E2.md",
-     "results": null,
-     "result_in_writeup": true,
-     "writeup": "reports/research/matchups-E2.md"
+     "writeup": "reports/research/matchups-E2.md",
+     "test_not_scored": true,
+     "writeup_notes": [
+      "The HMM assignment carries less defender signal than the frozen Hungarian assignment: the E1 part (a) gain falls from 0.004574 to 0.001418, a difference of -0.003156 [-0.003417, -0.002893].",
+      "The HMM does switch far less (0.73 against 2.44 per defender-possession).",
+      "The site keeps the frozen assignment."
+     ],
+     "results": {
+      "metric": "E1 part (a) gain under the HMM assignment minus under the Hungarian assignment (nats per attacker row)",
+      "rows_unit": "attacker rows",
+      "interval_from": "writeup_sentence",
+      "interval": "Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with every assignment paired on the same rows and the same resampled games.",
+      "development": "reports/research/matchups-E2-dev.json",
+      "test": null,
+      "design": "stage",
+      "rule_quote": {
+       "section": "What is tested",
+       "text": "Threshold (pre-registered): the HMM's gain larger, the difference above zero with its interval wholly above zero."
+      },
+      "comparison": "above",
+      "threshold": 0,
+      "keys": {
+       "rows": "rows",
+       "games": "games",
+       "diff": "hmm_minus_hungarian.point",
+       "lo": "hmm_minus_hungarian.ci95.0",
+       "hi": "hmm_minus_hungarian.ci95.1",
+       "met": "verdict.passes"
+      },
+      "conditions": [],
+      "digits": 6,
+      "values": [
+       {
+        "label": "Gain under the Hungarian assignment",
+        "value": "gains.gain_hungarian.point",
+        "lo": "gains.gain_hungarian.ci95.0",
+        "hi": "gains.gain_hungarian.ci95.1",
+        "digits": 6
+       },
+       {
+        "label": "Gain under the HMM assignment",
+        "value": "gains.gain_hmm.point",
+        "lo": "gains.gain_hmm.ci95.0",
+        "hi": "gains.gain_hmm.ci95.1",
+        "digits": 6
+       }
+      ]
+     }
     }
    ]
   },
@@ -651,9 +843,83 @@
      "effort": 2,
      "test_data": "Set A",
      "backlog_status": "done: not adopted on development (candidate minus baseline MSE -0.0076 [-0.0152, -0.0002] ft squared; effect per SD of teammates' gravity sum 0.0145 [-0.0660, 0.1016] ft, so the pre-registered 0.2 ft is ruled out; Set A was not scored, PLAN.md D109; reports/research/gravity-E1.md)",
-     "results": null,
      "writeup": "reports/research/gravity-E1.md",
-     "result_in_writeup": true
+     "test_not_scored": true,
+     "writeup_notes": [
+      "That effect is 0.014 ft per SD (95 percent interval -0.066 to 0.102; 62358 attempts in 604 games), so 0.2 lies above the whole interval: for this estimand, an effect of that size is ruled out.",
+      "Post hoc and read by no rule: the sum alone, with the maximum not held fixed, gives 0.109 [0.053, 0.167] ft per SD on the same development folds, so a total effect of the sum does not reach 0.2 either; \"ruled out\" is said of the committed estimand only.",
+      "In the dossier's words for a fail: gravity was tested against teammates' openness and showed no effect of that size.",
+      "Set A was not scored (PLAN.md D109): under D107 its reading could only stop an adoption, and there is none to stop; at its size it could not separate 0.0145 from zero either."
+     ],
+     "results": {
+      "metric": "Paired difference in out-of-fold MSE of the nearest-defender distance at release, candidate minus baseline (ft squared)",
+      "rows_unit": "attempts",
+      "interval_from": "writeup_sentence",
+      "interval": "Intervals: a paired bootstrap by game of the fixed per-shot values (MSE, log loss; seed sequence [0, 1]) or of the fixed residuals (the gravity effects, [0, 2]; the ablation's effects, [0, 3]; the post hoc sum-only slope, [0, 4]), 2000 resamples each.",
+      "development": "reports/research/gravity-E1-dev.json",
+      "test": null,
+      "design": "stage",
+      "rule_quote": {
+       "section": "What was tested",
+       "text": "Decision (D107, development games): the out-of-fold MSE difference (candidate minus baseline) with its interval wholly below zero, and an effect of at least 0.2 ft per SD of the gravity sum."
+      },
+      "comparison": "below",
+      "threshold": 0,
+      "keys": {
+       "rows": "bootstrap.shots",
+       "games": "bootstrap.games",
+       "diff": "bootstrap.intervals.candidate_minus_baseline.value",
+       "lo": "bootstrap.intervals.candidate_minus_baseline.lo",
+       "hi": "bootstrap.intervals.candidate_minus_baseline.hi",
+       "met": "decision.adopted",
+       "main_met": "decision.mse_interval_below_zero"
+      },
+      "conditions": [
+       {
+        "label": "Effect per SD of the teammates' gravity sum, with the maximum held fixed (ft)",
+        "value": "effect_per_sd_gravity.sum.value",
+        "lo": "effect_per_sd_gravity.sum.lo",
+        "hi": "effect_per_sd_gravity.sum.hi",
+        "bound": "point",
+        "comparison": "at_least",
+        "threshold_key": "decision.effect_at_least",
+        "sign": 1,
+        "met": "decision.effect_ok",
+        "digits": 3
+       }
+      ],
+      "equalities": [
+       [
+        "decision.effect_per_sd",
+        "effect_per_sd_gravity.sum.value"
+       ]
+      ],
+      "digits": 4,
+      "values": [
+       {
+        "label": "Baseline MSE (ft squared)",
+        "value": "bootstrap.intervals.mse_baseline.value",
+        "lo": "bootstrap.intervals.mse_baseline.lo",
+        "hi": "bootstrap.intervals.mse_baseline.hi",
+        "digits": 2
+       },
+       {
+        "label": "Partial slope of the teammates' gravity maximum, read by no rule (ft per SD)",
+        "value": "effect_per_sd_gravity.max.value",
+        "lo": "effect_per_sd_gravity.max.lo",
+        "hi": "effect_per_sd_gravity.max.hi",
+        "digits": 3
+       },
+       {
+        "label": "Post hoc, read by no rule: the gravity sum alone (ft per SD)",
+        "file": "reports/research/gravity-E1-posthoc.json",
+        "value": "sum_only_effect_per_sd.value",
+        "lo": "sum_only_effect_per_sd.lo",
+        "hi": "sum_only_effect_per_sd.hi",
+        "digits": 3
+       }
+      ]
+     }
     },
     {
      "id": "gravity-E2",
@@ -798,9 +1064,236 @@
      "effort": 2,
      "test_data": "Set A",
      "backlog_status": "done: not adopted (adopted on development: 1.0 s rollout minus stand-in -1.295 [-1.322, -1.269] ft; Set A's D113 reading inconsistent: -1.117 [-1.154, -1.085] excludes the development estimate, which stops the adoption; the size reading, report only, has the gain past the 0.10 ft bar; reports/research/ghosting-E1.md)",
-     "results": null,
      "writeup": "reports/research/ghosting-E1.md",
-     "result_in_writeup": true
+     "writeup_notes": [
+      "On development the rollout-trained network met all three pre-registered parts: at 1.0 s it puts the ghost 1.295 ft closer than the frozen one-step stand-in (2.362 against 3.657 ft; paired -1.295 [-1.322, -1.269], 604 games), it is better at 0.2 s (-0.054 [-0.055, -0.053]), and its deviation tracks points allowed in 414 games against 190 (p = 2e-20).",
+      "That interval excludes the development estimate (-1.295), so D113's reading is \"inconsistent\", and under D113 that stops the adoption.",
+      "Beside it, report only and fixed before the score (D115): the interval's upper end, -1.085, is below -0.10 ft, so on the test games the gain is at least the pre-registered bar.",
+      "The report said before the score why the reading could be \"inconsistent\": the development estimate pools five stand-in refits that differ from one another (fold 3's at 4.266 ft), while Set A scores one.",
+      "The rule stands as written.",
+      {
+       "section": "The refit before the score (PLAN.md D119)",
+       "text": "D119, decided knowing the value: the check became one-sided (finite weights and a final-epoch loss not above 7.8066), and the saved rollout refit was scored as it is: D119's \"no retraining, no second refit\" applies to the rollout network."
+      }
+     ],
+     "results": {
+      "metric": "Mean position error of the ghost at 1.0 s (ft), rollout-trained network minus the frozen stand-in",
+      "rows_unit": "origins at 1.0 s",
+      "interval_from": "dossier_sentence",
+      "interval": "Intervals: the lane's paired bootstrap by game of pooled means (analytics.eval.paired_bootstrap_by_game on per-game error sums and counts), 2000 resamples, seed 0.",
+      "development": "reports/research/ghosting-E1-dev.json",
+      "test": "reports/research/ghosting-E1-final.json",
+      "design": "stage",
+      "comparison": "below",
+      "threshold": 0,
+      "keys": {
+       "rows": "mean_error_ft.1.0.rows",
+       "games": "games",
+       "diff": "paired_ft.1.0.rollout_minus_mlp.diff",
+       "lo": "paired_ft.1.0.rollout_minus_mlp.lo",
+       "hi": "paired_ft.1.0.rollout_minus_mlp.hi",
+       "met": "decision.adopted"
+      },
+      "conditions": [
+       {
+        "label": "1.0 s gain at least 0.10 ft (the difference itself)",
+        "value": "paired_ft.1.0.rollout_minus_mlp.diff",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold": -0.1,
+        "met": null,
+        "digits": 3,
+        "states": "1.0 s error lower by at least 0.10 ft"
+       },
+       {
+        "label": "0.2 s guard: rollout minus stand-in at 0.2 s (ft)",
+        "value": "paired_ft.0.2.rollout_minus_mlp.diff",
+        "lo": "paired_ft.0.2.rollout_minus_mlp.lo",
+        "hi": "paired_ft.0.2.rollout_minus_mlp.hi",
+        "bound": "hi",
+        "comparison": "below",
+        "threshold": 0.02,
+        "met": "decision.guard_02s.ok",
+        "digits": 3
+       },
+       {
+        "label": "Deviation sign test: games where the deviation tracks points allowed (against the games where it does not)",
+        "value": "sign_test.rollout.n_pos",
+        "bound": "point",
+        "comparison": "above",
+        "threshold_key": "sign_test.rollout.n_neg",
+        "sign": 1,
+        "met": null,
+        "digits": 0,
+        "states": "the deviation sign test still positive"
+       },
+       {
+        "label": "Deviation sign test: one-sided p value",
+        "value": "sign_test.rollout.p_value",
+        "bound": "point",
+        "comparison": "below",
+        "threshold": 0.05,
+        "met": null,
+        "digits": 20,
+        "states": "one-sided p < 0.05"
+       }
+      ],
+      "conjunctions": [
+       {
+        "flag": "decision.one_s.ok",
+        "of": [
+         "@main",
+         "@0"
+        ],
+        "rule": "decision.one_s.rule"
+       },
+       {
+        "flag": "decision.guard_02s.ok",
+        "of": [
+         "@1"
+        ],
+        "rule": "decision.guard_02s.rule"
+       },
+       {
+        "flag": "decision.sign_test.ok",
+        "of": [
+         "@2",
+         "@3"
+        ],
+        "rule": "decision.sign_test.rule"
+       }
+      ],
+      "equalities": [
+       [
+        "decision.one_s.diff",
+        "paired_ft.1.0.rollout_minus_mlp.diff"
+       ],
+       [
+        "decision.one_s.hi",
+        "paired_ft.1.0.rollout_minus_mlp.hi"
+       ],
+       [
+        "decision.guard_02s.hi",
+        "paired_ft.0.2.rollout_minus_mlp.hi"
+       ],
+       [
+        "decision.sign_test.n_pos",
+        "sign_test.rollout.n_pos"
+       ],
+       [
+        "decision.sign_test.n_neg",
+        "sign_test.rollout.n_neg"
+       ],
+       [
+        "decision.sign_test.p",
+        "sign_test.rollout.p_value"
+       ]
+      ],
+      "digits": 3,
+      "values": [
+       {
+        "label": "Rollout network, mean error at 1.0 s (ft)",
+        "value": "mean_error_ft.1.0.rollout.point",
+        "lo": "mean_error_ft.1.0.rollout.lo",
+        "hi": "mean_error_ft.1.0.rollout.hi",
+        "digits": 3
+       },
+       {
+        "label": "Frozen stand-in, mean error at 1.0 s (ft)",
+        "value": "mean_error_ft.1.0.mlp.point",
+        "lo": "mean_error_ft.1.0.mlp.lo",
+        "hi": "mean_error_ft.1.0.mlp.hi",
+        "digits": 3
+       },
+       {
+        "label": "Ablation: the same network trained on one step, minus the stand-in at 1.0 s (ft)",
+        "value": "paired_ft.1.0.onestep_minus_mlp.diff",
+        "lo": "paired_ft.1.0.onestep_minus_mlp.lo",
+        "hi": "paired_ft.1.0.onestep_minus_mlp.hi",
+        "digits": 3
+       }
+      ],
+      "by_stage": {
+       "test": {
+        "metric": "Set A consistency check (D113): rollout minus the stand-in refit at 1.0 s (ft), against the development estimate",
+        "interval_from": "dossier_sentence",
+        "interval": "Set A (D113), scored once only if development adopts: the 1.0 s and 0.2 s paired differences with a bootstrap of the 10 games (2000 resamples) and a report-only t interval on per-game values (as D80).",
+        "design": "scored.stage",
+        "comparison": "contains",
+        "main_states": "excludes the development estimate",
+        "keys": {
+         "rows": "scored.1.0.rows",
+         "games": "scored.games",
+         "diff": "scored.1.0.rollout_minus_mlp.diff",
+         "lo": "scored.1.0.rollout_minus_mlp.lo",
+         "hi": "scored.1.0.rollout_minus_mlp.hi",
+         "threshold": "scored.development_estimate_1s",
+         "rule": "setup.rule.set_a",
+         "reading": "scored.reading",
+         "threshold_development": "paired_ft.1.0.rollout_minus_mlp.diff"
+        },
+        "readings": {
+         "inconsistent": "not_met",
+         "confirms": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0,
+          "met": true
+         },
+         "consistent": "met_otherwise"
+        },
+        "conditions": [],
+        "conjunctions": [],
+        "equalities": [
+         [
+          "scored.development_estimate_1s",
+          "setup.rule.development_decides.one_s.diff"
+         ],
+         [
+          "scored.report_only_size_reading.upper_end",
+          "scored.1.0.rollout_minus_mlp.hi"
+         ]
+        ],
+        "flags_outside_rule": {
+         "scored.0.2.rollout_minus_mlp.excludes_zero": "reported beside the reading, not part of D113's rule",
+         "scored.1.0.rollout_minus_mlp.excludes_zero": "reported beside the reading; D113 reads it only after the consistency check",
+         "scored.report_only_size_reading.below": "the report-only size reading of D115, read by no rule"
+        },
+        "digits": 4,
+        "values": [
+         {
+          "label": "Report only (D115), read by no rule: the 1.0 s interval's upper end, against the 0.10 ft bar",
+          "value": "scored.report_only_size_reading.upper_end",
+          "digits": 4
+         },
+         {
+          "label": "Rollout minus stand-in at 0.2 s on Set A (ft)",
+          "value": "scored.0.2.rollout_minus_mlp.diff",
+          "lo": "scored.0.2.rollout_minus_mlp.lo",
+          "hi": "scored.0.2.rollout_minus_mlp.hi",
+          "digits": 4
+         },
+         {
+          "label": "Report-only t interval on the per-game differences at 1.0 s (ft)",
+          "value": "scored.1.0.report_only_t.mean_of_game_values",
+          "lo": "scored.1.0.report_only_t.lo",
+          "hi": "scored.1.0.report_only_t.hi",
+          "digits": 4
+         },
+         {
+          "label": "Rollout network, mean error at 1.0 s on Set A (ft)",
+          "value": "scored.1.0.rollout",
+          "digits": 4
+         },
+         {
+          "label": "Stand-in refit, mean error at 1.0 s on Set A (ft)",
+          "value": "scored.1.0.mlp",
+          "digits": 4
+         }
+        ]
+       }
+      }
+     }
     },
     {
      "id": "ghosting-E2",
@@ -897,9 +1390,100 @@
      "effort": 3,
      "test_data": "Set A",
      "backlog_status": "done: passed the one-game test on Set A (D103): top-5 self-retrieval 0.474 [0.384, 0.558] against 0.10 and the position-only retriever's 0.038, so passed the D103 one-game test (self-retrieval); 19 features without PCA 0.561 [0.491, 0.631]; reports/research/embeddings-E1.md",
-     "results": null,
      "writeup": "reports/research/embeddings-E1.md",
-     "result_in_writeup": true
+     "stages": "test_only",
+     "writeup_notes": [
+      "The lower end, 0.384, is above 0.10 and above 0.038, so the frozen embedding passed the D103 one-game test (self-retrieval).",
+      "This is the embeddings lane's first held-out score.",
+      "The 19 standardised features without PCA retrieve better on the same test players (0.561 [0.491, 0.631]; paired difference -0.088 [-0.140, -0.040]), as they did on the development games, and the movement features carry most of a player's identity.",
+      {
+       "section": "",
+       "text": "The claim is narrow: from one held-out game, the frozen embedding finds the same player far above chance. It is not a test of what the style map means, of whether a player's listed neighbours play alike, or of any one player."
+      }
+     ],
+     "results": {
+      "metric": "Top-5 self-retrieval rate of the frozen embedding, built from one held-out game (the D103 one-game test)",
+      "rows_unit": "players",
+      "interval": "bootstrap by game (resample games, rebuild per-player features, re-embed with the fixed fit), 2000 resamples, 95 percent interval of the difference between the embedding and each comparator.",
+      "development": null,
+      "test": "reports/research/embeddings-E1-final.json",
+      "design": "scored.stage",
+      "rule_quote": {
+       "section": "What is tested",
+       "text": "It passes if the lower end of its 95 percent interval (bootstrap of the 10 test games) is above 0.10 and above the upper end of the position-only retriever's interval."
+      },
+      "comparison": "above",
+      "keys": {
+       "rows": "scored.queries",
+       "games": "scored.games",
+       "diff": "scored.rates_with_game_bootstrap.pca.value",
+       "lo": "scored.rates_with_game_bootstrap.pca.lo",
+       "hi": "scored.rates_with_game_bootstrap.pca.hi",
+       "threshold": "scored.rule.threshold",
+       "met": "scored.rule.passes"
+      },
+      "conditions": [
+       {
+        "label": "The lower end must also be above the top of the position-only retriever",
+        "value": "scored.rates_with_game_bootstrap.pca.value",
+        "lo": "scored.rates_with_game_bootstrap.pca.lo",
+        "hi": "scored.rates_with_game_bootstrap.pca.hi",
+        "bound": "lo",
+        "comparison": "above",
+        "threshold_key": "scored.rule.position_upper_end",
+        "sign": 1,
+        "met": null,
+        "digits": 3,
+        "states": "above the upper end of the position-only retriever's interval"
+       }
+      ],
+      "equalities": [
+       [
+        "scored.rule.lower_end",
+        "scored.rates_with_game_bootstrap.pca.lo"
+       ],
+       [
+        "scored.rule.position_upper_end",
+        "scored.rates_with_game_bootstrap.position.hi"
+       ]
+      ],
+      "digits": 3,
+      "values": [
+       {
+        "label": "Chance (top 5 of the 399 development embeddings)",
+        "value": "scored.chance",
+        "digits": 4
+       },
+       {
+        "label": "Position-only retriever",
+        "value": "scored.rates_with_game_bootstrap.position.value",
+        "lo": "scored.rates_with_game_bootstrap.position.lo",
+        "hi": "scored.rates_with_game_bootstrap.position.hi",
+        "digits": 3
+       },
+       {
+        "label": "The 19 raw features without PCA, reported beside the rule",
+        "value": "scored.rates_with_game_bootstrap.raw.value",
+        "lo": "scored.rates_with_game_bootstrap.raw.lo",
+        "hi": "scored.rates_with_game_bootstrap.raw.hi",
+        "digits": 3
+       },
+       {
+        "label": "Embedding minus raw features, paired",
+        "value": "scored.rates_with_game_bootstrap.pca_minus_raw.value",
+        "lo": "scored.rates_with_game_bootstrap.pca_minus_raw.lo",
+        "hi": "scored.rates_with_game_bootstrap.pca_minus_raw.hi",
+        "digits": 3
+       },
+       {
+        "label": "Report-only sensitivity: t interval on the 10 per-game means",
+        "value": "scored.pre_score_sensitivity_t_interval_of_game_means.pca.mean_of_game_means",
+        "lo": "scored.pre_score_sensitivity_t_interval_of_game_means.pca.lo",
+        "hi": "scored.pre_score_sensitivity_t_interval_of_game_means.pca.hi",
+        "digits": 3
+       }
+      ]
+     }
     },
     {
      "id": "embeddings-E2",
@@ -1665,9 +2249,173 @@
      "effort": 3,
      "test_data": "2025-26 season",
      "backlog_status": "done: not adopted (no detectable gain over rapm_synergy, d -0.0005 [-0.0015, +0.0002]; player priors add nothing detectable over pure shrinkage; the gain over raw lineup ratings is not the headline; reports/research/lineups-E2.md)",
-     "results": null,
-     "result_in_writeup": true,
-     "writeup": "reports/research/lineups-E2.md"
+     "writeup": "reports/research/lineups-E2.md",
+     "stages": "test_only",
+     "writeup_notes": [
+      "Player priors show no detectable gain over pure shrinkage either: lrapm minus shrink_zero -0.0002 [-0.0009, +0.0004].",
+      "Beside it, not as the headline: the rule holds against the raw baseline (d -0.3204 [-0.3607, -0.2619]), which is weak by construction here (commitment 2).",
+      "No data-fault line is crossed."
+     ],
+     "results": {
+      "metric": "Paired difference in mean weekly RMSE of points per possession, lrapm minus rapm_synergy",
+      "rows_unit": "observations",
+      "interval": "bootstrap by game, 2000 resamples, 95 percent interval of the RMSE difference.",
+      "development": null,
+      "test": "reports/research/lineups-E2-final.json",
+      "design": null,
+      "rule_quote": {
+       "section": "What is tested",
+       "text": "Threshold (pre-registered, read against both named baselines, PLAN.md D104): against raw and against rapm_synergy each, d at most -0.01, the paired interval of the RMSE difference wholly below zero, and no bin worse than that baseline beyond its interval."
+      },
+      "comparison": "below",
+      "threshold": 0,
+      "keys": {
+       "rows": "scored.results.observations",
+       "games": "scored.results.games",
+       "diff": "scored.results.paired_lrapm_minus_rapm_synergy.point",
+       "lo": "scored.results.paired_lrapm_minus_rapm_synergy.ci95.0",
+       "hi": "scored.results.paired_lrapm_minus_rapm_synergy.ci95.1",
+       "met": "scored.results.verdict.passes",
+       "main_met": "scored.results.verdict.against_rapm_synergy.diff_ci_below_zero"
+      },
+      "conditions": [
+       {
+        "label": "d against rapm_synergy (relative RMSE change)",
+        "value": "scored.results.relative_improvement_vs_rapm_synergy.point",
+        "lo": "scored.results.relative_improvement_vs_rapm_synergy.ci95.0",
+        "hi": "scored.results.relative_improvement_vs_rapm_synergy.ci95.1",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold": -0.01,
+        "met": "scored.results.verdict.against_rapm_synergy.d_at_most_minus_0_01",
+        "digits": 4
+       },
+       {
+        "label": "Against raw: paired RMSE difference, lrapm minus raw",
+        "value": "scored.results.paired_minus_raw.lrapm.point",
+        "lo": "scored.results.paired_minus_raw.lrapm.ci95.0",
+        "hi": "scored.results.paired_minus_raw.lrapm.ci95.1",
+        "bound": "hi",
+        "comparison": "below",
+        "threshold": 0,
+        "met": "scored.results.verdict.against_raw.diff_ci_below_zero",
+        "digits": 4
+       },
+       {
+        "label": "d against raw (relative RMSE change)",
+        "value": "scored.results.relative_improvement_vs_raw.lrapm.point",
+        "lo": "scored.results.relative_improvement_vs_raw.lrapm.ci95.0",
+        "hi": "scored.results.relative_improvement_vs_raw.lrapm.ci95.1",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold": -0.01,
+        "met": "scored.results.verdict.against_raw.d_at_most_minus_0_01",
+        "digits": 4
+       }
+      ],
+      "guards": [
+       {
+        "label": "Bins of lineup experience, lrapm minus rapm_synergy",
+        "path": "scored.results.bins",
+        "buckets": [
+         "under_25",
+         "25_to_100",
+         "over_100"
+        ],
+        "cell": "lrapm_minus_rapm_synergy",
+        "cell_value": "point",
+        "cell_lo": "ci95.0",
+        "cell_hi": "ci95.1",
+        "worse": "scored.results.verdict.against_rapm_synergy.bins_worse_beyond_interval",
+        "bound": "lo",
+        "comparison": "above",
+        "threshold": 0,
+        "digits": 4,
+        "states": "no bin worse than that baseline beyond its interval"
+       },
+       {
+        "label": "Bins of lineup experience, lrapm minus raw",
+        "path": "scored.results.bins",
+        "buckets": [
+         "under_25",
+         "25_to_100",
+         "over_100"
+        ],
+        "cell": "lrapm_minus_raw",
+        "cell_value": "point",
+        "cell_lo": "ci95.0",
+        "cell_hi": "ci95.1",
+        "worse": "scored.results.verdict.against_raw.bins_worse_beyond_interval",
+        "bound": "lo",
+        "comparison": "above",
+        "threshold": 0,
+        "digits": 4,
+        "states": "no bin worse than that baseline beyond its interval"
+       }
+      ],
+      "conjunctions": [
+       {
+        "flag": "scored.results.verdict.against_rapm_synergy.holds",
+        "of": [
+         "scored.results.verdict.against_rapm_synergy.diff_ci_below_zero",
+         "scored.results.verdict.against_rapm_synergy.d_at_most_minus_0_01",
+         "scored.results.verdict.against_rapm_synergy.bins_worse_beyond_interval"
+        ]
+       },
+       {
+        "flag": "scored.results.verdict.against_raw.holds",
+        "of": [
+         "scored.results.verdict.against_raw.diff_ci_below_zero",
+         "scored.results.verdict.against_raw.d_at_most_minus_0_01",
+         "scored.results.verdict.against_raw.bins_worse_beyond_interval"
+        ]
+       }
+      ],
+      "equalities": [
+       [
+        "scored.results.verdict.against_raw.d",
+        "scored.results.relative_improvement_vs_raw.lrapm.point"
+       ],
+       [
+        "scored.results.verdict.against_rapm_synergy.d",
+        "scored.results.relative_improvement_vs_rapm_synergy.point"
+       ]
+      ],
+      "flags_outside_rule": {
+       "scored.results.verdict.toward_their_players_supported": "the shrinkage ablation's reading (player priors against shrinking to zero), not part of the rule"
+      },
+      "digits": 4,
+      "values": [
+       {
+        "label": "Ablation: lrapm minus shrink_zero, paired RMSE difference",
+        "value": "scored.results.paired_lrapm_minus_shrink_zero.point",
+        "lo": "scored.results.paired_lrapm_minus_shrink_zero.ci95.0",
+        "hi": "scored.results.paired_lrapm_minus_shrink_zero.ci95.1",
+        "digits": 4
+       },
+       {
+        "label": "Mean weekly RMSE, lrapm",
+        "value": "scored.results.mean_weekly_rmse.lrapm.point",
+        "lo": "scored.results.mean_weekly_rmse.lrapm.ci95.0",
+        "hi": "scored.results.mean_weekly_rmse.lrapm.ci95.1",
+        "digits": 4
+       },
+       {
+        "label": "Mean weekly RMSE, rapm_synergy",
+        "value": "scored.results.mean_weekly_rmse.rapm_synergy.point",
+        "lo": "scored.results.mean_weekly_rmse.rapm_synergy.ci95.0",
+        "hi": "scored.results.mean_weekly_rmse.rapm_synergy.ci95.1",
+        "digits": 4
+       },
+       {
+        "label": "Mean weekly RMSE, raw",
+        "value": "scored.results.mean_weekly_rmse.raw.point",
+        "lo": "scored.results.mean_weekly_rmse.raw.ci95.0",
+        "hi": "scored.results.mean_weekly_rmse.raw.ci95.1",
+        "digits": 4
+       }
+      ]
+     }
     }
    ]
   },
@@ -1912,7 +2660,10 @@
        "digits": 4
       },
       "flags_outside_rule": {
-       "{verdict}.interval_straddles_threshold": "reported beside the verdict (whether the interval crosses the bar), not part of the adoption rule"
+       "{verdict}.interval_straddles_threshold": "reported beside the verdict (whether the interval crosses the bar), not part of the adoption rule",
+       "{verdict}.regulation_only_reading.adopt": "the regulation-only reading printed beside the verdict (D91), not the rule",
+       "{verdict}.regulation_only_reading.differs": "whether the regulation-only reading would differ, printed beside the verdict",
+       "{verdict}.ablation.drift_form_adds_beyond_mu_alone": "the ablation's reading (drift form against Elo alone), not part of the rule"
       },
       "digits": 4,
       "values": [
@@ -2166,7 +2917,10 @@
         "value": "{data}.arms.e2.calibration_slope_point_estimate.4-0",
         "digits": 3
        }
-      ]
+      ],
+      "flags_outside_rule": {
+       "{verdict}.ablation.forward_beats_grouped": "the ablation's reading (forward against grouped-fold temperature), not part of the rule"
+      }
      },
      "writeup": "reports/research/winprob-E2.md",
      "test_not_scored": true,
@@ -2715,11 +3469,129 @@
      "effort": 1,
      "test_data": "genai test players and training-game possessions (reports/research/genai-splits.json)",
      "backlog_status": "done: H1 and H2 hold (pinned checker: template 81 of 81 and 480 of 480, Haiku 0.840 [0.753, 0.914] snapshot, 0.963 [0.914, 1.000] cache arm; Haiku minus template frame variety [0.331, 0.439]; sensitivity checker: template 36 of 81, Haiku 65 of 81; reports/research/genai-E1.md)",
-     "results": null,
      "hypothesis_label": "Question",
      "threshold_label": "Hypotheses and readings",
      "writeup": "reports/research/genai-E1.md",
-     "result_in_writeup": true
+     "writeup_notes": [
+      "Read as pre-committed: the pinned checker alone cannot show what a model adds.",
+      "A stricter checker from the P3 branch, applied as a sensitivity check that no verdict reads, turns the order round on scouting: it passes 36 of 81 template texts and 65 of 81 Haiku texts."
+     ],
+     "parts": [
+      {
+       "label": "H1: the checker does not separate a template from the model",
+       "stages": "test_only",
+       "results": {
+        "metric": "Template minus Haiku (snapshot) pass rate, scouting",
+        "rows_unit": "test players",
+        "interval_label": "Intervals",
+        "interval": "2000-resample bootstrap of players (scouting) or games (possession), seed 0, 95 percent percentile interval; paired differences on the same draws.",
+        "development": null,
+        "test": "reports/research/genai-E1-final.json",
+        "rule_quote": {
+         "section": "Scouting, 81 test players",
+         "text": "H1 (template minus Haiku pass rate, lower bound at or above -0.05). Haiku snapshot minus template: [-0.247, -0.086], so template minus Haiku is [+0.086, +0.247]: holds. Cache arm minus template: [-0.086, 0.000]: holds."
+        },
+        "reading_quote": {
+         "section": "Scouting, 81 test players",
+         "text": "H1 (template minus Haiku pass rate, lower bound at or above -0.05). Haiku snapshot minus template: [-0.247, -0.086], so template minus Haiku is [+0.086, +0.247]: holds. Cache arm minus template: [-0.086, 0.000]: holds.",
+         "word": "holds"
+        },
+        "readings": {
+         "holds": "met",
+         "fails": "not_met"
+        },
+        "flip": true,
+        "comparison": "at_least",
+        "threshold": -0.05,
+        "keys": {
+         "rows": "scouting.items",
+         "lo": "scouting.bootstrap_by_player.differences.haiku minus template: pass_rate.0",
+         "hi": "scouting.bootstrap_by_player.differences.haiku minus template: pass_rate.1"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [
+         {
+          "label": "Template pass rate",
+          "value": "scouting.template.pass_rate",
+          "lo": "scouting.bootstrap_by_player.arms.template.pass_rate.0",
+          "hi": "scouting.bootstrap_by_player.arms.template.pass_rate.1",
+          "digits": 3
+         },
+         {
+          "label": "Haiku pass rate (snapshot)",
+          "value": "scouting.haiku.pass_rate",
+          "lo": "scouting.bootstrap_by_player.arms.haiku.pass_rate.0",
+          "hi": "scouting.bootstrap_by_player.arms.haiku.pass_rate.1",
+          "digits": 3
+         }
+        ],
+        "hypothesis": "H1",
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       }
+      },
+      {
+       "label": "H2: the model writes with more variety",
+       "stages": "test_only",
+       "results": {
+        "metric": "Haiku (snapshot) minus template sentence frame variety, scouting",
+        "rows_unit": "test players",
+        "interval_label": "Intervals",
+        "interval": "2000-resample bootstrap of players (scouting) or games (possession), seed 0, 95 percent percentile interval; paired differences on the same draws.",
+        "development": null,
+        "test": "reports/research/genai-E1-final.json",
+        "rule_quote": {
+         "section": "Scouting, 81 test players",
+         "text": "H2 (Haiku minus template frame variety, lower bound above 0). Snapshot: [0.331, 0.439]; cache arm: [0.343, 0.439]: holds on both. distinct-2: [0.071, 0.093] and [0.072, 0.089]."
+        },
+        "reading_quote": {
+         "section": "Scouting, 81 test players",
+         "text": "H2 (Haiku minus template frame variety, lower bound above 0). Snapshot: [0.331, 0.439]; cache arm: [0.343, 0.439]: holds on both. distinct-2: [0.071, 0.093] and [0.072, 0.089].",
+         "word": "holds"
+        },
+        "readings": {
+         "holds": "met",
+         "fails": "not_met"
+        },
+        "flip": false,
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "scouting.items",
+         "lo": "scouting.bootstrap_by_player.differences.haiku minus template: frame_variety.0",
+         "hi": "scouting.bootstrap_by_player.differences.haiku minus template: frame_variety.1"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [
+         {
+          "label": "Template frame variety (point estimate)",
+          "value": "scouting.template.frame_variety",
+          "digits": 3
+         },
+         {
+          "label": "Haiku frame variety (point estimate)",
+          "value": "scouting.haiku.frame_variety",
+          "digits": 3
+         }
+        ],
+        "hypothesis": "H2",
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       },
+       "notes": [
+        {
+         "section": "Scouting, 81 test players",
+         "text": "Frame variety and distinct-2 are biased downward under resampling (amendment 3): their intervals sit below the point estimates. Read them as ranges of plausible values; the paired differences are read as pre-registered."
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "genai-E2",
@@ -2732,11 +3604,806 @@
      "effort": 4,
      "test_data": "genai test players and training-game possessions",
      "backlog_status": "done: H1 passes on both kinds at both sizes (A1 minus few-shot, scouting +0.741 [0.642, 0.840] at 0.5B and +0.901 [0.840, 0.963] at 1.5B); H2 inconclusive at 0.5B and hurts on scouting at 1.5B (-0.272 [-0.370, -0.173]); H3 inconclusive at 0.5B (+0.049 [-0.062, 0.160]) and non-inferior at 1.5B (+0.111 [0.012, 0.210]); H4 inconclusive; possession texts copy the template; reports/research/genai-E2.md and reports/research/genai-E2-1.5B.md",
-     "results": null,
      "hypothesis_label": "Question",
      "threshold_label": "Hypotheses and readings",
      "writeup": "reports/research/genai-E2.md",
-     "result_in_writeup": true
+     "writeup_notes": [
+      "Rejection sampling adds nothing measurable to distillation.",
+      "Read beside the pass rate: on possessions the trained model copies the template (99.2 percent of its texts are identical to the template's), and on scouting it writes with far less variety than Haiku.",
+      {
+       "file": "reports/research/genai-E2-1.5B.md",
+       "section": null,
+       "text": "Read beside the pass rate: every possession text of the trained model is identical to the template's, and on scouting it writes with far less variety than Haiku."
+      }
+     ],
+     "parts": [
+      {
+       "label": "0.5B H1 scouting: training helps",
+       "stages": "test_only",
+       "results": {
+        "metric": "H1 scouting: a1-epoch1 minus a0",
+        "rows_unit": "test items (scouting)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-0.5B-final.json",
+        "readings": {
+         "passes": "met",
+         "fails": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0.1
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.scouting.n_items",
+         "diff": "hypotheses.H1 scouting: a1-epoch1 minus a0.point",
+         "lo": "hypotheses.H1 scouting: a1-epoch1 minus a0.interval.0",
+         "hi": "hypotheses.H1 scouting: a1-epoch1 minus a0.interval.1",
+         "reading": "hypotheses.H1 scouting: a1-epoch1 minus a0.reading"
+        },
+        "conditions": [
+         {
+          "label": "The difference must be at least +0.10",
+          "value": "hypotheses.H1 scouting: a1-epoch1 minus a0.point",
+          "lo": "hypotheses.H1 scouting: a1-epoch1 minus a0.interval.0",
+          "hi": "hypotheses.H1 scouting: a1-epoch1 minus a0.interval.1",
+          "bound": "point",
+          "comparison": "at_least",
+          "threshold": 0.1,
+          "met": null,
+          "digits": 3
+         }
+        ],
+        "digits": 3,
+        "values": [],
+        "hypothesis": "H1",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H1, training helps: the dev-best fine-tuned arm minus A0, per kind and size. Passes when the difference is at least +0.10 and its lower bound is above 0; fails when the upper bound is below +0.10; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       }
+      },
+      {
+       "label": "0.5B H1 possession: training helps",
+       "stages": "test_only",
+       "results": {
+        "metric": "H1 possession: a1-epoch1 minus a0",
+        "rows_unit": "test items (possession)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-0.5B-final.json",
+        "readings": {
+         "passes": "met",
+         "fails": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0.1
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.possession.n_items",
+         "diff": "hypotheses.H1 possession: a1-epoch1 minus a0.point",
+         "lo": "hypotheses.H1 possession: a1-epoch1 minus a0.interval.0",
+         "hi": "hypotheses.H1 possession: a1-epoch1 minus a0.interval.1",
+         "reading": "hypotheses.H1 possession: a1-epoch1 minus a0.reading"
+        },
+        "conditions": [
+         {
+          "label": "The difference must be at least +0.10",
+          "value": "hypotheses.H1 possession: a1-epoch1 minus a0.point",
+          "lo": "hypotheses.H1 possession: a1-epoch1 minus a0.interval.0",
+          "hi": "hypotheses.H1 possession: a1-epoch1 minus a0.interval.1",
+          "bound": "point",
+          "comparison": "at_least",
+          "threshold": 0.1,
+          "met": null,
+          "digits": 3
+         }
+        ],
+        "digits": 3,
+        "values": [],
+        "hypothesis": "H1",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H1, training helps: the dev-best fine-tuned arm minus A0, per kind and size. Passes when the difference is at least +0.10 and its lower bound is above 0; fails when the upper bound is below +0.10; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test possessions, drawn from training games (reports/research/genai-splits.json)",
+         "heading": "Test possessions from training games, scored once"
+        }
+       }
+      },
+      {
+       "label": "0.5B H2 scouting: rejection sampling",
+       "stages": "test_only",
+       "results": {
+        "metric": "H2 scouting: a2-r1-epoch1 minus a1-epoch1",
+        "rows_unit": "test items (scouting)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-0.5B-final.json",
+        "readings": {
+         "adds": "met",
+         "hurts": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.scouting.n_items",
+         "diff": "hypotheses.H2 scouting: a2-r1-epoch1 minus a1-epoch1.point",
+         "lo": "hypotheses.H2 scouting: a2-r1-epoch1 minus a1-epoch1.interval.0",
+         "hi": "hypotheses.H2 scouting: a2-r1-epoch1 minus a1-epoch1.interval.1",
+         "reading": "hypotheses.H2 scouting: a2-r1-epoch1 minus a1-epoch1.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [],
+        "hypothesis": "H2",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       }
+      },
+      {
+       "label": "0.5B H2 possession: rejection sampling",
+       "stages": "test_only",
+       "results": {
+        "metric": "H2 possession: a2-r1-epoch1 minus a1-epoch1",
+        "rows_unit": "test items (possession)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-0.5B-final.json",
+        "readings": {
+         "adds": "met",
+         "hurts": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.possession.n_items",
+         "diff": "hypotheses.H2 possession: a2-r1-epoch1 minus a1-epoch1.point",
+         "lo": "hypotheses.H2 possession: a2-r1-epoch1 minus a1-epoch1.interval.0",
+         "hi": "hypotheses.H2 possession: a2-r1-epoch1 minus a1-epoch1.interval.1",
+         "reading": "hypotheses.H2 possession: a2-r1-epoch1 minus a1-epoch1.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [],
+        "hypothesis": "H2",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test possessions, drawn from training games (reports/research/genai-splits.json)",
+         "heading": "Test possessions from training games, scored once"
+        }
+       }
+      },
+      {
+       "label": "0.5B H3 scouting: near the API model",
+       "stages": "test_only",
+       "results": {
+        "metric": "H3 scouting: a1-epoch1+repair minus haiku_cache",
+        "rows_unit": "test items (scouting)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-0.5B-final.json",
+        "readings": {
+         "non-inferior": "met",
+         "inferior": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": -0.05
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "at_least",
+        "threshold": -0.05,
+        "keys": {
+         "rows": "arms.a0.primary.scouting.n_items",
+         "diff": "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.point",
+         "lo": "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.interval.0",
+         "hi": "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.interval.1",
+         "reading": "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [],
+        "true_flags": [
+         "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.decides"
+        ],
+        "hypothesis": "H3",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H3, near the API model (scouting only): the dev-best arm with the repair loop minus Haiku as delivered. Lower bound at or above -0.05: non-inferior; upper bound below -0.05: inferior; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       }
+      },
+      {
+       "label": "0.5B H4 scouting: constrained decoding, pass rate",
+       "stages": "test_only",
+       "results": {
+        "metric": "H4 scouting: a3 minus a1-epoch1",
+        "rows_unit": "test items (scouting)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-0.5B-final.json",
+        "readings": {
+         "adds": "met",
+         "hurts": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.scouting.n_items",
+         "diff": "hypotheses.H4 scouting: a3 minus a1-epoch1.point",
+         "lo": "hypotheses.H4 scouting: a3 minus a1-epoch1.interval.0",
+         "hi": "hypotheses.H4 scouting: a3 minus a1-epoch1.interval.1",
+         "reading": "hypotheses.H4 scouting: a3 minus a1-epoch1.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [
+         {
+          "label": "Number failure rate, A3 minus its arm (amendment (d), reported beside the pass rate)",
+          "value": "hypotheses.H4 scouting: a3 minus a1-epoch1.number_value_failure_point",
+          "lo": "hypotheses.H4 scouting: a3 minus a1-epoch1.number_value_failure_interval.0",
+          "hi": "hypotheses.H4 scouting: a3 minus a1-epoch1.number_value_failure_interval.1",
+          "reading": "hypotheses.H4 scouting: a3 minus a1-epoch1.number_value_reading",
+          "reading_rule": {
+           "fewer wrong numbers": {
+            "bound": "hi",
+            "comparison": "below",
+            "threshold": 0
+           },
+           "more wrong numbers": {
+            "bound": "lo",
+            "comparison": "above",
+            "threshold": 0
+           },
+           "inconclusive": "otherwise"
+          },
+          "digits": 3,
+          "reading_quote": {
+           "from": "dossier",
+           "texts": [
+            "Wording corrected on 2026-11-18 to the code's rule: the change in failure rate reads \"fewer wrong numbers\" when its whole 95 percent interval is below 0, \"more wrong numbers\" when the whole interval is above 0, and \"inconclusive\" otherwise."
+           ]
+          }
+         }
+        ],
+        "hypothesis": "H4",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive.",
+          "H4, constrained decoding: A3 minus its arm, on the number_value failure rate and on the pass rate. The pass rate is read by the H2 rule; the failure rate as amendment (d) says."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       }
+      },
+      {
+       "label": "0.5B H4 possession: constrained decoding, pass rate",
+       "stages": "test_only",
+       "results": {
+        "metric": "H4 possession: a3 minus a1-epoch1",
+        "rows_unit": "test items (possession)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-0.5B-final.json",
+        "readings": {
+         "adds": "met",
+         "hurts": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.possession.n_items",
+         "diff": "hypotheses.H4 possession: a3 minus a1-epoch1.point",
+         "lo": "hypotheses.H4 possession: a3 minus a1-epoch1.interval.0",
+         "hi": "hypotheses.H4 possession: a3 minus a1-epoch1.interval.1",
+         "reading": "hypotheses.H4 possession: a3 minus a1-epoch1.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [
+         {
+          "label": "Number failure rate, A3 minus its arm (amendment (d), reported beside the pass rate)",
+          "value": "hypotheses.H4 possession: a3 minus a1-epoch1.number_value_failure_point",
+          "lo": "hypotheses.H4 possession: a3 minus a1-epoch1.number_value_failure_interval.0",
+          "hi": "hypotheses.H4 possession: a3 minus a1-epoch1.number_value_failure_interval.1",
+          "reading": "hypotheses.H4 possession: a3 minus a1-epoch1.number_value_reading",
+          "reading_rule": {
+           "fewer wrong numbers": {
+            "bound": "hi",
+            "comparison": "below",
+            "threshold": 0
+           },
+           "more wrong numbers": {
+            "bound": "lo",
+            "comparison": "above",
+            "threshold": 0
+           },
+           "inconclusive": "otherwise"
+          },
+          "digits": 3,
+          "reading_quote": {
+           "from": "dossier",
+           "texts": [
+            "Wording corrected on 2026-11-18 to the code's rule: the change in failure rate reads \"fewer wrong numbers\" when its whole 95 percent interval is below 0, \"more wrong numbers\" when the whole interval is above 0, and \"inconclusive\" otherwise."
+           ]
+          }
+         }
+        ],
+        "hypothesis": "H4",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive.",
+          "H4, constrained decoding: A3 minus its arm, on the number_value failure rate and on the pass rate. The pass rate is read by the H2 rule; the failure rate as amendment (d) says."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test possessions, drawn from training games (reports/research/genai-splits.json)",
+         "heading": "Test possessions from training games, scored once"
+        }
+       }
+      },
+      {
+       "label": "1.5B H1 scouting: training helps",
+       "stages": "test_only",
+       "results": {
+        "metric": "H1 scouting: a1-epoch1 minus a0",
+        "rows_unit": "test items (scouting)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-1.5B-final.json",
+        "readings": {
+         "passes": "met",
+         "fails": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0.1
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.scouting.n_items",
+         "diff": "hypotheses.H1 scouting: a1-epoch1 minus a0.point",
+         "lo": "hypotheses.H1 scouting: a1-epoch1 minus a0.interval.0",
+         "hi": "hypotheses.H1 scouting: a1-epoch1 minus a0.interval.1",
+         "reading": "hypotheses.H1 scouting: a1-epoch1 minus a0.reading"
+        },
+        "conditions": [
+         {
+          "label": "The difference must be at least +0.10",
+          "value": "hypotheses.H1 scouting: a1-epoch1 minus a0.point",
+          "lo": "hypotheses.H1 scouting: a1-epoch1 minus a0.interval.0",
+          "hi": "hypotheses.H1 scouting: a1-epoch1 minus a0.interval.1",
+          "bound": "point",
+          "comparison": "at_least",
+          "threshold": 0.1,
+          "met": null,
+          "digits": 3
+         }
+        ],
+        "digits": 3,
+        "values": [],
+        "hypothesis": "H1",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H1, training helps: the dev-best fine-tuned arm minus A0, per kind and size. Passes when the difference is at least +0.10 and its lower bound is above 0; fails when the upper bound is below +0.10; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       }
+      },
+      {
+       "label": "1.5B H1 possession: training helps",
+       "stages": "test_only",
+       "results": {
+        "metric": "H1 possession: a1-epoch1 minus a0",
+        "rows_unit": "test items (possession)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-1.5B-final.json",
+        "readings": {
+         "passes": "met",
+         "fails": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0.1
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.possession.n_items",
+         "diff": "hypotheses.H1 possession: a1-epoch1 minus a0.point",
+         "lo": "hypotheses.H1 possession: a1-epoch1 minus a0.interval.0",
+         "hi": "hypotheses.H1 possession: a1-epoch1 minus a0.interval.1",
+         "reading": "hypotheses.H1 possession: a1-epoch1 minus a0.reading"
+        },
+        "conditions": [
+         {
+          "label": "The difference must be at least +0.10",
+          "value": "hypotheses.H1 possession: a1-epoch1 minus a0.point",
+          "lo": "hypotheses.H1 possession: a1-epoch1 minus a0.interval.0",
+          "hi": "hypotheses.H1 possession: a1-epoch1 minus a0.interval.1",
+          "bound": "point",
+          "comparison": "at_least",
+          "threshold": 0.1,
+          "met": null,
+          "digits": 3
+         }
+        ],
+        "digits": 3,
+        "values": [],
+        "hypothesis": "H1",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H1, training helps: the dev-best fine-tuned arm minus A0, per kind and size. Passes when the difference is at least +0.10 and its lower bound is above 0; fails when the upper bound is below +0.10; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test possessions, drawn from training games (reports/research/genai-splits.json)",
+         "heading": "Test possessions from training games, scored once"
+        }
+       }
+      },
+      {
+       "label": "1.5B H2 scouting: rejection sampling",
+       "stages": "test_only",
+       "results": {
+        "metric": "H2 scouting: a2-r1-epoch1 minus a1-epoch1",
+        "rows_unit": "test items (scouting)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-1.5B-final.json",
+        "readings": {
+         "adds": "met",
+         "hurts": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.scouting.n_items",
+         "diff": "hypotheses.H2 scouting: a2-r1-epoch1 minus a1-epoch1.point",
+         "lo": "hypotheses.H2 scouting: a2-r1-epoch1 minus a1-epoch1.interval.0",
+         "hi": "hypotheses.H2 scouting: a2-r1-epoch1 minus a1-epoch1.interval.1",
+         "reading": "hypotheses.H2 scouting: a2-r1-epoch1 minus a1-epoch1.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [],
+        "hypothesis": "H2",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       }
+      },
+      {
+       "label": "1.5B H2 possession: rejection sampling",
+       "stages": "test_only",
+       "results": {
+        "metric": "H2 possession: a2-r1-epoch1 minus a1-epoch1",
+        "rows_unit": "test items (possession)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-1.5B-final.json",
+        "readings": {
+         "adds": "met",
+         "hurts": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.possession.n_items",
+         "diff": "hypotheses.H2 possession: a2-r1-epoch1 minus a1-epoch1.point",
+         "lo": "hypotheses.H2 possession: a2-r1-epoch1 minus a1-epoch1.interval.0",
+         "hi": "hypotheses.H2 possession: a2-r1-epoch1 minus a1-epoch1.interval.1",
+         "reading": "hypotheses.H2 possession: a2-r1-epoch1 minus a1-epoch1.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [],
+        "hypothesis": "H2",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test possessions, drawn from training games (reports/research/genai-splits.json)",
+         "heading": "Test possessions from training games, scored once"
+        }
+       }
+      },
+      {
+       "label": "1.5B H3 scouting: near the API model",
+       "stages": "test_only",
+       "results": {
+        "metric": "H3 scouting: a1-epoch1+repair minus haiku_cache",
+        "rows_unit": "test items (scouting)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-1.5B-final.json",
+        "readings": {
+         "non-inferior": "met",
+         "inferior": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": -0.05
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "at_least",
+        "threshold": -0.05,
+        "keys": {
+         "rows": "arms.a0.primary.scouting.n_items",
+         "diff": "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.point",
+         "lo": "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.interval.0",
+         "hi": "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.interval.1",
+         "reading": "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [],
+        "true_flags": [
+         "hypotheses.H3 scouting: a1-epoch1+repair minus haiku_cache.decides"
+        ],
+        "hypothesis": "H3",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H3, near the API model (scouting only): the dev-best arm with the repair loop minus Haiku as delivered. Lower bound at or above -0.05: non-inferior; upper bound below -0.05: inferior; otherwise inconclusive."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       }
+      },
+      {
+       "label": "1.5B H4 scouting: constrained decoding, pass rate",
+       "stages": "test_only",
+       "results": {
+        "metric": "H4 scouting: a3 minus a1-epoch1",
+        "rows_unit": "test items (scouting)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-1.5B-final.json",
+        "readings": {
+         "adds": "met",
+         "hurts": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.scouting.n_items",
+         "diff": "hypotheses.H4 scouting: a3 minus a1-epoch1.point",
+         "lo": "hypotheses.H4 scouting: a3 minus a1-epoch1.interval.0",
+         "hi": "hypotheses.H4 scouting: a3 minus a1-epoch1.interval.1",
+         "reading": "hypotheses.H4 scouting: a3 minus a1-epoch1.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [
+         {
+          "label": "Number failure rate, A3 minus its arm (amendment (d), reported beside the pass rate)",
+          "value": "hypotheses.H4 scouting: a3 minus a1-epoch1.number_value_failure_point",
+          "lo": "hypotheses.H4 scouting: a3 minus a1-epoch1.number_value_failure_interval.0",
+          "hi": "hypotheses.H4 scouting: a3 minus a1-epoch1.number_value_failure_interval.1",
+          "reading": "hypotheses.H4 scouting: a3 minus a1-epoch1.number_value_reading",
+          "reading_rule": {
+           "fewer wrong numbers": {
+            "bound": "hi",
+            "comparison": "below",
+            "threshold": 0
+           },
+           "more wrong numbers": {
+            "bound": "lo",
+            "comparison": "above",
+            "threshold": 0
+           },
+           "inconclusive": "otherwise"
+          },
+          "digits": 3,
+          "reading_quote": {
+           "from": "dossier",
+           "texts": [
+            "Wording corrected on 2026-11-18 to the code's rule: the change in failure rate reads \"fewer wrong numbers\" when its whole 95 percent interval is below 0, \"more wrong numbers\" when the whole interval is above 0, and \"inconclusive\" otherwise."
+           ]
+          }
+         }
+        ],
+        "hypothesis": "H4",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive.",
+          "H4, constrained decoding: A3 minus its arm, on the number_value failure rate and on the pass rate. The pass rate is read by the H2 rule; the failure rate as amendment (d) says."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test players (reports/research/genai-splits.json)",
+         "heading": "The genai test players, scored once"
+        }
+       }
+      },
+      {
+       "label": "1.5B H4 possession: constrained decoding, pass rate",
+       "stages": "test_only",
+       "results": {
+        "metric": "H4 possession: a3 minus a1-epoch1",
+        "rows_unit": "test items (possession)",
+        "interval_from": "dossier_sentence",
+        "interval": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference.",
+        "development": null,
+        "test": "reports/research/genai-E2-1.5B-final.json",
+        "readings": {
+         "adds": "met",
+         "hurts": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0
+         },
+         "inconclusive": "otherwise"
+        },
+        "comparison": "above",
+        "threshold": 0,
+        "keys": {
+         "rows": "arms.a0.primary.possession.n_items",
+         "diff": "hypotheses.H4 possession: a3 minus a1-epoch1.point",
+         "lo": "hypotheses.H4 possession: a3 minus a1-epoch1.interval.0",
+         "hi": "hypotheses.H4 possession: a3 minus a1-epoch1.interval.1",
+         "reading": "hypotheses.H4 possession: a3 minus a1-epoch1.reading"
+        },
+        "conditions": [],
+        "digits": 3,
+        "values": [
+         {
+          "label": "Number failure rate, A3 minus its arm (amendment (d), reported beside the pass rate)",
+          "value": "hypotheses.H4 possession: a3 minus a1-epoch1.number_value_failure_point",
+          "lo": "hypotheses.H4 possession: a3 minus a1-epoch1.number_value_failure_interval.0",
+          "hi": "hypotheses.H4 possession: a3 minus a1-epoch1.number_value_failure_interval.1",
+          "reading": "hypotheses.H4 possession: a3 minus a1-epoch1.number_value_reading",
+          "reading_rule": {
+           "fewer wrong numbers": {
+            "bound": "hi",
+            "comparison": "below",
+            "threshold": 0
+           },
+           "more wrong numbers": {
+            "bound": "lo",
+            "comparison": "above",
+            "threshold": 0
+           },
+           "inconclusive": "otherwise"
+          },
+          "digits": 3,
+          "reading_quote": {
+           "from": "dossier",
+           "texts": [
+            "Wording corrected on 2026-11-18 to the code's rule: the change in failure rate reads \"fewer wrong numbers\" when its whole 95 percent interval is below 0, \"more wrong numbers\" when the whole interval is above 0, and \"inconclusive\" otherwise."
+           ]
+          }
+         }
+        ],
+        "hypothesis": "H4",
+        "rule_quote": {
+         "from": "dossier",
+         "texts": [
+          "H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive.",
+          "H4, constrained decoding: A3 minus its arm, on the number_value failure rate and on the pass rate. The pass rate is read by the H2 rule; the failure rate as amendment (d) says."
+         ]
+        },
+        "test_set": {
+         "what": "experiment result: scored once on the genai test possessions, drawn from training games (reports/research/genai-splits.json)",
+         "heading": "Test possessions from training games, scored once"
+        }
+       }
+      }
+     ]
     }
    ]
   }
