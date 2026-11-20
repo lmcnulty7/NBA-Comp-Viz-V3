@@ -734,6 +734,32 @@ def _value_rule_in_quote(spec: dict, rel: str) -> None:
         raise MethodsProblem(f"{rel}: the quoted rule reads {sorted(quoted)}, the source {sorted(spec['reading_rule'])}")
 
 
+STATES_BEFORE = tuple(w for ws in COMPARISON_WORDS.values() for w in ws) + ("<", ">", "inside", "to")
+
+
+def _states_bar(states: str, bar: float) -> bool:
+    """A condition's own words state its bar: the number (its size; "lower by at least 0.10" for at most -0.10)
+    comes right after a comparison ("at least", "<", "inside 0.9 to 1.1"), so a number that merely appears in the
+    words ("95 percent") is no bar."""
+    words = "|".join(re.escape(w) for w in sorted(STATES_BEFORE, key=len, reverse=True))
+    return any(number_text(abs(float(m.group(1)))) == number_text(abs(bar))
+               for m in re.finditer(rf"(?:{words})\s*([+-]?\d+(?:\.\d+)?)", _flat(states)))
+
+
+def _rule_statistics(results: dict, places_of: dict) -> dict:
+    """What a stage's rule reads: the main rule's paths (value, lower and upper end), and each condition's, keyed by
+    its met flag or else by its comparison and bar."""
+    def one(paths, what):           # the exact paths, value then ends, as the file is read
+        return " | ".join(p.format(**places_of) if isinstance(p, str) else "-" for p in paths)
+
+    keys = results["keys"]
+    out = {"main": one([keys.get(k) for k in ("diff", "lo", "hi")], "the main rule"), "conditions": {}}
+    for spec in results["conditions"]:
+        name = spec["met"] or f"{spec['comparison']} {spec.get('threshold', spec.get('threshold_key'))}"
+        out["conditions"][name] = one([spec.get(k) for k in ("value", "lo", "hi")], f"the condition {spec['label']!r}")
+    return out
+
+
 def _close(a: float, b: float) -> bool:
     return abs(a - b) <= 5e-4 * max(1.0, abs(b))
 
@@ -815,6 +841,7 @@ def _bar_matches(text: str, comparison: str, threshold: float, conditions: list,
 # ablation, a control, a report-only or secondary reading. A rule may read such an arm only inside a paired
 # difference ("candidate_minus_baseline"); a report-only reading never.
 OTHER_ARMS = ("frozen", "baseline", "ablation", "three_only", "control", "secondary", "shrink_zero")
+COMPARATOR_ARMS = ("frozen", "baseline")
 RULE_PATH_KEYS = ("diff", "lo", "hi", "upper", "rows", "games", "met", "main_met", "threshold", "reading")
 
 
@@ -834,8 +861,10 @@ def rule_path_problems(results: dict) -> list:
         for segment in path.split("."):
             if "report_only" in segment:
                 problems.append(f"the rule reads {path!r}, a report-only reading")
-            elif "minus" not in segment and any(arm in segment.split("_") or arm == segment or
-                                                (len(arm.split("_")) > 1 and arm in segment) for arm in OTHER_ARMS):
+            elif any(arm in segment.split("_") or arm == segment or (len(arm.split("_")) > 1 and arm in segment)
+                     for arm in OTHER_ARMS if "minus" not in segment or arm not in COMPARATOR_ARMS):
+                # inside a paired difference only the comparator arms the rule is judged against (the frozen model,
+                # the baseline) may appear; an ablation or a control never decides
                 problems.append(f"the rule reads {path!r}, another arm than the one it judges")
     for value in results.get("values", []):
         named = [value.get(k) for k in ("value", "lo", "hi") if isinstance(value.get(k), str)]
@@ -952,8 +981,7 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
             # position-only retriever's interval"): the words must be in the rule, and the number is read from the file
             # without a key the words carry the number itself, its size at least ("lower by at least 0.10"
             # for at most -0.10, "p < 0.05")
-            named = "threshold_key" in spec or number_text(abs(bar)) in {number_text(abs(float(n))) for n in
-                                                                        numbers(spec["states"])}
+            named = "threshold_key" in spec or _states_bar(spec["states"], bar)
             if _flat(spec["states"]) not in _flat(rule) or not named:
                 raise MethodsProblem(f"{rel}: the rule does not say {spec['states']!r}, or the condition names no "
                                      "threshold")
@@ -1216,6 +1244,15 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
             raise MethodsProblem(f"{rel}: {LEDGER} holds no entry for {eid}, so its test stage names its own test set "
                                  "(test_set), not the D71 test set")
     sources = sorted({spec["file"] for spec in results["values"] if spec.get("file")} - {rel})
+    # the statistic each part of the rule reads is held in export/methods_statistics.py, by experiment, part and stage, not in the source:
+    # a rule cannot move to the right arm's wrong statistic (the slope for the regret coefficient)
+    where = f"{results.get('_part') or ''}|{stage}"
+    observed = _rule_statistics(results, results.get("paths", {}).get(stage, {}))
+    if COLLECT_STATISTICS is not None:
+        COLLECT_STATISTICS.setdefault(eid, {})[where] = observed
+    elif RULE_STATISTICS.get(eid, {}).get(where) != observed:
+        raise MethodsProblem(f"{rel}: the rule of {eid} {where} reads {observed}, not the statistics held for it "
+                             f"({RULE_STATISTICS.get(eid, {}).get(where)})")
     return S.StageResult(
         stage=stage, source=S.Source(path=rel, what=what, rows=rows),
         also_read=[S.Source(path=f, what="numbers reported beside the rule, read by no verdict",
@@ -1404,6 +1441,10 @@ def _not_scored_problems(eid: str, exp: dict, repo: Path) -> list:
     return problems
 
 
+from export.methods_statistics import RULE_STATISTICS  # noqa: E402  (the statistics each rule reads, held in code)
+COLLECT_STATISTICS = None      # a dict while RULE_STATISTICS is being written out, by tools only
+
+
 def _rule_flags(results: dict) -> set:
     """The flags a stage description reads as parts of its rule (unformatted key paths)."""
     key_sets = [results.get("keys", {})] + list(results.get("stage_keys", {}).values())
@@ -1474,6 +1515,7 @@ def _parts(exp: dict, repo: Path, writeup_text: str) -> list:
     built = []
     for part in exp["parts"]:
         results, test_only = part["results"], part.get("stages") == "test_only"
+        results = {**results, "_part": part["label"]}
         dev = None if test_only else _stage(results, "development", repo, exp["threshold"], exp["id"], others,
                                             writeup_text)
         test = (_stage(results, "test", repo, exp["threshold"], exp["id"], others, writeup_text)
