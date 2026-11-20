@@ -20,10 +20,11 @@ measurement.
 - Tests: on the deployed code, 1624 Python tests passed, 552 browser tests passed on the public copy and 633 on the
   private copy. Source: `PLAN.md`
 
-## Results that held up on sealed test sets
+## Experiments, each set up before it ran
 
-Each new method was set up in writing before it ran, then scored once on games set apart and hashed in advance. A
-ledger allows one score per experiment. Source: `reports/research/scoring_ledger.json`
+Each new method was written down before it ran. Those that went on to a test were then scored once on games or
+seasons set apart and hashed in advance, and a ledger allows one score each. The others stopped at the training games
+and were not scored, so that one score stays unspent. Source: `reports/research/scoring_ledger.json`
 
 - Lineups (lineups-E1): passed. Player ratings predicted each game's margin better than raw lineup plus-minus on the
   test season of 1300 games: RMSE difference -1.15 [-1.59, -0.77] points, R squared over home court alone 0.098
@@ -47,6 +48,11 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
   carries less defender signal than the frozen matching: its gain minus the old gain is -0.003156 [-0.003417,
   -0.002893], where a higher gain means more signal. It does switch far less. Its test games were not scored.
   Source: `reports/research/matchups-E2.md`
+- Possession value (epv-E1): not adopted on the training games. The value model was trained on the expected value
+  of each last shot instead of whether it went in. That made its error against the points scored worse, not better:
+  the old model's error minus the new one's is -0.02247 [-0.02433, -0.02053], about 1.8 percent, and the new model
+  is worse in every fold. Both checks that the old model was rebuilt exactly passed. Its test games were not scored.
+  Source: `reports/research/epv-E1.md`
 - Gravity (gravity-E1): not adopted on the training games. A shot is not more open by the bar of 0.2 ft for each
   standard deviation of the teammates' gravity: the effect is 0.014 ft (interval -0.066 to 0.102, 62358 attempts),
   so an effect of 0.2 ft is ruled out for that measure. A later check, read by no rule, gives 0.109 [0.053, 0.167]
