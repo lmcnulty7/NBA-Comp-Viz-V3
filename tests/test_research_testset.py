@@ -95,7 +95,10 @@ ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
            "tools/research_gravity.py": ("research_data_root", "test_features"),
            # ghosting-E1 imports it from research_xfg and calls it only inside its scorer
            # (tests/test_research_ghosting.py checks that)
-           "tools/research_ghosting.py": ("research_data_root",)}
+           "tools/research_ghosting.py": ("research_data_root",),
+           # xfg-E2 imports the two from research_xfg and calls them only inside its scorer
+           # (tests/test_research_xfg2.py checks that)
+           "tools/research_xfg2.py": ("research_data_root", "test_features")}
 
 
 def name_problems(rel: str, text: str) -> list:

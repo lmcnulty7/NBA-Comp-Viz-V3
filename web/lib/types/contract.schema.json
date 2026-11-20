@@ -1128,7 +1128,8 @@
             "passed_test",
             "adopted_research",
             "ran_result_in_writeup",
-            "decided_by_part"
+            "decided_by_part",
+            "adopted_research_not_contradicted"
           ],
           "title": "Status",
           "type": "string"
@@ -4131,7 +4132,8 @@
             "at_most",
             "above",
             "at_least",
-            "contains"
+            "contains",
+            "not_wholly_above"
           ],
           "title": "Comparison",
           "type": "string"
