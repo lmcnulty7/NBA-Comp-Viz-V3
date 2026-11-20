@@ -152,10 +152,10 @@ def test_verdict_readings():
 def test_the_module_reads_data_only_in_the_feasibility_check_and_never_test_data():
     tree = ast.parse((REPO / "tools" / "research_rebounds_e2.py").read_text())
     calls = {getattr(n.func, "attr", getattr(n.func, "id", None)) for n in ast.walk(tree) if isinstance(n, ast.Call)}
-    assert not calls & {"score_once", "scoring_data_root", "research_data_root"}
+    assert not calls & {"scoring_data_root"}
     feas = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "feasibility")
-    e1 = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "load_e1")
-    inside = {id(c) for fn in (feas, e1) for c in ast.walk(fn)}
+    readers = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name in ("load_e1", "game_bundle")]
+    inside = {id(c) for fn in [feas] + readers for c in ast.walk(fn)}
     reads = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and getattr(n.func, "attr", None) == "read_parquet"]
     assert reads and all(id(n) in inside for n in reads)
     assert "refuse_test(" in ast.unparse(feas) and "fold" in ast.unparse(feas)
@@ -193,3 +193,81 @@ def test_the_fold_and_dev_stages_reuse_e1s_folds_and_baseline(tmp_path, monkeypa
     assert doc["arms"]["baseline"]["per_miss_log_loss"]["value"] == pytest.approx(ll)
     assert doc["misses"] == 120 and len(doc["binary_tau_by_fold"]) == 5 and set(v) >= {"met", "reading"}
     assert set(doc["projected_set_a"]) >= {"random_10_game_sets_half_width", "dev_half_width_scaled"}
+
+
+# ── the Set A confirmation (D127), on a synthetic root ──────────────────────────────────────────────────────────
+
+def test_readings_are_d108s():
+    assert E.reading(-0.03, -0.001) == "confirms"
+    assert E.reading(-0.03, 0.01) == "inconclusive at 10 games"
+    assert E.reading(0.001, 0.03) == "contradiction"
+
+
+def test_the_rehearsal_check_is_exact():
+    a = synthetic(n_games=2, misses=3, seed=7).reset_index(drop=True)
+    assert E.rehearsal_passed(E.rehearsal_check(a, a.copy()))
+    b = a.copy()
+    b.loc[4, "distance_to_rim_ft"] += 1e-12
+    assert not E.rehearsal_passed(E.rehearsal_check(a, b))
+    c = a.copy()
+    c.loc[2, "ball_apex_ft"] = np.nan
+    assert not E.rehearsal_passed(E.rehearsal_check(a, c))
+    assert not E.rehearsal_passed(E.rehearsal_check(a, a.iloc[::-1].reset_index(drop=True)))
+
+
+@pytest.fixture(scope="module")
+def fixture_root(tmp_path_factory):
+    from analytics.fixtures import write_fixture_root
+    root = tmp_path_factory.mktemp("root")
+    write_fixture_root(root, seed=0, n_games=8, heldout_every=0, n_possessions=90)
+    games = sorted(p.stem for p in (root / "analytics" / "possessions" / "2015-16").glob("*.parquet"))
+    return root, games
+
+
+def test_the_scorer_runs_once_through_score_once_on_a_synthetic_root(fixture_root, tmp_path, monkeypatch):
+    import json
+    from tools import research_testset as R
+    root, games = fixture_root
+    dev, test = games[:-2], games[-2:]
+    cands = E.build_candidates(root, games)
+    assert set(cands["sportvu_game"].astype(str)) == set(games)
+    models = E.fit_dev_models(cands, dev)
+    testset = tmp_path / "set.json"
+    testset.write_text(json.dumps({"sources": {R.TRACKING: {"games": test, "sha256": R.list_hash(test)}}}))
+    monkeypatch.setenv("V3_RESEARCH_DATA", str(root))
+    out = R.score_once("rebounds-E2", R.TRACKING, E.make_scorer(models, provenance={"code_commit": "x"}),
+                       testset, tmp_path / "ledger.json")
+    assert out["games"] == 2 and out["reading"] in ("confirms", "inconclusive at 10 games", "contradiction")
+    assert set(out["t_interval_softmax_minus_baseline_per_game"]) >= {"lo", "hi", "games"}
+    with pytest.raises(SystemExit):
+        R.score_once("rebounds-E2", R.TRACKING, E.make_scorer(models), testset, tmp_path / "ledger.json")
+
+
+def test_the_scorer_refuses_a_missing_table_before_reading_values(fixture_root, tmp_path, monkeypatch):
+    import json
+    import shutil
+    from tools import research_testset as R
+    root, games = fixture_root
+    copy = tmp_path / "copy"
+    shutil.copytree(root, copy)
+    (copy / "analytics" / "rosters" / "2015-16" / f"{games[-1]}.parquet").unlink()
+    testset = tmp_path / "set.json"
+    testset.write_text(json.dumps({"sources": {R.TRACKING: {"games": games[-2:], "sha256": R.list_hash(games[-2:])}}}))
+    monkeypatch.setenv("V3_RESEARCH_DATA", str(copy))
+    out = R.score_once("rebounds-E2", R.TRACKING, E.make_scorer({}), testset, tmp_path / "ledger.json")
+    assert out["refused"] is True and games[-1] in out["missing"]
+
+
+def test_set_a_is_reached_only_inside_the_scorer_and_final_checks_the_tree_first():
+    tree = ast.parse((REPO / "tools" / "research_rebounds_e2.py").read_text())
+    scorer = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "scorer")
+    inside = {id(c) for c in ast.walk(scorer)}
+    reads = [n for n in ast.walk(tree) if isinstance(n, ast.Call)
+             and getattr(n.func, "id", getattr(n.func, "attr", None)) == "research_data_root"]
+    assert reads and all(id(n) in inside for n in reads)
+    calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and getattr(n.func, "id", None) == "score_once"]
+    assert len(calls) == 1
+    final = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "final")
+    first = next(s for s in final.body if not isinstance(s, (ast.Import, ast.ImportFrom, ast.Expr)))
+    assert "clean_head()" in ast.unparse(first)
+    assert "check_rehearsal(" in ast.unparse(final) and '["verdict"]["met"]' in ast.unparse(final).replace("'", '"')

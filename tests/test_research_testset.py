@@ -78,6 +78,9 @@ ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
            "tools/research_winprob.py": ("scoring_data_root",),
            # winprob-E2 likewise (tests/test_research_winprob_e2.py checks that)
            "tools/research_winprob_e2.py": ("scoring_data_root",),
+           # rebounds-E2 calls research_data_root only inside the scorer it passes to score_once
+           # (tests/test_research_rebounds_e2.py checks that)
+           "tools/research_rebounds_e2.py": ("research_data_root",),
            # lineups-E1 calls it only inside the scorer it passes to score_once (the AST rule below checks that)
            "tools/research_lineups.py": ("scoring_data_root",),
            # embeddings-E1 imports it from research_xfg and calls it only inside its scorer

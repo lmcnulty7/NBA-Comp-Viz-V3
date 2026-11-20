@@ -505,6 +505,257 @@ def _head() -> str:
                           check=True).stdout.strip()
 
 
+# ----------------------------------------------------------------------------- Set A confirmation (D127)
+
+REHEARSAL_GAMES = 10
+SEASON = "2015-16"
+SET_A_TABLES = ("shot_frames", "rosters", "possessions")      # rebound_frames is built here, never read on Set A
+
+
+def clean_head() -> str:
+    """HEAD, after checking that the whole working tree is committed."""
+    import subprocess
+    from tools.frozen_common import REPO_ROOT
+    dirty = subprocess.run(["git", "status", "--porcelain"], cwd=REPO_ROOT, capture_output=True, text=True,
+                           check=True).stdout.strip()
+    if dirty:
+        raise SystemExit(f"{WHO}: the working tree is not clean; commit first:\n{dirty}")
+    return _head()
+
+
+def game_paths(root, game: str) -> dict:
+    root = Path(root)
+    out = {"frames": root / "sportvu_contract" / f"{game}.parquet",
+           "events": root / "sportvu_contract" / f"{game}_pbp.parquet"}
+    out.update({t: root / "analytics" / t / SEASON / f"{game}.parquet" for t in SET_A_TABLES})
+    return out
+
+
+def missing_tables(root, games) -> dict:
+    """Per game, the inputs that are not there (checked before any value is read)."""
+    out = {g: sorted(k for k, q in game_paths(root, g).items() if not q.exists()) for g in games}
+    return {g: m for g, m in out.items() if m}
+
+
+def game_bundle(root, game: str) -> dict:
+    """The frozen bundle of one game (as analytics.rebounds.validate.bundles_from_root forms it), except that the
+    rebound_frames table is built here by the frozen analytics.rebound_frames (read_frames, read_events on the joined
+    play-by-play, locate_rebounds) and typed through its own arrow schema, as phase0 writes it, instead of read."""
+    from analytics import rebound_frames as RF
+    from analytics.rebounds import validate as V
+    paths = game_paths(root, game)
+    table, rf_frames = RF.read_frames(paths["frames"])
+    events = RF.read_events(game, paths["events"], table)
+    rebounds = RF.to_arrow(RF.locate_rebounds(rf_frames, events, game)).to_pandas()
+    del table, rf_frames
+    b = {"sportvu_game": game, "heldout": False, "frames": V.read_frames(paths["frames"]),
+         "events": pd.read_parquet(paths["events"]), "rebound_frames": rebounds}
+    for name in SET_A_TABLES:
+        b[name] = pd.read_parquet(paths[name])
+    return b
+
+
+def build_candidates(root, games) -> pd.DataFrame:
+    """The candidate rows of the given games, one game's frames at a time, through the frozen clean_bundle and
+    features.build; refuses a held-out row."""
+    from analytics.rebounds import features as Fz
+    from analytics.rebounds import train as T
+    from analytics.rebounds import validate as V
+
+    def cleaned():
+        for g in games:
+            cb, _counts = V.clean_bundle(game_bundle(root, g))
+            yield cb
+    cands, _fc = Fz.build(cleaned())
+    rows, held = T.split_train_heldout(cands)
+    if len(held):
+        raise SystemExit(f"{WHO}: a held-out row came out of the scorer's path")
+    return rows
+
+
+def fit_dev_models(cands: pd.DataFrame, games) -> dict:
+    """The three arms fitted on the given development games: the frozen hgb with tau (fit_candidates, the frozen
+    code whose out-of-fold fits passed rebounds-E1's gate A), the softmax arm and the binary ablation."""
+    train = cands[cands["sportvu_game"].astype(str).isin(set(games))].reset_index(drop=True)
+    train = train.iloc[_ordered(train)].reset_index(drop=True)
+    return {"baseline": frozen_baseline_fit(train), "softmax": fit_softmax(train), "binary": fit_binary(train)}
+
+
+def reading(lo: float, hi: float) -> str:
+    """D108's readings: confirms (wholly below 0), contradiction (wholly above 0, stops the adoption), else
+    inconclusive at 10 games."""
+    if hi < 0:
+        return "confirms"
+    if lo > 0:
+        return "contradiction"
+    return "inconclusive at 10 games"
+
+
+def t_interval_of_game_means(games, diff) -> dict:
+    """Report only: a 95 percent t interval on the per-game mean differences, one value per game."""
+    from scipy import stats
+    d = pd.DataFrame({"g": games, "d": diff}).groupby("g")["d"].mean().to_numpy()
+    half = float(stats.t.ppf(0.975, len(d) - 1) * d.std(ddof=1) / np.sqrt(len(d))) if len(d) > 1 else float("nan")
+    return {"mean_of_game_means": float(d.mean()), "lo": float(d.mean() - half), "hi": float(d.mean() + half),
+            "games": int(len(d))}
+
+
+def score_rows(rows: pd.DataFrame, models: dict, n_boot: int = BOOT) -> dict:
+    """Every arm on rows built by the scorer's path; the paired confirmation and its reading."""
+    T = _T()
+    frame = rows.iloc[_ordered(rows)].reset_index(drop=True)
+    starts = check_blocks(frame)
+    pred = frame.copy()
+    for a in ARMS:
+        pred["p_" + a] = models[a](frame)
+        check_sums(pred["p_" + a].to_numpy(), starts)
+    s = summarize(pred, n_boot=n_boot)
+    a, b = T.per_miss(pred, "p_softmax"), T.per_miss(pred, "p_baseline")
+    diff = (-a["logp"].to_numpy()) - (-b["logp"].to_numpy())
+    d = s["paired"]["softmax_minus_baseline"]
+    s.pop("verdict")
+    return {**s, "candidate_rows": int(len(frame)),
+            "t_interval_softmax_minus_baseline_per_game": t_interval_of_game_means(a["game"].to_numpy(), diff),
+            "reading": reading(d["lo"], d["hi"])}
+
+
+def key_tuples(rows) -> list:
+    """(game, event, candidate player) of each row as typed values (the none row's id is -1, never NaN)."""
+    return list(zip(rows["sportvu_game"].astype(str), rows["event"].astype(int),
+                    pd.to_numeric(rows["candidate_player_id"]).astype(int)))
+
+
+def same_column(a, b) -> bool:
+    """The same values in the same order: numbers exactly, with the same NaN placement; anything else value by value,
+    a missing value matching only a missing value. No tolerance."""
+    if len(a) != len(b):
+        return False
+    try:
+        return bool(np.array_equal(pd.to_numeric(a).to_numpy(float), pd.to_numeric(b).to_numpy(float), equal_nan=True))
+    except (TypeError, ValueError):
+        return [None if pd.isna(x) else x for x in a] == [None if pd.isna(x) else x for x in b]
+
+
+def rehearsal_check(built: pd.DataFrame, cached: pd.DataFrame) -> dict:
+    rows = len(built) == len(cached) and key_tuples(built) == key_tuples(cached)
+    shared = sorted(set(built.columns) & set(cached.columns))
+    return {"rows_match_cache": bool(rows), "rows": int(len(built)), "rows_cached": int(len(cached)),
+            "shared_columns_match_cache": {c: bool(rows and same_column(built[c], cached[c])) for c in shared}}
+
+
+def rehearsal_passed(record: dict) -> bool:
+    cols = record.get("shared_columns_match_cache", {})
+    return bool(record.get("rows_match_cache")) and bool(cols) and all(cols.values())
+
+
+def rehearsal_path(artifacts=None) -> Path:
+    return work_dir(artifacts) / "rebounds_e2_rehearsal.json"
+
+
+def rehearse(e1_artifacts, artifacts=None) -> dict:
+    """The scorer's path on 10 development games drawn with seed 0 in place of Set A (not a result; artifacts only):
+    the arms fitted on the other development games, the stand-in games' rows built from DATA_ROOT by the scorer's own
+    path (rebound frames built, not read), which must equal rebounds-E1's gated candidate rows of those games."""
+    import json
+    import os
+    import random
+    from tools.frozen_common import _plain
+    from tools.research_testset import dev_games
+    head = clean_head()
+    cands, _gate, _folds = load_e1(e1_artifacts)
+    games = dev_games(sorted(cands["sportvu_game"].astype(str).unique()), WHO)
+    stand_in = sorted(random.Random(SEED).sample(games, REHEARSAL_GAMES))
+    models = fit_dev_models(cands, [g for g in games if g not in set(stand_in)])
+    built = build_candidates(Path(os.environ["DATA_ROOT"]), stand_in)
+    cached = cands[cands["sportvu_game"].astype(str).isin(set(stand_in))].reset_index(drop=True)
+    check = rehearsal_check(built.reset_index(drop=True), cached)
+    out = {"what": "rehearsal of the rebounds-E2 scorer on 10 development games in place of Set A; not a result",
+           "code_commit": head, "stand_in_games": len(stand_in), **check, **score_rows(built, models)}
+    work_dir(artifacts).mkdir(parents=True, exist_ok=True)
+    rehearsal_path(artifacts).write_text(json.dumps(_plain(out), indent=2) + "\n")
+    if not rehearsal_passed(out):
+        raise SystemExit(f"{WHO}: the scorer's rows differ from rebounds-E1's development rows")
+    return {k: out[k] for k in ("code_commit", "rows_match_cache", "rows", "rows_cached")}
+
+
+def check_rehearsal(path, head: str) -> dict:
+    import json
+    path = Path(path)
+    if not path.exists():
+        raise SystemExit(f"{WHO}: rehearse the scorer first")
+    record = json.loads(path.read_text())
+    if not rehearsal_passed(record):
+        raise SystemExit(f"{WHO}: the rehearsal did not pass")
+    if record.get("code_commit") != head:
+        raise SystemExit(f"{WHO}: the rehearsal ran at {record.get('code_commit')}, not at this HEAD {head}")
+    return record
+
+
+def make_scorer(models: dict, artifacts=None, provenance: dict = None):
+    """The scorer score_once runs. Set A is reached only here: the research root, its inputs checked before any value
+    is read, all 10 games or none, a non-finite number refuses the reading."""
+    from tools import research_testset as RT
+    from tools.research_testset import TRACKING
+    from tools.research_xfg import research_data_root
+
+    def scorer(test_games):
+        if RT._SCORING is None or RT._SCORING[1] != TRACKING:
+            raise SystemExit(f"{WHO}: the test data is read only inside the scorer that score_once runs")
+        root = research_data_root(artifacts)
+        games = sorted(str(g) for g in test_games)
+        head = {"experiment": EXPERIMENT, "stage": ("fitted on every development game, scored once on the D71 test "
+                                                    "set as a D127 confirmation with D108's readings"),
+                **(provenance or {})}
+        missing = missing_tables(root, games)
+        if missing:
+            return {**head, "refused": True, "reading": f"refused: {len(missing)} test game(s) lack an input",
+                    "missing": missing}
+        rows = build_candidates(root, games)
+        without = sorted(set(games) - set(rows["sportvu_game"].astype(str)))
+        if without:
+            return {**head, "refused": True, "reading": f"refused: {len(without)} test game(s) gave no candidate row",
+                    "games_without_rows": without}
+        result = score_rows(rows, models)
+        bad = [k for k, v in result["paired"].items() if not all(np.isfinite([v["value"], v["lo"], v["hi"]]))]
+        if bad:
+            return {**head, "refused": True, "reading": f"refused: non-finite values in {bad}"}
+        return {**head, **result}
+
+    return scorer
+
+
+def final(e1_artifacts, artifacts=None) -> dict:
+    """The one Set A score (D127): only when development adopts and the rehearsal passed at this HEAD."""
+    import hashlib
+    import json
+    from tools.frozen_common import REPO_ROOT, _plain
+    from tools.research_testset import TRACKING, dev_games, score_once
+    from tools.research_xfg import test_root_ready
+    head = clean_head()
+    results = Path(RESULTS or REPO_ROOT / "reports" / "research")
+    dev_path = results / f"{EXPERIMENT}-dev.json"
+    dev_out = json.loads(dev_path.read_text())
+    if not dev_out["verdict"]["met"]:
+        raise SystemExit(f"{WHO}: development does not adopt, so Set A is not scored (D127)")
+    check_rehearsal(rehearsal_path(artifacts), head)
+    if not test_root_ready(artifacts):
+        raise SystemExit(f"{WHO}: the research data root has no ingested games")
+    cands, gate, _folds = load_e1(e1_artifacts)
+    models = fit_dev_models(cands, dev_games(sorted(cands["sportvu_game"].astype(str).unique()), WHO))
+    sha = lambda q: hashlib.sha256(Path(q).read_bytes()).hexdigest()
+    provenance = {"code_commit": head, "dev_json_sha256": sha(dev_path),
+                  "rehearsal_json_sha256": sha(rehearsal_path(artifacts))}
+    out = score_once(EXPERIMENT, TRACKING, make_scorer(models, artifacts, provenance))
+    record = {"experiment": EXPERIMENT, "code_commit": head, "scored": out,
+              "setup": {"e1_gate_a": gate, "projected_set_a": dev_out["projected_set_a"],
+                        "rule": ("D127 with D108's readings: confirms if the 95 percent interval of softmax minus "
+                                 "baseline lies wholly below 0, inconclusive at 10 games if it straddles 0, "
+                                 "contradiction if wholly above 0 (stops the adoption); the t interval on the per-game "
+                                 "means beside it, report only")}}
+    (results / f"{EXPERIMENT}-final.json").write_text(json.dumps(_plain(record), indent=2) + "\n")
+    return out
+
+
 def main(argv=None) -> int:
     import argparse
     import json
@@ -512,7 +763,7 @@ def main(argv=None) -> int:
     from export.heavy import heavy_job
     from tools.frozen_common import _plain
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e2-feasibility", "e2-folds", "e2-dev"))
+    ap.add_argument("command", choices=("e2-feasibility", "e2-folds", "e2-dev", "e2-rehearse", "e2-final"))
     ap.add_argument("--e1-artifacts", default=None, help="rebounds-E1's artifacts folder (its gated refit)")
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
@@ -522,8 +773,13 @@ def main(argv=None) -> int:
             out = feasibility(Path(os.environ["DATA_ROOT"]))
         elif a.command == "e2-folds":
             out = fold_stage(a.e1_artifacts, a.artifacts, a.max_minutes, head=_head())
-        else:
+        elif a.command == "e2-dev":
             out = dev_stage(a.e1_artifacts, a.artifacts, head=_head())
+        elif a.command == "e2-rehearse":
+            out = rehearse(a.e1_artifacts, a.artifacts)
+        else:
+            out = final(a.e1_artifacts, a.artifacts)
+            out = {k: out.get(k) for k in ("reading", "refused", "misses", "games", "paired")}
     print(json.dumps(_plain(out), indent=2))
     return 0
 

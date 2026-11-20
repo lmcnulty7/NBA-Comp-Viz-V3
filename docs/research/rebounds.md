@@ -169,6 +169,35 @@ reports/rebounds.md; hgb beats the prior by -0.5371 [-0.5477, -0.5283].
   5. Known before this run: rebounds-E1's development result. Nothing in E2 was chosen after it: the model, its
      settings, the ablation and the bar are the pre-registration's, and the code was committed (ff0860ff) before
      E1 decided.
+- Before the Set A score (D127; written after the development result, before any Set A read). Development adopts:
+  softmax minus baseline -0.019327 [-0.021138, -0.017642] (reports/research/rebounds-E2-dev.json, from code
+  d12b130c). The projected Set A half-width from the development per-game spread of that difference is 0.013754
+  (random 10-game sets) and 0.013572 (the development bootstrap scaled), so a difference of the development size
+  would give an interval wholly below zero; "inconclusive at 10 games", written above as the expected reading, was
+  projected from the logit-against-hgb proxy (0.0515) and no longer is. The readings do not change. Commitments for
+  the one score:
+  1. The three arms are fitted on all 604 development games: the baseline by the frozen fit_candidates (the hgb with
+     its inner tau, the same code whose out-of-fold fits passed rebounds-E1's gate A), the softmax arm and the binary
+     ablation as above. Nothing is fitted on Set A.
+  2. The scorer reaches Set A only inside score_once (entry "rebounds-E2"), through the research data root. Set A's
+     root holds no rebound frames, so the scorer builds them with the frozen analytics.rebound_frames (read_frames,
+     read_events on the joined play-by-play, locate_rebounds, typed through its own arrow schema, as phase0 writes
+     them), then the candidate rows with the frozen validate.clean_bundle and features.build. Before any value is read
+     it refuses if a game lacks frames, play-by-play, shot frames, a roster or possessions; it refuses unless all 10
+     games give candidate rows; a non-finite paired number refuses the reading.
+  3. The reading is D108's on softmax minus baseline, per-miss log loss, with a bootstrap of the 10 games, 2000
+     resamples, seed 0: "confirms" if the 95 percent interval lies wholly below zero, "inconclusive at 10 games" if it
+     straddles zero, "contradiction" if it lies wholly above zero, which stops the adoption. A 95 percent t interval
+     on the 10 per-game mean differences is reported beside it and read by no rule. Binary minus baseline, softmax
+     minus binary, top-1 and the favourite's calibration slope are reported and read by none.
+  4. Rehearsal: the scorer's path runs first on 10 development games drawn with seed 0 in place of Set A, the arms
+     fitted on the other 594. Its candidate rows must equal rebounds-E1's gated rows of those games exactly: the same
+     rows in the same order by typed keys (game, event, candidate), and every shared column the same values with the
+     same missing places, no tolerance. Its record names its commit, and the final command refuses unless the
+     rehearsal passed at the same commit, from a clean tree. The final json records the code commit and the hashes of
+     the development json and the rehearsal record, nested under "scored" and "setup".
+  5. Set A has been read before by other experiments (the scoring ledger holds xfg-E1, embeddings-E1, matchups-E1,
+     ghosting-E1 and xfg-E2 entries on it); rebounds-E2 takes its own one entry. No rebounds experiment has read it.
 
 ## 7. Sources checked (all fetched 2026-11-16)
 
