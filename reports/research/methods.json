@@ -1666,8 +1666,10 @@
      "gain": 2,
      "effort": 2,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted on development (training on expected shot value makes the error against realized points worse, MSE(baseline) - MSE(e1) -0.02247 [-0.02433, -0.02053]); Set A not scored (D117); reports/research/epv-E1.md",
+     "results": null,
+     "result_in_writeup": true,
+     "writeup": "reports/research/epv-E1.md"
     },
     {
      "id": "epv-E2",

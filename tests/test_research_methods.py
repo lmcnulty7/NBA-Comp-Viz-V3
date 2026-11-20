@@ -57,7 +57,7 @@ def test_the_committed_source_traces_and_builds(source):
 
 
 RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
-       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1")   # the experiments with a result file today
+       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1", "epv-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -1122,6 +1122,23 @@ def test_matchups_e1_decides_each_part_on_development_and_reads_set_a_as_a_confi
         assert part.test.reading == final[key]["reading"]
     assert a.development.met and a.test.met and a.test.reading.startswith("confirms")
     assert not b.development.met and not b.test.met and b.test.reading.startswith("inconclusive")
+
+
+def test_epv_e1_is_a_development_fail_kept_in_its_write_up_with_set_a_unscored(source):
+    """epv-E1 (PLAN.md D117): not adopted on development, Set A not scored and no Set A path written. Its rule has two
+    parts (an MSE interval and a 0 to 4 s slope band), so the result stays in its write-up."""
+    e = _built(source)["epv-E1"]
+    assert (e.status, e.result_in_writeup, e.writeup) == ("ran_result_in_writeup", True, "reports/research/epv-E1.md")
+    assert e.development is None and e.test is None and e.protocol is None and not e.parts
+    assert e.backlog_status.startswith("done: not adopted on development")
+    dev = _file("epv-E1-dev.json")
+    assert dev["verdict"]["passes"] is False and dev["verdict"]["diff_ci_above_zero"] is False
+    assert dev["gates"]["a_baseline_reproduces_frozen_oof"]["passed"] and dev["gates"]["b_nested_xfg_log_loss"]["passed"]
+    assert not (REPO / "reports" / "research" / "epv-E1-final.json").exists()
+    ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
+    assert not [x for x in ledger if x.get("experiment") == "epv-E1"]
+    text = (REPO / "reports" / "research" / "epv-E1.md").read_text(encoding="utf-8")
+    assert "not scored" in " ".join(R.verdict_paragraph(text)).lower()
 
 
 def test_matchups_e2_is_a_development_fail_whose_set_a_was_not_scored(source):
