@@ -611,6 +611,44 @@ def stored_epv(root: Path, games) -> "pd.DataFrame":
                       for g in games], ignore_index=True)
 
 
+MODEL_PARTS = "epv_parts.pkl"
+
+
+def save_model(model, folder: Path, sample) -> str:
+    """The fold model as the frozen reader keeps it (tools.frozen_epv): the GRU's state_dict plus the parts that
+    rebuild it (analytics.epv.deep._net) and its imputer and scalers. Read back and checked to predict the sample
+    bit for bit before its hash is returned."""
+    import pickle
+    import numpy as np
+    import torch
+    torch.save(model.net_.state_dict(), folder / "epv_state.pt")
+    parts = {"n_steps": model.n_steps, "n_features": model.n_features, "hidden": model.hidden, "seed": model.seed,
+             "threads": model.threads, "imputer": model.imp_, "xs": model.xs_, "ys": model.ys_}
+    with open(folder / MODEL_PARTS, "wb") as handle:
+        pickle.dump(parts, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    if not np.array_equal(load_model(folder).predict(sample), model.predict(sample)):
+        raise RuntimeError(f"{WHO}: the fold model read back from disk does not equal the fitted model")
+    return model_hash(folder)
+
+
+def load_model(folder: Path):
+    import pickle
+    import torch
+    from analytics.epv import deep as D
+    with open(Path(folder) / MODEL_PARTS, "rb") as handle:
+        parts = pickle.load(handle)
+    net = D._net(torch, parts["n_steps"], parts["n_features"], parts["hidden"])
+    net.load_state_dict(torch.load(Path(folder) / "epv_state.pt", map_location="cpu", weights_only=True))
+    net.eval()
+    m = D.GRUSequenceRegressor(n_steps=parts["n_steps"], hidden=parts["hidden"], seed=parts["seed"], threads=parts["threads"])
+    m.n_features, m.net_, m.imp_, m.xs_, m.ys_ = parts["n_features"], net, parts["imputer"], parts["xs"], parts["ys"]
+    return m
+
+
+def model_hash(folder: Path) -> str:
+    return _sha256(Path(folder) / "epv_state.pt") + ":" + _sha256(Path(folder) / MODEL_PARTS)
+
+
 def fold_dir(artifacts, k: int) -> Path:
     d = work_dir(artifacts) / f"fold{k}"
     d.mkdir(parents=True, exist_ok=True)
@@ -639,9 +677,9 @@ def fold_job(k: int, artifacts=None, max_minutes: float = 25.0, log=print) -> di
     (work_dir(artifacts) / "folds.json").write_text(json.dumps({"folds": [te for _, te in folds]}) + "\n")
     tr, te = np.isin(games, tr_g), np.isin(games, te_g)
     priors = EF.Priors.from_training(st.loc[tr], shots, rosters)
-    model_path = out / "epv_model.pt"
+    model_path = out / "epv_state.pt"
     rec_path = out / "gate.json"
-    if not model_path.exists():
+    if not rec_path.exists():
         geo = EF.geometry(st)
         X_tr, X_te, _ = T.fold_features(geo.loc[tr], geo.loc[te], st.loc[tr], shots, rosters)
         del geo
@@ -652,6 +690,7 @@ def fold_job(k: int, artifacts=None, max_minutes: float = 25.0, log=print) -> di
         fit_s = time.time() - t0
         del X_tr
         pred = X_te[["sportvu_game", "possession", "frame"]].assign(mine=model.predict(X_te[cols].to_numpy(float)))
+        sample = X_te[cols].to_numpy(float)[:: max(1, len(X_te) // 20000)]
         del X_te
         ref = stored_epv(root, te_g)
         m = pred.merge(ref, on=["sportvu_game", "possession", "frame"], how="outer", indicator=True)
@@ -663,15 +702,17 @@ def fold_job(k: int, artifacts=None, max_minutes: float = 25.0, log=print) -> di
                 "max_abs_diff": float(diff.max()) if len(diff) else float("nan"), "tolerance": EPV_TOL,
                 "fit_seconds": round(fit_s, 1)}
         gate["passed"] = bool(gate["unmatched"] == 0 and gate["stored_fold_is_k"] and gate["max_abs_diff"] <= EPV_TOL)
-        torch.save(model, model_path)
-        gate["model_sha256"] = _sha256(model_path)
-        rec_path.write_text(json.dumps(_plain(gate), indent=2) + "\n")
         if log:
             log(f"[research] fold {k} gate: {gate}")
+        (out / "gate.pending.json").write_text(json.dumps(_plain(gate), indent=2) + "\n")   # kept even if saving fails
+        if not gate["passed"]:
+            raise SystemExit(f"{WHO}: fold {k} EPV gate did not pass: {gate}")
+        gate["model_sha256"] = save_model(model, out, sample)
+        rec_path.write_text(json.dumps(_plain(gate), indent=2) + "\n")
     gate = json.loads(rec_path.read_text())
-    if not gate["passed"] or gate["model_sha256"] != _sha256(model_path):
+    if not gate["passed"] or gate["model_sha256"] != model_hash(out):
         raise SystemExit(f"{WHO}: fold {k} EPV gate did not pass: {gate}")
-    model = torch.load(model_path, weights_only=False)
+    model = load_model(out)
     gdir = work_dir(artifacts) / "games"
     done = 0
     for g in te_g:
@@ -755,7 +796,7 @@ def attempt_counts(att) -> dict:
 def require_fold(artifacts, k: int) -> dict:
     d = fold_dir(artifacts, k)
     gate = json.loads((d / "gate.json").read_text())
-    if not gate["passed"] or gate["model_sha256"] != _sha256(d / "epv_model.pt"):
+    if not gate["passed"] or gate["model_sha256"] != model_hash(d):
         raise SystemExit(f"{WHO}: fold {k} EPV gate did not pass")
     return gate
 

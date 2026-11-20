@@ -206,3 +206,16 @@ def test_exclusions_by_fold_and_game():
     assert x["attempts_by_fold"]["by"]["0"] == {"excluded": 1, "of": 2, "share": 0.5}
     assert x["option_shot_by_game"]["by"]["b"]["excluded"] == 1 and x["option_pass_any_by_fold"]["by"]["1"]["excluded"] == 1
     assert x["primary_left_out_by_kind"]["by"]["drive"]["excluded"] == 1
+
+
+def test_fold_model_saves_and_reloads_bit_for_bit(tmp_path):
+    pytest.importorskip("torch")
+    from analytics.epv import deep as D
+    rng = np.random.default_rng(0)
+    X = rng.normal(size=(400, 5 * 3))
+    y = X[:, 0] * 0.3 + rng.normal(size=400)
+    m = D.GRUSequenceRegressor(n_steps=5, hidden=4, seed=0, max_epochs=3, patience=3).fit(X, y)
+    X[rng.random(X.shape) < 0.05] = np.nan                  # prediction rows with gaps go through the saved imputer
+    h = E.save_model(m, tmp_path, X)
+    again = E.load_model(tmp_path)
+    assert np.array_equal(again.predict(X), m.predict(X)) and h == E.model_hash(tmp_path)
