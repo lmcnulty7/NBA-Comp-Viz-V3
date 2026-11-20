@@ -1,0 +1,107 @@
+{
+  "experiment": "rebounds-E2",
+  "code_commit": "d12b130cfacbbad893032228b484eb88a5f3adcb",
+  "fold_code_commits": [
+    "d12b130cfacbbad893032228b484eb88a5f3adcb"
+  ],
+  "stage": "development games (604), out of fold under rebounds-E1's five folds; baseline the frozen hgb with tau from rebounds-E1's gated refit (reused); the development games decide (D125's pattern)",
+  "pre_registration": "docs/research/rebounds.md, rebounds-E2 and its amendment",
+  "e1_gate_a": {
+    "rows_mine": 537175,
+    "rows_stored": 537175,
+    "matched": 537175,
+    "only_mine": 0,
+    "only_stored": 0,
+    "fold_mismatches": 0,
+    "max_abs_diff": 2.979989754958723e-08,
+    "tolerance": 5.960464477539063e-08,
+    "per_miss_log_loss": 1.600912138611828,
+    "frozen_log_loss": 1.6009,
+    "passed": true
+  },
+  "candidate_rows": 537175,
+  "binary_tau_by_fold": [
+    1.2731510121819938,
+    1.2742018618375779,
+    1.275056824736516,
+    1.2759286110059758,
+    1.2758616946523138
+  ],
+  "misses": 49288,
+  "games": 604,
+  "resamples": 2000,
+  "seed": 0,
+  "arms": {
+    "baseline": {
+      "per_miss_log_loss": {
+        "value": 1.600912138611828,
+        "lo": 1.5887286231428726,
+        "hi": 1.6127307886812838
+      },
+      "top1": {
+        "value": 0.4796806524914787,
+        "lo": 0.474740595271631,
+        "hi": 0.48482756794490345
+      },
+      "favourite_calibration_slope_point_estimate": 1.3675048553702245
+    },
+    "softmax": {
+      "per_miss_log_loss": {
+        "value": 1.581585140546839,
+        "lo": 1.5701943574651467,
+        "hi": 1.592874736275944
+      },
+      "top1": {
+        "value": 0.4774793053075799,
+        "lo": 0.47238588826824385,
+        "hi": 0.4826022610416751
+      },
+      "favourite_calibration_slope_point_estimate": 1.1304814879836844
+    },
+    "binary": {
+      "per_miss_log_loss": {
+        "value": 1.6055921108422013,
+        "lo": 1.593592666063956,
+        "hi": 1.6174419814342804
+      },
+      "top1": {
+        "value": 0.47648514851485146,
+        "lo": 0.47140896034441515,
+        "hi": 0.48143218617909517
+      },
+      "favourite_calibration_slope_point_estimate": 1.351581904678999
+    }
+  },
+  "paired": {
+    "softmax_minus_baseline": {
+      "value": -0.019326998064988925,
+      "lo": -0.021138107972544073,
+      "hi": -0.017642458128190628
+    },
+    "binary_minus_baseline": {
+      "value": 0.0046799722303733785,
+      "lo": 0.0039389760400001615,
+      "hi": 0.0054229689686093275
+    },
+    "softmax_minus_binary": {
+      "value": -0.024006970295362303,
+      "lo": -0.02581021926269021,
+      "hi": -0.022213336970528238
+    }
+  },
+  "verdict": {
+    "difference": -0.019326998064988925,
+    "lo": -0.021138107972544073,
+    "hi": -0.017642458128190628,
+    "threshold": -0.01,
+    "size_at_most_threshold": true,
+    "interval_excludes_zero": true,
+    "met": true,
+    "reading": "met on development"
+  },
+  "projected_set_a": {
+    "random_10_game_sets_half_width": 0.013754114185755645,
+    "dev_half_width_scaled": 0.01357199536186733,
+    "development_games": 604
+  }
+}
