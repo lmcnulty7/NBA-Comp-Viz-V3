@@ -37,6 +37,8 @@ WHO = "tools.research_rebounds_e2"
 EXPERIMENT = "rebounds-E2"
 SEED, FOLDS, BOOT = 0, 5, 2000
 THRESHOLD = -0.010              # pre-registered: paired difference at most -0.010, interval excluding 0
+# nthread 1 for the booster and for every DMatrix: DMatrix construction runs its own OpenMP loop, which crashed the
+# full test suite when several libomp copies were loaded (2026-11-20); one thread changes no value
 XGB_PARAMS = {"max_depth": 3, "eta": 0.1, "base_score": 0.0, "tree_method": "hist", "nthread": 1, "seed": SEED,
               "disable_default_eval_metric": 1}
 ROUNDS = 80
@@ -141,7 +143,7 @@ def fit_softmax(train: pd.DataFrame, seed: int = SEED):
     starts = check_blocks(train)
     X, _ = _design(train, None, seed)
     y = train[F.TARGET].astype(int).to_numpy()
-    d = xgb.DMatrix(X.to_numpy(dtype=float), feature_names=list(X.columns))
+    d = xgb.DMatrix(X.to_numpy(dtype=float), feature_names=list(X.columns), nthread=1)
     booster = xgb.train({**XGB_PARAMS, "seed": seed}, d, num_boost_round=ROUNDS, obj=make_objective(y, starts))
     rates = _T().player_rates(train)
 
@@ -149,7 +151,8 @@ def fit_softmax(train: pd.DataFrame, seed: int = SEED):
         T = _T()
         st = check_blocks(frame)
         Xt = T.design(frame, T.apply_prior(frame, rates))
-        m = booster.predict(xgb.DMatrix(Xt.to_numpy(dtype=float), feature_names=list(Xt.columns)), output_margin=True)
+        m = booster.predict(xgb.DMatrix(Xt.to_numpy(dtype=float), feature_names=list(Xt.columns), nthread=1),
+                            output_margin=True)
         p = softmax_blocks(m, st)
         check_sums(p, st)
         return p
@@ -163,13 +166,13 @@ def _fit_binary_raw(train: pd.DataFrame, seed: int = SEED):
     X, _ = _design(train, None, seed)
     y = train[F.TARGET].astype(int).to_numpy()
     params = {**XGB_PARAMS, "seed": seed, "objective": "binary:logistic", "base_score": 0.5}
-    booster = xgb.train(params, xgb.DMatrix(X.to_numpy(dtype=float), label=y, feature_names=list(X.columns)),
+    booster = xgb.train(params, xgb.DMatrix(X.to_numpy(dtype=float), label=y, feature_names=list(X.columns), nthread=1),
                         num_boost_round=ROUNDS)
     rates = T.player_rates(train)
 
     def predict_q(frame):
         Xt = T.design(frame, T.apply_prior(frame, rates))
-        return booster.predict(xgb.DMatrix(Xt.to_numpy(dtype=float), feature_names=list(Xt.columns)))
+        return booster.predict(xgb.DMatrix(Xt.to_numpy(dtype=float), feature_names=list(Xt.columns), nthread=1))
     return predict_q
 
 

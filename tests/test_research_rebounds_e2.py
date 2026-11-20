@@ -336,3 +336,13 @@ def test_the_scorer_records_build_counts_and_refuses_on_a_guard_failure(fixture_
     assert set(counts) == set(games[-2:]) and "unmatched_named_rebounder" in counts[games[-1]]
     entries = json.loads((tmp_path / "ledger.json").read_text())
     assert entries[-1]["status"] == "scored"                     # the refusal is on record, the score is spent
+
+
+def test_every_dmatrix_and_the_booster_use_one_thread():
+    tree = ast.parse((REPO / "tools" / "research_rebounds_e2.py").read_text())
+    calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and getattr(n.func, "attr", None) == "DMatrix"]
+    assert len(calls) == 4
+    for c in calls:
+        kw = {k.arg: k.value for k in c.keywords}
+        assert isinstance(kw.get("nthread"), ast.Constant) and kw["nthread"].value == 1, ast.unparse(c)
+    assert E.XGB_PARAMS["nthread"] == 1
