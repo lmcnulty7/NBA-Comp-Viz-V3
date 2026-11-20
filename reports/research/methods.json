@@ -249,13 +249,141 @@
      "title": "second defender and contest geometry",
      "what": "second defender and contest geometry",
      "hypothesis": "Adding the second closest defender's distance, the angle between the shooter-to-basket line and the shooter-to-closest-defender line (contest from the front or from the side), and the closest defender's speed toward the shooter's line of shot, all at the release frame, lowers out-of-fold log loss.",
-     "threshold": "Paired log loss difference (new minus baseline) at most -0.001 with its 95 percent interval excluding 0, on development games and again on the D71 test set scored once. Chang et al. found 0.0008 Brier between shot-and-defender distance and all variables, so a smaller change would not show in a coach's view.",
+     "threshold": "Development decides: adopt when the paired difference (new minus baseline) is at most -0.001 and its 95 percent interval excludes 0. If development adopts, Set A is scored once (score_once, entry \"xfg-E2\") as a confirmation read as D108: \"confirms\" when the interval lies wholly below 0, \"inconclusive at 10 games\" when it straddles 0, \"contradiction\" when it lies wholly above 0, which stops the adoption; a t interval on the 10 per-game mean differences is reported beside it (D80), and the projected test half-width from the development per-game variance is reported before the score. If development does not adopt, Set A is not scored (D109).",
      "rank": 23,
      "gain": 2,
      "effort": 3,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: adopted as a research result on development (new minus baseline -0.00182 [-0.00222, -0.00141], 607 games); Set A inconclusive at 10 games (-0.00224 [-0.00657, +0.00192]), not a contradiction, so the adoption stands (D121); the frozen xFG on the site is unchanged; reports/research/xfg-E2.md",
+     "results": {
+      "metric": "Out-of-fold log loss, new arm minus baseline (paired per shot)",
+      "rows_unit": "shots",
+      "interval": "Bootstrap by game, 2000 resamples, 95 percent interval.",
+      "development": "reports/research/xfg-E2-dev.json",
+      "test": "reports/research/xfg-E2-final.json",
+      "design": "stage",
+      "rule_quote": {
+       "from": "dossier",
+       "texts": [
+        "Development decides: adopt when the paired difference (new minus baseline) is at most -0.001 and its 95 percent interval excludes 0."
+       ]
+      },
+      "comparison": "below",
+      "threshold": 0,
+      "main_states": "its 95 percent interval excludes 0",
+      "keys": {
+       "rows": "shots",
+       "games": "games",
+       "diff": "paired_new_minus_baseline.diff",
+       "lo": "paired_new_minus_baseline.lo",
+       "hi": "paired_new_minus_baseline.hi",
+       "met": "verdict.adopts_on_development"
+      },
+      "conditions": [
+       {
+        "label": "Size: the paired difference itself, at most -0.001",
+        "value": "paired_new_minus_baseline.diff",
+        "lo": "paired_new_minus_baseline.lo",
+        "hi": "paired_new_minus_baseline.hi",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold_key": "verdict.threshold",
+        "sign": 1,
+        "met": null,
+        "digits": 5
+       }
+      ],
+      "equalities": [
+       [
+        "verdict.diff",
+        "paired_new_minus_baseline.diff"
+       ],
+       [
+        "verdict.lo",
+        "paired_new_minus_baseline.lo"
+       ],
+       [
+        "verdict.hi",
+        "paired_new_minus_baseline.hi"
+       ]
+      ],
+      "digits": 5,
+      "values": [
+       {
+        "label": "Ablation, read by no rule: second defender's distance alone, minus baseline",
+        "value": "paired_ablation_minus_baseline.diff",
+        "lo": "paired_ablation_minus_baseline.lo",
+        "hi": "paired_ablation_minus_baseline.hi",
+        "digits": 5
+       },
+       {
+        "label": "Report only: new arm minus the ablation",
+        "value": "paired_new_minus_ablation.diff",
+        "lo": "paired_new_minus_ablation.lo",
+        "hi": "paired_new_minus_ablation.hi",
+        "digits": 5
+       },
+       {
+        "label": "Projected half-width of the 10-game Set A interval, reported before the score (point estimate)",
+        "value": "per_game_sd_new_minus_baseline.projected_10_game_half_width",
+        "digits": 4
+       }
+      ],
+      "by_stage": {
+       "test": {
+        "metric": "Set A, scored once as a confirmation (D121, D108): out-of-fold log loss, new arm minus baseline, both fitted on every development game",
+        "design": "scored.stage",
+        "comparison": "not_wholly_above",
+        "threshold": 0,
+        "main_states": "contradiction if wholly above 0",
+        "keys": {
+         "rows": "scored.shots",
+         "games": "scored.games",
+         "diff": "scored.paired_new_minus_baseline.diff",
+         "lo": "scored.paired_new_minus_baseline.lo",
+         "hi": "scored.paired_new_minus_baseline.hi",
+         "rule": "rule",
+         "reading": "scored.reading"
+        },
+        "readings": {
+         "confirms": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0,
+          "met": true
+         },
+         "inconclusive": "met_otherwise",
+         "contradiction": "not_met"
+        },
+        "conditions": [],
+        "equalities": [],
+        "digits": 5,
+        "values": [
+         {
+          "label": "Report only (D80), read by no rule: t interval on the 10 per-game mean differences",
+          "value": "scored.t_interval_new_minus_baseline_per_game.mean_of_game_means",
+          "lo": "scored.t_interval_new_minus_baseline_per_game.lo",
+          "hi": "scored.t_interval_new_minus_baseline_per_game.hi",
+          "digits": 5
+         }
+        ]
+       }
+      }
+     },
+     "threshold_label": "Decision (D121)",
+     "writeup": "reports/research/xfg-E2.md",
+     "adopted_as": "research_result",
+     "writeup_notes": [
+      "Verdict: adopted as a research result on development; Set A reads \"inconclusive at 10 games\", which is not a contradiction, so the adoption stands (D121). The frozen xFG model on the site is unchanged.",
+      {
+       "section": "What was tested",
+       "text": "The 2026-11-16 threshold line also asked for a Set A pass; D121 (2b6ed39f, fixed before any development number) replaced that with a confirmation read."
+      },
+      {
+       "section": "Development games (607 games, 101,853 shots, 5 grouped outer folds)",
+       "text": "Most of the gain comes from the contest angle and the defender's speed toward the shot line, not from the second defender's distance."
+      }
+     ]
     }
    ]
   },
@@ -410,8 +538,80 @@
      "gain": 2,
      "effort": 1,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted on development (E1 minus baseline per-miss log loss -0.004628 [-0.005472, -0.003816], below zero but short of the -0.005 bar); Set A not scored (D125); reports/research/rebounds-E1.md",
+     "writeup": "reports/research/rebounds-E1.md",
+     "test_not_scored": true,
+     "writeup_notes": [
+      "Separate sharpening per candidate type changes the per-miss log loss by -0.004628 [-0.005472, -0.003816]: the interval excludes zero, but the point does not reach the pre-registered bar of -0.005.",
+      "Almost all of E1's gain comes from a separate slope per type, not from the offsets.",
+      "The site keeps the frozen single tau."
+     ],
+     "results": {
+      "metric": "Out-of-fold per-miss log loss, E1 (a slope and an offset per candidate type) minus the frozen single tau (nats per miss; below zero favours E1)",
+      "rows_unit": "misses",
+      "interval_from": "writeup_sentence",
+      "interval": "Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with all arms paired on the same misses and the same resampled games.",
+      "development": "reports/research/rebounds-E1-dev.json",
+      "test": null,
+      "design": "stage",
+      "rule_quote": {
+       "from": "dossier",
+       "texts": [
+        "Paired difference (new minus baseline) at most -0.005 with its 95 percent interval excluding 0, on development games and again on the D71 test set scored once.",
+        "As D121: the development games decide (difference at most -0.005 with the 95 percent interval excluding zero)."
+       ]
+      },
+      "comparison": "below",
+      "threshold": 0,
+      "main_states": "its 95 percent interval excluding 0",
+      "keys": {
+       "rows": "misses",
+       "games": "games",
+       "diff": "e1_minus_baseline.point",
+       "lo": "e1_minus_baseline.ci95.0",
+       "hi": "e1_minus_baseline.ci95.1",
+       "upper": "e1_minus_baseline.ci95.1",
+       "met": "verdict.passes",
+       "main_met": "verdict.interval_excludes_zero"
+      },
+      "conditions": [
+       {
+        "label": "Size: the paired difference itself, at most -0.005",
+        "value": "e1_minus_baseline.point",
+        "lo": "e1_minus_baseline.ci95.0",
+        "hi": "e1_minus_baseline.ci95.1",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold": -0.005,
+        "met": "verdict.at_most_threshold",
+        "digits": 6
+       }
+      ],
+      "digits": 6,
+      "values": [
+       {
+        "label": "Per-miss log loss, frozen single tau (baseline)",
+        "value": "log_loss.baseline.point",
+        "lo": "log_loss.baseline.ci95.0",
+        "hi": "log_loss.baseline.ci95.1",
+        "digits": 5
+       },
+       {
+        "label": "Per-miss log loss, E1",
+        "value": "log_loss.e1.point",
+        "lo": "log_loss.e1.ci95.0",
+        "hi": "log_loss.e1.ci95.1",
+        "digits": 5
+       },
+       {
+        "label": "Ablation, read by no rule: shared slope with the two offsets, minus baseline",
+        "value": "ablation_minus_baseline.point",
+        "lo": "ablation_minus_baseline.ci95.0",
+        "hi": "ablation_minus_baseline.ci95.1",
+        "digits": 6
+       }
+      ]
+     }
     },
     {
      "id": "rebounds-E2",
@@ -1747,9 +1947,107 @@
      "effort": 2,
      "test_data": "Set A",
      "backlog_status": "done: not adopted on development (training on expected shot value makes the error against realized points worse, MSE(baseline) - MSE(e1) -0.02247 [-0.02433, -0.02053]); Set A not scored (D117); reports/research/epv-E1.md",
-     "results": null,
-     "result_in_writeup": true,
-     "writeup": "reports/research/epv-E1.md"
+     "results": {
+      "metric": "Out-of-fold MSE against realized points to end of possession, baseline minus e1 (points squared; above zero favours e1)",
+      "rows_unit": "states",
+      "interval": "bootstrap by game, 2000 resamples, 95 percent percentile interval.",
+      "development": "reports/research/epv-E1-dev.json",
+      "test": null,
+      "design": "stage",
+      "rule_quote": {
+       "from": "dossier",
+       "texts": [
+        "Development decides, as pre-registered: the paired difference MSE(baseline) minus MSE(E1) with its 95 percent interval above 0, and the 0 to 4 s slope inside 0.9 to 1.1, out of fold, with the full pre-registered ablation."
+       ]
+      },
+      "comparison": "above",
+      "threshold": 0,
+      "keys": {
+       "rows": "states",
+       "games": "games",
+       "diff": "overall.baseline_minus_e1.point",
+       "lo": "overall.baseline_minus_e1.ci95.0",
+       "hi": "overall.baseline_minus_e1.ci95.1",
+       "met": "verdict.passes",
+       "main_met": "verdict.diff_ci_above_zero"
+      },
+      "conditions": [
+       {
+        "label": "Calibration slope of e1 at 0 to 4 s, at least 0.9 (point estimate)",
+        "value": "verdict.slope_0_4_e1",
+        "bound": "point",
+        "comparison": "at_least",
+        "threshold": 0.9,
+        "met": null,
+        "digits": 3,
+        "states": "inside 0.9 to 1.1"
+       },
+       {
+        "label": "Calibration slope of e1 at 0 to 4 s, at most 1.1 (point estimate)",
+        "value": "verdict.slope_0_4_e1",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold": 1.1,
+        "met": null,
+        "digits": 3,
+        "states": "inside 0.9 to 1.1"
+       }
+      ],
+      "conjunctions": [
+       {
+        "flag": "verdict.slope_inside",
+        "of": [
+         "@0",
+         "@1"
+        ]
+       }
+      ],
+      "equalities": [
+       [
+        "verdict.slope_0_4_e1",
+        "buckets.0-4.slope_e1"
+       ]
+      ],
+      "digits": 5,
+      "values": [
+       {
+        "label": "MSE of the baseline (frozen GRU refit)",
+        "value": "overall.mse_baseline.point",
+        "lo": "overall.mse_baseline.ci95.0",
+        "hi": "overall.mse_baseline.ci95.1",
+        "digits": 5
+       },
+       {
+        "label": "MSE of e1 (trained on expected shot value)",
+        "value": "overall.mse_e1.point",
+        "lo": "overall.mse_e1.ci95.0",
+        "hi": "overall.mse_e1.ci95.1",
+        "digits": 5
+       },
+       {
+        "label": "Ablation, read by no rule: baseline minus smoothing only the threes",
+        "value": "overall.baseline_minus_three_only.point",
+        "lo": "overall.baseline_minus_three_only.ci95.0",
+        "hi": "overall.baseline_minus_three_only.ci95.1",
+        "digits": 5
+       },
+       {
+        "label": "Calibration slope of the baseline at 0 to 4 s, reported beside the rule (point estimate)",
+        "value": "buckets.0-4.slope_baseline",
+        "digits": 3
+       }
+      ]
+     },
+     "writeup": "reports/research/epv-E1.md",
+     "test_not_scored": true,
+     "writeup_notes": [
+      "Training the frozen GRU on the expected value of a possession's final shot instead of its make or miss makes the out-of-fold error against realized points worse, not better: MSE(baseline) minus MSE(e1) is -0.02247 [-0.02433, -0.02053], wholly below zero.",
+      "Set A is not scored (D117), and this module has no Set A path at all.",
+      {
+       "section": "Reading",
+       "text": "A plausible reading, not tested here: the frozen GRU trained on realized points learns more about a shot's chance than xFG holds (handler and lineup priors, the last 5 states), and the smoothed label replaces that with xFG's own view, errors included."
+      }
+     ]
     },
     {
      "id": "epv-E2",
@@ -2043,8 +2341,136 @@
      "gain": 4,
      "effort": 4,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted on development (regret coefficient on the EPV scale 0.0700 [0.0405, 0.1005], new minus frozen -0.0956 [-0.1289, -0.0624], chosen-value slope 0.3972 [0.3710, 0.4236] outside 0.8 to 1.2; the new metric tracks decision mix more than the frozen one (report only, point estimates); Set A not scored, PLAN.md D122; reports/research/decisions-E2.md)",
+     "results": {
+      "metric": "Coefficient on regret of the EPV-scale values, in points to end of possession on hold value plus regret",
+      "rows_unit": "decisions",
+      "interval": "bootstrap by game, 2000 resamples, 95 percent interval.",
+      "development": "reports/research/decisions-E2-dev.json",
+      "test": null,
+      "design": "stage",
+      "rule_quote": {
+       "from": "dossier",
+       "texts": [
+        "Decision (development games only, as written above): the regret coefficient's interval above 0, the paired difference (new minus frozen) in that coefficient with its interval above 0, and the chosen-value calibration slope inside 0.8 to 1.2."
+       ]
+      },
+      "comparison": "above",
+      "threshold": 0,
+      "keys": {
+       "rows": "counts.finite_both_arms",
+       "games": "counts.games",
+       "diff": "metrics.new.regret_coef.point",
+       "lo": "metrics.new.regret_coef.lo",
+       "hi": "metrics.new.regret_coef.hi",
+       "met": "decision.adopt_on_development",
+       "main_met": "decision.checks.regret_coef_above_zero"
+      },
+      "conditions": [
+       {
+        "label": "Paired difference in the regret coefficient, new minus frozen",
+        "value": "metrics.paired_regret_coef_new_minus_frozen.point",
+        "lo": "metrics.paired_regret_coef_new_minus_frozen.lo",
+        "hi": "metrics.paired_regret_coef_new_minus_frozen.hi",
+        "bound": "lo",
+        "comparison": "above",
+        "threshold": 0,
+        "met": "decision.checks.paired_difference_above_zero",
+        "digits": 4
+       },
+       {
+        "label": "Chosen-value calibration slope, at least 0.8",
+        "value": "metrics.new.slope.point",
+        "lo": "metrics.new.slope.lo",
+        "hi": "metrics.new.slope.hi",
+        "bound": "point",
+        "comparison": "at_least",
+        "threshold": 0.8,
+        "met": null,
+        "digits": 4,
+        "states": "inside 0.8 to 1.2"
+       },
+       {
+        "label": "Chosen-value calibration slope, at most 1.2",
+        "value": "metrics.new.slope.point",
+        "lo": "metrics.new.slope.lo",
+        "hi": "metrics.new.slope.hi",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold": 1.2,
+        "met": null,
+        "digits": 4,
+        "states": "inside 0.8 to 1.2"
+       }
+      ],
+      "conjunctions": [
+       {
+        "flag": "decision.checks.slope_in_band",
+        "of": [
+         "@1",
+         "@2"
+        ]
+       }
+      ],
+      "digits": 4,
+      "values": [
+       {
+        "label": "Coefficient on regret of the frozen values",
+        "value": "metrics.frozen.regret_coef.point",
+        "lo": "metrics.frozen.regret_coef.lo",
+        "hi": "metrics.frozen.regret_coef.hi",
+        "digits": 4
+       },
+       {
+        "label": "Chosen-value slope of the frozen values",
+        "value": "metrics.frozen.slope.point",
+        "lo": "metrics.frozen.slope.lo",
+        "hi": "metrics.frozen.slope.hi",
+        "digits": 4
+       },
+       {
+        "label": "Ablation, report only (it looks 1 s ahead): coefficient on the change in EPV over the chosen action",
+        "value": "metrics.ablation_delta_epv_coef.point",
+        "lo": "metrics.ablation_delta_epv_coef.lo",
+        "hi": "metrics.ablation_delta_epv_coef.hi",
+        "digits": 4
+       },
+       {
+        "label": "Report only (first run, looser filter): paired difference, new minus frozen",
+        "value": "report_only_first_run_filter.metrics.paired_regret_coef_new_minus_frozen.point",
+        "lo": "report_only_first_run_filter.metrics.paired_regret_coef_new_minus_frozen.lo",
+        "hi": "report_only_first_run_filter.metrics.paired_regret_coef_new_minus_frozen.hi",
+        "digits": 4
+       },
+       {
+        "label": "Report only (point estimate): R squared of the player value on kind shares, new",
+        "value": "secondary_report_only.new.r2_on_kind_shares",
+        "digits": 4
+       },
+       {
+        "label": "Report only (point estimate): R squared of the player value on kind shares, frozen",
+        "value": "secondary_report_only.frozen.r2_on_kind_shares",
+        "digits": 4
+       }
+      ]
+     },
+     "writeup": "reports/research/decisions-E2.md",
+     "test_not_scored": true,
+     "writeup_notes": [
+      "Of the three adoption checks, the regret coefficient alone passes; the paired difference and the slope fail.",
+      {
+       "section": "What this means",
+       "text": "One EPV scale does make the chosen value more predictive: the slope rises from 0.176 to 0.397. But 0.397 is far from 1: a 1-point difference in the chosen value goes with about 0.4 points at the end of the possession."
+      },
+      {
+       "section": "What this means",
+       "text": "The regret on the EPV scale carries less signal than the frozen regret. The frozen regret coefficient is larger and the paired interval is wholly below zero."
+      },
+      {
+       "section": "Set A",
+       "text": "Not scored (PLAN.md D122): the test set is scored only if development adopts, and it does not."
+      }
+     ]
     }
    ]
   },
@@ -2496,7 +2922,11 @@
         "hi": "scored.results.mean_weekly_rmse.raw.ci95.1",
         "digits": 4
        }
-      ]
+      ],
+      "repeats": {
+       "times": 2,
+       "states": "against raw and against rapm_synergy each"
+      }
      }
     }
    ]

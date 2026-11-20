@@ -58,7 +58,7 @@ def test_the_committed_source_traces_and_builds(source):
 
 RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
        "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1", "epv-E1",
-       "embeddings-E2")   # the experiments with a result file today
+       "embeddings-E2", "decisions-E2", "xfg-E2", "rebounds-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -876,7 +876,7 @@ def _drop_threshold_key(d):
 
 @pytest.mark.parametrize("name, change, message", [
     ("(a) a guard read from another paired object", lambda d: _win(d)["guard"].update(
-        path="{data}.paired.ablation_minus_baseline.bucket_brier"), "not a table of the paired object"),
+        path="{data}.paired.ablation_minus_baseline.bucket_brier"), "another arm"),
     ("(b) a rule flag named as outside the rule", lambda d: _win(d)["flags_outside_rule"].update(
         {"{verdict}.size_at_least_threshold": "a flag the size condition reads"}), "not on the list"),
     ("(b) an allowed flag that a condition reads", lambda d: _win(d)["conditions"][0].update(
@@ -1144,21 +1144,110 @@ def test_matchups_e1_decides_each_part_on_development_and_reads_set_a_as_a_confi
     assert not b.development.met and not b.test.met and b.test.reading.startswith("inconclusive")
 
 
-def test_epv_e1_is_a_development_fail_kept_in_its_write_up_with_set_a_unscored(source):
-    """epv-E1 (PLAN.md D117): not adopted on development, Set A not scored and no Set A path written. Its rule has two
-    parts (an MSE interval and a 0 to 4 s slope band), so the result stays in its write-up."""
+def test_epv_e1_reads_both_parts_of_its_rule_on_development_and_leaves_set_a_unscored(source):
+    """epv-E1 (PLAN.md D117): the paired MSE difference with its interval above 0 fails; the 0 to 4 s slope band (a
+    point estimate, no interval in the file) holds. Set A is not scored and no Set A path exists."""
     e = _built(source)["epv-E1"]
-    assert (e.status, e.result_in_writeup, e.writeup) == ("ran_result_in_writeup", True, "reports/research/epv-E1.md")
-    assert e.development is None and e.test is None and e.protocol is None and not e.parts
-    assert e.backlog_status.startswith("done: not adopted on development")
-    dev = _file("epv-E1-dev.json")
-    assert dev["verdict"]["passes"] is False and dev["verdict"]["diff_ci_above_zero"] is False
-    assert dev["gates"]["a_baseline_reproduces_frozen_oof"]["passed"] and dev["gates"]["b_nested_xfg_log_loss"]["passed"]
+    dev_file = _file("epv-E1-dev.json")
+    cell = dev_file["overall"]["baseline_minus_e1"]
+    assert (e.status, e.test, e.test_not_scored) == ("not_adopted_development", None, True)
+    dev = e.development
+    assert (dev.diff, dev.lo, dev.hi) == (round(cell["point"], 5), round(cell["ci95"][0], 5), round(cell["ci95"][1], 5))
+    assert (dev.comparison, dev.threshold, dev.upper, dev.met) == ("above", 0, dev.lo, False)
+    low, high = dev.conditions
+    slope = round(dev_file["buckets"]["0-4"]["slope_e1"], 3)
+    assert (low.value, low.lo, low.comparison, low.threshold, low.met) == (slope, None, "at_least", 0.9, True)
+    assert (high.value, high.comparison, high.threshold, high.met) == (slope, "at_most", 1.1, True)
+    assert dev_file["verdict"]["passes"] is False and dev_file["verdict"]["slope_inside"] is True
     assert not (REPO / "reports" / "research" / "epv-E1-final.json").exists()
     ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
     assert not [x for x in ledger if x.get("experiment") == "epv-E1"]
-    text = (REPO / "reports" / "research" / "epv-E1.md").read_text(encoding="utf-8")
-    assert "not scored" in " ".join(R.verdict_paragraph(text)).lower()
+
+
+def test_decisions_e2_reads_its_three_checks_on_development_and_leaves_set_a_unscored(source):
+    """decisions-E2 (PLAN.md D122): the regret coefficient above 0 passes; the paired difference above 0 and the slope
+    inside 0.8 to 1.2 fail. Set A is not scored; the first run's looser filter is shown as report only."""
+    e = _built(source)["decisions-E2"]
+    dev_file = _file("decisions-E2-dev.json")
+    regret = dev_file["metrics"]["new"]["regret_coef"]
+    assert (e.status, e.test, e.test_not_scored) == ("not_adopted_development", None, True)
+    dev = e.development
+    assert (dev.diff, dev.lo, dev.hi) == tuple(round(regret[k], 4) for k in ("point", "lo", "hi"))
+    assert (dev.comparison, dev.threshold, dev.met) == ("above", 0, False) and dev.lo > 0
+    paired, low, high = dev.conditions
+    assert (paired.bound, paired.comparison, paired.met) == ("lo", "above", False)
+    assert (low.bound, low.threshold, low.met, high.threshold, high.met) == ("point", 0.8, False, 1.2, True)
+    checks = dev_file["decision"]["checks"]
+    assert (checks["regret_coef_above_zero"], checks["paired_difference_above_zero"], checks["slope_in_band"]) == (
+        True, False, False)
+    assert any(v.label.startswith("Report only (first run") for v in dev.values)
+    ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
+    assert not [x for x in ledger if x.get("experiment") == "decisions-E2"]
+
+
+def _epv(doc):
+    return _exp(doc, "epv-E1")["results"]
+
+
+def _dec2(doc):
+    return _exp(doc, "decisions-E2")["results"]
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("epv: the slope band dropped", lambda d: _epv(d).update(conditions=[], conjunctions=[]),
+     "is read by no part"),
+    ("epv: one end of the band dropped", lambda d: (_epv(d)["conditions"].pop(), _epv(d)["conjunctions"][0].update(
+        of=["@0"])), "'at most 1.1' is read by no part"),
+    ("epv: the band widened", lambda d: _epv(d)["conditions"][1].update(threshold=1.3), "names no threshold"),
+    ("epv: the MSE bar read below", lambda d: _epv(d).update(comparison="below"), "does not state below 0"),
+    ("epv: a rule quote not in the dossier", lambda d: _epv(d)["rule_quote"]["texts"].__setitem__(
+        0, "Development decides: the 0 to 4 s slope inside 0.9 to 1.1."), "not whole sentences"),
+    ("epv: Set A said scored", lambda d: _exp(d, "epv-E1").pop("test_not_scored"), ""),
+    ("decisions-E2: the paired check dropped", lambda d: _dec2(d)["conditions"].pop(0), ""),
+    ("decisions-E2: the slope band dropped", lambda d: (_dec2(d)["conditions"].__delitem__(slice(1, 3)),
+                                                        _dec2(d).update(conjunctions=[])),
+     "is read by no part"),
+    ("decisions-E2: the slope read as passing", lambda d: _dec2(d)["conditions"][1].update(threshold=0.3),
+     "names no threshold"),
+    ("decisions-E2: the main flag read as the paired flag", lambda d: _dec2(d)["keys"].update(
+        main_met="decision.checks.paired_difference_above_zero"), ""),
+])
+def test_epv_e1_and_decisions_e2_are_refused_when_the_source_misreads_them(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert problems, name
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("name, file, change, message", [
+    ("epv said to pass", "epv-E1-dev.json", lambda d: d["verdict"].update(passes=True), "rule read on its own numbers"),
+    ("epv slope flag against its numbers", "epv-E1-dev.json", lambda d: d["verdict"].update(slope_inside=False),
+     "disagrees with the parts it joins"),
+    ("epv slope moved out of the band", "epv-E1-dev.json", lambda d: d["buckets"]["0-4"].update(slope_e1=0.85),
+     "states them as one number"),
+    ("decisions-E2 said to adopt", "decisions-E2-dev.json", lambda d: d["decision"].update(adopt_on_development=True),
+     "rule read on its own numbers"),
+    ("decisions-E2 slope said in band", "decisions-E2-dev.json",
+     lambda d: d["decision"]["checks"].update(slope_in_band=True), "disagrees with the parts it joins"),
+    ("decisions-E2 paired flag against its numbers", "decisions-E2-dev.json",
+     lambda d: d["decision"]["checks"].update(paired_difference_above_zero=True), "disagrees with its lo"),
+])
+def test_an_epv_e1_or_decisions_e2_file_that_contradicts_its_numbers_is_refused(source, tmp_path, name, file, change,
+                                                                                  message):
+    repo = _mutated_repo(tmp_path, source, file, change)
+    with pytest.raises(R.MethodsProblem) as caught:
+        R.build_methods(repo, source)
+    assert message in str(caught.value), (name, str(caught.value))
+
+
+def test_a_set_a_section_that_does_not_open_with_not_scored_is_refused(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / "reports" / "research" / "decisions-E2.md"
+    path.write_text(path.read_text(encoding="utf-8").replace("Not scored (PLAN.md D122)", "Scored later (PLAN.md D122)"),
+                    encoding="utf-8")
+    assert any("decisions-E2: the verdict paragraph" in p for p in R.trace_problems(source, repo))
 
 
 def test_matchups_e2_is_a_development_fail_whose_set_a_was_not_scored(source):
@@ -1168,6 +1257,35 @@ def test_matchups_e2_is_a_development_fail_whose_set_a_was_not_scored(source):
     dev = e.development
     assert (dev.diff, dev.lo, dev.hi) == (round(cell["point"], 6), round(cell["ci95"][0], 6), round(cell["ci95"][1], 6))
     assert (dev.comparison, dev.threshold, dev.upper, dev.met) == ("above", 0, dev.lo, False)
+
+
+def test_rebounds_e1_clears_zero_but_not_its_size_bar_on_development_and_leaves_set_a_unscored(source):
+    """rebounds-E1 (PLAN.md D125): the interval of E1 minus baseline lies below zero, but the point is above -0.005, so
+    the size part fails and development does not adopt. Set A is not scored and the ledger holds no entry."""
+    e = _built(source)["rebounds-E1"]
+    dev_file = _file("rebounds-E1-dev.json")
+    cell = dev_file["e1_minus_baseline"]
+    assert (e.status, e.test, e.test_not_scored) == ("not_adopted_development", None, True)
+    dev = e.development
+    assert (dev.diff, dev.lo, dev.hi) == (round(cell["point"], 6), round(cell["ci95"][0], 6), round(cell["ci95"][1], 6))
+    assert (dev.comparison, dev.threshold, dev.upper, dev.met) == ("below", 0, dev.hi, False)
+    (size,) = dev.conditions
+    assert (size.bound, size.comparison, size.threshold, size.met) == ("point", "at_most", -0.005, False)
+    assert dev.hi < 0 < dev.diff + 0.005
+    verdict = dev_file["verdict"]
+    assert (verdict["interval_excludes_zero"], verdict["at_most_threshold"], verdict["passes"]) == (True, False, False)
+    assert dev_file["gate_a"]["passed"] is True and dev_file["gate_a"]["tolerance"] == 2 ** -24     # PLAN.md D126
+    assert not (REPO / "reports" / "research" / "rebounds-E1-final.json").exists()
+    ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
+    assert not [x for x in ledger if x.get("experiment") == "rebounds-E1"]
+    quote = _exp(source, "rebounds-E1")["results"]["rule_quote"]      # the pre-registered rule and its D125 reading
+    assert quote == {"from": "dossier", "texts": [
+        "Paired difference (new minus baseline) at most -0.005 with its 95 percent interval excluding 0, on development "
+        "games and again on the D71 test set scored once.",
+        "As D121: the development games decide (difference at most -0.005 with the 95 percent interval excluding "
+        "zero)."]}
+    dossier = " ".join((REPO / "docs" / "research" / "rebounds.md").read_text(encoding="utf-8").split())
+    assert all(text in dossier for text in quote["texts"])
 
 
 def test_lineups_e2_fails_on_the_test_season_against_rapm_synergy_with_both_baselines_read(source):
@@ -1233,7 +1351,7 @@ def _mutated_repo(tmp_path, source, name, change):
         _exp(d, "gravity-E1")["results"]["conditions"][0].pop("threshold_key"),
         _exp(d, "gravity-E1")["results"]["conditions"][0].update(threshold=0.01)), "does not state at least 0.01"),
     ("gravity: the effect part dropped", lambda d: _exp(d, "gravity-E1")["results"].update(conditions=[]),
-     "which no part of the source reads"),
+     "is read by no part"),
     ("gravity: the main flag read as the effect flag", lambda d: _exp(d, "gravity-E1")["results"]["keys"].update(
         main_met="decision.effect_ok"), "belong to no rule"),
     ("gravity: Set A said scored", lambda d: _exp(d, "gravity-E1").pop("test_not_scored"), ""),
@@ -1509,9 +1627,9 @@ def _hide_development(d):
     ("(b) genai-E1 H2 dropped", _drop_part("genai-E1", "H2: the model writes with more variety"),
      "the dossier names"),
     ("(c) embeddings' position-only bar dropped", lambda d: _exp(d, "embeddings-E1")["results"].update(conditions=[]),
-     "which no part of the source reads"),
+     "is read by no part"),
     ("(c) genai-E2 H1's +0.10 bar dropped", lambda d: _genai_part(d, "genai-E2", "1.5B H1 scouting: training helps")
-     ["results"].update(conditions=[]), "which no part of the source reads"),
+     ["results"].update(conditions=[]), "is read by no part"),
     ("(d) matchups-E1 part (b) read test only", _hide_development, "record a development verdict"),
     ("M1: a genai test stage without its own test set", lambda d: _genai_part(
         d, "genai-E1", "H1: the checker does not separate a template from the model")["results"].pop("test_set"),
@@ -1607,3 +1725,361 @@ def test_a_note_cannot_start_after_a_hyphen_inside_a_sentence():
     assert R.is_sentences("H2, the checker.", ["Rule one holds. - H2, the checker."])
     assert R.is_sentences("H2, the checker.", ["Rules, fixed now: - H2, the checker."])
     assert not R.is_sentences("H2, the checker.", ["a minus - H2, the checker."])
+
+
+# ------------------------------------------------------------------------------------------ methods-results2 review probes
+
+
+FIRST_RUN = "report_only_first_run_filter."
+
+
+def _first_run(spec, keys=("value", "lo", "hi")):
+    for k in keys:
+        spec[k] = FIRST_RUN + spec[k]
+
+
+def _first_run_extra(d):
+    extra = copy.deepcopy(_dec2(d)["conditions"][0])
+    extra.update(label="first run paired", met=None)
+    _first_run(extra)
+    _dec2(d)["conditions"].append(extra)
+
+
+def _swap(spec, old, new, keys=("value", "lo", "hi")):
+    for k in keys:
+        if k in spec:
+            spec[k] = spec[k].replace(old, new)
+
+
+@pytest.mark.parametrize("name, change, message", [
+    # 1. a report-only reading never decides
+    ("the main rule on the first run", lambda d: _first_run(_dec2(d)["keys"], ("diff", "lo", "hi")),
+     "a report-only reading"),
+    ("the paired condition on the first run", lambda d: _first_run(_dec2(d)["conditions"][0]), "a report-only reading"),
+    ("the slope on the first run", lambda d: [_first_run(c) for c in _dec2(d)["conditions"][1:]],
+     "a report-only reading"),
+    ("an extra condition on the first run", _first_run_extra, "a report-only reading"),
+    ("the rows of the first run", lambda d: _dec2(d)["keys"].update(rows=FIRST_RUN + "rows"), "a report-only reading"),
+    ("a report-only value without its label", lambda d: _dec2(d)["values"][3].update(
+        label="Paired difference, new minus frozen"), "its label does not say so"),
+    # 2. a rule part reads the statistic it names, and no extra part rides on a bar already read
+    ("epv slope read on the baseline", lambda d: [c.update(value="buckets.0-4.slope_baseline")
+                                                  for c in _epv(d)["conditions"]], "another arm"),
+    ("epv slope read on the threes-only ablation", lambda d: [c.update(value="buckets.0-4.slope_three_only")
+                                                              for c in _epv(d)["conditions"]], "another arm"),
+    ("decisions-E2 main read on the frozen arm", lambda d: _swap(_dec2(d)["keys"], "metrics.new.", "metrics.frozen.",
+                                                                  ("diff", "lo", "hi")), "another arm"),
+    ("decisions-E2 slope read on the frozen arm", lambda d: [_swap(c, "metrics.new.", "metrics.frozen.")
+                                                             for c in _dec2(d)["conditions"][1:]], "another arm"),
+    ("decisions-E2 main read on the ablation", lambda d: _swap(_dec2(d)["keys"], "metrics.new.regret_coef",
+                                                                "metrics.ablation_delta_epv_coef", ("diff", "lo", "hi")),
+     "another arm"),
+    ("an extra condition on the kind-share R squared", lambda d: _dec2(d)["conditions"].append(
+        {"label": "x", "value": "secondary_report_only.new.r2_on_kind_shares", "bound": "point",
+         "comparison": "above", "threshold": 0, "met": None, "digits": 4}), "a report-only reading"),
+    ("an extra condition riding on the rule's own bar", lambda d: _dec2(d)["conditions"].append(
+        {"label": "x", "value": "metrics.new.slope.point", "lo": "metrics.new.slope.lo", "hi": "metrics.new.slope.hi",
+         "bound": "lo", "comparison": "above", "threshold": 0, "met": None, "digits": 4}),
+     "the rule does not state for it"),
+    ("an extra condition on epv's ablation", lambda d: _epv(d)["conditions"].append(
+        {"label": "x", "value": "overall.baseline_minus_three_only.point", "lo": "overall.baseline_minus_three_only.ci95.0",
+         "hi": "overall.baseline_minus_three_only.ci95.1", "bound": "lo", "comparison": "above", "threshold": 0,
+         "met": None, "digits": 5}), "another arm"),
+    ("epv slope on a value its verdict was not decided on", lambda d: [c.update(value="buckets.4-10.slope_e1")
+                                                                        for c in _epv(d)["conditions"]],
+     "was decided on"),
+    # 4. a bar said of an interval is read on the interval's end, and a bar on the value on its point
+    ("decisions-E2 paired difference read on its point", lambda d: _dec2(d)["conditions"][0].update(bound="point"),
+     "the rule does not state for it"),
+    ("decisions-E2 slope read on its lower end", lambda d: _dec2(d)["conditions"][1].update(bound="lo"),
+     "the rule does not state for it"),
+    # 5. a dossier rule quote comes from the experiment's own section
+    ("epv's rule quoted from epv-E2's section", lambda d: _epv(d)["rule_quote"].update(
+        texts=[_e2_threshold_sentence()]), "not whole sentences"),
+    # the shapes around it
+    ("an unknown experiment key", lambda d: _exp(d, "epv-E1").update(test_only=True), "are no keys of an experiment"),
+    ("a result back in the write-up with its files on disk", lambda d: _exp(d, "epv-E1").update(
+        results=None, result_in_writeup=True, test_not_scored=False), "read through them"),
+    ("a repeat the rule does not state", lambda d: _exp(d, "decisions-E2")["results"].update(
+        repeats={"times": 2, "states": "against raw and against rapm_synergy each"}), "so it is stated once"),
+])
+def test_the_methods_results2_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def _e2_threshold_sentence():
+    bullets = R.experiment_bullets((REPO / "docs/research/epv.md").read_text(encoding="utf-8"))["epv-E2"]["_all"]
+    line = next(b for b in bullets if b.startswith("Adoption threshold"))
+    return line.split(". ")[0].rstrip(".") + "."
+
+
+def test_the_first_run_is_a_labelled_value_and_not_a_note(source):
+    e = _built(source)["decisions-E2"]
+    assert not any("first e2-dev run" in note for note in e.writeup_notes)
+    first = [v for v in e.development.values if "first run" in v.label]
+    assert len(first) == 1 and first[0].label.startswith("Report only")
+
+
+# ------------------------------------------------------------------------------------------ methods-harden probes
+
+
+def _set_main(results, stat, ends=("ci95.0", "ci95.1"), value="point"):
+    results["keys"].update(diff=f"{stat}.{value}", lo=f"{stat}.{ends[0]}", hi=f"{stat}.{ends[1]}")
+
+
+_ABLATION_CONDITION = {"label": "abl", "value": "overall.baseline_minus_three_only.point",
+                       "lo": "overall.baseline_minus_three_only.ci95.0", "hi": "overall.baseline_minus_three_only.ci95.1",
+                       "bound": "lo", "comparison": "above", "met": None, "digits": 5}
+
+
+@pytest.mark.parametrize("name, change, message", [
+    # 1. inside a paired difference only the frozen or baseline comparator may appear
+    ("epv main on baseline minus three_only (an ablation)", lambda d: _set_main(_epv(d), "overall.baseline_minus_three_only"),
+     "another arm"),
+    ("decisions-E2 slope on the ablation", lambda d: [c.update(value="metrics.ablation_delta_epv_coef.point",
+                                                                lo="metrics.ablation_delta_epv_coef.lo",
+                                                                hi="metrics.ablation_delta_epv_coef.hi")
+                                                       for c in _dec2(d)["conditions"][1:]], "another arm"),
+    # 2. each part reads the statistic held for it
+    ("decisions-E2 main on the new arm's slope", lambda d: _set_main(_dec2(d), "metrics.new.slope", ("lo", "hi")),
+     "not the statistics held for it"),
+    ("decisions-E2 slope on the new arm's regret coefficient", lambda d: [
+        c.update(value="metrics.new.regret_coef.point", lo="metrics.new.regret_coef.lo", hi="metrics.new.regret_coef.hi")
+        for c in _dec2(d)["conditions"][1:]], "not the statistics held for it"),
+    ("epv main on one time bucket", lambda d: _set_main(_epv(d), "buckets.0-4.baseline_minus_e1"),
+     "not the statistics held for it"),
+    ("epv slope on the overall slope", lambda d: [c.update(value="slope_all.e1") for c in _epv(d)["conditions"]],
+     "was decided on"),
+    ("epv slope on the old bucket path", lambda d: [c.update(value="buckets.0-4.slope_e1")
+                                                    for c in _epv(d)["conditions"]], "not the statistics held for it"),
+    ("decisions-E2 extra condition on the regret coefficient again", lambda d: _dec2(d)["conditions"].append(
+        {"label": "x", "value": "metrics.new.regret_coef.point", "lo": "metrics.new.regret_coef.lo",
+         "hi": "metrics.new.regret_coef.hi", "bound": "lo", "comparison": "above", "threshold": 0, "met": None,
+         "digits": 4}), ""),
+    # 3. a condition's own words state its bar after a comparison
+    ("an epv condition on '95 percent'", lambda d: _epv(d)["conditions"].append(
+        {"label": "x", "value": "overall.baseline_minus_e1.point", "bound": "point", "comparison": "above",
+         "threshold": 95, "met": None, "digits": 5, "states": "95 percent"}), "names no threshold"),
+    ("an epv condition on 'interval above 0'", lambda d: _epv(d)["conditions"].append(
+        dict(_ABLATION_CONDITION, threshold=0, states="interval above 0")), ""),
+    # rule quotes from another experiment's section
+    ("decisions-E2 rule quote from decisions-E1", lambda d: _dec2(d)["rule_quote"].update(
+        texts=["Ablation: kind-adjusted without the court-zone term."]), "not whole sentences"),
+])
+def test_the_methods_harden_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert problems, name
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_every_rule_has_its_statistics_held_in_code_and_the_controls_build(source):
+    from export.methods_statistics import RULE_STATISTICS
+    R.COLLECT_STATISTICS = {}
+    try:
+        R.build_methods(REPO, source)
+        seen = R.COLLECT_STATISTICS
+    finally:
+        R.COLLECT_STATISTICS = None
+    assert seen == RULE_STATISTICS
+    # controls: a report-only value labelled so, and the experiment's own adoption bullet as its rule, still build
+    doc = copy.deepcopy(source)
+    _dec2(doc)["values"].append({"label": "Paired difference, first run (report-only)",
+                                 "value": FIRST_RUN + "metrics.paired_regret_coef_new_minus_frozen.point", "digits": 4})
+    _dec2(doc)["rule_quote"].update(texts=[
+        "Adoption threshold: the regret coefficient's 95 percent interval above 0, the paired difference (new minus "
+        "frozen) in that coefficient with interval above 0, and the chosen-value calibration slope inside 0.8 to 1.2, "
+        "all on development games."])
+    assert _build_problems(doc) == []
+
+
+def test_a_states_bar_follows_a_comparison():
+    assert R._states_bar("1.0 s error lower by at least 0.10 ft", -0.1)
+    assert R._states_bar("one-sided p < 0.05", 0.05)
+    assert R._states_bar("inside 0.9 to 1.1", 0.9) and R._states_bar("inside 0.9 to 1.1", 1.1)
+    assert not R._states_bar("95 percent", 95)
+    assert not R._states_bar("its 95 percent interval above 0", 95)
+
+
+
+# ------------------------------------------------------------------------------------------ xfg-E2 (D121)
+
+
+def _xfg2(doc):
+    return _exp(doc, "xfg-E2")["results"]
+
+
+def test_xfg_e2_is_a_research_adoption_set_a_did_not_contradict(source):
+    """xfg-E2 (PLAN.md D121): development decides (at most -0.001 with the interval excluding 0); Set A is a
+    confirmation read as D108, where only "contradiction" stops the adoption. Inconclusive at 10 games is not a pass."""
+    e = _built(source)["xfg-E2"]
+    dev_file, scored = _file("xfg-E2-dev.json"), _file("xfg-E2-final.json")["scored"]
+    assert (e.status, e.adopted_as) == ("adopted_research_not_contradicted", "research_result")
+    assert e.threshold.startswith("Development decides: adopt when the paired difference")      # D121, not 2026-11-16
+    cell = dev_file["paired_new_minus_baseline"]
+    assert (e.development.diff, e.development.lo, e.development.hi) == tuple(round(cell[k], 5) for k in ("diff", "lo", "hi"))
+    (size,) = e.development.conditions
+    assert (size.comparison, size.threshold, size.met) == ("at_most", dev_file["verdict"]["threshold"], True)
+    test = e.test
+    assert (test.comparison, test.threshold, test.upper, test.met) == ("not_wholly_above", 0, test.lo, True)
+    assert test.lo < 0 < test.hi and test.reading == scored["reading"] == "inconclusive at 10 games"
+    assert all(v.label.startswith(("Report only", "Ablation, read by no rule", "Projected"))
+               for v in e.development.values + test.values)
+    assert any("D121" in note and "replaced" in note for note in e.writeup_notes)
+    ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
+    assert [x["status"] for x in ledger if x.get("experiment") == "xfg-E2"] == ["scored"]
+
+
+_ADOPTION_2026_11_16 = ("Paired log loss difference (new minus baseline) at most -0.001 with its 95 percent interval "
+                        "excluding 0, on development games and again on the D71 test set scored once.")
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("the 2026-11-16 threshold as the rule", lambda d: _xfg2(d)["rule_quote"].update(texts=[_ADOPTION_2026_11_16]),
+     "the rule does not say"),
+    ("the 2026-11-16 threshold shown in place of D121's", lambda d: (
+        _exp(d, "xfg-E2").pop("threshold_label"), _exp(d, "xfg-E2").update(threshold=_ADOPTION_2026_11_16)),
+     "xfg-E2.threshold"),
+    ("the Set A read as a pass on the bar", lambda d: _xfg2(d)["by_stage"]["test"].update(
+        comparison="below", main_states=None), ""),
+    ("the t interval in the Set A rule", lambda d: _xfg2(d)["by_stage"]["test"]["keys"].update(
+        diff="scored.t_interval_new_minus_baseline_per_game.mean_of_game_means",
+        lo="scored.t_interval_new_minus_baseline_per_game.lo",
+        hi="scored.t_interval_new_minus_baseline_per_game.hi"), "not the statistics held for it"),
+    ("the ablation as the development rule", lambda d: _xfg2(d)["keys"].update(
+        diff="paired_ablation_minus_baseline.diff", lo="paired_ablation_minus_baseline.lo",
+        hi="paired_ablation_minus_baseline.hi"), "another arm"),
+    ("inconclusive read as a contradiction", lambda d: _xfg2(d)["by_stage"]["test"]["readings"].update(
+        inconclusive="not_met"), "D108's readings exactly"),
+    ("adopted as a plain result", lambda d: _exp(d, "xfg-E2").pop("adopted_as"), "research_result"),
+])
+def test_xfg_e2_is_refused_when_the_source_misreads_it(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert problems, name
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("confirms for a straddling interval", lambda d: d["scored"].update(reading="confirms"), "needs the hi end below 0"),
+    ("contradiction for a straddling interval", lambda d: d["scored"].update(reading="contradiction"),
+     "disagrees with the rule"),
+    ("inconclusive for an interval wholly below", lambda d: d["scored"]["paired_new_minus_baseline"].update(
+        hi=-0.0001), "no other reading fits"),
+])
+def test_an_xfg_e2_final_file_that_contradicts_its_numbers_is_refused(source, tmp_path, name, change, message):
+    repo = _mutated_repo(tmp_path, source, "xfg-E2-final.json", change)
+    with pytest.raises(R.MethodsProblem) as caught:
+        R.build_methods(repo, source)
+    assert message in str(caught.value), (name, str(caught.value))
+
+
+def test_the_contract_keeps_a_confirmation_read_to_a_research_result(source):
+    e = _built(source)["xfg-E2"].model_dump()
+    with pytest.raises(ValidationError, match="research result only"):
+        S.Experiment(**{**e, "adopted_as": None, "status": "adopted"})
+    with pytest.raises(ValidationError, match="status is 'adopted_research'"):
+        S.Experiment(**{**e, "status": "adopted_research"})
+    with pytest.raises(ValidationError, match="the end nearer its number"):
+        S.StageResult(**{**e["test"], "upper": e["test"]["hi"]})
+
+
+# ------------------------------------------------------------------------------------------ xfg-E2 review probes
+
+
+def _xt(doc):
+    return _xfg2(doc)["by_stage"]["test"]
+
+
+@pytest.mark.parametrize("name, change, message", [
+    # 4. D108's readings exactly, in order
+    ("contradiction dropped", lambda d: _xt(d)["readings"].pop("contradiction"), "D108's readings exactly"),
+    ("confirms dropped", lambda d: _xt(d)["readings"].pop("confirms"), "D108's readings exactly"),
+    ("inconclusive read as met", lambda d: _xt(d)["readings"].update(inconclusive="met"), "D108's readings exactly"),
+    ("confirms on the lower end", lambda d: _xt(d)["readings"]["confirms"].update(bound="lo"),
+     "D108's readings exactly"),
+    ("the readings reordered", lambda d: _xt(d).update(readings={
+        "contradiction": "not_met", "inconclusive": "met_otherwise", "confirms": _xt(d)["readings"]["confirms"]}),
+     "D108's readings exactly"),
+    # 5. the stopping reading and the file's rule
+    ("main_states cut to 'wholly above 0'", lambda d: _xt(d).update(main_states="wholly above 0"),
+     "the stopping reading is"),
+    ("the bar moved to 0.01", lambda d: _xt(d).update(threshold=0.01), ""),
+    ("the file's rule dropped", lambda d: _xt(d)["keys"].pop("rule"), "reads the lower end, the file's own rule"),
+    # 3. a confirmation read belongs to a whole experiment's test stage
+    ("development read as a confirmation", lambda d: _xfg2(d)["by_stage"].update(development={
+        "comparison": "not_wholly_above", "main_states": "its 95 percent interval excludes 0"}), ""),
+    # the development bar stated in words reads the interval strictly
+    ("development main_states 'excludes 0' only", lambda d: _xfg2(d).update(main_states="excludes 0"),
+     "a bar stated in words is the interval's"),
+    ("development read at most 0", lambda d: _xfg2(d).update(comparison="at_most"),
+     "a bar stated in words is the interval's"),
+    # report-only values say so
+    ("the t interval relabelled plainly", lambda d: _xt(d)["values"][0].update(label="Set A t interval"),
+     "its label does not say so"),
+    ("the ablation relabelled plainly", lambda d: _xfg2(d)["values"][0].update(
+        label="Second defender's distance alone, minus baseline"), "its label does not say so"),
+    # the note that D121 replaced the 2026-11-16 threshold stays
+    ("the D121 note dropped", lambda d: _exp(d, "xfg-E2")["writeup_notes"].pop(1), "D121 replaced"),
+    ("the D121 note paraphrased", lambda d: _exp(d, "xfg-E2")["writeup_notes"][1].update(
+        text="D121 replaced the Set A pass with a confirmation read."), "not whole sentences"),
+])
+def test_the_xfg_e2_review_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert problems, name
+    if message:
+        assert any(message in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("a bare 'inconclusive'", lambda d: d["scored"].update(reading="inconclusive"), "is not one the file's rule names"),
+    ("'not contradicted'", lambda d: d["scored"].update(reading="not contradicted"), "is not one the file's rule names"),
+    ("the rule rewritten as a pass", lambda d: d.update(
+        rule="pass if below 0; inconclusive at 10 games otherwise; contradiction if wholly above 0; confirms"), ""),
+    ("the rule without 'stops the adoption'", lambda d: d.update(
+        rule="confirms if the 95 percent interval lies wholly below 0, inconclusive at 10 games if it straddles 0, "
+             "contradiction if wholly above 0"), "stops the adoption"),
+    ("an interval wholly above read inconclusive", lambda d: d["scored"]["paired_new_minus_baseline"].update(
+        lo=0.0001, diff=0.001), ""),
+])
+def test_an_xfg_e2_final_file_that_misstates_d108_is_refused(source, tmp_path, name, change, message):
+    repo = _mutated_repo(tmp_path, source, "xfg-E2-final.json", change)
+    with pytest.raises(R.MethodsProblem) as caught:
+        R.build_methods(repo, source)
+    assert message in str(caught.value), (name, str(caught.value))
+
+
+def test_the_contract_keeps_a_confirmation_read_to_a_development_adoption(source):
+    e = _built(source)["xfg-E2"].model_dump()
+    missed = copy.deepcopy(e)
+    missed["development"].update(hi=0.0001, upper=0.0001, met=False)
+    # 2. a missed development bar is never an adoption, whatever Set A says
+    with pytest.raises(ValidationError, match="needs the bar met on both stages"):
+        S.Experiment(**missed)
+    S.Experiment(**{**missed, "adopted_as": None, "status": "not_adopted_development"})
+    # 3. a confirmation read is a test stage of a whole experiment
+    dev = copy.deepcopy(e["development"])
+    dev.update(comparison="not_wholly_above", conditions=[], upper=dev["lo"])
+    with pytest.raises(ValidationError, match="test stage only"):
+        S.StageResult(**dev)
+    part = dict(label="p", development=e["development"], test=e["test"], status="confirmed")
+    with pytest.raises(ValidationError, match="never a part"):
+        S.ExperimentPart(**part)
+    with pytest.raises(ValidationError, match="never a test-only experiment"):
+        S.Experiment(**{**e, "stages": "test_only", "development": None, "adopted_as": None,
+                        "status": "passed_test"})
+
+
+def test_a_bold_lead_is_quoted_without_its_marks_only_as_a_verdict():
+    paragraph = "**Verdict: kept.** More here. Rules: **Not a verdict: here.** End."
+    assert R.is_sentences("Verdict: kept.", [paragraph])
+    assert not R.is_sentences("Not a verdict: here.", [paragraph])

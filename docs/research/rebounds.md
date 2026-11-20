@@ -109,6 +109,20 @@ reports/rebounds.md; hgb beats the prior by -0.5371 [-0.5477, -0.5283].
 - Backlog scores. Expected gain 2: a calibration repair with a few parameters; the temperature showed this kind of
   step is worth about 0.02 nats, and part of that is already taken. Effort 1: a wrapper and one small likelihood
   fit, no new features, no frames.
+- Amendment (PLAN.md D125, 2026-11-20, written before any development number). Feasibility, measured on the frozen
+  stored out-of-fold predictions of the 604 training games (no refit): 49,288 misses, per-miss log loss 1.6009, 81.6
+  misses a game (48 to 128), per-miss SD 1.1223, per-game mean SD 0.1498; random 10-game sets of training games give
+  a half-width of 0.0923 on the absolute per-miss log loss. Set A should give about 820 misses, so the paired
+  difference would have a projected half-width of about 0.008 to 0.016 (for a per-miss SD of the difference of 0.10
+  to 0.20, with a game-clustering factor of about 1.2) against the -0.005 bar; the development games give about 0.001
+  to 0.002. Set A's research root holds no rebound_frames table (its ingest left it out), so scoring Set A means
+  building its rebound frames and features with the frozen code inside the scorer. As D121: the development games
+  decide (difference at most -0.005 with the 95 percent interval excluding zero). Before any score, the Set A
+  half-width is projected from the development per-game spread of the difference. If development adopts, Set A is
+  scored once as a confirmation with D108's readings: "confirms" if the interval lies wholly below zero, "inconclusive
+  at 10 games" if it straddles zero, "contradiction" if it lies wholly above zero, which stops the adoption; a t
+  interval on the 10 per-game means is reported beside it (report only). If development does not adopt, Set A is not
+  scored.
 
 ### rebounds-E2: train on the whole miss (within-miss softmax objective)
 

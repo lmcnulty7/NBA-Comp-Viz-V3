@@ -1,0 +1,112 @@
+{
+  "experiment": "xfg-E2",
+  "code_commit": "b526abf0c2c2fc15d3a064425b75de77e18c1107",
+  "dev_json_sha256": "5957f20662fc366fd1b7cf70c08a3c748223df37eb538a7fb80979a68fe45872",
+  "rehearsal_json_sha256": "51287673b41b552d767aaadf0dcf25a90b5ba831e9a6c6740f531655bdc12063",
+  "gate": {
+    "name": "xfg",
+    "compared": "the baseline arm of tools.research_xfg2 (the fit the new arms share), refit on all training games under the frozen outer folds, against the stored out-of-fold p_selected (fold >= 0); no held-out row, no metric",
+    "n": 101853,
+    "n_expected": 101853,
+    "max_abs_diff": 2.968231305189306e-08,
+    "tolerance": 1e-06,
+    "fold_mismatches": 0,
+    "passed": true,
+    "files": {
+      "gate_oof.parquet": "7dec832e097f9ea18484b137ac2f80f1b4c96b8acd19922211e1e820c66b7a09"
+    },
+    "reasons": [],
+    "written": "2026-11-19T23:11:13Z",
+    "peak_memory_gb": 0.41
+  },
+  "rule": "D121 with D108's readings: confirms if the 95 percent interval of new minus baseline lies wholly below 0, inconclusive at 10 games if it straddles 0, contradiction if wholly above 0 (stops the adoption); the t interval on the per-game means is reported beside it",
+  "projected_10_game_half_width": 0.003422146712769401,
+  "scored": {
+    "experiment": "xfg-E2",
+    "stage": "fitted on every development game, scored once on the D71 test set as a D121 confirmation",
+    "shots": 1668,
+    "games": 10,
+    "has_contest_share": 0.5605515587529976,
+    "new_feature_coverage": {
+      "second_defender_dist_ft": 0.5605515587529976,
+      "contest_angle_deg": 0.5551558752997602,
+      "defender_speed_to_line_ftps": 0.5575539568345323
+    },
+    "arms": {
+      "baseline": {
+        "log_loss": 0.6427779658944044,
+        "brier": 0.22652688705902108,
+        "calibration_slope": 0.8923009988979587,
+        "ece_equal_mass_10": 0.029865862673985867,
+        "ece_debiased_squared_signed": 0.0005920930317584981
+      },
+      "new": {
+        "log_loss": 0.6405358936444673,
+        "brier": 0.22619630750480021,
+        "calibration_slope": 0.9035916659651225,
+        "ece_equal_mass_10": 0.026393508589449784,
+        "ece_debiased_squared_signed": -0.00016613392313837244
+      }
+    },
+    "arm_intervals_95": {
+      "baseline": {
+        "log_loss": [
+          0.6261018595737579,
+          0.6596726583275638
+        ],
+        "brier": [
+          0.21973419198608118,
+          0.23339615216713228
+        ],
+        "calibration_slope": [
+          0.7046334737563023,
+          1.165077518871426
+        ],
+        "ece_equal_mass_10": [
+          0.02294707519538918,
+          0.05858411539075315
+        ],
+        "ece_debiased_squared_signed": [
+          -0.0005142333912752927,
+          0.0035499676552600778
+        ]
+      },
+      "new": {
+        "log_loss": [
+          0.6255513479561186,
+          0.6566189955485813
+        ],
+        "brier": [
+          0.22016380104632108,
+          0.23267209297274774
+        ],
+        "calibration_slope": [
+          0.7510693712153681,
+          1.117263755800694
+        ],
+        "ece_equal_mass_10": [
+          0.023204897068136453,
+          0.05850502129458788
+        ],
+        "ece_debiased_squared_signed": [
+          -0.0005417801621376515,
+          0.003280573330562603
+        ]
+      }
+    },
+    "paired_new_minus_baseline": {
+      "diff": -0.002242072249937181,
+      "lo": -0.006569785636589373,
+      "hi": 0.0019188778692829202,
+      "games": 10,
+      "resamples": 2000
+    },
+    "t_interval_new_minus_baseline_per_game": {
+      "mean_of_game_means": -0.002183082396164908,
+      "lo": -0.007194066837405122,
+      "hi": 0.002827902045075306,
+      "games": 10
+    },
+    "reading": "inconclusive at 10 games"
+  }
+}

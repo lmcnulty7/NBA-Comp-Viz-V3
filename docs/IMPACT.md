@@ -58,6 +58,11 @@ and were not scored, so that one score stays unspent. Source: `reports/research/
   the old model's error minus the new one's is -0.02247 [-0.02433, -0.02053], about 1.8 percent, and the new model
   is worse in every fold. Both checks that the old model was rebuilt exactly passed. Its test games were not scored.
   Source: `reports/research/epv-E1.md`
+- Rebounds (rebounds-E1): not adopted on the training games. The rebound model sets how sure it is with one
+  number for every candidate. Here each kind of candidate, an offense player, a defense player or the team, got its
+  own. Log loss per miss changed by -0.004628 [-0.005472, -0.003816] (lower is better). That is a real gain, but it
+  falls short of the bar of -0.005. Almost all of it came from letting each kind be more or less sure, not from a
+  fixed shift. Its test games were not scored. Source: `reports/research/rebounds-E1.md`
 - Gravity (gravity-E1): not adopted on the training games. A shot is not more open by the bar of 0.2 ft for each
   standard deviation of the teammates' gravity: the effect is 0.014 ft (interval -0.066 to 0.102, 62358 attempts),
   so an effect of 0.2 ft is ruled out for that measure. A later check, read by no rule, gives 0.109 [0.053, 0.167]
@@ -76,6 +81,11 @@ and were not scored, so that one score stays unspent. Source: `reports/research/
 - Shot quality (xfg-E1): not adopted. It met its bar on the training games, -0.00052 [-0.00081, -0.00024], but
   not on the test games, +0.00067 [-0.00133, +0.00229] against a bar of +0.0005. With ten test games this reads as
   inconclusive. Source: `reports/research/xfg-E1.md`
+- Shot quality, second test (xfg-E2): adopted as a research result on the training games. Three facts at the
+  release were added: how far off the second defender is, the angle of the closest defender, and how fast that
+  defender closes in. Log loss changed by -0.00182 [-0.00222, -0.00141], past the bar of -0.001. On the 10 test games
+  it was -0.00224 [-0.00657, +0.00192]. That range holds zero, so the test reads as inconclusive, which does not go
+  against the gain. The shot model on the site did not change. Source: `reports/research/xfg-E2.md`
 - Win chances, second test (winprob-E2): not adopted on the training seasons. A forward temperature did not
   lower mean bucket ECE (difference 0.0038 [-0.0021, 0.0068]), since the fitted temperature swung from 0.894 to
   0.955 to 1.046 across seasons. Its test season was not scored, so its one test score was kept unused. Source:
@@ -83,6 +93,13 @@ and were not scored, so that one score stays unspent. Source: `reports/research/
 - Decision quality (decisions-E1): not adopted. The target proved reliable (r 0.420 [0.295, 0.519]), so the lane's
   earlier failure counts against the metric. Kind of decision explains about a third of the player spread (R
   squared 0.342 [0.258, 0.434]). Source: `reports/research/decisions-E1.md`
+- Decision quality, second test (decisions-E2): not adopted on the training games. Each option of a decision, a
+  shot, a pass, a drive or holding the ball, got a value on one scale: the points the team should expect from there.
+  Bad choices do go with fewer points: 0.0700 [0.0405, 0.1005]. But the values are far off scale, with a slope of
+  0.3972 [0.3710, 0.4236] where the bar was 0.8 to 1.2. They also carry less signal than the old values: -0.0956
+  [-0.1289, -0.0624]. Its test games were not scored. The faults found on the way were fixed and are listed in the
+  report. One fix came after the first numbers were seen: it put back the rule for which rows count, as set in
+  advance, and the verdict stayed the same. Source: `reports/research/decisions-E2.md`
 
 ## Honesty work
 

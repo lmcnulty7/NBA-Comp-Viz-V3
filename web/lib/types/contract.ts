@@ -956,7 +956,8 @@ export interface Experiment {
     | "passed_test"
     | "adopted_research"
     | "ran_result_in_writeup"
-    | "decided_by_part";
+    | "decided_by_part"
+    | "adopted_research_not_contradicted";
   writeup?: string | null;
   writeup_notes?: string[];
   stages?: "development_and_test" | "test_only";
@@ -1022,7 +1023,7 @@ export interface StageResult {
   interval: string;
   threshold: number;
   upper: number;
-  comparison?: "below" | "at_most" | "above" | "at_least" | "contains";
+  comparison?: "below" | "at_most" | "above" | "at_least" | "contains" | "not_wholly_above";
   conditions?: Condition[];
   guard?: BucketGuard | null;
   guards?: BucketGuard[];
