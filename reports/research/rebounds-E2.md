@@ -10,7 +10,7 @@ below is copied from reports/research/rebounds-E2-dev.json or reports/research/r
 summary is the one rebounds-E2 entry of reports/research/scoring_ledger.json; the score ran on commit 72c261b9 with a
 clean tree. Intervals are 95 percent percentile intervals of a
 2000-resample bootstrap of the 604 development games (seed 0); paired differences use the same resampled games.
-Calibration slopes are point estimates.
+Set A intervals: the same bootstrap over its 10 games. Calibration slopes are point estimates.
 
 **Verdict: adopted as a research result on development; Set A, scored once, reads "confirms" under D127.** Trained
 on the whole miss, the softmax model lowers per-miss log loss against the frozen rebound model by 0.019327 on the
@@ -80,7 +80,7 @@ candidate rows of 10 development stand-in games exactly (every one of 19 shared 
 ## Set A (D127 confirmation, scored once)
 
 The three arms were fitted on all 604 development games; Set A's rebound frames and candidate rows were built inside
-score_once with the frozen builder. 10 games, 846 misses (about 820 were projected), 9,218 candidate rows.
+score_once with the frozen builder. 10 games, 846 misses (about 820 were projected; docs/research/rebounds.md, PLAN.md D125), 9,218 candidate rows.
 
 | arm | per-miss log loss | top-1 | favourite's calibration slope |
 | --- | --- | --- | --- |
@@ -101,11 +101,11 @@ score_once with the frozen builder. 10 games, 846 misses (about 820 were project
 - Report only, read by no rule and not leaned on: under the original threshold of 2026-11-16 (at most -0.010 with
   the interval excluding zero), the Set A point -0.015837 and its bootstrap interval would also have met it.
 - The Set A effect (-0.015837) is smaller than development's (-0.019327); both points clear -0.010. The binary
-  ablation is near zero on Set A (+0.000311), as the gain is the objective's, not the library's. Top-1 and the
-  calibration slopes are point estimates (top-1 has intervals above; the slopes do not).
+  ablation is near zero on Set A (+0.000311), as the gain is the objective's, not the library's. The calibration
+  slopes are point estimates; top-1 has intervals above.
 - The frozen build's counts over the 10 games: 996 misses in, 846 kept, 9,218 candidate rows; drops: no rim frame
   137, rebounder not on court 8, and the D94/D95 drop of a named rebounder that cannot be matched 5; every other drop
-  0. Kept: 89 team rebounds and 765 player rebounds.
+  0. Past the first filter, before the 8 not-on-court drops: 89 team rebounds and 765 player rebounds.
 - The projected half-width before the score was 0.013754 (random 10-game sets); the bootstrap half-width here is
   0.012658 (computed).
 
