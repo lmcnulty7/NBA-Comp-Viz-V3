@@ -350,6 +350,161 @@ def feasibility(root, n: int = BOOT, seed: int = SEED, test_games: int = 10, set
             "threshold": THRESHOLD}
 
 
+# ----------------------------------------------------------------------------- the run on rebounds-E1's refit
+
+RESULTS = None                 # reports/research by default; tests point it elsewhere
+FOLD_MINUTES = 8.0             # a fold starts only when at least this much of the job's budget is left
+
+
+def work_dir(artifacts=None) -> Path:
+    from tools.frozen_common import artifacts_dir, assert_safe_output
+    return assert_safe_output(artifacts_dir(artifacts) / "research" / "rebounds_e2")
+
+
+def load_e1(e1_artifacts) -> tuple:
+    """rebounds-E1's gated refit, reused (D124): its candidate rows (checked against the frozen record), its gate A
+    record (must have passed) and its five fold pieces (training and test rows, the baseline's p on the test rows)."""
+    import json
+    from tools.frozen_common import artifacts_dir
+    from tools.research_testset import refuse_test
+    folder = artifacts_dir(e1_artifacts) / "research" / "rebounds_e1"
+    gate = json.loads((folder / "gate.json").read_text())
+    if gate.get("passed") is not True:
+        raise SystemExit(f"{WHO}: rebounds-E1's gate A did not pass, so its refit is not used")
+    rec = json.loads((folder / "candidates_train.json").read_text())
+    if not rec.get("matches_frozen_record"):
+        raise SystemExit(f"{WHO}: rebounds-E1's candidate rows do not match the frozen record")
+    cands = pd.read_parquet(folder / "candidates_train.parquet")
+    if len(cands) != gate["rows_mine"] or len(cands) != rec["rows"]:
+        raise SystemExit(f"{WHO}: rebounds-E1's candidate rows changed after its gate")
+    refuse_test(cands["sportvu_game"].astype(str).unique(), WHO)
+    folds = [dict(np.load(folder / "folds" / f"fold_{k}.npz")) for k in range(FOLDS)]
+    test_all = np.sort(np.concatenate([f["test_rows"] for f in folds]))
+    if not np.array_equal(test_all, np.arange(len(cands))):
+        raise SystemExit(f"{WHO}: rebounds-E1's folds do not cover every candidate row exactly once")
+    return cands, gate, folds
+
+
+def _ordered(frame: pd.DataFrame) -> np.ndarray:
+    """A stable order that puts each miss's rows together (the frame's own order when they already are)."""
+    return np.argsort((frame["sportvu_game"].astype(str) + "#" + frame["event"].astype(str)).to_numpy(), kind="stable")
+
+
+def fold_arms(cands: pd.DataFrame, fold: dict, seed: int = SEED) -> dict:
+    """The softmax arm and the binary ablation fitted on one fold's training rows, predicting its test rows (in the
+    fold's test_rows order)."""
+    train = cands.iloc[fold["train_rows"]].reset_index(drop=True)
+    test = cands.iloc[fold["test_rows"]].reset_index(drop=True)
+    o_tr, o_te = _ordered(train), _ordered(test)
+    train, test_sorted = train.iloc[o_tr].reset_index(drop=True), test.iloc[o_te].reset_index(drop=True)
+    out = {}
+    soft = fit_softmax(train, seed)(test_sorted)
+    binary_model = fit_binary(train, seed)
+    binary = binary_model(test_sorted)
+    for name, p in (("p_softmax", soft), ("p_binary", binary)):
+        back = np.empty(len(p))
+        back[o_te] = p                                  # back to the fold's test_rows order
+        out[name] = back
+    out["tau_binary"] = float(binary_model.tau)
+    return out
+
+
+def fold_stage(e1_artifacts, artifacts=None, max_minutes: float = 25.0, log=print, head: str = "") -> dict:
+    """Resumable: one outer fold a piece, written once; a fold starts only with FOLD_MINUTES of budget left."""
+    import os
+    import time
+    cands, _gate, folds = load_e1(e1_artifacts)
+    folder = work_dir(artifacts)
+    folder.mkdir(parents=True, exist_ok=True)
+    t0 = time.time()
+    done = []
+    for k in range(FOLDS):
+        f = folder / f"fold_{k}.npz"
+        if f.exists():
+            continue
+        if max_minutes - (time.time() - t0) / 60 < FOLD_MINUTES:
+            break
+        r = fold_arms(cands, folds[k])
+        part = folder / f"fold_{k}.part.npz"
+        np.savez(part, test_rows=folds[k]["test_rows"], code_commit=np.array(head), **r)
+        os.replace(part, f)
+        done.append(k)
+        log(f"[rebounds-E2] fold {k} done {round(time.time() - t0)} s, binary tau {r['tau_binary']:.4f}", flush=True)
+    left = [k for k in range(FOLDS) if not (folder / f"fold_{k}.npz").exists()]
+    return {"done_this_job": done, "left": left, "seconds": round(time.time() - t0, 1)}
+
+
+def projected_set_a(pred: pd.DataFrame, test_games: int = 10, n: int = BOOT, seed: int = SEED) -> dict:
+    """Commitment 3 (D125): the Set A half-width projected from the development per-game spread of the softmax minus
+    baseline difference: random 10-game sets of development games, and the development bootstrap scaled."""
+    T = _T()
+    a, b = T.per_miss(pred, "p_softmax"), T.per_miss(pred, "p_baseline")
+    diff = (-a["logp"].to_numpy()) - (-b["logp"].to_numpy())
+    codes, uniq = pd.factorize(a["game"].to_numpy(), sort=True)
+    G = len(uniq)
+    cnt = np.bincount(codes, minlength=G).astype(float)
+    s = np.bincount(codes, weights=diff, minlength=G)
+    rng = np.random.default_rng(seed)
+    vals = [s[c].sum() / cnt[c].sum() for c in (rng.choice(G, size=test_games, replace=False) for _ in range(n))]
+    lo, hi = np.percentile(vals, [2.5, 97.5])
+    idx = rng.integers(0, G, size=(n, G))
+    blo, bhi = np.percentile(s[idx].sum(axis=1) / cnt[idx].sum(axis=1), [2.5, 97.5])
+    return {"random_10_game_sets_half_width": float((hi - lo) / 2),
+            "dev_half_width_scaled": float((bhi - blo) / 2 * np.sqrt(G / test_games)), "development_games": int(G)}
+
+
+def dev_stage(e1_artifacts, artifacts=None, head: str = "") -> dict:
+    """Assemble the out-of-fold frame (baseline p from rebounds-E1's fold pieces, the two arms from this experiment's)
+    and write reports/research/rebounds-E2-dev.json."""
+    import json
+    from tools.frozen_common import REPO_ROOT, _plain
+    cands, gate, folds = load_e1(e1_artifacts)
+    folder = work_dir(artifacts)
+    pred = cands.copy()
+    for c in ("p_baseline", "p_softmax", "p_binary"):
+        pred[c] = np.nan
+    pred["fold"] = -1
+    taus, commits = [], set()
+    for k in range(FOLDS):
+        mine = dict(np.load(folder / f"fold_{k}.npz"))
+        if not np.array_equal(mine["test_rows"], folds[k]["test_rows"]):
+            raise SystemExit(f"{WHO}: fold {k}'s rows differ from rebounds-E1's")
+        rows = folds[k]["test_rows"]
+        pred.loc[rows, "p_baseline"] = folds[k]["p_base"]
+        pred.loc[rows, "p_softmax"] = mine["p_softmax"]
+        pred.loc[rows, "p_binary"] = mine["p_binary"]
+        pred.loc[rows, "fold"] = k
+        taus.append(float(mine["tau_binary"]))
+        commits.add(str(mine["code_commit"]))
+    if pred[["p_baseline", "p_softmax", "p_binary"]].isna().any().any():
+        raise SystemExit(f"{WHO}: a candidate row has no out-of-fold probability")
+    order = _ordered(pred)
+    pred = pred.iloc[order].reset_index(drop=True)
+    starts = check_blocks(pred)
+    for a in ARMS:
+        check_sums(pred["p_" + a].to_numpy(), starts)
+    s = summarize(pred)
+    base_ll = s["arms"]["baseline"]["per_miss_log_loss"]["value"]
+    if round(base_ll, 6) != round(gate["per_miss_log_loss"], 6):
+        raise SystemExit(f"{WHO}: the baseline here ({base_ll}) is not rebounds-E1's gated baseline")
+    out = {"experiment": EXPERIMENT, "code_commit": head, "fold_code_commits": sorted(commits),
+           "stage": ("development games (604), out of fold under rebounds-E1's five folds; baseline the frozen hgb with "
+                     "tau from rebounds-E1's gated refit (reused); the development games decide (D125's pattern)"),
+           "pre_registration": "docs/research/rebounds.md, rebounds-E2 and its amendment",
+           "e1_gate_a": gate, "candidate_rows": int(len(pred)), "binary_tau_by_fold": taus,
+           **s, "projected_set_a": projected_set_a(pred)}
+    path = Path(RESULTS or REPO_ROOT / "reports" / "research") / f"{EXPERIMENT}-dev.json"
+    path.write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
+    return out["verdict"]
+
+
+def _head() -> str:
+    import subprocess
+    from tools.frozen_common import REPO_ROOT
+    return subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True,
+                          check=True).stdout.strip()
+
+
 def main(argv=None) -> int:
     import argparse
     import json
@@ -357,10 +512,18 @@ def main(argv=None) -> int:
     from export.heavy import heavy_job
     from tools.frozen_common import _plain
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e2-feasibility",))
+    ap.add_argument("command", choices=("e2-feasibility", "e2-folds", "e2-dev"))
+    ap.add_argument("--e1-artifacts", default=None, help="rebounds-E1's artifacts folder (its gated refit)")
+    ap.add_argument("--artifacts", default=None)
+    ap.add_argument("--max-minutes", type=float, default=25.0)
     a = ap.parse_args(argv)
-    with heavy_job("research rebounds e2-feasibility"):
-        out = feasibility(Path(os.environ["DATA_ROOT"]))
+    with heavy_job(f"research rebounds {a.command}"):
+        if a.command == "e2-feasibility":
+            out = feasibility(Path(os.environ["DATA_ROOT"]))
+        elif a.command == "e2-folds":
+            out = fold_stage(a.e1_artifacts, a.artifacts, a.max_minutes, head=_head())
+        else:
+            out = dev_stage(a.e1_artifacts, a.artifacts, head=_head())
     print(json.dumps(_plain(out), indent=2))
     return 0
 

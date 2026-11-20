@@ -154,7 +154,42 @@ def test_the_module_reads_data_only_in_the_feasibility_check_and_never_test_data
     calls = {getattr(n.func, "attr", getattr(n.func, "id", None)) for n in ast.walk(tree) if isinstance(n, ast.Call)}
     assert not calls & {"score_once", "scoring_data_root", "research_data_root"}
     feas = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "feasibility")
-    inside = {id(c) for c in ast.walk(feas)}
+    e1 = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "load_e1")
+    inside = {id(c) for fn in (feas, e1) for c in ast.walk(fn)}
     reads = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and getattr(n.func, "attr", None) == "read_parquet"]
     assert reads and all(id(n) in inside for n in reads)
     assert "refuse_test(" in ast.unparse(feas) and "fold" in ast.unparse(feas)
+
+
+def test_the_fold_and_dev_stages_reuse_e1s_folds_and_baseline(tmp_path, monkeypatch):
+    """A synthetic rebounds-E1 artifacts folder (candidate rows, a passed gate, five fold pieces with the baseline's
+    p) -> the two stages: every fold written, the baseline equal to E1's, the arms paired on the same misses."""
+    import json
+    from analytics.eval import grouped_folds
+    from analytics.rebounds import train as T
+    monkeypatch.setenv("DATA_ROOT", str(tmp_path / "data_root"))
+    cands = synthetic(n_games=10, misses=12, seed=6).reset_index(drop=True)
+    e1 = tmp_path / "e1" / "research" / "rebounds_e1"
+    (e1 / "folds").mkdir(parents=True)
+    cands.to_parquet(e1 / "candidates_train.parquet", index=False)
+    (e1 / "candidates_train.json").write_text(json.dumps({"rows": len(cands), "matches_frozen_record": True}))
+    games = sorted(cands["sportvu_game"].unique())
+    g = cands["sportvu_game"]
+    p_all = np.full(len(cands), np.nan)
+    for k, (tr_g, te_g) in enumerate(grouped_folds(games, n_folds=5, seed=0)):
+        tr, te = np.flatnonzero(g.isin(tr_g)), np.flatnonzero(g.isin(te_g))
+        p = E.frozen_baseline_fit(cands.iloc[tr].reset_index(drop=True))(cands.iloc[te].reset_index(drop=True))
+        p_all[te] = p
+        np.savez(e1 / "folds" / f"fold_{k}.npz", test_rows=te, train_rows=tr, p_base=p)
+    pred = cands.assign(p_hgb=p_all)
+    ll = T.mlogloss(T.per_miss(pred, "p_hgb"))
+    (e1 / "gate.json").write_text(json.dumps({"passed": True, "rows_mine": len(cands), "per_miss_log_loss": ll}))
+    monkeypatch.setattr(E, "RESULTS", tmp_path / "results")
+    (tmp_path / "results").mkdir()
+    out = E.fold_stage(tmp_path / "e1", tmp_path / "mine", log=lambda *a, **k: None, head="x")
+    assert out["left"] == [] and out["done_this_job"] == [0, 1, 2, 3, 4]
+    v = E.dev_stage(tmp_path / "e1", tmp_path / "mine", head="x")
+    doc = json.loads((tmp_path / "results" / "rebounds-E2-dev.json").read_text())
+    assert doc["arms"]["baseline"]["per_miss_log_loss"]["value"] == pytest.approx(ll)
+    assert doc["misses"] == 120 and len(doc["binary_tau_by_fold"]) == 5 and set(v) >= {"met", "reading"}
+    assert set(doc["projected_set_a"]) >= {"random_10_game_sets_half_width", "dev_half_width_scaled"}
