@@ -271,3 +271,68 @@ def test_set_a_is_reached_only_inside_the_scorer_and_final_checks_the_tree_first
     first = next(s for s in final.body if not isinstance(s, (ast.Import, ast.ImportFrom, ast.Expr)))
     assert "clean_head()" in ast.unparse(first)
     assert "check_rehearsal(" in ast.unparse(final) and '["verdict"]["met"]' in ast.unparse(final).replace("'", '"')
+
+
+# ── the pre-score review of 807bdc2c ────────────────────────────────────────────────────────────────────────────
+
+def test_check_rehearsal_refuses_another_commit_and_a_failed_record(tmp_path):
+    import json
+    ok = {"code_commit": "abc", "rows_match_cache": True, "shared_columns_match_cache": {"x": True}}
+    p = tmp_path / "r.json"
+    p.write_text(json.dumps(ok))
+    assert E.check_rehearsal(p, "abc")["code_commit"] == "abc"
+    with pytest.raises(SystemExit, match="not at this HEAD"):
+        E.check_rehearsal(p, "def")
+    p.write_text(json.dumps({**ok, "shared_columns_match_cache": {"x": True, "y": False}}))
+    with pytest.raises(SystemExit, match="did not pass"):
+        E.check_rehearsal(p, "abc")
+    with pytest.raises(SystemExit, match="rehearse the scorer first"):
+        E.check_rehearsal(tmp_path / "missing.json", "abc")
+
+
+def test_final_refuses_a_dirty_tree_before_anything_else(monkeypatch):
+    import subprocess
+    real = subprocess.run
+
+    def fake(args, **kw):
+        if args[:3] == ["git", "status", "--porcelain"]:
+            return subprocess.CompletedProcess(args, 0, stdout=" M tools/research_rebounds_e2.py\n", stderr="")
+        return real(args, **kw)
+    monkeypatch.setattr(subprocess, "run", fake)
+    monkeypatch.setattr(E, "load_e1", lambda *a, **k: pytest.fail("final read data before the tree check"))
+    with pytest.raises(SystemExit, match="not clean"):
+        E.final(None)
+
+
+def test_the_baseline_is_fitted_on_the_rows_in_build_order(monkeypatch):
+    cands = synthetic(n_games=4, misses=5, seed=8)
+    shuffled_games = cands.sample(frac=1.0, random_state=1).drop_duplicates(["sportvu_game", "event"])
+    build_order = pd.concat([cands[(cands["sportvu_game"] == g) & (cands["event"] == e)]
+                             for g, e in zip(shuffled_games["sportvu_game"], shuffled_games["event"])],
+                            ignore_index=True)                       # misses contiguous, not sorted
+    seen = {}
+    monkeypatch.setattr(E, "frozen_baseline_fit", lambda train: seen.setdefault("base", train.copy()) is None)
+    monkeypatch.setattr(E, "fit_softmax", lambda train: seen.setdefault("soft", train.copy()) is None)
+    monkeypatch.setattr(E, "fit_binary", lambda train: seen.setdefault("bin", train.copy()) is None)
+    E.fit_dev_models(build_order, sorted(build_order["sportvu_game"].unique()))
+    assert E.key_tuples(seen["base"]) == E.key_tuples(build_order)
+    assert E.key_tuples(seen["soft"]) == E.key_tuples(build_order.iloc[E._ordered(build_order)])
+
+
+def test_the_scorer_records_build_counts_and_refuses_on_a_guard_failure(fixture_root, tmp_path, monkeypatch):
+    import json
+    from tools import research_testset as R
+    root, games = fixture_root
+    testset = tmp_path / "set.json"
+    testset.write_text(json.dumps({"sources": {R.TRACKING: {"games": games[-2:], "sha256": R.list_hash(games[-2:])}}}))
+    monkeypatch.setenv("V3_RESEARCH_DATA", str(root))
+
+    def broken(frame):
+        raise ValueError(f"{E.WHO}: a miss's probabilities do not sum to 1")
+    out = R.score_once("rebounds-E2", R.TRACKING, E.make_scorer({"baseline": broken, "softmax": broken,
+                                                                  "binary": broken}), testset, tmp_path / "ledger.json")
+    assert out["refused"] is True and "guard failed" in out["reading"]
+    counts = out["build_counts_by_game"]
+    assert set(counts) == set(games[-2:]) and "unmatched_named_rebounder" in counts[games[-1]]
+    entries = json.loads((tmp_path / "ledger.json").read_text())
+    assert entries[-1]["status"] == "scored"                     # the refusal is on record, the score is spent

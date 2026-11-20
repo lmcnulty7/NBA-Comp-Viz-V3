@@ -555,9 +555,11 @@ def game_bundle(root, game: str) -> dict:
     return b
 
 
-def build_candidates(root, games) -> pd.DataFrame:
+def build_candidates(root, games, counts: dict | None = None) -> pd.DataFrame:
     """The candidate rows of the given games, one game's frames at a time, through the frozen clean_bundle and
-    features.build; refuses a held-out row."""
+    features.build; refuses a held-out row. With counts (a dict), the frozen build's per-game counts are stored in it:
+    misses in and kept, rows, and every drop reason (unmatched_named_rebounder among them) and info count; counting
+    only."""
     from analytics.rebounds import features as Fz
     from analytics.rebounds import train as T
     from analytics.rebounds import validate as V
@@ -566,7 +568,12 @@ def build_candidates(root, games) -> pd.DataFrame:
         for g in games:
             cb, _counts = V.clean_bundle(game_bundle(root, g))
             yield cb
-    cands, _fc = Fz.build(cleaned())
+    cands, fc = Fz.build(cleaned())
+    if counts is not None:
+        for g in games:
+            c = fc["per_game"].get(g, {})
+            counts[g] = {k: int(c.get(k, 0)) for k in ("n_in", "misses_kept", "rows") + tuple(Fz.DROP_REASONS)
+                         + tuple(Fz.INFO_COUNTS)}
     rows, held = T.split_train_heldout(cands)
     if len(held):
         raise SystemExit(f"{WHO}: a held-out row came out of the scorer's path")
@@ -577,8 +584,10 @@ def fit_dev_models(cands: pd.DataFrame, games) -> dict:
     """The three arms fitted on the given development games: the frozen hgb with tau (fit_candidates, the frozen
     code whose out-of-fold fits passed rebounds-E1's gate A), the softmax arm and the binary ablation."""
     train = cands[cands["sportvu_game"].astype(str).isin(set(games))].reset_index(drop=True)
-    train = train.iloc[_ordered(train)].reset_index(drop=True)
-    return {"baseline": frozen_baseline_fit(train), "softmax": fit_softmax(train), "binary": fit_binary(train)}
+    ordered = train.iloc[_ordered(train)].reset_index(drop=True)
+    # the baseline on the rows in their build order, as rebounds-E1's gated fold fits saw them; only the two arms
+    # that need each miss's rows together are fitted on the sorted rows
+    return {"baseline": frozen_baseline_fit(train), "softmax": fit_softmax(ordered), "binary": fit_binary(ordered)}
 
 
 def reading(lo: float, hi: float) -> str:
@@ -710,12 +719,17 @@ def make_scorer(models: dict, artifacts=None, provenance: dict = None):
         if missing:
             return {**head, "refused": True, "reading": f"refused: {len(missing)} test game(s) lack an input",
                     "missing": missing}
-        rows = build_candidates(root, games)
+        counts = {}
+        rows = build_candidates(root, games, counts)
+        head["build_counts_by_game"] = counts
         without = sorted(set(games) - set(rows["sportvu_game"].astype(str)))
         if without:
             return {**head, "refused": True, "reading": f"refused: {len(without)} test game(s) gave no candidate row",
                     "games_without_rows": without}
-        result = score_rows(rows, models)
+        try:
+            result = score_rows(rows, models)
+        except ValueError as exc:                # a block or sum guard: a refusal on record, never a silent crash
+            return {**head, "refused": True, "reading": f"refused: a guard failed: {exc}"}
         bad = [k for k, v in result["paired"].items() if not all(np.isfinite([v["value"], v["lo"], v["hi"]]))]
         if bad:
             return {**head, "refused": True, "reading": f"refused: non-finite values in {bad}"}

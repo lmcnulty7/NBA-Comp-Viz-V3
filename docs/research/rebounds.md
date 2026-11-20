@@ -202,7 +202,9 @@ reports/rebounds.md; hgb beats the prior by -0.5371 [-0.5477, -0.5283].
   3. The reading is D108's on softmax minus baseline, per-miss log loss, with a bootstrap of the 10 games, 2000
      resamples, seed 0: "confirms" if the 95 percent interval lies wholly below zero, "inconclusive at 10 games" if it
      straddles zero, "contradiction" if it lies wholly above zero, which stops the adoption. A 95 percent t interval
-     on the 10 per-game mean differences is reported beside it and read by no rule. Binary minus baseline, softmax
+     on the 10 per-game mean differences is reported beside it and read by no rule. As D108 reads it, an interval
+     that straddles zero is "inconclusive at 10 games": it is not evidence against the softmax arm, and the
+     development adoption stands. Binary minus baseline, softmax
      minus binary, top-1 and the favourite's calibration slope are reported and read by none.
   4. Rehearsal: the scorer's path runs first on 10 development games drawn with seed 0 in place of Set A, the arms
      fitted on the other 594. Its candidate rows must equal rebounds-E1's gated rows of those games exactly: the same
