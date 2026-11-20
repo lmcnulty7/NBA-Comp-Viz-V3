@@ -1005,7 +1005,7 @@ NUMBER_TEXT_RE = re.compile(r"(?<![\w.])[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?")
 ComparabilityClass = Literal["roughly", "not_directly", "none"]
 ExperimentStatus = Literal["pre_registered", "development_met_test_pending", "not_adopted_development",
                            "adopted", "not_adopted_test", "passed_test", "adopted_research",
-                           "ran_result_in_writeup", "decided_by_part"]
+                           "ran_result_in_writeup", "decided_by_part", "adopted_research_not_contradicted"]
 # The state of one part of an experiment whose rule is decided part by part.
 PartStatus = Literal["pre_registered", "confirmed", "development_met_test_not_met", "not_adopted_development",
                      "development_met_test_pending", "passed_test", "not_passed_test"]
@@ -1016,7 +1016,9 @@ _COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above"
 
 
 # A stage's main rule may also require its range to hold a number of the file (`contains`: D113's consistency check)
-StageComparison = Literal["below", "at_most", "above", "at_least", "contains"]
+# `not_wholly_above` is a confirmation read (D108, D121): the stage is met unless its interval lies wholly above the
+# threshold, the only reading that stops an adoption ("contradiction"); the end shown is the lower end
+StageComparison = Literal["below", "at_most", "above", "at_least", "contains", "not_wholly_above"]
 
 
 def _is_number_text(text: Optional[str]) -> bool:
@@ -1223,6 +1225,10 @@ class StageResult(Strict):
             # the range must hold the threshold; the end shown is the one nearer it, the end that decides
             end = self.lo if abs(self.threshold - self.lo) <= abs(self.threshold - self.hi) else self.hi
             main = self.lo <= self.threshold <= self.hi
+        elif self.comparison == "not_wholly_above":
+            if self.stage != "test":
+                raise ValueError("a confirmation read (not wholly above) belongs to a test stage only")
+            end, main = self.lo, self.lo <= self.threshold
         else:
             end = self.lo if self.comparison in ("above", "at_least") else self.hi
             main = _COMPARE[self.comparison](self.upper, self.threshold)
@@ -1350,6 +1356,9 @@ class ExperimentPart(Strict):
         dev, test = self.development, self.test
         if (dev and dev.stage != "development") or (test and test.stage != "test"):
             raise ValueError(f"{self.label}: a stage result sits under its own stage")
+        if test is not None and test.comparison == "not_wholly_above":
+            raise ValueError(f"{self.label}: a confirmation read (not wholly above) confirms a whole experiment's "
+                             "development adoption, never a part")
         if self.stages == "test_only":
             if dev is not None or self.test_not_scored:
                 raise ValueError(f"{self.label}: a test-only part has no development result")
@@ -1454,6 +1463,9 @@ class Experiment(Strict):
         if self.stages == "test_only":
             if dev is not None or self.protocol is not None:
                 raise ValueError(f"{self.id}: a test-only experiment has no development verdict")
+            if test is not None and test.comparison == "not_wholly_above":
+                raise ValueError(f"{self.id}: a confirmation read (not wholly above) needs the development adoption "
+                                 "it confirms, so never a test-only experiment")
             expected = "pre_registered" if test is None else "passed_test" if test.met else "not_adopted_test"
             if self.status != expected:
                 raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")
@@ -1467,7 +1479,13 @@ class Experiment(Strict):
                     else "development_met_test_pending" if test is None
                     else ("adopted_research" if self.adopted_as == "research_result" else "adopted") if test.met
                     else "not_adopted_test")
-        if self.adopted_as is not None and expected != "adopted_research":
+        if test is not None and test.met and test.comparison == "not_wholly_above" and dev is not None and dev.met:
+            # the test set did not contradict a development adoption: never shown as a pass on the test set, and
+            # only ever a research result
+            if self.adopted_as != "research_result":
+                raise ValueError(f"{self.id}: a confirmation read on the test set adopts a research result only")
+            expected = "adopted_research_not_contradicted"
+        if self.adopted_as is not None and expected not in ("adopted_research", "adopted_research_not_contradicted"):
             raise ValueError(f"{self.id}: adopted as a research result needs the bar met on both stages")
         if self.status != expected:
             raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")

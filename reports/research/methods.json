@@ -249,13 +249,141 @@
      "title": "second defender and contest geometry",
      "what": "second defender and contest geometry",
      "hypothesis": "Adding the second closest defender's distance, the angle between the shooter-to-basket line and the shooter-to-closest-defender line (contest from the front or from the side), and the closest defender's speed toward the shooter's line of shot, all at the release frame, lowers out-of-fold log loss.",
-     "threshold": "Paired log loss difference (new minus baseline) at most -0.001 with its 95 percent interval excluding 0, on development games and again on the D71 test set scored once. Chang et al. found 0.0008 Brier between shot-and-defender distance and all variables, so a smaller change would not show in a coach's view.",
+     "threshold": "Development decides: adopt when the paired difference (new minus baseline) is at most -0.001 and its 95 percent interval excludes 0. If development adopts, Set A is scored once (score_once, entry \"xfg-E2\") as a confirmation read as D108: \"confirms\" when the interval lies wholly below 0, \"inconclusive at 10 games\" when it straddles 0, \"contradiction\" when it lies wholly above 0, which stops the adoption; a t interval on the 10 per-game mean differences is reported beside it (D80), and the projected test half-width from the development per-game variance is reported before the score. If development does not adopt, Set A is not scored (D109).",
      "rank": 23,
      "gain": 2,
      "effort": 3,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: adopted as a research result on development (new minus baseline -0.00182 [-0.00222, -0.00141], 607 games); Set A inconclusive at 10 games (-0.00224 [-0.00657, +0.00192]), not a contradiction, so the adoption stands (D121); the frozen xFG on the site is unchanged; reports/research/xfg-E2.md",
+     "results": {
+      "metric": "Out-of-fold log loss, new arm minus baseline (paired per shot)",
+      "rows_unit": "shots",
+      "interval": "Bootstrap by game, 2000 resamples, 95 percent interval.",
+      "development": "reports/research/xfg-E2-dev.json",
+      "test": "reports/research/xfg-E2-final.json",
+      "design": "stage",
+      "rule_quote": {
+       "from": "dossier",
+       "texts": [
+        "Development decides: adopt when the paired difference (new minus baseline) is at most -0.001 and its 95 percent interval excludes 0."
+       ]
+      },
+      "comparison": "below",
+      "threshold": 0,
+      "main_states": "its 95 percent interval excludes 0",
+      "keys": {
+       "rows": "shots",
+       "games": "games",
+       "diff": "paired_new_minus_baseline.diff",
+       "lo": "paired_new_minus_baseline.lo",
+       "hi": "paired_new_minus_baseline.hi",
+       "met": "verdict.adopts_on_development"
+      },
+      "conditions": [
+       {
+        "label": "Size: the paired difference itself, at most -0.001",
+        "value": "paired_new_minus_baseline.diff",
+        "lo": "paired_new_minus_baseline.lo",
+        "hi": "paired_new_minus_baseline.hi",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold_key": "verdict.threshold",
+        "sign": 1,
+        "met": null,
+        "digits": 5
+       }
+      ],
+      "equalities": [
+       [
+        "verdict.diff",
+        "paired_new_minus_baseline.diff"
+       ],
+       [
+        "verdict.lo",
+        "paired_new_minus_baseline.lo"
+       ],
+       [
+        "verdict.hi",
+        "paired_new_minus_baseline.hi"
+       ]
+      ],
+      "digits": 5,
+      "values": [
+       {
+        "label": "Ablation, read by no rule: second defender's distance alone, minus baseline",
+        "value": "paired_ablation_minus_baseline.diff",
+        "lo": "paired_ablation_minus_baseline.lo",
+        "hi": "paired_ablation_minus_baseline.hi",
+        "digits": 5
+       },
+       {
+        "label": "Report only: new arm minus the ablation",
+        "value": "paired_new_minus_ablation.diff",
+        "lo": "paired_new_minus_ablation.lo",
+        "hi": "paired_new_minus_ablation.hi",
+        "digits": 5
+       },
+       {
+        "label": "Projected half-width of the 10-game Set A interval, reported before the score (point estimate)",
+        "value": "per_game_sd_new_minus_baseline.projected_10_game_half_width",
+        "digits": 4
+       }
+      ],
+      "by_stage": {
+       "test": {
+        "metric": "Set A, scored once as a confirmation (D121, D108): out-of-fold log loss, new arm minus baseline, both fitted on every development game",
+        "design": "scored.stage",
+        "comparison": "not_wholly_above",
+        "threshold": 0,
+        "main_states": "contradiction if wholly above 0",
+        "keys": {
+         "rows": "scored.shots",
+         "games": "scored.games",
+         "diff": "scored.paired_new_minus_baseline.diff",
+         "lo": "scored.paired_new_minus_baseline.lo",
+         "hi": "scored.paired_new_minus_baseline.hi",
+         "rule": "rule",
+         "reading": "scored.reading"
+        },
+        "readings": {
+         "confirms": {
+          "bound": "hi",
+          "comparison": "below",
+          "threshold": 0,
+          "met": true
+         },
+         "inconclusive": "met_otherwise",
+         "contradiction": "not_met"
+        },
+        "conditions": [],
+        "equalities": [],
+        "digits": 5,
+        "values": [
+         {
+          "label": "Report only (D80), read by no rule: t interval on the 10 per-game mean differences",
+          "value": "scored.t_interval_new_minus_baseline_per_game.mean_of_game_means",
+          "lo": "scored.t_interval_new_minus_baseline_per_game.lo",
+          "hi": "scored.t_interval_new_minus_baseline_per_game.hi",
+          "digits": 5
+         }
+        ]
+       }
+      }
+     },
+     "threshold_label": "Decision (D121)",
+     "writeup": "reports/research/xfg-E2.md",
+     "adopted_as": "research_result",
+     "writeup_notes": [
+      "Verdict: adopted as a research result on development; Set A reads \"inconclusive at 10 games\", which is not a contradiction, so the adoption stands (D121). The frozen xFG model on the site is unchanged.",
+      {
+       "section": "What was tested",
+       "text": "The 2026-11-16 threshold line also asked for a Set A pass; D121 (2b6ed39f, fixed before any development number) replaced that with a confirmation read."
+      },
+      {
+       "section": "Development games (607 games, 101,853 shots, 5 grouped outer folds)",
+       "text": "Most of the gain comes from the contest angle and the defender's speed toward the shot line, not from the second defender's distance."
+      }
+     ]
     }
    ]
   },

@@ -214,7 +214,9 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
       await expect(facts).toHaveAttribute("data-met", stage.met ? "true" : "false");
       const verdict = stage.comparison === "contains"
         ? (stage.met ? copy.methods.results.holds : copy.methods.results.notHolds)
-        : (stage.met ? copy.methods.results.met : copy.methods.results.missed);
+        : stage.comparison === "not_wholly_above"
+          ? (stage.met ? copy.methods.results.notContradicted : copy.methods.results.contradicted)
+          : (stage.met ? copy.methods.results.met : copy.methods.results.missed);
       await expect(facts).toContainText(verdict);
       const url = repoFileUrl(stage.source.path);
       if (url) await expect(facts.locator(`a[data-report="${stage.source.path}"]`)).toHaveAttribute("href", url);

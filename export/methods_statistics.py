@@ -260,4 +260,18 @@ RULE_STATISTICS = {
             },
         },
     },
+    'xfg-E2': {
+        '|development': {
+            "main": 'paired_new_minus_baseline.diff | paired_new_minus_baseline.lo | paired_new_minus_baseline.hi',
+            "conditions": {
+                'at_most verdict.threshold':
+                    'paired_new_minus_baseline.diff | paired_new_minus_baseline.lo | paired_new_minus_baseline.hi',
+            },
+        },
+        '|test': {
+            "main": 'scored.paired_new_minus_baseline.diff | scored.paired_new_minus_baseline.lo | scored.paired_new_minus_baseline.hi',
+            "conditions": {
+            },
+        },
+    },
 }
