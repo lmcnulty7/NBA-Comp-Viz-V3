@@ -57,7 +57,8 @@ def test_the_committed_source_traces_and_builds(source):
 
 
 RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2",
-       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1", "epv-E1")   # the experiments with a result file today
+       "embeddings-E1", "lineups-E2", "gravity-E1", "matchups-E1", "matchups-E2", "ghosting-E1", "epv-E1",
+       "embeddings-E2")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -1000,6 +1001,25 @@ def test_winprob_e2_is_a_development_result_whose_test_was_not_scored(source):
     ledger = json.loads((REPO / R.LEDGER).read_text())
     assert not any(e.get("experiment") == "winprob-E2" for e in ledger)
     assert any("not read for winprob-E2" in note for note in experiment.writeup_notes)
+
+
+EMB2_DEV = "reports/research/embeddings-E2-dev.json"
+
+
+def test_embeddings_e2_is_a_development_result_whose_test_was_not_scored(source):
+    experiment = next(e for lane in R.build_methods(REPO, source).lanes for e in lane.experiments
+                      if e.id == "embeddings-E2")
+    data = json.loads((REPO / EMB2_DEV).read_text())
+    verdict, paired = data["verdict"], data["split_half"]["rates_with_player_bootstrap"]["nmf_minus_frozen"]
+    assert (experiment.status, experiment.test, experiment.test_not_scored) == ("not_adopted_development", None, True)
+    dev = experiment.development
+    assert (dev.diff, dev.lo, dev.hi) == tuple(round(paired[k], 3) for k in ("value", "lo", "hi"))
+    assert (dev.comparison, dev.threshold, dev.met) == ("above", 0, False) and verdict["adopt"] is False
+    (size,) = dev.conditions
+    assert (size.bound, size.comparison, size.threshold, size.met) == ("point", "at_least", verdict["threshold"], False)
+    ledger = json.loads((REPO / R.LEDGER).read_text())
+    assert not any(e.get("experiment") == "embeddings-E2" for e in ledger)
+    assert any("Set A was not scored" in note for note in experiment.writeup_notes)
 
 
 def test_a_test_left_unscored_is_refused_when_the_ledger_has_it(source, tmp_path):
