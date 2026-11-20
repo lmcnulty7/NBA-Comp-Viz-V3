@@ -28,7 +28,8 @@
     "passed_test": "Cleared its bar on the test games, scored once.",
     "adopted_research": "Cleared its bar on training games and on the test games. Adopted as a research result only; the site does not change.",
     "ran_result_in_writeup": "Has run. Its result is in its write-up and is not shown on this page yet.",
-    "decided_by_part": "Read part by part. Each part has its own result."
+    "decided_by_part": "Read part by part. Each part has its own result.",
+    "adopted_research_not_contradicted": "Cleared its bar on training games. The test games did not contradict it. Adopted as a research result only; the site does not change."
   },
   "results": {
     "title": "Tests run so far",
@@ -52,7 +53,8 @@
       "below": "The bar: below",
       "above": "The bar: above",
       "at_least": "The bar: at least",
-      "contains": "The range must hold"
+      "contains": "The range must hold",
+      "not_wholly_above": "Stopped only if the whole range is above"
     },
     "verdict": "Against the bar",
     "met": "Cleared the bar",
@@ -126,7 +128,9 @@
       "not_passed_test": "Did not clear its bar on the test set."
     },
     "holds": "The range holds it",
-    "notHolds": "The range does not hold it"
+    "notHolds": "The range does not hold it",
+    "notContradicted": "Not contradicted",
+    "contradicted": "Contradicted"
   },
   "lane": {
     "foundations": "Built on",

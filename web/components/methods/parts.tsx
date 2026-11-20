@@ -36,6 +36,7 @@ export const STATUS_TONE: Record<Experiment["status"], StatusTone> = {
   adopted_research: "pass",
   ran_result_in_writeup: "plain",
   decided_by_part: "plain",
+  adopted_research_not_contradicted: "pass",
 };
 
 export const PART_TONE: Record<ExperimentPart["status"], StatusTone> = {
@@ -50,7 +51,7 @@ export const PART_TONE: Record<ExperimentPart["status"], StatusTone> = {
 
 /** The end of the range a comparison reads: the lower end for a bar to clear from below, else the upper end. */
 function endOf(comparison: StageResult["comparison"]): "lo" | "hi" {
-  return comparison === "above" || comparison === "at_least" ? "lo" : "hi";
+  return comparison === "above" || comparison === "at_least" || comparison === "not_wholly_above" ? "lo" : "hi";
 }
 
 /** The plain name of a lane, or the lane key with its underscores as spaces when copy names no such lane. */
@@ -229,7 +230,19 @@ export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; fi
           <dd className={styles.state}>
             <Status
               tone={stage.met ? "pass" : "fail"}
-              text={comparison === "contains" ? (stage.met ? r.holds : r.notHolds) : stage.met ? r.met : r.missed}
+              text={
+                comparison === "contains"
+                  ? stage.met
+                    ? r.holds
+                    : r.notHolds
+                  : comparison === "not_wholly_above"
+                    ? stage.met
+                      ? r.notContradicted
+                      : r.contradicted
+                    : stage.met
+                      ? r.met
+                      : r.missed
+              }
             />
           </dd>
         </div>
