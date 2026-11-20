@@ -83,6 +83,13 @@ and were not scored, so that one score stays unspent. Source: `reports/research/
 - Decision quality (decisions-E1): not adopted. The target proved reliable (r 0.420 [0.295, 0.519]), so the lane's
   earlier failure counts against the metric. Kind of decision explains about a third of the player spread (R
   squared 0.342 [0.258, 0.434]). Source: `reports/research/decisions-E1.md`
+- Decision quality, second test (decisions-E2): not adopted on the training games. Each option of a decision, a
+  shot, a pass, a drive or holding the ball, got a value on one scale: the points the team should expect from there.
+  Bad choices do go with fewer points: 0.0700 [0.0405, 0.1005]. But the values are far off scale, with a slope of
+  0.3972 [0.3710, 0.4236] where the bar was 0.8 to 1.2. They also carry less signal than the old values: -0.0956
+  [-0.1289, -0.0624]. Its test games were not scored. The faults found on the way were fixed and are listed in the
+  report. One fix came after the first numbers were seen: it put back the rule for which rows count, as set in
+  advance, and the verdict stayed the same. Source: `reports/research/decisions-E2.md`
 
 ## Honesty work
 
