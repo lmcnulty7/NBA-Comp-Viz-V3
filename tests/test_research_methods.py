@@ -1278,6 +1278,15 @@ def test_rebounds_e1_clears_zero_but_not_its_size_bar_on_development_and_leaves_
     assert not (REPO / "reports" / "research" / "rebounds-E1-final.json").exists()
     ledger = json.loads((REPO / R.LEDGER).read_text(encoding="utf-8"))
     assert not [x for x in ledger if x.get("experiment") == "rebounds-E1"]
+    quote = _exp(source, "rebounds-E1")["results"]["rule_quote"]      # the pre-registered rule and its D125 reading
+    assert quote == {"from": "dossier", "texts": [
+        "Paired difference (new minus baseline) at most -0.005 with its 95 percent interval excluding 0, on development "
+        "games and again on the D71 test set scored once.",
+        "As D121: the development games decide (difference at most -0.005 with the 95 percent interval excluding "
+        "zero)."]}
+    dossier = " ".join((REPO / "docs" / "research" / "rebounds.md").read_text(encoding="utf-8").split())
+    assert all(text in dossier for text in quote["texts"])
+
 
 def test_lineups_e2_fails_on_the_test_season_against_rapm_synergy_with_both_baselines_read(source):
     e = _built(source)["lineups-E2"]

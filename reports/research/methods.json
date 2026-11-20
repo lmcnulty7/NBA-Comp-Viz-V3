@@ -542,7 +542,7 @@
      "writeup": "reports/research/rebounds-E1.md",
      "test_not_scored": true,
      "writeup_notes": [
-      "Separate sharpening per candidate type lowers the per-miss log loss by -0.004628 [-0.005472, -0.003816]: the interval excludes zero, but the point does not reach the pre-registered bar of -0.005.",
+      "Separate sharpening per candidate type changes the per-miss log loss by -0.004628 [-0.005472, -0.003816]: the interval excludes zero, but the point does not reach the pre-registered bar of -0.005.",
       "Almost all of E1's gain comes from a separate slope per type, not from the offsets.",
       "The site keeps the frozen single tau."
      ],

@@ -9,7 +9,7 @@ numbers, which are from its log (fit1.log in the work folder). Intervals are 95 
 intervals of a 2000-resample bootstrap of games (seed 0), with all arms paired on the same misses and the same
 resampled games.
 
-**Verdict: not adopted, on development (D125).** Separate sharpening per candidate type lowers the per-miss log loss by
+**Verdict: not adopted, on development (D125).** Separate sharpening per candidate type changes the per-miss log loss by
 -0.004628 [-0.005472, -0.003816]: the interval excludes zero, but the point does not reach the pre-registered bar of
 -0.005. Almost all of E1's gain comes from a separate slope per type, not from the offsets. The site keeps the frozen
 single tau. Set A is not scored (D125).
@@ -52,21 +52,21 @@ fitted the same way on each outer fold's inner out-of-fold rows.
 - Ablation minus baseline: -0.000581 [-0.000913, -0.000255]. E1 minus ablation: -0.004047 [-0.004836, -0.003281]. Almost
   all of E1's gain comes from a separate slope per type, not from the offsets.
 - The favourite's calibration slope moves toward 1 under E1 (1.368 to 1.300) but stays far above it; ECE falls from
-  0.0411 to 0.0321. Top-1 is slightly lower under E1.
+  0.0411 to 0.0321. Top-1 is slightly lower under E1 (point estimates).
 - Team accuracy on misses won by a player (offense against defense by summed probability, point estimates): baseline
   0.7749, E1 0.7734, ablation 0.7771.
-- Fitted parameters per fold (a offense, a defense, a none, b defense, b none): the offense and defense slopes are
-  stable (1.113 to 1.123 and 1.346 to 1.353), the defense offset 0.387 to 0.425; the none slope and offset vary more
-  (2.833 to 3.823, 3.658 to 5.855). Every fit converged. The frozen tau is 1.2548 to 1.2566.
-- Projected Set A half-width (D125, from the development per-game spread of the difference): 0.00656 (random 10-game
-  sets) and 0.00646 (development interval scaled).
+- Fitted parameters per fold (a offense, a defense, a none, b defense, b none; point estimates): the offense and
+  defense slopes are stable (1.113 to 1.123 and 1.346 to 1.353), the defense offset 0.387 to 0.425; the none slope and
+  offset vary more (2.833 to 3.823, 3.658 to 5.855). Every fit converged. The frozen tau is 1.2548 to 1.2566.
+- Projected Set A half-width (D125, from the development per-game spread of the difference; point estimates): 0.00656
+  (random 10-game sets) and 0.00646 (development interval scaled).
 
 ## Reading
 
 Separate sharpening per candidate type is a real but small improvement: its interval lies well below zero, and nearly
 all of it comes from the slopes, the defense candidates sharper than the offense ones and the team-rebound row much
 sharper. The pre-registered bar asked for more than this (at least 0.005 nats), so it is not adopted. The favourite
-stays over-confident under E1 (slope 1.300): the hypothesis's calibration part moves the right way but not far.
+stays under-confident under E1 (slope 1.300): the hypothesis's calibration part moves the right way but not far.
 
 ## Set A
 
