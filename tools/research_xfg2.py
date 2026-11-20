@@ -396,22 +396,43 @@ def rehearse(artifacts=None) -> dict:
     stand_in = sorted(random.Random(SEED).sample(games, REHEARSAL_GAMES))
     parts = fit_dev_arms(frame, [g for g in games if g not in set(stand_in)])
     root = Path(os.environ["DATA_ROOT"])
-    built, held = T.assemble(xfg_tables(root, MemoryGuard()))       # held-out labels blanked; held rows never used
-    del held
+    # the tables cut to the stand-in games, as the research root holds only the test games for the scorer
+    tables = xfg_tables(root, MemoryGuard())                          # held-out labels blanked
+    for name in ("shots", "shot_frames"):
+        tables[name] = tables[name][tables[name]["sportvu_game"].astype(str).isin(set(stand_in))]
+    built, held = T.assemble(tables)
+    del held                                                          # held rows never used
     built = built[built["sportvu_game"].astype(str).isin(set(stand_in))].reset_index(drop=True)
     built = add_new_features(root, built)
     cached = frame[frame["sportvu_game"].astype(str).isin(set(stand_in))].reset_index(drop=True)
-    keys = len(built) == len(cached) and bool(
-        (built[RX.STORED_KEYS].astype(str).to_numpy() == cached[RX.STORED_KEYS].astype(str).to_numpy()).all())
-    same = {c: bool(keys and np.allclose(built[c].to_numpy(float), cached[c].to_numpy(float), equal_nan=True,
-                                         atol=1e-9)) for c in NEW_FEATURES}
+    check = rehearsal_check(built, cached)
+    keys, same = check["rows_match_cache"], check["new_features_match_cache"]
     out = {"what": "rehearsal of the xfg-E2 scorer on 10 development games in place of Set A; not a result",
-           "stand_in_games": len(stand_in), "rows_match_cache": keys, "new_features_match_cache": same,
-           **score_rows(built, parts)}
+           "stand_in_games": len(stand_in), **check, **score_rows(built, parts)}
     (RX.research_dir(artifacts) / "xfg_e2_rehearsal.json").write_text(json.dumps(out, indent=2) + "\n")
     if not keys or not all(same.values()):
         raise SystemExit(f"{WHO}: the scorer's rows or features differ from the development ones: {same}")
     return out
+
+
+def key_tuples(rows) -> list:
+    """(game, event, shooter) of each row as typed values, -1 for a row with no shooter id. The first rehearsal
+    compared the keys as strings: a missing shooter id becomes a float NaN in that array, and NaN never equals NaN,
+    so rows with the same keys were refused (diagnosis on the 10 stand-in games, 2026-11-19)."""
+    import pandas as pd
+    shooter = pd.to_numeric(rows["player_id"]).astype("Int64")
+    return list(zip(rows["sportvu_game"].astype(str), rows["event"].astype(int),
+                    [-1 if pd.isna(v) else int(v) for v in shooter]))
+
+
+def rehearsal_check(built, cached) -> dict:
+    """The rehearsal's exact check: the same rows in the same order (typed keys), and for each new feature the same
+    NaN placement and exactly the same values (no tolerance)."""
+    import numpy as np
+    rows = len(built) == len(cached) and key_tuples(built) == key_tuples(cached)
+    same = {c: bool(rows and np.array_equal(built[c].to_numpy(float), cached[c].to_numpy(float), equal_nan=True))
+            for c in NEW_FEATURES}
+    return {"rows_match_cache": bool(rows), "new_features_match_cache": same}
 
 
 def make_scorer(parts: dict, artifacts=None):

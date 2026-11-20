@@ -107,3 +107,34 @@ def test_the_d121_readings(lo, hi, want):
 def test_the_scorer_refuses_outside_score_once():
     with pytest.raises(SystemExit, match="only inside the scorer"):
         X.make_scorer({}, None)(["g"])
+
+
+def _pair():
+    rows = pd.DataFrame({"sportvu_game": ["g1", "g1", "g2"], "event": [1, 2, 1],
+                         "player_id": pd.array([7, pd.NA, 9], dtype="Int64"),
+                         "second_defender_dist_ft": [5.0, np.nan, 8.0], "contest_angle_deg": [10.0, np.nan, 90.0],
+                         "defender_speed_to_line_ftps": [1.0, np.nan, np.nan]})
+    return rows, rows.copy()
+
+
+def test_the_rehearsal_check_passes_identical_rows_with_a_missing_shooter_id():
+    built, cached = _pair()
+    out = X.rehearsal_check(built, cached)
+    assert out["rows_match_cache"] and all(out["new_features_match_cache"].values())
+
+
+def test_the_rehearsal_check_fails_a_changed_value_and_a_moved_nan():
+    built, cached = _pair()
+    built.loc[0, "contest_angle_deg"] = 10.0 + 1e-12                 # no tolerance
+    out = X.rehearsal_check(built, cached)
+    assert out["rows_match_cache"] and out["new_features_match_cache"]["contest_angle_deg"] is False
+    built, cached = _pair()
+    built.loc[2, "defender_speed_to_line_ftps"] = 3.0                # a NaN replaced by a value
+    assert X.rehearsal_check(built, cached)["new_features_match_cache"]["defender_speed_to_line_ftps"] is False
+
+
+def test_the_rehearsal_check_fails_a_reordered_row():
+    built, cached = _pair()
+    built = built.iloc[[1, 0, 2]].reset_index(drop=True)
+    out = X.rehearsal_check(built, cached)
+    assert out["rows_match_cache"] is False and not any(out["new_features_match_cache"].values())
