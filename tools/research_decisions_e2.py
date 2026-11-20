@@ -268,7 +268,10 @@ def state_rows(frames, possessions, game: str, frame_ids, possession_ids):
     h = np.argmin(d_ball, axis=1)
     n = len(fids)
     hx, hy = pos["ox"][np.arange(n), h], pos["oy"][np.arange(n), h]
-    hdef = np.nanmin(np.hypot(pos["dx"] - hx[:, None], pos["dy"] - hy[:, None]), axis=1)
+    dd = np.hypot(pos["dx"] - hx[:, None], pos["dy"] - hy[:, None])
+    any_def = np.isfinite(dd).any(axis=1)                 # False when the frame is not five on five: the row is not ok
+    hdef = np.full(n, np.nan)
+    hdef[any_def] = np.nanmin(dd[any_def], axis=1)
     ok = pos["ok"] & np.isfinite(bx) & np.isfinite(by) & np.isfinite(bz) & np.isfinite(off)
     out = pd.DataFrame({"sportvu_game": game, "possession": pids, "frame": fids,
                         "period": fli["period"].to_numpy(), "game_clock_s": fli["game_clock_s"].to_numpy(float),
@@ -287,6 +290,8 @@ def state_rows(frames, possessions, game: str, frame_ids, possession_ids):
     out["handler_nearest_def_dist_ft"] = hdef
     out["points_to_end"], out["possession_end_kind"] = 0, "other"        # targets: never read by a feature
     out["ok"] = ok
+    out["not_ok_reason"] = np.where(ok, "", np.where(~pos["ok"], "not five on five",
+                                     np.where(~np.isfinite(off), "no offence", "no ball")))
     return out
 
 
@@ -423,6 +428,8 @@ def game_pass(root: Path, g: str, ev):
         tov = (pinfo["end_kind"].astype(str).to_numpy() == "turnover") & (pinfo["end_frame"].to_numpy() <= dec["frame"].to_numpy() + win)
         dec["drive_kept"] = np.where(dec["decision_kind"].astype(str) == "drive", (~(lost | tov)).astype(float), np.nan)
         dec["state_ok"] = keep
+        dec["not_ok_reason"] = np.where(keep, "", np.where(h < 0, "decision player not on the floor",
+                                                           actual["not_ok_reason"].to_numpy()))
         box.update(dec=dec, cf=cf, att=att, att_counts=att_counts, fps=fps)
 
     bundles = DV.load_root_bundles(root, SEASON, root, games=[g])
@@ -431,15 +438,25 @@ def game_pass(root: Path, g: str, ev):
     DV.stream_bundles(bundles, per_game)
     # the outcome and the builder check, from the stored states (the EPV lane's input)
     stored = pd.read_parquet(root / "analytics" / "states_1hz" / SEASON / f"{g}.parquet")
-    dec = box["dec"]
-    out = []
+    box["dec"]["points_to_end"] = outcomes(box["dec"], stored)
+    return box
+
+
+def outcomes(dec, stored):
+    """Commitment 2: points_to_end of the possession's last stored state at or before the decision frame; NaN when
+    there is none (a possession with no stored state at all, or a decision before its first state), and such a
+    decision is left out of both arms and counted."""
+    import numpy as np
+    out = np.full(len(dec), np.nan)
+    pos = {p: i for i, p in enumerate(dec.index)}
     for p, d in dec.groupby("possession"):
         s = stored[stored["possession"] == p].sort_values("frame")
+        if not len(s):
+            continue
         idx = np.searchsorted(s["frame"].to_numpy(), d["frame"].to_numpy(), side="right") - 1
-        out.append(pd.Series(np.where(idx >= 0, s["points_to_end"].to_numpy(float)[np.clip(idx, 0, None)], np.nan),
-                             index=d.index))
-    dec["points_to_end"] = pd.concat(out).reindex(dec.index) if out else np.nan
-    return box
+        val = np.where(idx >= 0, s["points_to_end"].to_numpy(float)[np.clip(idx, 0, None)], np.nan)
+        out[[pos[i] for i in d.index]] = val
+    return out
 
 
 def builder_check(root: Path, g: str) -> dict:
@@ -491,7 +508,10 @@ def frame_pass(artifacts=None, max_minutes: float = 25.0, log=print) -> dict:
         box["att"].to_parquet(out / f"{g}.attempts.parquet", index=False)
         rec = {"game": g, "decisions": int(len(box["dec"])), "state_rows": int(len(box["cf"])),
                "attempts": int(len(box["att"])), "attempt_counts": box["att_counts"], "fps": box["fps"],
-               "state_ok": int(box["dec"]["state_ok"].sum())}
+               "state_ok": int(box["dec"]["state_ok"].sum()),
+               "not_ok_by_reason": {str(k): int(v) for k, v in
+                                    box["dec"].loc[~box["dec"]["state_ok"], "not_ok_reason"].value_counts().items()},
+               "no_outcome": int(box["dec"]["points_to_end"].isna().sum())}
         if done % 50 == 0:
             rec["builder_check"] = builder_check(root, g)
         (out / f"{g}.json").write_text(json.dumps(_plain(rec)) + "\n")         # written last: the game is done

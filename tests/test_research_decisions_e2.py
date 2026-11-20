@@ -176,3 +176,19 @@ def test_join_events_ignores_the_index():
     ctx = base.assign(sportvu_game="g", heldout=False, x=[1.0, 2.0])
     out = E._join_events(ctx, ev)
     assert list(out["decision_kind"]) == ["drive", "pass"] and list(out["x"]) == [1.0, 2.0]
+
+
+def test_outcomes_without_a_stored_state_are_nan():
+    dec = pd.DataFrame({"possession": [3, 3, 9, 3], "frame": [5, 30, 40, 60]}, index=[10, 11, 12, 13])
+    stored = pd.DataFrame({"possession": [3, 3], "frame": [10, 50], "points_to_end": [2.0, 0.0]})
+    out = E.outcomes(dec, stored)
+    assert np.isnan(out[0]) and out[1] == 2.0 and np.isnan(out[2]) and out[3] == 0.0
+
+
+def test_state_rows_flag_frames_that_are_not_five_on_five(season):
+    g, frames, poss, states = one_game(season)
+    f0 = int(states["frame"].iloc[0])
+    drop = frames.index[(frames["frame"] == f0)][:1]
+    rows = E.state_rows(frames.drop(drop), poss, g, states["frame"][:2], states["possession"][:2])
+    assert not rows["ok"].iloc[0] and rows["not_ok_reason"].iloc[0] == "not five on five"
+    assert np.isnan(rows["handler_nearest_def_dist_ft"].iloc[0]) and rows["ok"].iloc[1]
