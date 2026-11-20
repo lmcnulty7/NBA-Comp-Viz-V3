@@ -1,0 +1,274 @@
+{
+  "experiment": "rebounds-E2",
+  "code_commit": "72c261b91c5d9b67ad0935267f66c152dd878873",
+  "scored": {
+    "experiment": "rebounds-E2",
+    "stage": "fitted on every development game, scored once on the D71 test set as a D127 confirmation with D108's readings",
+    "code_commit": "72c261b91c5d9b67ad0935267f66c152dd878873",
+    "dev_json_sha256": "588f22acf398b14c04819ba5eed3b2f0d27cff8af963d6c10bf88bc4096a617e",
+    "rehearsal_json_sha256": "3da2d8510a3bb474ff32e5cc70d369713c6166e069f0cd54ee1aeca169b71cd1",
+    "build_counts_by_game": {
+      "12.05.2015.BOS.at.SAS": {
+        "n_in": 95,
+        "misses_kept": 77,
+        "rows": 840,
+        "no_rim_frame": 16,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 0,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 2,
+        "team_rebounds_kept": 6,
+        "player_rebounds_kept": 73,
+        "identity_match_null_kept": 1,
+        "identity_match_false_kept": 30,
+        "unmatched_flag_kept": 0
+      },
+      "12.05.2015.CHA.at.CHI": {
+        "n_in": 112,
+        "misses_kept": 92,
+        "rows": 995,
+        "no_rim_frame": 20,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 0,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 0,
+        "team_rebounds_kept": 8,
+        "player_rebounds_kept": 84,
+        "identity_match_null_kept": 0,
+        "identity_match_false_kept": 34,
+        "unmatched_flag_kept": 0
+      },
+      "12.05.2015.CLE.at.MIA": {
+        "n_in": 95,
+        "misses_kept": 85,
+        "rows": 930,
+        "no_rim_frame": 10,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 0,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 0,
+        "team_rebounds_kept": 17,
+        "player_rebounds_kept": 68,
+        "identity_match_null_kept": 1,
+        "identity_match_false_kept": 18,
+        "unmatched_flag_kept": 0
+      },
+      "12.05.2015.DEN.at.PHI": {
+        "n_in": 95,
+        "misses_kept": 83,
+        "rows": 903,
+        "no_rim_frame": 9,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 0,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 3,
+        "team_rebounds_kept": 6,
+        "player_rebounds_kept": 80,
+        "identity_match_null_kept": 1,
+        "identity_match_false_kept": 22,
+        "unmatched_flag_kept": 0
+      },
+      "12.05.2015.GSW.at.TOR": {
+        "n_in": 97,
+        "misses_kept": 87,
+        "rows": 953,
+        "no_rim_frame": 9,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 0,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 1,
+        "team_rebounds_kept": 13,
+        "player_rebounds_kept": 75,
+        "identity_match_null_kept": 1,
+        "identity_match_false_kept": 21,
+        "unmatched_flag_kept": 0
+      },
+      "12.05.2015.IND.at.UTA": {
+        "n_in": 109,
+        "misses_kept": 94,
+        "rows": 1020,
+        "no_rim_frame": 14,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 0,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 1,
+        "team_rebounds_kept": 10,
+        "player_rebounds_kept": 85,
+        "identity_match_null_kept": 2,
+        "identity_match_false_kept": 23,
+        "unmatched_flag_kept": 0
+      },
+      "12.05.2015.NYK.at.MIL": {
+        "n_in": 95,
+        "misses_kept": 81,
+        "rows": 882,
+        "no_rim_frame": 14,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 0,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 0,
+        "team_rebounds_kept": 8,
+        "player_rebounds_kept": 73,
+        "identity_match_null_kept": 2,
+        "identity_match_false_kept": 25,
+        "unmatched_flag_kept": 0
+      },
+      "12.05.2015.ORL.at.LAC": {
+        "n_in": 104,
+        "misses_kept": 86,
+        "rows": 942,
+        "no_rim_frame": 13,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 5,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 0,
+        "team_rebounds_kept": 6,
+        "player_rebounds_kept": 80,
+        "identity_match_null_kept": 2,
+        "identity_match_false_kept": 33,
+        "unmatched_flag_kept": 0
+      },
+      "12.05.2015.POR.at.MIN": {
+        "n_in": 91,
+        "misses_kept": 77,
+        "rows": 840,
+        "no_rim_frame": 14,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 0,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 0,
+        "team_rebounds_kept": 4,
+        "player_rebounds_kept": 73,
+        "identity_match_null_kept": 1,
+        "identity_match_false_kept": 19,
+        "unmatched_flag_kept": 0
+      },
+      "12.05.2015.SAC.at.HOU": {
+        "n_in": 103,
+        "misses_kept": 84,
+        "rows": 913,
+        "no_rim_frame": 18,
+        "no_rebound_event": 0,
+        "unmatched_named_rebounder": 0,
+        "offense_unknown": 0,
+        "rim_frame_not_in_frames": 0,
+        "too_few_players": 0,
+        "rebounder_not_on_court": 1,
+        "team_rebounds_kept": 11,
+        "player_rebounds_kept": 74,
+        "identity_match_null_kept": 1,
+        "identity_match_false_kept": 25,
+        "unmatched_flag_kept": 0
+      }
+    },
+    "misses": 846,
+    "games": 10,
+    "resamples": 2000,
+    "seed": 0,
+    "arms": {
+      "baseline": {
+        "per_miss_log_loss": {
+          "value": 1.6547641691622021,
+          "lo": 1.5931986744033195,
+          "hi": 1.7067693988374506
+        },
+        "top1": {
+          "value": 0.44208037825059104,
+          "lo": 0.40971837320108906,
+          "hi": 0.47426666145181473
+        },
+        "favourite_calibration_slope_point_estimate": 1.437502990502531
+      },
+      "softmax": {
+        "per_miss_log_loss": {
+          "value": 1.6389274280597061,
+          "lo": 1.5849250518922247,
+          "hi": 1.6924376874610203
+        },
+        "top1": {
+          "value": 0.45508274231678486,
+          "lo": 0.4218548350859802,
+          "hi": 0.4903631751887934
+        },
+        "favourite_calibration_slope_point_estimate": 1.1095286728532772
+      },
+      "binary": {
+        "per_miss_log_loss": {
+          "value": 1.6550750651003834,
+          "lo": 1.5953694968691068,
+          "hi": 1.7087560483121986
+        },
+        "top1": {
+          "value": 0.44089834515366433,
+          "lo": 0.4044032444959444,
+          "hi": 0.4781074663617976
+        },
+        "favourite_calibration_slope_point_estimate": 1.4221366445252024
+      }
+    },
+    "paired": {
+      "softmax_minus_baseline": {
+        "value": -0.015836741102496076,
+        "lo": -0.0284428978665853,
+        "hi": -0.0031260062119738744
+      },
+      "binary_minus_baseline": {
+        "value": 0.00031089593818133524,
+        "lo": -0.006283162675580141,
+        "hi": 0.006729749489622175
+      },
+      "softmax_minus_binary": {
+        "value": -0.01614763704067741,
+        "lo": -0.02854280944845625,
+        "hi": -0.002986166852836172
+      }
+    },
+    "candidate_rows": 9218,
+    "t_interval_softmax_minus_baseline_per_game": {
+      "mean_of_game_means": -0.015843088615410377,
+      "lo": -0.031838852622706526,
+      "hi": 0.0001526753918857683,
+      "games": 10
+    },
+    "reading": "confirms"
+  },
+  "setup": {
+    "e1_gate_a": {
+      "rows_mine": 537175,
+      "rows_stored": 537175,
+      "matched": 537175,
+      "only_mine": 0,
+      "only_stored": 0,
+      "fold_mismatches": 0,
+      "max_abs_diff": 2.979989754958723e-08,
+      "tolerance": 5.960464477539063e-08,
+      "per_miss_log_loss": 1.600912138611828,
+      "frozen_log_loss": 1.6009,
+      "passed": true
+    },
+    "projected_set_a": {
+      "random_10_game_sets_half_width": 0.013754114185755645,
+      "dev_half_width_scaled": 0.01357199536186733,
+      "development_games": 604
+    },
+    "rule": "D127 with D108's readings: confirms if the 95 percent interval of softmax minus baseline lies wholly below 0, inconclusive at 10 games if it straddles 0, contradiction if wholly above 0 (stops the adoption); the t interval on the per-game means beside it, report only"
+  }
+}
