@@ -2,7 +2,8 @@
 (docs/research/rebounds.md, "rebounds-E2"; PLAN.md D124).
 
 Written before any data is read (D124): the objective, its guards, the binary ablation and the development statistic,
-tested on synthetic candidate frames only. Nothing here runs on DATA_ROOT yet. rebounds-E2 runs only after rebounds-E1
+tested on synthetic candidate frames only. The only data read so far is the Set A feasibility check (e2-feasibility),
+on the frozen stored out-of-fold predictions of the development games, before any E2 number. rebounds-E2 runs only after rebounds-E1
 decides, because E2's baseline is the E1 model if E1 is adopted, else the frozen hgb with its single tau (both fixed in
 the pre-registration). The baseline's out-of-fold predictions will come from rebounds-E1's frozen refit and gate, reused,
 not rewritten; until then the baseline is a parameter (baseline_fit) and the tests use the frozen candidate as a
@@ -26,6 +27,8 @@ Development statistic (pre-registered): out-of-fold per-miss log loss under 5 gr
 difference softmax minus baseline with a bootstrap by game, 2000 resamples, 95 percent interval; adoption at most
 -0.010 with the interval excluding 0. Top-1 and the favourite's calibration slope are reported.
 """
+
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -301,3 +304,67 @@ def verdict(d: dict) -> dict:
     return {"difference": d["value"], "lo": d["lo"], "hi": d["hi"], "threshold": THRESHOLD,
             "size_at_most_threshold": bool(size), "interval_excludes_zero": bool(excl), "met": adopt,
             "reading": reading}
+
+
+# ----------------------------------------------------------------------------- Set A feasibility (no E2 number)
+
+def feasibility(root, n: int = BOOT, seed: int = SEED, test_games: int = 10, set_a_misses: int = 820) -> dict:
+    """Before any E2 number: how wide would a paired difference of two whole models be on Set A? Read from the frozen
+    stored out-of-fold predictions of the development games (analytics/rebounds/<season>/<game>.parquet, fold >= 0;
+    the rows rebounds-E1's feasibility used), with the frozen logit and the frozen hgb (p_selected) as two different
+    models of the same misses: a proxy for a model replacement, which E2 is. Reports the per-miss SD of their
+    per-miss log loss difference, the half-width of that difference over random 10-game sets of development games,
+    the development half-width (bootstrap of all games), and the SD-based projection at about 820 Set A misses."""
+    import glob
+    from analytics.eval import EPS
+    from tools.research_testset import refuse_test
+    files = sorted(glob.glob(str(Path(root) / "analytics" / "rebounds" / "2015-16" / "*.parquet")))
+    cols = ["sportvu_game", "event", "candidate_player_id", "p_logit", "p_selected", "is_rebounder", "fold", "heldout"]
+    d = pd.concat([pd.read_parquet(f, columns=cols) for f in files], ignore_index=True)
+    d = d[(d["fold"] >= 0) & ~d["heldout"].astype(bool)]
+    refuse_test(d["sportvu_game"].astype(str).unique(), WHO)
+    true = d[d["is_rebounder"].astype(bool)]
+    if true.duplicated(["sportvu_game", "event"]).any():
+        raise ValueError(f"{WHO}: a miss has two rebounder rows in the stored predictions")
+    diff = (np.log(np.clip(true["p_selected"].to_numpy(float), EPS, 1)) -
+            np.log(np.clip(true["p_logit"].to_numpy(float), EPS, 1)))      # logit loss minus hgb loss, per miss
+    games = true["sportvu_game"].astype(str).to_numpy()
+    codes, uniq = pd.factorize(games, sort=True)
+    G = len(uniq)
+    cnt = np.bincount(codes, minlength=G).astype(float)
+    s = np.bincount(codes, weights=diff, minlength=G)
+    rng = np.random.default_rng(seed)
+    sets = [s[c].sum() / cnt[c].sum() for c in (rng.choice(G, size=test_games, replace=False) for _ in range(n))]
+    lo, hi = np.percentile(sets, [2.5, 97.5])
+    idx = rng.integers(0, G, size=(n, G))
+    blo, bhi = np.percentile(s[idx].sum(axis=1) / cnt[idx].sum(axis=1), [2.5, 97.5])
+    sd = float(np.std(diff, ddof=1))
+    se_iid = sd / np.sqrt(set_a_misses)
+    return {"proxy": "frozen logit minus frozen hgb (p_selected), per-miss log loss, stored out-of-fold rows",
+            "games": int(G), "misses": int(len(diff)), "mean_difference": float(diff.mean()),
+            "per_miss_sd_of_difference": sd,
+            "random_10_game_sets_half_width": float((hi - lo) / 2),
+            "development_half_width": float((bhi - blo) / 2),
+            "set_a_misses_assumed": set_a_misses,
+            "set_a_half_width_iid": float(1.96 * se_iid),
+            "threshold": THRESHOLD}
+
+
+def main(argv=None) -> int:
+    import argparse
+    import json
+    import os
+    from export.heavy import heavy_job
+    from tools.frozen_common import _plain
+    ap = argparse.ArgumentParser(prog=WHO)
+    ap.add_argument("command", choices=("e2-feasibility",))
+    a = ap.parse_args(argv)
+    with heavy_job("research rebounds e2-feasibility"):
+        out = feasibility(Path(os.environ["DATA_ROOT"]))
+    print(json.dumps(_plain(out), indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

@@ -149,9 +149,12 @@ def test_verdict_readings():
     assert "worse" in E.verdict({"value": 0.02, "lo": 0.01, "hi": 0.03})["reading"]
 
 
-def test_the_module_reads_no_data_and_scores_nothing_yet():
-    text = (REPO / "tools" / "research_rebounds_e2.py").read_text()
-    calls = {getattr(n.func, "attr", getattr(n.func, "id", None)) for n in ast.walk(ast.parse(text))
-             if isinstance(n, ast.Call)}
-    assert not calls & {"score_once", "scoring_data_root", "research_data_root", "read_parquet", "heavy_job"}
-    assert "DATA_ROOT" not in text.replace("Nothing here runs on DATA_ROOT yet", "")
+def test_the_module_reads_data_only_in_the_feasibility_check_and_never_test_data():
+    tree = ast.parse((REPO / "tools" / "research_rebounds_e2.py").read_text())
+    calls = {getattr(n.func, "attr", getattr(n.func, "id", None)) for n in ast.walk(tree) if isinstance(n, ast.Call)}
+    assert not calls & {"score_once", "scoring_data_root", "research_data_root"}
+    feas = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "feasibility")
+    inside = {id(c) for c in ast.walk(feas)}
+    reads = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and getattr(n.func, "attr", None) == "read_parquet"]
+    assert reads and all(id(n) in inside for n in reads)
+    assert "refuse_test(" in ast.unparse(feas) and "fold" in ast.unparse(feas)
