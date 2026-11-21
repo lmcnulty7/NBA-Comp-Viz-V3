@@ -151,12 +151,17 @@ def frames_of(section: Path) -> list[Path]:
 
 
 def ocr_dir(d: Path) -> dict:
-    """Worker (V3_CV_PYTHON): easyocr on the bands of every jpg in d -> {jpg name: [texts]}, written to tokens.json."""
+    """Worker (V3_CV_PYTHON): easyocr on the bands of every jpg in d -> {jpg name: [texts]}, written to tokens.json.
+    A jpg already read in an earlier call keeps its tokens (same file, same reader), so a retry reads only new frames."""
     import cv2
+    tok = Path(d) / "tokens.json"
+    out = json.loads(tok.read_text()) if tok.exists() else {}
+    todo = [j for j in sorted(Path(d).glob("*_f*.jpg")) if j.name not in out]
+    if not todo:
+        return out
     import easyocr
     reader = easyocr.Reader(["en"], gpu=False, verbose=False)
-    out = {}
-    for jpg in sorted(Path(d).glob("*_f*.jpg")):
+    for jpg in todo:
         img = cv2.imread(str(jpg))
         if img is None:
             continue
