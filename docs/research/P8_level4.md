@@ -1,8 +1,10 @@
 # P8 Level 4: what truth exists for current seasons
 
 Written 2026-11-21 and 2026-11-22 under PLAN.md D137 (continue toward Level 4 of `docs/research/TRACKING_LEVELS.md`)
-and D128's constraints. Measurement only: no training, no hand labelling, no League Pass, no video downloaded. Every
-number below was read from output produced in this work; every quote was fetched at its source on the date given.
+and D128's constraints. Measurement only: no training, no hand labelling, no League Pass. Sections 1 to 5 downloaded
+no video; sections 6 to 9 (second pass, the lead's decisions after the first) downloaded identity sections only
+(8-second pieces). Every number below was read from output produced in this work; every quote was fetched at its
+source on the date given.
 
 Level 4 (TRACKING_LEVELS.md) asks for current-season broadcasts and a check of the pipeline against partial truth:
 "the public shot coordinates against where the pipeline puts the shooter at the shot, and play-by-play consistency".
@@ -211,7 +213,7 @@ play-by-play account or depiction", is for Lucien to decide, not settled here.
    0.84 to 0.91 ft), with SkillCorner's own predError beside it; team assignment; jersey identity against
    SkillCorner's `jersey` and `playerId`; shooter position at release against `shots.location`. Ball checks are
    weak: the ball detection flag is always 0 and SkillCorner warns its ball calibration is weaker. Needed first: a
-   FIBA court model in the pipeline (court size and markings read from the FIBA rules, not checked here) and a
+   FIBA court model in the pipeline (court size and markings from the FIBA rules: section 7) and a
    clock alignment of the video to SkillCorner's `gameClock` and `period` (the `wallClock` origin is SkillCorner's
    video, not ours).
    - Full game: only 179612 has a candidate (720p).
@@ -234,3 +236,137 @@ play-by-play account or depiction", is for Lucien to decide, not settled here.
   itself waits on 2025-26 NBA footage, not yet searched.
 - Overall: a Level 4 check is feasible on ACB first (truth and one full video exist now); the NBA check has truth
   but no footage.
+
+## 6. ACB identity check (second pass)
+
+Rule (the lead's adaptation of D130 and D135, fixed before the run): three 8-second sections at 25, 50 and 75
+percent of the video, one retry 90 s later per moment, frames at 1 per second, easyocr on the bottom quarter and the
+top sixth; a frame matches a game when a period, a game clock and both scores equal SkillCorner's state at that
+clock (2 s slack, either team order); a moment needs 2 matching frames; confirmed only when all 3 moments match one
+SkillCorner game and no other of the 10. Code: `tools/p8_acb_identity.py`, which imports tools.p8_identity's
+download, frame, OCR, parsing, matching and verdict functions. SkillCorner's state is built from its `shots` (made,
+2 or 3 points) and `free_throws` (made, 1 point) by `offTeamId`; the rebuilt final score equals the official score
+in 10 of 10 games (`python3 -m tools.p8_acb_identity scores`: 78 to 112 scoring events per game).
+
+One change to reading, not to the rule. The ACB scorebug prints the game clock and the shot clock together, and
+easyocr read it as "09.40/24", "09.40124" or "08.4524"; tools.p8_identity's clock forms read none of these. A second
+reading (`parse_acb`: minutes up to 10, FIBA Article 8.1, then seconds, then up to 3 characters of shot clock) was
+written after the first run on 00k9_ueP2bY showed this, so it is not evidence by itself; every record keeps both
+readings ("unchanged" and "acb_clock") and the verdict is reported for each. Records: `acb_identity.json` in each
+video's identity folder of the P8 workspace.
+
+| Video | Moment | Sections (s) | Frames with a clock, unchanged / acb_clock | Games matched, unchanged | Games matched, acb_clock |
+|---|---|---|---|---|---|
+| 00k9_ueP2bY (179612 candidate, 7,454 s) | 25% | 1863 | 0 / 8 | none | 179612 |
+| | 50% | 3727, 3817 | 0 / 0, 0 / 0 | none | none |
+| | 75% | 5590, 5680 | 0 / 0, 8 / 8 | 114099, 179612, 184439 | 114099, 179612, 184439 |
+| lefFmF2gEvA (188630 stream, 8,813 s) | 25% | 2203, 2293 | 0 / 0, 0 / 0 | none | none |
+| | 50% | 4406, 4496 | 6 / 6, 3 / 3 | none | none |
+| | 75% | 6609, 6699 | 1 / 1, 8 / 8 | none | none |
+
+- 00k9_ueP2bY: **rejected** under both readings. At 25 percent the OCR read "Unicaja 23 27 Valencia Basket 2
+  09.40/24": SkillCorner's score for 179612 in period 2 at 9:40 is home 23, away 27, and only 179612 matched under
+  the acb_clock reading. The 50 percent moment fell in half-time: neither section nor its retry 90 s later shows a
+  scorebug (the OCR text is advertising). FIBA's half-time interval is 15 minutes ("There shall be a half-time
+  interval of play of 15 minutes", Official Basketball Rules 2026 v1.1, Article 8.4), so a single 90 s retry cannot
+  leave it. At 75 percent the OCR read "Unicaja 68 76 Valencia Basket 4 09.16 24" (SkillCorner, period 4 at 9:16:
+  home 68, away 76), but small numbers on screen (the period digit, team fouls) also matched 114099 and 184439 at
+  other periods. The rule as written cannot confirm a FIBA broadcast whose 50 percent point falls in half-time; a
+  half-time retry rule is the lead's decision.
+- lefFmF2gEvA: **rejected** under both readings; every frame's OCR is live-chat text and stream counters, and the
+  clocks read are chat timestamps. One frame (6609 s, first frame) was looked at to answer whether the stream holds
+  the broadcast picture, not to decide identity: it shows two webcam windows, a chat panel and a stream scoreboard
+  ("BAR 61-41 DGC", "3C 02:56"), and no broadcast picture.
+
+## 7. FIBA court against the pipeline's court model
+
+Source: FIBA Official Basketball Rules 2026, v1.1, "Valid as of 1st October 2026" (assets.fiba.basketball, fetched
+2026-11-22). The 2024 edition that governed the 2025-26 season was not found at FIBA's site (its old URL returns
+404). FIBA's own list of 2026 changes ("THE FIBA OFFICIAL BASKETBALL RULES CHANGES, VALID AS OF 1 OCTOBER 2026",
+v1.1) changes Article 2 only in line colours ("Increased flexibility in line colours"), so the dimensions below are
+read as unchanged from 2024; that reading rests on the changes list, not on the 2024 text.
+
+Quoted from Article 2: "dimensions of 28 m in length by 15 m in width measured from the inner edge of the boundary
+line"; the centre circle "radius of 1.80 m"; the free-throw line "furthest edge 5.80 m from the inner edge of the
+endline and shall be 3.60 m long"; restricted-area lines "their outer edges being 2.45 m from the mid-point of the
+endlines"; the 3-point line "2 parallel lines ... with the outer edge 0.90 m from the inner edge of the sidelines"
+and "An arc of radius 6.75 m measured from the point on the court beneath the exact centre of the opponents' basket
+... The distance of the point on the court from the inner edge of the mid-point of the endline is 1.575 m"; the
+no-charge semi-circle "radius of 1.30 m". Article 8.1: "4 quarters of 10 minutes each".
+
+| Quantity | FIBA (m) | FIBA (ft) | NBA in `court/geometry.py` and `court/court33.py` (ft) |
+|---|---|---|---|
+| Court length by width | 28 by 15 | 91.86 by 49.21 | 94 by 50 |
+| Basket centre from endline | 1.575 | 5.17 | 5.25 |
+| 3-point arc radius | 6.75 | 22.15 | 23.75 |
+| Corner 3-point line from sideline | 0.90 | 2.95 | 3 (corner line at 22 ft from the axis) |
+| Arc meets corner line, from endline | 2.99 (computed) | 9.81 | 13.92 (court33 vertices 7, 8, 24, 25) |
+| Top of the arc from endline | 8.325 (computed) | 27.31 | 29.01 (court33 vertices 13, 19) |
+| Free-throw line from endline | 5.80 | 19.03 | 19 |
+| Restricted area (lane) width | 4.90 | 16.08 | 16 |
+| Centre circle radius | 1.80 | 5.91 | 6 |
+
+SkillCorner's coordinates follow the FIBA court: in game 179612, putting the basket at x = -40.76 ft (half of 28 m
+less 1.575 m) gives a median gap of 0.011 ft (90th percentile 0.014 ft, 143 shots) between the shooter's distance
+to it and the shot's `distance`; at the NBA's -41.75 ft the median gap is 0.748 ft. Detected players' |x| has a 99th
+percentile of 44.85 ft (FIBA half length 45.93 ft).
+
+What the pipeline's court model would need (nothing changed here):
+
+1. A FIBA vertex table beside `court/court33.py`'s `COURT_VERTICES_33` (NBA feet, from roboflow/sports' NBA court
+   configuration), in the same index order, with every vertex recomputed from Article 2: corners, lane corners,
+   free-throw line, basket centres, 3-point straight ends and arc top. Vertices 12, 14, 18 and 20 ("3pt extent" on
+   the sidelines) are not defined in court33.py beyond that comment; their FIBA counterparts need the source
+   configuration checked first.
+2. `COURT_LENGTH_FT` and `COURT_WIDTH_FT` (94 and 50) wherever they bound or draw positions (for example
+   `build_trajectories.py` imports them), as 91.86 and 49.21 for ACB games.
+3. The court keypoint detector was trained on NBA courts; whether it finds the same 33 points on ACB floors (the
+   lines have the same pattern, at other distances, and ACB floors carry other paint and advertising) is untested.
+4. A transform from the pipeline's corner-origin feet to SkillCorner's centre-origin feet (x minus 45.93, y minus
+   24.61), and SkillCorner's convention that the offensive hoop of an event is at negative x.
+
+## 8. 2025-26 NBA broadcasts (metadata only)
+
+Code: `tools/p8_nba2526_search.py`; output in the P8 workspace (`level4/nba2526/`). Games: the 1,230 regular-season
+and 85 playoff games of the shot-chart mirror. Classes and matching rules are in the tool's docstring, fixed before
+any listing was read, with two later additions stated there: a channel with any 2K or simulation title is rejected
+whole (one channel posted NBA 2K26 games as "NBA LIVE: ... | NBA Regular Season", some titles without "2K"), and
+one-quarter uploads became their own class after a channel listing showed games posted a quarter at a time.
+
+Sources read: full upload lists of 8 YouTube channels (the league's channel, newest 6,000 uploads, the oldest a
+game of 2025-03-23; 7 others found by search, 50 to 3,000 uploads each, the 3,000 a cap); YouTube searches for a seeded random sample of 200
+games (186 regular season, 14 playoff); 5 Bilibili searches (1 failed with HTTP 412). 1,614 videos named one game
+and had a class.
+
+| Class | Regular season games (of 1,230) | Playoff games (of 85) | Source |
+|---|---|---|---|
+| Full game, any height | 12 | 14 | 6 YouTube channels and 2 Bilibili uploaders; 18 of the games from one channel |
+| Full game, probed at 720p or more | 12 | 13 | every full-game candidate probed; the 2 Bilibili items failed to probe |
+| League "EXTENDED ... FULL GAME HIGHLIGHTS" | 162 | 78 | the league's channel; 20 sampled: all 1080p, 1,459 to 3,825 s |
+| League "FULL GAME HIGHLIGHTS" | 1,207 | 80 | the league's channel |
+| One quarter uploaded alone | 1 | 15 | 2 YouTube channels; 8 playoff games with all 4 quarter labels |
+
+Full games per team (regular season, usable): LAL 4; GSW, MIA, NOP, TOR 2; ATL, BOS, CHA, CLE, DAL, MIN, NYK,
+OKC, ORL, SAC, UTA, WAS 1; the other 13 teams 0. Playoffs (usable): HOU and LAL 3; ATL, BOS, DET, NYK, ORL, PHI 2;
+CLE, DEN, MIN, OKC, PHX, POR, SAS, TOR 1. League extended highlights per team range from 2 (WAS) to 20 (NYK) in the
+regular season.
+
+In the 200-game search sample, 6 games had a full-game upload, 40 an extended one and 196 the league's highlights.
+The full-game uploads are third-party; 20 of the 25 probed run 2,424 to 4,317 s, shorter than a broadcast with
+breaks, so many are cut; none is identity-checked. An NBA identity check would use the mirror's `cdnnba_2025` play-by-play
+(`scoreHome`, `scoreAway`, `clock`, `period` on every action) in place of SkillCorner's state.
+
+## 9. Go or no-go, second pass
+
+- ACB against SkillCorner: still **go** as partial truth, but no ACB video is confirmed. 00k9_ueP2bY is rejected
+  by the rule as written (half-time at its 50 percent point), although the acb_clock reading matches 179612 alone
+  at 25 percent and 179612 among 3 at 75 percent. Decisions for the lead: whether the acb_clock reading stands
+  (proposed check: ACB's own highlight videos, games in and out of the 10), and a half-time retry rule for FIBA
+  footage. lefFmF2gEvA holds no broadcast picture and is out.
+- FIBA court: the dimensions are settled at the source; the court model needs a FIBA vertex table and bounds, and
+  the keypoint detector's transfer to ACB floors is untested.
+- NBA 2025-26: the shot truth covers every game, but public full broadcasts exist for 25 games found at 720p or
+  more (12 regular season, 13 playoff), all third-party uploads. The league's own extended highlights (240 games;
+  the 20 sampled are 1080p and 24 to 64 minutes long) and highlights (1,287 games) are the broad public footage: a shot-location check
+  on them is a sampled-possession check (TRACKING_LEVELS.md Level 4 gate), with shots matched by period and clock.
+
