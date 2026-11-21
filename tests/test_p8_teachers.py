@@ -167,3 +167,33 @@ def test_teachers_record_a_license_and_run_without_a_fit():
     src = (T.REPO / "tools" / "p8_teachers.py").read_text()
     for word in (".train(", ".fit(", "optimizer.step"):
         assert word not in src
+
+
+# ── D131 source 2: misses on camera-truth frames ───────────────────────────────────────────────────────────────────
+def test_miss_constants_follow_the_frozen_rule_and_the_qualified_threshold():
+    from sportvu.autolabel import CONFIRM_FT
+    assert T.CONFIRM_FT == CONFIRM_FT == 2.5
+    assert T.MISS_TEACHER in T.TEACHERS and T.MISS_TEACHER_CONF == 0.1471
+
+
+def test_stratified_pick_takes_one_per_stratum_in_time_order_and_is_seeded():
+    p = T.stratified_pick(1000, 10)
+    assert p == T.stratified_pick(1000, 10) and len(p) == 10
+    assert all(100 * k <= x < 100 * (k + 1) for k, x in enumerate(p))
+    assert T.stratified_pick(5, 10) == [0, 1, 2, 3, 4]
+
+
+def test_feet_and_targets_through_a_homography():
+    H = np.diag([0.1, 0.1, 1.0])                     # px -> ft: 10 px a foot
+    assert T.feet_ft([[0, 0, 20, 50]], H).tolist() == [[1.0, 5.0]]
+    sv = np.array([[1.0, 5.0], [200.0, 5.0], [-1.0, 5.0]])
+    assert T.targets_in_frame(sv, H, 1280, 720).tolist() == [[1.0, 5.0]]
+
+
+def test_found_targets_is_one_to_one_within_the_gate():
+    targets = np.array([[0.0, 0.0], [10.0, 0.0], [20.0, 0.0]])
+    feet = np.array([[0.5, 0.0], [0.6, 0.0], [12.6, 0.0]])
+    # two feet near target 0: only one can take it; the foot 2.6 ft from target 1 is outside the gate
+    assert T.found_targets(feet, targets) == {0}
+    assert T.found_targets(np.array([[0.5, 0.0], [10.0, 2.4]]), targets) == {0, 1}
+    assert T.found_targets(np.zeros((0, 2)), targets) == set()

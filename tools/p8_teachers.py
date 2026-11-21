@@ -649,6 +649,177 @@ def cmd_score(args) -> dict:
     return result
 
 
+# ── D131 source 2: misses on camera-truth frames (lead follow-up, 2026-11-21) ────────────────────────────────────────
+# On the development games with camera truth in the P8 workspace, frames sampled by time (one at random in each of
+# MISS_N equal strata of the game's accepted frames in time order, as build_label_corpus.py samples: by time, never by
+# a model's opinion). In each frame the SportVU players whose truth-projected feet fall inside the image are the
+# targets. A box's foot is its bottom centre, sent to the court through H_truth. Our detector (player boxes, conf
+# 0.40, CPU) finds a target when a Hungarian match puts one of its feet within CONFIRM_FT (2.5 ft, frozen
+# sportvu/autolabel.py) of it; the others are misses. The teacher (YOLOX-X SportsMOT at its qualified threshold) is
+# matched the same way on its own; a miss it matches is recovered: the pseudo-labels D131's second source can add.
+MISS_GAMES = ("gsw_bkn_2015", "gsw_ind_2016")      # gsw_ind_2016 is reported apart (D98: Mac camera truth is weak)
+MISS_N = 400
+MISS_TEACHER = "yolox_x_sportsmot"
+MISS_TEACHER_CONF = 0.1471                          # its matched-precision threshold on the box truth (merged e9dea3d3)
+CONFIRM_FT = 2.5                                    # sportvu.autolabel.CONFIRM_FT (tests assert they agree)
+
+
+def work_root() -> Path:
+    from tools.p8_common import p8_root
+    return p8_root()
+
+
+def stratified_pick(n_items: int, n: int, seed: int = SEED) -> list:
+    """One index at random in each of n equal strata of range(n_items) (all of them when n >= n_items)."""
+    import random
+    if n >= n_items:
+        return list(range(n_items))
+    rng = random.Random(seed)
+    edges = [round(k * n_items / n) for k in range(n + 1)]
+    return [rng.randrange(edges[k], edges[k + 1]) for k in range(n)]
+
+
+def cmd_misses_plan(args) -> dict:
+    from tools.p8_common import guard, r13_games
+    wr = work_root()
+    games = r13_games()
+    plan = {"games": {}, "frames": []}
+    for tag in MISS_GAMES:
+        res = json.loads((wr / "labels" / f"{tag}_result.json").read_text())
+        rows = []
+        for f in sorted((wr / "labels" / tag).glob("*.jsonl")):
+            rows += [json.loads(line) for line in f.read_text().splitlines() if line.strip()]
+        rows.sort(key=lambda r: (r["section"], r["section_frame"]))
+        guard([tag, res["sportvu"], games[tag]["video_id"]] + sorted({r["window"] for r in rows}), WHO,
+              homes=[res["home"]])
+        pick = stratified_pick(len(rows), MISS_N)
+        plan["games"][tag] = {"sportvu": res["sportvu"], "mirror": res["mirror"], "accepted": len(rows),
+                              "sampled": len(pick)}
+        plan["frames"] += [{k: rows[i][k] for k in ("game", "window", "frame", "section", "section_frame", "q",
+                                                      "moment", "H_truth")} for i in pick]
+    ws = workspace()
+    ws.mkdir(parents=True, exist_ok=True)
+    (ws / "misses_plan.json").write_text(json.dumps(plan))
+    print(json.dumps(plan["games"], indent=1))
+    return plan
+
+
+def cmd_misses_run(args) -> dict:
+    import cv2
+    sys.path.insert(0, str(REPO))
+    from videoseq import SeqReader
+    if os.environ.get("V3_HEAVY_HELD") is None:
+        raise SystemExit(f"{WHO}: run inside the heavy-job lock (python3 -m export.heavy --name ... -- ...)")
+    ws, wr = workspace(), work_root()
+    plan = json.loads((ws / "misses_plan.json").read_text())
+    frames = [f for f in plan["frames"] if f["game"] == args.game]
+    t0 = time.time()
+    detect, versions = load_runner(args.model, ws, args.device)
+    t_load = time.time() - t0
+    preds, t1 = {}, time.time()
+    by_win = {}
+    for f in frames:
+        by_win.setdefault(f["window"], []).append(f["frame"])
+    for win, frs in sorted(by_win.items()):
+        sr = SeqReader(cv2.VideoCapture(str(wr / "label_build" / f"{win}.mp4")))
+        for fr in sorted(frs):
+            ok, img = sr.read(fr)
+            if not ok:
+                raise SystemExit(f"{WHO}: cannot read {win} frame {fr}")
+            preds[f"{win}:{fr}"] = [[round(v, 2) for v in p[:4]] + [round(p[4], 5), p[5]] for p in detect(img)]
+            preds.setdefault("_size", [int(img.shape[1]), int(img.shape[0])])
+    t_inf = time.time() - t1
+    out = {"model": args.model, "game": args.game, "device": args.device, "versions": versions,
+           "frames_n": len(preds) - 1, "seconds_load": round(t_load, 1), "seconds_inference": round(t_inf, 1),
+           "seconds_per_frame": round(t_inf / max(1, len(preds) - 1), 3), "preds": preds}
+    (ws / "misses").mkdir(exist_ok=True)
+    (ws / "misses" / f"{args.game}_{args.model}.json").write_text(json.dumps(out))
+    print(json.dumps({k: v for k, v in out.items() if k != "preds"}, indent=1))
+    return out
+
+
+def feet_ft(boxes, H_truth):
+    """Bottom centres of [x1, y1, x2, y2, ...] boxes, sent through H_truth (px -> ft)."""
+    import cv2
+    import numpy as np
+    if not boxes:
+        return np.zeros((0, 2))
+    px = np.array([[(b[0] + b[2]) / 2.0, b[3]] for b in boxes], np.float64).reshape(-1, 1, 2)
+    return cv2.perspectiveTransform(px, np.asarray(H_truth, np.float64).reshape(3, 3)).reshape(-1, 2)
+
+
+def found_targets(feet, targets, gate: float = CONFIRM_FT) -> set:
+    """Target indices a Hungarian match of feet to targets puts within gate (the frozen sportvu.truth._match rule)."""
+    import numpy as np
+    from scipy.optimize import linear_sum_assignment
+    if len(feet) == 0 or len(targets) == 0:
+        return set()
+    D = np.sqrt(((np.asarray(feet)[:, None, :] - np.asarray(targets)[None, :, :]) ** 2).sum(-1))
+    ri, ci = linear_sum_assignment(D)
+    return {int(j) for i, j in zip(ri, ci) if D[i, j] <= gate}
+
+
+def targets_in_frame(sv_xy, H_truth, w: int, h: int):
+    """SportVU positions (ft, already mirrored) whose projection through inv(H_truth) lies inside the image."""
+    import cv2
+    import numpy as np
+    P = np.linalg.inv(np.asarray(H_truth, np.float64).reshape(3, 3))
+    px = cv2.perspectiveTransform(np.asarray(sv_xy, np.float64).reshape(-1, 1, 2), P).reshape(-1, 2)
+    keep = np.isfinite(px).all(1) & (px[:, 0] >= 0) & (px[:, 0] < w) & (px[:, 1] >= 0) & (px[:, 1] < h)
+    return np.asarray(sv_xy, np.float64)[keep]
+
+
+def cmd_misses_score(args) -> dict:
+    import numpy as np
+    from sportvu.sync import MIRRORS, SportVUIndex, apply_mirror
+    ws, wr = workspace(), work_root()
+    plan = json.loads((ws / "misses_plan.json").read_text())
+    out = {"rule": {"confirm_ft": CONFIRM_FT, "teacher": MISS_TEACHER, "teacher_conf": MISS_TEACHER_CONF,
+                    "ours_conf": DET_CONF, "ours_classes": ["player"], "sampled_per_game": MISS_N, "seed": SEED},
+           "games": {}}
+    for tag, g in plan["games"].items():
+        mom = json.loads((wr / "sportvu" / f"{g['sportvu']}_moments.json").read_text())
+        index = SportVUIndex(mom["moments"])
+        fx, fy = MIRRORS[g["mirror"]]
+        ours = json.loads((ws / "misses" / f"{tag}_{OURS}.json").read_text())
+        tea = json.loads((ws / "misses" / f"{tag}_{MISS_TEACHER}.json").read_text())
+        w, h = ours["preds"]["_size"]
+        per = []
+        for f in (x for x in plan["frames"] if x["game"] == tag):
+            key = f"{f['window']}:{f['frame']}"
+            sv = apply_mirror(index.q[f["q"]]["xy"][f["moment"]], fx, fy)
+            tg = targets_in_frame(sv, f["H_truth"], w, h)
+            d = [p for p in ours["preds"][key] if p[5] == "player"]
+            t = [p for p in tea["preds"][key] if p[4] >= MISS_TEACHER_CONF]
+            hit_d = found_targets(feet_ft(d, f["H_truth"]), tg)
+            hit_t = found_targets(feet_ft(t, f["H_truth"]), tg)
+            miss = set(range(len(tg))) - hit_d
+            per.append((len(tg), len(miss), len(miss & hit_t), len(hit_t), len(d), len(t)))
+        a = np.array(per, float)
+        n_in, n_miss, n_rec, n_hit_t = a[:, 0].sum(), a[:, 1].sum(), a[:, 2].sum(), a[:, 3].sum()
+        rng = np.random.default_rng(SEED)
+        boot = {"miss_share": [], "recovered_share": []}
+        for _ in range(B):
+            s = a[rng.integers(0, len(a), len(a))]
+            boot["miss_share"].append(s[:, 1].sum() / s[:, 0].sum())
+            if s[:, 1].sum():
+                boot["recovered_share"].append(s[:, 2].sum() / s[:, 1].sum())
+        out["games"][tag] = {
+            "accepted_frames": g["accepted"], "sampled_frames": len(per), "players_in_frame": int(n_in),
+            "ours_found": int(n_in - n_miss), "ours_missed": int(n_miss),
+            "ours_miss_share": n_miss / n_in, "ours_miss_share_interval": percentile_interval(boot["miss_share"]),
+            "teacher_found": int(n_hit_t), "teacher_miss_share": 1 - n_hit_t / n_in,
+            "recovered_by_teacher": int(n_rec), "recovered_share_of_misses": n_rec / n_miss if n_miss else None,
+            "recovered_share_interval": percentile_interval(boot["recovered_share"]),
+            "recovered_per_frame": n_rec / len(per),
+            "ours_boxes": int(a[:, 4].sum()), "teacher_boxes": int(a[:, 5].sum()),
+            "seconds": {"ours": ours["seconds_inference"], "teacher": tea["seconds_inference"]},
+            "device": {"ours": ours["device"], "teacher": tea["device"]}}
+    (ws / "misses_results.json").write_text(json.dumps(out, indent=1))
+    print(json.dumps(out, indent=1))
+    return out
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_teachers", description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -657,8 +828,15 @@ def main(argv=None) -> None:
     r.add_argument("--model", required=True, choices=[OURS, *TEACHERS])
     r.add_argument("--device", default="cpu")
     sub.add_parser("score", help="every number of the report, from the stored predictions")
+    sub.add_parser("misses-plan", help="guard and sample the camera-truth frames of the development games")
+    m = sub.add_parser("misses-run", help="one model on one game's sampled frames (teacher venv, inside the lock)")
+    m.add_argument("--model", required=True, choices=[OURS, MISS_TEACHER])
+    m.add_argument("--game", required=True, choices=list(MISS_GAMES))
+    m.add_argument("--device", default="cpu")
+    sub.add_parser("misses-score", help="misses of our detector and the teacher's recoveries, per game")
     args = ap.parse_args(argv)
-    {"frames": cmd_frames, "run": cmd_run, "score": cmd_score}[args.cmd](args)
+    {"frames": cmd_frames, "run": cmd_run, "score": cmd_score, "misses-plan": cmd_misses_plan,
+     "misses-run": cmd_misses_run, "misses-score": cmd_misses_score}[args.cmd](args)
 
 
 if __name__ == "__main__":
