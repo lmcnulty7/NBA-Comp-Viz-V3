@@ -227,6 +227,8 @@ def check(source: str, vid: str, duration: float, candidates: list[str], record:
                 hits = moment_games(frames, events)
         moments.append({"moment": frac, "games": hits, "frames": len(frames)})
     v = verdict([m["games"] for m in moments], candidates)
+    if not any(m["frames"] for m in moments):        # nothing downloaded (e.g. Bilibili without a login): not checked
+        v = {"status": "not_downloaded", "game": None}
     rec = {"source": source, "video_id": vid, "duration": duration, "candidates": candidates, "moments": moments,
            **v, "rule": "PLAN.md D130 and D135; tools.p8_identity", "date": dt.date.today().isoformat()}
     if record:
@@ -300,8 +302,10 @@ def batch(limit: int | None = None) -> dict:
         pair = {g0["away"], g0["home"]}
         cands = sorted(n for n, x in games.items() if {x["away"], x["home"]} == pair and game_class(n, x) == "training")
         if rec_path.exists():
-            out.append({**json.loads(rec_path.read_text()), "found_for": v["found_for"], "length": v["length"]})
-            continue
+            prev = json.loads(rec_path.read_text())
+            if any(m.get("frames") for m in prev.get("moments", [])) or prev.get("status") == "guarded":
+                out.append({**prev, "found_for": v["found_for"], "length": v["length"]})
+                continue                                  # a record with no frame at all is tried again
         try:
             rec = check(source, vid, float(v["duration"]), cands)
         except SystemExit as e:
