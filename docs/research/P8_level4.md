@@ -314,10 +314,14 @@ percentile of 44.85 ft (FIBA half length 45.93 ft).
 What the pipeline's court model would need (nothing changed here):
 
 1. A FIBA vertex table beside `court/court33.py`'s `COURT_VERTICES_33` (NBA feet, from roboflow/sports' NBA court
-   configuration), in the same index order, with every vertex recomputed from Article 2: corners, lane corners,
-   free-throw line, basket centres, 3-point straight ends and arc top. Vertices 12, 14, 18 and 20 ("3pt extent" on
-   the sidelines) are not defined in court33.py beyond that comment; their FIBA counterparts need the source
-   configuration checked first.
+   configuration), in the same index order. The source (github.com/roboflow/sports, MIT; branch `feat/basketball`,
+   commit 415751384e34, `sports/basketball/config.py`) builds the 33 vertices from one preset per league and has a
+   `League.FIBA` preset beside `League.NBA`. It shows that vertices 12, 14, 18 and 20 are the throw-in line marks
+   on the sidelines (`baseline_to_throw_line`: 835 cm NBA, 830 cm FIBA; Article 2.5.6 says 8.325 m). Its FIBA
+   preset agrees with Article 2 on court size (2800 by 1500 cm), arc radius (675), corner distance (90), lane (490
+   by 580), centre circle (180) and basket (157), but puts the 3-point straight ends (vertices 7, 8, 24, 25) at
+   330 cm from the endline, where Article 2.5.4's arc and lines meet at 2.99 m (computed above). A FIBA table should
+   take those four vertices from Article 2, not from the preset.
 2. `COURT_LENGTH_FT` and `COURT_WIDTH_FT` (94 and 50) wherever they bound or draw positions (for example
    `build_trajectories.py` imports them), as 91.86 and 49.21 for ACB games.
 3. The court keypoint detector was trained on NBA courts; whether it finds the same 33 points on ACB floors (the
