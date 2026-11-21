@@ -885,6 +885,62 @@ def cmd_misses_agree(args) -> dict:
     return out
 
 
+def cmd_truth_sources(args) -> dict:
+    """D131 sources 1 and 2 against the 50 human box-truth files, from the stored qualification predictions (no model
+    run). Source 1: agreement boxes of our player boxes and YOLOX-X at its matched-precision threshold (agree_boxes,
+    mean box), greedily matched to the truth at IoU >= 0.5. Source 2 alone: YOLOX-X boxes with IoU below 0.5 to every
+    box of ours (band); on the box truth there is no SportVU, so this is the teacher-only band, scored against the
+    truth boxes our detector did not match. Frame bootstrap as everywhere in this tool."""
+    import numpy as np
+    ws = workspace()
+    fl = json.loads((ws / "frames.json").read_text())
+    clip_game, games = clip_games()
+    for fr in fl["frames"]:
+        why = check_record(fr, clip_game, games)
+        if why:
+            raise SystemExit(f"{WHO}: {fr['frame']} fails the guard: {why}")
+    ours = json.loads((ws / "preds" / f"{OURS}.json").read_text())["preds"]
+    tea = json.loads((ws / "preds" / f"{MISS_TEACHER}.json").read_text())["preds"]
+    conf = MISS_TEACHER_CONF if getattr(args, "conf", None) is None else args.conf
+    rows = []
+    for fr in fl["frames"]:
+        g = fr["boxes"]
+        d = [p for p in ours[fr["frame"]] if p[5] == "player"]
+        t = [p for p in tea[fr["frame"]] if p[4] >= conf]
+        _, det_hit = greedy(by_score(d), g)
+        ag = agree_boxes(d, t)
+        f1, _ = greedy(by_score(ag), g)
+        only, f2 = band(t, d, g, conf)
+        rows.append((len(g), len(ag), sum(f1), len(only), sum(f2), len(g) - len(det_hit)))
+    a = np.array(rows, float)
+    fw, _ = resamples(len(rows), [fr["clip"] for fr in fl["frames"]])
+
+    def ratio(num, den):
+        point = a[:, num].sum() / a[:, den].sum() if a[:, den].sum() else None
+        return point, ratio_interval(a[:, num], a[:, den], fw)
+
+    p1, p1i = ratio(2, 1)
+    r1, r1i = ratio(2, 0)
+    p2, p2i = ratio(4, 3)
+    r2, r2i = ratio(4, 5)
+    out = {"frames": len(rows), "truth_boxes": int(a[:, 0].sum()), "teacher_conf": conf,
+           "bootstrap": B, "seed": SEED,
+           "source1_agreement": {"boxes": int(a[:, 1].sum()), "true": int(a[:, 2].sum()),
+                                 "precision": p1, "precision_interval": p1i, "recall": r1, "recall_interval": r1i},
+           "source2_teacher_only": {"boxes": int(a[:, 3].sum()), "true": int(a[:, 4].sum()),
+                                    "missed_by_ours": int(a[:, 5].sum()),
+                                    "precision": p2, "precision_interval": p2i,
+                                    "recall_of_our_misses": r2, "recall_of_our_misses_interval": r2i},
+           "union": {"boxes": int(a[:, 1].sum() + a[:, 3].sum()), "true": int(a[:, 2].sum() + a[:, 4].sum())}}
+    u = out["union"]
+    u["precision"] = u["true"] / u["boxes"]
+    u["recall"] = u["true"] / out["truth_boxes"]
+    name = "truth_sources.json" if conf == MISS_TEACHER_CONF else f"truth_sources_{conf}.json"
+    (ws / name).write_text(json.dumps(out, indent=1))
+    print(json.dumps(out, indent=1))
+    return out
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_teachers", description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -900,10 +956,12 @@ def main(argv=None) -> None:
     m.add_argument("--device", default="cpu")
     sub.add_parser("misses-score", help="misses of our detector and the teacher's recoveries, per game")
     sub.add_parser("misses-agree", help="D131 source 1: agreement boxes and their precision against SportVU, per game")
+    ts = sub.add_parser("truth-sources", help="D131 sources 1 and 2 against the human box truth, from stored predictions")
+    ts.add_argument("--conf", type=float, default=None, help="teacher threshold (default MISS_TEACHER_CONF, 0.1471)")
     args = ap.parse_args(argv)
     {"frames": cmd_frames, "run": cmd_run, "score": cmd_score, "misses-plan": cmd_misses_plan,
      "misses-run": cmd_misses_run, "misses-score": cmd_misses_score,
-     "misses-agree": cmd_misses_agree}[args.cmd](args)
+     "misses-agree": cmd_misses_agree, "truth-sources": cmd_truth_sources}[args.cmd](args)
 
 
 if __name__ == "__main__":
