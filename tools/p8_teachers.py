@@ -274,10 +274,12 @@ def check_record(rec: dict, clip_game: dict, games: dict) -> str | None:
     """None when the file passes the guard, else the reason it is dropped (a D85 test item, a spent held-out item, or no
     known game)."""
     from tools.p8_common import guard
+    from tools.research_testset import refuse_cv_test
     items, homes, code = items_for(rec, clip_game, games)
     if code is None:
         return "no known game for its clip"
     try:
+        refuse_cv_test(items, WHO, homes=homes)
         guard(items, WHO, homes=homes)
     except SystemExit as e:
         return str(e)
