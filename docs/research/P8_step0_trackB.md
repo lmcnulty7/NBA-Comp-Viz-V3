@@ -59,9 +59,17 @@ in unsynced footage; disagreements are dropped. Only (2) and (3) can surface our
 
 | Source | Status | Measured | Still needed |
 | --- | --- | --- | --- |
-| 1. Agreement, ours and YOLOX-X | possible now | not counted: the box-truth run measured the teacher-only band, not the agreement band | a teacher pass over the training frames; the agreement count and its precision on the box truth (to check) |
+| 1. Agreement, ours and YOLOX-X | measured on the same frames as source 2 | gsw_bkn_2015, 400 frames: 3,626 agreement boxes, 9.065 a frame [8.9675, 9.1575]; 2,989 have a foot within 2.5 ft of a SportVU player, precision against SportVU 0.8243 [0.8080, 0.8398]. gsw_ind_2016 apart (D98): 3,615 boxes, 9.0375 a frame [8.9525, 9.12]; 2,192 within 2.5 ft, 0.6064 [0.5934, 0.6195] | a teacher pass over every accepted frame; precision on the human box truth not counted (to check) |
 | 2. YOLOX-X at SportVU feet, synced training games | measured on one game | gsw_bkn_2015, 400 of 2,075 camera-truth frames: our detector misses 1,050 of 3,953 in-frame players (0.2656 [0.2497, 0.2818]); YOLOX-X recovers 400 of them (0.3810 [0.3437, 0.4175]), 1.0 a frame. gsw_ind_2016 apart (D98): 273 recovered, 0.6825 a frame (P8_teachers.md) | camera truth on more training games (gsw_cha_2016 and gsw_sac_2015 have none in the Mac workspace, P8_baseline.md); a teacher pass over every accepted frame |
 | 3. Two teachers agree, unsynced footage | blocked | none | a second qualified teacher (none yet: RF-DETR-L and YOLO11x fail, Grounding DINO failed in 2026-07); unsynced footage from Track A's search |
+
+Source 1 rule (tools/p8_teachers.py misses-agree, output agree_results.json in the P8 teacher workspace): on the 400
+sampled camera-truth frames per game of source 2, our player boxes (conf 0.40) and YOLOX-X's (0.1471) are matched one
+to one, greedily in our confidence order, at IoU >= 0.5; the label is the mean box of the pair. Its foot (bottom
+centre, through the camera truth) counts as confirmed when a Hungarian match puts it within 2.5 ft of one of the 10
+SportVU players. Intervals: 2,000 frame bootstrap replicates, seed 20261121. As for source 2, a foot beyond 2.5 ft
+is not necessarily a false box (foot point, occlusion, camera truth error); on gsw_ind_2016 the weak camera truth
+(D98) likely explains most of the lower share.
 
 Reading of source 2 (P8_teachers.md): a miss there is a box foot more than 2.5 ft from SportVU, not only a missing
 box (ours draws 3,738 boxes for 3,953 in-frame players on gsw_bkn_2015), so part of what YOLOX-X recovers is foot

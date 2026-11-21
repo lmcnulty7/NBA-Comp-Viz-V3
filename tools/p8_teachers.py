@@ -822,6 +822,69 @@ def cmd_misses_score(args) -> dict:
     return out
 
 
+def agree_boxes(ours, teacher):
+    """D131 source 1 in one frame: our player boxes and the teacher's boxes matched one to one, greedily in our
+    confidence order, at IoU >= 0.5 -> the mean box of each pair, score the smaller of the two."""
+    used, out = set(), []
+    for a in by_score(ours):
+        best, bi = 0.0, None
+        for i, b in enumerate(teacher):
+            if i in used:
+                continue
+            v = iou(a, b)
+            if v > best:
+                best, bi = v, i
+        if bi is not None and best >= IOU:
+            used.add(bi)
+            b = teacher[bi]
+            out.append([(a[k] + b[k]) / 2 for k in range(4)] + [min(a[4], b[4])])
+    return out
+
+
+def cmd_misses_agree(args) -> dict:
+    """D131 source 1 on the misses sample: agreement boxes, and the share whose foot a Hungarian match puts within
+    CONFIRM_FT of a SportVU player (any of the 10, in frame or not): their precision against SportVU."""
+    import numpy as np
+    from sportvu.sync import MIRRORS, SportVUIndex, apply_mirror
+    ws, wr = workspace(), work_root()
+    plan = json.loads((ws / "misses_plan.json").read_text())
+    out = {"rule": {"iou": IOU, "confirm_ft": CONFIRM_FT, "box": "mean of the matched pair",
+                    "teacher": MISS_TEACHER, "teacher_conf": MISS_TEACHER_CONF, "ours_conf": DET_CONF,
+                    "bootstrap": B, "seed": SEED}, "games": {}}
+    for tag, g in plan["games"].items():
+        index = SportVUIndex(json.loads((wr / "sportvu" / f"{g['sportvu']}_moments.json").read_text())["moments"])
+        fx, fy = MIRRORS[g["mirror"]]
+        ours = json.loads((ws / "misses" / f"{tag}_{OURS}.json").read_text())
+        tea = json.loads((ws / "misses" / f"{tag}_{MISS_TEACHER}.json").read_text())
+        per = []
+        for f in (x for x in plan["frames"] if x["game"] == tag):
+            key = f"{f['window']}:{f['frame']}"
+            sv = apply_mirror(index.q[f["q"]]["xy"][f["moment"]], fx, fy)
+            d = [p for p in ours["preds"][key] if p[5] == "player"]
+            t = [p for p in tea["preds"][key] if p[4] >= MISS_TEACHER_CONF]
+            ag = agree_boxes(d, t)
+            hit = found_targets(feet_ft(ag, f["H_truth"]), np.asarray(sv, np.float64))
+            per.append((len(ag), len(hit), len(d), len(t)))
+        a = np.array(per, float)
+        n_ag, n_hit = a[:, 0].sum(), a[:, 1].sum()
+        rng = np.random.default_rng(SEED)
+        prec, per_frame = [], []
+        for _ in range(B):
+            s_ = a[rng.integers(0, len(a), len(a))]
+            if s_[:, 0].sum():
+                prec.append(s_[:, 1].sum() / s_[:, 0].sum())
+            per_frame.append(s_[:, 0].sum() / len(s_))
+        out["games"][tag] = {
+            "sampled_frames": len(per), "ours_boxes": int(a[:, 2].sum()), "teacher_boxes": int(a[:, 3].sum()),
+            "agreement_boxes": int(n_ag), "agreement_per_frame": n_ag / len(per),
+            "agreement_per_frame_interval": percentile_interval(per_frame),
+            "within_confirm_ft_of_sportvu": int(n_hit), "precision_vs_sportvu": n_hit / n_ag if n_ag else None,
+            "precision_interval": percentile_interval(prec)}
+    (ws / "agree_results.json").write_text(json.dumps(out, indent=1))
+    print(json.dumps(out, indent=1))
+    return out
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_teachers", description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -836,9 +899,11 @@ def main(argv=None) -> None:
     m.add_argument("--game", required=True, choices=list(MISS_GAMES))
     m.add_argument("--device", default="cpu")
     sub.add_parser("misses-score", help="misses of our detector and the teacher's recoveries, per game")
+    sub.add_parser("misses-agree", help="D131 source 1: agreement boxes and their precision against SportVU, per game")
     args = ap.parse_args(argv)
     {"frames": cmd_frames, "run": cmd_run, "score": cmd_score, "misses-plan": cmd_misses_plan,
-     "misses-run": cmd_misses_run, "misses-score": cmd_misses_score}[args.cmd](args)
+     "misses-run": cmd_misses_run, "misses-score": cmd_misses_score,
+     "misses-agree": cmd_misses_agree}[args.cmd](args)
 
 
 if __name__ == "__main__":
