@@ -1,0 +1,236 @@
+# P8 Level 4: what truth exists for current seasons
+
+Written 2026-11-21 and 2026-11-22 under PLAN.md D137 (continue toward Level 4 of `docs/research/TRACKING_LEVELS.md`)
+and D128's constraints. Measurement only: no training, no hand labelling, no League Pass, no video downloaded. Every
+number below was read from output produced in this work; every quote was fetched at its source on the date given.
+
+Level 4 (TRACKING_LEVELS.md) asks for current-season broadcasts and a check of the pipeline against partial truth:
+"the public shot coordinates against where the pipeline puts the shooter at the shot, and play-by-play consistency".
+This file measures the two sources of partial truth that exist without a browser: SkillCorner's open basketball
+tracking (Liga ACB 2025-26) and NBA shot coordinates for 2025-26.
+
+## 1. SkillCorner open basketball data
+
+### Source and license
+
+- Repository: github.com/SkillCorner/opendata-basketball, commit `4bbed2e35e8fdd2cf083e8c8b280b3e5381a2c66`
+  (2026-09-10). GitHub API: created 2026-09-07T09:03:52Z, last push 2026-09-10T14:21:31Z, license `MIT`.
+- `LICENSE`: "The MIT License / Copyright (c) 2026 SkillCorner." It grants permission "to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies", on the condition that "The above copyright notice and this
+  permission notice shall be included in all copies or substantial portions of the Software."
+- `README.md` asks for credit: "If you use the data, we kindly ask that you credit SkillCorner and notify us on
+  Twitter so we can follow the work being done with it."
+- Downloaded to the P8 data workspace outside the repository (`_p8-data/skillcorner/`, beside the worktrees): the
+  repository without Git LFS content, then the 10 LFS tracking files from media.githubusercontent.com. Each file's
+  size and sha256 equal its LFS pointer (10 of 10).
+
+### The 10 games
+
+From `data/matches.json`. Its `date_time` "is the official ACB scheduled tip-off in UTC" (README). The release has
+no venue field (`game_data.md` lists none); the venue is the home team's, not named in the data.
+
+| gameId | Tip-off (UTC) | Home | Away | Score |
+|---|---|---|---|---|
+| 114243 | 2025-10-11 19:00 | BAXI Manresa | Coviran Granada | 83-68 |
+| 114234 | 2025-10-18 19:00 | Casademont Zaragoza | Leche Rio Breogan | 84-88 |
+| 114169 | 2025-12-14 11:30 | CB UCAM Murcia | Club Joventut Badalona | 80-77 |
+| 114099 | 2026-01-31 20:00 | Basquet Girona | San Pablo Burgos | 77-71 |
+| 114086 | 2026-02-08 17:00 | Dreamland Gran Canaria | Bitci Baskonia | 75-97 |
+| 178442 | 2026-03-21 18:00 | BC MoraBanc Andorra | Bilbao Basket | 98-102 |
+| 179612 | 2026-04-12 10:30 | Malaga | Valencia BC | 89-96 |
+| 184439 | 2026-04-19 17:00 | Real Madrid | Lenovo Tenerife | 90-95 |
+| 188630 | 2026-05-03 17:00 | BC Barcelona | Dreamland Gran Canaria | 91-69 |
+| 191313 | 2026-05-29 18:30 | Leche Rio Breogan | Casademont Zaragoza | 94-95 |
+
+### Fields (from `docs/data_dictionary/tracking_data.md` and `docs/PRIMER.md`)
+
+- One JSON line per video frame at 25 fps: `frameIdx`, `wallClock` (ms "since the start of the video"),
+  `gameClock`, `gameClockStopped`, `period`, `shotClock`, `homePlayers`, `awayPlayers`, `ball`.
+- Player: `xyz` in feet from court centre, "z is height, currently always 0"; `speed` (ft/s), `jersey`,
+  `playerId`, `isDetected` ("`1` if the player is on screen and detected by computer vision, `0` if the position is
+  extrapolated"), `predError` ("Expected error for the player's coordinate, in feet. In 90% of cases the tracking
+  is within `predError` feet of ground truth").
+- Ball: `xyz` where "z (height) is a real height and can go slightly negative near the floor (calibration noise)";
+  `speed`, `isDetected` (a float), `predError`; "Ball calibration is not as accurate as player calibration."
+- "roughly half of all frames in a game (dead ball, warmups, breaks) carry empty `homePlayers`/`awayPlayers` arrays
+  and an empty `ball` object".
+- Events (`{gameId}_dynamic_events.json`, 20 tables) come from "a Game Intelligence model [that] reads the tracking
+  data" (PRIMER). In `shots`, `location` is the "x, y coordinate of the shooter at the release of the shot" and is
+  not play-by-play derived; `outcome`, `three`, `shooterId` are play-by-play derived (`shots.md`, "PBP derived").
+  `docs/KNOWN_ISSUES.md`: "All 10 published games match the official final score exactly".
+
+### Measured per game
+
+One pass over each tracking file under the heavy-job lock (one game at a time). Frames: all lines; live: frames
+with players (every live frame held 10.0 players on average and a ball); duration: last `wallClock`. Player columns
+are over every live player position. `shots` counts rows of the shots table (it "includes fouled misses").
+
+| gameId | frames | live frames | duration (min) | periods | players detected | player predError mean (ft) | detected | extrapolated | ball predError mean (ft) | ball z median / p99 / min (ft) | shots |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 114243 | 146,870 | 77,023 | 99.7 | 4 | 0.826 | 1.56 | 0.91 | 4.63 | 1.85 | 3.52 / 14.27 / -5.97 | 159 |
+| 114234 | 158,923 | 72,132 | 107.7 | 4 | 0.828 | 1.63 | 0.89 | 5.15 | 1.76 | 3.48 / 14.52 / -6.42 | 144 |
+| 114169 | 172,257 | 106,176 | 118.7 | 4 | 0.762 | 1.86 | 0.90 | 4.92 | 1.94 | 3.59 / 13.69 / -4.81 | 148 |
+| 114099 | 147,892 | 75,655 | 100.8 | 4 | 0.817 | 1.58 | 0.88 | 4.72 | 1.82 | 3.58 / 14.84 / -4.99 | 150 |
+| 114086 | 124,796 | 92,188 | 84.4 | 4 | 0.807 | 1.52 | 0.84 | 4.36 | 1.83 | 3.52 / 14.07 / -5.42 | 139 |
+| 178442 | 162,479 | 89,642 | 108.3 | 5 | 0.803 | 1.60 | 0.88 | 4.57 | 1.88 | 3.57 / 14.90 / -5.29 | 158 |
+| 179612 | 140,856 | 83,437 | 93.9 | 4 | 0.789 | 1.72 | 0.91 | 4.76 | 1.83 | 3.63 / 14.96 / -4.94 | 145 |
+| 184439 | 154,021 | 77,428 | 102.7 | 4 | 0.815 | 1.61 | 0.88 | 4.85 | 1.87 | 3.55 / 14.49 / -5.70 | 142 |
+| 188630 | 121,793 | 73,138 | 81.2 | 4 | 0.806 | 1.57 | 0.86 | 4.52 | 1.80 | 3.48 / 14.37 / -5.65 | 133 |
+| 191313 | 143,045 | 82,885 | 95.4 | 4 | 0.793 | 1.75 | 0.88 | 5.08 | 1.90 | 3.53 / 14.64 / -5.68 | 141 |
+
+These agree with the README's ranges (76 to 83 percent detected, mean predError 1.5 to 1.9 ft, extrapolated 4.4 to
+5.2 ft). Two findings the README does not state:
+
+- The ball's `isDetected` is 0.0 on every ball frame of all 10 games (game 114243: 77,023 of 77,023 ball objects,
+  all with keys `isDetected`, `predError`, `speed`, `xyz`). The ball detection flag carries no information in this
+  release, so detected and extrapolated ball positions cannot be told apart.
+- Ball height goes as low as -6.42 ft (game 114234), beyond "slightly negative".
+
+SkillCorner's positions are themselves a broadcast estimate (its own `predError`), so they are partial truth: a
+comparison with our pipeline measures agreement, and that agreement cannot be read more finely than SkillCorner's
+own error.
+
+## 2. Broadcast video for the 10 games
+
+### Method
+
+`tools/p8_level4_search.py`, metadata only (`yt-dlp --flat-playlist` for YouTube search, `--skip-download --print`
+with `bilisearch5` for Bilibili, `--skip-download -j` for each probe). Raw output: `_p8-data/level4/` (the first pass
+`search_results.json`, the second pass `pass2_a.json` and `pass2_b.json`, merged in `merged.json`).
+
+- First pass, 5 forms per game: "{home} vs {away} partido completo", "{home} - {away} ({score}) Liga Endesa",
+  "{home} vs {away} {yyyy-mm-dd} full game", "Liga Endesa {home} {away} {dd/mm/yyyy}" (YouTube, 10 results each) and
+  "{home} {away} ACB" (Bilibili, 5 results). Both dated forms returned 0 results on every game (one reproduced by
+  hand: 0 results, exit 0); cause not established.
+- Second pass, the 5 forms again plus 3 with the date in words: "{home} {away} partido completo {d} {mes} {yyyy}",
+  "{home} vs {away} full game {Month} {d} {yyyy}", "{home} {away} Liga Endesa 2025 26 completo". Every result
+  listed at 480 s or more, or with no listed length, was probed.
+- A result is kept when its title names both teams. Length classes fixed before the search: full at least 3,600 s,
+  condensed 480 to 3,600 s, highlights under 480 s.
+- A probed video is a candidate for the game only when it is at least 480 s long and was uploaded on the game day or
+  up to 7 days after. Rejected by title: "Live Score" ticker streams, simulations, youth leagues (Liga U, Minicopa),
+  other seasons.
+- 130 queries in all (13 per game). 12 of the 20 Bilibili queries failed, each with "HTTP Error 412: Precondition
+  Failed"; no Bilibili result named both teams. No YouTube query failed.
+
+### ACB's own channel
+
+The ACB channel (YouTube `@ACBCOM`, channel id `UCjZh7FzztNo3up7mD75DAiQ`) posts a RESUMEN or HIGHLIGHTS video for
+each Liga Endesa game. Its search for "partido completo" returns full games only for youth competitions (Liga U
+2025-26), Minicopa streams and historic games (for example "PARTIDO COMPLETO | Final Copa del Rey Málaga 2014");
+none of the 20 listed was a 2025-26 Liga Endesa game. Its streams tab lists Minicopa Endesa games only.
+
+### Per game
+
+| gameId | named both (unique) | candidates (at least 480 s, day 0 to 7) | ACB highlights (id, s, max height) |
+|---|---|---|---|
+| 114243 | 3 | none: `0gyYBPIapcs` (801 s, "Análisis y resumen", an analysis video) | `KxOXoriFwDM`, 184, 1080 |
+| 114234 | 10 | none | `ziPCMtLczBU`, 186, 1080 |
+| 114169 | 17 | none | `APBbUdF7O5U` (RESUMEN), 191; `5gRKroQRgoY` (HIGHLIGHTS), 216 (listing only) |
+| 114099 | 9 | none: `BDFnvbVpSHw` is a "Live Score" ticker | `sJQH1Gl43DY`, 214, 1080 |
+| 114086 | 9 | none | `UJvELKi9mi4`, 186, 1080 |
+| 178442 | 5 | none: `2xOj9dSJf8w` is a "Live Score" ticker | `IQYIKzWU0-U`, 223, 1080 |
+| 179612 | 20 | **`00k9_ueP2bY`**: "UNICAJA MÁLAGA - VALENCIA BASKET \| Liga Endesa 25/26 J26 \| Partido completo", 7,454 s, uploaded 2026-04-12, max 720p (avc1 available), channel "Partidos Unicaja ACB", description "Partido completo Unicaja - Valencia 12/04/2026". Also `Sg9nA-p79Hg` (754 s, a "Videocrónica") and `eStct1H44mc` ("Live Score") | `daTJjIE_4nw` (RESUMEN), 213; `5-Pe4dQrOKg` (GAME HIGHLIGHTS), 199 (listing only) |
+| 184439 | 22 | none: `rYaLcizFEjk` is a "Live Score" ticker | `SKKNCRJ_LYQ` (RESUMEN), 192; `ja3i7hZtbb4` (HIGHLIGHTS), 230 (listing only) |
+| 188630 | 15 | unverified: `lefFmF2gEvA`, "Liga Endesa EN VIVO \| Barça Basket vs Dreamland Gran Canaria \| Jornada 29 \| Narración en directo", 8,813 s, a past live stream (`was_live`) of a fan commentary channel (PickandRollTV), max 1080p; nothing in its metadata says it shows the broadcast picture. `MTIRlnzsb-Q` is a "Live Score" ticker | `qGLpdHrPVws`, 214, 1080 |
+| 191313 | 11 | none: `0v7SXJ7_cD0` is a "Live Score" ticker; `AmdCMw-Dv80` (1,594 s) is the club's post-game show ("POST") | `Fv70wnA3yOM`, 253, 1080 |
+
+Result: 1 game of 10 (179612) has a full-game candidate whose metadata names the game and its date; 1 (188630) has
+a long live-commentary stream whose picture is unknown; all 10 have ACB highlights of 184 to 253 s at 1080p. No
+candidate is confirmed as the game: that needs an automatic identity check in the spirit of D130 (OCR of period,
+clock and score at 3 or more moments, matched to SkillCorner's `gameClock` and the score from `shots` and
+`free_throws`), which this task did not run (no video downloaded). Uploads by third parties carry the standing
+caveats of the YouTube row in `docs/DATA_SOURCES.md` (research and education, no video redistributed).
+
+## 3. NBA shot coordinates for 2025-26
+
+### Direct NBA endpoints (2026-11-21, UTC 09:54, user agent "Mozilla/5.0 (generic research client)", no other
+custom header)
+
+- `stats.nba.com/robots.txt` redirects (301) to `www.nba.com/stats/robots.txt`, which returns 404. `www.nba.com`'s
+  robots.txt has "User-Agent: *" with "Disallow: /api/*" and "Disallow: /stats/events/".
+- `stats.nba.com/stats/shotchartdetail` (GameID 0022500001, Season 2025-26): no response in 40 s ("Operation timed
+  out after 40006 milliseconds with 0 bytes received"). The repository already records that the site "times out for
+  non-browser clients" (`fetch_pbp.py` line 5). Not retried with browser-imitating headers: that would work around
+  the server's refusal of non-browser clients.
+- `cdn.nba.com/static/json/liveData/playbyplay/playbyplay_0022500001.json`: HTTP 403 "Access Denied". A request for
+  `cdn.nba.com/static/json/staticData/scheduleLeagueV2.json` (to tell a missing file from a block) also returned
+  403 "Access Denied", so the CDN refuses this client. Stopped there: 3 data requests in all.
+
+### Terms (www.nba.com/termsofuse, "LAST UPDATED: July 13, 2026", fetched 2026-11-21)
+
+- Scope: they "apply to your access and use of the digital platforms of the National Basketball Association ...
+  including League websites (including, but not limited to nba.com ...), apps ... and online content offerings
+  (collectively, the "Services")".
+- "NBA STATISTICS ... By using such NBA Statistics, you agree that: (i) any use, display, or publication of the NBA
+  Statistics shall include a prominent attribution to NBA.com in connection with such use, display, or publication;
+  (ii) the NBA Statistics may only be used, displayed, or published for legitimate news reporting or private,
+  non-commercial purposes; (iii) the NBA Statistics may not be used in connection with any sponsorship or commercial
+  identification; (iv) the NBA Statistics may not be used in connection with any gambling activity (including legal
+  gambling activity); (v) the NBA Statistics may not be used in connection with any fantasy game or other commercial
+  product or service; (vi) the NBA Statistics may not be used in connection with any product or service that
+  presents a live, near-live, or other real-time or archived play-by-play account or depiction of any NBA game; and
+  (vii) the NBA Statistics may not be used in connection with any website, product, or service that features a
+  database (in any medium or format) of comprehensive, regularly updated statistics from NBA, WNBA or G-League games,
+  competitions, or events without the Operator's express prior consent."
+- "No Basketball Content from the Services may be reproduced, republished, uploaded, posted, modified, reused,
+  transmitted, reproduced, distributed, copied, publicly displayed, linked to, or otherwise used except as provided
+  in these Terms of Use without the written permission of the Operator." Basketball Content includes "statistics".
+- "you may download material displayed on the Services to any single computer only for your personal,
+  noncommercial use".
+- No clause found on scraping, robots or automated access (searched for scrap, robot, spider, automated, crawl,
+  harvest).
+
+### A public mirror that needs no browser
+
+github.com/shufinskiy/nba_data (GitHub API: license `Apache-2.0`, last push 2026-11-06T07:40:57Z) holds
+`datasets/shotdetail_2025.tar.xz` (2,825,192 bytes; last commit to it 2026-04-25, "upd nba data: full regular
+season 2025/26"), `shotdetail_po_2025.tar.xz` and `cdnnba_2025.tar.xz`. Its README: "Dataset contains play-by-play
+data from three sources: stats.nba.com, data.nba.com and pbpstats.com and also shots details." Downloaded to
+`_p8-data/nba_shots/`:
+
+- `shotdetail_2025.csv`: 219,160 rows, 1,230 games, 2025-10-21 to 2026-04-12; columns include `GAME_ID`,
+  `GAME_EVENT_ID`, `PLAYER_ID`, `PERIOD`, `MINUTES_REMAINING`, `SECONDS_REMAINING`, `SHOT_DISTANCE`, `LOC_X`, `LOC_Y`,
+  `SHOT_MADE_FLAG`, `HTM`, `VTM`. `LOC_X` spans -250 to 250 and `LOC_Y` -51 to 734. On every row,
+  sqrt(LOC_X^2 + LOC_Y^2) / 10 is within 1 ft of `SHOT_DISTANCE` (median gap 0.48 ft, 99th percentile 0.985 ft), so
+  the units are tenths of a foot from the basket.
+- `shotdetail_po_2025.csv`: 14,473 rows, 85 games, 2026-04-18 to 2026-06-13.
+- `cdnnba_2025.csv`: 708,268 actions, 1,230 games, 219,158 field goals all with `x`, `y` (0 to 100, a percentage of
+  the court) and `timeActual` (UTC wall time of each action, for example 2025-10-21T23:43:24.700Z).
+
+The mirror's Apache-2.0 license covers the repository; the rows are NBA Statistics, so the NBA terms above still
+govern their use. Using them for a private, non-commercial measurement with attribution to NBA.com fits clause
+(ii); whether a public portfolio site may show results derived from them, given (ii) "private" and (vi) "archived
+play-by-play account or depiction", is for Lucien to decide, not settled here.
+
+## 4. What a Level 4 check could measure
+
+1. ACB, against SkillCorner (out of distribution: another league, FIBA court and rules, ten years after 2015-16).
+   On footage that passes an identity check, run the pipeline and compare, frame by frame after a clock alignment:
+   player position error on frames where SkillCorner marks the player detected (`isDetected` 1, mean predError
+   0.84 to 0.91 ft), with SkillCorner's own predError beside it; team assignment; jersey identity against
+   SkillCorner's `jersey` and `playerId`; shooter position at release against `shots.location`. Ball checks are
+   weak: the ball detection flag is always 0 and SkillCorner warns its ball calibration is weaker. Needed first: a
+   FIBA court model in the pipeline (court size and markings read from the FIBA rules, not checked here) and a
+   clock alignment of the video to SkillCorner's `gameClock` and `period` (the `wallClock` origin is SkillCorner's
+   video, not ours).
+   - Full game: only 179612 has a candidate (720p).
+   - Sampled possessions: the 10 ACB highlight videos (184 to 253 s, 1080p) give short clips from every game;
+     per TRACKING_LEVELS.md's Level 4 gate, claims would be limited to the sampled possessions.
+2. NBA, against public shot coordinates. For each field goal of a 2025-26 game, compare where the pipeline puts the
+   shooter at the release with (`LOC_X`, `LOC_Y`), and check the play-by-play facts (shooter, made or missed, period
+   and clock). Shot coordinates exist for the whole 2025-26 season; what is missing is 2025-26 NBA broadcast
+   footage, which this task did not search for (League Pass is excluded by D128).
+
+## 5. Go or no-go
+
+- SkillCorner as Level 4 truth: **go**, as partial truth, for one full game (179612) once an automatic identity
+  check passes, and for highlight clips of all 10 games as sampled possessions. Blocked on decisions, not data:
+  an identity rule for ACB footage (D130 is written for SportVU games), downloading a 2-hour video (D128 asked for
+  approval beyond identity sections; D137 allows downloads as each step needs), and the FIBA court model.
+- NBA shot coordinates as Level 4 truth: **go** for a private, non-commercial measurement from the public mirror,
+  with attribution to NBA.com; **no-go** for direct requests to stats.nba.com or cdn.nba.com without a browser
+  (timeout and 403). Publishing results derived from them needs Lucien's reading of clauses (ii) and (vi). The check
+  itself waits on 2025-26 NBA footage, not yet searched.
+- Overall: a Level 4 check is feasible on ACB first (truth and one full video exist now); the NBA check has truth
+  but no footage.
