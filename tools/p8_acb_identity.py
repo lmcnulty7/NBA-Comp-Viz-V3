@@ -174,9 +174,9 @@ def check(source: str, vid: str, duration: float | None = None, label: str = "",
         while i < len(starts):
             s = starts[i]
             i += 1
-            sec = I.download_section(source, vid, s)
+            sec = None if s + I.SECTION_S > duration else I.download_section(source, vid, s)
             if sec is None:
-                tries.append({"start": s, "downloaded": False})
+                tries.append({"start": s, "downloaded": False, "beyond_end": s + I.SECTION_S > duration})
             else:
                 names = [f.name for f in I.frames_of(sec)]
                 r = readings(I.run_ocr(d), names, events)
