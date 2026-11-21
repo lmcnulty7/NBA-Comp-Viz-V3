@@ -555,6 +555,7 @@ Decided by Lucien 2026-11-14 (settling the items D37 reserved):
 - D133 (self-decided) The extended search is new code, tools/p8_search.py, importing the frozen sportvu/manifest.py functions and rules. Options: edit sportvu/manifest.py (refused by rule 3); new tool importing it (chosen); rewrite from scratch (loses the tested rules).
 - D134 (self-decided) Condensed games are accepted as their own class (at least 480 s, tagged condensed): they count toward Track B's unsynced pool, and toward synced truth only where the clock time map solves. Options: reject them (Lucien accepted them); treat as full broadcasts (they break the clock deltas the sync uses); own class (chosen).
 - D135 (self-decided) Identity downloads are three 8-second sections per candidate, at 25, 50 and 75 percent of its length, 720p avc1, stored in the P8 workspace outside the repository. Options: whole videos (more than identity needs); one section (fewer than D130's 3 moments); three short sections (chosen).
+- D136 (self-decided) Bilibili is searched with the first Chinese query form only, 5 results per query, each extracted: its search returns no title or duration in a flat listing, so each result costs about 12 s, and some requests return HTTP 412. Options: all forms (about 6 hours more); one Chinese form (chosen); skip Bilibili (Lucien named it).
 
 ## Open questions
 - None.
