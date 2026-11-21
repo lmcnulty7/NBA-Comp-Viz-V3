@@ -53,3 +53,11 @@ def test_check_refuses_a_spent_or_test_video_before_anything():
         I.check("youtube", "f8lAcHg6kk0", 5000, ["12.16.2015.PHX.at.GSW"])     # the spent held-out game
     with pytest.raises(SystemExit):
         I.check("youtube", "x", 5000, ["12.25.2015.NOP.at.MIA"])                # a D85 test game
+
+
+def test_a_clock_read_without_its_colon_and_a_spelled_period_parse():   # D138, from the calibration's two misses
+    p = I.parse_tokens(["BKN", "71", "GS", "65", "3rd", "419"])
+    assert 259 in p["clocks"] and p["periods"] == [3] and {71, 65} <= set(p["ints"])
+    q = I.parse_tokens(["27", "OKC", "132", "POR", "28", "SECOND QTR"])
+    assert q["periods"] == [2] and 92 in q["clocks"] and 132 in q["ints"]
+    assert 1031 not in I.parse_tokens(["1031"])["ints"] and 631 in I.parse_tokens(["1031"])["clocks"]

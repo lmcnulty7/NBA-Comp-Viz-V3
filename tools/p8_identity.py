@@ -46,6 +46,8 @@ BANDS = (("bottom", 0.75, 1.0), ("top", 0.0, 1 / 6))
 CLOCK_RE = re.compile(r"^(\d{1,2})[:.](\d{2})$")
 SUBMIN_RE = re.compile(r"^:?(\d{1,2})\.(\d)$")
 PERIOD_RE = re.compile(r"^(1ST|2ND|3RD|4TH)(?:\s*(?:QTR|Q|QUARTER))?$|^Q([1-4])$|^(OT|1OT|2OT|3OT)$", re.I)
+PERIOD_WORDS = {"FIRST": 1, "SECOND": 2, "THIRD": 3, "FOURTH": 4}       # "SECOND QTR" (D138)
+COLONLESS_RE = re.compile(r"^(\d{1,2})([0-5]\d)$")                      # "419" read for 4:19 (D138)
 INT_RE = re.compile(r"^\d{1,3}$")
 
 
@@ -68,6 +70,12 @@ def parse_tokens(texts: list[str]) -> dict:
         if m and int(m.group(1)) < 60:
             clocks.add(int(m.group(1)) + int(m.group(2)) / 10)
             continue
+        if t.upper() in PERIOD_WORDS:
+            periods.add(PERIOD_WORDS[t.upper()])
+            continue
+        m = COLONLESS_RE.match(t)
+        if m and len(t) >= 3 and int(m.group(1)) <= 12:   # a clock whose colon was lost; kept as an integer too,
+            clocks.add(int(m.group(1)) * 60 + int(m.group(2)))   # since a score of 100 or more reads the same way
         m = PERIOD_RE.match(t)
         if m:
             if m.group(3):
