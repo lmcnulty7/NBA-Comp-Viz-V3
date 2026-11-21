@@ -261,6 +261,48 @@ def calibrate() -> dict:
     return res
 
 
+def batch(limit: int | None = None) -> dict:
+    """Every metadata candidate of the search (tools.p8_search parts, training class, verdict candidate), once per
+    video, checked against every training-class game of its two teams. A video that a guard refuses is recorded as
+    guarded and never downloaded. Results: <P8 workspace>/identity/<source>_<id>/identity.json and batch.json."""
+    from tools.p8_search import contract_games, game_class, parts_dir
+    games = contract_games()
+    videos = {}
+    for p in sorted(parts_dir().glob("*.json")):
+        part = json.loads(p.read_text())
+        if part["class"] != "training":
+            continue
+        for s in part["sources"].values():
+            for c in s.get("probed", []):
+                if c.get("verdict") == "candidate":
+                    v = videos.setdefault((c["source"], c["id"]), {"duration": c.get("duration"), "found_for": [],
+                                                                   "length": c.get("length"), "height": c.get("height")})
+                    v["found_for"].append(part["game"])
+    out, done = [], 0
+    for (source, vid), v in sorted(videos.items()):
+        rec_path = p8_root() / "identity" / ("%s_%s" % (source, vid)) / "identity.json"
+        g0 = games[v["found_for"][0]]
+        pair = {g0["away"], g0["home"]}
+        cands = sorted(n for n, x in games.items() if {x["away"], x["home"]} == pair and game_class(n, x) == "training")
+        if rec_path.exists():
+            out.append({**json.loads(rec_path.read_text()), "found_for": v["found_for"], "length": v["length"]})
+            continue
+        try:
+            rec = check(source, vid, float(v["duration"]), cands)
+        except SystemExit as e:
+            rec = {"source": source, "video_id": vid, "status": "guarded", "note": str(e)}
+        out.append({**rec, "found_for": v["found_for"], "length": v["length"]})
+        done += 1
+        print(f"[identity] {done} {source} {vid} {rec['status']} {rec.get('game')}", flush=True)
+        if limit and done >= limit:
+            break
+    res = {"written": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "videos": len(videos),
+           "checked": len(out), "rows": [{k: r.get(k) for k in ("source", "video_id", "status", "game", "games",
+                                                                 "found_for", "length", "candidates")} for r in out]}
+    atomic_write(p8_root() / "identity" / "batch.json", json.dumps(res, indent=1))
+    return res
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -270,11 +312,16 @@ def main(argv=None) -> int:
     c.add_argument("--duration", type=float, required=True)
     c.add_argument("--candidates", nargs="+", required=True)
     sub.add_parser("calibrate")
+    b = sub.add_parser("batch")
+    b.add_argument("--limit", type=int)
     o = sub.add_parser("ocr")
     o.add_argument("dir")
     a = ap.parse_args(argv)
     if a.cmd == "check":
         print(json.dumps(check(a.source, a.video_id, a.duration, a.candidates), indent=1))
+    elif a.cmd == "batch":
+        r = batch(a.limit)
+        print(json.dumps({k: r[k] for k in ("videos", "checked")}, indent=1))
     elif a.cmd == "calibrate":
         r = calibrate()
         print(json.dumps({k: r[k] for k in ("videos", "confirmed_true", "false_confirmations", "passes")}, indent=1))
