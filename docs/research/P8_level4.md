@@ -370,3 +370,31 @@ breaks, so many are cut; none is identity-checked. An NBA identity check would u
   the 20 sampled are 1080p and 24 to 64 minutes long) and highlights (1,287 games) are the broad public footage: a shot-location check
   on them is a sampled-possession check (TRACKING_LEVELS.md Level 4 gate), with shots matched by period and clock.
 
+
+## 10. The acb_clock reading and the half-time retry (PLAN.md D139)
+
+Written before any calibration video is downloaded.
+
+Half-time retry, ACB tool only: when neither a moment's section nor its 90 s retry reads any clock (in either
+reading), one more section 900 s after the first start. FIBA Official Basketball Rules 2026 v1.1, Article 8.4:
+"There shall be a half-time interval of play of 15 minutes." The SportVU rule (tools.p8_identity; D130, D138) is
+unchanged. The other rules stay as they are, including the 75 percent multi-match on small-number pairs: the
+three-moment uniqueness is the guard.
+
+Check of the acb_clock reading, fixed in `tools/p8_acb_identity.py` (`CALIBRATION_POSITIVES`,
+`CALIBRATION_NEGATIVES`, `calibrate`) before it runs. Videos: ACB's own highlights ("RESUMEN", channel ACB), identity
+sections only, each checked against all 10 SkillCorner games under the final rule above.
+
+- Positives, the first 3 games of `matches.json` other than 179612 (the candidate under test): `KxOXoriFwDM`
+  (114243), `ziPCMtLczBU` (114234), `APBbUdF7O5U` (114169). Each must be confirmed as its own game.
+- Negatives, 2 Liga Endesa 2025-26 games outside the 10, each between the same two clubs as one of the 10:
+  `paD9I26G7uA` (Recoletas Salud San Pablo Burgos - Bàsquet Girona, 97-79, 2025-10-04) and `rES4CvHaRcI` (Asisa
+  Joventut - UCAM Murcia, 67-89, 2026-04-04). Each must confirm nothing.
+- Bar: 3 of 3 positives confirmed and 0 negatives confirmed, under the acb_clock reading. If the bar is met, the
+  acb_clock reading is accepted and 00k9_ueP2bY is checked again under the final rule; if not, the reading is not
+  accepted and 00k9_ueP2bY's verdict stays with the unchanged reading. The unchanged reading is reported beside it
+  either way.
+
+### Results
+
+(Added after the runs, below.)

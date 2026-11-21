@@ -76,3 +76,19 @@ def test_a_moment_keeps_the_first_matching_section_per_reading():
              {"start": 90, "downloaded": True, "unchanged": miss, "acb_clock": miss}]
     assert A.moment_result(tries) == {"unchanged": [], "acb_clock": ["7"]}
     assert A.moment_result([{"start": 0, "downloaded": False}]) == {"unchanged": [], "acb_clock": []}
+
+
+def test_the_halftime_retry_fires_only_when_two_sections_read_no_clock():
+    blank = {"games": [], "frames": 8, "frames_with_clock": 0, "frames_with_two_ints": 0}
+    clock = dict(blank, frames_with_clock=3)
+    t = lambda u, a: {"start": 0, "downloaded": True, "unchanged": u, "acb_clock": a}
+    assert A.needs_halftime_retry([t(blank, blank), t(blank, blank)])
+    assert not A.needs_halftime_retry([t(blank, blank)])                       # the 90 s retry comes first
+    assert not A.needs_halftime_retry([t(blank, clock), t(blank, blank)])      # a clock was read: not half-time
+    assert A.needs_halftime_retry([{"start": 0, "downloaded": False}, t(blank, blank)])
+    assert A.HALFTIME_RETRY_S == 900
+
+
+def test_the_calibration_set_is_fixed_and_keeps_out_the_candidate_game():
+    assert len(A.CALIBRATION_POSITIVES) == 3 and len(A.CALIBRATION_NEGATIVES) == 2
+    assert "179612" not in {g for _, g in A.CALIBRATION_POSITIVES}
