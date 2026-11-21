@@ -152,8 +152,13 @@ def check(m: dict, forms: str = "base", max_probes: int = MAX_PROBES, long_only:
         time.sleep(THROTTLE_S)
     out["named_both"] = [dict(r) for r in seen.values()]
     todo = [k for k, r in seen.items() if not long_only or r.get("duration") is None or r["duration"] >= CONDENSED_MIN_S]
+    from tools.research_testset import refuse_cv_test
     for (source, vid) in todo[:max_probes]:
         r = seen[(source, vid)]
+        try:                                   # a broadcast CV test video is never probed, whatever game it is listed under
+            refuse_cv_test([vid], "tools.p8_level4_search")
+        except SystemExit:
+            continue
         p = probe(source, vid)
         c = {"source": source, "id": vid, "search_title": r["title"], **p}
         c["length_class"] = length_class(c.get("duration") or r.get("duration"))
