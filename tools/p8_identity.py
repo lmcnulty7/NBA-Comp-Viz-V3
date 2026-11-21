@@ -183,6 +183,8 @@ def run_ocr(d: Path) -> dict:
 
 def check(source: str, vid: str, duration: float, candidates: list[str], record: bool = True) -> dict:
     """The identity check of one video against its candidate games -> the record (also written as identity.json)."""
+    from tools.research_testset import refuse_cv_test
+    refuse_cv_test([vid, *candidates], WHO)
     guard([vid, *candidates], WHO)
     events = {g: pbp(g) for g in candidates}
     d = work_dir(source, vid)

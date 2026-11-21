@@ -235,7 +235,12 @@ def check_game(name: str, g: dict, cls: str, sources=SOURCES) -> dict:
         cands.sort(key=lambda r: (rank[M.evidence_kind(r["title_evidence"])], r["length"] != "full", -(r["duration"] or 0)))
         probed = []
         if cls == "training":
+            from tools.research_testset import refuse_cv_test
             for r in cands[:MAX_PROBES]:
+                try:                                          # a known D85 test video found under another game
+                    refuse_cv_test([r["id"]], WHO)
+                except SystemExit:
+                    continue
                 p = probe(source, r["id"])
                 time.sleep(THROTTLE_S)
                 c = {"id": r["id"], "source": source, "search_title": r["title"], "length": r["length"], **p}
