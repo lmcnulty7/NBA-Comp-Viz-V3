@@ -197,3 +197,11 @@ def test_found_targets_is_one_to_one_within_the_gate():
     assert T.found_targets(feet, targets) == {0}
     assert T.found_targets(np.array([[0.5, 0.0], [10.0, 2.4]]), targets) == {0, 1}
     assert T.found_targets(np.zeros((0, 2)), targets) == set()
+
+
+def test_agreement_boxes_are_one_to_one_at_half_iou_and_take_the_mean_box():
+    ours = [[0, 0, 10, 30, 0.9], [100, 0, 110, 30, 0.8]]
+    tea = [[1, 0, 11, 30, 0.7], [0, 0, 10, 30, 0.6], [300, 0, 310, 30, 0.9]]
+    ag = T.agree_boxes(ours, tea)
+    assert len(ag) == 1 and ag[0][:4] == [0, 0, 10, 30] and ag[0][4] == 0.6     # the higher-IoU teacher box
+    assert T.agree_boxes(ours, []) == [] and T.agree_boxes([], tea) == []
