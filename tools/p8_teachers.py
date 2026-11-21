@@ -1,8 +1,8 @@
 """tools/p8_teachers.py: qualify outside teacher detectors on the existing human box truth (P8 step 0, Track B;
 PLAN.md D131, D132; LABEL_SCHEMA.md anti-inbreeding rule 1).
 
-No new human labels of any kind: the only truth is the 50 hand-drawn files of config.TRACK_BOX_TRUTH (label_boxes.py:
-every clearly visible person on the court, referees included, one class). Nothing is trained, tuned or calibrated.
+No new human labels of any kind: the only truth is the 50 hand-drawn files of config.TRACK_BOX_TRUTH (one class, no
+class field). Nothing is trained, tuned or calibrated.
 Each teacher runs once with its published inference settings; only its confidence threshold is swept, and the sweep
 is part of the rule below, scored inside every bootstrap replicate.
 
@@ -21,11 +21,18 @@ Matching (colab_autolabel.py --qualify, pr_vs_gt): per frame, predictions in des
 the unmatched truth box of highest IoU; a match needs IoU >= 0.5. A prediction is a true positive when it matches.
 Precision and recall are pooled over frames.
 
-Truth and classes: the box truth is one class, every person on the court, referees included. Our detector
-(models/player_detector.pt, config.PLAYER_CONF 0.40, config.PLAYER_IOU 0.45) is scored on its player and referee
-boxes together (the primary comparator); its player boxes alone are a second, report-only row that repeats the
-2026-07-18 qualification's class choice. A COCO teacher is scored on its person class; the SportsMOT teacher on its
-single class.
+Truth and classes: the box truth holds players only. Our detector (models/player_detector.pt, config.PLAYER_CONF
+0.40, config.PLAYER_IOU 0.45) is scored on its player boxes (the primary comparator, the 2026-07-18 qualification's
+class choice); its player and referee boxes together are a report-only row. A COCO teacher is scored on its person
+class, so a referee or an off-court person it boxes counts against it, as it would as a player label; a report-only
+row also removes the teacher boxes that overlap one of our referee boxes (IoU >= 0.5). The SportsMOT teacher is scored
+on its single class.
+
+Change made before any teacher ran (2026-11-21, commit after e0e942f3): the first version of this rule read
+label_boxes.py's docstring ("include refs") and made player plus referee boxes the primary comparator. Our
+detector's own run then showed 130 referee boxes (median confidence 0.89, 7 of them on a player box) of which only 4
+match a truth box, and the frames show the referees unboxed: the files hold players only. The primary comparator
+became the player boxes; no teacher number existed when it changed.
 
 Device: CPU for every model, our detector included (docs/research/P8_PLATFORM.md: MPS finds fewer player boxes).
 
@@ -527,7 +534,7 @@ def cmd_score(args) -> dict:
         raise SystemExit(f"{WHO}: run our detector first (run --model ours)")
     det_people = [[p for p in ours["preds"][n] if p[5] in DET_PEOPLE] for n in names]
     det_player = [[p for p in ours["preds"][n] if p[5] == "player"] for n in names]
-    comparators = {"people": det_people, "player_only": det_player}
+    comparators = {"players": det_player, "people_report_only": det_people}
     result = {"frames": len(frames), "truth_boxes": int(n_gt), "clips": sorted(set(clips)),
               "games": fl["games"], "dropped": fl["dropped"], "iou": IOU, "floor": FLOOR, "bootstrap": B, "seed": SEED,
               "ours": {"device": ours["device"], "versions": ours["versions"], "weights_sha256": ours["weights_sha256"],
@@ -583,14 +590,24 @@ def cmd_score(args) -> dict:
                 tc = detector_counts([[p for p in fp if p[4] >= t] for fp in tpreds], gts)
                 row["at_threshold"] = prf(sum(x[0] for x in tc), sum(x[1] for x in tc), int(n_gt))
             entry[cname] = row
-        entry["qualifies"] = entry["people"]["qualifies"]            # the primary comparator decides
-        # teacher-only band at the matched-precision threshold of the primary comparator
-        t = entry["people"]["threshold"]
+        entry["qualifies"] = entry["players"]["qualifies"]           # the primary comparator decides
+        # report-only: the teacher without the boxes that sit on one of our referee boxes
+        det_ref = [[p for p in ours["preds"][n] if p[5] == "referee"] for n in names]
+        noref = [[p for p in fp if max((iou(p, r) for r in rf), default=0.0) < IOU] for fp, rf in zip(tpreds, det_ref)]
+        curve_nr = Curve([frame_flags(p, g) for p, g in zip(noref, gts)])
+        pt = qualify_one(curve_nr, counts["players"], n_gt_f, ones[None, :])
+        fb = qualify_one(curve_nr, counts["players"], n_gt_f, fw)
+        entry["minus_our_referees_report_only"] = {
+            "teacher_recall_at_matched_precision": float(pt["r_t"][0]),
+            "threshold": None if np.isnan(pt["thr"][0]) else float(pt["thr"][0]),
+            "diff": float(pt["diff"][0]), "diff_interval_frames": percentile_interval(fb["diff"])}
+        # teacher-only band at the matched-precision threshold of the primary comparator, against our player boxes
+        t = entry["players"]["threshold"]
         if t is not None:
-            per = [band(tp_, d, g, t) for tp_, d, g in zip(tpreds, det_people, gts)]
+            per = [band(tp_, d, g, t) for tp_, d, g in zip(tpreds, det_player, gts)]
             n_b = [len(o) for o, _ in per]
             k_b = [sum(f) for _, f in per]
-            tp_det = sum(x[0] for x in counts["people"])
+            tp_det = sum(x[0] for x in counts["players"])
             entry["teacher_only_band"] = {
                 "threshold": t, "boxes": int(sum(n_b)), "true": int(sum(k_b)),
                 "precision": (sum(k_b) / sum(n_b)) if sum(n_b) else None,
@@ -604,7 +621,7 @@ def cmd_score(args) -> dict:
     names_t = sorted(bands)
     for i, a in enumerate(names_t):
         for b_ in names_t[i + 1:]:
-            per = [pair_band(oa, ob, d, g) for oa, ob, d, g in zip(bands[a], bands[b_], det_people, gts)]
+            per = [pair_band(oa, ob, d, g) for oa, ob, d, g in zip(bands[a], bands[b_], det_player, gts)]
             n_b = [len(o) for o, _ in per]
             k_b = [sum(f) for _, f in per]
             pairs[f"{a}+{b_}"] = {
