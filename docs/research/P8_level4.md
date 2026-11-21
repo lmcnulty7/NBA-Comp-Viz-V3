@@ -402,3 +402,35 @@ sections only, each checked against all 10 SkillCorner games under the final rul
 ### Results
 
 (Added after the runs, below.)
+
+## 11. NBA 2025-26 identity check (PLAN.md D141)
+
+Written before any calibration video is downloaded.
+
+Rule: tools.p8_identity's D130 rule as fixed in D138, imported unchanged (`tools/p8_nba_identity.py`), with the
+mirror's play-by-play (`cdnnba_2025`, `cdnnba_po_2025`: period, clock, scoreHome and scoreAway on every action) in
+place of the SportVU play-by-play. `python3 -m tools.p8_nba_identity events` (under the heavy-job lock) turned them
+into 156,583 score changes for 1,290 games: all 1,230 regular-season games and 60 of the 85 playoff games (the
+mirror's playoff file holds 60). Candidates for a video: every 2025-26 game between its two teams; a game without
+play-by-play stays a candidate that can never match, and is listed with each record.
+
+Calibration (fixed in `CALIBRATION` before it runs): 5 of the league channel's "EXTENDED: ... FULL GAME
+HIGHLIGHTS" uploads of regular-season games, drawn with `random.Random(141).sample` from the 162 matched ones sorted
+by video id; identity is the league's own title.
+
+| Video | Titled game | Date | Games between the two teams in 2025-26 |
+|---|---|---|---|
+| qXCV4eissO4 | 0022500332, HEAT at MAVERICKS | 2025-12-03 | 2 |
+| 1krUPLClXYA | 0022500714, TIMBERWOLVES at GRIZZLIES | 2026-02-02 | 4 |
+| tXKAuBt2vjw | 0022500300, MAVERICKS at CLIPPERS | 2025-11-29 | 4 |
+| nb402apDzh8 | 0022500881, NUGGETS at JAZZ | 2026-03-02 | 4 |
+| GDpD5lL9c20 | 0022500227, HAWKS at JAZZ | 2025-11-13 | 2 |
+
+Bar: 5 of 5 confirmed as the titled game against every game of the same two teams, and 0 confirmed as another game.
+If the bar is met, the 25 probed full-game candidates (section 8, YouTube, 720p or more) are checked, identity
+sections only; every candidate's play-by-play exists for its titled game. If it is not met, no candidate is checked
+and the failure is reported.
+
+### Results
+
+(Added after the runs, below.)
