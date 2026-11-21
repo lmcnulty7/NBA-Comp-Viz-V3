@@ -1,0 +1,1005 @@
+{
+ "experiment": "P8-E2",
+ "pre_registration": "docs/research/P8_E2.md (9f1256e1)",
+ "date": "2026-11-21",
+ "games_run": [
+  "gsw_bkn_2015",
+  "gsw_cha_2016",
+  "gsw_ind_2016",
+  "gsw_sac_2015",
+  "nyk_bos_2016"
+ ],
+ "pooled": [
+  "gsw_bkn_2015",
+  "gsw_cha_2016",
+  "gsw_sac_2015",
+  "nyk_bos_2016"
+ ],
+ "apart": [
+  "gsw_ind_2016"
+ ],
+ "no_time_map": [
+  "okc_sac_2015",
+  "por_okc_2016"
+ ],
+ "lags_m1_s": {
+  "gsw_bkn_2015": 0.14,
+  "gsw_cha_2016": 0.14,
+  "gsw_ind_2016": 0.26,
+  "gsw_sac_2015": 0.18
+ },
+ "colab_offsets": {
+  "gsw_bkn_2015": {
+   "windows": 60,
+   "median_s": 0.26,
+   "share_abs_le_1s": 0.783
+  },
+  "gsw_cha_2016": {
+   "windows": 60,
+   "median_s": 0.3,
+   "share_abs_le_1s": 0.783
+  },
+  "gsw_ind_2016": {
+   "windows": 81,
+   "median_s": 0.0,
+   "share_abs_le_1s": 0.827
+  },
+  "gsw_sac_2015": {
+   "windows": 61,
+   "median_s": 0.22,
+   "share_abs_le_1s": 0.787
+  }
+ },
+ "targets": {
+  "shots": ">= 0.95 found within 1.0 s, <= 0.05 false per true",
+  "rebounds": ">= 0.90 found within 1.0 s"
+ },
+ "coverage": {
+  "gsw_bkn_2015": {
+   "sections": 11,
+   "spans": 144,
+   "chained_spans": 143,
+   "dropped_spans": [
+    {
+     "section": "gsw_bkn_2015_s00",
+     "f0": 13260,
+     "period": 1,
+     "c0": 78.0,
+     "c1": 75.0,
+     "video_s": 3.0
+    }
+   ],
+   "gaps": {
+    "dead_ball_video_s": 1277.3,
+    "unread_video_s": 1871.9,
+    "unread_game_s": 503.4,
+    "skipped_game_s": 0.0,
+    "mapped_game_s": 2564.0,
+    "mapped_video_s": 2527.5
+   },
+   "contract_frame": {
+    "events": 308,
+    "with_frame": 305,
+    "abs_clock_diff_p50_s": 0.01,
+    "abs_clock_diff_max_s": 0.04
+   },
+   "events": {
+    "shot": {
+     "pbp": 195,
+     "placed_in_chained_span": 162,
+     "placed_share": 0.831,
+     "gaps": {
+      "period not mapped": 0,
+      "between sections": 5,
+      "video skips game time": 0,
+      "clock ran unread": 28
+     }
+    },
+    "rebound": {
+     "pbp": 113,
+     "placed_in_chained_span": 95,
+     "placed_share": 0.841,
+     "gaps": {
+      "period not mapped": 0,
+      "between sections": 1,
+      "video skips game time": 0,
+      "clock ran unread": 17
+     }
+    }
+   },
+   "label_windows": 83,
+   "label_windows_on_chain": 83,
+   "placements_written": {
+    "M0": 186,
+    "M1": 186
+   },
+   "lag_m1_s": 0.14
+  },
+  "gsw_cha_2016": {
+   "sections": 10,
+   "spans": 136,
+   "chained_spans": 136,
+   "dropped_spans": [],
+   "gaps": {
+    "dead_ball_video_s": 1286.3,
+    "unread_video_s": 1159.2,
+    "unread_game_s": 434.3,
+    "skipped_game_s": 0.0,
+    "mapped_game_s": 2346.2,
+    "mapped_video_s": 2309.3
+   },
+   "contract_frame": {
+    "events": 264,
+    "with_frame": 264,
+    "abs_clock_diff_p50_s": 0.01,
+    "abs_clock_diff_max_s": 0.04
+   },
+   "events": {
+    "shot": {
+     "pbp": 173,
+     "placed_in_chained_span": 153,
+     "placed_share": 0.884,
+     "gaps": {
+      "period not mapped": 0,
+      "between sections": 1,
+      "video skips game time": 0,
+      "clock ran unread": 19
+     }
+    },
+    "rebound": {
+     "pbp": 91,
+     "placed_in_chained_span": 80,
+     "placed_share": 0.879,
+     "gaps": {
+      "period not mapped": 0,
+      "between sections": 0,
+      "video skips game time": 0,
+      "clock ran unread": 11
+     }
+    }
+   },
+   "label_windows": 74,
+   "label_windows_on_chain": 74,
+   "placements_written": {
+    "M0": 129,
+    "M1": 129
+   },
+   "lag_m1_s": 0.14
+  },
+  "gsw_ind_2016": {
+   "sections": 11,
+   "spans": 117,
+   "chained_spans": 117,
+   "dropped_spans": [],
+   "gaps": {
+    "dead_ball_video_s": 1849.8,
+    "unread_video_s": 1104.1,
+    "unread_game_s": 197.3,
+    "skipped_game_s": 0.0,
+    "mapped_game_s": 2660.7,
+    "mapped_video_s": 2634.6
+   },
+   "contract_frame": {
+    "events": 294,
+    "with_frame": 293,
+    "abs_clock_diff_p50_s": 0.01,
+    "abs_clock_diff_max_s": 1.3
+   },
+   "events": {
+    "shot": {
+     "pbp": 185,
+     "placed_in_chained_span": 177,
+     "placed_share": 0.957,
+     "gaps": {
+      "period not mapped": 0,
+      "between sections": 0,
+      "video skips game time": 0,
+      "clock ran unread": 8
+     }
+    },
+    "rebound": {
+     "pbp": 109,
+     "placed_in_chained_span": 104,
+     "placed_share": 0.954,
+     "gaps": {
+      "period not mapped": 0,
+      "between sections": 0,
+      "video skips game time": 0,
+      "clock ran unread": 5
+     }
+    }
+   },
+   "label_windows": 92,
+   "label_windows_on_chain": 92,
+   "placements_written": {
+    "M0": 228,
+    "M1": 228
+   },
+   "lag_m1_s": 0.26
+  },
+  "gsw_sac_2015": {
+   "sections": 11,
+   "spans": 151,
+   "chained_spans": 151,
+   "dropped_spans": [],
+   "gaps": {
+    "dead_ball_video_s": 1658.7,
+    "unread_video_s": 1374.4,
+    "unread_game_s": 458.9,
+    "skipped_game_s": 0.0,
+    "mapped_game_s": 2338.0,
+    "mapped_video_s": 2318.3
+   },
+   "contract_frame": {
+    "events": 308,
+    "with_frame": 308,
+    "abs_clock_diff_p50_s": 0.01,
+    "abs_clock_diff_max_s": 0.61
+   },
+   "events": {
+    "shot": {
+     "pbp": 184,
+     "placed_in_chained_span": 158,
+     "placed_share": 0.859,
+     "gaps": {
+      "period not mapped": 0,
+      "between sections": 5,
+      "video skips game time": 0,
+      "clock ran unread": 21
+     }
+    },
+    "rebound": {
+     "pbp": 124,
+     "placed_in_chained_span": 106,
+     "placed_share": 0.855,
+     "gaps": {
+      "period not mapped": 0,
+      "between sections": 3,
+      "video skips game time": 0,
+      "clock ran unread": 15
+     }
+    }
+   },
+   "label_windows": 83,
+   "label_windows_on_chain": 83,
+   "placements_written": {
+    "M0": 84,
+    "M1": 84
+   },
+   "lag_m1_s": 0.18
+  },
+  "nyk_bos_2016": {
+   "sections": 9,
+   "spans": 84,
+   "chained_spans": 84,
+   "dropped_spans": [],
+   "gaps": {
+    "dead_ball_video_s": 1535.5,
+    "unread_video_s": 1187.2,
+    "unread_game_s": 226.9,
+    "skipped_game_s": 0.0,
+    "mapped_game_s": 1919.1,
+    "mapped_video_s": 1856.9
+   },
+   "contract_frame": {
+    "events": 257,
+    "with_frame": 250,
+    "abs_clock_diff_p50_s": 0.01,
+    "abs_clock_diff_max_s": 1.61
+   },
+   "events": {
+    "shot": {
+     "pbp": 167,
+     "placed_in_chained_span": 122,
+     "placed_share": 0.731,
+     "gaps": {
+      "period not mapped": 41,
+      "between sections": 0,
+      "video skips game time": 0,
+      "clock ran unread": 4
+     }
+    },
+    "rebound": {
+     "pbp": 90,
+     "placed_in_chained_span": 68,
+     "placed_share": 0.756,
+     "gaps": {
+      "period not mapped": 17,
+      "between sections": 0,
+      "video skips game time": 0,
+      "clock ran unread": 5
+     }
+    }
+   },
+   "label_windows": 51,
+   "label_windows_on_chain": 51,
+   "placements_written": {
+    "M0": 0,
+    "M1": 0
+   },
+   "lag_m1_s": null
+  }
+ },
+ "rows": {
+  "camera": {
+   "scored_games": [
+    "gsw_bkn_2015",
+    "gsw_ind_2016"
+   ],
+   "M0": {
+    "pooled": {
+     "shot": {
+      "truth_events": 112,
+      "found_share": 0.616,
+      "found_share_window_ci": [
+       0.455,
+       0.766
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.42,
+      "false_per_true_window_ci": [
+       0.264,
+       0.598
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     },
+     "rebound": {
+      "truth_events": 61,
+      "found_share": 0.607,
+      "found_share_window_ci": [
+       0.441,
+       0.784
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     }
+    },
+    "apart_gsw_ind_2016": {
+     "shot": {
+      "truth_events": 139,
+      "found_share": 0.784,
+      "found_share_window_ci": [
+       0.655,
+       0.89
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.245,
+      "false_per_true_window_ci": [
+       0.131,
+       0.383
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_ind_2016"
+      ]
+     },
+     "rebound": {
+      "truth_events": 85,
+      "found_share": 0.753,
+      "found_share_window_ci": [
+       0.612,
+       0.885
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_ind_2016"
+      ]
+     }
+    },
+    "game_gsw_bkn_2015": {
+     "shot": {
+      "truth_events": 112,
+      "found_share": 0.616,
+      "found_share_window_ci": [
+       0.455,
+       0.766
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.42,
+      "false_per_true_window_ci": [
+       0.264,
+       0.598
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     },
+     "rebound": {
+      "truth_events": 61,
+      "found_share": 0.607,
+      "found_share_window_ci": [
+       0.441,
+       0.784
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     }
+    }
+   },
+   "M1": {
+    "pooled": {
+     "shot": {
+      "truth_events": 112,
+      "found_share": 0.75,
+      "found_share_window_ci": [
+       0.604,
+       0.883
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.295,
+      "false_per_true_window_ci": [
+       0.162,
+       0.467
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     },
+     "rebound": {
+      "truth_events": 61,
+      "found_share": 0.738,
+      "found_share_window_ci": [
+       0.567,
+       0.893
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     }
+    },
+    "apart_gsw_ind_2016": {
+     "shot": {
+      "truth_events": 139,
+      "found_share": 0.856,
+      "found_share_window_ci": [
+       0.773,
+       0.923
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.173,
+      "false_per_true_window_ci": [
+       0.096,
+       0.272
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_ind_2016"
+      ]
+     },
+     "rebound": {
+      "truth_events": 85,
+      "found_share": 0.835,
+      "found_share_window_ci": [
+       0.735,
+       0.913
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_ind_2016"
+      ]
+     }
+    },
+    "game_gsw_bkn_2015": {
+     "shot": {
+      "truth_events": 112,
+      "found_share": 0.75,
+      "found_share_window_ci": [
+       0.604,
+       0.883
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.295,
+      "false_per_true_window_ci": [
+       0.162,
+       0.467
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     },
+     "rebound": {
+      "truth_events": 61,
+      "found_share": 0.738,
+      "found_share_window_ci": [
+       0.567,
+       0.893
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     }
+    }
+   },
+   "offsets": {
+    "gsw_bkn_2015": {
+     "windows": 83,
+     "median_s": 0.34,
+     "share_abs_le_1s": 0.711
+    },
+    "gsw_ind_2016": {
+     "windows": 92,
+     "median_s": 0.06,
+     "share_abs_le_1s": 0.761
+    }
+   },
+   "row_c_full_error": {
+    "gsw_bkn_2015": {
+     "shot": {
+      "M0": {
+       "n": 59,
+       "share_within_1s": 0.153,
+       "window_ci": [
+        0.077,
+        0.246
+       ]
+      },
+      "M1": {
+       "n": 59,
+       "share_within_1s": 0.119,
+       "window_ci": [
+        0.048,
+        0.204
+       ]
+      },
+      "skipped_not_unique": 0,
+      "skipped_no_physical_frame": 53
+     },
+     "rebound": {
+      "M0": {
+       "n": 50,
+       "share_within_1s": 0.42,
+       "window_ci": [
+        0.283,
+        0.572
+       ]
+      },
+      "M1": {
+       "n": 50,
+       "share_within_1s": 0.4,
+       "window_ci": [
+        0.264,
+        0.549
+       ]
+      },
+      "skipped_not_unique": 0,
+      "skipped_no_physical_frame": 11
+     }
+    },
+    "gsw_ind_2016": {
+     "shot": {
+      "M0": {
+       "n": 107,
+       "share_within_1s": 0.215,
+       "window_ci": [
+        0.132,
+        0.309
+       ]
+      },
+      "M1": {
+       "n": 107,
+       "share_within_1s": 0.168,
+       "window_ci": [
+        0.095,
+        0.25
+       ]
+      },
+      "skipped_not_unique": 4,
+      "skipped_no_physical_frame": 28
+     },
+     "rebound": {
+      "M0": {
+       "n": 74,
+       "share_within_1s": 0.392,
+       "window_ci": [
+        0.298,
+        0.5
+       ]
+      },
+      "M1": {
+       "n": 74,
+       "share_within_1s": 0.392,
+       "window_ci": [
+        0.286,
+        0.506
+       ]
+      },
+      "skipped_not_unique": 0,
+      "skipped_no_physical_frame": 11
+     }
+    }
+   }
+  },
+  "b4": {
+   "scored_games": [
+    "gsw_bkn_2015",
+    "gsw_cha_2016"
+   ],
+   "M0": {
+    "pooled": {
+     "shot": {
+      "truth_events": 189,
+      "found_share": 0.656,
+      "found_share_window_ci": [
+       0.544,
+       0.756
+      ],
+      "found_share_game_ci": [
+       0.616,
+       0.714
+      ],
+      "false_per_true": 0.381,
+      "false_per_true_window_ci": [
+       0.273,
+       0.5
+      ],
+      "false_per_true_game_ci": [
+       0.325,
+       0.42
+      ],
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015",
+       "gsw_cha_2016"
+      ]
+     },
+     "rebound": {
+      "truth_events": 98,
+      "found_share": 0.622,
+      "found_share_window_ci": [
+       0.49,
+       0.753
+      ],
+      "found_share_game_ci": [
+       0.607,
+       0.649
+      ],
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015",
+       "gsw_cha_2016"
+      ]
+     }
+    },
+    "game_gsw_bkn_2015": {
+     "shot": {
+      "truth_events": 112,
+      "found_share": 0.616,
+      "found_share_window_ci": [
+       0.455,
+       0.766
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.42,
+      "false_per_true_window_ci": [
+       0.264,
+       0.598
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     },
+     "rebound": {
+      "truth_events": 61,
+      "found_share": 0.607,
+      "found_share_window_ci": [
+       0.441,
+       0.784
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     }
+    },
+    "game_gsw_cha_2016": {
+     "shot": {
+      "truth_events": 77,
+      "found_share": 0.714,
+      "found_share_window_ci": [
+       0.552,
+       0.854
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.325,
+      "false_per_true_window_ci": [
+       0.187,
+       0.507
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_cha_2016"
+      ]
+     },
+     "rebound": {
+      "truth_events": 37,
+      "found_share": 0.649,
+      "found_share_window_ci": [
+       0.437,
+       0.85
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_cha_2016"
+      ]
+     }
+    }
+   },
+   "M1": {
+    "pooled": {
+     "shot": {
+      "truth_events": 189,
+      "found_share": 0.772,
+      "found_share_window_ci": [
+       0.673,
+       0.866
+      ],
+      "found_share_game_ci": [
+       0.75,
+       0.805
+      ],
+      "false_per_true": 0.275,
+      "false_per_true_window_ci": [
+       0.173,
+       0.381
+      ],
+      "false_per_true_game_ci": [
+       0.247,
+       0.295
+      ],
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015",
+       "gsw_cha_2016"
+      ]
+     },
+     "rebound": {
+      "truth_events": 98,
+      "found_share": 0.765,
+      "found_share_window_ci": [
+       0.649,
+       0.882
+      ],
+      "found_share_game_ci": [
+       0.738,
+       0.811
+      ],
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015",
+       "gsw_cha_2016"
+      ]
+     }
+    },
+    "game_gsw_bkn_2015": {
+     "shot": {
+      "truth_events": 112,
+      "found_share": 0.75,
+      "found_share_window_ci": [
+       0.604,
+       0.883
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.295,
+      "false_per_true_window_ci": [
+       0.162,
+       0.467
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     },
+     "rebound": {
+      "truth_events": 61,
+      "found_share": 0.738,
+      "found_share_window_ci": [
+       0.567,
+       0.893
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_bkn_2015"
+      ]
+     }
+    },
+    "game_gsw_cha_2016": {
+     "shot": {
+      "truth_events": 77,
+      "found_share": 0.805,
+      "found_share_window_ci": [
+       0.653,
+       0.914
+      ],
+      "found_share_game_ci": null,
+      "false_per_true": 0.247,
+      "false_per_true_window_ci": [
+       0.128,
+       0.426
+      ],
+      "false_per_true_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_cha_2016"
+      ]
+     },
+     "rebound": {
+      "truth_events": 37,
+      "found_share": 0.811,
+      "found_share_window_ci": [
+       0.656,
+       0.927
+      ],
+      "found_share_game_ci": null,
+      "pass": false,
+      "games": [
+       "gsw_cha_2016"
+      ]
+     }
+    }
+   },
+   "offsets": {
+    "gsw_bkn_2015": {
+     "windows": 83,
+     "median_s": 0.34,
+     "share_abs_le_1s": 0.711
+    },
+    "gsw_cha_2016": {
+     "windows": 54,
+     "median_s": 0.44,
+     "share_abs_le_1s": 0.648
+    }
+   }
+  },
+  "physical_game_time": {
+   "shot": {
+    "pooled": {
+     "n": 405,
+     "share_within_1s": 0.17,
+     "window_ci": [
+      0.134,
+      0.21
+     ],
+     "game_ci": [
+      0.129,
+      0.245
+     ],
+     "pbp_minus_physical_p50_s": -2.05,
+     "abs_p90_s": 2.81,
+     "placed": 595
+    },
+    "gsw_bkn_2015": {
+     "n": 79,
+     "placed": 162,
+     "share_within_1s": 0.114,
+     "pbp_minus_physical_p50_s": -2.39
+    },
+    "gsw_cha_2016": {
+     "n": 123,
+     "placed": 153,
+     "share_within_1s": 0.163,
+     "pbp_minus_physical_p50_s": -1.84
+    },
+    "gsw_ind_2016": {
+     "n": 144,
+     "placed": 177,
+     "share_within_1s": 0.146,
+     "pbp_minus_physical_p50_s": -2.055
+    },
+    "gsw_sac_2015": {
+     "n": 123,
+     "placed": 158,
+     "share_within_1s": 0.138,
+     "pbp_minus_physical_p50_s": -1.99
+    },
+    "nyk_bos_2016": {
+     "n": 80,
+     "placed": 122,
+     "share_within_1s": 0.287,
+     "pbp_minus_physical_p50_s": -2.245
+    }
+   },
+   "rebound": {
+    "pooled": {
+     "n": 285,
+     "share_within_1s": 0.382,
+     "window_ci": [
+      0.331,
+      0.438
+     ],
+     "game_ci": [
+      0.289,
+      0.467
+     ],
+     "pbp_minus_physical_p50_s": -1.05,
+     "abs_p90_s": 3.412,
+     "placed": 349
+    },
+    "gsw_bkn_2015": {
+     "n": 77,
+     "placed": 95,
+     "share_within_1s": 0.26,
+     "pbp_minus_physical_p50_s": -1.72
+    },
+    "gsw_cha_2016": {
+     "n": 64,
+     "placed": 80,
+     "share_within_1s": 0.453,
+     "pbp_minus_physical_p50_s": -0.785
+    },
+    "gsw_ind_2016": {
+     "n": 90,
+     "placed": 104,
+     "share_within_1s": 0.511,
+     "pbp_minus_physical_p50_s": -0.64
+    },
+    "gsw_sac_2015": {
+     "n": 86,
+     "placed": 106,
+     "share_within_1s": 0.477,
+     "pbp_minus_physical_p50_s": -0.815
+    },
+    "nyk_bos_2016": {
+     "n": 58,
+     "placed": 68,
+     "share_within_1s": 0.328,
+     "pbp_minus_physical_p50_s": -1.355
+    }
+   }
+  }
+ },
+ "coverage_pooled": {
+  "shot": {
+   "pbp": 719,
+   "placed": 595,
+   "placed_share": 0.828,
+   "gaps": {
+    "period not mapped": 41,
+    "between sections": 11,
+    "video skips game time": 0,
+    "clock ran unread": 72
+   }
+  },
+  "rebound": {
+   "pbp": 418,
+   "placed": 349,
+   "placed_share": 0.835,
+   "gaps": {
+    "period not mapped": 17,
+    "between sections": 4,
+    "video skips game time": 0,
+    "clock ran unread": 48
+   }
+  }
+ }
+}
