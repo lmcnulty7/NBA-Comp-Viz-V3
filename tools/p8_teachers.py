@@ -601,8 +601,21 @@ def cmd_score(args) -> dict:
             "teacher_recall_at_matched_precision": float(pt["r_t"][0]),
             "threshold": None if np.isnan(pt["thr"][0]) else float(pt["thr"][0]),
             "diff": float(pt["diff"][0]), "diff_interval_frames": percentile_interval(fb["diff"])}
-        # teacher-only band at the matched-precision threshold of the primary comparator, against our player boxes
+        # report-only: each game alone, ours against the teacher at its full-sample matched-precision threshold
         t = entry["players"]["threshold"]
+        if t is not None:
+            entry["per_game_report_only"] = {}
+            for game in sorted({fr["game"] for fr in frames}):
+                ix = [i for i, fr in enumerate(frames) if fr["game"] == game]
+                g_ = [gts[i] for i in ix]
+                cd = detector_counts([det_player[i] for i in ix], g_)
+                ct = detector_counts([[p for p in tpreds[i] if p[4] >= t] for i in ix], g_)
+                ng = sum(len(x) for x in g_)
+                entry["per_game_report_only"][game] = {
+                    "frames": len(ix), "truth_boxes": ng,
+                    "ours": prf(sum(x[0] for x in cd), sum(x[1] for x in cd), ng),
+                    "teacher": prf(sum(x[0] for x in ct), sum(x[1] for x in ct), ng)}
+        # teacher-only band at the matched-precision threshold of the primary comparator, against our player boxes
         if t is not None:
             per = [band(tp_, d, g, t) for tp_, d, g in zip(tpreds, det_player, gts)]
             n_b = [len(o) for o, _ in per]
