@@ -264,9 +264,9 @@ def parts_dir() -> Path:
     return d
 
 
-def run(limit: int | None, sources, retry_errors: bool) -> None:
+def run(limit: int | None, sources, retry_errors: bool, reverse: bool = False) -> None:
     games = contract_games()
-    order = sorted(games, key=lambda n: (games[n]["date"], n))
+    order = sorted(games, key=lambda n: (games[n]["date"], n), reverse=reverse)   # reverse: a second runner from the end
     done, consecutive = 0, 0
     for name in order:
         g = games[name]
@@ -325,10 +325,11 @@ def main(argv=None) -> int:
     r.add_argument("--limit", type=int)
     r.add_argument("--source", choices=SOURCES, action="append")
     r.add_argument("--retry-errors", action="store_true")
+    r.add_argument("--reverse", action="store_true", help="latest games first, for a second runner")
     sub.add_parser("summary")
     a = ap.parse_args(argv)
     if a.cmd == "run":
-        run(a.limit, tuple(a.source or SOURCES), a.retry_errors)
+        run(a.limit, tuple(a.source or SOURCES), a.retry_errors, a.reverse)
     else:
         s = summary()
         atomic_write(p8_root() / "search" / "summary.json", json.dumps(s, ensure_ascii=False, indent=1))
