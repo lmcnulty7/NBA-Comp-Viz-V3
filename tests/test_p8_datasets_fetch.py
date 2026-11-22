@@ -32,3 +32,8 @@ def test_pl_nba_folders_resolve_by_date_and_known_teams_only():
     assert gid == "0022200300" and how == "date and one team (DAL)"
     assert D.resolve_folder("20221107_XYZ_QRS_label", sched) == (None, "no team code recognised")
     assert D.resolve_folder("notadate", sched)[0] is None
+
+
+def test_season_of_a_game_id():
+    assert D.season_of("0022400861") == "2024-25" and D.season_of("0021800909") == "2018-19"
+    assert D.season_of("0042500171") == "2025-26"
