@@ -79,3 +79,29 @@ def test_one_group_has_no_interval_and_the_tool_guards():
     src = open(E.__file__).read()
     assert "refuse_cv_test(" in src and "game_of(tag)" in src
     assert "gsw_ind_2016" not in E.POOLED and "hou_cle_2016" not in E.POOLED
+
+
+# ── D154: the colour-on-replay arm ─────────────────────────────────────────────────────────────────────────────────
+def test_matched_abstention_for_the_colour_arm():
+    lab = {1: 0, 2: 1, 3: 0, 4: 1}
+    ratio = {1: 0.1, 2: 0.9, 3: 0.5, 4: 0.2}
+    out = E.matched_abstain(lab, ratio, [1, 2, 3, 4, 5], 3)
+    assert out == {1: 0, 2: None, 3: None, 4: 1, 5: None}
+    assert sum(v is None for v in E.matched_abstain(lab, ratio, [1, 2, 3, 4, 5], 0).values()) == 1
+
+
+def test_order_trace_counts_a_swapped_window_as_agreeing_up_to_order():
+    stored = {1: 0, 2: 1, 3: None, 4: 0}
+    t = E.order_trace({1: 1, 2: 0, 3: None, 4: 1}, stored)
+    assert t == {"keys": 4, "as_given": 1, "up_to_order": 4, "swapped_window": True}
+    t = E.order_trace({1: 0, 2: 1, 3: None, 4: 1}, stored)
+    assert t["as_given"] == 3 and t["up_to_order"] == 3 and not t["swapped_window"]
+
+
+def test_confound_reading():
+    below = {a: {"game_interval": [-0.2, -0.1], "window_interval": [-0.2, -0.15]} for a in E.ARMS}
+    assert E.confound_reading(-1.0, below) == "embeddings worse"
+    assert E.confound_reading(-6.0, below) == "comparison confounded"
+    assert E.confound_reading(-3.0, below) == "inconclusive"
+    mixed = {**below, "clip": {"game_interval": [-0.2, 0.01], "window_interval": [-0.2, -0.1]}}
+    assert E.confound_reading(-1.0, mixed) == "inconclusive"

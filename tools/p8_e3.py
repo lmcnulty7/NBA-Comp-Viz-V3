@@ -133,6 +133,42 @@ def verdict(pooled: dict, per_game: dict, arm: str) -> dict:
     return {"adopt": all(checks.values()), "checks": checks, "games_down": drops}
 
 
+def matched_abstain(lab: dict, ratio: dict, keys: list, n_abstain: int) -> dict:
+    """{key: label} for the keys with a feature (lab, with its near/far ratio) -> labels where exactly
+    max(n_abstain, keys without a feature) keys carry None: those without a feature first, then the largest ratio."""
+    out = {k: lab.get(k) for k in keys}
+    extra = max(0, n_abstain - sum(v is None for v in out.values()))
+    for k in sorted(ratio, key=lambda k: (-ratio[k], str(k)))[:extra]:
+        out[k] = None
+    return out
+
+
+def order_trace(native: dict, stored: dict) -> dict:
+    """Agreement of one window's replayed labels with the stored ones as given and with 0 and 1 swapped: the cluster
+    order is arbitrary and no metric reads it, so max(as given, swapped) is the agreement up to order."""
+    sw = {0: 1, 1: 0, None: None}
+    keys = list(stored)
+    same = sum(native.get(k) == stored[k] for k in keys)
+    swapped = sum(sw.get(native.get(k)) == stored[k] for k in keys)
+    return {"keys": len(keys), "as_given": same, "up_to_order": max(same, swapped), "swapped_window": swapped > same}
+
+
+CONFOUND_NEAR_PTS, CONFOUND_FAR_PTS = -2.0, -5.0
+
+
+def confound_reading(colour_minus_r23_pts: float, arm_minus_colour: dict) -> str:
+    """D154's reading, fixed before the run: "embeddings worse" when colour on the replayed crops stays within 2.0
+    points of r23's stored rows (pooled) and every arm-minus-colour-replay interval (game and window) lies wholly below
+    zero; "comparison confounded" when colour on the replayed crops itself drops 5.0 points or more; else
+    "inconclusive"."""
+    if colour_minus_r23_pts <= CONFOUND_FAR_PTS:
+        return "comparison confounded"
+    below = all(iv and iv[1] < 0 for a in arm_minus_colour.values() for iv in (a["game_interval"], a["window_interval"]))
+    if colour_minus_r23_pts >= CONFOUND_NEAR_PTS and below:
+        return "embeddings worse"
+    return "inconclusive"
+
+
 # ── replay (frozen CV python, inside the lock) ──────────────────────────────────────────────────────────────────────
 def _guard(tag: str):
     from tools import p8_frozen as F
@@ -145,20 +181,10 @@ class _T:
         self.track_id, self.bbox = tid, bbox
 
 
-def replay_window(P: dict, w: dict, models: dict) -> dict:
-    """One window: the frozen TorsoCropCollector on r23's stored boxes, the frozen colour classifier (a reproduction
-    check against the stored labels) and the embedding arms."""
+def collect_crops(P: dict, stem: str, side: dict):
+    """The frozen TorsoCropCollector over r23's stored boxes and fragment ids, frame by frame from the window clip."""
     import cv2
-    import config
     from detect.reid import TorsoCropCollector
-    from detect.teams import TeamClassifier
-    stem = w["window"]
-    r23 = P["builds"] / "r23"
-    side = json.loads((r23 / f"{stem}_frames.json").read_text())
-    ident = json.loads((r23 / f"{stem}_identity.json").read_text())
-    idmap = {int(k): int(v) for k, v in ident.get("idmap", {}).items()}
-    stored = {int(k): v for k, v in ident.get("team_by_track", {}).items()}
-    keys = sorted(stored)
     coll = TorsoCropCollector()
     # decoded from frame 0 with grab(), never a seek: a seek in these clips can land short of the end (frame 978 of a
     # 990-frame window was unreadable after a seek in the smoke run), while the build itself read them sequentially
@@ -177,6 +203,22 @@ def replay_window(P: dict, w: dict, models: dict) -> dict:
         pos += 1
         coll.add(img, [_T(b["tid"], b["bbox"]) for b in fr["boxes"]])
     cap.release()
+    return coll
+
+
+def replay_window(P: dict, w: dict, models: dict) -> dict:
+    """One window: the frozen TorsoCropCollector on r23's stored boxes, the frozen colour classifier (a reproduction
+    check against the stored labels) and the embedding arms."""
+    import config
+    from detect.teams import TeamClassifier
+    stem = w["window"]
+    r23 = P["builds"] / "r23"
+    side = json.loads((r23 / f"{stem}_frames.json").read_text())
+    ident = json.loads((r23 / f"{stem}_identity.json").read_text())
+    idmap = {int(k): int(v) for k, v in ident.get("idmap", {}).items()}
+    stored = {int(k): v for k, v in ident.get("team_by_track", {}).items()}
+    keys = sorted(stored)
+    coll = collect_crops(P, stem, side)
     clf = TeamClassifier()
     colour = {}
     if keys and clf.fit(coll.crops):
@@ -206,6 +248,98 @@ def replay_window(P: dict, w: dict, models: dict) -> dict:
                 os.symlink(r23 / f"{stem}{suffix}", link)
         atomic_write(d / f"{stem}_identity.json", json.dumps({**ident, "team_by_track": {str(k): v for k, v in teams.items()},
                                                                "e3": {"arm": arm, "model": ARMS[arm], "rule": "D153"}}))
+    return out
+
+
+def colour_window(P: dict, w: dict) -> dict:
+    """D154: the frozen colour classifier on the replayed crops, as an arm: fitted per window on the fragments as
+    detect/teams.py fits, each canonical track given its nearest centroid, then the same abstention matching as the
+    embedding arms; its native labels (the frozen abstention rule) kept for the cluster-order trace."""
+    import config
+    from detect.teams import TeamClassifier
+    stem = w["window"]
+    r23 = P["builds"] / "r23"
+    side = json.loads((r23 / f"{stem}_frames.json").read_text())
+    ident = json.loads((r23 / f"{stem}_identity.json").read_text())
+    idmap = {int(k): int(v) for k, v in ident.get("idmap", {}).items()}
+    stored = {int(k): v for k, v in ident.get("team_by_track", {}).items()}
+    keys = sorted(stored)
+    n_abst = sum(v is None for v in stored.values())
+    coll = collect_crops(P, stem, side)
+    clf = TeamClassifier()
+    native, lab, ratio = {}, {}, {}
+    if keys and clf.fit(coll.crops):
+        canon = {}
+        for tid, lst in coll.crops.items():
+            canon.setdefault(idmap.get(tid, tid), []).extend(lst)
+        native = {cid: t for cid, (t, _) in clf.assign(canon).items()}
+        for k in keys:
+            lst = canon.get(k, [])
+            f = clf._track_feature(lst) if len(lst) >= config.TEAM_MIN_CROPS else None
+            if f is None:
+                continue
+            d = np.linalg.norm(clf.km.cluster_centers_ - f, axis=1)
+            lab[k] = int(d.argmin())
+            ratio[k] = float(d.min() / max(d.max(), 1e-6))
+    teams = matched_abstain(lab, ratio, keys, n_abst)
+    d = P["builds"] / "e3_colour_replay"
+    d.mkdir(parents=True, exist_ok=True)
+    for suffix in ("_frames.json", "_trajectories.json"):
+        link = d / f"{stem}{suffix}"
+        if not link.exists() and (r23 / f"{stem}{suffix}").exists():
+            os.symlink(r23 / f"{stem}{suffix}", link)
+    atomic_write(d / f"{stem}_identity.json", json.dumps({**ident, "team_by_track": {str(k): v for k, v in teams.items()},
+                                                           "e3": {"arm": "colour_replay", "rule": "D154"}}))
+    return {"window": stem, "abstain": sum(v is None for v in teams.values()), "stored_abstain": n_abst,
+            "trace": order_trace(native, stored)}
+
+
+def cmd_replay_colour(args) -> dict:
+    import time
+    from tools import p8_frozen as F
+    _guard(args.tag)
+    P = F.install_paths()
+    t0 = time.time()
+    rows = [colour_window(P, w) for w in F.label_windows(P, args.tag)
+            if (P["builds"] / "r23" / f"{w['window']}_frames.json").exists()]
+    keys = sum(r["trace"]["keys"] for r in rows)
+    given = sum(r["trace"]["as_given"] for r in rows)
+    up = sum(r["trace"]["up_to_order"] for r in rows)
+    out = {"tag": args.tag, "windows": len(rows), "keys": keys,
+           "agree_as_given": round(given / keys, 4) if keys else None,
+           "agree_up_to_order": round(up / keys, 4) if keys else None,
+           "swapped_windows": sum(r["trace"]["swapped_window"] for r in rows),
+           "disagreement_explained_by_order": round((up - given) / (keys - given), 4) if keys > given else None,
+           "abstain_share": round(sum(r["abstain"] for r in rows) / keys, 4) if keys else None,
+           "stored_abstain_share": round(sum(r["stored_abstain"] for r in rows) / keys, 4) if keys else None,
+           "seconds": round(time.time() - t0, 1), "per_window": rows}
+    atomic_write(p8_root() / "e3" / f"{args.tag}_replay_colour.json", json.dumps(out))
+    print(json.dumps({k: v for k, v in out.items() if k != "per_window"}, indent=1))
+    return out
+
+
+def cmd_score_colour(args) -> dict:
+    import time
+    from sportvu import bench as B
+    from tools import p8_frozen as F
+    from tools import p8_scorecard as S
+    g = _guard(args.tag)
+    P = F.install_paths()
+    S.load_fixed_constants()
+    mirror = F.mirror_of(P, args.tag)
+    mom = S.Moments(json.loads((P["sportvu"] / f"{g['sportvu']}_moments.json").read_text())["moments"])
+    events = S.pbp_events(g["sportvu"])
+    refs = B.References()
+    t0 = time.time()
+    wins = {}
+    for w in F.label_windows(P, args.tag):
+        rec = S.score_window(P, args.tag, w, P["builds"] / "e3_colour_replay", "camera", mom, mirror, refs, events)[0]
+        if "skipped" not in rec:
+            wins[w["window"]] = window_team(rec["team_rows"])
+    out = {"tag": args.tag, "truth": "camera", "arm": "colour_replay", "windows": wins, "seconds": round(time.time() - t0, 1)}
+    atomic_write(p8_root() / "e3" / f"{args.tag}_teams_colour.json", json.dumps(out))
+    print(json.dumps({"tag": args.tag, "windows": len(wins), "seconds": out["seconds"],
+                      "colour_replay": pooled_acc([{"c": v} for v in wins.values()], "c")}, indent=1))
     return out
 
 
@@ -331,15 +465,71 @@ def cmd_report(args) -> dict:
     return res
 
 
+def cmd_report_colour(args) -> dict:
+    """D154: the colour-on-replay arm against r23, and both embedding arms against it, per game and pooled."""
+    d = p8_root() / "e3"
+    refuse_cv_test(list(POOLED) + list(APART), WHO)
+    games = {}
+    for t in (*POOLED, *APART):
+        a, b = d / f"{t}_teams.json", d / f"{t}_teams_colour.json"
+        if a.exists() and b.exists():
+            base, col = json.loads(a.read_text())["windows"], json.loads(b.read_text())["windows"]
+            games[t] = [{**base[k], "colour_replay": col[k]} for k in base
+                        if k in col and all(x in base[k] for x in ("r23", *ARMS))]
+    arms = ("r23", "colour_replay", *ARMS)
+
+    def rows(wins):
+        out = {a: {"n": sum(w[a]["n"] for w in wins), "acc": pooled_acc(wins, a), "fixed": pooled_acc(wins, a, "fixed")}
+               for a in arms}
+        out["colour_replay"]["minus_r23_pts"] = round(100 * (out["colour_replay"]["acc"] - out["r23"]["acc"]), 2)
+        for a in ARMS:
+            out[a]["minus_colour_replay_pts"] = round(100 * (out[a]["acc"] - out["colour_replay"]["acc"]), 2)
+        return out
+
+    def pts(iv):
+        return [round(100 * x, 2) for x in iv] if iv else None
+
+    per_game = {}
+    for t, wins in games.items():
+        r = rows(wins)
+        wg = {i: [w] for i, w in enumerate(wins)}
+        r["colour_replay"]["minus_r23_window_interval_pts"] = pts(paired_boot(wg, "colour_replay", "r23"))
+        for a in ARMS:
+            r[a]["minus_colour_replay_window_interval_pts"] = pts(paired_boot(wg, a, "colour_replay"))
+        per_game[t] = r
+    res = {"rule": "D154; tracking.md, colour-on-replay arm", "per_game": per_game}
+    pw = {t: games[t] for t in POOLED if t in games}
+    if len(pw) == len(POOLED):
+        allw = [w for v in pw.values() for w in v]
+        pooled = rows(allw)
+        wg = {f"{t}/{i}": [w] for t, v in pw.items() for i, w in enumerate(v)}
+        pooled["colour_replay"]["minus_r23_game_interval_pts"] = pts(paired_boot(pw, "colour_replay", "r23"))
+        pooled["colour_replay"]["minus_r23_window_interval_pts"] = pts(paired_boot(wg, "colour_replay", "r23"))
+        amc = {}
+        for a in ARMS:
+            gi, wi = paired_boot(pw, a, "colour_replay"), paired_boot(wg, a, "colour_replay")
+            pooled[a]["minus_colour_replay_game_interval_pts"], pooled[a]["minus_colour_replay_window_interval_pts"] = pts(gi), pts(wi)
+            amc[a] = {"game_interval": gi, "window_interval": wi}
+        res["pooled"] = pooled
+        res["reading"] = confound_reading(pooled["colour_replay"]["minus_r23_pts"], amc)
+    res["trace"] = {t: {k: v for k, v in json.loads((d / f"{t}_replay_colour.json").read_text()).items() if k != "per_window"}
+                    for t in games if (d / f"{t}_replay_colour.json").exists()}
+    atomic_write(d / "e3b_result.json", json.dumps(res, indent=1))
+    print(json.dumps(res, indent=1))
+    return res
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python -m tools.p8_e3")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for c in ("replay", "score"):
+    for c in ("replay", "score", "replay-colour", "score-colour"):
         s = sub.add_parser(c)
         s.add_argument("tag", choices=[*POOLED, *APART])
     sub.add_parser("report")
+    sub.add_parser("report-colour")
     a = ap.parse_args(argv)
-    {"replay": cmd_replay, "score": cmd_score, "report": cmd_report}[a.cmd](a)
+    {"replay": cmd_replay, "score": cmd_score, "report": cmd_report, "replay-colour": cmd_replay_colour,
+     "score-colour": cmd_score_colour, "report-colour": cmd_report_colour}[a.cmd](a)
 
 
 if __name__ == "__main__":
