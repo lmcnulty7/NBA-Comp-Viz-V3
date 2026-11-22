@@ -521,3 +521,30 @@ Per team (each video counts for both teams of its titled game; confirmed / rejec
 are 0 everywhere): ATL 1 / 2, BOS 2 / 1, CHA 0 / 1, CLE 0 / 2, DAL 0 / 1, DEN 0 / 1, DET 2 / 0, GSW 1 / 1, HOU 2 / 1,
 LAL 3 / 4, MIA 2 / 0, MIN 1 / 1, NOP 1 / 1, NYK 2 / 1, OKC 1 / 1, ORL 2 / 1, PHI 2 / 0, PHX 1 / 0, POR 0 / 1,
 SAC 1 / 0, SAS 0 / 1, TOR 1 / 2, UTA 0 / 1, WAS 1 / 0. BKN, CHI, IND, LAC, MEM and MIL had no candidate.
+
+## 13. Downloads of the confirmed NBA games (PLAN.md D143)
+
+`python3 -m tools.p8_nba2526_fetch`, on 2026-11-21: the 13 videos confirmed in section 12 (rule calibrated on
+2015-16 broadcasts only), whole, at 720p avc1 through tools.p8_fetch.download, one at a time, into the P8 workspace
+outside the repository. Each file passed ffprobe (h264, 720 rows) and a duration within 2 s of the metadata probe,
+or was not kept. Record: `level4/nba2526/fetch.json` in the P8 workspace. Nothing ran on the videos.
+
+| Game | Video | Bytes | Probe (s) | ffprobe |
+|---|---|---|---|---|
+| 0022501048 | 4ZrE7OXRcuQ | 1,142,866,673 | 7,867 | h264, 1280x720, 30/1, 7866.494 s |
+| 0022501154 | IKPtnyERx4c | 1,019,943,647 | 4,109 | h264, 1280x720, 30/1, 4109.374 s |
+| 0022501165 | pr9Ru_MGWEY | 1,022,740,534 | 4,099 | h264, 1280x720, 30000/1001, 4099.254 s |
+| 0022501172 | pZqKb08f6u0 | 947,927,137 | 3,456 | h264, 1280x720, 30000/1001, 3456.386 s |
+| 0042500102 | QpQCu6dnUIA | 815,278,530 | 3,198 | h264, 1280x720, 30000/1001, 3198.214 s |
+| 0042500103 | fWYk9XeB7bk | 512,126,686 | 3,563 | h264, 1280x720, 30000/1001, 3562.574 s |
+| 0042500112 | L2u8tsE_zi0 | 579,273,645 | 2,424 | h264, 1280x720, 30000/1001, 2423.794 s |
+| 0042500113 | ngsPkigANU4 | 659,671,397 | 2,872 | h264, 1280x720, 30000/1001, 2871.474 s |
+| 0042500123 | mCihOZ_0vjQ | 622,013,960 | 2,738 | h264, 1280x720, 30000/1001, 2737.914 s |
+| 0042500142 | B-AcMUKEt2Y | 473,356,619 | 3,121 | h264, 1280x720, 30000/1001, 3120.634 s |
+| 0042500171 | hCs-D7vVeHk | 831,662,194 | 3,657 | h264, 1280x720, 30/1, 3656.814 s |
+| 0042500173 | NLYLQDfxu4s | 897,761,349 | 3,557 | h264, 1280x720, 30000/1001, 3556.814 s |
+
+12 of 13 downloaded and verified, 9,524,622,371 bytes in all (4 regular season, 8 playoff). Not downloaded:
+0022500019 (Ktu6yFS9iMo): three runs each ended with yt-dlp's "Requested format is not available", although a
+format listing with the same arguments showed the 720p60 avc1 format (298) between the runs. On the first run,
+mCihOZ_0vjQ and ngsPkigANU4 ended with the same error and downloaded on the second.
