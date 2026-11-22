@@ -28,8 +28,8 @@ import hashlib
 import json
 import re
 import sys
+import subprocess
 import urllib.parse
-import urllib.request
 from pathlib import Path
 
 from tools.p8_common import REPO, atomic_write, check_outside, p8_root
@@ -52,30 +52,40 @@ def datasets_root() -> Path:
     return d
 
 
-def get(url: str, timeout: int = 120):
-    return urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=timeout)
+def curl(args: list[str], timeout: int) -> subprocess.CompletedProcess:
+    """curl with a generic user agent (system certificates, which `python3 -I` cannot see through certifi)."""
+    return subprocess.run(["curl", "-sS", "-L", "--fail", "-A", UA, *args], capture_output=True, timeout=timeout)
 
 
 def get_json(url: str):
-    with get(url) as r:
-        return json.loads(r.read().decode()), r.headers
+    """-> (json, headers as a dict of lower-cased names)."""
+    r = curl(["-D", "-", url], 120)
+    if r.returncode != 0:
+        raise SystemExit(f"{WHO}: {url}: {r.stderr.decode(errors='replace').strip()[-200:]}")
+    raw = r.stdout.decode(errors="replace")
+    blocks = raw.split("\r\n\r\n")
+    heads, body = [], raw
+    while blocks and blocks[0].startswith("HTTP/"):
+        heads.append(blocks.pop(0))
+        body = "\r\n\r\n".join(blocks)
+    headers = {}
+    for line in (heads[-1] if heads else "").split("\r\n")[1:]:
+        if ":" in line:
+            k, v = line.split(":", 1)
+            headers[k.strip().lower()] = v.strip()
+    return json.loads(body), headers
 
 
-def stream(url: str, dest: Path, timeout: int = 600) -> dict:
+def stream(url: str, dest: Path, timeout: int = 7200) -> dict:
     """Download url to dest (atomic) -> {bytes, sha256}."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     part = dest.with_name(dest.name + ".part")
-    h, n = hashlib.sha256(), 0
-    with get(url, timeout) as r, open(part, "wb") as f:
-        while True:
-            b = r.read(1 << 20)
-            if not b:
-                break
-            f.write(b)
-            h.update(b)
-            n += len(b)
+    r = curl(["-o", str(part), url], timeout)
+    if r.returncode != 0 or not part.exists():
+        part.unlink(missing_ok=True)
+        raise SystemExit(f"{WHO}: {url}: {r.stderr.decode(errors='replace').strip()[-200:]}")
     part.replace(dest)
-    return {"bytes": n, "sha256": h.hexdigest()}
+    return {"bytes": dest.stat().st_size, "sha256": sha256_of(dest)}
 
 
 def sha256_of(p: Path) -> str:
@@ -120,7 +130,7 @@ def hf_tree(repo: str, rev: str = "main") -> list[dict]:
         d, headers = get_json(url)
         out += [{"path": f["path"], "size": f.get("size"), "lfs_sha256": (f.get("lfs") or {}).get("oid")}
                 for f in d if f.get("type") == "file"]
-        m = re.search(r'<([^>]+)>;\s*rel="next"', headers.get("Link") or "")
+        m = re.search(r'<([^>]+)>;\s*rel="next"', headers.get("link") or "")
         url = m.group(1) if m else None
     return out
 
@@ -185,13 +195,11 @@ def fetch_hf(repo: str, rev: str = "main", name: str | None = None, only: list[s
 
 # ── plain URLs (GitHub, Google Drive) ─────────────────────────────────────────
 def head_size(url: str) -> int | None:
-    req = urllib.request.Request(url, method="HEAD", headers={"User-Agent": UA})
-    try:
-        with urllib.request.urlopen(req, timeout=60) as r:
-            n = r.headers.get("Content-Length")
-            return int(n) if n else None
-    except Exception:
+    r = curl(["-I", url], 60)
+    if r.returncode != 0:
         return None
+    sizes = re.findall(r"(?im)^content-length:\s*(\d+)", r.stdout.decode(errors="replace"))
+    return int(sizes[-1]) if sizes else None
 
 
 def fetch_url(name: str, url: str, filename: str, source: str, note: str = "") -> dict:
