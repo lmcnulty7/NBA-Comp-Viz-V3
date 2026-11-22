@@ -155,6 +155,84 @@ Prerequisites for both (no result yet, so nothing is chosen by looking at one):
 - Backlog: expected gain 3 (one failing row, and it feeds identity and possessions, but even +10 points stays
   under 95%). Effort 2 (no training, existing backbone, CPU only).
 
+#### tracking-E1 under D153 (written 2026-11-22, with the replay tool, before any scored run)
+
+The experiment above runs as P8 Track B's E3 on the Mac (PLAN.md D153). Arms, abstention matching, metrics and the
+adoption threshold are as written above. Two substitutions, fixed before any run:
+
+1. Development games: the 3 R1.3 games with Mac camera truth (gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015), pooled with
+   the game bootstrap. gsw_ind_2016 is reported apart (D98). hou_cle_2016 is reported apart as the new-arena check and
+   does not enter the adoption rule.
+2. "One D71 score" becomes D129: the D85 broadcast set, scored once at the end of P8. It is not scored now.
+
+How it runs (tools/p8_e3.py, committed with this text):
+
+- Replay on stored r23 tracks: the frozen TorsoCropCollector (every 3rd processed frame, at most 40 crops per
+  fragment) is run on r23's own `<window>_frames.json` boxes and fragment ids, frame by frame from the window clip.
+  Boxes, fragments, links (idmap) and court are r23's. The frozen colour classifier is run on the same crops as a
+  reproduction check against r23's stored labels (agreement reported); the baseline arm is r23's stored
+  team_by_track itself.
+- Embedding arms: CLIP ViT-B/32 (openai/clip-vit-base-patch32) and the ablation DINOv2 small (facebook/dinov2-small;
+  gate/backbones.py configures dinov2-base, so the small model is loaded directly through the same transformers
+  classes, its pooled CLS output L2-normed). 8 crops per fragment, evenly spaced over its collected crops; a
+  fragment's feature is the L2-normed mean of its crop embeddings; per window, k-means (k = 2, n_init 10, the project
+  seed) on the fragments with at least TEAM_MIN_CROPS crops, as detect/teams.py fits on fragments; each canonical track
+  gets the mean over its member fragments' crops and the nearest centroid. Same canonical track set as r23
+  (the keys of its team_by_track).
+- Abstention: per window, the arm abstains on exactly as many canonical tracks as r23 did (tracks with no feature
+  first, then the largest near/far distance ratio), never fewer than its tracks with no feature.
+- Metric: the pinned scorer (tools/p8_scorecard.py score_window, truth camera, D88) per window and arm; team accuracy
+  with the frozen majority mapping per window; fixed-mapping accuracy with the best one-to-one A/B mapping per window;
+  abstention share at track level.
+- Intervals: paired difference of pooled accuracy (arm minus r23), bootstrap by game (3 games, 2000 resamples, seed 0;
+  only 10 distinct resamples) and by window (2000, seed 0). Adoption: pooled gain at least 5.0 points, both intervals
+  above zero, no pooled game down more than 1 point, pooled fixed-mapping accuracy not lower than r23's.
+- Guards: refuse_cv_test and tools.p8_frozen.game_of on every tag before any frame is read; each game's replay and
+  score run under the heavy-job lock, one game's crops in memory at a time (one window at a time). No E-BARD colour
+  labels or any other labels are used.
+
+#### tracking-E1 under D153: result (run 2026-11-22, tools/p8_e3.py, e3/e3_result.json in the P8 workspace)
+
+**Not adopted. Both embedding arms lower the team row.** Pooled over the 3 R1.3 games, CLIP is 20.72 points below r23
+and DINOv2 small 14.06 points below, with both intervals wholly below zero; every adoption check fails for both
+arms. The gain is not the embedding: colour stays the better team feature on these games.
+
+Team accuracy, percent of labelled matched player-frames (majority mapping per window, the scorer's row), fixed
+one-to-one mapping beside it, and the paired difference to r23 in points with its window bootstrap interval (2000
+resamples, seed 0):
+
+| Game | r23 (fixed) | CLIP (fixed) | CLIP minus r23 | DINOv2 small (fixed) | DINOv2 small minus r23 |
+| --- | --- | --- | --- | --- | --- |
+| gsw_bkn_2015 | 86.8 (86.8), n 16,479 | 61.21 (60.87), n 15,784 | -25.59 [-29.78, -21.52] | 64.96 (64.66), n 16,008 | -21.84 [-28.19, -15.26] |
+| gsw_cha_2016 | 77.28 (77.28), n 10,558 | 59.97 (59.78), n 10,304 | -17.31 [-20.3, -13.12] | 75.89 (75.84), n 10,367 | -1.38 [-6.36, 4.05] |
+| gsw_sac_2015 | 81.55 (81.55), n 17,405 | 63.37 (63.06), n 16,778 | -18.17 [-21.77, -13.79] | 67.13 (66.97), n 17,096 | -14.42 [-19.52, -8.58] |
+| Pooled, 3 games | 82.48 (82.48), n 44,442 | 61.76 (61.47), n 42,866 | -20.72; game [-25.59, -17.31], window [-23.07, -18.14] | 68.42 (68.23), n 43,471 | -14.06; game [-21.84, -1.38], window [-17.72, -9.94] |
+| gsw_ind_2016 (apart, D98) | 63.39 (62.73), n 6,305 | 62.97 (62.33), n 6,374 | -0.42 [-4.15, 4.01] | 77.68 (77.65), n 6,323 | +14.29 [8.93, 18.79] |
+| hou_cle_2016 (apart, new arena) | 73.4 (73.39), n 33,428 | 59.87 (59.54), n 33,786 | -13.53 [-17.14, -9.86] | 70.88 (70.83), n 34,170 | -2.53 [-6.81, 1.27] |
+
+The game bootstrap over 3 games has 10 distinct resamples. Abstention shares at track level equal r23's in every
+game by construction: 0.2741, 0.2696, 0.2824 (pooled games), 0.3036 (gsw_ind_2016), 0.2708 (hou_cle_2016).
+
+Adoption checks (pooled): gain at least 5.0 points, game interval above zero, window interval above zero, no game
+down more than 1 point, fixed mapping not lower: all false for CLIP (games down -25.59, -17.31, -18.17) and for
+DINOv2 small (games down -21.84, -1.38, -14.42). The D129 final score is not run: nothing was adopted.
+
+Caveats:
+
+- The replay is not an exact copy of r23's crops. The frozen colour classifier on the replayed crops gives r23's stored
+  label for 0.8238, 0.8152, 0.7719, 0.7425 and 0.8174 of the canonical tracks (gsw_bkn_2015, gsw_cha_2016,
+  gsw_sac_2015, gsw_ind_2016, hou_cle_2016); it reproduces every track in 29 of 83, 27 of 73, 33 of 82, 21 of 92 and 40
+  of 93 windows. Part of the gap is the arbitrary 0/1 order of the clusters, which no metric reads; the cause of the
+  rest (decoding, integer boxes) was not traced. The arms run on the replayed crops and the baseline is r23's stored
+  labels, so a crop difference counts against the arms. How much of the gap it explains is not measured; scoring
+  the colour classifier on the replayed crops as a fourth, report-only arm would measure it (not done).
+- DINOv2 small gains 14.29 points on gsw_ind_2016, the game D98 sets apart, and loses on all three pooled games. That
+  is one game with weak camera truth and is not evidence for adoption.
+- The row stays an upper bound in every arm (best mapping per window), and under the 95 percent target.
+
+Compute: replay and score ran under the heavy-job lock, one game at a time, embeddings on MPS; 0.72 lock hours in all
+(the 2-window smoke runs included).
+
 ### tracking-E2: broadcast-only fill of missed player-frames by learned imputation
 
 - Hypothesis: for player-frames with no matched box (missed in frame or off screen), a set-attention imputation
