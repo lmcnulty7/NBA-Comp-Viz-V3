@@ -215,3 +215,41 @@ into moments, when this was written):
 - **The compared frame** is the accepted built frame nearest the placed frame, used only within 0.06 s (the build
   runs at 10 Hz); the windowed oracle uses every accepted built frame in [placed - 3.0 s, placed + 0.5 s].
 - **The bootstrap** for one game is over its built windows; over games, `tools.p8_scorecard.boot_windows`.
+
+## 10. Pilot status (0042500112): placement stopped for the lead's decision
+
+The rules above are unchanged. Placement ran 3 jobs under the lock (504 s, 534 s and 1,525 s, one long-lived easyocr
+worker each). Numbers from `place.json` and `reads.json` in the P8 workspace:
+
+- **Reads:** 379 cached. Per-read OCR is p50 6.416 s and p90 7.598 s, and frame extraction is p50 0.101 s. The cost
+  is the OCR itself: a long-lived worker removes the model load, not the per-read time.
+- **Searched shots:** 27 of 179, with these statuses:
+
+  | Status | Shots |
+  | --- | --- |
+  | placed | 2 |
+  | passed before a bracket | 11 |
+  | gap at the moment | 9 |
+  | no anchor | 3 |
+  | clock jumped | 2 |
+
+Why (diagnostic, from the cached reads only, post hoc):
+
+1. **The upload is edited.** It is 2,423.8 s long, shorter than the 2,880 s of game clock. Between anchors of one
+   period the clock often runs faster than the video: 120 s of video for 200 s of clock (2nd quarter), 40 s for
+   76 s and 40 s for 85 s (4th quarter). So live play is cut, and "passed before a bracket" and "clock jumped" are
+   those cuts. D134's condensed class fits it better than a full game.
+2. **The scorebug reads poorly.**
+   - Of 379 reads, 113 parse a clock, 39 a period and 72 a moment that agrees with the score.
+   - Of the 122 anchor frames, 46 parse a clock and 27 are anchors.
+   - At about 1 read in 5, the registered bracket (two readable 1 Hz reads at most 2 s apart) is rare, which gives
+     "gap at the moment".
+
+The pilot rule (the shortest of the 10 videos) picked the one upload most likely to be edited. Going on would spend
+about 2 more lock hours for a low placed share on this video. The pilot is stopped here and the choice goes to the
+lead:
+
+- (a) finish this game as registered;
+- (b) take another game as the pilot, with a rule that reads no result, for example the longest video;
+- (c) a revised placement rule (a wider bracket, or a scorebug crop that raises the read rate), registered before
+  it runs on a game not yet searched.
