@@ -254,6 +254,38 @@ r23 comes from the replayed crops rather than the feature.
 - Code: tools/p8_e3.py replay-colour, score-colour, report-colour (output e3/e3b_result.json in the P8 workspace).
   Guards and lock as in E3.
 
+#### tracking-E1, colour-on-replay arm under D154: result (run 2026-11-22, e3/e3b_result.json in the P8 workspace)
+
+**Reading, by the rule above: inconclusive.** The colour classifier on the replayed crops stays close to r23 (pooled
+-1.11 points), so the replay costs about a point, not the 14 to 21 points the embeddings lose. CLIP is clearly worse
+than colour on the same crops (pooled -19.61, both intervals below zero). DINOv2 small is worse pooled (-12.95), but
+its game interval reaches +0.8 (gsw_cha_2016 is +0.8 on its own, and 3 games give 10 distinct resamples), so not every
+interval lies below zero and the rule's "embeddings worse" does not apply. The E3 verdict stands either way.
+
+Team accuracy, percent (majority mapping per window; fixed one-to-one mapping beside it), the arm minus r23, and each
+embedding minus the arm, in points with window bootstrap intervals (2000 resamples, seed 0):
+
+| Game | r23 | Colour on replay (fixed) | Minus r23 | CLIP minus it | DINOv2 small minus it |
+| --- | --- | --- | --- | --- | --- |
+| gsw_bkn_2015 | 86.8 | 86.12 (86.12), n 16,437 | -0.67 [-1.4, -0.04] | -24.92 [-29.06, -21.02] | -21.17 [-27.47, -14.75] |
+| gsw_cha_2016 | 77.28 | 75.09 (75.09), n 10,627 | -2.19 [-4.44, -0.06] | -15.12 [-18.38, -11.79] | +0.8 [-3.01, 5.12] |
+| gsw_sac_2015 | 81.55 | 80.71 (80.71), n 17,570 | -0.84 [-1.82, -0.17] | -17.33 [-20.95, -12.96] | -13.58 [-18.69, -7.77] |
+| Pooled, 3 games | 82.48 | 81.36 (81.36), n 44,634 | -1.11; game [-2.19, -0.67], window [-1.91, -0.47] | -19.61; game [-24.92, -15.12], window [-22.07, -17.18] | -12.95; game [-21.17, 0.8], window [-16.68, -8.87] |
+| gsw_ind_2016 (apart, D98) | 63.39 | 63.53 (62.49), n 6,230 | +0.14 [-1.28, 1.54] | -0.56 [-4.04, 3.22] | +14.15 [8.95, 18.71] |
+| hou_cle_2016 (apart, new arena) | 73.4 | 73.11 (73.06), n 33,343 | -0.3 [-0.94, 0.38] | -13.23 [-16.87, -9.45] | -2.23 [-6.58, 1.53] |
+
+Abstention share of the arm (track level): 0.2741, 0.2709, 0.2827, 0.3039, 0.2708 against r23's 0.2741, 0.2696,
+0.2824, 0.3036, 0.2708; slightly higher on three games, because colour needs non-floor crops and the matching never
+labels a track with no feature.
+
+Cluster order: the frozen classifier's native labels on the replayed crops agree with r23's stored labels on 0.8238,
+0.8152, 0.7719, 0.7425 and 0.8174 of the tracks as given, and on 0.9557, 0.9456, 0.9516, 0.9383 and 0.9519 up to the
+0/1 order (bkn, cha, sac, ind, hou). A swapped order explains 0.7485, 0.7055, 0.7876, 0.7605 and 0.7367 of the
+disagreement (swapped windows: 19 of 83, 14 of 73, 19 of 82, 28 of 92, 19 of 93). The real label changes, about 4 to 6
+percent of tracks, are what costs the arm about a point.
+
+Compute: 0.21 lock hours (10 jobs).
+
 ### tracking-E2: broadcast-only fill of missed player-frames by learned imputation
 
 - Hypothesis: for player-frames with no matched box (missed in frame or off screen), a set-attention imputation
