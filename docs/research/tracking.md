@@ -224,7 +224,8 @@ Caveats:
   gsw_sac_2015, gsw_ind_2016, hou_cle_2016); it reproduces every track in 29 of 83, 27 of 73, 33 of 82, 21 of 92 and 40
   of 93 windows. Part of the gap is the arbitrary 0/1 order of the clusters, which no metric reads; the cause of the
   rest (decoding, integer boxes) was not traced. The arms run on the replayed crops and the baseline is r23's stored
-  labels, so a crop difference counts against the arms; it is far smaller than the measured gaps.
+  labels, so a crop difference counts against the arms. How much of the gap it explains is not measured; scoring
+  the colour classifier on the replayed crops as a fourth, report-only arm would measure it (not done).
 - DINOv2 small gains 14.29 points on gsw_ind_2016, the game D98 sets apart, and loses on all three pooled games. That
   is one game with weak camera truth and is not evidence for adoption.
 - The row stays an upper bound in every arm (best mapping per window), and under the 95 percent target.
