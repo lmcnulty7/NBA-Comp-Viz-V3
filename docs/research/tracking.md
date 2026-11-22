@@ -155,6 +155,42 @@ Prerequisites for both (no result yet, so nothing is chosen by looking at one):
 - Backlog: expected gain 3 (one failing row, and it feeds identity and possessions, but even +10 points stays
   under 95%). Effort 2 (no training, existing backbone, CPU only).
 
+#### tracking-E1 under D153 (written 2026-11-22, with the replay tool, before any scored run)
+
+The experiment above runs as P8 Track B's E3 on the Mac (PLAN.md D153). Arms, abstention matching, metrics and the
+adoption threshold are as written above. Two substitutions, fixed before any run:
+
+1. Development games: the 3 R1.3 games with Mac camera truth (gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015), pooled with
+   the game bootstrap. gsw_ind_2016 is reported apart (D98). hou_cle_2016 is reported apart as the new-arena check and
+   does not enter the adoption rule.
+2. "One D71 score" becomes D129: the D85 broadcast set, scored once at the end of P8. It is not scored now.
+
+How it runs (tools/p8_e3.py, committed with this text):
+
+- Replay on stored r23 tracks: the frozen TorsoCropCollector (every 3rd processed frame, at most 40 crops per
+  fragment) is run on r23's own `<window>_frames.json` boxes and fragment ids, frame by frame from the window clip.
+  Boxes, fragments, links (idmap) and court are r23's. The frozen colour classifier is run on the same crops as a
+  reproduction check against r23's stored labels (agreement reported); the baseline arm is r23's stored
+  team_by_track itself.
+- Embedding arms: CLIP ViT-B/32 (openai/clip-vit-base-patch32) and the ablation DINOv2 small (facebook/dinov2-small;
+  gate/backbones.py configures dinov2-base, so the small model is loaded directly through the same transformers
+  classes, its pooled CLS output L2-normed). 8 crops per fragment, evenly spaced over its collected crops; a
+  fragment's feature is the L2-normed mean of its crop embeddings; per window, k-means (k = 2, n_init 10, the project
+  seed) on the fragments with at least TEAM_MIN_CROPS crops, as detect/teams.py fits on fragments; each canonical track
+  gets the mean over its member fragments' crops and the nearest centroid. Same canonical track set as r23
+  (the keys of its team_by_track).
+- Abstention: per window, the arm abstains on exactly as many canonical tracks as r23 did (tracks with no feature
+  first, then the largest near/far distance ratio), never fewer than its tracks with no feature.
+- Metric: the pinned scorer (tools/p8_scorecard.py score_window, truth camera, D88) per window and arm; team accuracy
+  with the frozen majority mapping per window; fixed-mapping accuracy with the best one-to-one A/B mapping per window;
+  abstention share at track level.
+- Intervals: paired difference of pooled accuracy (arm minus r23), bootstrap by game (3 games, 2000 resamples, seed 0;
+  only 10 distinct resamples) and by window (2000, seed 0). Adoption: pooled gain at least 5.0 points, both intervals
+  above zero, no pooled game down more than 1 point, pooled fixed-mapping accuracy not lower than r23's.
+- Guards: refuse_cv_test and tools.p8_frozen.game_of on every tag before any frame is read; each game's replay and
+  score run under the heavy-job lock, one game's crops in memory at a time (one window at a time). No E-BARD colour
+  labels or any other labels are used.
+
 ### tracking-E2: broadcast-only fill of missed player-frames by learned imputation
 
 - Hypothesis: for player-frames with no matched box (missed in frame or off screen), a set-attention imputation
