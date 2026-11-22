@@ -74,7 +74,7 @@ from the search parts and the identity records in the P8 workspace) unless anoth
   (tools.p8_common.dev_games).
 - **Track B: go.** A qualified outside teacher exists (YOLOX-X trained on SportsMOT, +0.0419 recall at our
   precision, interval wholly above zero), and the scorecard v2 baseline is measurable on training games: on
-  gsw_bkn_2015 today, with gsw_cha_2016 and gsw_sac_2015 being built on the Mac (D140).
+  the 3 R1.3 training games gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015 (D140, docs/research/P8_baseline.md).
 - **Level 4:** the ACB part used D71 Set B and is retired (D147, D148); the NBA 2025-26 shot check resumes under D149.
 - **Overall: go for Phase B work through Track B.** The binding limit stays footage synced to SportVU: Track A adds
   2 games, not a new pool.
@@ -190,6 +190,10 @@ D131 sources measured, scoring protocol, targets for every row, hours, the re-ra
 - Baseline (gsw_bkn_2015, r23, camera truth): missed 0.26 [0.246, 0.278], ghosts 0.118 [0.103, 0.134], team 0.868
   (a point estimate: the pinned scorer gives no interval), position p50 1.56 ft [1.503, 1.635] in sample.
   gsw_ind_2016 is reported apart (D98).
+- Baseline pooled over the 3 R1.3 games (D140, Mac camera truth, r23; docs/research/P8_baseline.md, written by
+  tools/p8_baseline.py): missed 0.2654 [0.233, 0.325], ghosts 0.1287 [0.108, 0.178], team 0.8248 [0.773, 0.868],
+  position p50 1.531 ft [1.514, 1.556] and p90 3.28 ft [3.154, 3.341]. Intervals are game bootstraps; 3 games give
+  10 distinct resamples, so they are coarse. r23's court model is in sample on all 3 games.
 
 ### Targets
 
