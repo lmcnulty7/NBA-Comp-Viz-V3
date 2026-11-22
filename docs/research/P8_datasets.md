@@ -52,18 +52,16 @@ Checks only, not training data:
 Not available: NBA Rebounds (arXiv 2512.15386), "not publicly available as explicit permission from the NBA has not
 yet been granted".
 
-## Rules before anything trains on these
+## Rules before anything trains on these (Lucien, D149 and D150, 2026-11-22)
 
-1. A D line from Lucien: outside labelled datasets may train P8 models. D132 today allows existing labels only to
-   qualify teachers and check the scorecard.
-2. Seasons: E-BARD and BARD are NBA 2024-25, PL-NBA 2022 to 2025. D79 names 2024-25 as the play-by-play lanes' spent
-   season and 2025-26 as their test season; whether D79 binds video frames used to train a detector is part of the
-   ruling already asked for (docs/research/P8_step0.md, Lucien's decisions 5).
-3. Overlap with our test sets before use: every set with NBA footage of unstated seasons (SportsMOT, SHOT,
-   NUST-NBA181) is screened against the D85 test games and arenas and the spent held-out games; any clip of a 2015-16
-   game in Miami, Toronto or Staples Center, at CLE, or of 12.16.2015 PHX at GSW is dropped before training.
-4. Licenses: non-commercial is acceptable (D128); nothing is redistributed; each set gets a row in
-   docs/DATA_SOURCES.md before it is downloaded.
+1. Outside labelled datasets may train P8 models (D150).
+2. Seasons: D79 binds the play-by-play lanes only (D149), so E-BARD, BARD and PL-NBA (2022 to 2025) may train a
+   detector; no tracking output on a 2024-25 or 2025-26 game flows into a play-by-play lane.
+3. Screening before any training (D150): drop every clip of a spent held-out game and of a home game of MIA, TOR, LAC
+   or LAL in any season (D85, D129). E-BARD covers all 30 teams, so its MIA, TOR, LAC and LAL home games come out.
+   A set whose games cannot be identified (SportsMOT) is used with that residual risk disclosed.
+4. Licenses: a row in docs/DATA_SOURCES.md before download; non-commercial is acceptable (D128); nothing is
+   redistributed. Every training run records the datasets and versions it used.
 
 ## Expected effect, honestly
 

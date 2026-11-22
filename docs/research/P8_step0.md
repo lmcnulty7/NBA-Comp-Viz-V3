@@ -75,7 +75,7 @@ from the search parts and the identity records in the P8 workspace) unless anoth
 - **Track B: go.** A qualified outside teacher exists (YOLOX-X trained on SportsMOT, +0.0419 recall at our
   precision, interval wholly above zero), and the scorecard v2 baseline is measurable on training games: on
   gsw_bkn_2015 today, with gsw_cha_2016 and gsw_sac_2015 being built on the Mac (D140).
-- **Level 4: held (D147).** It used the D71 Set B games and reads the D79 test season; see Level 4 below.
+- **Level 4:** the ACB part used D71 Set B and is retired (D147, D148); the NBA 2025-26 shot check resumes under D149.
 - **Overall: go for Phase B work through Track B.** The binding limit stays footage synced to SportVU: Track A adds
   2 games, not a new pool.
 
@@ -212,7 +212,7 @@ As `docs/research/P8_step0_trackB.md` section 7, with Track A's result entered i
 boxes), E3 (team embeddings), E2 (events, held on D100), E4 (jersey identity), E5 (court model on new-arena labels),
 E6, E7. E5 stays fifth: Track A gave 2 new-arena games, not the 8 from 4 arenas that would raise it.
 
-### Level 4 (D137 to D145): held
+### Level 4 (D137 to D149): ACB retired, NBA 2025-26 resumed
 
 **Test-set breach found by the ml-review of 2026-11-22. All Level 4 work is held until Lucien rules.**
 
@@ -245,12 +245,9 @@ E6, E7. E5 stays fifth: Track A gave 2 new-arena games, not the 8 from 4 arenas 
 2. D100's two decisions: the Colab one-cell build, and the truth's clock-offset rule (E2 also waits on it).
 3. The shots and rebounds rows' truth: logged play-by-play time or the physical release, about 2 s earlier
    (`docs/research/P8_E2.md` section 2.6).
-4. Whether P8 may use D71 Set B (the 10 SkillCorner ACB games) at all. Using it spends it as the untouched
-   out-of-distribution check of the tracking lanes; the D139 bar already set on 3 of them stands as a breach either
-   way. Until then no ACB work runs, and no new ACB bar is set.
-5. Whether D79 binds only the play-by-play lanes, so a tracking check may read 2025-26 shot rows; and whether the 2
-   downloaded 2025-26 games in D85 test arenas, read against the rule, are set aside for good. The shot pilot and
-   every 2025-26 step wait on this.
+4. Decided (Lucien, D148): Set B is retired from P8, with the identity work already done on it disclosed above.
+5. Decided (Lucien, D149): D79 binds the play-by-play lanes only, with two safeguards; the 2 TOR and LAL games are set
+   aside for good; the 2025-26 shot check resumes.
 6. Publishing anything derived from the NBA shot rows (nba.com terms, clauses ii and vi).
 7. DeepSportRadar's license, unconfirmed at the source, before any download.
 8. 0022500019: three downloads ended with "Requested format is not available"; retry later or drop.
