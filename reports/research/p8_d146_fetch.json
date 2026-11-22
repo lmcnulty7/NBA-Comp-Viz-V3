@@ -1,0 +1,32 @@
+{
+ "10.31.2015.GSW.at.NOP": {
+  "video_id": "SXT3wqb_zho",
+  "verified": true,
+  "metadata_duration_s": 6131.0,
+  "codec": "h264",
+  "width": 1280,
+  "height": 720,
+  "fps": 60.0,
+  "duration_s": 6131.1,
+  "bytes": 2169244691,
+  "ffprobe": "codec_name=h264|width=1280|height=720|r_frame_rate=60/1 | duration=6131.074000",
+  "error": null,
+  "date": "2026-11-21",
+  "rule": "PLAN.md D146; identity confirmed under D138"
+ },
+ "01.15.2016.CLE.at.HOU": {
+  "video_id": "XDdGwBq0KB8",
+  "verified": true,
+  "metadata_duration_s": 6623.0,
+  "codec": "h264",
+  "width": 1280,
+  "height": 720,
+  "fps": 59.94,
+  "duration_s": 6622.6,
+  "bytes": 2340178110,
+  "ffprobe": "codec_name=h264|width=1280|height=720|r_frame_rate=60000/1001 | duration=6622.614000",
+  "error": null,
+  "date": "2026-11-21",
+  "rule": "PLAN.md D146; identity confirmed under D138"
+ }
+}
