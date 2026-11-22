@@ -307,3 +307,84 @@ The scores above are from the corrected run.
 **Cost per game at this rate:** placement scales with reads (about 1,280 to 1,800 reads, 2.2 to 3.1 h at 6.3 s).
 The build scales with placed shots: at 2.65 s per clip second and about 5.5 s per shot, a fully placed game of 175
 shots needs about 0.7 h. Placement coverage on edited uploads, not compute, is what limits this check.
+
+## 11. Revision under D151, registered before anything runs on it
+
+Written 2026-11-22, before any read of 0022501048. This section changes only what D151 allows: the scored set, the
+pilot, and the reader's input for the search. The bracket rule, the stop rule, the windows, the oracle, the
+orientation rule, the rows, R0, the gate margins and the bootstrap are as in sections 3 to 9. D149 still binds:
+nothing is tuned on these games, each version is scored once, KEPT_OUT stays out, and no tracking output on a
+2025-26 game goes into a play-by-play lane.
+
+### 11.1 Full-broadcast screen (metadata only)
+
+A video counts as a full broadcast only if its probed duration (`probe_duration_s` in `fetch.json`, the metadata
+probe before download) is at least 2,880 s, the regulation game clock. Shorter uploads are D134's condensed class
+and leave the scored set. Applied to the 10:
+
+| Game | Video | Probe (s) | Full |
+| --- | --- | --- | --- |
+| 0022501048 | 4ZrE7OXRcuQ | 7,867 | yes |
+| 0022501154 | IKPtnyERx4c | 4,109 | yes |
+| 0022501172 | pZqKb08f6u0 | 3,456 | yes |
+| 0042500102 | QpQCu6dnUIA | 3,198 | yes |
+| 0042500103 | fWYk9XeB7bk | 3,563 | yes |
+| 0042500112 | L2u8tsE_zi0 | 2,424 | no |
+| 0042500113 | ngsPkigANU4 | 2,872 | no |
+| 0042500123 | mCihOZ_0vjQ | 2,738 | no |
+| 0042500142 | B-AcMUKEt2Y | 3,121 | yes |
+| 0042500173 | NLYLQDfxu4s | 3,557 | yes |
+
+**The scored set is 7 games.** 0042500112 leaves it for good: it shaped this revision, and it fails the screen too.
+Its section 10 numbers remain the record of that pilot.
+
+Passing the screen does not prove an upload is unedited: a full broadcast with dead time runs about 2 h. Six of the
+seven are 3,121 to 4,109 s long, so they may also have cuts. That will show as "passed before a bracket" and
+"clock jumped".
+
+### 11.2 The new pilot
+
+0022501048 (NOP at NYK, 2026-03-24, 173 attempts), the longest remaining video (7,867 s), chosen on duration only.
+
+### 11.3 The scorebug crop
+
+**Anchors are unchanged:** one frame every 20 s, read on the full bands by the registered reader. Each anchor read
+now also stores easyocr's box for every kept text, in frame pixels.
+
+**The crop box** comes from a fixed rule, written here. It uses only the anchor reads of the same video, never a
+placement, a position or a shot outcome.
+
+1. Take every anchor frame that reads exactly one moment (section 9).
+2. In each such frame, keep the boxes of the texts that carry its matched clock, either of its matched scores, or a
+   period.
+3. Across those frames, the crop is:
+   - x0 and y0: the 10th percentile of the kept boxes' left and top edges;
+   - x1 and y1: the 90th percentile of their right and bottom edges;
+   - widened by 16 px on every side, clipped to the frame.
+4. With fewer than 5 such frames there is no crop. Then the search does not run, and the lead is told.
+
+The automatic layout step (the frozen clock_reader check over the registered layouts) is not used. The registered
+layouts are 2015-16 scorebugs, and D152's layout finder met its bar on only 3 of 8 videos. No layout is calibrated
+by hand.
+
+**The search reads the crop.** Search and bisection reads OCR the crop instead of the two bands:
+
+- same 2x cubic upscale, same easyocr reader, same 0.2 confidence floor, same parse_tokens and moment rule;
+- frames extracted by the same ffmpeg input seek;
+- crop reads cached apart from band reads.
+
+Recorded:
+
+- per-read OCR seconds for band reads and for crop reads, p50 and p90;
+- the read rate of each: the share of reads that parse a clock, and the share that read exactly one moment.
+
+**Unchanged:** the bracket (two readable 1 Hz reads at most 2 s apart, no interpolation), the 2 bisection reads,
+the 60-read search limit, and the "clock jumped" slack.
+
+### 11.4 Lock and report
+
+- Jobs run in turns with p8-teachers' D146 jobs, each under the lock with caffeinate.
+- After the pilot the report gives: the placed share, the lock hours, OCR p50 and p90 for band and crop, the read
+  rates, the scored set's size (7), and, if the build runs, the go or no-go against the registered gate. The gate
+  is computed only for a game whose orientation is resolved (section 4.3).
+- Then stop for the lead's go on the other 6.

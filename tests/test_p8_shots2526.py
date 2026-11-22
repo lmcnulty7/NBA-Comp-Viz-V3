@@ -1,5 +1,6 @@
 """The Level 4 shot-position check (docs/research/P8_shots2526.md): pure parts on synthetic clocks, scores and tracks."""
 
+import json
 import math
 
 import pytest
@@ -20,6 +21,7 @@ EVENTS = [(1, 700.0, "0-2"), (1, 650.0, "3-2"), (2, 600.0, "3-4")]       # (peri
 
 
 def parsed(clock, period=None, ints=(3, 2)):
+    """A parse_tokens result."""
     return {"clocks": [clock] if clock is not None else [], "periods": [period] if period else [], "ints": list(ints)}
 
 
@@ -133,3 +135,37 @@ def test_the_constants_match_the_pre_registration_and_the_frozen_windows():
     assert (S.ANCHOR_STEP_S, S.SEARCH_BEFORE_S, S.SEARCH_MAX_READS, S.BISECT_READS) == (20.0, 5.0, 60, 2)
     assert S.TARGETS == {"shooter_p50_ft": CONSTANTS["shooter_p50_ft"], "shooter_p90_ft": CONSTANTS["shooter_p90_ft"]}
     assert S.GATE_MARGIN_FT == {"p50": 1.0, "p90": 2.0} and S.MIRROR_MARGIN_FT == 2.0
+
+
+def test_the_full_broadcast_screen_keeps_7_of_the_10_and_retires_the_first_pilot():
+    durs = {"0022501048": 7867, "0022501154": 4109, "0022501172": 3456, "0042500102": 3198, "0042500103": 3563,
+            "0042500112": 2424, "0042500113": 2872, "0042500123": 2738, "0042500142": 3121, "0042500173": 3557}
+    fetch = {f"v{k}": {"game_id": g, "verified": True, "probe_duration_s": d} for k, (g, d) in enumerate(durs.items())}
+    got = S.scored_set(fetch)
+    assert len(got) == 7 and S.PILOT in got
+    assert not {"0042500112", "0042500113", "0042500123"} & set(got)
+    fetch["v0"]["verified"] = False
+    assert "0022501048" not in S.scored_set(fetch)
+    assert S.PILOT == max(got, key=durs.get)                             # D151 (3): the longest remaining video
+    assert S.RETIRED == ("0042500112",) and S.FULL_MIN_S == 2880.0
+
+
+def test_the_crop_comes_from_single_moment_anchor_frames_only():
+    good = (parsed(640.0, 1), [[1000, 650, 1040, 670, "10:40"], [1050, 650, 1060, 670, "3"], [1065, 650, 1075, 670, "2"],
+                               [100, 100, 400, 130, "SPONSOR 2026"]])
+    noisy = (parsed(None, 1), [[0, 0, 1280, 720, "12:00"]])            # reads no moment: ignored
+    frames = [good] * 5 + [noisy] * 3
+    box = S.crop_from(frames, EVENTS)
+    assert box == [984, 634, 1091, 686]                                  # edges widened by 16 px; the sponsor text left out
+    assert S.crop_from([good] * 4 + [noisy], EVENTS) is None            # fewer than 5 frames: no crop, the search stops
+    assert S.crop_from([good] * 5, EVENTS, width=1080, height=680)[2:] == [1080, 680]
+
+
+def test_retired_and_short_games_stop_the_tool_before_any_read(tmp_path, monkeypatch):
+    fetch = {"a": {"game_id": "0042500113", "verified": True, "probe_duration_s": 2872},
+             "b": {"game_id": "0042500112", "verified": True, "probe_duration_s": 9000}}
+    (tmp_path / "fetch.json").write_text(json.dumps(fetch))
+    monkeypatch.setattr(S, "root", lambda: tmp_path)
+    for gid in ("0042500112", "0042500113", "0042500123"):
+        with pytest.raises(SystemExit):
+            S.checked(gid)
