@@ -13,6 +13,7 @@ SkillCorner's score at a clock is built from its own `shots` (made field goals, 
 all 10 published games, and `final_scores` checks that before any video is read.
 
     python3 -m tools.p8_acb_identity scores                       # the final-score check of the 10 games
+    python3 -m tools.p8_acb_identity calibrate                    # D139's check of the acb_clock reading
     python3 -m tools.p8_acb_identity check SOURCE VIDEO_ID [--duration S] [--label TEXT]
 
 Download, frames and OCR are tools.p8_identity's functions, imported: sections go to the P8 workspace, outside the
@@ -39,6 +40,19 @@ WHO = "tools.p8_acb_identity"
 # itself, and every record keeps both readings (the unchanged parser and this one).
 ACB_CLOCK_RE = re.compile(r"^(\d{1,2})[.:*](\d{2})(?:\D?\d{1,3})?$")
 FIBA_QUARTER_MIN = 10                 # FIBA Official Basketball Rules 2026 v1.1, Article 8.1
+# Half-time retry (PLAN.md D139, ACB tool only): when neither a moment's section nor its 90 s retry reads any clock,
+# one more retry 900 s after the first start. FIBA Official Basketball Rules 2026 v1.1, Article 8.4: "There shall be
+# a half-time interval of play of 15 minutes." The SportVU rule (tools.p8_identity, D130, D138) is unchanged.
+HALFTIME_RETRY_S = 900
+
+# The check of the acb_clock reading (D139), fixed before it runs: ACB's own highlight videos ("RESUMEN", channel
+# ACB). Positives: the first 3 games of matches.json other than 179612 (the candidate under test), each must be
+# confirmed as its own game against all 10. Negatives: 2 Liga Endesa 2025-26 games outside the 10, each between the
+# same two clubs as one of the 10 (the hardest negatives available), each must confirm nothing. Bar: 3 of 3
+# positives confirmed, 0 negatives confirmed, under the acb_clock reading.
+CALIBRATION_POSITIVES = (("KxOXoriFwDM", "114243"), ("ziPCMtLczBU", "114234"), ("APBbUdF7O5U", "114169"))
+CALIBRATION_NEGATIVES = ("paD9I26G7uA",   # Recoletas Salud San Pablo Burgos - Bàsquet Girona (97-79), 2025-10-04
+                         "rES4CvHaRcI")   # Asisa Joventut - UCAM Murcia (67-89), 2026-04-04
 
 
 def skillcorner_root() -> Path:
@@ -119,6 +133,14 @@ def readings(tokens: dict, frame_names: list[str], events: dict) -> dict:
     return out
 
 
+def needs_halftime_retry(tries: list[dict]) -> bool:
+    """True when the section and its 90 s retry were both tried and no downloaded one read any clock in either
+    reading (acb_clock reads every clock the unchanged parser reads, and more)."""
+    done = [t for t in tries if t.get("downloaded")]
+    return len(tries) >= 2 and not any(t["acb_clock"]["frames_with_clock"] or t["unchanged"]["frames_with_clock"]
+                                       for t in done)
+
+
 def moment_result(tries: list[dict]) -> dict:
     """Per reading, the games of the first downloaded section where that reading matched, else of the last
     downloaded section (D135: a section, then one retry 90 s later when nothing matched)."""
@@ -128,6 +150,18 @@ def moment_result(tries: list[dict]) -> dict:
         hit = next((t[k]["games"] for t in done if t[k]["games"]), None)
         out[k] = hit if hit is not None else (done[-1][k]["games"] if done else [])
     return out
+
+
+def duration_with_retry(source: str, vid: str, tries: int = 3) -> float:
+    """tools.p8_identity.duration_of, retried: yt-dlp sometimes prints nothing (seen twice on 2026-11-21)."""
+    import time
+    for k in range(tries):
+        try:
+            return I.duration_of(source, vid)
+        except (IndexError, ValueError):
+            if k == tries - 1:
+                raise
+            time.sleep(30)
 
 
 def check(source: str, vid: str, duration: float | None = None, label: str = "", record: bool = True) -> dict:
@@ -141,22 +175,28 @@ def check(source: str, vid: str, duration: float | None = None, label: str = "",
         raise SystemExit(f"{WHO}: SkillCorner score rebuild differs from the official score: {bad}")
     games = [str(m["id"]) for m in matches_list()]
     events = {g: game_events(int(g)) for g in games}
-    duration = duration or I.duration_of(source, vid)
+    duration = duration or duration_with_retry(source, vid)
     d = I.work_dir(source, vid)
     moments = []
     for frac in I.MOMENTS:
         start = int(frac * duration)
         tries = []
-        for s in (start, start + I.RETRY_SHIFT_S):              # one retry 90 s later when nothing matched (D135)
-            sec = I.download_section(source, vid, s)
+        starts = [start, start + I.RETRY_SHIFT_S]               # one retry 90 s later when nothing matched (D135)
+        i = 0
+        while i < len(starts):
+            s = starts[i]
+            i += 1
+            sec = None if s + I.SECTION_S > duration else I.download_section(source, vid, s)
             if sec is None:
-                tries.append({"start": s, "downloaded": False})
-                continue
-            names = [f.name for f in I.frames_of(sec)]
-            r = readings(I.run_ocr(d), names, events)
-            tries.append({"start": s, "downloaded": True, **r})
-            if r["unchanged"]["games"] and r["acb_clock"]["games"]:
-                break
+                tries.append({"start": s, "downloaded": False, "beyond_end": s + I.SECTION_S > duration})
+            else:
+                names = [f.name for f in I.frames_of(sec)]
+                r = readings(I.run_ocr(d), names, events)
+                tries.append({"start": s, "downloaded": True, **r})
+                if r["unchanged"]["games"] and r["acb_clock"]["games"]:
+                    break
+            if i == 2 and needs_halftime_retry(tries):         # D139: half-time, FIBA Article 8.4
+                starts.append(start + HALFTIME_RETRY_S)
         moments.append({"moment": frac, "tries": tries, "games": moment_result(tries)})
     verdicts = {k: I.verdict([m["games"][k] for m in moments], games) for k in ("unchanged", "acb_clock")}
     rec = {"source": source, "video_id": vid, "label": label, "duration": duration, "candidates": games,
@@ -167,10 +207,32 @@ def check(source: str, vid: str, duration: float | None = None, label: str = "",
     return rec
 
 
+def calibrate() -> dict:
+    """D139's check of the acb_clock reading, against the bar fixed in CALIBRATION_* above."""
+    rows = []
+    for vid, game in CALIBRATION_POSITIVES:
+        rec = check("youtube", vid, label="calibration positive %s" % game)
+        rows.append({"video_id": vid, "truth": game, "verdicts": rec["verdicts"],
+                     "pass": rec["verdicts"]["acb_clock"] == {"status": "confirmed", "game": game}})
+    for vid in CALIBRATION_NEGATIVES:
+        rec = check("youtube", vid, label="calibration negative")
+        rows.append({"video_id": vid, "truth": None, "verdicts": rec["verdicts"],
+                     "pass": rec["verdicts"]["acb_clock"]["status"] != "confirmed"})
+    pos = sum(r["pass"] for r in rows if r["truth"])
+    false = sum(not r["pass"] for r in rows if not r["truth"])
+    out = {"rows": rows, "positives_confirmed": pos, "of": len(CALIBRATION_POSITIVES), "false_confirmations": false,
+           "passes": pos == len(CALIBRATION_POSITIVES) and false == 0,
+           "bar": "3 of 3 positives confirmed as their own game, 0 negatives confirmed (acb_clock reading; D139)",
+           "date": dt.date.today().isoformat()}
+    atomic_write(p8_root() / "identity" / "acb_calibration.json", json.dumps(out, indent=1))
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("scores")
+    sub.add_parser("calibrate")
     c = sub.add_parser("check")
     c.add_argument("source", choices=("youtube", "bilibili"))
     c.add_argument("video_id")
@@ -180,6 +242,10 @@ def main(argv=None) -> int:
     if a.cmd == "scores":
         for r in final_scores():
             print(json.dumps(r))
+        return 0
+    if a.cmd == "calibrate":
+        out = calibrate()
+        print(json.dumps({k: v for k, v in out.items()}, indent=1))
         return 0
     rec = check(a.source, a.video_id, a.duration, a.label)
     print(json.dumps({k: rec[k] for k in ("video_id", "label", "verdicts", "moments")}, indent=1))

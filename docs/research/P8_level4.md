@@ -314,10 +314,14 @@ percentile of 44.85 ft (FIBA half length 45.93 ft).
 What the pipeline's court model would need (nothing changed here):
 
 1. A FIBA vertex table beside `court/court33.py`'s `COURT_VERTICES_33` (NBA feet, from roboflow/sports' NBA court
-   configuration), in the same index order, with every vertex recomputed from Article 2: corners, lane corners,
-   free-throw line, basket centres, 3-point straight ends and arc top. Vertices 12, 14, 18 and 20 ("3pt extent" on
-   the sidelines) are not defined in court33.py beyond that comment; their FIBA counterparts need the source
-   configuration checked first.
+   configuration), in the same index order. The source (github.com/roboflow/sports, MIT; branch `feat/basketball`,
+   commit 415751384e34, `sports/basketball/config.py`) builds the 33 vertices from one preset per league and has a
+   `League.FIBA` preset beside `League.NBA`. It shows that vertices 12, 14, 18 and 20 are the throw-in line marks
+   on the sidelines (`baseline_to_throw_line`: 835 cm NBA, 830 cm FIBA; Article 2.5.6 says 8.325 m). Its FIBA
+   preset agrees with Article 2 on court size (2800 by 1500 cm), arc radius (675), corner distance (90), lane (490
+   by 580), centre circle (180) and basket (157), but puts the 3-point straight ends (vertices 7, 8, 24, 25) at
+   330 cm from the endline, where Article 2.5.4's arc and lines meet at 2.99 m (computed above). A FIBA table should
+   take those four vertices from Article 2, not from the preset.
 2. `COURT_LENGTH_FT` and `COURT_WIDTH_FT` (94 and 50) wherever they bound or draw positions (for example
    `build_trajectories.py` imports them), as 91.86 and 49.21 for ACB games.
 3. The court keypoint detector was trained on NBA courts; whether it finds the same 33 points on ACB floors (the
@@ -370,3 +374,112 @@ breaks, so many are cut; none is identity-checked. An NBA identity check would u
   the 20 sampled are 1080p and 24 to 64 minutes long) and highlights (1,287 games) are the broad public footage: a shot-location check
   on them is a sampled-possession check (TRACKING_LEVELS.md Level 4 gate), with shots matched by period and clock.
 
+
+## 10. The acb_clock reading and the half-time retry (PLAN.md D139)
+
+Written before any calibration video is downloaded.
+
+Half-time retry, ACB tool only: when neither a moment's section nor its 90 s retry reads any clock (in either
+reading), one more section 900 s after the first start. FIBA Official Basketball Rules 2026 v1.1, Article 8.4:
+"There shall be a half-time interval of play of 15 minutes." The SportVU rule (tools.p8_identity; D130, D138) is
+unchanged. The other rules stay as they are, including the 75 percent multi-match on small-number pairs: the
+three-moment uniqueness is the guard.
+
+Check of the acb_clock reading, fixed in `tools/p8_acb_identity.py` (`CALIBRATION_POSITIVES`,
+`CALIBRATION_NEGATIVES`, `calibrate`) before it runs. Videos: ACB's own highlights ("RESUMEN", channel ACB), identity
+sections only, each checked against all 10 SkillCorner games under the final rule above.
+
+- Positives, the first 3 games of `matches.json` other than 179612 (the candidate under test): `KxOXoriFwDM`
+  (114243), `ziPCMtLczBU` (114234), `APBbUdF7O5U` (114169). Each must be confirmed as its own game.
+- Negatives, 2 Liga Endesa 2025-26 games outside the 10, each between the same two clubs as one of the 10:
+  `paD9I26G7uA` (Recoletas Salud San Pablo Burgos - Bàsquet Girona, 97-79, 2025-10-04) and `rES4CvHaRcI` (Asisa
+  Joventut - UCAM Murcia, 67-89, 2026-04-04). Each must confirm nothing.
+- Bar: 3 of 3 positives confirmed and 0 negatives confirmed, under the acb_clock reading. If the bar is met, the
+  acb_clock reading is accepted and 00k9_ueP2bY is checked again under the final rule; if not, the reading is not
+  accepted and 00k9_ueP2bY's verdict stays with the unchanged reading. The unchanged reading is reported beside it
+  either way.
+
+### Results
+
+Runs of 2026-11-21. The calibration ran first on the code of branch r-p8-level4b (before D138's parser change to
+tools.p8_identity) and then again on the merged code with D138 (sections and OCR read from the same files); both
+runs gave the same verdicts. Two runs stopped on a yt-dlp duration lookup that printed nothing; `duration_with_retry`
+now retries it (3 tries, 30 s apart). The half-time section of 00k9_ueP2bY failed to download twice inside the tool;
+the same yt-dlp command run by hand then succeeded, and the check was rerun on it.
+
+| Video | Truth | Duration (s) | Moments matched (unchanged / acb_clock) | Verdict, acb_clock | Pass |
+|---|---|---|---|---|---|
+| KxOXoriFwDM | 114243 | 184 | 114243 / 114243; 114243 / 114243; none / none | rejected | no |
+| ziPCMtLczBU | 114234 | 186 | 114234 / 114234; 114234 / 114234 and 179612; 114234 / 114234 | confirmed 114234 | yes |
+| APBbUdF7O5U | 114169 | 190 | 114169 / 114169 at all three | confirmed 114169 | yes |
+| paD9I26G7uA | outside | 204 | none at all three | rejected | yes |
+| rES4CvHaRcI | outside | 197 | none at all three | rejected | yes |
+
+**Bar not met: 2 of 3 positives confirmed, 0 false confirmations.** KxOXoriFwDM's 75 percent section (138 s) shows
+no scorebug (OCR: league logo and advertising text only), and its 90 s and 900 s retries lie past the video's end.
+The acb_clock reading is therefore not accepted. On these highlight videos the two readings gave the same verdict
+in all 5, so the check did not separate them.
+
+00k9_ueP2bY under the final rule (half-time retry in place):
+
+| Moment | Sections (s) | Frames with a clock, unchanged / acb_clock | Games, unchanged | Games, acb_clock |
+|---|---|---|---|---|
+| 25% | 1863, 1953 | 1 / 8, 0 / 6 | none | 179612 |
+| 50% | 3727, 3817, 4627 | 0 / 0, 0 / 0, 1 / 6 | none | 179612 (at 4627) |
+| 75% | 5590, 5680 | 0 / 0, 8 / 8 | 114099, 179612, 184439 | 114099, 179612, 184439 |
+
+The half-time retry at 4627 s read "Unicaja 56 63 Valencia Basket 3 05.49/24" (period 3). Verdict: **rejected under
+the unchanged reading; confirmed as 179612 under the acb_clock reading**, which failed its bar. Under D139 the
+verdict that stands is the unchanged reading's: 00k9_ueP2bY is not confirmed, and the full download that D141 ties
+to a confirmed 179612 was not made. The 75 percent moment matched 3 games through small-number pairs (the period
+digit, team fouls); as D139 says, only the three-moment uniqueness guards against that, and under the acb_clock
+reading it did (179612 is the one game in all three).
+
+## 11. NBA 2025-26 identity check (PLAN.md D141)
+
+Written before any calibration video is downloaded.
+
+Rule: tools.p8_identity's D130 rule as fixed in D138, imported unchanged (`tools/p8_nba_identity.py`), with the
+mirror's play-by-play (`cdnnba_2025`, `cdnnba_po_2025`: period, clock, scoreHome and scoreAway on every action) in
+place of the SportVU play-by-play. `python3 -m tools.p8_nba_identity events` (under the heavy-job lock) turned them
+into 156,583 score changes for 1,290 games: all 1,230 regular-season games and 60 of the 85 playoff games (the
+mirror's playoff file holds 60). Candidates for a video: every 2025-26 game between its two teams; a game without
+play-by-play stays a candidate that can never match, and is listed with each record.
+
+Calibration (fixed in `CALIBRATION` before it runs): 5 of the league channel's "EXTENDED: ... FULL GAME
+HIGHLIGHTS" uploads of regular-season games, drawn with `random.Random(141).sample` from the 162 matched ones sorted
+by video id; identity is the league's own title.
+
+| Video | Titled game | Date | Games between the two teams in 2025-26 |
+|---|---|---|---|
+| qXCV4eissO4 | 0022500332, HEAT at MAVERICKS | 2025-12-03 | 2 |
+| 1krUPLClXYA | 0022500714, TIMBERWOLVES at GRIZZLIES | 2026-02-02 | 4 |
+| tXKAuBt2vjw | 0022500300, MAVERICKS at CLIPPERS | 2025-11-29 | 4 |
+| nb402apDzh8 | 0022500881, NUGGETS at JAZZ | 2026-03-02 | 4 |
+| GDpD5lL9c20 | 0022500227, HAWKS at JAZZ | 2025-11-13 | 2 |
+
+Bar: 5 of 5 confirmed as the titled game against every game of the same two teams, and 0 confirmed as another game.
+If the bar is met, the 25 probed full-game candidates (section 8, YouTube, 720p or more) are checked, identity
+sections only; every candidate's play-by-play exists for its titled game. If it is not met, no candidate is checked
+and the failure is reported.
+
+### Results
+
+Run of 2026-11-21, on the merged code with D138.
+
+| Video | Titled game | Duration (s) | 25% | 50% | 75% | Verdict |
+|---|---|---|---|---|---|---|
+| qXCV4eissO4 | 0022500332 | 1,549 | titled game | titled game | none (0 clocks in both sections) | rejected |
+| 1krUPLClXYA | 0022500714 | 1,662 | titled game | none (8 and 8 frames with a clock) | none (0 clocks) | rejected |
+| tXKAuBt2vjw | 0022500300 | 2,000 | titled game | none (0 clocks) | none (0 clocks) | rejected |
+| nb402apDzh8 | 0022500881 | 1,853 | titled game | none (8 and 0 frames with a clock) | none (0 clocks) | rejected |
+| GDpD5lL9c20 | 0022500227 | 1,880 | titled game | none (6 and 0 frames with a clock) | none (0 clocks) | rejected |
+
+**Bar not met: 0 of 5 confirmed, 0 false confirmations.** No candidate was checked, as the bar says. Every video
+matched its titled game, and only it, at 25 percent. What the later sections hold, from their OCR text: a player
+graphic ("COOPER FLAGG") and a coach interview ("JASON KIDD, HEAD COACH"), where nothing can match; a sub-minute
+clock read with a comma or a stray first character ("45,09", ";06.1", "F05.8"), which D138's parser does not read;
+and in nb402apDzh8 the final seconds (4TH, DEN 128, UTA 125) already at 50 percent, so the rest of the video is not
+game play. Extended highlights put the game in the first part of the video and other material after it, so a rule
+with fixed moments at 50 and 75 percent cannot confirm them; this says nothing yet about the 25 full-game
+candidates, which were not checked.
