@@ -1,6 +1,6 @@
 {
  "version": 1,
- "updated": "2026-11-17",
+ "updated": "2026-11-22",
  "decision": "PLAN.md D83 (10 more third-party uploads under CLAIMS.md caveat 4), D85 (3) (development games)",
  "rule": "The channel games that need a scorebug check to be dated (docs/research/P8_FEASIBILITY.md section 4). A game becomes a development game (status confirmed) only when one frame's scorebug (teams, period, game clock, score) matches the play-by-play of exactly one candidate SportVU game in the contract (score at that clock). The 4 broadcast CV test games are not listed here: their ids live only in reports/research/testset.json. Every id here passes tools.research_testset.refuse_cv_test.",
  "rights": "public third-party YouTube uploads of one channel, used under CLAIMS.md standing caveat 4 (amended 2026-11-17); no video is redistributed",
@@ -187,6 +187,50 @@
    "date": "2016-01-10",
    "layout": "csn_nw15_720",
    "layout_note": "new hand calibration csn_nw15_720 (registry layouts); the period is a word, read by tools.p8_frozen.make_reader"
+  },
+  "nop_gsw_2015": {
+   "video_id": "SXT3wqb_zho",
+   "home": "NOP",
+   "away": "GSW",
+   "candidates": [
+    "10.31.2015.GSW.at.NOP"
+   ],
+   "status": "confirmed",
+   "sportvu": "10.31.2015.GSW.at.NOP",
+   "date": "2015-10-31",
+   "fetch": "reports/research/p8_d146_fetch.json (whole video, h264 1280x720)",
+   "decision": "PLAN.md D146: Mac Phase A camera truth after D140",
+   "layout_note": "no layout fixed here: the night runner's automatic layout step (frozen sportvu.prepare scoring over clock_reader.LAYOUTS) chooses it",
+   "scorebug_check": {
+    "rule": "PLAN.md D130 and D138: automatic scorebug OCR at 3 moments, exactly one SportVU game matched (tools/p8_identity.py)",
+    "record": "reports/research/p8_search.json",
+    "by": "Track A search and identity batch, automatic; no frame read by a person",
+    "status": "confirmed",
+    "game": "10.31.2015.GSW.at.NOP",
+    "method": "automatic OCR of period, clock and score at 25, 50 and 75 percent of the video (D130, D135, D138); the record's videos entry for this id says confirmed for this game"
+   }
+  },
+  "hou_cle_2016": {
+   "video_id": "XDdGwBq0KB8",
+   "home": "HOU",
+   "away": "CLE",
+   "candidates": [
+    "01.15.2016.CLE.at.HOU"
+   ],
+   "status": "confirmed",
+   "sportvu": "01.15.2016.CLE.at.HOU",
+   "date": "2016-01-15",
+   "fetch": "reports/research/p8_d146_fetch.json (whole video, h264 1280x720)",
+   "decision": "PLAN.md D146: Mac Phase A camera truth after D140",
+   "layout_note": "no layout fixed here: the night runner's automatic layout step (frozen sportvu.prepare scoring over clock_reader.LAYOUTS) chooses it",
+   "scorebug_check": {
+    "rule": "PLAN.md D130 and D138: automatic scorebug OCR at 3 moments, exactly one SportVU game matched (tools/p8_identity.py)",
+    "record": "reports/research/p8_search.json",
+    "by": "Track A search and identity batch, automatic; no frame read by a person",
+    "status": "confirmed",
+    "game": "01.15.2016.CLE.at.HOU",
+    "method": "automatic OCR of period, clock and score at 25, 50 and 75 percent of the video (D130, D135, D138); the record's videos entry for this id says confirmed for this game"
+   }
   }
  },
  "layouts": {
