@@ -123,7 +123,8 @@ EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
 
 def save_record(rec: dict) -> None:
-    """The workspace record in full. The repository copy has email addresses removed (CLAUDE.md rule 9) and, for a
+    """The workspace record in full. The repository copy has email addresses removed (CLAUDE.md rule 9), long dashes replaced by hyphens
+    (rule 12) and, for a
     set of more than MANIFEST_OVER files, the file list replaced by its count, bytes and the sha256 of a manifest file
     kept in the workspace (<name>.manifest.json: path, bytes, sha256 of every file)."""
     atomic_write(record_path(), json.dumps(rec, indent=1, ensure_ascii=False))
@@ -142,6 +143,7 @@ def save_record(rec: dict) -> None:
                                                         if v.get("listed_size") is not None and v["bytes"] != v["listed_size"])}
         short[name] = e
     text = json.dumps(short, indent=1, ensure_ascii=False)
+    text = text.replace("\u2014", "-").replace("\u2013", "-")      # CLAUDE.md rule 12, in quoted text too
     atomic_write(REPO / "reports" / "research" / "p8_datasets_fetch.json", EMAIL_RE.sub("[email removed]", text) + "\n")
 
 
@@ -343,7 +345,11 @@ def main(argv=None) -> int:
     elif a.cmd == "shot-screen":
         print(json.dumps(shot_screen(), indent=1))
     else:
-        save_record(load_record())
+        rec = load_record()
+        for name, e in rec.items():                    # license text as found, for sets fetched by URL too
+            if not e.get("license_text"):
+                e["license_text"] = license_text(datasets_root() / name, list(e.get("files") or {}))
+        save_record(rec)
     return 0
 
 
