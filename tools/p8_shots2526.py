@@ -179,7 +179,11 @@ def oracle(points_by_frame: dict, target: tuple, frames: list) -> tuple:
         pts = points_by_frame.get(f)
         if not pts:
             continue
-        d = float(np.min(np.hypot(np.asarray(pts)[:, 0] - target[0], np.asarray(pts)[:, 1] - target[1])))
+        dd = np.hypot(np.asarray(pts, float)[:, 0] - target[0], np.asarray(pts, float)[:, 1] - target[1])
+        dd = dd[np.isfinite(dd)]
+        if not len(dd):
+            continue
+        d = float(dd.min())
         if best is None or d < best:
             best, bf = d, f
     return best, bf
@@ -427,7 +431,7 @@ def built_points(out_dir: Path, w: dict) -> tuple:
     pts = {}
     for tr in json.loads(tr_p.read_text()).values():
         for q in tr.get("cleaned") or []:
-            if q[0] in keep and q[1] is not None and q[2] is not None:
+            if q[0] in keep and q[1] is not None and q[2] is not None and math.isfinite(q[1]) and math.isfinite(q[2]):
                 pts.setdefault(int(q[0]), []).append((float(q[1]), float(q[2])))
     return pts, acc
 
@@ -538,7 +542,7 @@ def cmd_reference() -> dict:
     fr = fr[[(int(a), int(b)) in want for a, b in fr[["frame", "player_id"]].fillna(-1).itertuples(index=False)]]
     pos = {(int(a), int(b)): (float(x), float(y)) for a, b, x, y in fr.itertuples(index=False)}
     del fr
-    rel = {int(e): pos.get((int(f), int(s))) for e, f, s in shots.itertuples(index=False) if f >= 0 and s == s}
+    rel = {int(e): pos.get((int(f), int(s))) for e, f, s in shots.itertuples(index=False) if f >= 0 and pd.notna(s)}
     ev = {}
     for p in sorted((P["builds"] / "e2").glob(f"{tag}_s*_events.json")):
         for e in json.loads(p.read_text())["events"]:
