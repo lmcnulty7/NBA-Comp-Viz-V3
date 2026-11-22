@@ -1,0 +1,5551 @@
+{
+ "written": "2026-11-22T05:48:07+00:00",
+ "rule": "PLAN.md D128 to D138; tools.p8_search, tools.p8_identity, tools.p8_step0_report",
+ "calibration": {
+  "written": "2026-11-21T21:47:53+00:00",
+  "videos": 7,
+  "confirmed_true": 7,
+  "false_confirmations": 0,
+  "passes": true
+ },
+ "tables": {
+  "by_class": {
+   "d85_test": {
+    "games": 78,
+    "with_candidate": 0,
+    "with_metadata_hit": 62
+   },
+   "training": {
+    "games": 526,
+    "with_candidate": 85,
+    "with_metadata_hit": 85
+   },
+   "spent": {
+    "games": 17,
+    "with_candidate": 0,
+    "with_metadata_hit": 12
+   },
+   "broken": {
+    "games": 5,
+    "with_candidate": 0,
+    "with_metadata_hit": 0
+   }
+  },
+  "videos_by_source_and_status": {
+   "bilibili": {
+    "not_downloaded": 3,
+    "rejected": 5
+   },
+   "youtube": {
+    "rejected": 52,
+    "confirmed": 10,
+    "guarded": 3
+   }
+  },
+  "videos_by_length_and_status": {
+   "condensed": {
+    "rejected": 3
+   },
+   "full": {
+    "rejected": 54,
+    "confirmed": 10,
+    "not_downloaded": 3,
+    "guarded": 3
+   }
+  },
+  "confirmed_games": [
+   "01.04.2016.CHA.at.GSW",
+   "01.10.2016.OKC.at.POR",
+   "01.12.2016.BOS.at.NYK",
+   "01.15.2016.CLE.at.HOU",
+   "01.22.2016.IND.at.GSW",
+   "10.31.2015.GSW.at.NOP",
+   "11.14.2015.BKN.at.GSW",
+   "12.06.2015.SAC.at.OKC",
+   "12.28.2015.SAC.at.GSW"
+  ],
+  "confirmed_games_not_already_known": [
+   "01.15.2016.CLE.at.HOU",
+   "10.31.2015.GSW.at.NOP"
+  ],
+  "confirmed_full_720p_games": [
+   "01.04.2016.CHA.at.GSW",
+   "01.10.2016.OKC.at.POR",
+   "01.12.2016.BOS.at.NYK",
+   "01.15.2016.CLE.at.HOU",
+   "01.22.2016.IND.at.GSW",
+   "10.31.2015.GSW.at.NOP",
+   "11.14.2015.BKN.at.GSW",
+   "12.06.2015.SAC.at.OKC",
+   "12.28.2015.SAC.at.GSW"
+  ],
+  "confirmed_games_by_home_team": {
+   "GSW": 4,
+   "POR": 1,
+   "NYK": 1,
+   "HOU": 1,
+   "NOP": 1,
+   "OKC": 1
+  },
+  "new_arenas_outside_development": [
+   "HOU",
+   "NOP"
+  ],
+  "old_84": {
+   "games": 84,
+   "with_candidate": 21,
+   "confirmed": [
+    "01.04.2016.CHA.at.GSW",
+    "01.12.2016.BOS.at.NYK",
+    "01.22.2016.IND.at.GSW",
+    "11.14.2015.BKN.at.GSW",
+    "12.06.2015.SAC.at.OKC",
+    "12.28.2015.SAC.at.GSW"
+   ],
+   "earlier_usable": 6
+  },
+  "candidate_games_by_home_team": {
+   "CHI": 5,
+   "WAS": 3,
+   "GSW": 10,
+   "UTA": 3,
+   "OKC": 5,
+   "MIL": 3,
+   "PHX": 2,
+   "ORL": 3,
+   "BKN": 3,
+   "SAC": 4,
+   "POR": 3,
+   "NYK": 6,
+   "DET": 1,
+   "DEN": 4,
+   "HOU": 6,
+   "IND": 4,
+   "NOP": 2,
+   "MIN": 2,
+   "PHI": 1,
+   "MEM": 2,
+   "SAS": 3,
+   "ATL": 3,
+   "BOS": 3,
+   "CHA": 3,
+   "DAL": 1
+  }
+ },
+ "games": [
+  {
+   "game": "01.01.2016.CHA.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.01.2016.DAL.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.01.2016.NYK.at.CHI",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "Y3u_Ne-4KbQ",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.01.2016.ORL.at.WAS",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "B6xrHB2mQUk",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    },
+    {
+     "id": "v0nVwpcsM14",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.01.2016.PHI.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.BKN.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.DEN.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "i5To6IgQLKc",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.DET.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.HOU.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.MEM.at.UTA",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "Ly8nTZohTkk",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.MIL.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.NOP.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.OKC.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.ORL.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.02.2016.PHI.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "01.02.2016.PHX.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.03.2016.ATL.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.03.2016.CHI.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 3
+  },
+  {
+   "game": "01.03.2016.MIA.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.03.2016.PHX.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "01.03.2016.POR.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.04.2016.BOS.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.04.2016.CHA.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "hoPgMa02zB4",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.04.2016.HOU.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.04.2016.IND.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 3
+  },
+  {
+   "game": "01.04.2016.MEM.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.04.2016.MIN.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.04.2016.ORL.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.04.2016.SAC.at.OKC",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "tqDqi5XqUKU",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.04.2016.SAS.at.MIL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "FLCYTjm9PIY",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.04.2016.TOR.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.05.2016.GSW.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "01.05.2016.MIL.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.05.2016.NYK.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.05.2016.SAC.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.CHA.at.PHX",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "FUeOKc0kP94",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015/16"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.CLE.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.DAL.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.DEN.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.DET.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.IND.at.ORL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "QIEVYvOfeaM",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.LAC.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.MEM.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.NYK.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.TOR.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.06.2016.UTA.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.07.2016.ATL.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.07.2016.BOS.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.07.2016.LAL.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.07.2016.UTA.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.08.2016.CLE.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.08.2016.DAL.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.08.2016.DEN.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.08.2016.GSW.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.08.2016.IND.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.08.2016.MIA.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.08.2016.NYK.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.08.2016.OKC.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "01.08.2016.ORL.at.BKN",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "4Pc01w1n9Mg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.08.2016.TOR.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.09.2016.BKN.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.09.2016.CHA.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "01.09.2016.CHI.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.09.2016.GSW.at.SAC",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "qzJbC4tmJeA",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.09.2016.MIA.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.09.2016.TOR.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.09.2016.WAS.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.10.2016.BOS.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.10.2016.CHA.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.10.2016.CLE.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.10.2016.DAL.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.10.2016.IND.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.10.2016.MIL.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.10.2016.NOP.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.10.2016.OKC.at.POR",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "UiAdZkI4tb0",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.10.2016.UTA.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "01.11.2016.MIA.at.GSW",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.11.2016.SAS.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.11.2016.WAS.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.12.2016.BOS.at.NYK",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "CVFO7eUrTL8",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.12.2016.CHI.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.12.2016.CLE.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.12.2016.HOU.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.12.2016.NOP.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 3
+  },
+  {
+   "game": "01.12.2016.OKC.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.12.2016.PHX.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.12.2016.SAS.at.DET",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "3ig9xiu5VOU",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.13.2016.ATL.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.13.2016.DAL.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.13.2016.GSW.at.DEN",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "i5To6IgQLKc",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.13.2016.IND.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.13.2016.MIA.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "01.13.2016.MIL.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.13.2016.MIN.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.13.2016.NOP.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.13.2016.NYK.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.13.2016.UTA.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.14.2016.CHI.at.PHI",
+   "class": "broken",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.14.2016.CLE.at.SAS",
+   "class": "broken",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.14.2016.DET.at.MEM",
+   "class": "broken",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.14.2016.LAL.at.GSW",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.14.2016.SAC.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.15.2016.ATL.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.15.2016.CHA.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.15.2016.CLE.at.HOU",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "XDdGwBq0KB8",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "date: January 15 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.15.2016.DAL.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.15.2016.MIA.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.15.2016.MIN.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.15.2016.PHX.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.15.2016.POR.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.15.2016.WAS.at.IND",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "Td8GojYg1FM",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.18.2016.BKN.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "01.18.2016.BOS.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.18.2016.CHI.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.18.2016.GSW.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 4
+  },
+  {
+   "game": "01.18.2016.HOU.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "01.18.2016.NOP.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.18.2016.ORL.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.18.2016.PHI.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.18.2016.POR.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.18.2016.UTA.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.19.2016.IND.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.19.2016.MIL.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.19.2016.MIN.at.NOP",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "zLBNob2rEcg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.19.2016.OKC.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.20.2016.ATL.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.20.2016.BOS.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 4
+  },
+  {
+   "game": "01.20.2016.CHA.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.20.2016.CLE.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.20.2016.DET.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.20.2016.GSW.at.CHI",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "_4sO76fcITk",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.20.2016.MIA.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.20.2016.MIN.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.20.2016.PHI.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.20.2016.SAC.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 5
+  },
+  {
+   "game": "01.20.2016.UTA.at.NYK",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "ae4nAE6YTOs",
+     "source": "youtube",
+     "length": "condensed",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.21.2016.DET.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.21.2016.MEM.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.22.2016.CHA.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.22.2016.CHI.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.22.2016.IND.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "UQHXGIH12Ds",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "date: January 22 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.22.2016.LAC.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.22.2016.MIA.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 4
+  },
+  {
+   "game": "01.22.2016.MIL.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.22.2016.OKC.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.22.2016.SAS.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 5
+  },
+  {
+   "game": "01.22.2016.UTA.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.23.2016.ATL.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.23.2016.CHI.at.CLE",
+   "class": "broken",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.23.2016.DET.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.23.2016.IND.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.23.2016.LAL.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.23.2016.MEM.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.23.2016.MIL.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.23.2016.NYK.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "01.23.2016.UTA.at.WAS",
+   "class": "broken",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.27.2015.CLE.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.27.2015.DET.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.27.2015.NOP.at.GSW",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.28.2015.CLE.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.28.2015.DEN.at.HOU",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "ep-yKu-qZiY",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    },
+    {
+     "id": "BV1Vhy8zzEDL",
+     "source": "bilibili",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.28.2015.IND.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "10.28.2015.LAC.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.28.2015.MIN.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "10.28.2015.NOP.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.28.2015.NYK.at.MIL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "C67l06VIwlw",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.28.2015.PHI.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.28.2015.SAS.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.28.2015.UTA.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.28.2015.WAS.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.29.2015.ATL.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.29.2015.DAL.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.29.2015.MEM.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.BKN.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.CHA.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.CHI.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.LAL.at.SAC",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "BV1hfybzhEbt",
+     "source": "bilibili",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.MIA.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 4
+  },
+  {
+   "game": "10.30.2015.MIN.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.OKC.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.POR.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.TOR.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.UTA.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.30.2015.WAS.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.31.2015.BKN.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.31.2015.GSW.at.NOP",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "SXT3wqb_zho",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "date: October 31, 2015"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.31.2015.NYK.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.31.2015.PHX.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "10.31.2015.SAC.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "10.31.2015.UTA.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.01.2015.ATL.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.01.2015.DAL.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.01.2015.DEN.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.01.2015.HOU.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.01.2015.MIL.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.01.2015.ORL.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.01.2015.SAS.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.02.2015.CLE.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.02.2015.MEM.at.GSW",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.02.2015.MIL.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.02.2015.OKC.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.02.2015.PHX.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.02.2015.POR.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.02.2015.SAS.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.03.2015.ATL.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.03.2015.CHI.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.03.2015.DEN.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.03.2015.IND.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.03.2015.MEM.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.03.2015.ORL.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.03.2015.TOR.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.04.2015.BKN.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.04.2015.BOS.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.04.2015.LAC.at.GSW",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.04.2015.NYK.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "11.04.2015.ORL.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.04.2015.PHI.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.04.2015.POR.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.04.2015.SAC.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.04.2015.SAS.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.04.2015.TOR.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.05.2015.CHA.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.05.2015.MEM.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.05.2015.MIA.at.MIN",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "Cn0H30KHvUY",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.05.2015.OKC.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.05.2015.UTA.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.06.2015.ATL.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.06.2015.DEN.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "0aHFoUgSA6E",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 1 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.06.2015.DET.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.06.2015.HOU.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.06.2015.LAL.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.06.2015.MIA.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.06.2015.MIL.at.NYK",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "C67l06VIwlw",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.06.2015.PHI.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.06.2015.TOR.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.06.2015.WAS.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.07.2015.BKN.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.07.2015.CHA.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.07.2015.GSW.at.SAC",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "qzJbC4tmJeA",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.07.2015.HOU.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.07.2015.MEM.at.UTA",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "Ly8nTZohTkk",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    },
+    {
+     "id": "_RPUq5H0IyU",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 1 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.07.2015.MIN.at.CHI",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "CnWjHmDeczs",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.07.2015.NOP.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.07.2015.ORL.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.07.2015.WAS.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.08.2015.DET.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.08.2015.IND.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "11.08.2015.LAL.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.08.2015.PHX.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.08.2015.TOR.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.09.2015.DET.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "7Npg5KN4Gbk",
+     "source": "youtube",
+     "length": "condensed",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.09.2015.MEM.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "11.09.2015.MIN.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.09.2015.ORL.at.IND",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "QIEVYvOfeaM",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.09.2015.POR.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.09.2015.SAS.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.10.2015.BOS.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.10.2015.CHA.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.10.2015.DAL.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.10.2015.LAL.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 3
+  },
+  {
+   "game": "11.10.2015.NYK.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "11.10.2015.OKC.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.10.2015.UTA.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.11.2015.BKN.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.DET.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.GSW.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.IND.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.LAC.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.LAL.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.MIL.at.DEN",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "E3L_XjpMepo",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.NOP.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.NYK.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.SAS.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.11.2015.TOR.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.12.2015.GSW.at.MIN",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "QDYdputqtfE",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.12.2015.LAC.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.12.2015.UTA.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "11.13.2015.ATL.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.13.2015.BKN.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.13.2015.CHA.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.13.2015.CLE.at.NYK",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "7TuGdp5f_bg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015-2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.13.2015.HOU.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.13.2015.LAL.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.13.2015.MIN.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.13.2015.NOP.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.13.2015.PHI.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.13.2015.POR.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.13.2015.UTA.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.14.2015.BKN.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "5ehjglPdY2g",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    },
+    {
+     "id": "-u83b73fFbY",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "date: November 14 2015"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.14.2015.CLE.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.14.2015.DAL.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.14.2015.DEN.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.14.2015.DET.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.14.2015.ORL.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.14.2015.PHI.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.15.2015.BOS.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.15.2015.DET.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "11.15.2015.MEM.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.15.2015.NOP.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.15.2015.POR.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.15.2015.TOR.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.15.2015.UTA.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.16.2015.BOS.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.16.2015.DAL.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.16.2015.IND.at.CHI",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "wtGuZJAkm08",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.16.2015.LAL.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.16.2015.OKC.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.16.2015.POR.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.17.2015.ATL.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.17.2015.CHA.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.17.2015.CLE.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.17.2015.DEN.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.17.2015.MIL.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.17.2015.MIN.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "11.17.2015.TOR.at.GSW",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.BKN.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.CHI.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.DAL.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.DEN.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.IND.at.PHI",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "BV1buyezgEWA",
+     "source": "bilibili",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    },
+    {
+     "id": "BV1AFsE6pEQW",
+     "source": "bilibili",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.MIN.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.NOP.at.OKC",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "BV161yYzdEP9",
+     "source": "bilibili",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    },
+    {
+     "id": "BV1KayhzZE5f",
+     "source": "bilibili",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.POR.at.HOU",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "FjE433MPktw",
+     "source": "youtube",
+     "length": "condensed",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.SAC.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.18.2015.TOR.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.19.2015.GSW.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "11.19.2015.MIL.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.19.2015.SAC.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 4
+  },
+  {
+   "game": "11.20.2015.BKN.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.20.2015.CHI.at.GSW",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.20.2015.DET.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.20.2015.HOU.at.MEM",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "ww_VlTi7Iag",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 5 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.20.2015.LAC.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.20.2015.NYK.at.OKC",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "n-Kj43PgdQk",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.20.2015.PHI.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.20.2015.PHX.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.20.2015.SAS.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.20.2015.TOR.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 5
+  },
+  {
+   "game": "11.20.2015.UTA.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.21.2015.ATL.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.21.2015.MEM.at.SAS",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "-lS8jZ30Dzk",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 1 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.21.2015.MIL.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.21.2015.NYK.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.21.2015.PHI.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.21.2015.SAC.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.21.2015.WAS.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.22.2015.BOS.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.22.2015.DAL.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.22.2015.GSW.at.DEN",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "i5To6IgQLKc",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.22.2015.PHX.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.22.2015.POR.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.22.2015.TOR.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "11.23.2015.DET.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.23.2015.NYK.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.23.2015.OKC.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.23.2015.ORL.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.23.2015.PHI.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.23.2015.PHX.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.23.2015.SAC.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.24.2015.BOS.at.ATL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "Tz_ty_GHyBo",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.24.2015.CHI.at.POR",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "npSGb-oF4YI",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 0 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.24.2015.DAL.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.24.2015.IND.at.WAS",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "Td8GojYg1FM",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.24.2015.LAC.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.24.2015.LAL.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "FVQw7_IIQRY",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 1 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.ATL.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.BKN.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.CLE.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.25.2015.DAL.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.MEM.at.HOU",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "ww_VlTi7Iag",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 0 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.MIA.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.NOP.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.NYK.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.PHI.at.BOS",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "BV1cnWR6DE26",
+     "source": "bilibili",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.SAC.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.25.2015.UTA.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.25.2015.WAS.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.ATL.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.CHI.at.IND",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "wtGuZJAkm08",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    },
+    {
+     "id": "_olG7xrPzOg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.CLE.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.DET.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.GSW.at.PHX",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "f8lAcHg6kk0",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.MIA.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.MIL.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.MIN.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.PHI.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.SAS.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.27.2015.WAS.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.28.2015.ATL.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.28.2015.DEN.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.28.2015.LAL.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.28.2015.NOP.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.28.2015.SAC.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "qzJbC4tmJeA",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.28.2015.TOR.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.29.2015.BOS.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.29.2015.DET.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.29.2015.HOU.at.NYK",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "eeVYFnJRh00",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 0 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.29.2015.IND.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 5
+  },
+  {
+   "game": "11.29.2015.MIL.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.29.2015.MIN.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.29.2015.PHI.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.29.2015.PHX.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.30.2015.BOS.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.30.2015.DAL.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.30.2015.DEN.at.MIL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "E3L_XjpMepo",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.30.2015.GSW.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.30.2015.HOU.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.30.2015.OKC.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "11.30.2015.POR.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "11.30.2015.SAS.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.01.2015.DAL.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.01.2015.LAL.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.01.2015.MEM.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.01.2015.ORL.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.01.2015.PHX.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.01.2015.WAS.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.02.2015.DEN.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.02.2015.GSW.at.CHA",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "hoPgMa02zB4",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.02.2015.LAL.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.02.2015.MIL.at.SAS",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "WkRwM0aRBNY",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.02.2015.NOP.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.02.2015.PHI.at.NYK",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "BV14inN61E63",
+     "source": "bilibili",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.02.2015.PHX.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.02.2015.TOR.at.ATL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "-J7I2cmcmKg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 0 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.03.2015.DEN.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 4
+  },
+  {
+   "game": "12.03.2015.IND.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.03.2015.OKC.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 4
+  },
+  {
+   "game": "12.03.2015.ORL.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.03.2015.SAS.at.MEM",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "soXqqATQ8h4",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 6 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.04.2015.BKN.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.04.2015.CLE.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.04.2015.HOU.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.04.2015.LAL.at.ATL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "hXxa61jhR_s",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.04.2015.MIL.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.04.2015.PHX.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.06.2015.DAL.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.06.2015.GSW.at.BKN",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "-u83b73fFbY",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015-2016"
+    },
+    {
+     "id": "5ehjglPdY2g",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.06.2015.LAL.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.06.2015.PHX.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.06.2015.SAC.at.OKC",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "tqDqi5XqUKU",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.07.2015.BOS.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.07.2015.DAL.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.07.2015.DET.at.CHA",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "-EewJI99WNI",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015/16"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.07.2015.LAC.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.07.2015.LAL.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.07.2015.PHX.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.07.2015.POR.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.07.2015.SAS.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.07.2015.WAS.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.08.2015.GSW.at.IND",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "UQHXGIH12Ds",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015-2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.08.2015.HOU.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.08.2015.OKC.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.08.2015.ORL.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.08.2015.POR.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.08.2015.UTA.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.ATL.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.CHI.at.BOS",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "HwL4JfZOFGc",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 0 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.HOU.at.WAS",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "YsHBKAlgEjE",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 19 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.LAC.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.LAL.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.MEM.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.MIA.at.CHA",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "SDM0Rwe85Jg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    },
+    {
+     "id": "IC3X1gqVeOM",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.NYK.at.UTA",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "ae4nAE6YTOs",
+     "source": "youtube",
+     "length": "condensed",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.ORL.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.09.2015.SAS.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "12.10.2015.ATL.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.10.2015.LAC.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.10.2015.NYK.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.10.2015.PHI.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.CHA.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.CLE.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.DET.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.GSW.at.BOS",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "rsx4QO8T5sA",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.LAL.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.MIA.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.MIL.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.MIN.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.OKC.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.POR.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.11.2015.WAS.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.12.2015.BOS.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.12.2015.GSW.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.12.2015.IND.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.12.2015.LAC.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.12.2015.LAL.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.12.2015.NOP.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.12.2015.NYK.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.12.2015.SAS.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.12.2015.WAS.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.13.2015.MEM.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.13.2015.MIN.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.13.2015.PHI.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.13.2015.UTA.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.HOU.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.LAC.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.MIA.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.NOP.at.POR",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "Ea-XquzeDYw",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.ORL.at.BKN",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "4Pc01w1n9Mg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.PHI.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.PHX.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.TOR.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.UTA.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.14.2015.WAS.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.15.2015.CLE.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.15.2015.DEN.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.15.2015.HOU.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.15.2015.MIL.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.16.2015.BOS.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.16.2015.CHA.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.16.2015.DAL.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.16.2015.MEM.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.16.2015.MIA.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.16.2015.MIL.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.16.2015.MIN.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.16.2015.NOP.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.16.2015.PHI.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.16.2015.PHX.at.GSW",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "12.16.2015.POR.at.OKC",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "UiAdZkI4tb0",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.16.2015.WAS.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.17.2015.HOU.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "12.17.2015.OKC.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.17.2015.TOR.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.ATL.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.BKN.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.DEN.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.DET.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.LAC.at.SAS",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "F6nirFyJAes",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 0 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.MEM.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.MIL.at.GSW",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.NOP.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.NYK.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.POR.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.SAC.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.18.2015.TOR.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "12.19.2015.CHA.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.19.2015.CHI.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.19.2015.IND.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.19.2015.LAC.at.HOU",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "v5rSHRdq9O8",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.19.2015.LAL.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.20.2015.ATL.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.20.2015.MIL.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.20.2015.MIN.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.20.2015.NOP.at.DEN",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "vT3_N_bgCcw",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 1 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.20.2015.PHI.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.20.2015.POR.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.20.2015.SAC.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.21.2015.BKN.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.21.2015.CHA.at.HOU",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "wr8eYyGEKyc",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015/16"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.21.2015.IND.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.21.2015.MIN.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.21.2015.OKC.at.LAC",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.21.2015.ORL.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.21.2015.PHX.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.21.2015.POR.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.21.2015.SAC.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.22.2015.DAL.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.22.2015.DET.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.22.2015.LAL.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.22.2015.MEM.at.PHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.BOS.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.DAL.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.DEN.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.DET.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.HOU.at.ORL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "aLBmE6ZNZjg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 1 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.MEM.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.NYK.at.CLE",
+   "class": "spent",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.23.2015.OKC.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.PHI.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.POR.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.SAC.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.SAS.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.23.2015.UTA.at.GSW",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.25.2015.CHI.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.25.2015.CLE.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "h5pTl8fOM2U",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    },
+    {
+     "id": "gJacTMQ1kzk",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 1 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.25.2015.LAC.at.LAL",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "12.25.2015.NOP.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.25.2015.SAS.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.BOS.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.CHI.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.CLE.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.DEN.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.HOU.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.IND.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.LAC.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.MEM.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.MIA.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.NYK.at.ATL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.PHI.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.TOR.at.MIL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.26.2015.WAS.at.BKN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.27.2015.DEN.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.27.2015.LAL.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.27.2015.NYK.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.27.2015.POR.at.SAC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.ATL.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.BKN.at.MIA",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 1
+  },
+  {
+   "game": "12.28.2015.CLE.at.PHX",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.LAC.at.WAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.LAL.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.MIL.at.DAL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.MIN.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.NOP.at.ORL",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.PHI.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.SAC.at.GSW",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "qzJbC4tmJeA",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.28.2015.TOR.at.CHI",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.29.2015.ATL.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.29.2015.CLE.at.DEN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.29.2015.DET.at.NYK",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.29.2015.MIA.at.MEM",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.29.2015.MIL.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.BKN.at.ORL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "4Pc01w1n9Mg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.DEN.at.POR",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.GSW.at.DAL",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "ZkwH9zTcLhw",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.IND.at.CHI",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "wtGuZJAkm08",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "season: 2015 / 2016"
+    },
+    {
+     "id": "_olG7xrPzOg",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": null
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.LAC.at.CHA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.LAL.at.BOS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.PHI.at.SAC",
+   "class": "training",
+   "candidates": [
+    {
+     "id": "jaFZX10-nUU",
+     "source": "youtube",
+     "length": "full",
+     "height": 720,
+     "evidence": "uploaded 1 days after the game"
+    }
+   ],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.PHX.at.SAS",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.UTA.at.MIN",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.30.2015.WAS.at.TOR",
+   "class": "d85_test",
+   "candidates": [],
+   "metadata_hits_not_probed": 2
+  },
+  {
+   "game": "12.31.2015.GSW.at.HOU",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.31.2015.LAC.at.NOP",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.31.2015.MIL.at.IND",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.31.2015.MIN.at.DET",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.31.2015.PHX.at.OKC",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  },
+  {
+   "game": "12.31.2015.POR.at.UTA",
+   "class": "training",
+   "candidates": [],
+   "metadata_hits_not_probed": 0
+  }
+ ],
+ "videos": [
+  {
+   "source": "bilibili",
+   "id": "BV14inN61E63",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.02.2015.PHI.at.NYK"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "bilibili",
+   "id": "BV161yYzdEP9",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.18.2015.NOP.at.OKC"
+   ],
+   "status": "not_downloaded",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "bilibili",
+   "id": "BV1AFsE6pEQW",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.18.2015.IND.at.PHI"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "bilibili",
+   "id": "BV1KayhzZE5f",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.18.2015.NOP.at.OKC"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "bilibili",
+   "id": "BV1Vhy8zzEDL",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "10.28.2015.DEN.at.HOU"
+   ],
+   "status": "not_downloaded",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "bilibili",
+   "id": "BV1buyezgEWA",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.18.2015.IND.at.PHI"
+   ],
+   "status": "not_downloaded",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "bilibili",
+   "id": "BV1cnWR6DE26",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.25.2015.PHI.at.BOS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "bilibili",
+   "id": "BV1hfybzhEbt",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "10.30.2015.LAL.at.SAC"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "-EewJI99WNI",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.07.2015.DET.at.CHA"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "-J7I2cmcmKg",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.02.2015.TOR.at.ATL"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "-lS8jZ30Dzk",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.21.2015.MEM.at.SAS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "-u83b73fFbY",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.14.2015.BKN.at.GSW",
+    "12.06.2015.GSW.at.BKN"
+   ],
+   "status": "confirmed",
+   "game": "11.14.2015.BKN.at.GSW",
+   "known_dev_video": true
+  },
+  {
+   "source": "youtube",
+   "id": "0aHFoUgSA6E",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.06.2015.DEN.at.GSW"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "3ig9xiu5VOU",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.12.2016.SAS.at.DET"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "4Pc01w1n9Mg",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.08.2016.ORL.at.BKN",
+    "12.14.2015.ORL.at.BKN",
+    "12.30.2015.BKN.at.ORL"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "5ehjglPdY2g",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.14.2015.BKN.at.GSW",
+    "12.06.2015.GSW.at.BKN"
+   ],
+   "status": "confirmed",
+   "game": "11.14.2015.BKN.at.GSW",
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "7Npg5KN4Gbk",
+   "length": "condensed",
+   "height": 720,
+   "found_for": [
+    "11.09.2015.DET.at.GSW"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "7TuGdp5f_bg",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.13.2015.CLE.at.NYK"
+   ],
+   "status": "guarded",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "B6xrHB2mQUk",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.01.2016.ORL.at.WAS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "C67l06VIwlw",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "10.28.2015.NYK.at.MIL",
+    "11.06.2015.MIL.at.NYK"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "CVFO7eUrTL8",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.12.2016.BOS.at.NYK"
+   ],
+   "status": "confirmed",
+   "game": "01.12.2016.BOS.at.NYK",
+   "known_dev_video": true
+  },
+  {
+   "source": "youtube",
+   "id": "Cn0H30KHvUY",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.05.2015.MIA.at.MIN"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "CnWjHmDeczs",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.07.2015.MIN.at.CHI"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "E3L_XjpMepo",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.11.2015.MIL.at.DEN",
+    "11.30.2015.DEN.at.MIL"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "Ea-XquzeDYw",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.14.2015.NOP.at.POR"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "F6nirFyJAes",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.18.2015.LAC.at.SAS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "FLCYTjm9PIY",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.04.2016.SAS.at.MIL"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "FUeOKc0kP94",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.06.2016.CHA.at.PHX"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "FVQw7_IIQRY",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.24.2015.LAL.at.GSW"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "FjE433MPktw",
+   "length": "condensed",
+   "height": 720,
+   "found_for": [
+    "11.18.2015.POR.at.HOU"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "HwL4JfZOFGc",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.09.2015.CHI.at.BOS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "IC3X1gqVeOM",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.09.2015.MIA.at.CHA"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "Ly8nTZohTkk",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.02.2016.MEM.at.UTA",
+    "11.07.2015.MEM.at.UTA"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "QDYdputqtfE",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.12.2015.GSW.at.MIN"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "QIEVYvOfeaM",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.06.2016.IND.at.ORL",
+    "11.09.2015.ORL.at.IND"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "SDM0Rwe85Jg",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.09.2015.MIA.at.CHA"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "SXT3wqb_zho",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "10.31.2015.GSW.at.NOP"
+   ],
+   "status": "confirmed",
+   "game": "10.31.2015.GSW.at.NOP",
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "Td8GojYg1FM",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.15.2016.WAS.at.IND",
+    "11.24.2015.IND.at.WAS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "Tz_ty_GHyBo",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.24.2015.BOS.at.ATL"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "UQHXGIH12Ds",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.22.2016.IND.at.GSW",
+    "12.08.2015.GSW.at.IND"
+   ],
+   "status": "confirmed",
+   "game": "01.22.2016.IND.at.GSW",
+   "known_dev_video": true
+  },
+  {
+   "source": "youtube",
+   "id": "UiAdZkI4tb0",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.10.2016.OKC.at.POR",
+    "12.16.2015.POR.at.OKC"
+   ],
+   "status": "confirmed",
+   "game": "01.10.2016.OKC.at.POR",
+   "known_dev_video": true
+  },
+  {
+   "source": "youtube",
+   "id": "WkRwM0aRBNY",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.02.2015.MIL.at.SAS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "XDdGwBq0KB8",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.15.2016.CLE.at.HOU"
+   ],
+   "status": "confirmed",
+   "game": "01.15.2016.CLE.at.HOU",
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "Y3u_Ne-4KbQ",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.01.2016.NYK.at.CHI"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "YsHBKAlgEjE",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.09.2015.HOU.at.WAS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "ZkwH9zTcLhw",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.30.2015.GSW.at.DAL"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "_4sO76fcITk",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.20.2016.GSW.at.CHI"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "_RPUq5H0IyU",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.07.2015.MEM.at.UTA"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "_olG7xrPzOg",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.27.2015.CHI.at.IND",
+    "12.30.2015.IND.at.CHI"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "aLBmE6ZNZjg",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.23.2015.HOU.at.ORL"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "ae4nAE6YTOs",
+   "length": "condensed",
+   "height": 720,
+   "found_for": [
+    "01.20.2016.UTA.at.NYK",
+    "12.09.2015.NYK.at.UTA"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "eeVYFnJRh00",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.29.2015.HOU.at.NYK"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "ep-yKu-qZiY",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "10.28.2015.DEN.at.HOU"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "f8lAcHg6kk0",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.27.2015.GSW.at.PHX"
+   ],
+   "status": "guarded",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "gJacTMQ1kzk",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.25.2015.CLE.at.GSW"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "h5pTl8fOM2U",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.25.2015.CLE.at.GSW"
+   ],
+   "status": "guarded",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "hXxa61jhR_s",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.04.2015.LAL.at.ATL"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "hoPgMa02zB4",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.04.2016.CHA.at.GSW",
+    "12.02.2015.GSW.at.CHA"
+   ],
+   "status": "confirmed",
+   "game": "01.04.2016.CHA.at.GSW",
+   "known_dev_video": true
+  },
+  {
+   "source": "youtube",
+   "id": "i5To6IgQLKc",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.02.2016.DEN.at.GSW",
+    "01.13.2016.GSW.at.DEN",
+    "11.22.2015.GSW.at.DEN"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "jaFZX10-nUU",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.30.2015.PHI.at.SAC"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "n-Kj43PgdQk",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.20.2015.NYK.at.OKC"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "npSGb-oF4YI",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.24.2015.CHI.at.POR"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "qzJbC4tmJeA",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.09.2016.GSW.at.SAC",
+    "11.07.2015.GSW.at.SAC",
+    "11.28.2015.SAC.at.GSW",
+    "12.28.2015.SAC.at.GSW"
+   ],
+   "status": "confirmed",
+   "game": "12.28.2015.SAC.at.GSW",
+   "known_dev_video": true
+  },
+  {
+   "source": "youtube",
+   "id": "rsx4QO8T5sA",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.11.2015.GSW.at.BOS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "soXqqATQ8h4",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.03.2015.SAS.at.MEM"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "tqDqi5XqUKU",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.04.2016.SAC.at.OKC",
+    "12.06.2015.SAC.at.OKC"
+   ],
+   "status": "confirmed",
+   "game": "12.06.2015.SAC.at.OKC",
+   "known_dev_video": true
+  },
+  {
+   "source": "youtube",
+   "id": "v0nVwpcsM14",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.01.2016.ORL.at.WAS"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "v5rSHRdq9O8",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.19.2015.LAC.at.HOU"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "vT3_N_bgCcw",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.20.2015.NOP.at.DEN"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "wr8eYyGEKyc",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "12.21.2015.CHA.at.HOU"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "wtGuZJAkm08",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.16.2015.IND.at.CHI",
+    "11.27.2015.CHI.at.IND",
+    "12.30.2015.IND.at.CHI"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "ww_VlTi7Iag",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "11.20.2015.HOU.at.MEM",
+    "11.25.2015.MEM.at.HOU"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  },
+  {
+   "source": "youtube",
+   "id": "zLBNob2rEcg",
+   "length": "full",
+   "height": 720,
+   "found_for": [
+    "01.19.2016.MIN.at.NOP"
+   ],
+   "status": "rejected",
+   "game": null,
+   "known_dev_video": false
+  }
+ ]
+}
