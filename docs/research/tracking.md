@@ -233,6 +233,27 @@ Caveats:
 Compute: replay and score ran under the heavy-job lock, one game at a time, embeddings on MPS; 0.72 lock hours in all
 (the 2-window smoke runs included).
 
+#### tracking-E1, colour-on-replay arm under D154 (written 2026-11-22, before its run)
+
+Report-only; it cannot change the E3 verdict above. It measures how much of the gap between the embedding arms and
+r23 comes from the replayed crops rather than the feature.
+
+- Arm: the frozen colour classifier (detect/teams.py) on the replayed crops, fitted per window on the fragments as
+  the frozen code fits, each canonical track given its nearest centroid, then the same abstention matching as the
+  embedding arms (exactly as many abstentions as r23 per window; no feature first, then the largest near/far ratio).
+  Written to builds/e3_colour_replay (r23 sidecars linked, only team_by_track replaced) and scored with the same
+  pinned score_window, truth camera, on the same games: the pooled 3 R1.3 games, gsw_ind_2016 and hou_cle_2016 apart.
+- Rows: team accuracy and fixed-mapping accuracy of the arm; the arm minus r23; CLIP and DINOv2 small minus the arm,
+  per game (window bootstrap) and pooled (game and window bootstrap), 2000 resamples, seed 0, as in E3.
+- Reading, fixed now: "embeddings worse" when the arm stays within 2.0 points of r23 pooled and every pooled
+  arm-minus-colour-replay interval (game and window, both embeddings) lies wholly below zero; "comparison confounded"
+  when the arm itself is 5.0 or more points below r23 pooled; otherwise "inconclusive".
+- Cluster order: the frozen classifier's native labels on the replayed crops are compared with r23's stored labels as
+  given and with 0 and 1 swapped per window; the share of the disagreement that a swap explains is reported (no metric
+  reads the order).
+- Code: tools/p8_e3.py replay-colour, score-colour, report-colour (output e3/e3b_result.json in the P8 workspace).
+  Guards and lock as in E3.
+
 ### tracking-E2: broadcast-only fill of missed player-frames by learned imputation
 
 - Hypothesis: for player-frames with no matched box (missed in frame or off screen), a set-attention imputation
