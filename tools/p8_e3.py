@@ -152,7 +152,6 @@ def replay_window(P: dict, w: dict, models: dict) -> dict:
     import config
     from detect.reid import TorsoCropCollector
     from detect.teams import TeamClassifier
-    from videoseq import SeqReader
     stem = w["window"]
     r23 = P["builds"] / "r23"
     side = json.loads((r23 / f"{stem}_frames.json").read_text())
@@ -161,12 +160,23 @@ def replay_window(P: dict, w: dict, models: dict) -> dict:
     stored = {int(k): v for k, v in ident.get("team_by_track", {}).items()}
     keys = sorted(stored)
     coll = TorsoCropCollector()
-    sr = SeqReader(cv2.VideoCapture(str(P["label_build"] / f"{stem}.mp4")))
-    for fr in side["frames"]:
-        ok, img = sr.read(int(fr["frame"]))
+    # decoded from frame 0 with grab(), never a seek: a seek in these clips can land short of the end (frame 978 of a
+    # 990-frame window was unreadable after a seek in the smoke run), while the build itself read them sequentially
+    cap = cv2.VideoCapture(str(P["label_build"] / f"{stem}.mp4"))
+    want = sorted(side["frames"], key=lambda r: int(r["frame"]))
+    pos = 0
+    for fr in want:
+        f = int(fr["frame"])
+        while pos < f:
+            if not cap.grab():
+                raise SystemExit(f"{WHO}: {stem} ends at frame {pos}, before stored frame {f}")
+            pos += 1
+        ok, img = cap.read()
         if not ok:
-            raise SystemExit(f"{WHO}: {stem} frame {fr['frame']} unreadable")
+            raise SystemExit(f"{WHO}: {stem} frame {f} unreadable")
+        pos += 1
         coll.add(img, [_T(b["tid"], b["bbox"]) for b in fr["boxes"]])
+    cap.release()
     clf = TeamClassifier()
     colour = {}
     if keys and clf.fit(coll.crops):
