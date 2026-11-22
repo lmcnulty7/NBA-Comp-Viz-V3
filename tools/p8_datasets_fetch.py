@@ -36,7 +36,7 @@ from tools.p8_common import REPO, atomic_write, check_outside, p8_root
 
 WHO = "tools.p8_datasets_fetch"
 MAX_BYTES = 30 * 1024 ** 3
-WORKERS = 8                                # parallel downloads of one set
+WORKERS = 4                                # parallel downloads of one set
 UA = "generic-research-client/1.0"
 # The SHOT screen (docs/research/P8_datasets.md rule 3): team codes as clip names write them.
 SCREEN_HOME_2015_16 = {"MIA", "TOR", "LAC", "LAL"}
@@ -58,11 +58,16 @@ def curl(args: list[str], timeout: int) -> subprocess.CompletedProcess:
     return subprocess.run(["curl", "-sS", "-L", "--fail", "-A", UA, *args], capture_output=True, timeout=timeout)
 
 
-def get_json(url: str):
-    """-> (json, headers as a dict of lower-cased names)."""
-    r = curl(["-D", "-", url], 120)
-    if r.returncode != 0:
-        raise SystemExit(f"{WHO}: {url}: {r.stderr.decode(errors='replace').strip()[-200:]}")
+def get_json(url: str, tries: int = 6):
+    """-> (json, headers as a dict of lower-cased names). Retries with a growing wait (HTTP 429 from the hub)."""
+    import time
+    for k in range(tries):
+        r = curl(["-D", "-", url], 120)
+        if r.returncode == 0:
+            break
+        if k == tries - 1:
+            raise SystemExit(f"{WHO}: {url}: {r.stderr.decode(errors='replace').strip()[-200:]}")
+        time.sleep(30 * 2 ** k)
     raw = r.stdout.decode(errors="replace")
     blocks = raw.split("\r\n\r\n")
     heads, body = [], raw
@@ -81,7 +86,12 @@ def stream(url: str, dest: Path, timeout: int = 7200) -> dict:
     """Download url to dest (atomic) -> {bytes, sha256}."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     part = dest.with_name(dest.name + ".part")
-    r = curl(["-o", str(part), url], timeout)
+    import time
+    for k in range(5):
+        r = curl(["-o", str(part), url], timeout)
+        if r.returncode == 0 and part.exists():
+            break
+        time.sleep(30 * 2 ** k)
     if r.returncode != 0 or not part.exists():
         part.unlink(missing_ok=True)
         raise SystemExit(f"{WHO}: {url}: {r.stderr.decode(errors='replace').strip()[-200:]}")
@@ -164,7 +174,12 @@ def fetch_hf(repo: str, rev: str = "main", name: str | None = None, only: list[s
         raise SystemExit(f"{WHO}: {repo} is gated or private; stopped (no account, no request)")
     name = name or repo.split("/")[-1]
     folder = datasets_root() / name
-    tree = hf_tree(repo, rev)
+    cache = datasets_root() / ("%s.tree.%s.json" % (name, info.get("sha") if rev == "main" else rev))
+    if cache.exists():
+        tree = json.loads(cache.read_text())
+    else:
+        tree = hf_tree(repo, rev)
+        atomic_write(cache, json.dumps(tree))
     todo = [f for f in tree if not only or any(fnmatch.fnmatch(f["path"], g) for g in only)]
     total = sum(f["size"] or 0 for f in todo)
     rec = load_record()
