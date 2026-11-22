@@ -66,3 +66,40 @@ Reading:
   truth, not the detectors, likely sets the miss rate. Its numbers should not size the label set.
 - Camera-truth frames are accepted only when enough of our detector's boxes match SportVU, so these frames favour
   scenes where our detector already works; the miss share on all live frames is likely higher.
+
+## E1 corpus (D155 (1), built 2026-11-22; nothing trained)
+
+tools/p8_e1data.py ran the YOLOX-X teacher and our detector (both on CPU, under the heavy-job lock, 9 chunks) over
+every accepted Mac camera-truth frame of the 3 R1.3 games, in time order, and built D131 sources 1 and 2 by the rules
+above: our player boxes at 0.40, YOLOX-X at 0.1471, agreement at IoU 0.5 with the mean box (source 1), teacher boxes
+whose foot is within 2.5 ft of an in-frame SportVU player our detector's feet miss (source 2). A source 2 box with IoU
+at least 0.5 to a source 1 box is written once. gsw_ind_2016 (D98) and hou_cle_2016 (new-arena check) are not in it.
+Window clips were decoded from frame 0 without seeking. The corpus lives in the P8 workspace (e1_corpus/), never in
+the repository; meta.json records the games, teacher, weights and their sha256, thresholds, device, library versions,
+code commit (da1097af) and the SportVU and camera-truth versions per game (D150 condition 4).
+
+| Game | Frames | SportVU players in frame | Our misses | Source 1 boxes (a frame) | Source 2 boxes (a frame) | Source 2 also in source 1 | Labels written |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| gsw_bkn_2015 | 2,075 | 20,505 | 5,606 | 18,863 (9.0906) | 2,125 (1.0241) | 1,522 | 19,466 |
+| gsw_cha_2016 | 1,366 | 13,450 | 5,326 | 12,516 (9.1625) | 1,123 (0.8221) | 980 | 12,659 |
+| gsw_sac_2015 | 2,151 | 21,192 | 5,221 | 19,997 (9.2966) | 1,935 (0.8996) | 1,579 | 20,353 |
+| All | 5,592 | 55,147 | 16,153 | 51,376 | 5,183 | 4,081 | 52,478 |
+
+Consistency with the 400-frame gsw_bkn_2015 sample (a check, not a gate): source 1 9.0906 a frame against the
+sample's 9.065 [8.9675, 9.1575]; source 2 1.0241 a frame against 1.0; our miss share 5,606 of 20,505 (0.2734) against
+0.2656 [0.2497, 0.2818]. The full pass agrees with the sample.
+
+What the counts say: most source 2 boxes (4,081 of 5,183) overlap an agreement box, so they are players both models
+boxed whose foot our detector placed more than 2.5 ft from SportVU; only 1,102 boxes (603, 143 and 356) are players
+our detector did not box in agreement with the teacher. The miss row moves through box placement as much as through
+detection, as the source 2 reading above already said.
+
+Compute: 1.21 CPU hours for YOLOX-X (4,354.7 s) and 0.106 for our detector (380.0 s); 1.35 lock hours in all (9 jobs,
+including decoding and writing images). Disk: 1.94 GB (1,940,398,183 bytes; images 1.8 GB, labels 22 MB).
+
+Training config, not run (Colab is Lucien's, D137): tools/p8_e1_colab.py, one seed first, the production detector's
+recipe (yolov8m.pt, 100 epochs, image size 640, batch 16, patience 20), one class (player), a whole-window
+validation split (last 10 percent of each game's windows) for early stopping only; about 0.5 x 5,592 / 654 = 4.3
+T4-hours a seed by b1's scaling (an estimate). Adoption stays the pinned scorecard with a game-bootstrap interval (D5,
+D150 (3)). Note for the lead: the corpus games are the same R1.3 games the scorecard baseline pools, so a model trained
+on them and scored on them is in sample there; hou_cle_2016 is the out-of-corpus check.
