@@ -197,8 +197,9 @@ D131 sources measured, scoring protocol, targets for every row, hours, the re-ra
 - Track A's 2 new games (D146, docs/research/P8_baseline.md section "New arenas (D146)"): hou_cle_2016 is scored, the
   first arena outside r23's training, reported apart: missed 0.233 [0.221, 0.247], ghosts 0.083 [0.074, 0.094], team
   0.734 (point estimate), position p50 1.53 ft [1.47, 1.602] and p90 3.34 ft [3.19, 3.481] (window bootstrap, one
-  game). nop_gsw_2015 stopped: no registered scorebug layout passes the automatic check; D152 tries an automatic
-  layout finder and drops the game if it fails.
+  game). nop_gsw_2015 is dropped (D152): no registered scorebug layout passes the automatic check, and the automatic
+  layout finder (tools/p8_layout_find.py) met its validation bar on 3 of 8 development videos against 8 of 8 needed,
+  so it was never run on NOP. Track A adds 1 scored new arena, not 2.
 
 ### Targets
 
