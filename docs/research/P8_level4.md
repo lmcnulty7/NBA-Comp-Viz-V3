@@ -483,3 +483,19 @@ and in nb402apDzh8 the final seconds (4TH, DEN 128, UTA 125) already at 50 perce
 game play. Extended highlights put the game in the first part of the video and other material after it, so a rule
 with fixed moments at 50 and 75 percent cannot confirm them; this says nothing yet about the 25 full-game
 candidates, which were not checked.
+
+## 12. The 25 NBA full-game candidates (PLAN.md D142)
+
+Written before the run. All results here carry the label "rule calibrated on 2015-16 broadcasts only".
+
+The lead's decision D142: the D138 rule of tools.p8_identity, unchanged (no ACB clock form, no comma clock form), was
+calibrated on linear full-game NBA broadcasts of 2015-16 (7 of 7 confirmed, 0 false), and the 25 candidates of
+section 8 are linear full games, so they are checked under it with no new calibration. Each candidate is checked
+against every 2025-26 game of its two teams in the mirror (`python3 -m tools.p8_nba_identity candidates`), identity
+sections only. Statuses: confirmed, ambiguous, rejected, and not_downloaded (no section of any moment downloaded);
+a run error is recorded as error. Counts are reported overall and per team, each candidate counting for both teams
+of its titled game.
+
+### Results
+
+(Added after the run, below.)

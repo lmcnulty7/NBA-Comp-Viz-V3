@@ -15,7 +15,8 @@ the P8 workspace; the check reads only that file.
     python3 -m export.heavy --name "nba pbp events" -- python3 -m tools.p8_nba_identity events
     python3 -m tools.p8_nba_identity calibrate                      # D141's bar on 5 league extended highlights
     python3 -m tools.p8_nba_identity check VIDEO_ID --game GAME_ID  # one video; candidates: every game of the pair
-    python3 -m tools.p8_nba_identity candidates                     # the probed full-game candidates
+    python3 -m tools.p8_nba_identity candidates                     # the probed full-game candidates (D142)
+    python3 -m tools.p8_nba_identity summary                        # their counts per status and per team
 
 Every video id passes refuse_cv_test and the held-out guard before anything is downloaded.
 """
@@ -174,14 +175,53 @@ def full_candidates() -> list[dict]:
     return out
 
 
+LABEL = "rule calibrated on 2015-16 broadcasts only"
+
+
+def status_of(rec: dict) -> str:
+    """confirmed, ambiguous or rejected from the verdict; not_downloaded when no section of any moment downloaded."""
+    if not any(t.get("downloaded") for m in rec["moments"] for t in m["tries"]):
+        return "not_downloaded"
+    return rec["status"]
+
+
 def run_candidates() -> dict:
-    out = {}
+    """D142: the 25 probed full-game candidates under the unchanged D138 rule, identity sections only. Resumable."""
+    path = S.out_dir() / "nba_identity_candidates.json"
+    out = json.loads(path.read_text()) if path.exists() else {}
     for c in full_candidates():
-        r = check(c["id"], c["game_id"], c["duration"], label="full-game candidate (%s)" % c["channel"])
-        out[c["id"]] = {"title_game": c["game_id"], "status": r["status"], "game": r.get("game"),
-                        "games": r.get("games"), "moments": [m["games"] for m in r["moments"]],
-                        "candidates_without_pbp": r["candidates_without_pbp"]}
-        atomic_write(S.out_dir() / "nba_identity_candidates.json", json.dumps(out, indent=1))
+        if c["id"] in out and out[c["id"]].get("status") != "error":
+            continue
+        try:
+            r = check(c["id"], c["game_id"], c["duration"], label="full-game candidate (%s)" % c["channel"])
+            out[c["id"]] = {"title_game": c["game_id"], "status": status_of(r), "game": r.get("game"),
+                            "games": r.get("games"), "moments": [m["games"] for m in r["moments"]],
+                            "downloaded_sections": sum(1 for m in r["moments"] for t in m["tries"] if t.get("downloaded")),
+                            "candidates": len(r["candidates"]), "candidates_without_pbp": r["candidates_without_pbp"],
+                            "label": LABEL}
+        except Exception as e:                                   # one video's failure never stops the batch
+            out[c["id"]] = {"title_game": c["game_id"], "status": "error", "error": repr(e)[:300], "label": LABEL}
+        atomic_write(path, json.dumps(out, indent=1))
+    return out
+
+
+def candidates_summary() -> dict:
+    """Counts per status, overall and per team (each candidate counts for both teams of its titled game)."""
+    path = S.out_dir() / "nba_identity_candidates.json"
+    res = json.loads(path.read_text())
+    by = {g["game_id"]: g for g in S.games()}
+    statuses = ("confirmed", "ambiguous", "rejected", "not_downloaded", "error")
+    total = {k: 0 for k in statuses}
+    teams = {}
+    for vid, r in res.items():
+        total[r["status"]] += 1
+        g = by[r["title_game"]]
+        for t in (g["home"], g["away"]):
+            teams.setdefault(t, {k: 0 for k in statuses})[r["status"]] += 1
+    out = {"label": LABEL, "videos": len(res), "total": total, "per_team": dict(sorted(teams.items())),
+           "confirmed_as_titled": sum(1 for r in res.values() if r["status"] == "confirmed" and r["game"] == r["title_game"]),
+           "confirmed_as_other": sum(1 for r in res.values() if r["status"] == "confirmed" and r["game"] != r["title_game"])}
+    atomic_write(S.out_dir() / "nba_identity_candidates_summary.json", json.dumps(out, indent=1))
     return out
 
 
@@ -191,6 +231,7 @@ def main(argv=None) -> int:
     sub.add_parser("events")
     sub.add_parser("calibrate")
     sub.add_parser("candidates")
+    sub.add_parser("summary")
     c = sub.add_parser("check")
     c.add_argument("video_id")
     c.add_argument("--game", required=True)
@@ -202,7 +243,10 @@ def main(argv=None) -> int:
     elif a.cmd == "calibrate":
         print(json.dumps(calibrate(), indent=1))
     elif a.cmd == "candidates":
-        print(json.dumps(run_candidates(), indent=1))
+        run_candidates()
+        print(json.dumps(candidates_summary(), indent=1))
+    elif a.cmd == "summary":
+        print(json.dumps(candidates_summary(), indent=1))
     else:
         r = check(a.video_id, a.game, a.duration)
         print(json.dumps({k: r[k] for k in ("video_id", "status", "moments")} | {"game": r.get("game")}, indent=1))

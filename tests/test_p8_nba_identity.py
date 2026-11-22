@@ -21,3 +21,10 @@ def test_score_changes_keep_changes_only_in_away_home_order():
 def test_calibration_is_fixed():
     assert len(N.CALIBRATION) == 5 and len({g for _, g in N.CALIBRATION}) == 5
     assert all(g.startswith("00225") for _, g in N.CALIBRATION)
+
+
+def test_status_marks_a_video_with_no_downloaded_section():
+    none = {"status": "rejected", "moments": [{"tries": [{"start": 0, "downloaded": False}]} for _ in range(3)]}
+    some = {"status": "rejected", "moments": [{"tries": [{"start": 0, "downloaded": True}]}] * 3}
+    assert N.status_of(none) == "not_downloaded" and N.status_of(some) == "rejected"
+    assert N.LABEL == "rule calibrated on 2015-16 broadcasts only"
