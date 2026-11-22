@@ -78,7 +78,7 @@ sha256, license text as found). Download only; nothing has trained.
 - Home teams come from the shot-chart mirror already in DATA_SOURCES.md, used as a schedule only. The spent
   held-out games are 2015-16 only and cannot appear in these sets.
 - SHOT's screen is conservative: clip names carry team codes but no season or home side, so every clip naming CLE,
-  PHX with GSW, or MIA, TOR, LAC or LAL is out, including names with NJ that predate Brooklyn (self-decided: NJ shows
+  PHX with GSW, or MIA, TOR, LAC or LAL is out, including the 10 of 212 flagged names with NJ, which predate Brooklyn (self-decided: NJ shows
   the season, not the home side). 7 clips under 6 Chinese-league names are tagged non_nba and kept; each
   experiment decides on them.
 - SHOT is thinner than its size: among the files downloaded, 103,177 of 143,574 frames and 6,468 of 9,305 label XMLs
@@ -86,7 +86,8 @@ sha256, license text as found). Download only; nothing has trained.
 - Gaps, not worked around: WASB's MIT license covers the code and names no license for the label zip; PL-NBA has 32
   of the 40 games its README states.
 - D149: PL-NBA's 2024-25 folders and E-BARD (2024-25) may train a detector; no output on a 2024-25 or 2025-26 game
-  flows into a play-by-play lane.
+  flows into a play-by-play lane. The record tags every 2024-25 game with this rule. E-BARD image names carry their
+  game id, so the screen applies per frame.
 
 ## Expected effect, honestly
 

@@ -336,6 +336,14 @@ def annotate() -> dict:
     listed = [(f["path"], f["size"]) for f in tree]
     got = [(k, v["bytes"]) for k, v in sh["files"].items()]
     sh["screen"]["character"] = "conservative: team code only, no season or home side in clip names"
+    flagged_names = sh["screen"]["flagged_game_names"]
+    sh["screen"]["flagged_names_predating_brooklyn"] = {
+        "count": sum(1 for n in flagged_names if "NJ" in teams_in_name(n) or n.startswith("NJvs") or n.endswith("vsNJ")),
+        "of": len(flagged_names),
+        "note": "names with NJ (the New Jersey Nets) predate the move to Brooklyn; still flagged, as the screen reads "
+                "no season"}
+    lic = (root / "SHOT" / "LICENSE").read_text(errors="replace")
+    sh["license_scope"] = " ".join(lic.split("The unmodified Creative Commons license text follows.")[0].split())
     sh["non_nba_game_names"] = {"names": list(NON_NBA_SHOT), "tag": "non_nba",
                                 "clips": sorted(c for c in json.loads((root / "SHOT.screen.json").read_text())
                                                 if c.split("-")[0] in NON_NBA_SHOT),
@@ -365,6 +373,28 @@ SCHEDULE_SOURCE = ("github.com/shufinskiy/nba_data datasets/<file>.tar.xz (stats
                    "(docs/DATA_SOURCES.md, NBA shot chart mirror row)")
 CODE_ALIASES = {"WSH": "WAS", "GS": "GSW", "NY": "NYK", "NO": "NOP", "SA": "SAS", "PHO": "PHX", "UTAH": "UTA",
                 "BRK": "BKN"}
+
+
+D149_SEASONS = {"2024-25", "2025-26"}
+D149_NOTE = ("D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output "
+             "on this game flows into a play-by-play lane")
+
+
+def season_of(game_id: str) -> str:
+    """The season of a 10-digit NBA game id: digits 4 and 5 are the season's first year ('0022400861' -> 2024-25)."""
+    y = 2000 + int(game_id[3:5])
+    return "%d-%02d" % (y, (y + 1) % 100)
+
+
+def frame_map(zips) -> dict:
+    """E-BARD: whether every image names its game (the game id is in each image file name)."""
+    import zipfile
+    out = {}
+    for z in zips:
+        imgs = [n for n in zipfile.ZipFile(z).namelist() if re.search(r"\.(jpe?g|png)$", n, re.I)]
+        out[z.parent.name] = {"images": len(imgs), "images_without_game_id": sum(1 for n in imgs
+                                                                                  if not re.search(r"00\d{8}", n))}
+    return out
 
 
 def schedule(root: Path) -> dict:
@@ -426,12 +456,26 @@ def home_screen() -> dict:
         for key, (gid, how) in rows.items():
             g = sched.get(gid) if gid else None
             if not g:
-                unresolved.append({"id": key, "why": how if not gid else "not in the schedule source"})
-            elif g[1] in D85_HOMES:
-                dropped.append({"id": key, "game_id": gid, "date": g[0], "home": g[1], "away": g[2]})
+                u = {"id": key, "why": how if not gid else "not in the schedule source",
+                     "reason": "dropped: home team not resolved (D150 screen cannot be applied)"}
+                m = re.match(r"(\d{4})(\d{2})\d{2}_", key)
+                if m:                                       # PL-NBA folder: the season from its date
+                    y = int(m.group(1)) - (1 if int(m.group(2)) < 8 else 0)
+                    u["season_by_folder_date"] = "%d-%02d" % (y, (y + 1) % 100)
+                    if u["season_by_folder_date"] in D149_SEASONS:
+                        u["d149"] = D149_NOTE + " (dropped here in any case)"
+                unresolved.append(u)
+                continue
+            row = {"id": key, "game_id": gid, "season": season_of(gid), "date": g[0], "home": g[1], "away": g[2],
+                   "resolved_by": how}
+            if row["season"] in D149_SEASONS:
+                row["d149"] = D149_NOTE
+            if g[1] in D85_HOMES:
+                dropped.append(dict(row, reason="dropped: home game of %s, a D85 arena (D150)" % g[1]))
             else:
-                kept.append({"id": key, "game_id": gid, "date": g[0], "home": g[1], "away": g[2], "resolved_by": how})
+                kept.append(dict(row, reason="kept: home %s is not MIA, TOR, LAC or LAL; not a 2015-16 game" % g[1]))
         out[name] = {"games": len(rows), "kept": kept, "dropped_d85_home": dropped, "dropped_unresolved": unresolved,
+                     "frame_to_game": frame_map(zips) if name == "E-BARD" else None,
                      "schedule_source": SCHEDULE_SOURCE,
                      "schedule_files": {f: {"bytes": (p8_root().parent / "nba_shots" / (f + ".tar.xz")).stat().st_size,
                                             "sha256": sha256_of(p8_root().parent / "nba_shots" / (f + ".tar.xz"))}

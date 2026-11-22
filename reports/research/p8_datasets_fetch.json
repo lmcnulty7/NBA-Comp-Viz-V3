@@ -38,476 +38,680 @@
     {
      "id": "0022400363",
      "game_id": "0022400363",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "BOS",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400365",
      "game_id": "0022400365",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "HOU",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400366",
      "game_id": "0022400366",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "MEM",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400367",
      "game_id": "0022400367",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "MIN",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400368",
      "game_id": "0022400368",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "DAL",
      "away": "LAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400371",
      "game_id": "0022400371",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "POR",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400374",
      "game_id": "0022400374",
+     "season": "2024-25",
      "date": "2024-12-20",
      "home": "CLE",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400378",
      "game_id": "0022400378",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "ATL",
      "away": "MEM",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400382",
      "game_id": "0022400382",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "MIL",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400384",
      "game_id": "0022400384",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "NOP",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400394",
      "game_id": "0022400394",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "PHI",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400397",
      "game_id": "0022400397",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "NYK",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400398",
      "game_id": "0022400398",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "CHI",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400402",
      "game_id": "0022400402",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "DEN",
      "away": "PHX",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DEN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400433",
      "game_id": "0022400433",
+     "season": "2024-25",
      "date": "2024-12-28",
      "home": "UTA",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home UTA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400860",
      "game_id": "0022400860",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "CHA",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400861",
      "game_id": "0022400861",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "DET",
      "away": "BKN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400862",
      "game_id": "0022400862",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "HOU",
      "away": "SAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400863",
      "game_id": "0022400863",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "MEM",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400864",
      "game_id": "0022400864",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "PHI",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400865",
      "game_id": "0022400865",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "DAL",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400866",
      "game_id": "0022400866",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "BOS",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400867",
      "game_id": "0022400867",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "CLE",
      "away": "POR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400868",
      "game_id": "0022400868",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "IND",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400870",
      "game_id": "0022400870",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "ORL",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400871",
      "game_id": "0022400871",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "SAS",
      "away": "OKC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400872",
      "game_id": "0022400872",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "UTA",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home UTA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400873",
      "game_id": "0022400873",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "PHX",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400879",
      "game_id": "0022400879",
+     "season": "2024-25",
      "date": "2025-03-03",
      "home": "OKC",
      "away": "HOU",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home OKC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400884",
      "game_id": "0022400884",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "ATL",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400885",
      "game_id": "0022400885",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "NYK",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400886",
      "game_id": "0022400886",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "CHI",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400887",
      "game_id": "0022400887",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "MIN",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400894",
      "game_id": "0022400894",
+     "season": "2024-25",
      "date": "2025-03-05",
      "home": "WAS",
      "away": "UTA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400901",
      "game_id": "0022400901",
+     "season": "2024-25",
      "date": "2025-03-06",
      "home": "BKN",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400910",
      "game_id": "0022400910",
+     "season": "2024-25",
      "date": "2025-03-07",
      "home": "SAC",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400917",
      "game_id": "0022400917",
+     "season": "2024-25",
      "date": "2025-03-08",
      "home": "MIL",
      "away": "ORL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400919",
      "game_id": "0022400919",
+     "season": "2024-25",
      "date": "2025-03-08",
      "home": "GSW",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400923",
      "game_id": "0022400923",
+     "season": "2024-25",
      "date": "2025-03-09",
      "home": "NOP",
      "away": "MEM",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400926",
      "game_id": "0022400926",
+     "season": "2024-25",
      "date": "2025-03-09",
      "home": "POR",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400952",
      "game_id": "0022400952",
+     "season": "2024-25",
      "date": "2025-03-12",
      "home": "DEN",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DEN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401216",
      "game_id": "0022401216",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "IND",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401217",
      "game_id": "0022401217",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "WAS",
      "away": "BOS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401218",
      "game_id": "0022401218",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "SAS",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401219",
      "game_id": "0022401219",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "PHX",
      "away": "POR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401221",
      "game_id": "0022401221",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "DET",
      "away": "MIA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401222",
      "game_id": "0022401222",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "CHA",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401224",
      "game_id": "0022401224",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "BKN",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401225",
      "game_id": "0022401225",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "SAC",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401227",
      "game_id": "0022401227",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "ORL",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401228",
      "game_id": "0022401228",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "GSW",
      "away": "DAL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     }
    ],
    "dropped_d85_home": [
     {
      "id": "0022400375",
      "game_id": "0022400375",
+     "season": "2024-25",
      "date": "2024-12-20",
      "home": "MIA",
-     "away": "OKC"
+     "away": "OKC",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "0022400869",
      "game_id": "0022400869",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "MIA",
-     "away": "NYK"
+     "away": "NYK",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "0022400874",
      "game_id": "0022400874",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "LAL",
-     "away": "LAC"
+     "away": "LAC",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "0022400898",
      "game_id": "0022400898",
+     "season": "2024-25",
      "date": "2025-03-05",
      "home": "LAC",
-     "away": "DET"
+     "away": "DET",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     },
     {
      "id": "0022400905",
      "game_id": "0022400905",
+     "season": "2024-25",
      "date": "2025-03-07",
      "home": "TOR",
-     "away": "UTA"
+     "away": "UTA",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "0022401220",
      "game_id": "0022401220",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "LAL",
-     "away": "MEM"
+     "away": "MEM",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "0022401223",
      "game_id": "0022401223",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "TOR",
-     "away": "CHI"
+     "away": "CHI",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "0022401226",
      "game_id": "0022401226",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "LAC",
-     "away": "UTA"
+     "away": "UTA",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     }
    ],
    "dropped_unresolved": [
     {
      "id": "0062400001",
-     "why": "not in the schedule source"
+     "why": "not in the schedule source",
+     "reason": "dropped: home team not resolved (D150 screen cannot be applied)"
     }
    ],
+   "frame_to_game": {
+    "E-BARD-detection": {
+     "images": 5220,
+     "images_without_game_id": 0
+    },
+    "E-BARD-TeamAttribution": {
+     "images": 15305,
+     "images_without_game_id": 0
+    },
+    "E-BARD-JerseyNumberRecognition": {
+     "images": 103137,
+     "images_without_game_id": 0
+    },
+    "E-BARD-ObjectClassification": {
+     "images": 22975,
+     "images_without_game_id": 0
+    }
+   },
    "schedule_source": "github.com/shufinskiy/nba_data datasets/<file>.tar.xz (stats.nba.com shot chart rows: GAME_ID, GAME_DATE, HTM, VTM); repository Apache-2.0, rows are NBA Statistics under the nba.com Terms of Use (docs/DATA_SOURCES.md, NBA shot chart mirror row)",
    "schedule_files": {
     "shotdetail_2018": {
@@ -585,476 +789,680 @@
     {
      "id": "0022400363",
      "game_id": "0022400363",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "BOS",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400365",
      "game_id": "0022400365",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "HOU",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400366",
      "game_id": "0022400366",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "MEM",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400367",
      "game_id": "0022400367",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "MIN",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400368",
      "game_id": "0022400368",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "DAL",
      "away": "LAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400371",
      "game_id": "0022400371",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "POR",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400374",
      "game_id": "0022400374",
+     "season": "2024-25",
      "date": "2024-12-20",
      "home": "CLE",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400378",
      "game_id": "0022400378",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "ATL",
      "away": "MEM",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400382",
      "game_id": "0022400382",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "MIL",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400384",
      "game_id": "0022400384",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "NOP",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400394",
      "game_id": "0022400394",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "PHI",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400397",
      "game_id": "0022400397",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "NYK",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400398",
      "game_id": "0022400398",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "CHI",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400402",
      "game_id": "0022400402",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "DEN",
      "away": "PHX",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DEN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400433",
      "game_id": "0022400433",
+     "season": "2024-25",
      "date": "2024-12-28",
      "home": "UTA",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home UTA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400860",
      "game_id": "0022400860",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "CHA",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400861",
      "game_id": "0022400861",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "DET",
      "away": "BKN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400862",
      "game_id": "0022400862",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "HOU",
      "away": "SAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400863",
      "game_id": "0022400863",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "MEM",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400864",
      "game_id": "0022400864",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "PHI",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400865",
      "game_id": "0022400865",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "DAL",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400866",
      "game_id": "0022400866",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "BOS",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400867",
      "game_id": "0022400867",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "CLE",
      "away": "POR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400868",
      "game_id": "0022400868",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "IND",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400870",
      "game_id": "0022400870",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "ORL",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400871",
      "game_id": "0022400871",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "SAS",
      "away": "OKC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400872",
      "game_id": "0022400872",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "UTA",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home UTA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400873",
      "game_id": "0022400873",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "PHX",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400879",
      "game_id": "0022400879",
+     "season": "2024-25",
      "date": "2025-03-03",
      "home": "OKC",
      "away": "HOU",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home OKC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400884",
      "game_id": "0022400884",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "ATL",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400885",
      "game_id": "0022400885",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "NYK",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400886",
      "game_id": "0022400886",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "CHI",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400887",
      "game_id": "0022400887",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "MIN",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400894",
      "game_id": "0022400894",
+     "season": "2024-25",
      "date": "2025-03-05",
      "home": "WAS",
      "away": "UTA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400901",
      "game_id": "0022400901",
+     "season": "2024-25",
      "date": "2025-03-06",
      "home": "BKN",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400910",
      "game_id": "0022400910",
+     "season": "2024-25",
      "date": "2025-03-07",
      "home": "SAC",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400917",
      "game_id": "0022400917",
+     "season": "2024-25",
      "date": "2025-03-08",
      "home": "MIL",
      "away": "ORL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400919",
      "game_id": "0022400919",
+     "season": "2024-25",
      "date": "2025-03-08",
      "home": "GSW",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400923",
      "game_id": "0022400923",
+     "season": "2024-25",
      "date": "2025-03-09",
      "home": "NOP",
      "away": "MEM",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400926",
      "game_id": "0022400926",
+     "season": "2024-25",
      "date": "2025-03-09",
      "home": "POR",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400952",
      "game_id": "0022400952",
+     "season": "2024-25",
      "date": "2025-03-12",
      "home": "DEN",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DEN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401216",
      "game_id": "0022401216",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "IND",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401217",
      "game_id": "0022401217",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "WAS",
      "away": "BOS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401218",
      "game_id": "0022401218",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "SAS",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401219",
      "game_id": "0022401219",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "PHX",
      "away": "POR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401221",
      "game_id": "0022401221",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "DET",
      "away": "MIA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401222",
      "game_id": "0022401222",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "CHA",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401224",
      "game_id": "0022401224",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "BKN",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401225",
      "game_id": "0022401225",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "SAC",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401227",
      "game_id": "0022401227",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "ORL",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401228",
      "game_id": "0022401228",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "GSW",
      "away": "DAL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     }
    ],
    "dropped_d85_home": [
     {
      "id": "0022400375",
      "game_id": "0022400375",
+     "season": "2024-25",
      "date": "2024-12-20",
      "home": "MIA",
-     "away": "OKC"
+     "away": "OKC",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "0022400869",
      "game_id": "0022400869",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "MIA",
-     "away": "NYK"
+     "away": "NYK",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "0022400874",
      "game_id": "0022400874",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "LAL",
-     "away": "LAC"
+     "away": "LAC",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "0022400898",
      "game_id": "0022400898",
+     "season": "2024-25",
      "date": "2025-03-05",
      "home": "LAC",
-     "away": "DET"
+     "away": "DET",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     },
     {
      "id": "0022400905",
      "game_id": "0022400905",
+     "season": "2024-25",
      "date": "2025-03-07",
      "home": "TOR",
-     "away": "UTA"
+     "away": "UTA",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "0022401220",
      "game_id": "0022401220",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "LAL",
-     "away": "MEM"
+     "away": "MEM",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "0022401223",
      "game_id": "0022401223",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "TOR",
-     "away": "CHI"
+     "away": "CHI",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "0022401226",
      "game_id": "0022401226",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "LAC",
-     "away": "UTA"
+     "away": "UTA",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     }
    ],
    "dropped_unresolved": [
     {
      "id": "0062400001",
-     "why": "not in the schedule source"
+     "why": "not in the schedule source",
+     "reason": "dropped: home team not resolved (D150 screen cannot be applied)"
     }
    ],
+   "frame_to_game": {
+    "E-BARD-detection": {
+     "images": 5220,
+     "images_without_game_id": 0
+    },
+    "E-BARD-TeamAttribution": {
+     "images": 15305,
+     "images_without_game_id": 0
+    },
+    "E-BARD-JerseyNumberRecognition": {
+     "images": 103137,
+     "images_without_game_id": 0
+    },
+    "E-BARD-ObjectClassification": {
+     "images": 22975,
+     "images_without_game_id": 0
+    }
+   },
    "schedule_source": "github.com/shufinskiy/nba_data datasets/<file>.tar.xz (stats.nba.com shot chart rows: GAME_ID, GAME_DATE, HTM, VTM); repository Apache-2.0, rows are NBA Statistics under the nba.com Terms of Use (docs/DATA_SOURCES.md, NBA shot chart mirror row)",
    "schedule_files": {
     "shotdetail_2018": {
@@ -1132,476 +1540,680 @@
     {
      "id": "0022400363",
      "game_id": "0022400363",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "BOS",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400365",
      "game_id": "0022400365",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "HOU",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400366",
      "game_id": "0022400366",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "MEM",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400367",
      "game_id": "0022400367",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "MIN",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400368",
      "game_id": "0022400368",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "DAL",
      "away": "LAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400371",
      "game_id": "0022400371",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "POR",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400374",
      "game_id": "0022400374",
+     "season": "2024-25",
      "date": "2024-12-20",
      "home": "CLE",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400378",
      "game_id": "0022400378",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "ATL",
      "away": "MEM",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400382",
      "game_id": "0022400382",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "MIL",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400384",
      "game_id": "0022400384",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "NOP",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400394",
      "game_id": "0022400394",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "PHI",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400397",
      "game_id": "0022400397",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "NYK",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400398",
      "game_id": "0022400398",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "CHI",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400402",
      "game_id": "0022400402",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "DEN",
      "away": "PHX",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DEN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400433",
      "game_id": "0022400433",
+     "season": "2024-25",
      "date": "2024-12-28",
      "home": "UTA",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home UTA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400860",
      "game_id": "0022400860",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "CHA",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400861",
      "game_id": "0022400861",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "DET",
      "away": "BKN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400862",
      "game_id": "0022400862",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "HOU",
      "away": "SAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400863",
      "game_id": "0022400863",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "MEM",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400864",
      "game_id": "0022400864",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "PHI",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400865",
      "game_id": "0022400865",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "DAL",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400866",
      "game_id": "0022400866",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "BOS",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400867",
      "game_id": "0022400867",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "CLE",
      "away": "POR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400868",
      "game_id": "0022400868",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "IND",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400870",
      "game_id": "0022400870",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "ORL",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400871",
      "game_id": "0022400871",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "SAS",
      "away": "OKC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400872",
      "game_id": "0022400872",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "UTA",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home UTA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400873",
      "game_id": "0022400873",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "PHX",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400879",
      "game_id": "0022400879",
+     "season": "2024-25",
      "date": "2025-03-03",
      "home": "OKC",
      "away": "HOU",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home OKC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400884",
      "game_id": "0022400884",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "ATL",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400885",
      "game_id": "0022400885",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "NYK",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400886",
      "game_id": "0022400886",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "CHI",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400887",
      "game_id": "0022400887",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "MIN",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400894",
      "game_id": "0022400894",
+     "season": "2024-25",
      "date": "2025-03-05",
      "home": "WAS",
      "away": "UTA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400901",
      "game_id": "0022400901",
+     "season": "2024-25",
      "date": "2025-03-06",
      "home": "BKN",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400910",
      "game_id": "0022400910",
+     "season": "2024-25",
      "date": "2025-03-07",
      "home": "SAC",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400917",
      "game_id": "0022400917",
+     "season": "2024-25",
      "date": "2025-03-08",
      "home": "MIL",
      "away": "ORL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400919",
      "game_id": "0022400919",
+     "season": "2024-25",
      "date": "2025-03-08",
      "home": "GSW",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400923",
      "game_id": "0022400923",
+     "season": "2024-25",
      "date": "2025-03-09",
      "home": "NOP",
      "away": "MEM",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400926",
      "game_id": "0022400926",
+     "season": "2024-25",
      "date": "2025-03-09",
      "home": "POR",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400952",
      "game_id": "0022400952",
+     "season": "2024-25",
      "date": "2025-03-12",
      "home": "DEN",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DEN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401216",
      "game_id": "0022401216",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "IND",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401217",
      "game_id": "0022401217",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "WAS",
      "away": "BOS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401218",
      "game_id": "0022401218",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "SAS",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401219",
      "game_id": "0022401219",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "PHX",
      "away": "POR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401221",
      "game_id": "0022401221",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "DET",
      "away": "MIA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401222",
      "game_id": "0022401222",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "CHA",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401224",
      "game_id": "0022401224",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "BKN",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401225",
      "game_id": "0022401225",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "SAC",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401227",
      "game_id": "0022401227",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "ORL",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401228",
      "game_id": "0022401228",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "GSW",
      "away": "DAL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     }
    ],
    "dropped_d85_home": [
     {
      "id": "0022400375",
      "game_id": "0022400375",
+     "season": "2024-25",
      "date": "2024-12-20",
      "home": "MIA",
-     "away": "OKC"
+     "away": "OKC",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "0022400869",
      "game_id": "0022400869",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "MIA",
-     "away": "NYK"
+     "away": "NYK",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "0022400874",
      "game_id": "0022400874",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "LAL",
-     "away": "LAC"
+     "away": "LAC",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "0022400898",
      "game_id": "0022400898",
+     "season": "2024-25",
      "date": "2025-03-05",
      "home": "LAC",
-     "away": "DET"
+     "away": "DET",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     },
     {
      "id": "0022400905",
      "game_id": "0022400905",
+     "season": "2024-25",
      "date": "2025-03-07",
      "home": "TOR",
-     "away": "UTA"
+     "away": "UTA",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "0022401220",
      "game_id": "0022401220",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "LAL",
-     "away": "MEM"
+     "away": "MEM",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "0022401223",
      "game_id": "0022401223",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "TOR",
-     "away": "CHI"
+     "away": "CHI",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "0022401226",
      "game_id": "0022401226",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "LAC",
-     "away": "UTA"
+     "away": "UTA",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     }
    ],
    "dropped_unresolved": [
     {
      "id": "0062400001",
-     "why": "not in the schedule source"
+     "why": "not in the schedule source",
+     "reason": "dropped: home team not resolved (D150 screen cannot be applied)"
     }
    ],
+   "frame_to_game": {
+    "E-BARD-detection": {
+     "images": 5220,
+     "images_without_game_id": 0
+    },
+    "E-BARD-TeamAttribution": {
+     "images": 15305,
+     "images_without_game_id": 0
+    },
+    "E-BARD-JerseyNumberRecognition": {
+     "images": 103137,
+     "images_without_game_id": 0
+    },
+    "E-BARD-ObjectClassification": {
+     "images": 22975,
+     "images_without_game_id": 0
+    }
+   },
    "schedule_source": "github.com/shufinskiy/nba_data datasets/<file>.tar.xz (stats.nba.com shot chart rows: GAME_ID, GAME_DATE, HTM, VTM); repository Apache-2.0, rows are NBA Statistics under the nba.com Terms of Use (docs/DATA_SOURCES.md, NBA shot chart mirror row)",
    "schedule_files": {
     "shotdetail_2018": {
@@ -1679,476 +2291,680 @@
     {
      "id": "0022400363",
      "game_id": "0022400363",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "BOS",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400365",
      "game_id": "0022400365",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "HOU",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400366",
      "game_id": "0022400366",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "MEM",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400367",
      "game_id": "0022400367",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "MIN",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400368",
      "game_id": "0022400368",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "DAL",
      "away": "LAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400371",
      "game_id": "0022400371",
+     "season": "2024-25",
      "date": "2024-12-19",
      "home": "POR",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400374",
      "game_id": "0022400374",
+     "season": "2024-25",
      "date": "2024-12-20",
      "home": "CLE",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400378",
      "game_id": "0022400378",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "ATL",
      "away": "MEM",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400382",
      "game_id": "0022400382",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "MIL",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400384",
      "game_id": "0022400384",
+     "season": "2024-25",
      "date": "2024-12-21",
      "home": "NOP",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400394",
      "game_id": "0022400394",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "PHI",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400397",
      "game_id": "0022400397",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "NYK",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400398",
      "game_id": "0022400398",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "CHI",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400402",
      "game_id": "0022400402",
+     "season": "2024-25",
      "date": "2024-12-23",
      "home": "DEN",
      "away": "PHX",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DEN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400433",
      "game_id": "0022400433",
+     "season": "2024-25",
      "date": "2024-12-28",
      "home": "UTA",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home UTA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400860",
      "game_id": "0022400860",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "CHA",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400861",
      "game_id": "0022400861",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "DET",
      "away": "BKN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400862",
      "game_id": "0022400862",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "HOU",
      "away": "SAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400863",
      "game_id": "0022400863",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "MEM",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400864",
      "game_id": "0022400864",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "PHI",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400865",
      "game_id": "0022400865",
+     "season": "2024-25",
      "date": "2025-03-01",
      "home": "DAL",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400866",
      "game_id": "0022400866",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "BOS",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400867",
      "game_id": "0022400867",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "CLE",
      "away": "POR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400868",
      "game_id": "0022400868",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "IND",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400870",
      "game_id": "0022400870",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "ORL",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400871",
      "game_id": "0022400871",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "SAS",
      "away": "OKC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400872",
      "game_id": "0022400872",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "UTA",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home UTA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400873",
      "game_id": "0022400873",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "PHX",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400879",
      "game_id": "0022400879",
+     "season": "2024-25",
      "date": "2025-03-03",
      "home": "OKC",
      "away": "HOU",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home OKC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400884",
      "game_id": "0022400884",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "ATL",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400885",
      "game_id": "0022400885",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "NYK",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400886",
      "game_id": "0022400886",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "CHI",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400887",
      "game_id": "0022400887",
+     "season": "2024-25",
      "date": "2025-03-04",
      "home": "MIN",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400894",
      "game_id": "0022400894",
+     "season": "2024-25",
      "date": "2025-03-05",
      "home": "WAS",
      "away": "UTA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400901",
      "game_id": "0022400901",
+     "season": "2024-25",
      "date": "2025-03-06",
      "home": "BKN",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400910",
      "game_id": "0022400910",
+     "season": "2024-25",
      "date": "2025-03-07",
      "home": "SAC",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400917",
      "game_id": "0022400917",
+     "season": "2024-25",
      "date": "2025-03-08",
      "home": "MIL",
      "away": "ORL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400919",
      "game_id": "0022400919",
+     "season": "2024-25",
      "date": "2025-03-08",
      "home": "GSW",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400923",
      "game_id": "0022400923",
+     "season": "2024-25",
      "date": "2025-03-09",
      "home": "NOP",
      "away": "MEM",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400926",
      "game_id": "0022400926",
+     "season": "2024-25",
      "date": "2025-03-09",
      "home": "POR",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022400952",
      "game_id": "0022400952",
+     "season": "2024-25",
      "date": "2025-03-12",
      "home": "DEN",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DEN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401216",
      "game_id": "0022401216",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "IND",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401217",
      "game_id": "0022401217",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "WAS",
      "away": "BOS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401218",
      "game_id": "0022401218",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "SAS",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401219",
      "game_id": "0022401219",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "PHX",
      "away": "POR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401221",
      "game_id": "0022401221",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "DET",
      "away": "MIA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401222",
      "game_id": "0022401222",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "CHA",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401224",
      "game_id": "0022401224",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "BKN",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401225",
      "game_id": "0022401225",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "SAC",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401227",
      "game_id": "0022401227",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "ORL",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "0022401228",
      "game_id": "0022401228",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "GSW",
      "away": "DAL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     }
    ],
    "dropped_d85_home": [
     {
      "id": "0022400375",
      "game_id": "0022400375",
+     "season": "2024-25",
      "date": "2024-12-20",
      "home": "MIA",
-     "away": "OKC"
+     "away": "OKC",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "0022400869",
      "game_id": "0022400869",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "MIA",
-     "away": "NYK"
+     "away": "NYK",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "0022400874",
      "game_id": "0022400874",
+     "season": "2024-25",
      "date": "2025-03-02",
      "home": "LAL",
-     "away": "LAC"
+     "away": "LAC",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "0022400898",
      "game_id": "0022400898",
+     "season": "2024-25",
      "date": "2025-03-05",
      "home": "LAC",
-     "away": "DET"
+     "away": "DET",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     },
     {
      "id": "0022400905",
      "game_id": "0022400905",
+     "season": "2024-25",
      "date": "2025-03-07",
      "home": "TOR",
-     "away": "UTA"
+     "away": "UTA",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "0022401220",
      "game_id": "0022401220",
+     "season": "2024-25",
      "date": "2024-12-15",
      "home": "LAL",
-     "away": "MEM"
+     "away": "MEM",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "0022401223",
      "game_id": "0022401223",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "TOR",
-     "away": "CHI"
+     "away": "CHI",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "0022401226",
      "game_id": "0022401226",
+     "season": "2024-25",
      "date": "2024-12-16",
      "home": "LAC",
-     "away": "UTA"
+     "away": "UTA",
+     "resolved_by": "game id",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     }
    ],
    "dropped_unresolved": [
     {
      "id": "0062400001",
-     "why": "not in the schedule source"
+     "why": "not in the schedule source",
+     "reason": "dropped: home team not resolved (D150 screen cannot be applied)"
     }
    ],
+   "frame_to_game": {
+    "E-BARD-detection": {
+     "images": 5220,
+     "images_without_game_id": 0
+    },
+    "E-BARD-TeamAttribution": {
+     "images": 15305,
+     "images_without_game_id": 0
+    },
+    "E-BARD-JerseyNumberRecognition": {
+     "images": 103137,
+     "images_without_game_id": 0
+    },
+    "E-BARD-ObjectClassification": {
+     "images": 22975,
+     "images_without_game_id": 0
+    }
+   },
    "schedule_source": "github.com/shufinskiy/nba_data datasets/<file>.tar.xz (stats.nba.com shot chart rows: GAME_ID, GAME_DATE, HTM, VTM); repository Apache-2.0, rows are NBA Statistics under the nba.com Terms of Use (docs/DATA_SOURCES.md, NBA shot chart mirror row)",
    "schedule_files": {
     "shotdetail_2018": {
@@ -2209,642 +3025,818 @@
     {
      "id": "21800919",
      "game_id": "0021800919",
+     "season": "2018-19",
      "date": "2019-02-27",
      "home": "UTA",
      "away": "LAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home UTA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800929",
      "game_id": "0021800929",
+     "season": "2018-19",
      "date": "2019-03-01",
      "home": "BKN",
      "away": "CHA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800938",
      "game_id": "0021800938",
+     "season": "2018-19",
      "date": "2019-03-02",
      "home": "PHI",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800949",
      "game_id": "0021800949",
+     "season": "2018-19",
      "date": "2019-03-03",
      "home": "DET",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800952",
      "game_id": "0021800952",
+     "season": "2018-19",
      "date": "2019-03-04",
      "home": "BKN",
      "away": "DAL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800960",
      "game_id": "0021800960",
+     "season": "2018-19",
      "date": "2019-03-05",
      "home": "PHI",
      "away": "ORL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800963",
      "game_id": "0021800963",
+     "season": "2018-19",
      "date": "2019-03-05",
      "home": "MIN",
      "away": "OKC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800964",
      "game_id": "0021800964",
+     "season": "2018-19",
      "date": "2019-03-05",
      "home": "GSW",
      "away": "BOS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800965",
      "game_id": "0021800965",
+     "season": "2018-19",
      "date": "2019-03-06",
      "home": "CHA",
      "away": "MIA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800966",
      "game_id": "0021800966",
+     "season": "2018-19",
      "date": "2019-03-06",
      "home": "DET",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800968",
      "game_id": "0021800968",
+     "season": "2018-19",
      "date": "2019-03-06",
      "home": "ATL",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800970",
      "game_id": "0021800970",
+     "season": "2018-19",
      "date": "2019-03-06",
      "home": "CHI",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800971",
      "game_id": "0021800971",
+     "season": "2018-19",
      "date": "2019-03-06",
      "home": "NOP",
      "away": "UTA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800972",
      "game_id": "0021800972",
+     "season": "2018-19",
      "date": "2019-03-06",
      "home": "PHX",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800973",
      "game_id": "0021800973",
+     "season": "2018-19",
      "date": "2019-03-06",
      "home": "SAC",
      "away": "BOS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800975",
      "game_id": "0021800975",
+     "season": "2018-19",
      "date": "2019-03-07",
      "home": "MIL",
      "away": "IND",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800976",
      "game_id": "0021800976",
+     "season": "2018-19",
      "date": "2019-03-07",
      "home": "POR",
      "away": "OKC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800977",
      "game_id": "0021800977",
+     "season": "2018-19",
      "date": "2019-03-08",
      "home": "CHA",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800978",
      "game_id": "0021800978",
+     "season": "2018-19",
      "date": "2019-03-08",
      "home": "ORL",
      "away": "DAL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800980",
      "game_id": "0021800980",
+     "season": "2018-19",
      "date": "2019-03-08",
      "home": "CHI",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800981",
      "game_id": "0021800981",
+     "season": "2018-19",
      "date": "2019-03-08",
      "home": "HOU",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800982",
      "game_id": "0021800982",
+     "season": "2018-19",
      "date": "2019-03-08",
      "home": "MEM",
      "away": "UTA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800983",
      "game_id": "0021800983",
+     "season": "2018-19",
      "date": "2019-03-08",
      "home": "NOP",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800984",
      "game_id": "0021800984",
+     "season": "2018-19",
      "date": "2019-03-08",
      "home": "GSW",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800987",
      "game_id": "0021800987",
+     "season": "2018-19",
      "date": "2019-03-09",
      "home": "ATL",
      "away": "BKN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800988",
      "game_id": "0021800988",
+     "season": "2018-19",
      "date": "2019-03-09",
      "home": "MIN",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800990",
      "game_id": "0021800990",
+     "season": "2018-19",
      "date": "2019-03-09",
      "home": "MIL",
      "away": "CHA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800991",
      "game_id": "0021800991",
+     "season": "2018-19",
      "date": "2019-03-09",
      "home": "POR",
      "away": "PHX",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800992",
      "game_id": "0021800992",
+     "season": "2018-19",
      "date": "2019-03-10",
      "home": "DET",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800994",
      "game_id": "0021800994",
+     "season": "2018-19",
      "date": "2019-03-10",
      "home": "PHI",
      "away": "IND",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800995",
      "game_id": "0021800995",
+     "season": "2018-19",
      "date": "2019-03-10",
      "home": "ATL",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800996",
      "game_id": "0021800996",
+     "season": "2018-19",
      "date": "2019-03-10",
      "home": "MEM",
      "away": "ORL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800997",
      "game_id": "0021800997",
+     "season": "2018-19",
      "date": "2019-03-10",
      "home": "DAL",
      "away": "HOU",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21800999",
      "game_id": "0021800999",
+     "season": "2018-19",
      "date": "2019-03-10",
      "home": "SAS",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801001",
      "game_id": "0021801001",
+     "season": "2018-19",
      "date": "2019-03-11",
      "home": "CLE",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801002",
      "game_id": "0021801002",
+     "season": "2018-19",
      "date": "2019-03-11",
      "home": "WAS",
      "away": "SAC",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801003",
      "game_id": "0021801003",
+     "season": "2018-19",
      "date": "2019-03-11",
      "home": "BKN",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home BKN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801004",
      "game_id": "0021801004",
+     "season": "2018-19",
      "date": "2019-03-11",
      "home": "HOU",
      "away": "CHA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801007",
      "game_id": "0021801007",
+     "season": "2018-19",
      "date": "2019-03-12",
      "home": "IND",
      "away": "NYK",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801008",
      "game_id": "0021801008",
+     "season": "2018-19",
      "date": "2019-03-12",
      "home": "PHI",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801011",
      "game_id": "0021801011",
+     "season": "2018-19",
      "date": "2019-03-12",
      "home": "DAL",
      "away": "SAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801012",
      "game_id": "0021801012",
+     "season": "2018-19",
      "date": "2019-03-12",
      "home": "DEN",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home DEN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801015",
      "game_id": "0021801015",
+     "season": "2018-19",
      "date": "2019-03-13",
      "home": "WAS",
      "away": "ORL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801017",
      "game_id": "0021801017",
+     "season": "2018-19",
      "date": "2019-03-13",
      "home": "OKC",
      "away": "BKN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home OKC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801018",
      "game_id": "0021801018",
+     "season": "2018-19",
      "date": "2019-03-13",
      "home": "HOU",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801019",
      "game_id": "0021801019",
+     "season": "2018-19",
      "date": "2019-03-13",
      "home": "PHX",
      "away": "UTA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801037",
      "game_id": "0021801037",
+     "season": "2018-19",
      "date": "2019-03-16",
      "home": "DAL",
      "away": "CLE",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801038",
      "game_id": "0021801038",
+     "season": "2018-19",
      "date": "2019-03-16",
      "home": "OKC",
      "away": "GSW",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home OKC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801039",
      "game_id": "0021801039",
+     "season": "2018-19",
      "date": "2019-03-16",
      "home": "SAS",
      "away": "POR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801042",
      "game_id": "0021801042",
+     "season": "2018-19",
      "date": "2019-03-17",
      "home": "NYK",
      "away": "LAL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801043",
      "game_id": "0021801043",
+     "season": "2018-19",
      "date": "2019-03-17",
      "home": "MIL",
      "away": "PHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801044",
      "game_id": "0021801044",
+     "season": "2018-19",
      "date": "2019-03-17",
      "home": "DET",
      "away": "TOR",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801046",
      "game_id": "0021801046",
+     "season": "2018-19",
      "date": "2019-03-17",
      "home": "ORL",
      "away": "ATL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home ORL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801048",
      "game_id": "0021801048",
+     "season": "2018-19",
      "date": "2019-03-17",
      "home": "HOU",
      "away": "MIN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home HOU is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801050",
      "game_id": "0021801050",
+     "season": "2018-19",
      "date": "2019-03-18",
      "home": "CLE",
      "away": "DET",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801051",
      "game_id": "0021801051",
+     "season": "2018-19",
      "date": "2019-03-18",
      "home": "WAS",
      "away": "UTA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home WAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801052",
      "game_id": "0021801052",
+     "season": "2018-19",
      "date": "2019-03-18",
      "home": "BOS",
      "away": "DEN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801054",
      "game_id": "0021801054",
+     "season": "2018-19",
      "date": "2019-03-18",
      "home": "OKC",
      "away": "MIA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home OKC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801056",
      "game_id": "0021801056",
+     "season": "2018-19",
      "date": "2019-03-18",
      "home": "DAL",
      "away": "NOP",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801057",
      "game_id": "0021801057",
+     "season": "2018-19",
      "date": "2019-03-18",
      "home": "PHX",
      "away": "CHI",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home PHX is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801058",
      "game_id": "0021801058",
+     "season": "2018-19",
      "date": "2019-03-18",
      "home": "POR",
      "away": "IND",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home POR is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801060",
      "game_id": "0021801060",
+     "season": "2018-19",
      "date": "2019-03-19",
      "home": "ATL",
      "away": "HOU",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801061",
      "game_id": "0021801061",
+     "season": "2018-19",
      "date": "2019-03-19",
      "home": "MIL",
      "away": "LAL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801063",
      "game_id": "0021801063",
+     "season": "2018-19",
      "date": "2019-03-19",
      "home": "SAC",
      "away": "BKN",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801065",
      "game_id": "0021801065",
+     "season": "2018-19",
      "date": "2019-03-20",
      "home": "CLE",
      "away": "MIL",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home CLE is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801067",
      "game_id": "0021801067",
+     "season": "2018-19",
      "date": "2019-03-20",
      "home": "PHI",
      "away": "BOS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801068",
      "game_id": "0021801068",
+     "season": "2018-19",
      "date": "2019-03-20",
      "home": "NYK",
      "away": "UTA",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home NYK is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "21801069",
      "game_id": "0021801069",
+     "season": "2018-19",
      "date": "2019-03-20",
      "home": "CHI",
      "away": "WAS",
-     "resolved_by": "game id"
+     "resolved_by": "game id",
+     "reason": "kept: home CHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     }
    ],
    "dropped_d85_home": [
     {
      "id": "21800909",
      "game_id": "0021800909",
+     "season": "2018-19",
      "date": "2019-02-26",
      "home": "TOR",
-     "away": "BOS"
+     "away": "BOS",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "21800934",
      "game_id": "0021800934",
+     "season": "2018-19",
      "date": "2019-03-01",
      "home": "LAL",
-     "away": "MIL"
+     "away": "MIL",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "21800974",
      "game_id": "0021800974",
+     "season": "2018-19",
      "date": "2019-03-06",
      "home": "LAL",
-     "away": "DEN"
+     "away": "DEN",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "21800979",
      "game_id": "0021800979",
+     "season": "2018-19",
      "date": "2019-03-08",
      "home": "MIA",
-     "away": "CLE"
+     "away": "CLE",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "21800985",
      "game_id": "0021800985",
+     "season": "2018-19",
      "date": "2019-03-08",
      "home": "LAC",
-     "away": "OKC"
+     "away": "OKC",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     },
     {
      "id": "21800989",
      "game_id": "0021800989",
+     "season": "2018-19",
      "date": "2019-03-09",
      "home": "LAL",
-     "away": "BOS"
+     "away": "BOS",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     },
     {
      "id": "21801006",
      "game_id": "0021801006",
+     "season": "2018-19",
      "date": "2019-03-11",
      "home": "LAC",
-     "away": "BOS"
+     "away": "BOS",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     },
     {
      "id": "21801013",
      "game_id": "0021801013",
+     "season": "2018-19",
      "date": "2019-03-12",
      "home": "LAC",
-     "away": "POR"
+     "away": "POR",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     },
     {
      "id": "21801014",
      "game_id": "0021801014",
+     "season": "2018-19",
      "date": "2019-03-13",
      "home": "MIA",
-     "away": "DET"
+     "away": "DET",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "21801045",
      "game_id": "0021801045",
+     "season": "2018-19",
      "date": "2019-03-17",
      "home": "MIA",
-     "away": "CHA"
+     "away": "CHA",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of MIA, a D85 arena (D150)"
     },
     {
      "id": "21801049",
      "game_id": "0021801049",
+     "season": "2018-19",
      "date": "2019-03-17",
      "home": "LAC",
-     "away": "BKN"
+     "away": "BKN",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     },
     {
      "id": "21801053",
      "game_id": "0021801053",
+     "season": "2018-19",
      "date": "2019-03-18",
      "home": "TOR",
-     "away": "NYK"
+     "away": "NYK",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of TOR, a D85 arena (D150)"
     },
     {
      "id": "21801064",
      "game_id": "0021801064",
+     "season": "2018-19",
      "date": "2019-03-19",
      "home": "LAC",
-     "away": "IND"
+     "away": "IND",
+     "resolved_by": "game id",
+     "reason": "dropped: home game of LAC, a D85 arena (D150)"
     }
    ],
    "dropped_unresolved": [],
+   "frame_to_game": null,
    "schedule_source": "github.com/shufinskiy/nba_data datasets/<file>.tar.xz (stats.nba.com shot chart rows: GAME_ID, GAME_DATE, HTM, VTM); repository Apache-2.0, rows are NBA Statistics under the nba.com Terms of Use (docs/DATA_SOURCES.md, NBA shot chart mirror row)",
    "schedule_files": {
     "shotdetail_2018": {
@@ -2911,247 +3903,326 @@
     {
      "id": "20221107_GSW_SAC_label",
      "game_id": "0022200156",
+     "season": "2022-23",
      "date": "2022-11-07",
      "home": "GSW",
      "away": "SAC",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home GSW is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221107_MIN_NYK_label",
      "game_id": "0022200153",
+     "season": "2022-23",
      "date": "2022-11-07",
      "home": "MIN",
      "away": "NYK",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221107_PHI_PHX_label",
      "game_id": "0022200148",
+     "season": "2022-23",
      "date": "2022-11-07",
      "home": "PHI",
      "away": "PHX",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221107_SAS_DEN_label",
      "game_id": "0022200154",
+     "season": "2022-23",
      "date": "2022-11-07",
      "home": "SAS",
      "away": "DEN",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home SAS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221109_IND_DEN_label",
      "game_id": "0022200160",
+     "season": "2022-23",
      "date": "2022-11-09",
      "home": "IND",
      "away": "DEN",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221110_NOP_POR_label",
      "game_id": "0022200175",
+     "season": "2022-23",
      "date": "2022-11-10",
      "home": "NOP",
      "away": "POR",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home NOP is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221118_DAL_DNF_label",
      "game_id": "0022200230",
+     "season": "2022-23",
      "date": "2022-11-18",
      "home": "DAL",
      "away": "DEN",
-     "resolved_by": "date and one team (DAL)"
+     "resolved_by": "date and one team (DAL)",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221118_MEM_OKC_lable",
      "game_id": "0022200229",
+     "season": "2022-23",
      "date": "2022-11-18",
      "home": "MEM",
      "away": "OKC",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home MEM is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221119_IND_ORL_label",
      "game_id": "0022200236",
+     "season": "2022-23",
      "date": "2022-11-19",
      "home": "IND",
      "away": "ORL",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home IND is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221204_DET_MEM_label",
      "game_id": "0022200347",
+     "season": "2022-23",
      "date": "2022-12-04",
      "home": "DET",
      "away": "MEM",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20221205_ATL_OKC_label",
      "game_id": "0022200354",
+     "season": "2022-23",
      "date": "2022-12-05",
      "home": "ATL",
      "away": "OKC",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20240522_MIN_DAL_label",
      "game_id": "0042300311",
+     "season": "2023-24",
      "date": "2024-05-22",
      "home": "MIN",
      "away": "DAL",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20240524_MIN_DAL_lable",
      "game_id": "0042300312",
+     "season": "2023-24",
      "date": "2024-05-24",
      "home": "MIN",
      "away": "DAL",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home MIN is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20240528_DAL_MIN_label",
      "game_id": "0042300314",
+     "season": "2023-24",
      "date": "2024-05-28",
      "home": "DAL",
      "away": "MIN",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20240606_BOS_DAL_label",
      "game_id": "0042300401",
+     "season": "2023-24",
      "date": "2024-06-06",
      "home": "BOS",
      "away": "DAL",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20240609_BOS_DAL_label",
      "game_id": "0042300402",
+     "season": "2023-24",
      "date": "2024-06-09",
      "home": "BOS",
      "away": "DAL",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20240612_DAL_BOS_label",
      "game_id": "0042300403",
+     "season": "2023-24",
      "date": "2024-06-12",
      "home": "DAL",
      "away": "BOS",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20240614_DAL_BOS_label",
      "game_id": "0042300404",
+     "season": "2023-24",
      "date": "2024-06-14",
      "home": "DAL",
      "away": "BOS",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20240617_BOS_DAL_label",
      "game_id": "0042300405",
+     "season": "2023-24",
      "date": "2024-06-17",
      "home": "BOS",
      "away": "DAL",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "reason": "kept: home BOS is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20250321_MAV_DET_lable",
      "game_id": "0022401019",
+     "season": "2024-25",
      "date": "2025-03-21",
      "home": "DAL",
      "away": "DET",
-     "resolved_by": "date and one team (DET)"
+     "resolved_by": "date and one team (DET)",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DAL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20250326_PHI_WSH_lable",
      "game_id": "0022401053",
+     "season": "2024-25",
      "date": "2025-03-26",
      "home": "PHI",
      "away": "WAS",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home PHI is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20250331_CHA_UTA_label",
      "game_id": "0022401089",
+     "season": "2024-25",
      "date": "2025-03-31",
      "home": "CHA",
      "away": "UTA",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home CHA is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20250401_ATL_POR_label",
      "game_id": "0022401097",
+     "season": "2024-25",
      "date": "2025-04-01",
      "home": "ATL",
      "away": "POR",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20250401_MIL_PHX_label",
      "game_id": "0022401101",
+     "season": "2024-25",
      "date": "2025-04-01",
      "home": "MIL",
      "away": "PHX",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home MIL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20250406_ATL_UTA_label",
      "game_id": "0022401136",
+     "season": "2024-25",
      "date": "2025-04-06",
      "home": "ATL",
      "away": "UTA",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home ATL is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20250411_SAC_LAC_label",
      "game_id": "0022401184",
+     "season": "2024-25",
      "date": "2025-04-11",
      "home": "SAC",
      "away": "LAC",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home SAC is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     },
     {
      "id": "20250425_DET_NYK_label",
      "game_id": "0042400123",
+     "season": "2024-25",
      "date": "2025-04-24",
      "home": "DET",
      "away": "NYK",
-     "resolved_by": "date and both teams"
+     "resolved_by": "date and both teams",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "kept: home DET is not MIA, TOR, LAC or LAL; not a 2015-16 game"
     }
    ],
    "dropped_d85_home": [
     {
      "id": "20250501_LAL_MIN_label",
      "game_id": "0042400165",
+     "season": "2024-25",
      "date": "2025-04-30",
      "home": "LAL",
-     "away": "MIN"
+     "away": "MIN",
+     "resolved_by": "date and both teams",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane",
+     "reason": "dropped: home game of LAL, a D85 arena (D150)"
     }
    ],
    "dropped_unresolved": [
     {
      "id": "20250415_GSW_MEM_label",
-     "why": "0 games match"
+     "why": "0 games match",
+     "reason": "dropped: home team not resolved (D150 screen cannot be applied)",
+     "season_by_folder_date": "2024-25",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane (dropped here in any case)"
     },
     {
      "id": "20250429_GSW_HOU_label",
-     "why": "2 games match"
+     "why": "2 games match",
+     "reason": "dropped: home team not resolved (D150 screen cannot be applied)",
+     "season_by_folder_date": "2024-25",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane (dropped here in any case)"
     },
     {
      "id": "20250430_DEN_LAC_label",
-     "why": "2 games match"
+     "why": "2 games match",
+     "reason": "dropped: home team not resolved (D150 screen cannot be applied)",
+     "season_by_folder_date": "2024-25",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane (dropped here in any case)"
     },
     {
      "id": "20250506_OKC_DEN_label",
-     "why": "2 games match"
+     "why": "2 games match",
+     "reason": "dropped: home team not resolved (D150 screen cannot be applied)",
+     "season_by_folder_date": "2024-25",
+     "d149": "D149: D79 binds the play-by-play lanes only; frames of this game may train a detector, and no output on this game flows into a play-by-play lane (dropped here in any case)"
     }
    ],
+   "frame_to_game": null,
    "schedule_source": "github.com/shufinskiy/nba_data datasets/<file>.tar.xz (stats.nba.com shot chart rows: GAME_ID, GAME_DATE, HTM, VTM); repository Apache-2.0, rows are NBA Statistics under the nba.com Terms of Use (docs/DATA_SOURCES.md, NBA shot chart mirror row)",
    "schedule_files": {
     "shotdetail_2018": {
@@ -3437,7 +4508,12 @@
     "WASvsTOR"
    ],
    "rule": "docs/research/P8_datasets.md rule 3; tools.p8_datasets_fetch.screen",
-   "character": "conservative: team code only, no season or home side in clip names"
+   "character": "conservative: team code only, no season or home side in clip names",
+   "flagged_names_predating_brooklyn": {
+    "count": 10,
+    "of": 212,
+    "note": "names with NJ (the New Jersey Nets) predate the move to Brooklyn; still flagged, as the screen reads no season"
+   }
   },
   "non_nba_game_names": {
    "names": [
@@ -3489,6 +4565,7 @@
      "of": 1861
     }
    }
-  }
+  },
+  "license_scope": "SHOT Dataset - License Scope The original annotations and documentation are licensed under the Creative Commons Attribution-NonCommercial 4.0 International license, to the extent that the SHOT contributors hold the relevant rights. Third-party basketball footage and images extracted from it are excluded from this license. They remain subject to their respective rights holders' terms and applicable law. No additional rights to those materials are granted by the SHOT contributors."
  }
 }
