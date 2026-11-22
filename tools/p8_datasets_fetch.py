@@ -123,10 +123,10 @@ EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
 
 def save_record(rec: dict) -> None:
-    """The workspace record in full. The repository copy has email addresses removed (CLAUDE.md rule 9), long dashes replaced by hyphens
-    (rule 12) and, for a
-    set of more than MANIFEST_OVER files, the file list replaced by its count, bytes and the sha256 of a manifest file
-    kept in the workspace (<name>.manifest.json: path, bytes, sha256 of every file)."""
+    """The workspace record in full. The repository copy has email addresses removed (CLAUDE.md rule 9), long
+    dashes replaced by hyphens (rule 12) and, for a set of more than MANIFEST_OVER files, the file list replaced by
+    its count, bytes and the sha256 of a manifest file kept in the workspace (<name>.manifest.json: path, bytes,
+    sha256 of every file)."""
     atomic_write(record_path(), json.dumps(rec, indent=1, ensure_ascii=False))
     short = {}
     for name, e in rec.items():
