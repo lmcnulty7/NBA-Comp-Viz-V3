@@ -152,6 +152,18 @@ def moment_result(tries: list[dict]) -> dict:
     return out
 
 
+def duration_with_retry(source: str, vid: str, tries: int = 3) -> float:
+    """tools.p8_identity.duration_of, retried: yt-dlp sometimes prints nothing (seen twice on 2026-11-21)."""
+    import time
+    for k in range(tries):
+        try:
+            return I.duration_of(source, vid)
+        except (IndexError, ValueError):
+            if k == tries - 1:
+                raise
+            time.sleep(30)
+
+
 def check(source: str, vid: str, duration: float | None = None, label: str = "", record: bool = True) -> dict:
     """D130 and D135 as adapted for ACB: one video against all 10 SkillCorner games -> the record (also written as
     acb_identity.json in the video's identity folder)."""
@@ -163,7 +175,7 @@ def check(source: str, vid: str, duration: float | None = None, label: str = "",
         raise SystemExit(f"{WHO}: SkillCorner score rebuild differs from the official score: {bad}")
     games = [str(m["id"]) for m in matches_list()]
     events = {g: game_events(int(g)) for g in games}
-    duration = duration or I.duration_of(source, vid)
+    duration = duration or duration_with_retry(source, vid)
     d = I.work_dir(source, vid)
     moments = []
     for frac in I.MOMENTS:

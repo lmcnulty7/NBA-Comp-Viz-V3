@@ -401,7 +401,39 @@ sections only, each checked against all 10 SkillCorner games under the final rul
 
 ### Results
 
-(Added after the runs, below.)
+Runs of 2026-11-21. The calibration ran first on the code of branch r-p8-level4b (before D138's parser change to
+tools.p8_identity) and then again on the merged code with D138 (sections and OCR read from the same files); both
+runs gave the same verdicts. Two runs stopped on a yt-dlp duration lookup that printed nothing; `duration_with_retry`
+now retries it (3 tries, 30 s apart). The half-time section of 00k9_ueP2bY failed to download twice inside the tool;
+the same yt-dlp command run by hand then succeeded, and the check was rerun on it.
+
+| Video | Truth | Duration (s) | Moments matched (unchanged / acb_clock) | Verdict, acb_clock | Pass |
+|---|---|---|---|---|---|
+| KxOXoriFwDM | 114243 | 184 | 114243 / 114243; 114243 / 114243; none / none | rejected | no |
+| ziPCMtLczBU | 114234 | 186 | 114234 / 114234; 114234 / 114234 and 179612; 114234 / 114234 | confirmed 114234 | yes |
+| APBbUdF7O5U | 114169 | 190 | 114169 / 114169 at all three | confirmed 114169 | yes |
+| paD9I26G7uA | outside | 204 | none at all three | rejected | yes |
+| rES4CvHaRcI | outside | 197 | none at all three | rejected | yes |
+
+**Bar not met: 2 of 3 positives confirmed, 0 false confirmations.** KxOXoriFwDM's 75 percent section (138 s) shows
+no scorebug (OCR: league logo and advertising text only), and its 90 s and 900 s retries lie past the video's end.
+The acb_clock reading is therefore not accepted. On these highlight videos the two readings gave the same verdict
+in all 5, so the check did not separate them.
+
+00k9_ueP2bY under the final rule (half-time retry in place):
+
+| Moment | Sections (s) | Frames with a clock, unchanged / acb_clock | Games, unchanged | Games, acb_clock |
+|---|---|---|---|---|
+| 25% | 1863, 1953 | 1 / 8, 0 / 6 | none | 179612 |
+| 50% | 3727, 3817, 4627 | 0 / 0, 0 / 0, 1 / 6 | none | 179612 (at 4627) |
+| 75% | 5590, 5680 | 0 / 0, 8 / 8 | 114099, 179612, 184439 | 114099, 179612, 184439 |
+
+The half-time retry at 4627 s read "Unicaja 56 63 Valencia Basket 3 05.49/24" (period 3). Verdict: **rejected under
+the unchanged reading; confirmed as 179612 under the acb_clock reading**, which failed its bar. Under D139 the
+verdict that stands is the unchanged reading's: 00k9_ueP2bY is not confirmed, and the full download that D141 ties
+to a confirmed 179612 was not made. The 75 percent moment matched 3 games through small-number pairs (the period
+digit, team fouls); as D139 says, only the three-moment uniqueness guards against that, and under the acb_clock
+reading it did (179612 is the one game in all three).
 
 ## 11. NBA 2025-26 identity check (PLAN.md D141)
 
@@ -433,4 +465,21 @@ and the failure is reported.
 
 ### Results
 
-(Added after the runs, below.)
+Run of 2026-11-21, on the merged code with D138.
+
+| Video | Titled game | Duration (s) | 25% | 50% | 75% | Verdict |
+|---|---|---|---|---|---|---|
+| qXCV4eissO4 | 0022500332 | 1,549 | titled game | titled game | none (0 clocks in both sections) | rejected |
+| 1krUPLClXYA | 0022500714 | 1,662 | titled game | none (8 and 8 frames with a clock) | none (0 clocks) | rejected |
+| tXKAuBt2vjw | 0022500300 | 2,000 | titled game | none (0 clocks) | none (0 clocks) | rejected |
+| nb402apDzh8 | 0022500881 | 1,853 | titled game | none (8 and 0 frames with a clock) | none (0 clocks) | rejected |
+| GDpD5lL9c20 | 0022500227 | 1,880 | titled game | none (6 and 0 frames with a clock) | none (0 clocks) | rejected |
+
+**Bar not met: 0 of 5 confirmed, 0 false confirmations.** No candidate was checked, as the bar says. Every video
+matched its titled game, and only it, at 25 percent. What the later sections hold, from their OCR text: a player
+graphic ("COOPER FLAGG") and a coach interview ("JASON KIDD, HEAD COACH"), where nothing can match; a sub-minute
+clock read with a comma or a stray first character ("45,09", ";06.1", "F05.8"), which D138's parser does not read;
+and in nb402apDzh8 the final seconds (4TH, DEN 128, UTA 125) already at 50 percent, so the rest of the video is not
+game play. Extended highlights put the game in the first part of the video and other material after it, so a rule
+with fixed moments at 50 and 75 percent cannot confirm them; this says nothing yet about the 25 full-game
+candidates, which were not checked.

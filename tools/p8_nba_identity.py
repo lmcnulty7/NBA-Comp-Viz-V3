@@ -93,6 +93,18 @@ def pair_games(game_id: str) -> list[str]:
     return sorted(x["game_id"] for x in S.pair_index(gs)[frozenset((g["home"], g["away"]))])
 
 
+def duration_with_retry(source: str, vid: str, tries: int = 3) -> float:
+    """tools.p8_identity.duration_of, retried: yt-dlp sometimes prints nothing (seen twice on 2026-11-21)."""
+    import time
+    for k in range(tries):
+        try:
+            return I.duration_of(source, vid)
+        except (IndexError, ValueError):
+            if k == tries - 1:
+                raise
+            time.sleep(30)
+
+
 def check(vid: str, game_id: str, duration: float | None = None, label: str = "", record: bool = True) -> dict:
     """One video against every 2025-26 game of the two teams of game_id (the title's game) -> the record."""
     from tools.research_testset import refuse_cv_test
@@ -102,7 +114,7 @@ def check(vid: str, game_id: str, duration: float | None = None, label: str = ""
     cands = pair_games(game_id)
     events = {g: allev[g] for g in cands if g in allev}
     missing = [g for g in cands if g not in allev]
-    duration = duration or I.duration_of("youtube", vid)
+    duration = duration or duration_with_retry("youtube", vid)
     d = I.work_dir("youtube", vid)
     moments = []
     for frac in I.MOMENTS:
