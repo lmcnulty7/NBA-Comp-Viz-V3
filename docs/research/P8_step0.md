@@ -194,6 +194,11 @@ D131 sources measured, scoring protocol, targets for every row, hours, the re-ra
   tools/p8_baseline.py): missed 0.2654 [0.233, 0.325], ghosts 0.1287 [0.108, 0.178], team 0.8248 [0.773, 0.868],
   position p50 1.531 ft [1.514, 1.556] and p90 3.28 ft [3.154, 3.341]. Intervals are game bootstraps; 3 games give
   10 distinct resamples, so they are coarse. r23's court model is in sample on all 3 games.
+- Track A's 2 new games (D146, docs/research/P8_baseline.md section "New arenas (D146)"): hou_cle_2016 is scored, the
+  first arena outside r23's training, reported apart: missed 0.233 [0.221, 0.247], ghosts 0.083 [0.074, 0.094], team
+  0.734 (point estimate), position p50 1.53 ft [1.47, 1.602] and p90 3.34 ft [3.19, 3.481] (window bootstrap, one
+  game). nop_gsw_2015 stopped: no registered scorebug layout passes the automatic check; D152 tries an automatic
+  layout finder and drops the game if it fails.
 
 ### Targets
 
