@@ -498,4 +498,26 @@ of its titled game.
 
 ### Results
 
-(Added after the run, below.)
+Run of 2026-11-21 and 2026-11-22 (`nba_identity_candidates.json` and `nba_identity_candidates_summary.json` in the
+P8 workspace's `level4/nba2526/`). Label: rule calibrated on 2015-16 broadcasts only.
+
+| Status | Videos (of 25) |
+|---|---|
+| confirmed | 13 (13 as the titled game, 0 as another game) |
+| ambiguous | 0 |
+| rejected | 12 |
+| not_downloaded | 0 |
+| error | 0 |
+
+Confirmed games: 5 regular season (0022500019, 0022501048, 0022501154, 0022501165, 0022501172) and 8 playoff
+(0042500102, 0042500103, 0042500112, 0042500113, 0042500123, 0042500142, 0042500171, 0042500173). Of the 12
+rejected, 9 matched their titled game at 1 or 2 of the 3 moments and no other game at any moment; 3 (AicepIjPJ8E,
+ymBaju5Mcvk, SngIoODT30U) matched nothing. Across all 25 videos, one moment matched a game other than the titled
+one (hCs-D7vVeHk at 25 percent: 0022500012 beside the titled 0042500171), and that video was confirmed as its
+titled game by the other two moments. One candidate list held a game with no play-by-play (0042500224, for
+-Lfqgb1FDNg).
+
+Per team (each video counts for both teams of its titled game; confirmed / rejected; ambiguous and not_downloaded
+are 0 everywhere): ATL 1 / 2, BOS 2 / 1, CHA 0 / 1, CLE 0 / 2, DAL 0 / 1, DEN 0 / 1, DET 2 / 0, GSW 1 / 1, HOU 2 / 1,
+LAL 3 / 4, MIA 2 / 0, MIN 1 / 1, NOP 1 / 1, NYK 2 / 1, OKC 1 / 1, ORL 2 / 1, PHI 2 / 0, PHX 1 / 0, POR 0 / 1,
+SAC 1 / 0, SAS 0 / 1, TOR 1 / 2, UTA 0 / 1, WAS 1 / 0. BKN, CHI, IND, LAC, MEM and MIL had no candidate.
