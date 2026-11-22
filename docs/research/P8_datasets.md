@@ -63,6 +63,31 @@ yet been granted".
 4. Licenses: a row in docs/DATA_SOURCES.md before download; non-commercial is acceptable (D128); nothing is
    redistributed. Every training run records the datasets and versions it used.
 
+## Downloaded and screened (2026-11-22)
+
+Record: `reports/research/p8_datasets_fetch.json` (written by `tools/p8_datasets_fetch.py`: source, revision, bytes,
+sha256, license text as found). Download only; nothing has trained.
+
+| Set | Games or clips | Kept | Dropped as a D85 home | Dropped, unresolved |
+|---|---|---|---|---|
+| E-BARD (4 repos) | 60 games | 51 | 8 | 1 (0062400001, the 2024-25 Cup final, absent from the schedule source) |
+| WASB ball labels | 81 games, 2018-19 | 68 | 13 | 0 |
+| PL-NBA annotations | 32 folders (README: 40) | 27 | 1 | 4 (a play-in date; three playoff dates with two games inside the one-day slack) |
+| SHOT | 1,861 clips | 1,256 | 605 flagged by team code | none |
+
+- Home teams come from the shot-chart mirror already in DATA_SOURCES.md, used as a schedule only. The spent
+  held-out games are 2015-16 only and cannot appear in these sets.
+- SHOT's screen is conservative: clip names carry team codes but no season or home side, so every clip naming CLE,
+  PHX with GSW, or MIA, TOR, LAC or LAL is out, including names with NJ that predate Brooklyn (self-decided: NJ shows
+  the season, not the home side). 7 clips under 6 Chinese-league names are tagged non_nba and kept; each
+  experiment decides on them.
+- SHOT is thinner than its size: among the files downloaded, 103,177 of 143,574 frames and 6,468 of 9,305 label XMLs
+  are 0 bytes at the source. Its license covers the annotations only, not the footage or its frames.
+- Gaps, not worked around: WASB's MIT license covers the code and names no license for the label zip; PL-NBA has 32
+  of the 40 games its README states.
+- D149: PL-NBA's 2024-25 folders and E-BARD (2024-25) may train a detector; no output on a 2024-25 or 2025-26 game
+  flows into a play-by-play lane.
+
 ## Expected effect, honestly
 
 These sets move detection, referee, team colour, jersey and ball rows. They do not move the parts of position error
