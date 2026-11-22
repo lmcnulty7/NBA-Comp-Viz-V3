@@ -1,5 +1,5 @@
 {
- "written": "2026-11-22T05:48:07+00:00",
+ "written": "2026-11-22T06:03:23+00:00",
  "rule": "PLAN.md D128 to D138; tools.p8_search, tools.p8_identity, tools.p8_step0_report",
  "calibration": {
   "written": "2026-11-21T21:47:53+00:00",
@@ -102,7 +102,8 @@
     "12.06.2015.SAC.at.OKC",
     "12.28.2015.SAC.at.GSW"
    ],
-   "earlier_usable": 6
+   "earlier_usable": 6,
+   "earlier_usable_source": "reports/sportvu_manifest.txt (R1.1: GSW 4, CLE 2)"
   },
   "candidate_games_by_home_team": {
    "CHI": 5,

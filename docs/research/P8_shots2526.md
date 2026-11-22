@@ -1,5 +1,7 @@
 # P8 Level 4: shooter position on NBA 2025-26 broadcasts against the public shot coordinates
 
+**Held (2026-11-22, PLAN.md D147).** The ml-review found that this work used D71 Set B (the 10 SkillCorner ACB games are `skillcorner_acb_2025_26` in reports/research/testset.json) outside score_once, and reads the D79 play-by-play test season 2025-26. Nothing here runs again until Lucien rules; see docs/research/P8_step0.md, Level 4.
+
 Branch r-p8-shots2526 from v4-research aa344cbe, written 2026-11-21 under PLAN.md D137 and D144,
 docs/research/TRACKING_LEVELS.md (Level 4, step 2), docs/research/P8_level4.md (sections 3, 12 and 13) and
 docs/research/P8_FEASIBILITY.md section 6.2. This file is step 1: the pre-registration, written before any build,

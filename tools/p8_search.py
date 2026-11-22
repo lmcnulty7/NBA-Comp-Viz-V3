@@ -236,9 +236,11 @@ def check_game(name: str, g: dict, cls: str, sources=SOURCES) -> dict:
         probed = []
         if cls == "training":
             from tools.research_testset import refuse_cv_test
+            from tools.p8_common import guard
             for r in cands[:MAX_PROBES]:
-                try:                                          # a known D85 test video found under another game
+                try:                                          # a D85 test or spent held-out video found under another game
                     refuse_cv_test([r["id"]], WHO)
+                    guard([r["id"]], WHO)
                 except SystemExit:
                     continue
                 p = probe(source, r["id"])

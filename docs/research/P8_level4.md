@@ -1,5 +1,7 @@
 # P8 Level 4: what truth exists for current seasons
 
+**Held (2026-11-22, PLAN.md D147).** The ml-review found that this work used D71 Set B (the 10 SkillCorner ACB games are `skillcorner_acb_2025_26` in reports/research/testset.json) outside score_once, and reads the D79 play-by-play test season 2025-26. Nothing here runs again until Lucien rules; see docs/research/P8_step0.md, Level 4.
+
 Written 2026-11-21 and 2026-11-22 under PLAN.md D137 (continue toward Level 4 of `docs/research/TRACKING_LEVELS.md`)
 and D128's constraints. Measurement only: no training, no hand labelling, no League Pass. Sections 1 to 5 downloaded
 no video; sections 6 to 9 (second pass, the lead's decisions after the first) downloaded identity sections only

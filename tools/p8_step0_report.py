@@ -27,6 +27,7 @@ def build() -> dict:
     from sportvu import manifest as M
     from tools.p8_common import dev_games
     from tools.p8_search import summary
+    from tools.p8_common import guard
     from tools.research_testset import refuse_cv_test
     s = summary()
     rows = s["rows"]
@@ -55,8 +56,9 @@ def build() -> dict:
         v["status"] = rec.get("status", "not_checked")
         v["game"] = rec.get("game")
         v["known_dev_video"] = v["id"] in known
-        if v["status"] == "confirmed":
-            refuse_cv_test([v["id"], v["game"]], WHO)
+        if v["status"] != "guarded":                       # every video read past metadata, and its games
+            refuse_cv_test([v["id"], *v["found_for"], *([v["game"]] if v["game"] else [])], WHO)
+            guard([v["id"], *v["found_for"], *([v["game"]] if v["game"] else [])], WHO)
     conf = [v for v in videos.values() if v["status"] == "confirmed"]
     games_conf = sorted({v["game"] for v in conf})
     new_games = sorted({v["game"] for v in conf if not v["known_dev_video"]} - {v["game"] for v in conf if v["known_dev_video"]})
@@ -73,7 +75,8 @@ def build() -> dict:
         "confirmed_games_by_home_team": dict(collections.Counter(home(g) for g in games_conf)),
         "new_arenas_outside_development": sorted({home(g) for g in games_conf} - set(DEV_ARENAS)),
         "old_84": {"games": len(old84), "with_candidate": sum(1 for r in rows if r["game"] in old84 and r["candidates"]),
-                   "confirmed": sorted(g for g in games_conf if g in old84), "earlier_usable": 6},
+                   "confirmed": sorted(g for g in games_conf if g in old84),
+                   "earlier_usable": 6, "earlier_usable_source": "reports/sportvu_manifest.txt (R1.1: GSW 4, CLE 2)"},
         "candidate_games_by_home_team": dict(collections.Counter(home(r["game"]) for r in rows
                                                                  if r["class"] == "training" and r["candidates"])),
     }
