@@ -14,7 +14,7 @@ these two rows have no window bootstrap when pooled. gsw_ind_2016 stays apart (D
 import argparse
 import json
 
-from tools.p8_common import atomic_write
+from tools.p8_common import atomic_write, guard
 from tools.research_testset import refuse_cv_test
 
 WHO = "tools.p8_baseline"
@@ -44,6 +44,7 @@ def main(argv=None) -> dict:
     a = ap.parse_args(argv)
     tags = a.tags.split(",")
     refuse_cv_test(tags, WHO)
+    guard(tags, WHO)                                   # spent held-out games too
     if "gsw_ind_2016" in tags:
         raise SystemExit(f"{WHO}: gsw_ind_2016 is reported apart (D98), never pooled")
     P = F.layout(p8_root())
