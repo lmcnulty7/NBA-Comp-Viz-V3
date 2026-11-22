@@ -43,3 +43,13 @@ def test_the_corpus_lives_outside_the_repository(monkeypatch):
     monkeypatch.setenv("V3_P8_E1", str(D.REPO / "data" / "e1"))
     with pytest.raises(SystemExit):
         D.corpus_root()
+
+
+def test_colab_split_keeps_whole_windows_and_takes_the_last_ones_per_game():
+    from tools import p8_e1_colab as C
+    stems = [f"g1/g1_s00_w{w:02d}_f{f:06d}" for w in range(10) for f in (1, 2)] + \
+            [f"g2/g2_s01_w{w:02d}_f{f:06d}" for w in range(5) for f in (1,)]
+    train, val = C.split_windows(stems, 0.1)
+    assert val == ["g1/g1_s00_w09_f000001", "g1/g1_s00_w09_f000002", "g2/g2_s01_w04_f000001"]
+    assert len(train) + len(val) == len(stems) and not set(train) & set(val)
+    assert "refuse_cv_test(" in open(C.__file__).read()
