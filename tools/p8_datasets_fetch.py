@@ -17,6 +17,8 @@ the home side or season cannot be read.
     python3 -m tools.p8_datasets_fetch hf REPO [--rev REV] [--name NAME] [--only GLOB ...]
     python3 -m tools.p8_datasets_fetch url NAME URL [--file FILENAME]
     python3 -m tools.p8_datasets_fetch shot-screen                # screen SHOT's clip names, no request
+    python3 -m tools.p8_datasets_fetch home-screen                # E-BARD, WASB, PL-NBA: drop D85 home games
+    python3 -m tools.p8_datasets_fetch annotate                   # screen character, non-NBA names, empty files, gaps
     python3 -m tools.p8_datasets_fetch record                     # rewrite the repository copy of the record
 """
 
@@ -317,6 +319,133 @@ def shot_screen(name: str = "SHOT", rev: str = "shotdatasets") -> dict:
     return rec[name]["screen"]
 
 
+NON_NBA_SHOT = ("BKvsBJ", "BYvsFJ", "FJvsJS", "JSvsSD", "SCvsBK", "SXvsBK")   # Chinese-league game names in SHOT
+
+
+def annotate() -> dict:
+    """The lead's notes (D37 additions) written into the record from the files themselves: the SHOT screen's
+    character, its non-NBA game names, its empty files (listed and downloaded), and the gaps found in WASB and PL-NBA."""
+    import zipfile
+    root = datasets_root()
+    rec = load_record()
+    sh = rec["SHOT"]
+    tree = json.loads((root / "SHOT.tree.shotdatasets.json").read_text())
+    def empty(files, ext):
+        sel = [f for f in files if f[0].lower().endswith(ext)]
+        return {"empty": sum(1 for f in sel if f[1] == 0), "of": len(sel)}
+    listed = [(f["path"], f["size"]) for f in tree]
+    got = [(k, v["bytes"]) for k, v in sh["files"].items()]
+    sh["screen"]["character"] = "conservative: team code only, no season or home side in clip names"
+    sh["non_nba_game_names"] = {"names": list(NON_NBA_SHOT), "tag": "non_nba",
+                                "clips": sorted(c for c in json.loads((root / "SHOT.screen.json").read_text())
+                                                if c.split("-")[0] in NON_NBA_SHOT),
+                                "note": "kept; whether they train is decided per experiment"}
+    sh["empty_files"] = {"listed_in_repo": {"xml": empty(listed, ".xml"), "jpg": empty(listed, ".jpg")},
+                         "downloaded": {"xml": empty(got, ".xml"), "jpg": empty(got, ".jpg"),
+                                        "txt": empty(got, ".txt"), "json": empty(got, ".json")}}
+    rec["WASB-basketball"]["gaps"] = ["The repository's license file (LICENSE.md, MIT, 'Copyright (c) 2023 NTT "
+                                      "Communications Corporation') covers 'this software and associated documentation "
+                                      "files'; it does not mention the annotation zip, so the labels' license is not "
+                                      "stated. Not worked around."]
+    folders = sorted({n.split("/")[1] for n in zipfile.ZipFile(root / "PL-NBA" / "PL-NBA-JSON.zip").namelist()
+                      if n.count("/") >= 2})
+    rec["PL-NBA"]["gaps"] = ["%d game folders in PL-NBA-JSON.zip against the README's 'collected from 40 official NBA "
+                             "games'. Not worked around." % len(folders)]
+    save_record(rec)
+    return {"shot_empty": sh["empty_files"], "non_nba_clips": len(sh["non_nba_game_names"]["clips"]),
+            "pl_nba_folders": len(folders)}
+
+
+# ── home-team screen of E-BARD, WASB and PL-NBA (pure parts tested) ─────────────
+D85_HOMES = {"MIA", "TOR", "LAC", "LAL"}
+SCHEDULE_FILES = ("shotdetail_2018", "shotdetail_po_2018", "shotdetail_2022", "shotdetail_po_2022", "shotdetail_2023",
+                  "shotdetail_po_2023", "shotdetail_2024", "shotdetail_po_2024")
+SCHEDULE_SOURCE = ("github.com/shufinskiy/nba_data datasets/<file>.tar.xz (stats.nba.com shot chart rows: GAME_ID, "
+                   "GAME_DATE, HTM, VTM); repository Apache-2.0, rows are NBA Statistics under the nba.com Terms of Use "
+                   "(docs/DATA_SOURCES.md, NBA shot chart mirror row)")
+CODE_ALIASES = {"WSH": "WAS", "GS": "GSW", "NY": "NYK", "NO": "NOP", "SA": "SAS", "PHO": "PHX", "UTAH": "UTA",
+                "BRK": "BKN"}
+
+
+def schedule(root: Path) -> dict:
+    """{10-digit game id: (iso date, home, away)} from the mirror's shot chart files (stdlib csv)."""
+    import csv
+    out = {}
+    for f in SCHEDULE_FILES:
+        with open(root / f / ("%s.csv" % f), newline="") as fh:
+            for row in csv.DictReader(fh):
+                gid = "%010d" % int(row["GAME_ID"])
+                if gid not in out:
+                    d = row["GAME_DATE"]
+                    out[gid] = ("%s-%s-%s" % (d[:4], d[4:6], d[6:8]), row["HTM"], row["VTM"])
+    return out
+
+
+def resolve_folder(folder: str, sched: dict) -> tuple[str | None, str]:
+    """A PL-NBA folder 'YYYYMMDD_T1_T2_label' -> (game id or None, how). A game resolves when the date (one day of
+    slack) and the recognised team codes pick exactly one game; an unrecognised code is not guessed."""
+    m = re.match(r"(\d{4})(\d{2})(\d{2})_([A-Z]{2,4})_([A-Z]{2,4})", folder)
+    if not m:
+        return None, "folder name not parsed"
+    day = dt.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    known = {t for t in (CODE_ALIASES.get(c, c) for c in (m.group(4), m.group(5)))
+             if t in {x for v in sched.values() for x in v[1:]}}
+    if not known:
+        return None, "no team code recognised"
+    hits = [g for g, (d, h, a) in sched.items() if abs((dt.date.fromisoformat(d) - day).days) <= 1 and known <= {h, a}]
+    if len(hits) != 1:
+        return None, "%d games match" % len(hits)
+    return hits[0], "date and %s" % ("both teams" if len(known) == 2 else "one team (%s)" % sorted(known)[0])
+
+
+def home_screen() -> dict:
+    """D150-style home screen of E-BARD, WASB and PL-NBA: drop MIA, TOR, LAC and LAL home games and unresolved
+    games; recorded per set."""
+    import zipfile
+    root = datasets_root()
+    sched = schedule(p8_root().parent / "nba_shots")
+    rec = load_record()
+    sets = {"E-BARD": [root / n / "all.zip" for n in ("E-BARD-detection", "E-BARD-TeamAttribution",
+                                                      "E-BARD-JerseyNumberRecognition", "E-BARD-ObjectClassification")],
+            "WASB-basketball": [root / "WASB-basketball" / "basketball_annos.zip"],
+            "PL-NBA": [root / "PL-NBA" / "PL-NBA-JSON.zip"]}
+    out = {}
+    for name, zips in sets.items():
+        names = [n for z in zips for n in zipfile.ZipFile(z).namelist()]
+        rows = {}
+        if name == "E-BARD":
+            for gid in sorted({m for n in names for m in re.findall(r"00\d{8}", n)}):
+                rows[gid] = (gid, "game id")
+        elif name == "WASB-basketball":
+            for gid in sorted({n.split("/")[1] for n in names if n.count("/") >= 2}):
+                rows[gid] = ("%010d" % int(gid), "game id")
+        else:
+            for f in sorted({n.split("/")[1] for n in names if n.count("/") >= 2}):
+                rows[f] = resolve_folder(f, sched)
+        kept, dropped, unresolved = [], [], []
+        for key, (gid, how) in rows.items():
+            g = sched.get(gid) if gid else None
+            if not g:
+                unresolved.append({"id": key, "why": how if not gid else "not in the schedule source"})
+            elif g[1] in D85_HOMES:
+                dropped.append({"id": key, "game_id": gid, "date": g[0], "home": g[1], "away": g[2]})
+            else:
+                kept.append({"id": key, "game_id": gid, "date": g[0], "home": g[1], "away": g[2], "resolved_by": how})
+        out[name] = {"games": len(rows), "kept": kept, "dropped_d85_home": dropped, "dropped_unresolved": unresolved,
+                     "schedule_source": SCHEDULE_SOURCE,
+                     "schedule_files": {f: {"bytes": (p8_root().parent / "nba_shots" / (f + ".tar.xz")).stat().st_size,
+                                            "sha256": sha256_of(p8_root().parent / "nba_shots" / (f + ".tar.xz"))}
+                                        for f in SCHEDULE_FILES},
+                     "note": "Home teams MIA, TOR, LAC and LAL dropped (the D85 arenas); unresolved games dropped and "
+                             "counted. The spent held-out games are 2015-16 only (sportvu/splits.json), so none can "
+                             "appear in these sets."}
+        for k in ([n for n in rec if n.startswith("E-BARD")] if name == "E-BARD" else [name]):
+            rec[k]["home_screen"] = out[name]
+    save_record(rec)
+    return {k: {"games": v["games"], "kept": len(v["kept"]), "dropped_d85_home": len(v["dropped_d85_home"]),
+                "dropped_unresolved": len(v["dropped_unresolved"])} for k, v in out.items()}
+
+
 def main(argv=None) -> int:
     from tools.research_testset import refuse_cv_test
     ap = argparse.ArgumentParser(prog=WHO)
@@ -335,6 +464,8 @@ def main(argv=None) -> int:
     u.add_argument("--note", default="")
     sub.add_parser("record")
     sub.add_parser("shot-screen")
+    sub.add_parser("home-screen")
+    sub.add_parser("annotate")
     a = ap.parse_args(argv)
     if a.cmd == "hf":
         refuse_cv_test([a.repo], WHO)
@@ -342,6 +473,10 @@ def main(argv=None) -> int:
     elif a.cmd == "url":
         refuse_cv_test([a.url], WHO)
         fetch_url(a.name, a.url, a.file, a.source, a.note)
+    elif a.cmd == "annotate":
+        print(json.dumps(annotate(), indent=1))
+    elif a.cmd == "home-screen":
+        print(json.dumps(home_screen(), indent=1))
     elif a.cmd == "shot-screen":
         print(json.dumps(shot_screen(), indent=1))
     else:

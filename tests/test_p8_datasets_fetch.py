@@ -20,3 +20,14 @@ def test_screen_flags_cle_phx_gsw_and_the_d85_arenas():
 
 def test_email_pattern():
     assert D.EMAIL_RE.sub("x", "contact a.b@example.org now") == "contact x now"
+
+
+def test_pl_nba_folders_resolve_by_date_and_known_teams_only():
+    sched = {"0022200200": ("2022-11-07", "SAC", "GSW"), "0022200201": ("2022-11-07", "DEN", "SAS"),
+             "0022200300": ("2022-11-18", "DAL", "DEN")}
+    assert D.resolve_folder("20221107_GSW_SAC_label", sched) == ("0022200200", "date and both teams")
+    assert D.resolve_folder("20221108_GSW_SAC_label", sched)[0] == "0022200200"       # one day of slack
+    gid, how = D.resolve_folder("20221118_DAL_DNF_label", sched)                        # DNF not guessed
+    assert gid == "0022200300" and how == "date and one team (DAL)"
+    assert D.resolve_folder("20221107_XYZ_QRS_label", sched) == (None, "no team code recognised")
+    assert D.resolve_folder("notadate", sched)[0] is None
