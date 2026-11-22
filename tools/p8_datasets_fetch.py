@@ -16,6 +16,7 @@ the home side or season cannot be read.
 
     python3 -m tools.p8_datasets_fetch hf REPO [--rev REV] [--name NAME] [--only GLOB ...]
     python3 -m tools.p8_datasets_fetch url NAME URL [--file FILENAME]
+    python3 -m tools.p8_datasets_fetch shot-screen                # screen SHOT's clip names, no request
     python3 -m tools.p8_datasets_fetch record                     # rewrite the repository copy of the record
 """
 
@@ -36,7 +37,8 @@ from tools.p8_common import REPO, atomic_write, check_outside, p8_root
 
 WHO = "tools.p8_datasets_fetch"
 MAX_BYTES = 30 * 1024 ** 3
-WORKERS = 4                                # parallel downloads of one set
+WORKERS = 8                                # parallel downloads of one set
+MANIFEST_OVER = 50                         # sets with more files keep their file list in a workspace manifest
 UA = "generic-research-client/1.0"
 # The SHOT screen (docs/research/P8_datasets.md rule 3): team codes as clip names write them.
 SCREEN_HOME_2015_16 = {"MIA", "TOR", "LAC", "LAL"}
@@ -121,9 +123,25 @@ EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
 
 def save_record(rec: dict) -> None:
-    """The workspace record as found; the repository copy with email addresses removed (CLAUDE.md rule 9)."""
-    text = json.dumps(rec, indent=1, ensure_ascii=False)
-    atomic_write(record_path(), text)
+    """The workspace record in full. The repository copy has email addresses removed (CLAUDE.md rule 9) and, for a
+    set of more than MANIFEST_OVER files, the file list replaced by its count, bytes and the sha256 of a manifest file
+    kept in the workspace (<name>.manifest.json: path, bytes, sha256 of every file)."""
+    atomic_write(record_path(), json.dumps(rec, indent=1, ensure_ascii=False))
+    short = {}
+    for name, e in rec.items():
+        e = dict(e)
+        files = e.get("files") or {}
+        if len(files) > MANIFEST_OVER:
+            man = json.dumps({k: [v["bytes"], v["sha256"]] for k, v in sorted(files.items())}, separators=(",", ":"))
+            mp = datasets_root() / ("%s.manifest.json" % name)
+            atomic_write(mp, man)
+            e["files"] = {"count": len(files), "bytes": sum(v["bytes"] for v in files.values()),
+                          "manifest_sha256": hashlib.sha256(man.encode()).hexdigest(),
+                          "lfs_sha256_mismatches": sum(1 for v in files.values() if v.get("lfs_sha256_matches") is False),
+                          "listed_size_mismatches": sum(1 for v in files.values()
+                                                        if v.get("listed_size") is not None and v["bytes"] != v["listed_size"])}
+        short[name] = e
+    text = json.dumps(short, indent=1, ensure_ascii=False)
     atomic_write(REPO / "reports" / "research" / "p8_datasets_fetch.json", EMAIL_RE.sub("[email removed]", text) + "\n")
 
 
@@ -168,7 +186,8 @@ def license_text(folder: Path, files: list[str]) -> dict:
     return out
 
 
-def fetch_hf(repo: str, rev: str = "main", name: str | None = None, only: list[str] | None = None) -> dict:
+def fetch_hf(repo: str, rev: str = "main", name: str | None = None, only: list[str] | None = None,
+             clear_frames: bool = False) -> dict:
     info = hf_info(repo)
     if info.get("gated") or info.get("private"):
         raise SystemExit(f"{WHO}: {repo} is gated or private; stopped (no account, no request)")
@@ -181,6 +200,11 @@ def fetch_hf(repo: str, rev: str = "main", name: str | None = None, only: list[s
         tree = hf_tree(repo, rev)
         atomic_write(cache, json.dumps(tree))
     todo = [f for f in tree if not only or any(fnmatch.fnmatch(f["path"], g) for g in only)]
+    if clear_frames:                               # SHOT: frames and keyframes of clips the screen cleared, only
+        sc = json.loads((datasets_root() / ("%s.screen.json" % name)).read_text())
+        clear = {c for c, why in sc.items() if why is None}
+        todo = [f for f in todo if f["path"].count("/") >= 3 and f["path"].split("/")[2] in clear
+                and ("/frames/" in f["path"] or "/keyframes/" in f["path"])]
     total = sum(f["size"] or 0 for f in todo)
     rec = load_record()
     entry = rec.get(name) or {"source": "https://huggingface.co/datasets/%s" % repo, "revision": rev, "files": {}}
@@ -268,6 +292,29 @@ def screen(name: str) -> str | None:
     return None
 
 
+def shot_screen(name: str = "SHOT", rev: str = "shotdatasets") -> dict:
+    """Screen every SHOT clip (sample folder) by name -> {clip: reason or None}; saved beside the record and
+    summarised in it. Read from the cached file list, so no request is made."""
+    from tools.research_testset import refuse_cv_test
+    tree = json.loads((datasets_root() / ("%s.tree.%s.json" % (name, rev))).read_text())
+    clips = sorted({f["path"].split("/")[2] for f in tree if f["path"].count("/") >= 3})
+    out = {c: screen(c.split("-")[0]) for c in clips}
+    clear = [c for c, why in out.items() if why is None]
+    refuse_cv_test(clear, WHO)                         # the broadcast CV test set, by substring, on every clear clip
+    atomic_write(datasets_root() / ("%s.screen.json" % name), json.dumps(out, indent=1))
+    rec = load_record()
+    games = sorted({c.split("-")[0] for c in clips})
+    reasons = {}
+    for why in out.values():
+        reasons[str(why)] = reasons.get(str(why), 0) + 1
+    rec[name]["screen"] = {"clips": len(clips), "game_names": len(games), "clear": len(clear),
+                           "flagged": len(clips) - len(clear), "by_reason": reasons,
+                           "flagged_game_names": sorted({c.split("-")[0] for c, w in out.items() if w}),
+                           "rule": "docs/research/P8_datasets.md rule 3; tools.p8_datasets_fetch.screen"}
+    save_record(rec)
+    return rec[name]["screen"]
+
+
 def main(argv=None) -> int:
     from tools.research_testset import refuse_cv_test
     ap = argparse.ArgumentParser(prog=WHO)
@@ -277,6 +324,7 @@ def main(argv=None) -> int:
     h.add_argument("--rev", default="main")
     h.add_argument("--name")
     h.add_argument("--only", nargs="*")
+    h.add_argument("--clear-frames", action="store_true", help="SHOT: frames of screen-cleared clips only")
     u = sub.add_parser("url")
     u.add_argument("name")
     u.add_argument("url")
@@ -284,13 +332,16 @@ def main(argv=None) -> int:
     u.add_argument("--source", required=True)
     u.add_argument("--note", default="")
     sub.add_parser("record")
+    sub.add_parser("shot-screen")
     a = ap.parse_args(argv)
     if a.cmd == "hf":
         refuse_cv_test([a.repo], WHO)
-        fetch_hf(a.repo, a.rev, a.name, a.only)
+        fetch_hf(a.repo, a.rev, a.name, a.only, a.clear_frames)
     elif a.cmd == "url":
         refuse_cv_test([a.url], WHO)
         fetch_url(a.name, a.url, a.file, a.source, a.note)
+    elif a.cmd == "shot-screen":
+        print(json.dumps(shot_screen(), indent=1))
     else:
         save_record(load_record())
     return 0
