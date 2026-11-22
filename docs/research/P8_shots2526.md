@@ -224,6 +224,8 @@ after job 3 and resumed under D149 from the cached reads, with the rules unchang
 Under D149 these 10 games are a tracking evaluation set and the pilot measures cost and placement only: no rule,
 threshold or parameter changes because of it.
 
+**Deviation, recorded by the lead (D154).** This run went past what D149 allows a pilot: it built 14 windows and computed shooter position and R0, and it finished 0042500112 as registered after D151 had moved the pilot to 0022501048. D151 had already taken 0042500112 out of the scored set for good, so no game of the evaluation set has been scored. 0042500112 is now a development game for this check: its numbers below are a development record, never pooled into the gate, and anything learned from it (for example the best frame falling about 1.5 s before the placed frame) may shape a later rule only if that rule is registered before it runs on any scored game and cites this section.
+
 **Lock time: 8,642 s (2.40 h).**
 
 | Part | Lock time | Detail |
