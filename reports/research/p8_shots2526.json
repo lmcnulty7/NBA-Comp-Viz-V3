@@ -1,0 +1,140 @@
+{
+ "check": "P8 Level 4 shot position, NBA 2025-26",
+ "pre_registration": "docs/research/P8_shots2526.md (58f54663)",
+ "date": "2026-11-22",
+ "label": "nearest track, oracle; can show failure only",
+ "check_set": [
+  "0022501048",
+  "0022501154",
+  "0022501172",
+  "0042500102",
+  "0042500103",
+  "0042500112",
+  "0042500113",
+  "0042500123",
+  "0042500142",
+  "0042500173"
+ ],
+ "kept_out_d85_arenas": [
+  "0022501165",
+  "0042500171"
+ ],
+ "games_scored": [
+  "0042500112"
+ ],
+ "orientation_unresolved": [
+  "0042500112"
+ ],
+ "R0": {
+  "reference": "R0",
+  "game": "gsw_bkn_2015",
+  "label": "nearest track, oracle; can show failure only; in sample for r23",
+  "shots_with_release_and_placement": 60,
+  "at_placed": {
+   "n": 58,
+   "p50_ft": 4.743,
+   "p90_ft": 10.34
+  },
+  "windowed": {
+   "n": 59,
+   "p50_ft": 0.579,
+   "p90_ft": 3.417,
+   "p50_window_ci": [
+    0.393,
+    1.002
+   ],
+   "p90_window_ci": [
+    1.929,
+    5.008
+   ]
+  }
+ },
+ "gate": null,
+ "targets": {
+  "shooter_p50_ft": 3.0,
+  "shooter_p90_ft": 6.0
+ },
+ "games": {
+  "0042500112": {
+   "game": "0042500112",
+   "video_id": "L2u8tsE_zi0",
+   "label": "nearest track, oracle; can show failure only",
+   "attempts": 179,
+   "period1_medians_by_mirror": {
+    "identity": 41.673,
+    "flip_x": 2.758,
+    "flip_y": 40.783,
+    "flip_xy": 1.358
+   },
+   "mirror": "flip_xy",
+   "orientation_resolved": false,
+   "rows": {
+    "attempts_outside_period_1": 130,
+    "placed": 11,
+    "placed_share": 0.085,
+    "court_share": 0.727,
+    "status_counts": {
+     "no anchor": 21,
+     "gap at the moment": 40,
+     "placed: ok": 11,
+     "clock jumped": 2,
+     "passed before a bracket": 49,
+     "no bracket in the search": 7
+    },
+    "at_placed": {
+     "n": 8,
+     "p50_ft": 14.236,
+     "p90_ft": 24.097,
+     "within_3ft": 0.0,
+     "within_6ft": 0.0,
+     "p50_window_ci": [
+      10.29,
+      16.963
+     ],
+     "p90_window_ci": [
+      15.034,
+      38.327
+     ],
+     "pass_targets": false
+    },
+    "windowed": {
+     "n": 11,
+     "p50_ft": 2.885,
+     "p90_ft": 15.609,
+     "within_3ft": 0.545,
+     "within_6ft": 0.636,
+     "best_offset_s_quartiles": [
+      -2.102,
+      -1.506,
+      -1.147
+     ],
+     "p50_window_ci": [
+      1.609,
+      9.192
+     ],
+     "p90_window_ci": [
+      4.278,
+      27.106
+     ],
+     "pass_targets": false
+    }
+   },
+   "per_read_s": {
+    "ocr_p50": 6.274,
+    "ocr_p90": 7.41,
+    "extract_p50": 0.098,
+    "extract_p90": 0.13,
+    "model_loads": 7
+   },
+   "build": {
+    "windows": 14,
+    "built": 14,
+    "gate_empty": 0,
+    "failed": 0,
+    "wall_s": 204.1,
+    "video_s": 77.1
+   }
+  }
+ },
+ "truth_source": "github.com/shufinskiy/nba_data (NBA Statistics; attribution NBA.com; private, non-commercial)"
+}

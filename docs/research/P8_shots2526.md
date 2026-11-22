@@ -215,3 +215,95 @@ into moments, when this was written):
 - **The compared frame** is the accepted built frame nearest the placed frame, used only within 0.06 s (the build
   runs at 10 Hz); the windowed oracle uses every accepted built frame in [placed - 3.0 s, placed + 0.5 s].
 - **The bootstrap** for one game is over its built windows; over games, `tools.p8_scorecard.boot_windows`.
+
+## 10. Pilot results (0042500112, PHI at BOS), D149: cost and placement, nothing tuned
+
+Run 2026-11-21 to 2026-11-22, all jobs under the heavy-job lock with caffeinate. Placement was paused under D147
+after job 3 and resumed under D149 from the cached reads, with the rules unchanged. Numbers are copied from
+`place.json`, `build/build_log.json` and `score.json` in the P8 workspace and from `reports/research/p8_shots2526.json`.
+Under D149 these 10 games are a tracking evaluation set and the pilot measures cost and placement only: no rule,
+threshold or parameter changes because of it.
+
+**Lock time: 8,642 s (2.40 h).**
+
+| Part | Lock time | Detail |
+| --- | --- | --- |
+| Placement | 8,434 s | 7 jobs of 504, 534, 1,525, 1,560, 1,512, 1,550 and 1,249 s |
+| Build | 205 s | |
+| Score and reference | 3 s | |
+
+The lock went to other teammates' jobs for several hours in between. That waiting is not counted.
+
+**Reads: 1,280.** OCR per read p50 6.274 s, p90 7.41 s; frame extraction p50 0.098 s. There were 7 model loads, one
+per job. One long-lived worker removes the model load, not the per-read cost.
+
+**Placement: 14 of 179 attempts placed (7.8 percent).** Searches used 1,805 reads in all, some shared between
+shots.
+
+| Status | Attempts |
+| --- | --- |
+| placed | 14 |
+| passed before a bracket | 72 |
+| gap at the moment | 58 |
+| no anchor | 23 |
+| no bracket in the search | 7 |
+| clock jumped | 5 |
+
+There were 27 anchors among the 122 anchor reads. Placed by period: 3, 3, 6 and 2. Outside period 1, 11 of 130 were
+placed (placed share 0.085).
+
+Why (diagnostic, from the cached reads, post hoc):
+
+1. **The upload is edited.** It is 2,423.8 s long, under the 2,880 s of game clock. Between anchors of one period
+   the clock often runs faster than the video: 120 s of video for 200 s of clock, and 40 s for 76 s and for 85 s.
+   Live play is cut, which gives "passed before a bracket" and "clock jumped". D134's condensed class fits it
+   better than a full game.
+2. **The scorebug reads poorly.** Of the first 379 reads, 113 parse a clock and 72 a score-consistent moment. The
+   registered bracket (two readable 1 Hz reads at most 2 s apart) is therefore rare, which gives "gap at the
+   moment".
+
+**Build:** 14 windows, all built (0 gate-empty, 0 failed): 204.1 s of wall time for 77.1 s of clips, or 2.65 s per
+video second. Each window reloads its models, so short windows cost more per second than Phase A's 1.54 to
+1.72 s.
+
+**Orientation: unresolved.** The period 1 medians of the windowed oracle (3 placed shots) are identity 41.673 ft,
+flip_x 2.758 ft, flip_y 40.783 ft and flip_xy 1.358 ft. flip_xy beats flip_x by 1.40 ft, under the 2.0 ft margin, so
+the game is reported apart as "orientation unresolved". The rows below are under flip_xy and carry that flag.
+
+**Shooter position (nearest track, oracle; can show failure only), outside period 1, flip_xy, unresolved:**
+
+| | n | p50 (window CI) | p90 (window CI) | within 3 ft | within 6 ft |
+| --- | --- | --- | --- | --- | --- |
+| At the placed frame | 8 (court share 0.727) | 14.236 ft (10.29, 16.963) | 24.097 ft (15.034, 38.327) | 0.0 | 0.0 |
+| Windowed [placed - 3.0 s, placed + 0.5 s] | 11 | 2.885 ft (1.609, 9.192) | 15.609 ft (4.278, 27.106) | 0.545 | 0.636 |
+
+- The windowed oracle's best frame is 1.506 s before the placed frame (median; quartiles -2.102 and -1.147 s), so
+  the logged clock trails the shot here as in 2015-16.
+- Against section 6.2 (p50 at most 3.0 ft, p90 at most 6.0 ft), the oracle fails on p90 at both frames and on p50
+  at the placed frame. Since it is a lower bound, the row fails for any assignment on this game. That rests on 11
+  shots of one edited video with unresolved orientation.
+
+**R0, the 2015-16 reference (gsw_bkn_2015, Phase A r23 build on MPS, in sample for r23):** 60 shots with a release
+frame and a placement.
+
+| | n | p50 (window CI) | p90 (window CI) |
+| --- | --- | --- | --- |
+| At the placed frame | 58 | 4.743 ft | 10.34 ft |
+| Windowed | 59 | 0.579 ft (0.393, 1.002) | 3.417 ft (1.929, 5.008) |
+
+**Gate:** not computed (`gate: null`), because the gate pools only games with resolved orientation and the pilot is
+unresolved. The registered limits are p50 at most 1.579 ft and p90 at most 5.417 ft (R0 + 1.0 and + 2.0 ft). The
+pilot's flagged windowed values, 2.885 and 15.609 ft, are past both. That comparison is reported, not a gate
+verdict.
+
+**Failures and fixes:** two bugs were fixed in the scorer's input handling while the pilot ran, with no rule changed:
+
+- R0 read a nullable shooter id with `s == s`; it now uses `pd.notna`.
+- r23's cleaned trajectories hold NaN points, which made the at-frame oracle NaN. Non-finite points are now
+  dropped, and a test covers it.
+
+The scores above are from the corrected run.
+
+**Cost per game at this rate:** placement scales with reads (about 1,280 to 1,800 reads, 2.2 to 3.1 h at 6.3 s).
+The build scales with placed shots: at 2.65 s per clip second and about 5.5 s per shot, a fully placed game of 175
+shots needs about 0.7 h. Placement coverage on edited uploads, not compute, is what limits this check.

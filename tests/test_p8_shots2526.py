@@ -91,6 +91,8 @@ def test_the_oracle_takes_the_nearest_track_over_the_given_frames():
     assert S.oracle(pts, (12.0, 10.0), [0]) == (2.0, 0)
     assert S.oracle(pts, (12.0, 10.0), [0, 3, 6]) == (0.0, 3)
     assert S.oracle(pts, (12.0, 10.0), [6, 9]) == (None, None)
+    nan = {0: [(float("nan"), 1.0)], 3: [(float("nan"), 1.0), (12.0, 11.0)]}                    # r23 leaves NaN points
+    assert S.oracle(nan, (12.0, 10.0), [0, 3]) == (1.0, 3)
 
 
 def test_the_mirror_must_beat_the_runner_up_by_the_margin():
