@@ -1,0 +1,269 @@
+"""tools/p8_datasets_fetch.py: download outside labelled basketball datasets that need no account (P8; the lead's
+task after docs/research/P8_datasets.md). Download only: nothing here trains, runs a model or opens the files
+beyond listing, hashing and reading their license text.
+
+Each set goes to its own folder <P8 data>/datasets/<name>/, outside the repository; contents are untrusted data and
+nothing inside them is run. Sizes are read before each download and anything over MAX_BYTES (30 GB) is skipped and
+reported. A gated or private Hugging Face repo stops the step. The fetch record (source URL, revision, files with
+bytes and sha256, license text as found, date) is <P8 data>/datasets/fetch_record.json, and the same without any
+path in reports/research/p8_datasets_fetch.json.
+
+SHOT (muyu111/basketball, branch shotdatasets) is screened before any frame or video is fetched: its clip and game
+names are listed from annotation and metadata files, and a clip is flagged (and not downloaded) when its name could
+be a 2015-16 game in Miami, Toronto or Los Angeles, any game at CLE, or PHX at GSW (docs/research/P8_datasets.md,
+rule 3). Clip names carry team codes, not always dates or a home side, so the screen flags on team codes alone where
+the home side or season cannot be read.
+
+    python3 -m tools.p8_datasets_fetch hf REPO [--rev REV] [--name NAME] [--only GLOB ...]
+    python3 -m tools.p8_datasets_fetch url NAME URL [--file FILENAME]
+    python3 -m tools.p8_datasets_fetch record                     # rewrite the repository copy of the record
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import fnmatch
+import hashlib
+import json
+import re
+import sys
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+from tools.p8_common import REPO, atomic_write, check_outside, p8_root
+
+WHO = "tools.p8_datasets_fetch"
+MAX_BYTES = 30 * 1024 ** 3
+UA = "generic-research-client/1.0"
+# The SHOT screen (docs/research/P8_datasets.md rule 3): team codes as clip names write them.
+SCREEN_HOME_2015_16 = {"MIA", "TOR", "LAC", "LAL"}
+SCREEN_ANY_CLE = {"CLE"}
+SCREEN_PAIR = ({"PHX", "PHO"}, {"GSW", "GS"})
+TEAM_ALIASES = {"GS": "GSW", "NO": "NOP", "NY": "NYK", "SA": "SAS", "NJ": "BKN", "PHO": "PHX", "UTAH": "UTA",
+                "WSH": "WAS", "BRK": "BKN", "LA": "LAC"}
+
+
+def datasets_root() -> Path:
+    d = p8_root().parent / "datasets"
+    check_outside(d)
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def get(url: str, timeout: int = 120):
+    return urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=timeout)
+
+
+def get_json(url: str):
+    with get(url) as r:
+        return json.loads(r.read().decode()), r.headers
+
+
+def stream(url: str, dest: Path, timeout: int = 600) -> dict:
+    """Download url to dest (atomic) -> {bytes, sha256}."""
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    part = dest.with_name(dest.name + ".part")
+    h, n = hashlib.sha256(), 0
+    with get(url, timeout) as r, open(part, "wb") as f:
+        while True:
+            b = r.read(1 << 20)
+            if not b:
+                break
+            f.write(b)
+            h.update(b)
+            n += len(b)
+    part.replace(dest)
+    return {"bytes": n, "sha256": h.hexdigest()}
+
+
+def sha256_of(p: Path) -> str:
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for b in iter(lambda: f.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()
+
+
+# ── records ───────────────────────────────────────────────────────────────────
+def record_path() -> Path:
+    return datasets_root() / "fetch_record.json"
+
+
+def load_record() -> dict:
+    p = record_path()
+    return json.loads(p.read_text()) if p.exists() else {}
+
+
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+
+
+def save_record(rec: dict) -> None:
+    """The workspace record as found; the repository copy with email addresses removed (CLAUDE.md rule 9)."""
+    text = json.dumps(rec, indent=1, ensure_ascii=False)
+    atomic_write(record_path(), text)
+    atomic_write(REPO / "reports" / "research" / "p8_datasets_fetch.json", EMAIL_RE.sub("[email removed]", text) + "\n")
+
+
+# ── Hugging Face ──────────────────────────────────────────────────────────────
+def hf_info(repo: str) -> dict:
+    d, _ = get_json("https://huggingface.co/api/datasets/%s" % repo)
+    return d
+
+
+def hf_tree(repo: str, rev: str = "main") -> list[dict]:
+    """Every file of a dataset repo at rev (paginated) -> [{path, size, lfs_sha256}]."""
+    url = "https://huggingface.co/api/datasets/%s/tree/%s?recursive=true&expand=false" % (repo, urllib.parse.quote(rev, safe=""))
+    out = []
+    while url:
+        d, headers = get_json(url)
+        out += [{"path": f["path"], "size": f.get("size"), "lfs_sha256": (f.get("lfs") or {}).get("oid")}
+                for f in d if f.get("type") == "file"]
+        m = re.search(r'<([^>]+)>;\s*rel="next"', headers.get("Link") or "")
+        url = m.group(1) if m else None
+    return out
+
+
+def hf_url(repo: str, rev: str, path: str) -> str:
+    return "https://huggingface.co/datasets/%s/resolve/%s/%s" % (repo, urllib.parse.quote(rev, safe=""),
+                                                                  urllib.parse.quote(path))
+
+
+def license_text(folder: Path, files: list[str]) -> dict:
+    """License text as found: LICENSE files whole, and the license line of a README's metadata block."""
+    out = {}
+    for f in files:
+        p = folder / f
+        if not p.exists() or p.stat().st_size > 200_000:
+            continue
+        low = f.lower()
+        if "license" in low or "licence" in low:
+            out[f] = p.read_text(errors="replace")
+        elif low.endswith("readme.md"):
+            lines = [l for l in p.read_text(errors="replace").splitlines() if "licen" in l.lower()]
+            if lines:
+                out[f] = "\n".join(lines)
+    return out
+
+
+def fetch_hf(repo: str, rev: str = "main", name: str | None = None, only: list[str] | None = None) -> dict:
+    info = hf_info(repo)
+    if info.get("gated") or info.get("private"):
+        raise SystemExit(f"{WHO}: {repo} is gated or private; stopped (no account, no request)")
+    name = name or repo.split("/")[-1]
+    folder = datasets_root() / name
+    tree = hf_tree(repo, rev)
+    todo = [f for f in tree if not only or any(fnmatch.fnmatch(f["path"], g) for g in only)]
+    total = sum(f["size"] or 0 for f in todo)
+    rec = load_record()
+    entry = rec.get(name) or {"source": "https://huggingface.co/datasets/%s" % repo, "revision": rev, "files": {}}
+    entry.update(repo_sha=info.get("sha"), license_tag=[t for t in info.get("tags", []) if t.startswith("license")],
+                 date=dt.date.today().isoformat(), listed_files=len(tree), listed_bytes=sum(f["size"] or 0 for f in tree))
+    if total > MAX_BYTES:
+        entry["skipped"] = "selected files total %d bytes, over the 30 GB limit" % total
+        rec[name] = entry
+        save_record(rec)
+        print(entry["skipped"])
+        return entry
+    for f in todo:
+        dest = folder / f["path"]
+        if f["path"] in entry["files"] and dest.exists():
+            continue
+        r = stream(hf_url(repo, rev, f["path"]), dest)
+        r["lfs_sha256_matches"] = (r["sha256"] == f["lfs_sha256"]) if f["lfs_sha256"] else None
+        r["listed_size"] = f["size"]
+        entry["files"][f["path"]] = r
+        rec[name] = entry
+        save_record(rec)
+        print("%s %s %d bytes sha256 %s" % (name, f["path"], r["bytes"], r["sha256"][:16]), flush=True)
+    entry["license_text"] = license_text(folder, list(entry["files"]))
+    rec[name] = entry
+    save_record(rec)
+    return entry
+
+
+# ── plain URLs (GitHub, Google Drive) ─────────────────────────────────────────
+def head_size(url: str) -> int | None:
+    req = urllib.request.Request(url, method="HEAD", headers={"User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            n = r.headers.get("Content-Length")
+            return int(n) if n else None
+    except Exception:
+        return None
+
+
+def fetch_url(name: str, url: str, filename: str, source: str, note: str = "") -> dict:
+    folder = datasets_root() / name
+    size = head_size(url)
+    rec = load_record()
+    entry = rec.get(name) or {"source": source, "files": {}}
+    entry.update(date=dt.date.today().isoformat(), download_url=url, head_bytes=size, note=note or entry.get("note"))
+    if size and size > MAX_BYTES:
+        entry["skipped"] = "%d bytes, over the 30 GB limit" % size
+    else:
+        r = stream(url, folder / filename, timeout=3600)
+        entry["files"][filename] = r
+        print("%s %s %d bytes sha256 %s" % (name, filename, r["bytes"], r["sha256"][:16]), flush=True)
+    rec[name] = entry
+    save_record(rec)
+    return entry
+
+
+# ── SHOT screen (pure, tested) ────────────────────────────────────────────────
+def teams_in_name(name: str) -> list[str]:
+    """Team codes in a clip name such as 'CLEvsGS', 'ATL_vs_NJ' or 'LAL-BOS', in order, aliases resolved."""
+    m = re.search(r"([A-Za-z]{2,4})\s*[-_ ]?\s*(?:vs\.?|v|@|at)\s*[-_ ]?\s*([A-Za-z]{2,4})", name, re.I)
+    if not m:
+        return []
+    return [TEAM_ALIASES.get(t.upper(), t.upper()) for t in (m.group(1), m.group(2))]
+
+
+def screen(name: str) -> str | None:
+    """The reason a SHOT clip is flagged, or None when it is clear. Clip names give no home side or season for
+    certain, so a clip with MIA, TOR, LAC or LAL in it is flagged unless a year outside 2015-16 is written in it."""
+    teams = teams_in_name(name)
+    if not teams:
+        return "no team codes readable"
+    s = set(teams)
+    if s & SCREEN_ANY_CLE:
+        return "a game with CLE"
+    if s & {"PHX"} and s & {"GSW"}:
+        return "PHX and GSW"
+    years = {int(y) for y in re.findall(r"(?<!\d)(20\d\d)(?!\d)", name)}
+    if s & SCREEN_HOME_2015_16 and not (years and all(y not in (2015, 2016) for y in years)):
+        return "MIA, TOR or a Los Angeles team, season not excluded"
+    return None
+
+
+def main(argv=None) -> int:
+    from tools.research_testset import refuse_cv_test
+    ap = argparse.ArgumentParser(prog=WHO)
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    h = sub.add_parser("hf")
+    h.add_argument("repo")
+    h.add_argument("--rev", default="main")
+    h.add_argument("--name")
+    h.add_argument("--only", nargs="*")
+    u = sub.add_parser("url")
+    u.add_argument("name")
+    u.add_argument("url")
+    u.add_argument("--file", required=True)
+    u.add_argument("--source", required=True)
+    u.add_argument("--note", default="")
+    sub.add_parser("record")
+    a = ap.parse_args(argv)
+    if a.cmd == "hf":
+        refuse_cv_test([a.repo], WHO)
+        fetch_hf(a.repo, a.rev, a.name, a.only)
+    elif a.cmd == "url":
+        refuse_cv_test([a.url], WHO)
+        fetch_url(a.name, a.url, a.file, a.source, a.note)
+    else:
+        save_record(load_record())
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
