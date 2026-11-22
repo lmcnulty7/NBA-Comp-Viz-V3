@@ -36,6 +36,7 @@ from tools.p8_common import REPO, atomic_write, check_outside, p8_root
 
 WHO = "tools.p8_datasets_fetch"
 MAX_BYTES = 30 * 1024 ** 3
+WORKERS = 8                                # parallel downloads of one set
 UA = "generic-research-client/1.0"
 # The SHOT screen (docs/research/P8_datasets.md rule 3): team codes as clip names write them.
 SCREEN_HOME_2015_16 = {"MIA", "TOR", "LAC", "LAL"}
@@ -176,17 +177,24 @@ def fetch_hf(repo: str, rev: str = "main", name: str | None = None, only: list[s
         save_record(rec)
         print(entry["skipped"])
         return entry
-    for f in todo:
-        dest = folder / f["path"]
-        if f["path"] in entry["files"] and dest.exists():
-            continue
-        r = stream(hf_url(repo, rev, f["path"]), dest)
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    todo = [f for f in todo if not (f["path"] in entry["files"] and (folder / f["path"]).exists())]
+
+    def one(f):
+        r = stream(hf_url(repo, rev, f["path"]), folder / f["path"])
         r["lfs_sha256_matches"] = (r["sha256"] == f["lfs_sha256"]) if f["lfs_sha256"] else None
         r["listed_size"] = f["size"]
-        entry["files"][f["path"]] = r
-        rec[name] = entry
-        save_record(rec)
-        print("%s %s %d bytes sha256 %s" % (name, f["path"], r["bytes"], r["sha256"][:16]), flush=True)
+        return f["path"], r
+
+    with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+        futs = [pool.submit(one, f) for f in todo]
+        for k, fut in enumerate(as_completed(futs), 1):
+            path, r = fut.result()
+            entry["files"][path] = r
+            if k % 500 == 0 or k == len(futs) or r["bytes"] > 100_000_000:
+                rec[name] = entry
+                save_record(rec)
+                print("%s %d of %d files (%s %d bytes)" % (name, k, len(futs), path, r["bytes"]), flush=True)
     entry["license_text"] = license_text(folder, list(entry["files"]))
     rec[name] = entry
     save_record(rec)
