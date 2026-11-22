@@ -190,3 +190,28 @@ The game set and the two exclusions, the pilot rule, the placement rule (anchor 
 refinement), the 3.0 s and 0.5 s window, the court frame, the orientation rule and its 2.0 ft margin, the
 period 1 exclusion, the rows, the gate margins (1.0 ft on p50, 2.0 ft on p90), R0's definition and the bootstrap.
 Nothing is changed after a 2025-26 result is seen; anything later is reported as post hoc.
+
+## 9. Implementation details fixed with the code (dee4c113), before any placement or position was seen
+
+The lead's D145 kept the reader input as registered (same bands, upscale, confidence floor and parse_tokens) and
+moved every read of a job into one long-lived easyocr process; each read's extract and OCR seconds are recorded in
+`reads.json`. Written with tools/p8_shots2526.py, before any shot was placed (only 74 anchor reads existed, unparsed
+into moments, when this was written):
+
+- **Which moments a frame reads**: every (period, clock) of the parsed sets for which an ordered pair of the
+  frame's integers equals the mirror's score (tools.p8_scorebug.matches); no period read means periods 1 to 4, as
+  in frame_matches. An anchor is an anchor read with exactly one such moment.
+- **The stop rule, read for tenths**: a frame "shows c" when its moments in the shot's period include a clock at
+  most c and none above it. For whole-second clocks this is the first frame showing c, as registered; under one
+  minute (tenths, 182 of the 2,061 attempts) the scorebug rarely shows exactly c, so "at most" is the same rule.
+- **The bracket**: the last 1 Hz read showing a larger clock and the first showing at most c must be at most
+  2.0 s apart (one unreadable read between), and the clock may not fall by more than the video time between them
+  plus 1.0 s (a cut in the upload). Otherwise the shot is not placed ("gap at the moment", "clock jumped").
+  A search whose first readable frame already shows at most c is "passed before a bracket".
+- **Frames** are extracted with ffmpeg's input seek (`-ss` before `-i`), the seek the frozen clip cut uses, so a
+  placed video second and a clip frame name the same frame. The pilot video's start_time is 0.
+- **Windows** closer than 10 s are built as one window (capped at 120 s), because each frozen build loads its models
+  again; this changes which frames are warm-up, not the rule for the compared frame.
+- **The compared frame** is the accepted built frame nearest the placed frame, used only within 0.06 s (the build
+  runs at 10 Hz); the windowed oracle uses every accepted built frame in [placed - 3.0 s, placed + 0.5 s].
+- **The bootstrap** for one game is over its built windows; over games, `tools.p8_scorecard.boot_windows`.
