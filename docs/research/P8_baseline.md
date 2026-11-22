@@ -127,3 +127,41 @@ be a hand step, which D128 rules out, so it waits for the lead's decision.
 Lock hours used by D146: 4.26 h held by its 55 heavy jobs (the lock wrapper's "done in" times in this run's per-job
 logs), 5.48 h of job time including waits for the lock (the shots2526 pilot held it in between); the run started at
 01:31 and stopped at 07:00 on 2026-11-22.
+
+## D152: the automatic layout finder failed validation, so nop_gsw_2015 is dropped
+
+tools/p8_layout_find.py proposes a scorebug layout from whole-frame OCR of 40 sampled frames (clock and period tokens
+grouped by position across frames) and accepts a proposal only through the frozen automatic check
+(tools.p8_frozen.step_layout, the proposal as the only candidate, bar 0.25). Its rule and the validation bar were
+committed before any run (1188725f): on every development video whose layout already exists, IoU at least 0.5 with the
+existing clock box and with the existing period box, and the frozen check passing. The existing layout went through the
+same check as a control. Output: layout_find/validation.json in the P8 workspace.
+
+| Video | Existing layout | Proposal | Clock IoU | Period IoU | Check, consistent share (control) | Verdict |
+| --- | --- | --- | --- | --- | --- | --- |
+| gsw_bkn_2015 | csn_ba16_720 | ok | 0.604 | 0.402 | passes, 0.528 (0.583) | fail: period IoU |
+| gsw_cha_2016 | csn_ba16_720 | ok | 0.604 | 0.425 | passes, 0.75 (0.7) | fail: period IoU |
+| gsw_ind_2016 | abc_finals16_720 | ok | 0.77 | 0.688 | passes, 0.583 (0.611) | pass |
+| gsw_sac_2015 | csn_ba16_720 | ok | 0.604 | 0.402 | passes, 0.694 (0.667) | fail: period IoU |
+| nyk_bos_2016 | msg15_720 | no period on the clock's row | | | not run (0.583) | fail |
+| okc_sac_2015 | fso15_720 | ok | 0.599 | 0.53 | passes, 0.65 (0.35) | pass |
+| por_okc_2016 | csn_nw15_720 | no clock (seen in 9 of 36 frames, under the 25 percent share) | | | not run (control below the bar) | fail |
+| hou_cle_2016 | abc_finals16_720 | ok | 0.77 | 0.688 | passes, 0.6 (0.725) | pass |
+
+3 of 8 pass, so under D152 nop_gsw_2015 is dropped and the finder was never run on it. Nothing was tuned after
+these numbers.
+
+What the failures are:
+
+- The three CSN Bay Area 2016 videos: the proposal reads the clock about as well as the hand layout under the frozen
+  check (consistent 0.75 against 0.7 and 0.694 against 0.667; 0.528 against 0.583 on gsw_bkn_2015), but its period
+  box sits further right than the hand box (x 1012 to 1076 against 1002 to 1052), so the IoU bar fails.
+- nyk_bos_2016 (MSG): the period sits under the clock, not on its row, and the rule looks only on the clock's row.
+- por_okc_2016 (CSN Northwest): whole-frame OCR found the clock in 9 of 36 frames. The hand layout itself does not pass
+  the frozen check there (its plausible share is under 0.25), because that check reads the period as digits and this
+  broadcast writes it as a word.
+
+On D151: the finder proposes a clock crop from OCR alone and could serve the shot-check scorebug crop in principle,
+but it has not passed its own validation, so it is not offered for that use.
+
+Lock hours used by D152: 0.51 h (1,846 s held by the one validation job; it waited for the shots2526 pilot first).
