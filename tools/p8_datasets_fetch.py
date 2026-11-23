@@ -490,6 +490,36 @@ def home_screen() -> dict:
                 "dropped_unresolved": len(v["dropped_unresolved"])} for k, v in out.items()}
 
 
+def dsr_screen() -> dict:
+    """DeepSportRadar basketball instants: the D150 screen from its own index (arena, league, rule type per instant).
+    Not NBA; checks that no NBA arena or D85 team name appears anywhere in the archive's file names or index."""
+    import zipfile
+    from collections import Counter
+    z = zipfile.ZipFile(datasets_root() / "DeepSportRadar" / "basketball-instants-dataset.zip")
+    names = z.namelist()
+    idx = json.loads(z.read("basketball-instants-dataset.json"))
+    arenas = sorted({e["arena_label"] for e in idx})
+    nba_words = ("NBA", "-US-", "MIAMI", "TORONTO", "LOSANGELES", "LAKERS", "CLIPPERS", "HEAT", "RAPTORS", "CLEVELAND",
+                 "PHOENIX", "GOLDENSTATE", "WARRIORS")
+    hits = sorted({n for n in names if any(w in n.upper().replace(" ", "") for w in nba_words)})
+    hits += sorted({e["arena_label"] for e in idx if any(w in e["arena_label"].upper() for w in nba_words)})
+    rec = load_record()
+    if not rec["DeepSportRadar"].get("license_text"):    # the archive holds no license file; the text is Kaggle's
+        rec["DeepSportRadar"]["license_text"] = {
+            "kaggle.com/api/v1/datasets/view/deepsportradar/basketball-instants-dataset (licenseNameNullable)": "CC BY-NC-SA 4.0"}
+    rec["DeepSportRadar"]["screen"] = {
+        "instants": len(idx), "images_json": sum(1 for n in names if n.endswith(".json") and n.startswith("KS-")),
+        "arenas": arenas, "arena_folders": sorted({n.split("/")[0] for n in names if "/" in n}),
+        "games": len({e["game_id"] for e in idx}), "rule_type": dict(Counter(e.get("rule_type") for e in idx)),
+        "league_ids": dict(Counter(str(e.get("league_id")) for e in idx)),
+        "nba_or_d85_names_found": hits,
+        "reading": "not NBA: every instant is FIBA rules in a French arena (Keemotion labels KS-FR-*); no NBA arena and no "
+                   "MIA, TOR, LAC, LAL, CLE or PHX-at-GSW name in any file name or index entry, so D150's drops do not "
+                   "apply; no spent held-out game can appear (those are NBA 2015-16)"}
+    save_record(rec)
+    return rec["DeepSportRadar"]["screen"]
+
+
 def main(argv=None) -> int:
     from tools.research_testset import refuse_cv_test
     ap = argparse.ArgumentParser(prog=WHO)
@@ -510,6 +540,7 @@ def main(argv=None) -> int:
     sub.add_parser("shot-screen")
     sub.add_parser("home-screen")
     sub.add_parser("annotate")
+    sub.add_parser("dsr-screen")
     a = ap.parse_args(argv)
     if a.cmd == "hf":
         refuse_cv_test([a.repo], WHO)
@@ -517,6 +548,8 @@ def main(argv=None) -> int:
     elif a.cmd == "url":
         refuse_cv_test([a.url], WHO)
         fetch_url(a.name, a.url, a.file, a.source, a.note)
+    elif a.cmd == "dsr-screen":
+        print(json.dumps(dsr_screen(), indent=1))
     elif a.cmd == "annotate":
         print(json.dumps(annotate(), indent=1))
     elif a.cmd == "home-screen":
