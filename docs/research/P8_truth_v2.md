@@ -108,9 +108,9 @@ CUDA builds are added here when D161 (1) runs.
 
 Reading:
 
-- The frozen offsets disagree between two builds of the same window far more than the 0.3 to 0.8 s seen across devices
-  suggested as typical: 77 percent of windows move by more than 0.2 s when only the court model changes. The offset is
-  not a property the frozen truth pins down.
+- Under the frozen rule, two builds of the same window that differ only in the court model give offsets a median 0.52 s
+  apart, inside the 0.3 to 0.8 s D99 reported across devices, and 77 percent of windows move by more than 0.2 s. The
+  offset is not a property the frozen truth pins down.
 - v2 narrows that (median 0.52 to 0.367 s, 10 points fewer windows over 0.2 s, an interval above zero) and its offsets
   give 16 percent more camera-truth candidates, but it does not halve the spread, and it hits the grid edge on 14 to 19
   V3 windows per game, so a wider grid or a different objective would be the next registration, not a change made
