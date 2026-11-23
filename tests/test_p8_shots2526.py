@@ -169,3 +169,55 @@ def test_retired_and_short_games_stop_the_tool_before_any_read(tmp_path, monkeyp
     for gid in ("0042500112", "0042500113", "0042500123"):
         with pytest.raises(SystemExit):
             S.checked(gid)
+
+
+# ── the cut screen (P8_shots2526.md section 13, D157), on synthetic anchors ─────────────────────────────────────────
+def clean_video(n=21, period=1, start=700.0, t0=0.0, step=20.0, dead=0.0):
+    """Anchors every `step` s of video; the clock runs `step - dead` s of it (dead-ball time stops the clock)."""
+    return [(t0 + k * step, period, start - k * (step - dead)) for k in range(n)]
+
+
+def test_a_clean_video_passes_and_stopped_clocks_are_not_cuts():
+    r = S.cut_screen(clean_video(dead=0.0))
+    assert (r["pairs"], r["cuts"], r["cut_share"], r["passed"]) == (20, 0, 0.0, True)
+    r = S.cut_screen(clean_video(dead=15.0) + clean_video(period=2, t0=1000.0, dead=20.0))
+    assert (r["pairs"], r["cuts"], r["passed"]) == (40, 0, True)          # the clock stands still in dead time
+
+
+def test_an_edited_video_fails():
+    an = [(k * 20.0, 1, 700.0 - k * 45.0) for k in range(11)]             # 45 s of clock per 20 s of video
+    r = S.cut_screen(an)
+    assert (r["pairs"], r["cuts"], r["cut_share"], r["passed"]) == (10, 10, 1.0, False)
+    assert r["cut_pairs"][0]["excess_s"] == 25.0
+
+
+def test_the_slack_is_two_seconds_and_strict():
+    at = S.cut_screen([(0.0, 1, 700.0), (20.0, 1, 678.0)])                # drop 22 over 20 s: excess 2.0, not a cut
+    over = S.cut_screen([(0.0, 1, 700.0), (20.0, 1, 677.9)])              # excess 2.1: a cut
+    tenths = S.cut_screen([(0.0, 4, 35.6), (20.0, 4, 13.6)])               # tenths: excess 2.0 after rounding
+    assert (at["cuts"], over["cuts"], tenths["cuts"]) == (0, 1, 0)
+
+
+def test_the_ten_percent_edge_and_what_counts_as_a_pair():
+    base = clean_video(n=11)                                                # 10 pairs
+    one = list(base)
+    one[5] = (one[5][0], 1, one[5][2] - 10.0)                               # pair 4-5 a cut, pair 5-6 a clock rise
+    r = S.cut_screen(one)
+    assert (r["pairs"], r["cuts"], r["cut_share"], r["passed"]) == (10, 1, 0.1, True)
+    two = list(one)
+    two[8] = (two[8][0], 1, two[8][2] - 10.0)
+    r = S.cut_screen(two)
+    assert (r["pairs"], r["cuts"], r["cut_share"], r["passed"]) == (10, 2, 0.2, False)
+    # a period change breaks the pair, order is by video time, and no pair at all does not pass
+    mixed = [(40.0, 2, 720.0), (0.0, 1, 30.0), (20.0, 1, 10.0)]
+    r = S.cut_screen(mixed)
+    assert (r["pairs"], r["cuts"]) == (1, 0)
+    assert S.cut_screen([(0.0, 1, 700.0)])["passed"] is False
+    assert S.cut_screen([])["passed"] is False
+
+
+def test_the_tool_keeps_its_guards_and_the_search_waits_for_the_screen():
+    src = open(S.__file__).read()
+    assert "refuse_cv_test(" in src
+    assert "has not passed the cut screen" in src
+    assert (S.CUT_SLACK_S, S.CUT_MAX_SHARE) == (2.0, 0.10)

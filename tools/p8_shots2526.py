@@ -2,7 +2,10 @@
 pre-registered in 58f54663; PLAN.md D144, D145).
 
     python3 -m tools.p8_shots2526 truth GAME                       shots of the mirror, in the court frame (light)
-    V3_CV_PYTHON -m tools.p8_shots2526 place GAME [--budget-s S]   scorebug anchors, search, bisection (easyocr)
+    V3_CV_PYTHON -m tools.p8_shots2526 anchors GAME [--budget-s S] the anchor (band) pass alone, then the cut screen
+    python3 -m tools.p8_shots2526 screen GAME                      the cut screen from cached anchor reads (light)
+    V3_CV_PYTHON -m tools.p8_shots2526 place GAME [--budget-s S]   scorebug anchors, search, bisection (easyocr);
+                                                                   refused unless the cut screen passed (D157)
     V3_CV_PYTHON -m tools.p8_shots2526 build GAME [--budget-s S]   r23 windows around the placed shots (frozen build)
     python3 -m tools.p8_shots2526 score GAME                       nearest-track oracle rows, orientation rule
     python3 -m tools.p8_shots2526 reference                        R0 on gsw_bkn_2015 (2015-16, Phase A r23 build)
@@ -47,6 +50,10 @@ FULL_MIN_S = 2880.0                              # D151 (1): a full broadcast la
 CROP_PCT = (10, 90)
 CROP_MARGIN_PX = 16
 CROP_MIN_FRAMES = 5
+# the cut screen (P8_shots2526.md section 13, D157), set from physics before any read of the six videos: the game
+# clock cannot fall faster than the video runs, so a larger fall between two anchors of a period is an edit
+CUT_SLACK_S = 2.0            # a cut: clock drop minus video time between consecutive same-period anchors > 2 s
+CUT_MAX_SHARE = 0.10         # a video passes when cuts are at most 10% of its same-period consecutive anchor pairs
 # placement (P8_shots2526.md section 3)
 ANCHOR_STEP_S = 20.0
 SEARCH_BEFORE_S = 5.0
@@ -102,6 +109,25 @@ def anchors_of(reads: dict, events: list) -> list:
             p, c = next(iter(m))
             out.append((float(t), int(p), float(c)))
     return out
+
+
+def cut_screen(anchors: list) -> dict:
+    """Section 13's screen. anchors: [(video s, period, clock)]. Consecutive anchors in video time that share a
+    period form a pair; a pair is a cut when the clock drop exceeds the video time between them by more than
+    CUT_SLACK_S. The video passes when cuts are at most CUT_MAX_SHARE of the pairs; with no pair it does not pass."""
+    an = sorted(anchors)
+    pairs, cuts = 0, []
+    for (t0, p0, c0), (t1, p1, c1) in zip(an, an[1:]):
+        if p0 != p1:
+            continue
+        pairs += 1
+        excess = round((c0 - c1) - (t1 - t0), 3)
+        if excess > CUT_SLACK_S:
+            cuts.append({"t0": t0, "t1": t1, "period": p0, "clock0": c0, "clock1": c1, "excess_s": excess})
+    share = round(len(cuts) / pairs, 4) if pairs else None
+    passed = bool(pairs) and len(cuts) <= CUT_MAX_SHARE * pairs + 1e-9
+    return {"anchors": len(an), "pairs": pairs, "cuts": len(cuts), "cut_share": share, "passed": passed,
+            "cut_pairs": cuts}
 
 
 def crop_from(frames: list, events: list, width: int = 1280, height: int = 720):
@@ -378,16 +404,71 @@ class Reader:
         atomic_write(self.path, json.dumps(self.cache))
 
 
+def anchor_times(dur: float) -> list:
+    return [float(k * ANCHOR_STEP_S) for k in range(int(dur // ANCHOR_STEP_S) + 1)]
+
+
+def screen_record(gid: str, cache: dict, events: list, dur: float) -> dict:
+    """The cut screen from the cached anchor (band) reads of one video, written to screen.json; refused while an
+    anchor read is missing. Uses no search read, no crop, no placement."""
+    from tools.p8_identity import parse_tokens
+    ts = anchor_times(dur)
+    missing = [t for t in ts if "%.2f" % t not in cache]
+    if missing:
+        raise SystemExit(f"{WHO}: {gid}: {len(missing)} of {len(ts)} anchor reads missing; run the anchor pass")
+    anchors = anchors_of({t: parse_tokens(cache["%.2f" % t]["texts"]) for t in ts}, events)
+    o = [cache["%.2f" % t]["ocr_s"] for t in ts]
+    rec = {"game": gid, "rule": "P8_shots2526.md section 13 (D157)", "slack_s": CUT_SLACK_S,
+           "max_share": CUT_MAX_SHARE, "anchor_reads": len(ts), "anchor_ocr_p50_s": pct(o, 50),
+           "anchor_ocr_p90_s": pct(o, 90), **cut_screen(anchors),
+           "first_anchor": list(anchors[0]) if anchors else None}
+    atomic_write(work(gid) / "screen.json", json.dumps(rec, indent=1))
+    print(json.dumps({k: v for k, v in rec.items() if k != "cut_pairs"}, indent=1), flush=True)
+    return rec
+
+
+def cmd_anchors(gid: str, budget_s: float) -> dict:
+    """The anchor (band) pass alone, then the cut screen (D157): no crop, no search, no build."""
+    from tools.p8_nba_identity import load_events
+    g = checked(gid)
+    events = load_events()[gid]
+    R = Reader(gid, g["video"], events)
+    t0 = time.time()
+    dur = float(g["duration_s"])
+    for t in anchor_times(dur):
+        if time.time() - t0 > budget_s:
+            R.save()
+            n = sum(1 for x in anchor_times(dur) if "%.2f" % x in R.cache)
+            print(json.dumps({"game": gid, "stopped": "budget during anchors", "anchor_reads_cached": n,
+                              "anchor_reads": len(anchor_times(dur))}), flush=True)
+            return {"stopped": True}
+        R.tokens(t)
+    R.save()
+    return screen_record(gid, R.cache, events, dur)
+
+
+def cmd_screen(gid: str) -> dict:
+    """The cut screen from cached reads only (no new read)."""
+    from tools.p8_nba_identity import load_events
+    g = checked(gid)
+    p = work(gid) / "reads.json"
+    cache = json.loads(p.read_text()) if p.exists() else {}
+    return screen_record(gid, cache, load_events()[gid], float(g["duration_s"]))
+
+
 def cmd_place(gid: str, budget_s: float) -> dict:
     from tools.p8_nba_identity import load_events
     g = checked(gid)
+    sp = work(gid) / "screen.json"
+    if not sp.exists() or not json.loads(sp.read_text()).get("passed"):
+        raise SystemExit(f"{WHO}: {gid} has not passed the cut screen (D157); no search pass")
     T = truth(gid)
     events = load_events()[gid]
     R = Reader(gid, g["video"], events)
     t0 = time.time()
     dur = float(g["duration_s"])
     out = {"game": gid, "complete": False}
-    anchor_ts = [float(k * ANCHOR_STEP_S) for k in range(int(dur // ANCHOR_STEP_S) + 1)]
+    anchor_ts = anchor_times(dur)
     for t in anchor_ts:
         if time.time() - t0 > budget_s:
             R.save(); out["stopped"] = "budget during anchors"; return _place_out(gid, out, R)
@@ -706,10 +787,10 @@ def cmd_report() -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for c in ("truth", "place", "build", "score"):
+    for c in ("truth", "anchors", "screen", "place", "build", "score"):
         s = sub.add_parser(c)
         s.add_argument("game")
-        if c in ("place", "build"):
+        if c in ("anchors", "place", "build"):
             s.add_argument("--budget-s", type=float, default=25 * 60)
     sub.add_parser("reference")
     sub.add_parser("report")
@@ -720,6 +801,10 @@ def main(argv=None) -> int:
         t = truth(a.game)
         checked(a.game)
         print(json.dumps({k: v for k, v in t.items() if k != "shots"}, indent=1))
+    elif a.cmd == "anchors":
+        cmd_anchors(a.game, a.budget_s)
+    elif a.cmd == "screen":
+        cmd_screen(a.game)
     elif a.cmd == "place":
         cmd_place(a.game, a.budget_s)
     elif a.cmd == "build":
