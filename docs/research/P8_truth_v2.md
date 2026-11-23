@@ -75,3 +75,47 @@ v2 passes when both hold on the 3 pooled games:
 If v2 passes, it is recorded as truth v2's offset rule and used only by work registered after this; if it fails, the
 frozen rule stays the only one and v2 is reported as tried. gsw_ind_2016 and the device pairs are reported beside the
 bar, and CUDA is added when it exists. Nothing in this test trains or tunes a model.
+
+## Result (run 2026-11-23, tools/p8_truth_v2.py at 29d5afbe; truth_v2/truth_v2_result.json in the P8 workspace)
+
+**v2 fails the registered bar, so the frozen rule stays the only offset rule.** v2 is more stable than the frozen rule
+and finds more camera-truth candidates, but its pooled median offset difference between builds is not half the frozen
+rule's, which the bar required.
+
+Court-model pairs (V3 label build against r23 rebuild, same clip, time map, detector and device), windows whose
+recomputed frozen offset equals the stored one:
+
+| Game | Windows (left out: recompute differs from stored) | Frozen: median abs difference, share over 0.2 s, max | v2: median, share over 0.2 s, max | v2 at edge (V3, r23) | Candidates on V3 at frozen / v2 offsets |
+| --- | --- | --- | --- | --- | --- |
+| gsw_bkn_2015 | 77 (6) | 0.44 s, 0.7273, 2.12 s | 0.321 s, 0.6364, 1.755 s | 14, 5 | 3,235 / 3,771 (1.1657) |
+| gsw_cha_2016 | 64 (9) | 0.54 s, 0.7812, 2.16 s | 0.356 s, 0.6406, 2.265 s | 14, 1 | 2,579 / 3,122 (1.2105) |
+| gsw_sac_2015 | 73 (9) | 0.52 s, 0.7945, 2.44 s | 0.478 s, 0.726, 2.086 s | 19, 2 | 3,278 / 3,624 (1.1056) |
+| Pooled, 3 games | 214 | 0.52 s, 0.7664, 2.44 s | 0.367 s, 0.6682, 2.265 s | | 9,092 / 10,517 (1.1567) |
+| gsw_ind_2016 (apart, D98) | 89 (3) | 0.6 s, 0.7978, 1.48 s | 0.356 s, 0.7303, 1.831 s | 14, 0 | 3,903 / 4,310 (1.1043) |
+
+Bar checks (pooled): median at most half the frozen rule's: no (0.367 against 0.26); share over 0.2 s lower: yes;
+paired reduction of that share, window bootstrap interval [0.0234, 0.1682]: wholly above zero, yes; candidates at least
+95 percent: yes (1.1567). One check fails, so v2 fails.
+
+Device pairs, gsw_ind_2016 (D99 diagnosis builds; report-only; Colab's frozen offsets from P8_PLATFORM.md beside them):
+
+| Window | Frozen offsets | v2 offsets (none at edge) | Colab, frozen rule |
+| --- | --- | --- | --- |
+| s02_w03 | MPS 0.9, CPU 1.42, detector on CPU 0.94 (spread 0.52 s) | 1.206, 1.074, 1.061 (spread 0.145 s) | 0.62 |
+| s02_w04 | MPS -1.34, CPU -0.78 (0.56 s) | 0.158, 0.523 (0.365 s) | -0.06 |
+
+CUDA builds are added here when D161 (1) runs.
+
+Reading:
+
+- The frozen offsets disagree between two builds of the same window far more than the 0.3 to 0.8 s seen across devices
+  suggested as typical: 77 percent of windows move by more than 0.2 s when only the court model changes. The offset is
+  not a property the frozen truth pins down.
+- v2 narrows that (median 0.52 to 0.367 s, 10 points fewer windows over 0.2 s, an interval above zero) and its offsets
+  give 16 percent more camera-truth candidates, but it does not halve the spread, and it hits the grid edge on 14 to 19
+  V3 windows per game, so a wider grid or a different objective would be the next registration, not a change made
+  here.
+- Left out: 27 windows (6, 9, 9 and 3) whose recomputed frozen offset differs from the stored one. The cause was not
+  traced (a label build rewritten after its fit is one candidate); they are listed in the result file.
+
+Lock time: 0.18 hours (4 measure jobs of 177, 131, 148 and 194 s; the device job 6 s).
