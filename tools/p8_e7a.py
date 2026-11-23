@@ -2,7 +2,7 @@
 D155 (2), D160; docs/research/P8_E7a.md, which registers every rule below before any run). Nothing trains or tunes.
 
     python3 -m tools.p8_e7a plan                       system python: guard, sample frames, SportVU ball truth
-    python3 -m export.heavy --name "p8 e7a <game>" -- /opt/anaconda3/bin/python -m tools.p8_e7a run --game <tag>
+    python3 -m export.heavy --name "p8 e7a <game>" -- $V3_CV_PYTHON -m tools.p8_e7a run --game <tag>
     python3 -m tools.p8_e7a score                      system python: counts, F1, bootstraps -> reports/research/p8_e7a.json
 
 Frames: the accepted camera-truth frames of each game (P8 workspace labels/<game>/*.jsonl), in time order within each
