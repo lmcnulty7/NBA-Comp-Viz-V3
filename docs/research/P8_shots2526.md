@@ -1,6 +1,6 @@
 # P8 Level 4: shooter position on NBA 2025-26 broadcasts against the public shot coordinates
 
-**Status (2026-11-22).** Held from 2026-11-21 22:04 under D147, resumed under D149 (Lucien): D79 binds the play-by-play lanes only. The 10 games are a tracking evaluation set: nothing is tuned on them, each pipeline version is scored once, and the pilot measures cost and placement only. 0022501165 and 0042500171 stay out for good.
+**Status (2026-11-23).** Closed under D159: not feasible on public uploads with clock-only placement (section 14). D157: the 0022501048 pilot is recorded as a placement failure (section 12), and the cut screen of section 13 now comes before any search pass. Earlier, (2026-11-22): Held from 2026-11-21 22:04 under D147, resumed under D149 (Lucien): D79 binds the play-by-play lanes only. The 10 games are a tracking evaluation set: nothing is tuned on them, each pipeline version is scored once, and the pilot measures cost and placement only. 0022501165 and 0042500171 stay out for good.
 
 Branch r-p8-shots2526 from v4-research aa344cbe, written 2026-11-21 under PLAN.md D137 and D144,
 docs/research/TRACKING_LEVELS.md (Level 4, step 2), docs/research/P8_level4.md (sections 3, 12 and 13) and
@@ -309,3 +309,206 @@ The scores above are from the corrected run.
 **Cost per game at this rate:** placement scales with reads (about 1,280 to 1,800 reads, 2.2 to 3.1 h at 6.3 s).
 The build scales with placed shots: at 2.65 s per clip second and about 5.5 s per shot, a fully placed game of 175
 shots needs about 0.7 h. Placement coverage on edited uploads, not compute, is what limits this check.
+
+## 11. Revision under D151, registered before anything runs on it
+
+Written 2026-11-22, before any read of 0022501048. This section changes only what D151 allows: the scored set, the
+pilot, and the reader's input for the search. The bracket rule, the stop rule, the windows, the oracle, the
+orientation rule, the rows, R0, the gate margins and the bootstrap are as in sections 3 to 9. D149 still binds:
+nothing is tuned on these games, each version is scored once, KEPT_OUT stays out, and no tracking output on a
+2025-26 game goes into a play-by-play lane.
+
+### 11.1 Full-broadcast screen (metadata only)
+
+A video counts as a full broadcast only if its probed duration (`probe_duration_s` in `fetch.json`, the metadata
+probe before download) is at least 2,880 s, the regulation game clock. Shorter uploads are D134's condensed class
+and leave the scored set. Applied to the 10:
+
+| Game | Video | Probe (s) | Full |
+| --- | --- | --- | --- |
+| 0022501048 | 4ZrE7OXRcuQ | 7,867 | yes |
+| 0022501154 | IKPtnyERx4c | 4,109 | yes |
+| 0022501172 | pZqKb08f6u0 | 3,456 | yes |
+| 0042500102 | QpQCu6dnUIA | 3,198 | yes |
+| 0042500103 | fWYk9XeB7bk | 3,563 | yes |
+| 0042500112 | L2u8tsE_zi0 | 2,424 | no |
+| 0042500113 | ngsPkigANU4 | 2,872 | no |
+| 0042500123 | mCihOZ_0vjQ | 2,738 | no |
+| 0042500142 | B-AcMUKEt2Y | 3,121 | yes |
+| 0042500173 | NLYLQDfxu4s | 3,557 | yes |
+
+**The scored set is 7 games.** 0042500112 leaves it for good: it shaped this revision, and it fails the screen too.
+Its section 10 numbers remain the record of that pilot.
+
+Passing the screen does not prove an upload is unedited: a full broadcast with dead time runs about 2 h. Six of the
+seven are 3,121 to 4,109 s long, so they may also have cuts. That will show as "passed before a bracket" and
+"clock jumped".
+
+### 11.2 The new pilot
+
+0022501048 (NOP at NYK, 2026-03-24, 173 attempts), the longest remaining video (7,867 s), chosen on duration only.
+
+### 11.3 The scorebug crop
+
+**Anchors are unchanged:** one frame every 20 s, read on the full bands by the registered reader. Each anchor read
+now also stores easyocr's box for every kept text, in frame pixels.
+
+**The crop box** comes from a fixed rule, written here. It uses only the anchor reads of the same video, never a
+placement, a position or a shot outcome.
+
+1. Take every anchor frame that reads exactly one moment (section 9).
+2. In each such frame, keep the boxes of the texts that carry its matched clock, either of its matched scores, or a
+   period.
+3. Across those frames, the crop is:
+   - x0 and y0: the 10th percentile of the kept boxes' left and top edges;
+   - x1 and y1: the 90th percentile of their right and bottom edges;
+   - widened by 16 px on every side, clipped to the frame.
+4. With fewer than 5 such frames there is no crop. Then the search does not run, and the lead is told.
+
+The automatic layout step (the frozen clock_reader check over the registered layouts) is not used. The registered
+layouts are 2015-16 scorebugs, and D152's layout finder met its bar on only 3 of 8 videos. No layout is calibrated
+by hand.
+
+**The search reads the crop.** Search and bisection reads OCR the crop instead of the two bands:
+
+- same 2x cubic upscale, same easyocr reader, same 0.2 confidence floor, same parse_tokens and moment rule;
+- frames extracted by the same ffmpeg input seek;
+- crop reads cached apart from band reads.
+
+Recorded:
+
+- per-read OCR seconds for band reads and for crop reads, p50 and p90;
+- the read rate of each: the share of reads that parse a clock, and the share that read exactly one moment.
+
+**Unchanged:** the bracket (two readable 1 Hz reads at most 2 s apart, no interpolation), the 2 bisection reads,
+the 60-read search limit, and the "clock jumped" slack.
+
+### 11.4 Lock and report
+
+- Jobs run in turns with p8-teachers' D146 jobs, each under the lock with caffeinate.
+- After the pilot the report gives: the placed share, the lock hours, OCR p50 and p90 for band and crop, the read
+  rates, the scored set's size (7), and, if the build runs, the go or no-go against the registered gate. The gate
+  is computed only for a game whose orientation is resolved (section 4.3).
+- Then stop for the lead's go on the other 6.
+
+## 12. The 0022501048 pilot (D151): a placement failure, recorded under D157
+
+Run 2026-11-22 under the heavy-job lock with caffeinate, cost and placement only: no build, no position, no R0
+for this game. Numbers are copied from the job logs (each job prints `place.json`'s summary and the lock's
+`done in` line), from `place.json` and from `reads.json` in the P8 workspace.
+
+**The crop** from section 11.3's fixed rule: [148, 25, 572, 587] (x0, y0, x1, y1 in frame pixels).
+
+**At the stop D157 records (after job 4):**
+
+- Jobs 1 to 4 took 1,507, 1,506, 1,634 and 1,785 s of lock time, 6,432 s (1.79 h). Job 1 was the anchor pass and
+  stopped on its budget; job 2 finished the anchors and began the search.
+- 60 of the 173 attempts had been searched and 4 were placed. The others: passed before a bracket 20, no anchor 13,
+  clock jumped 11, no bracket in the search 7, gap at the moment 5.
+- Band OCR (anchors): p50 6.828 s, p90 7.718 s over 394 reads; 0.995 of them parse a clock and 0.556 read exactly
+  one moment.
+- Crop OCR (search): p50 4.399 s, p90 5.364 s over 766 reads; 0.83 parse a clock and 0.679 read exactly one
+  moment. The crop raised the read rate over the 0042500112 bands (section 10, 2.).
+
+**What ran after that stop.** The cache holds six more jobs than D157's record. Jobs 5 to 7 (1,520, 1,597 and
+1,520 s, the last ending 13:51 on 2026-11-22) continued the search. Three short jobs followed (136, 126 and 155 s,
+ending 13:53, 13:56 and 13:59): the lead killed these after Lucien paused all work. All ten jobs took 11,486 s
+(3.19 h) of lock time. After job 7, 132 of the 173 attempts had been searched and 6 were placed: passed before a
+bracket 42, clock jumped 31, no bracket in the search 22, no anchor 19, gap at the moment 12. Crop OCR was then p50
+4.272 s over 1,795 reads. The short jobs added 60 crop reads to `reads.json` (1,855 in all, 10 model loads) and
+left no `place.json`. None of this changes the verdict: the search places about 1 attempt in 20.
+
+**Why (post hoc, read from the cached anchors after the search had failed):**
+
+1. **The video starts mid first quarter.** The first anchor, at 20 s of video, reads period 1 at 7:07, so about
+   5 minutes of first-quarter play are not in the upload. The frame at 0 s shows a web page (a search box and a
+   video title), not the broadcast. Those period 1 attempts are "no anchor".
+2. **The clock runs faster than the video between anchors.** Live play is cut out, while long dead-ball stretches
+   are kept, so the upload is 7,867 s long and still edited. Section 14.2 counts these cuts by the screen of
+   section 13.
+
+**A duration of 2,880 s or more does not prove a full broadcast.** Section 11.1's screen is necessary, not
+sufficient: an edited upload with long dead-ball stretches passes it.
+
+## 13. The cut screen (D157), registered before any new read
+
+Written 2026-11-23, before any read of 0022501154, 0022501172, 0042500102, 0042500103, 0042500142 or 0042500173.
+The rule comes from physics: the game clock cannot fall faster than the video runs. Its two numbers were set by the
+lead in D157 from that, not from any video's data.
+
+- **Anchors** are section 3's anchors from the anchor (band) pass only: one frame every 20 s of the whole video,
+  read on the registered bands, kept when the frame reads exactly one moment (section 9). No crop, no search read
+  and no placement enters the screen.
+- **Pairs.** The anchors are ordered by video time. Two consecutive anchors form a pair when they read the same
+  period. A pair across a period change is not counted.
+- **A cut** is a pair whose clock drop exceeds the video time between them by more than 2 s:
+  (clock of the first - clock of the second) - (video s of the second - video s of the first) > 2.0, rounded to
+  0.001 s first. A pair where the clock stands still or rises is not a cut.
+- **A video passes** when its cuts are 10% or less of its pairs. A video with no pair does not pass.
+- **Order.** No search pass runs on a video until it passes; then only on the lead's go. `place` refuses a game
+  whose `screen.json` does not show a pass.
+- **Applied to 0022501048** from its cached anchor reads, with no new read. Its anchors were seen (sections 10 and
+  12) before this rule was written, so its result is a record, not a test of the rule.
+- **The anchor pass alone on the other six** of the scored set, in the order above, one lock job at a time with
+  caffeinate, each job at most 25 minutes (a rerun continues from the cached reads). Never a crop, a search, a
+  build, a position or R0 on any of them.
+- **Expected cost:** 157 to 206 anchor reads per video, 1,053 in all, at about 6.8 s per read: about 2.0 lock
+  hours.
+- **What follows (D157):** if fewer than 3 of the 7 pass, the 2025-26 shot check closes as not feasible on public
+  uploads. If 3 or more pass, the lead decides their search pass.
+
+Code: `tools/p8_shots2526.py` (`cut_screen`, `screen_record`, the `anchors` and `screen` commands), tests in
+`tests/test_p8_shots2526.py` on synthetic anchors. Each result is written to `screen.json` in the game's folder of
+the P8 workspace.
+
+## 14. Closed (D159)
+
+Written 2026-11-23. The lead closed the 2025-26 shot check under D159 (self-decided). Step 4 of D157 (the anchor
+pass on the other six videos) did not run. No further read and no lock job run on any 2025-26 video.
+
+### 14.1 Verdict
+
+**Not feasible on public uploads with clock-only placement.** Placing a logged shot by reading the scorebug clock
+places about 1 attempt in 20 on these uploads, because the uploads are edited. A screen cannot fix that. It can
+only drop videos, and it does not raise the placed share on the ones it keeps.
+
+Evidence:
+
+| Pilot | Placed | Lock time | Jobs | Record |
+| --- | --- | --- | --- | --- |
+| 0042500112 (PHI at BOS) | 14 of 179 attempts | 8,642 s (2.40 h) | 7 placement jobs, build, score | section 10 |
+| 0022501048 (NOP at NYK) | 6 of 132 searched (of 173) | 11,486 s (3.19 h) | 10 placement jobs | section 12 |
+| Both | 20 placed | 20,128 s (5.59 h) | | |
+
+- On 0022501048 the cut screen of section 13 gives 21 cuts in 213 pairs, a share of 0.0986. That is a pass (section
+  14.2), although the search on that video failed.
+- So the screen cannot pick out the videos where a search would work. Any revised screen would be shaped by
+  0022501048, a scored game, so D149 does not allow one.
+- No position number exists for 0022501048. The 0042500112 position rows (section 10) are a development record
+  under D154.
+
+**The jobs.** All 10 placement jobs on 0022501048 are in the job logs. D157's record (60 searched, 4 placed,
+1.79 h) is the state after job 4. Jobs 5 to 7 continued the search. The last three short jobs, ending 13:53,
+13:56 and 13:59 on 2026-11-22, are the ones the lead killed after Lucien's pause. Each of them loaded the model,
+and together they added 60 crop reads (section 12).
+
+**What would reopen it.** Either of these, registered before any read:
+
+- a source of uncut full broadcasts;
+- a placement method that does not rely on the game clock.
+
+Either would be a new pipeline version, which D149 allows to be scored once.
+
+### 14.2 Cut screen result
+
+From `screen.json` in each game's folder of the P8 workspace.
+
+| Game | Anchor reads | Anchors | Pairs | Cuts | Cut share | Passes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0022501048 | 394 | 219 | 213 | 21 | 0.0986 | yes |
+
+**0022501048 passes the screen even though its search failed** (section 12). The cut excess runs from 3 to 29 s,
+230 s in all, with cuts in every period (3, 6, 5 and 7 in periods 1 to 4). The first anchor reads period 1 at 7:07.
+Post hoc reading: the dead-ball stretches that were kept give many pairs where the clock stands still, and these
+dilute the cut share. Passing the screen therefore does not show that a video can be placed. This result came from
+cached reads only (no new read) and is a record, not a test of the rule (section 13).

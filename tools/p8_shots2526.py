@@ -2,7 +2,10 @@
 pre-registered in 58f54663; PLAN.md D144, D145).
 
     python3 -m tools.p8_shots2526 truth GAME                       shots of the mirror, in the court frame (light)
-    V3_CV_PYTHON -m tools.p8_shots2526 place GAME [--budget-s S]   scorebug anchors, search, bisection (easyocr)
+    V3_CV_PYTHON -m tools.p8_shots2526 anchors GAME [--budget-s S] the anchor (band) pass alone, then the cut screen
+    python3 -m tools.p8_shots2526 screen GAME                      the cut screen from cached anchor reads (light)
+    V3_CV_PYTHON -m tools.p8_shots2526 place GAME [--budget-s S]   scorebug anchors, search, bisection (easyocr);
+                                                                   refused unless the cut screen passed (D157)
     V3_CV_PYTHON -m tools.p8_shots2526 build GAME [--budget-s S]   r23 windows around the placed shots (frozen build)
     python3 -m tools.p8_shots2526 score GAME                       nearest-track oracle rows, orientation rule
     python3 -m tools.p8_shots2526 reference                        R0 on gsw_bkn_2015 (2015-16, Phase A r23 build)
@@ -40,7 +43,17 @@ WHO = "tools.p8_shots2526"
 CHECK_SET = ("0022501048", "0022501154", "0022501172", "0042500102", "0042500103", "0042500112", "0042500113",
              "0042500123", "0042500142", "0042500173")
 KEPT_OUT = ("0022501165", "0042500171")          # D85 test arenas (TOR, LAL), D145
-PILOT = "0042500112"
+RETIRED = ("0042500112",)                         # D151 (2): left the scored set for good
+PILOT = "0022501048"                             # D151 (3): the longest remaining video
+FULL_MIN_S = 2880.0                              # D151 (1): a full broadcast lasts at least the regulation clock
+# the scorebug crop (P8_shots2526.md section 11.3), fixed before any read of the new pilot
+CROP_PCT = (10, 90)
+CROP_MARGIN_PX = 16
+CROP_MIN_FRAMES = 5
+# the cut screen (P8_shots2526.md section 13, D157), set from physics before any read of the six videos: the game
+# clock cannot fall faster than the video runs, so a larger fall between two anchors of a period is an edit
+CUT_SLACK_S = 2.0            # a cut: clock drop minus video time between consecutive same-period anchors > 2 s
+CUT_MAX_SHARE = 0.10         # a video passes when cuts are at most 10% of its same-period consecutive anchor pairs
 # placement (P8_shots2526.md section 3)
 ANCHOR_STEP_S = 20.0
 SEARCH_BEFORE_S = 5.0
@@ -96,6 +109,58 @@ def anchors_of(reads: dict, events: list) -> list:
             p, c = next(iter(m))
             out.append((float(t), int(p), float(c)))
     return out
+
+
+def cut_screen(anchors: list) -> dict:
+    """Section 13's screen. anchors: [(video s, period, clock)]. Consecutive anchors in video time that share a
+    period form a pair; a pair is a cut when the clock drop exceeds the video time between them by more than
+    CUT_SLACK_S. The video passes when cuts are at most CUT_MAX_SHARE of the pairs; with no pair it does not pass."""
+    an = sorted(anchors)
+    pairs, cuts = 0, []
+    for (t0, p0, c0), (t1, p1, c1) in zip(an, an[1:]):
+        if p0 != p1:
+            continue
+        pairs += 1
+        excess = round((c0 - c1) - (t1 - t0), 3)
+        if excess > CUT_SLACK_S:
+            cuts.append({"t0": t0, "t1": t1, "period": p0, "clock0": c0, "clock1": c1, "excess_s": excess})
+    share = round(len(cuts) / pairs, 4) if pairs else None
+    passed = bool(pairs) and len(cuts) <= CUT_MAX_SHARE * pairs + 1e-9
+    return {"anchors": len(an), "pairs": pairs, "cuts": len(cuts), "cut_share": share, "passed": passed,
+            "cut_pairs": cuts}
+
+
+def crop_from(frames: list, events: list, width: int = 1280, height: int = 720):
+    """Section 11.3's fixed rule. frames: [(parsed, boxes)] of the anchor reads, boxes [x0, y0, x1, y1, text] in
+    frame pixels. From frames that read exactly one moment, the boxes of texts carrying its clock, one of its matched
+    scores or a period; the crop is the CROP_PCT percentiles of their edges widened by CROP_MARGIN_PX and clipped;
+    None with fewer than CROP_MIN_FRAMES such frames."""
+    import itertools
+    from tools.p8_identity import parse_tokens
+    from tools.p8_scorebug import matches
+    kept, n = [], 0
+    for parsed, boxes in frames:
+        m = frame_moments(parsed, events)
+        if len(m) != 1:
+            continue
+        p, c = next(iter(m))
+        scores = {v for a, h in itertools.permutations(parsed["ints"], 2) if matches(events, p, c, a, h) for v in (a, h)}
+        mine = []
+        for b in boxes:
+            q = parse_tokens([b[4]])
+            if c in q["clocks"] or q["periods"] or scores & set(q["ints"]):
+                mine.append(b[:4])
+        if mine:
+            kept += mine
+            n += 1
+    if n < CROP_MIN_FRAMES:
+        return None
+    a = np.asarray(kept, float)
+    lo, hi = CROP_PCT
+    x0, y0 = np.percentile(a[:, 0], lo) - CROP_MARGIN_PX, np.percentile(a[:, 1], lo) - CROP_MARGIN_PX
+    x1, y1 = np.percentile(a[:, 2], hi) + CROP_MARGIN_PX, np.percentile(a[:, 3], hi) + CROP_MARGIN_PX
+    box = [max(0, int(x0)), max(0, int(y0)), min(int(width), int(math.ceil(x1))), min(int(height), int(math.ceil(y1)))]
+    return box if box[2] > box[0] and box[3] > box[1] else None
 
 
 def estimate(anchors: list, period: int, clock: float):
@@ -227,10 +292,19 @@ def fetch_record(gid: str) -> dict:
     return {"video_id": hits[0][0], **hits[0][1]}
 
 
+def scored_set(fetch: dict) -> list:
+    """D151 (1) and (2): the check-set games whose probed duration is at least FULL_MIN_S, less the retired pilot."""
+    dur = {r["game_id"]: r.get("probe_duration_s") for r in fetch.values() if r.get("verified")}
+    return [g for g in CHECK_SET if g not in RETIRED and (dur.get(g) or 0) >= FULL_MIN_S]
+
+
 def checked(gid: str) -> dict:
-    """The game's record after every guard: the check set only, refuse_cv_test with its home team, held-out guard."""
+    """The game's record after every guard: the scored set only (D145, D151), refuse_cv_test with its home team,
+    held-out guard."""
     if gid in KEPT_OUT or gid not in CHECK_SET:
         raise SystemExit(f"{WHO}: {gid} is not in the check set of 10 (D145)")
+    if gid in RETIRED or gid not in scored_set(json.loads((root() / "fetch.json").read_text())):
+        raise SystemExit(f"{WHO}: {gid} is not in the scored set (D151: full broadcasts only, 0042500112 retired)")
     refuse_cv_test([gid], WHO)
     f = fetch_record(gid)
     refuse_cv_test([gid, f["video_id"], f["file"]], WHO)
@@ -283,9 +357,11 @@ class Reader:
         self._ocr = None
         self.new = 0
 
-    def tokens(self, t: float) -> dict:
+    def tokens(self, t: float, crop=None) -> dict:
+        """Band read (crop None): the registered bands, with easyocr's boxes kept in frame pixels. Crop read: the
+        same reader on the crop box [x0, y0, x1, y1] only (section 11.3); cached under 'c' + the second."""
         from tools.p8_identity import BANDS, parse_tokens
-        key = "%.2f" % t
+        key = ("c%.2f" if crop else "%.2f") % t
         if key not in self.cache:
             import cv2
             t0 = time.time()
@@ -298,42 +374,113 @@ class Reader:
                 self._ocr = easyocr.Reader(["en"], gpu=False, verbose=False)
             t2 = time.time()
             img = cv2.imread(str(jpg))
-            texts = []
+            texts, boxes = [], []
             if img is not None:
                 h = img.shape[0]
-                for _, a, b in BANDS:
-                    band = cv2.resize(img[int(a * h):int(b * h)], None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-                    texts += [x for _, x, conf in self._ocr.readtext(band, detail=1) if conf >= 0.2]
+                if crop:
+                    parts = [(int(crop[0]), int(crop[1]), img[int(crop[1]):int(crop[3]), int(crop[0]):int(crop[2])])]
+                else:
+                    parts = [(0, int(a * h), img[int(a * h):int(b * h)]) for _, a, b in BANDS]
+                for ox, oy, part in parts:
+                    big = cv2.resize(part, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+                    for bb, x, conf in self._ocr.readtext(big, detail=1):
+                        if conf >= 0.2:
+                            texts.append(x)
+                            xs, ys = [q[0] / 2 + ox for q in bb], [q[1] / 2 + oy for q in bb]
+                            boxes.append([round(min(xs), 1), round(min(ys), 1), round(max(xs), 1), round(max(ys), 1), x])
             jpg.unlink(missing_ok=True)
-            self.cache[key] = {"texts": texts, "extract_s": round(t1 - t0, 3), "ocr_s": round(time.time() - t2, 3),
-                               "model_load_s": round(t2 - t1, 3) if t2 - t1 > 0.5 else 0.0}
+            self.cache[key] = {"texts": texts, "boxes": boxes, "extract_s": round(t1 - t0, 3),
+                               "ocr_s": round(time.time() - t2, 3), "model_load_s": round(t2 - t1, 3) if t2 - t1 > 0.5 else 0.0,
+                               "kind": "crop" if crop else "band"}
             self.new += 1
             if self.new % 20 == 0:
                 self.save()
         return parse_tokens(self.cache[key]["texts"])
 
-    def moments(self, t: float) -> set:
-        return frame_moments(self.tokens(t), self.events)
+    def moments(self, t: float, crop=None) -> set:
+        return frame_moments(self.tokens(t, crop), self.events)
 
     def save(self):
         atomic_write(self.path, json.dumps(self.cache))
 
 
+def anchor_times(dur: float) -> list:
+    return [float(k * ANCHOR_STEP_S) for k in range(int(dur // ANCHOR_STEP_S) + 1)]
+
+
+def screen_record(gid: str, cache: dict, events: list, dur: float) -> dict:
+    """The cut screen from the cached anchor (band) reads of one video, written to screen.json; refused while an
+    anchor read is missing. Uses no search read, no crop, no placement."""
+    from tools.p8_identity import parse_tokens
+    ts = anchor_times(dur)
+    missing = [t for t in ts if "%.2f" % t not in cache]
+    if missing:
+        raise SystemExit(f"{WHO}: {gid}: {len(missing)} of {len(ts)} anchor reads missing; run the anchor pass")
+    anchors = anchors_of({t: parse_tokens(cache["%.2f" % t]["texts"]) for t in ts}, events)
+    o = [cache["%.2f" % t]["ocr_s"] for t in ts]
+    rec = {"game": gid, "rule": "P8_shots2526.md section 13 (D157)", "slack_s": CUT_SLACK_S,
+           "max_share": CUT_MAX_SHARE, "anchor_reads": len(ts), "anchor_ocr_p50_s": pct(o, 50),
+           "anchor_ocr_p90_s": pct(o, 90), **cut_screen(anchors),
+           "first_anchor": list(anchors[0]) if anchors else None}
+    atomic_write(work(gid) / "screen.json", json.dumps(rec, indent=1))
+    print(json.dumps({k: v for k, v in rec.items() if k != "cut_pairs"}, indent=1), flush=True)
+    return rec
+
+
+def cmd_anchors(gid: str, budget_s: float) -> dict:
+    """The anchor (band) pass alone, then the cut screen (D157): no crop, no search, no build."""
+    from tools.p8_nba_identity import load_events
+    g = checked(gid)
+    events = load_events()[gid]
+    R = Reader(gid, g["video"], events)
+    t0 = time.time()
+    dur = float(g["duration_s"])
+    for t in anchor_times(dur):
+        if time.time() - t0 > budget_s:
+            R.save()
+            n = sum(1 for x in anchor_times(dur) if "%.2f" % x in R.cache)
+            print(json.dumps({"game": gid, "stopped": "budget during anchors", "anchor_reads_cached": n,
+                              "anchor_reads": len(anchor_times(dur))}), flush=True)
+            return {"stopped": True}
+        R.tokens(t)
+    R.save()
+    return screen_record(gid, R.cache, events, dur)
+
+
+def cmd_screen(gid: str) -> dict:
+    """The cut screen from cached reads only (no new read)."""
+    from tools.p8_nba_identity import load_events
+    g = checked(gid)
+    p = work(gid) / "reads.json"
+    cache = json.loads(p.read_text()) if p.exists() else {}
+    return screen_record(gid, cache, load_events()[gid], float(g["duration_s"]))
+
+
 def cmd_place(gid: str, budget_s: float) -> dict:
     from tools.p8_nba_identity import load_events
     g = checked(gid)
+    sp = work(gid) / "screen.json"
+    if not sp.exists() or not json.loads(sp.read_text()).get("passed"):
+        raise SystemExit(f"{WHO}: {gid} has not passed the cut screen (D157); no search pass")
     T = truth(gid)
     events = load_events()[gid]
     R = Reader(gid, g["video"], events)
     t0 = time.time()
     dur = float(g["duration_s"])
     out = {"game": gid, "complete": False}
-    anchor_ts = [float(k * ANCHOR_STEP_S) for k in range(int(dur // ANCHOR_STEP_S) + 1)]
+    anchor_ts = anchor_times(dur)
     for t in anchor_ts:
         if time.time() - t0 > budget_s:
             R.save(); out["stopped"] = "budget during anchors"; return _place_out(gid, out, R)
         R.tokens(t)
     anchors = anchors_of({t: R.tokens(t) for t in anchor_ts}, events)
+    crop = crop_from([(R.tokens(t), R.cache["%.2f" % t].get("boxes", [])) for t in anchor_ts], events,
+                     g.get("width", 1280), g.get("height", 720))
+    out["crop"] = crop
+    if crop is None:
+        R.save(); out["stopped"] = "no crop: fewer than %d single-moment anchor frames (section 11.3)" % CROP_MIN_FRAMES
+        _place_out(gid, out, R)
+        raise SystemExit(f"{WHO}: {gid}: no scorebug crop; the search does not run (tell the lead)")
     res = {}
     for s in T["shots"]:
         if time.time() - t0 > budget_s:
@@ -341,19 +488,27 @@ def cmd_place(gid: str, budget_s: float) -> dict:
         if s["clock"] is None:
             res[str(s["event"])] = {"status": "no clock in the mirror", "reads": 0}
             continue
-        res[str(s["event"])] = place_shot(s["period"], s["clock"], anchors, R.moments, dur)
+        res[str(s["event"])] = place_shot(s["period"], s["clock"], anchors, lambda t: R.moments(t, crop), dur)
     R.save()
     out.update({"complete": True, "anchors": len(anchors), "anchor_reads": len(anchor_ts), "placements": res})
     return _place_out(gid, out, R)
 
 
 def _place_out(gid, out, R):
+    from tools.p8_identity import parse_tokens
     secs = [v for v in R.cache.values()]
     out["reads_cached"] = len(secs)
     ocr = [v["ocr_s"] for v in secs]
     ext = [v["extract_s"] for v in secs]
     out["per_read_s"] = {"ocr_p50": pct(ocr, 50), "ocr_p90": pct(ocr, 90), "extract_p50": pct(ext, 50),
                          "extract_p90": pct(ext, 90), "model_loads": sum(1 for v in secs if v.get("model_load_s"))}
+    for kind in ("band", "crop"):                         # section 11.3: time and read rate per reader input
+        ks = [k for k in R.cache if k.startswith("c") == (kind == "crop")]
+        o = [R.cache[k]["ocr_s"] for k in ks]
+        ps = [parse_tokens(R.cache[k]["texts"]) for k in ks]
+        out[f"{kind}_reads"] = {"n": len(ks), "ocr_p50": pct(o, 50), "ocr_p90": pct(o, 90),
+                                "share_with_clock": round(sum(1 for p in ps if p["clocks"]) / len(ks), 3) if ks else None,
+                                "share_one_moment": round(sum(1 for p in ps if len(frame_moments(p, R.events)) == 1) / len(ks), 3) if ks else None}
     st = {}
     for v in out.get("placements", {}).values():
         st[v["status"]] = st.get(v["status"], 0) + 1
@@ -586,7 +741,8 @@ def cmd_report() -> dict:
     base = root() / "shots2526"
     R0 = json.loads((base / "reference_R0.json").read_text()) if (base / "reference_R0.json").exists() else None
     games = {}
-    for gid in CHECK_SET:
+    scored = scored_set(json.loads((root() / "fetch.json").read_text()))
+    for gid in scored:
         p = base / gid / "score.json"
         if p.exists():
             s = json.loads(p.read_text())
@@ -615,6 +771,7 @@ def cmd_report() -> dict:
         gate["game_ci_p90"] = boot({g: v["_win"] for g, v in resolved.items()}, lambda a: pct(a, 90)) if len(resolved) >= 2 else None
     res = {"check": "P8 Level 4 shot position, NBA 2025-26", "pre_registration": "docs/research/P8_shots2526.md (58f54663)",
            "date": dt.date.today().isoformat(), "label": LABEL, "check_set": list(CHECK_SET), "kept_out_d85_arenas": list(KEPT_OUT),
+           "scored_set_d151": scored, "retired": list(RETIRED), "full_min_s": FULL_MIN_S,
            "games_scored": sorted(games), "orientation_unresolved": sorted(set(games) - set(resolved)),
            "R0": R0 and {k: v for k, v in R0.items() if k != "obs"}, "gate": gate, "targets": TARGETS,
            "games": {g: {k: v for k, v in v.items() if k != "_win"} for g, v in games.items()},
@@ -630,10 +787,10 @@ def cmd_report() -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for c in ("truth", "place", "build", "score"):
+    for c in ("truth", "anchors", "screen", "place", "build", "score"):
         s = sub.add_parser(c)
         s.add_argument("game")
-        if c in ("place", "build"):
+        if c in ("anchors", "place", "build"):
             s.add_argument("--budget-s", type=float, default=25 * 60)
     sub.add_parser("reference")
     sub.add_parser("report")
@@ -644,6 +801,10 @@ def main(argv=None) -> int:
         t = truth(a.game)
         checked(a.game)
         print(json.dumps({k: v for k, v in t.items() if k != "shots"}, indent=1))
+    elif a.cmd == "anchors":
+        cmd_anchors(a.game, a.budget_s)
+    elif a.cmd == "screen":
+        cmd_screen(a.game)
     elif a.cmd == "place":
         cmd_place(a.game, a.budget_s)
     elif a.cmd == "build":
