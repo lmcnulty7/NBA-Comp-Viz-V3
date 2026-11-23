@@ -457,3 +457,17 @@ lead in D157 from that, not from any video's data.
 Code: `tools/p8_shots2526.py` (`cut_screen`, `screen_record`, the `anchors` and `screen` commands), tests in
 `tests/test_p8_shots2526.py` on synthetic anchors. Each result is written to `screen.json` in the game's folder of
 the P8 workspace.
+
+## 14. Cut screen results
+
+From `screen.json` in each game's folder of the P8 workspace.
+
+| Game | Anchor reads | Anchors | Pairs | Cuts | Cut share | Passes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0022501048 | 394 | 219 | 213 | 21 | 0.0986 | yes |
+
+**0022501048 passes the screen even though its search failed** (section 12). The cut excess runs from 3 to 29 s,
+230 s in all, with cuts in every period (3, 6, 5 and 7 in periods 1 to 4). The first anchor reads period 1 at 7:07.
+Post hoc reading: the dead-ball stretches that were kept give many pairs where the clock stands still, and these
+dilute the cut share. Passing the screen therefore does not show that a video can be placed. This result came from
+cached reads only (no new read) and is a record, not a test of the rule (section 13).
