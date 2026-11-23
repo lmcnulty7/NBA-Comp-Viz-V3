@@ -1,6 +1,6 @@
 # P8 Level 4: shooter position on NBA 2025-26 broadcasts against the public shot coordinates
 
-**Status (2026-11-23).** D157: the 0022501048 pilot is recorded as a placement failure (section 12), and the cut screen of section 13 now comes before any search pass. Earlier, (2026-11-22): Held from 2026-11-21 22:04 under D147, resumed under D149 (Lucien): D79 binds the play-by-play lanes only. The 10 games are a tracking evaluation set: nothing is tuned on them, each pipeline version is scored once, and the pilot measures cost and placement only. 0022501165 and 0042500171 stay out for good.
+**Status (2026-11-23).** Closed under D159: not feasible on public uploads with clock-only placement (section 14). D157: the 0022501048 pilot is recorded as a placement failure (section 12), and the cut screen of section 13 now comes before any search pass. Earlier, (2026-11-22): Held from 2026-11-21 22:04 under D147, resumed under D149 (Lucien): D79 binds the play-by-play lanes only. The 10 games are a tracking evaluation set: nothing is tuned on them, each pipeline version is scored once, and the pilot measures cost and placement only. 0022501165 and 0042500171 stay out for good.
 
 Branch r-p8-shots2526 from v4-research aa344cbe, written 2026-11-21 under PLAN.md D137 and D144,
 docs/research/TRACKING_LEVELS.md (Level 4, step 2), docs/research/P8_level4.md (sections 3, 12 and 13) and
@@ -409,7 +409,8 @@ for this game. Numbers are copied from the job logs (each job prints `place.json
   moment. The crop raised the read rate over the 0042500112 bands (section 10, 2.).
 
 **What ran after that stop.** The cache holds six more jobs than D157's record. Jobs 5 to 7 (1,520, 1,597 and
-1,520 s) continued the search, and three short jobs (136, 126 and 155 s) followed. All ten jobs took 11,486 s
+1,520 s, the last ending 13:51 on 2026-11-22) continued the search. Three short jobs followed (136, 126 and 155 s,
+ending 13:53, 13:56 and 13:59): the lead killed these after Lucien paused all work. All ten jobs took 11,486 s
 (3.19 h) of lock time. After job 7, 132 of the 173 attempts had been searched and 6 were placed: passed before a
 bracket 42, clock jumped 31, no bracket in the search 22, no anchor 19, gap at the moment 12. Crop OCR was then p50
 4.272 s over 1,795 reads. The short jobs added 60 crop reads to `reads.json` (1,855 in all, 10 model loads) and
@@ -421,7 +422,7 @@ left no `place.json`. None of this changes the verdict: the search places about 
    5 minutes of first-quarter play are not in the upload. The frame at 0 s shows a web page (a search box and a
    video title), not the broadcast. Those period 1 attempts are "no anchor".
 2. **The clock runs faster than the video between anchors.** Live play is cut out, while long dead-ball stretches
-   are kept, so the upload is 7,867 s long and still edited. Section 14 counts these cuts by the screen of
+   are kept, so the upload is 7,867 s long and still edited. Section 14.2 counts these cuts by the screen of
    section 13.
 
 **A duration of 2,880 s or more does not prove a full broadcast.** Section 11.1's screen is necessary, not
@@ -458,7 +459,45 @@ Code: `tools/p8_shots2526.py` (`cut_screen`, `screen_record`, the `anchors` and 
 `tests/test_p8_shots2526.py` on synthetic anchors. Each result is written to `screen.json` in the game's folder of
 the P8 workspace.
 
-## 14. Cut screen results
+## 14. Closed (D159)
+
+Written 2026-11-23. The lead closed the 2025-26 shot check under D159 (self-decided). Step 4 of D157 (the anchor
+pass on the other six videos) did not run. No further read and no lock job run on any 2025-26 video.
+
+### 14.1 Verdict
+
+**Not feasible on public uploads with clock-only placement.** Placing a logged shot by reading the scorebug clock
+places about 1 attempt in 20 on these uploads, because the uploads are edited. A screen cannot fix that. It can
+only drop videos, and it does not raise the placed share on the ones it keeps.
+
+Evidence:
+
+| Pilot | Placed | Lock time | Jobs | Record |
+| --- | --- | --- | --- | --- |
+| 0042500112 (PHI at BOS) | 14 of 179 attempts | 8,642 s (2.40 h) | 7 placement jobs, build, score | section 10 |
+| 0022501048 (NOP at NYK) | 6 of 132 searched (of 173) | 11,486 s (3.19 h) | 10 placement jobs | section 12 |
+| Both | 20 placed | 20,128 s (5.59 h) | | |
+
+- On 0022501048 the cut screen of section 13 gives 21 cuts in 213 pairs, a share of 0.0986. That is a pass (section
+  14.2), although the search on that video failed.
+- So the screen cannot pick out the videos where a search would work. Any revised screen would be shaped by
+  0022501048, a scored game, so D149 does not allow one.
+- No position number exists for 0022501048. The 0042500112 position rows (section 10) are a development record
+  under D154.
+
+**The jobs.** All 10 placement jobs on 0022501048 are in the job logs. D157's record (60 searched, 4 placed,
+1.79 h) is the state after job 4. Jobs 5 to 7 continued the search. The last three short jobs, ending 13:53,
+13:56 and 13:59 on 2026-11-22, are the ones the lead killed after Lucien's pause. Each of them loaded the model,
+and together they added 60 crop reads (section 12).
+
+**What would reopen it.** Either of these, registered before any read:
+
+- a source of uncut full broadcasts;
+- a placement method that does not rely on the game clock.
+
+Either would be a new pipeline version, which D149 allows to be scored once.
+
+### 14.2 Cut screen result
 
 From `screen.json` in each game's folder of the P8 workspace.
 
