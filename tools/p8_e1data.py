@@ -3,12 +3,13 @@ Nothing trains here.
 
     python3 -m tools.p8_e1data plan                                   guard, list every accepted camera-truth frame
     python3 -m export.heavy --name ... -- <teacher venv python> -m tools.p8_e1data run --chunk K
-    python3 -m tools.p8_e1data build                                  labels, manifest, data.yaml, counts
+    python3 -m tools.p8_e1data build                                  labels, manifest, meta, counts
 
 Corpus (outside the repository, in the P8 workspace, default <home>/Developer/nba-v3-worktrees/_p8-data/e1_corpus or
 V3_P8_E1): images/<game>/<window>_f<frame>.jpg, labels/<game>/<same stem>.txt (YOLO format, class 0 player),
 preds/chunk_<K>.json (raw detections of both models), manifest.json (every frame, its boxes by source), meta.json
-(games, teacher, weights, thresholds, code commit, dataset versions; D150 condition 4), data.yaml.
+(games, teacher, weights, thresholds, code commit, dataset versions; D150 condition 4). No data.yaml: the splits are
+per fold (tools/p8_e1_colab.py).
 
 Frames: every accepted camera-truth frame of the 3 R1.3 games with Mac truth (gsw_bkn_2015, gsw_cha_2016,
 gsw_sac_2015), in time order; chosen by the camera-truth acceptance rule only, never by a model. gsw_ind_2016 (D98)
@@ -249,8 +250,6 @@ def cmd_build(args) -> dict:
             "cpu_seconds": {m: round(s, 1) for m, s in secs.items()}}
     atomic_write(root / "meta.json", json.dumps(meta, indent=1))
     atomic_write(root / "manifest.json", json.dumps({"counts": counts, "frames": manifest}))
-    atomic_write(root / "data.yaml", "path: %s\ntrain: [%s]\nval: [%s]\nnames:\n  0: player\n" % (
-        root, ", ".join(f"images/{g}" for g in GAMES), ", ".join(f"images/{g}" for g in GAMES)))
     out = {"counts": counts, "cpu_hours": {m: round(s / 3600, 3) for m, s in secs.items()},
            "disk_bytes": sum(p.stat().st_size for p in root.rglob("*") if p.is_file())}
     print(json.dumps(out, indent=1))
