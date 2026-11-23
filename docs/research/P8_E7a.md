@@ -82,3 +82,9 @@ Weights: `wasb_basketball_best.pth.tar`, 6,102,633 bytes, sha256
    reports/research/p8_e7a.json.
 9. **Reading.** Report-only, a first measurement of the ball row. Nothing is adopted; the scorecard's F1 target
    (0.75) is quoted for context only. E2's release-time question is noted, not settled.
+
+## Changes after registration
+
+1. 2026-11-23, before any prediction was written: the first gsw_bkn_2015 run stopped after 614 s of lock on a sampled
+   frame 0 of a clip, which no triplet can end at (an empty segment). Rule added: a sampled frame 0 or 1 of a clip
+   takes the clip's first triplet (frames 0 to 2) alone. No output of that run exists, so nothing was seen.

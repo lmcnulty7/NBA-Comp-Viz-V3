@@ -16,7 +16,8 @@ tracker/online.yaml, dataloader/default.yaml): HRNet, 3 frames in and 3 out at 5
 repository's affine (centre, scale max(h, w)), ImageNet normalisation, sigmoid heatmaps, connected-component blobs above
 0.5 weighted by the heatmap, step 3, the online tracker (max displacement 300 px). The only departures: CPU instead of
 CUDA, and the clip is a segment of SEGMENT_TRIPLETS consecutive triplets ending at the sampled frame, the tracker
-refreshed per segment (the repository runs whole annotated clips).
+refreshed per segment (the repository runs whole annotated clips); a sampled frame 0 or 1 of a clip, which no triplet
+can end at, takes the clip's first triplet (frames 0 to 2) alone.
 """
 
 from __future__ import annotations
@@ -263,12 +264,15 @@ def cmd_run(args) -> dict:
                 raise SystemExit(f"{WHO}: {win} is {img.shape[1]}x{img.shape[0]}, not 1280x720")
             buf.append(img)
             buf = buf[-need:]
-            if pos == targets[ti]:
-                seg = buf[len(buf) % 3:]                   # whole triplets ending at the sampled frame
+            while ti < len(targets) and pos >= 2 and targets[ti] <= pos:
+                if targets[ti] == pos:
+                    seg, k = buf[len(buf) % 3:], -1        # whole triplets ending at the sampled frame
+                else:                                      # frames 0 and 1: the clip's first triplet holds them
+                    seg, k = buf[:3], targets[ti]
                 t1 = time.time()
                 r = run_segment(model, post, make_tracker, gat, cfg, seg)
                 secs_model += time.time() - t1
-                preds[f"{win}/{pos}"] = dict(r[-1], segment_frames=len(seg))
+                preds[f"{win}/{targets[ti]}"] = dict(r[k], segment_frames=len(seg))
                 ti += 1
             pos += 1
         cap.release()
