@@ -4567,5 +4567,125 @@
    }
   },
   "license_scope": "SHOT Dataset - License Scope The original annotations and documentation are licensed under the Creative Commons Attribution-NonCommercial 4.0 International license, to the extent that the SHOT contributors hold the relevant rights. Third-party basketball footage and images extracted from it are excluded from this license. They remain subject to their respective rights holders' terms and applicable law. No additional rights to those materials are granted by the SHOT contributors."
+ },
+ "SportsMOT": {
+  "source": "https://huggingface.co/datasets/MCG-NJU/SportsMOT",
+  "revision": "1b0b418ea611a8e934f1e773313e719e4fa1265e",
+  "repo_sha_now": "1b0b418ea611a8e934f1e773313e719e4fa1265e",
+  "license_tag": [
+   "license:cc-by-nc-4.0"
+  ],
+  "date": "2026-11-23",
+  "listed_files": 13,
+  "listed_bytes": 36504128690,
+  "terms_quoted": {
+   "source": "github.com/MCG-NJU/SportsMOT README.md, read 2026-11-21 and 2026-11-23",
+   "license": "SportsMOT is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.",
+   "terms": [
+    "SportsMOT is allowed to be used only if you accept these terms and conditions of our competition.",
+    "You agree not to distribute the SportsMOT dataset without prior written permission."
+   ],
+   "our_use": "non-commercial research; nothing redistributed, committed or shown on a site (D131, D150 (1))"
+  },
+  "residual_risk": "D150 (2): clip names carry a YouTube id and a clip number, not a game, date or team, so the games cannot be identified and a spent held-out game or a D85 test-arena game may be inside the set; used with that risk disclosed, as the qualified MixSort teacher was already trained on it",
+  "not_fetched": {
+   "dataset/test.tar": "no labels (the authors keep them back); 23208035328 bytes"
+  },
+  "mirrors_not_used": [
+   "caihongtang/SportsMOT",
+   "Lekim89/sportsmot",
+   "Hellfire98/sportsmot"
+  ],
+  "clips_by_split": {
+   "train": 15,
+   "val": 15
+  },
+  "basketball_clips_listed": 80,
+  "tars": {
+   "dataset/train.tar": {
+    "bytes": 6703191552,
+    "listed_size": 6703191552,
+    "sha256": "dc8edc8126bcb66611e768679f618a14880510944dc0e07959c00c0c14722341",
+    "lfs_sha256": "dc8edc8126bcb66611e768679f618a14880510944dc0e07959c00c0c14722341",
+    "sha256_matches": true,
+    "files_kept": 12414,
+    "bytes_kept": 2879889107
+   }
+  },
+  "license_text": {}
+ },
+ "DeepSportRadar": {
+  "source": "https://www.kaggle.com/datasets/deepsportradar/basketball-instants-dataset (Kaggle dataset version 4, last updated 2022-04-05)",
+  "files": {
+   "basketball-instants-dataset.zip": {
+    "bytes": 6589981383,
+    "sha256": "5a586195ac72ff853063aa85418578c64007ad8e547c38b2feee98ee43b38f0b"
+   }
+  },
+  "date": "2026-11-23",
+  "download_url": "https://www.kaggle.com/api/v1/datasets/download/deepsportradar/basketball-instants-dataset",
+  "head_bytes": null,
+  "note": "Kaggle metadata licenseName 'CC BY-NC-SA 4.0'. Downloaded through the Kaggle API download endpoint, which redirected to a signed storage URL without a login or token; no Kaggle account was used. Kaggle's terms page renders by script and could not be read. The DeepSport dataset it extends is 'CC BY-NC-ND 4.0' (Kaggle metadata).",
+  "screen": {
+   "instants": 364,
+   "images_json": 728,
+   "arenas": [
+    "KS-FR-BLOIS",
+    "KS-FR-BOURGEB",
+    "KS-FR-CAEN",
+    "KS-FR-FOS",
+    "KS-FR-GRAVELINES",
+    "KS-FR-LEMANS",
+    "KS-FR-LIMOGES",
+    "KS-FR-MONACO",
+    "KS-FR-NANCY",
+    "KS-FR-NANTES",
+    "KS-FR-POITIERS",
+    "KS-FR-ROANNE",
+    "KS-FR-STCHAMOND",
+    "KS-FR-STRASBOURG",
+    "KS-FR-VICHY"
+   ],
+   "arena_folders": [
+    "KS-FR-BLOIS",
+    "KS-FR-BOURGEB",
+    "KS-FR-CAEN",
+    "KS-FR-FOS",
+    "KS-FR-GRAVELINES",
+    "KS-FR-LEMANS",
+    "KS-FR-LIMOGES",
+    "KS-FR-MONACO",
+    "KS-FR-NANCY",
+    "KS-FR-NANTES",
+    "KS-FR-POITIERS",
+    "KS-FR-ROANNE",
+    "KS-FR-STCHAMOND",
+    "KS-FR-STRASBOURG",
+    "KS-FR-VICHY"
+   ],
+   "games": 37,
+   "rule_type": {
+    "FIBA": 364
+   },
+   "league_ids": {
+    "2000": 66,
+    "855": 109,
+    "1952": 49,
+    "931": 17,
+    "1982": 38,
+    "967": 20,
+    "854": 26,
+    "750": 14,
+    "856": 2,
+    "768": 5,
+    "989": 8,
+    "2049": 10
+   },
+   "nba_or_d85_names_found": [],
+   "reading": "not NBA: every instant is FIBA rules in a French arena (Keemotion labels KS-FR-*); no NBA arena and no MIA, TOR, LAC, LAL, CLE or PHX-at-GSW name in any file name or index entry, so D150's drops do not apply; no spent held-out game can appear (those are NBA 2015-16)"
+  },
+  "license_text": {
+   "kaggle.com/api/v1/datasets/view/deepsportradar/basketball-instants-dataset (licenseNameNullable)": "CC BY-NC-SA 4.0"
+  }
  }
 }
