@@ -1,0 +1,395 @@
+{
+ "registered_in": "docs/research/P8_E7a.md",
+ "tol_px": 32.07,
+ "report_tols_px": [
+  2.67,
+  10.0,
+  20.0
+ ],
+ "games": {
+  "gsw_bkn_2015": {
+   "sampled": 296,
+   "truth_frames": 296,
+   "excluded": {
+    "ball not tracked": 0,
+    "ball height out of range": 0
+   },
+   "in_image": 296,
+   "in_image_share": 1.0,
+   "counts": {
+    "tp": 39,
+    "fp": 106,
+    "fn": 257
+   },
+   "precision": 0.269,
+   "recall": 0.1318,
+   "f1": 0.1769,
+   "frame_bootstrap": {
+    "f1": [
+     0.1287,
+     0.2277
+    ],
+    "precision": [
+     0.2,
+     0.3438
+    ],
+    "recall": [
+     0.0946,
+     0.1723
+    ]
+   },
+   "by_band": {
+    "low": {
+     "tp": 26,
+     "fp": 61,
+     "fn": 157,
+     "recall": 0.14207650273224043
+    },
+    "mid": {
+     "tp": 13,
+     "fp": 36,
+     "fn": 85,
+     "recall": 0.1326530612244898
+    },
+    "high": {
+     "tp": 0,
+     "fp": 9,
+     "fn": 15,
+     "recall": 0.0
+    }
+   },
+   "held": {
+    "true": {
+     "tp": 28,
+     "fp": 72,
+     "fn": 189,
+     "recall": 0.12903225806451613
+    },
+    "false": {
+     "tp": 11,
+     "fp": 34,
+     "fn": 68,
+     "recall": 0.13924050632911392
+    }
+   },
+   "report_tols": {
+    "2.67": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "10.0": {
+     "precision": 0.0552,
+     "recall": 0.027,
+     "f1": 0.0363
+    },
+    "20.0": {
+     "precision": 0.1103,
+     "recall": 0.0541,
+     "f1": 0.0726
+    }
+   },
+   "seconds_model": 557.2,
+   "seconds_total": 614.4
+  },
+  "gsw_cha_2016": {
+   "sampled": 235,
+   "truth_frames": 235,
+   "excluded": {
+    "ball not tracked": 0,
+    "ball height out of range": 0
+   },
+   "in_image": 235,
+   "in_image_share": 1.0,
+   "counts": {
+    "tp": 34,
+    "fp": 111,
+    "fn": 201
+   },
+   "precision": 0.2345,
+   "recall": 0.1447,
+   "f1": 0.1789,
+   "frame_bootstrap": {
+    "f1": [
+     0.129,
+     0.2341
+    ],
+    "precision": [
+     0.1702,
+     0.3061
+    ],
+    "recall": [
+     0.1021,
+     0.1915
+    ]
+   },
+   "by_band": {
+    "low": {
+     "tp": 25,
+     "fp": 68,
+     "fn": 120,
+     "recall": 0.1724137931034483
+    },
+    "mid": {
+     "tp": 8,
+     "fp": 35,
+     "fn": 70,
+     "recall": 0.10256410256410256
+    },
+    "high": {
+     "tp": 1,
+     "fp": 8,
+     "fn": 11,
+     "recall": 0.08333333333333333
+    }
+   },
+   "held": {
+    "true": {
+     "tp": 30,
+     "fp": 83,
+     "fn": 148,
+     "recall": 0.16853932584269662
+    },
+    "false": {
+     "tp": 4,
+     "fp": 28,
+     "fn": 53,
+     "recall": 0.07017543859649122
+    }
+   },
+   "report_tols": {
+    "2.67": {
+     "precision": 0.0138,
+     "recall": 0.0085,
+     "f1": 0.0105
+    },
+    "10.0": {
+     "precision": 0.0207,
+     "recall": 0.0128,
+     "f1": 0.0158
+    },
+    "20.0": {
+     "precision": 0.1103,
+     "recall": 0.0681,
+     "f1": 0.0842
+    }
+   },
+   "seconds_model": 454.0,
+   "seconds_total": 503.8
+  },
+  "gsw_sac_2015": {
+   "sampled": 280,
+   "truth_frames": 278,
+   "excluded": {
+    "ball not tracked": 2,
+    "ball height out of range": 0
+   },
+   "in_image": 275,
+   "in_image_share": 0.9892,
+   "counts": {
+    "tp": 40,
+    "fp": 115,
+    "fn": 235
+   },
+   "precision": 0.2581,
+   "recall": 0.1455,
+   "f1": 0.186,
+   "frame_bootstrap": {
+    "f1": [
+     0.1375,
+     0.2393
+    ],
+    "precision": [
+     0.1914,
+     0.3289
+    ],
+    "recall": [
+     0.1058,
+     0.1891
+    ]
+   },
+   "by_band": {
+    "low": {
+     "tp": 27,
+     "fp": 56,
+     "fn": 127,
+     "recall": 0.17532467532467533
+    },
+    "mid": {
+     "tp": 12,
+     "fp": 40,
+     "fn": 85,
+     "recall": 0.12371134020618557
+    },
+    "high": {
+     "tp": 1,
+     "fp": 19,
+     "fn": 23,
+     "recall": 0.041666666666666664
+    }
+   },
+   "held": {
+    "true": {
+     "tp": 33,
+     "fp": 62,
+     "fn": 150,
+     "recall": 0.18032786885245902
+    },
+    "false": {
+     "tp": 7,
+     "fp": 53,
+     "fn": 85,
+     "recall": 0.07608695652173914
+    }
+   },
+   "report_tols": {
+    "2.67": {
+     "precision": 0.0129,
+     "recall": 0.0073,
+     "f1": 0.0093
+    },
+    "10.0": {
+     "precision": 0.071,
+     "recall": 0.04,
+     "f1": 0.0512
+    },
+    "20.0": {
+     "precision": 0.1419,
+     "recall": 0.08,
+     "f1": 0.1023
+    }
+   },
+   "seconds_model": 532.5,
+   "seconds_total": 587.3
+  },
+  "hou_cle_2016": {
+   "sampled": 467,
+   "truth_frames": 467,
+   "excluded": {
+    "ball not tracked": 0,
+    "ball height out of range": 0
+   },
+   "in_image": 466,
+   "in_image_share": 0.9979,
+   "counts": {
+    "tp": 86,
+    "fp": 132,
+    "fn": 380
+   },
+   "precision": 0.3945,
+   "recall": 0.1845,
+   "f1": 0.2515,
+   "frame_bootstrap": {
+    "f1": [
+     0.2077,
+     0.2957
+    ],
+    "precision": [
+     0.3319,
+     0.4589
+    ],
+    "recall": [
+     0.1502,
+     0.2189
+    ]
+   },
+   "by_band": {
+    "low": {
+     "tp": 50,
+     "fp": 88,
+     "fn": 218,
+     "recall": 0.1865671641791045
+    },
+    "mid": {
+     "tp": 30,
+     "fp": 40,
+     "fn": 153,
+     "recall": 0.16393442622950818
+    },
+    "high": {
+     "tp": 6,
+     "fp": 4,
+     "fn": 9,
+     "recall": 0.4
+    }
+   },
+   "held": {
+    "true": {
+     "tp": 66,
+     "fp": 99,
+     "fn": 278,
+     "recall": 0.19186046511627908
+    },
+    "false": {
+     "tp": 20,
+     "fp": 33,
+     "fn": 102,
+     "recall": 0.16393442622950818
+    }
+   },
+   "report_tols": {
+    "2.67": {
+     "precision": 0.0046,
+     "recall": 0.0021,
+     "f1": 0.0029
+    },
+    "10.0": {
+     "precision": 0.0734,
+     "recall": 0.0343,
+     "f1": 0.0468
+    },
+    "20.0": {
+     "precision": 0.2064,
+     "recall": 0.0966,
+     "f1": 0.1316
+    }
+   },
+   "seconds_model": 835.0,
+   "seconds_total": 904.2
+  }
+ },
+ "date": "2026-11-23",
+ "pooled_3": {
+  "counts": {
+   "tp": 113,
+   "fp": 332,
+   "fn": 693
+  },
+  "precision": 0.2539,
+  "recall": 0.1402,
+  "f1": 0.1807,
+  "in_image_share": 0.9963,
+  "game_bootstrap": {
+   "f1": [
+    0.1769,
+    0.186
+   ],
+   "precision": [
+    0.2345,
+    0.269
+   ],
+   "recall": [
+    0.1318,
+    0.1455
+   ]
+  },
+  "report_tols": {
+   "2.67": {
+    "precision": 0.009,
+    "recall": 0.005,
+    "f1": 0.0064
+   },
+   "10.0": {
+    "precision": 0.0494,
+    "recall": 0.0273,
+    "f1": 0.0352
+   },
+   "20.0": {
+    "precision": 0.1213,
+    "recall": 0.067,
+    "f1": 0.0863
+   }
+  }
+ },
+ "mac_hours_model_total": 0.725
+}
