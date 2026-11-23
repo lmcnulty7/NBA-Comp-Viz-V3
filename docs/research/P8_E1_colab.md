@@ -23,15 +23,14 @@ short corpus (the Colab run checks bytes and counts again and stops).
 ## 2. Run (one fold per session)
 
 Runtime: T4 GPU. Paste the one cell from notebooks/colab_p8_e1.ipynb (also below), set FOLD to one of
-gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 and PIN to the commit the lead names after merging this tool (the lead writes
-it into this README and the notebook then; until then the cell holds a placeholder and must not be run). All logic is in
+gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 and leave PIN at 1f14c1ae, the merge of the review fixes on v4-research (named by the lead on 2026-11-23). All logic is in
 the repo script; the cell only mounts Drive, resets the repo to PIN and runs it, stopping before "done" if it fails.
 
 ```python
 #@title P8 E1, one fold (all logic in tools/p8_e1_colab.py at the pinned commit)
 FOLD = "gsw_bkn_2015"      # the held-out game: gsw_bkn_2015, gsw_cha_2016 or gsw_sac_2015
 SEED = 0                   # one seed first (D156)
-PIN = "<commit the lead names>"
+PIN = "1f14c1ae"
 import os
 from google.colab import drive
 drive.mount("/content/drive")
