@@ -21,21 +21,30 @@ Every run writes run_record.json beside the weights: fold, held-out game, traini
 (teacher, weights, thresholds, code commit, dataset versions), the split, the seed, the recipe and the library versions
 (D150 condition 4).
 
+Checks before training: tools.p8_common.guard on every game, SportVU id and video id (D85 test set and the spent
+held-out games); for each training game, images, labels and the corpus manifest's frame count agree; Ultralytics' own
+label check (verify_image_label, the function its dataset loader uses) on the train and validation lists finds every
+label and drops no image as corrupt. Its found, missing, empty and corrupt counts go into run_record.json.
+
 Colab (`colab`): Drive mounted at /content/drive; the corpus tars written by tools/p8_e1_pack.py in DRIVE_CORPUS are
-copied to local disk, checked against their pack manifest by member count, unpacked; the fold trains on the GPU; the
-run folder (weights, results, run_record.json) goes back to DRIVE_RUNS as one tar per run, and Drive is flushed by the
-cell.
+checked against their pack manifest (members and bytes) and extracted straight from the Drive mount to local disk (no
+separate copy step); the fold trains on the GPU; complete.json (the sha256 of best.pt and last.pt) is written into the
+run folder after training; the run folder goes to DRIVE_RUNS as one tar per run, with <run>.complete.json beside it. A
+result tar of the same name already on Drive is renamed (never deleted) before training starts. The cell flushes Drive.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 import shutil
 import tarfile
+import time
 from pathlib import Path
 
+from tools.p8_common import guard
 from tools.research_testset import refuse_cv_test
 
 WHO = "tools.p8_e1_colab"
@@ -76,12 +85,43 @@ def fold_stems(corpus: Path, fold: str) -> list:
     return [s for s in stems if s.split("/", 1)[0] in keep]
 
 
+def corpus_ids(meta: dict) -> list:
+    return (list(meta["games"]) + [d["sportvu"] for d in meta["datasets"].values()]
+            + [d["video_id"] for d in meta["datasets"].values()])
+
+
+def check_counts(corpus: Path, games: list) -> dict:
+    """Per training game, images, labels and the corpus manifest's frame count must agree -> the counts."""
+    counts = json.loads((corpus / "manifest.json").read_text())["counts"]
+    out = {}
+    for g in games:
+        imgs = len(list((corpus / "images" / g).glob("*.jpg")))
+        labs = len(list((corpus / "labels" / g).glob("*.txt")))
+        want = counts[g]["frames"]
+        if not imgs == labs == want:
+            raise SystemExit(f"{WHO}: {g}: {imgs} images, {labs} labels, manifest {want} frames")
+        out[g] = imgs
+    return out
+
+
+def label_check(im_files: list) -> dict:
+    """Ultralytics' own image and label verification over a split -> found, missing, empty and corrupt counts."""
+    from ultralytics.data.utils import img2label_paths, verify_image_label
+    tot = {"images": len(im_files), "found": 0, "missing": 0, "empty": 0, "corrupt": 0}
+    for im, lb in zip(im_files, img2label_paths(im_files)):
+        r = verify_image_label((im, lb, "", False, 1, 0, 0, False))
+        nm, nf, ne, nc = r[5:9]
+        tot["missing"] += nm; tot["found"] += nf; tot["empty"] += ne; tot["corrupt"] += nc
+    return tot
+
+
 def prepare(corpus: Path, fold: str, seed: int, out: Path) -> dict:
     """The fold's split files, data.yaml and run_record.json (no training) -> the record."""
     meta = json.loads((corpus / "meta.json").read_text())
-    refuse_cv_test(list(meta["games"]) + [d["sportvu"] for d in meta["datasets"].values()]
-                   + [d["video_id"] for d in meta["datasets"].values()], WHO)
+    refuse_cv_test(corpus_ids(meta), WHO)
+    guard(corpus_ids(meta), WHO)
     games = fold_games(fold)
+    image_counts = check_counts(corpus, games)
     train_s, val_s = split_windows(fold_stems(corpus, fold))
     if any(s.split("/", 1)[0] == fold for s in train_s + val_s):
         raise SystemExit(f"{WHO}: held-out game {fold} reached its own fold")
@@ -93,11 +133,29 @@ def prepare(corpus: Path, fold: str, seed: int, out: Path) -> dict:
               "training_games": games, "corpus_meta": meta,
               "corpus_counts": {g: c for g, c in json.loads((corpus / "manifest.json").read_text())["counts"].items()
                                 if g in games},
-              "split": {"train": len(train_s), "val": len(val_s), "val_share": VAL_SHARE},
+              "split": {"train": len(train_s), "val": len(val_s), "val_share": VAL_SHARE}, "image_counts": image_counts,
               "recipe": {"base": BASE, "epochs": EPOCHS, "imgsz": IMGSZ, "batch": BATCH, "patience": PATIENCE},
               "seed": seed}
     (out / "run_record.json").write_text(json.dumps(record, indent=1))
     return record
+
+
+def checked_labels(out: Path, split: dict) -> dict:
+    """label_check on the split lists -> counts; SystemExit when an image is corrupt or a label is not found."""
+    res = {}
+    for name in ("train", "val"):
+        files = [l for l in (out / f"{name}.txt").read_text().splitlines() if l]
+        c = label_check(files)
+        if c["corrupt"] or c["found"] != split[name]:
+            raise SystemExit(f"{WHO}: {name}: Ultralytics found {c['found']} labels for {split[name]} images, "
+                             f"{c['corrupt']} corrupt")
+        res[name] = c
+    return res
+
+
+def weights_hashes(out: Path) -> dict:
+    w = out / "train" / "weights"
+    return {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(w.glob("*.pt"))}
 
 
 def train(corpus: Path, fold: str, seed: int, out: Path, device: str = "0") -> Path:
@@ -105,10 +163,15 @@ def train(corpus: Path, fold: str, seed: int, out: Path, device: str = "0") -> P
     import ultralytics
     from ultralytics import YOLO
     record["ultralytics"] = ultralytics.__version__
+    record["label_check"] = checked_labels(out, record["split"])
     (out / "run_record.json").write_text(json.dumps(record, indent=1))
     random.seed(seed)
     YOLO(BASE).train(data=str(out / "data.yaml"), epochs=EPOCHS, imgsz=IMGSZ, batch=BATCH, patience=PATIENCE,
                      seed=seed, deterministic=True, device=device, project=str(out), name="train", exist_ok=True)
+    hashes = weights_hashes(out)
+    if "best.pt" not in hashes:
+        raise SystemExit(f"{WHO}: training wrote no best.pt")
+    (out / "complete.json").write_text(json.dumps({"fold": fold, "seed": seed, "weights": hashes}, indent=1))
     return out
 
 
@@ -116,22 +179,37 @@ def run_name(fold: str, seed: int) -> str:
     return f"e1_{fold}_seed{seed}"
 
 
+def set_aside(path: Path) -> Path | None:
+    """Rename an existing file to <name>.prev-<UTC time> (never delete) -> the new path, or None."""
+    if not path.exists():
+        return None
+    new = path.with_name(f"{path.name}.prev-{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}")
+    path.rename(new)
+    return new
+
+
 def colab(fold: str, seed: int) -> Path:
-    """The whole Colab run for one fold: corpus from Drive, checked by count, training, one result tar to Drive."""
+    """The whole Colab run for one fold: corpus from Drive, checked, training, one result tar to Drive."""
     from tools.p8_e1_pack import unpack_checked
     games = fold_games(fold)
+    guard(list(GAMES), WHO)
+    name = run_name(fold, seed)
+    DRIVE_RUNS.mkdir(parents=True, exist_ok=True)
+    for p in (DRIVE_RUNS / f"{name}.tar", DRIVE_RUNS / f"{name}.complete.json"):
+        moved = set_aside(p)
+        if moved:
+            print(f"{WHO}: an earlier {p.name} was renamed to {moved.name}", flush=True)
     corpus = LOCAL / "corpus"
     corpus.mkdir(parents=True, exist_ok=True)
     unpack_checked(DRIVE_CORPUS, corpus, ["common", *games])
-    name = run_name(fold, seed)
     out = train(corpus, fold, seed, LOCAL / "runs" / name)
-    DRIVE_RUNS.mkdir(parents=True, exist_ok=True)
     tmp = LOCAL / f"{name}.tar"
     with tarfile.open(tmp, "w") as tf:
         for p in sorted(out.rglob("*")):
             if p.is_file():
                 tf.add(p, arcname=str(p.relative_to(out.parent)))
     shutil.copy2(tmp, DRIVE_RUNS / tmp.name)
+    shutil.copy2(out / "complete.json", DRIVE_RUNS / f"{name}.complete.json")
     print(f"{WHO}: {name} written to {DRIVE_RUNS / tmp.name}", flush=True)
     return DRIVE_RUNS / tmp.name
 

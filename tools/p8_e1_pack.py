@@ -18,6 +18,7 @@ import json
 import tarfile
 from pathlib import Path
 
+from tools.p8_common import guard
 from tools.research_testset import refuse_cv_test
 
 WHO = "tools.p8_e1_pack"
@@ -45,7 +46,9 @@ def sha256(path: Path) -> str:
 def pack(corpus: Path, dest: Path) -> dict:
     meta = json.loads((corpus / "meta.json").read_text())
     games = list(meta["games"])
-    refuse_cv_test(games, WHO)
+    ids = games + [d["sportvu"] for d in meta["datasets"].values()] + [d["video_id"] for d in meta["datasets"].values()]
+    refuse_cv_test(ids, WHO)
+    guard(ids, WHO)
     dest.mkdir(parents=True, exist_ok=True)
     man = {"corpus_meta_commit": meta.get("code_commit"), "parts": {}}
     for part in ["common", *games]:
@@ -69,15 +72,19 @@ def count_members(tar_path: Path) -> int:
 
 
 def verify(dest: Path, parts=None) -> dict:
-    """Member count of each tar in dest against pack_manifest.json -> {part: (found, expected)}; SystemExit when any
-    differs or is missing."""
+    """Bytes and member count of each tar in dest against pack_manifest.json -> {part: (members found, expected)};
+    SystemExit when either differs or a tar is missing."""
     man = json.loads((dest / "pack_manifest.json").read_text())
     out, bad = {}, []
     for part, rec in man["parts"].items():
         if parts and part not in parts:
             continue
         tp = dest / rec["tar"]
-        found = count_members(tp) if tp.exists() else None
+        if not tp.exists() or tp.stat().st_size != rec["bytes"]:
+            out[part] = (None, rec["members"])
+            bad.append(part)
+            continue
+        found = count_members(tp)
         out[part] = (found, rec["members"])
         if found != rec["members"]:
             bad.append(part)
@@ -87,7 +94,8 @@ def verify(dest: Path, parts=None) -> dict:
 
 
 def unpack_checked(src: Path, dest: Path, parts: list) -> dict:
-    """Copy-free unpack on Colab: verify the named parts' member counts in src, then extract them into dest."""
+    """On Colab: verify the named parts' bytes and member counts in src (the Drive mount), then extract them from
+    there straight into dest (no separate copy step)."""
     counts = verify(src, parts)
     for part in parts:
         with tarfile.open(src / f"{part}.tar") as tf:
