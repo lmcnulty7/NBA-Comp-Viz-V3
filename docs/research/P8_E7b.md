@@ -1,6 +1,6 @@
 # P8 E7b: WASB's basketball model on DeepSportRadar's annotated balls (PLAN.md D165)
 
-Status: stopped before any image was read, on 2026-11-23. The set cannot be scored as WASB expects: each annotated
+Status: stopped before any image was read, on 2026-11-23; the lead chose option 1 (stop), to be logged as D166. The set cannot be scored as WASB expects: each annotated
 view holds two frames, and WASB's input is three consecutive frames. Written and committed before any image was
 opened; the facts below come from the archive's file names and JSON annotations only.
 
@@ -43,3 +43,52 @@ the model's input.
    NUST-NBA181 videos, which are on request, D163 (3)).
 
 Nothing was trained, tuned or run on DeepSportRadar, and no image was read.
+
+## WASB's own basketball numbers, read at the source
+
+Source: Tarashima, Haq, Wang and Tagawa, "Widely Applicable Strong Baseline for Sports Ball Detection and Tracking",
+BMVC 2023, arXiv 2311.05237 (PDF read 2026-11-23); the repository (github.com/nttcom/WASB-SBDT, 923462ca) says its
+evaluation commands "reproduce the results of Table 2 and Table 3" of the paper (GET_STARTED.md) and holds no results
+table of its own.
+
+- Test set (Table 1, "Basketball"): 11 games, 432 clips, 31,104 frames; resolution "1920 x 1080" ("the majority of
+  image resolution in the dataset"); FPS "N/A"; average ball displacement between consecutive frames 33.9 +/- 21.4 px.
+  Training: 70 games, 3,392 clips, 244,224 frames. Video from the NBA dataset of reference [91] (the NUST-NBA181
+  clips); "we manually annotated ball positions to 45% (81/181 games) of the whole video clips, resulting in 275,328
+  annotated images composed of 3,824 video clips"; "camera frequently moves and zooms in rapidly to follow where play
+  happens".
+- Metric (section 5.1): "With a distance threshold tau [pixel], for each frame we calculate the distance between a
+  predicted ball position and a ground truth to classify the prediction into true positive, true negative, false
+  positive or false negative." Table 2: "We set the distance threshold tau = 4 [pixel] to compute F1, Accuracy (Acc.)
+  and Average Precision (AP), all of which are shown as percentages." In the code the distance is taken in the
+  original image's pixels (the prediction mapped back through the inverse affine, src/detectors/postprocessor.py,
+  against the annotation, src/utils/evaluator.py). Input: "each image is resized to 288 x 512" (section 5.2).
+- Results, Basketball (Table 2): WASB (Step=3): F1 80.6, Acc. 71.3, AP 71.5, 30.2 FPS. WASB (Step=1): F1 82.6,
+  Acc. 73.4, AP 77.1, 22.3 FPS. E7a ran the Step=3 setting.
+
+What this says for E7a, as context only: on its own broadcast test data, with hand-clicked centres and a 4 px
+tolerance at 1080p, the released model reaches F1 80.6. E7a, on 2015-16 broadcasts at 720p and 59.94 fps scored
+against the projected SportVU ball, gives pooled F1 0.0064 at 2.67 px (4 px at 1080p scaled to 720p) and 0.1807 at
+the registered 32.07 px, and no point at all on 364 of 806 in-image frames. The gap mixes domain shift (season,
+broadcast, frame rate, our 12-frame segments) with truth error; these numbers do not separate the two.
+
+## E-BARD's detection set: consecutive frames? (file names and annotation JSON only)
+
+From E-BARD-detection/all.zip (cc-by-4.0, reports/research/p8_datasets_fetch.json), read without opening an image:
+
+- 1,800 images, 1280 x 720 (COCO metadata), named `<away>-vs-<home>-<game id>_<index>`, 30 per game over 60 games
+  (59 regular season 2024-25 and the 2024-25 Cup final). YOLO classes (data.yaml): basketball, hoop, player,
+  referee; 1,496 ball boxes on 1,465 images.
+- The index runs from 0 to 5,995 (per game maximum 692 at the 10th percentile, 3,084 median, 5,495 at the 90th).
+  Within a game, 720 pairs of images have indices one apart; runs of consecutive indices reach 30 (all 30 images of
+  4 games). 313 of the 1,465 ball images have both neighbours (index minus 1 and plus 1) in the set, 318 have the
+  two before and 315 the two after.
+- Whether one index step is one video frame is not stated in the files (the card says only "1,800 frames,
+  systematically sampled at 30 frames per game" from "60 full-game recordings"). If it is, those 313 images would
+  give WASB its 3 consecutive frames with a hand-drawn ball box as truth (the box centre as the point, a tolerance
+  from the box size), on NBA broadcast at 720p.
+
+Candidate for a later registration, not registered and not run: E-BARD's ball images whose index neighbours exist,
+once the E-BARD paper or its authors confirm what the index counts. Its 2024-25 frames fall under D149 (detector
+use only, nothing into a play-by-play lane) and its D150 screen drops the MIA, TOR, LAC and LAL home games and the
+unresolved Cup final (reports/research/p8_datasets_fetch.json, home_screen).
