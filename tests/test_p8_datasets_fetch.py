@@ -37,3 +37,59 @@ def test_pl_nba_folders_resolve_by_date_and_known_teams_only():
 def test_season_of_a_game_id():
     assert D.season_of("0022400861") == "2024-25" and D.season_of("0021800909") == "2018-19"
     assert D.season_of("0042500171") == "2025-26"
+
+
+def test_sportsmot_keeps_listed_clips_only_and_drops_mac_files():
+    clips = {"v_abc_c001"}
+    assert D.smot_keep("train/v_abc_c001/img1/000001.jpg", clips) == "train/v_abc_c001/img1/000001.jpg"
+    assert D.smot_keep("./val/v_abc_c001/gt/gt.txt", clips) == "val/v_abc_c001/gt/gt.txt"
+    assert D.smot_keep("train/v_abc_c001/img1/._000001.jpg", clips) is None
+    assert D.smot_keep("train/._v_abc_c001", clips) is None
+    assert D.smot_keep("train/v_xyz_c002/img1/000001.jpg", clips) is None          # another sport's clip
+    assert D.smot_keep("test/v_abc_c001/img1/000001.jpg", clips) is None           # test is never kept
+    assert D.smot_keep("train/v_abc_c001/../../x", clips) is None
+    assert D.smot_keep("/train/v_abc_c001/img1/000001.jpg", clips) is None
+    assert D.smot_keep("train/v_abc_c001", clips) is None                           # the folder entry itself
+
+
+def _tar_bytes(members):
+    import io
+    import tarfile
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w", format=tarfile.PAX_FORMAT) as tf:
+        for name, data in members:
+            if data is None:
+                ti = tarfile.TarInfo(name)
+                ti.type = tarfile.DIRTYPE
+                tf.addfile(ti)
+            else:
+                ti = tarfile.TarInfo(name)
+                ti.size = len(data)
+                ti.pax_headers = {"comment": "x"}
+                tf.addfile(ti, io.BytesIO(data))
+    return buf.getvalue()
+
+
+def test_sportsmot_stream_extracts_hashes_the_whole_tar_and_counts(tmp_path):
+    import hashlib
+    import io
+    raw = _tar_bytes([
+        ("train", None), ("train/._v_abc_c001", b"mac"), ("train/v_abc_c001", None),
+        ("train/v_abc_c001/seqinfo.ini", b"[Sequence]\nseqLength=2\n"),
+        ("train/v_abc_c001/gt/gt.txt", b"1, 7, 1, 2, 3, 4, 1, 1, 1\n2, 7, 1, 2, 3, 4, 1, 1, 1\n2, 8, 5, 6, 7, 8, 1, 1, 1\n"),
+        ("train/v_abc_c001/img1/000001.jpg", b"a"), ("train/v_abc_c001/img1/._000001.jpg", b"mac"),
+        ("train/v_abc_c001/img1/000002.jpg", b"b"),
+        ("train/v_xyz_c009/img1/000001.jpg", b"football"),
+        ("train/v_abc_c001/../../escape.txt", b"no"),
+    ])
+    r = D.HashingReader(io.BytesIO(raw))
+    files = D.extract_stream(r, tmp_path / "out", {"v_abc_c001"})
+    assert r.n == len(raw) and r.h.hexdigest() == hashlib.sha256(raw).hexdigest()
+    assert sorted(files) == ["train/v_abc_c001/gt/gt.txt", "train/v_abc_c001/img1/000001.jpg",
+                             "train/v_abc_c001/img1/000002.jpg", "train/v_abc_c001/seqinfo.ini"]
+    assert files["train/v_abc_c001/img1/000001.jpg"] == {"bytes": 1, "sha256": hashlib.sha256(b"a").hexdigest()}
+    assert not (tmp_path / "escape.txt").exists() and not list((tmp_path / "out").rglob("._*"))
+    c = D.smot_counts(tmp_path / "out", ["v_abc_c001", "v_missing_c001"])
+    assert c["v_abc_c001"] == {"split": "train", "frames": 2, "gt_lines": 3, "track_ids": 2, "seq_length": 2,
+                               "frames_match_seq_length": True}
+    assert c["v_missing_c001"] == {"missing": True}
