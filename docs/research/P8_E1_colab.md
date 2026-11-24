@@ -83,3 +83,23 @@ adoption needs all 3 (D85 (3)). A pool with a missing window is marked partial a
 
 The report pools the three held-out games against r23 on the same windows (window and game bootstrap) and applies D5
 with the Stage 1 rows; hou_cle_2016 is reported apart; gsw_ind_2016 stays apart (D98).
+
+## 5. Through the Colab API instead (D164, the lead drives it from Claude Code)
+
+The smoke test of 2026-11-24 (CPU runtime, Colab Pro account) found that drive.mount fails on runtimes the Colab API
+creates (ValueError "mount failed"), and that a 100 MB file goes up at 3.0 MB/s and comes back at 9.8 MB/s over the
+runtime's HTTP endpoints with an identical sha256. So the API path moves files over HTTP, not Drive:
+
+1. The lead creates a T4 runtime (Colab MCP create_runtime), only inside the unit cap Lucien set.
+2. On the Mac, with COLAB_URL and COLAB_TOKEN from get_runtime in the environment:
+   `python3 -m tools.p8_colab_xfer put-corpus --fold <fold> --pack <e1_pack folder>`
+   (common and the fold's two training games, each tar's sha256 checked against pack_manifest.json first).
+3. On the runtime (execute_code): clone the repository, `git reset --hard <pin>`, `pip install ultralytics==8.4.48`,
+   then start the run as a detached process with its log in /content:
+   `python -m tools.p8_e1_colab colab --fold <fold> --seed <seed> --corpus-dir /content/p8_e1_in/corpus --runs-dir /content/p8_e1_out`
+   The run checks members and bytes again before extracting, exactly as on Drive.
+4. The lead reads the log now and then (execute_code); whether a runtime with no client attached survives a 3 h run
+   is the open item of the smoke test.
+5. `python3 -m tools.p8_colab_xfer get-run --fold <fold> --seed <seed> --dest <folder outside the repository>`
+   downloads the result tar and complete.json and checks best.pt and last.pt inside the tar against complete.json.
+6. The lead deletes the runtime, then scores on the Mac as in section 4.
