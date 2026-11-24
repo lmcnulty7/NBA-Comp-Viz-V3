@@ -92,3 +92,25 @@ Candidate for a later registration, not registered and not run: E-BARD's ball im
 once the E-BARD paper or its authors confirm what the index counts. Its 2024-25 frames fall under D149 (detector
 use only, nothing into a play-by-play lane) and its D150 screen drops the MIA, TOR, LAC and LAL home games and the
 unresolved Cup final (reports/research/p8_datasets_fetch.json, home_screen).
+
+## What E-BARD's detection index counts: not stated at the source (2026-11-23, under D37)
+
+Read at the source, without contacting anyone:
+
+- The four Hugging Face cards (GabrieleGiudici/E-BARD-detection, -TeamAttribution, -JerseyNumberRecognition,
+  -ObjectClassification) name the paper ("E-BARD: A Multi-Task Extension of the Basketball Action Recognition Dataset
+  for Player Detection, Team Attribution and Jersey Number Recognition") but give no link to it. On sampling, the
+  detection card says only "Contains 1,800 frames, systematically sampled at 30 frames per game" and "Extracted from
+  60 full-game recordings from the 2024-2025 NBA season". The jersey card says its stubs are "16 consecutive frames"
+  of ByteTrack tracks, which is about a different set.
+- The project page (bodai.unibs.it, "E-BARD") describes the contributions and links the code at
+  github.com/GabrieleGiudic/E-BARD; it says nothing about frame sampling.
+- The repository (license file "Creative Commons Attribution 4.0 International (CC BY 4.0)", last push 2026-03-09)
+  holds detection training, evaluation and a YOLO-to-COCO converter (detection/src/to_coco.py), which reads images
+  already extracted. No file extracts or samples frames from video, and its JSON refers to detection images only by
+  the same `<game>_<index>` names (for example `../detection/data/coco/test/sac-vs-hou-0022400862_004924.jpg`).
+- The paper itself was not found: an arXiv search for "E-BARD" and for BARD with basketball returns no match, and
+  none of the pages above links a PDF.
+
+So no source says whether one index step is one video frame. As the lead set, E7c is not registered and nothing
+was run. A later step would need the paper, the authors' answer, or the BARD clips with a documented frame mapping.
