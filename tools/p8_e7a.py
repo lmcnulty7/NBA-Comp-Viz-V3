@@ -44,6 +44,10 @@ Z_BANDS_FT = (4.0, 10.0)          # low below 4 ft, mid 4 to 10 ft, high from 10
 TOL_PX = 32.07                    # 2 x 16.033 px: the scorecard's ball tolerance rule on the 3 games (P8_E7a.md)
 REPORT_TOLS_PX = (2.67, 10.0, 20.0)
 BOOT_N, BOOT_SEED = 2000, 7
+# Lock seconds of every E7a job, read from the heavy-job wrapper's "done in" lines (the first gsw_bkn_2015 run stopped
+# before writing anything; its log was overwritten by the rerun, the 614 s is from the session record).
+LOCK_SECONDS = {"plan": 6, "run gsw_bkn_2015 (stopped)": 614, "run gsw_bkn_2015": 616, "run gsw_cha_2016": 505,
+                "run gsw_sac_2015": 589, "run hou_cle_2016": 906}
 WASB_COMMIT = "923462cacdeb3353b84ddebdedb3f4b7a8553b0f"
 WEIGHTS_SHA256 = "8d1ba9870d0a6ab37b06ab82bed593c6c09133e713810bac475d0c000bb7e948"
 
@@ -235,7 +239,11 @@ def cmd_run(args) -> dict:
     import cv2
     if os.environ.get("V3_HEAVY_HELD") is None:
         raise SystemExit(f"{WHO}: run inside the heavy-job lock")
+    from tools import p8_frozen as F
+    from tools.p8_common import guard
     refuse_cv_test([args.game], WHO)
+    g0 = F.game_of(args.game)
+    guard([args.game, g0["sportvu"], g0["video_id"]], WHO)
     plan = json.loads((work() / "plan.json").read_text())
     g = plan["games"][args.game]
     out_p = work() / f"preds_{args.game}.json"
@@ -285,11 +293,24 @@ def cmd_run(args) -> dict:
 
 
 # ── score (system python) ───────────────────────────────────────────────────────────────────────────────────────────
+def diagnostics(frames: list) -> dict:
+    """Post hoc (not registered): where WASB gives a visible point on an in-image truth frame, the median distance
+    and median offsets (prediction minus truth, px; negative dy is above the truth)."""
+    import statistics as st
+    v = [f for f in frames if f["in_image"] and f.get("pred") is not None]
+    if not v:
+        return {"visible_on_in_image": 0}
+    d = [((f["pred"][0] - f["uv"][0]) ** 2 + (f["pred"][1] - f["uv"][1]) ** 2) ** 0.5 for f in v]
+    return {"visible_on_in_image": len(v), "in_image": sum(f["in_image"] for f in frames),
+            "median_dist_px": round(st.median(d), 1), "median_dx_px": round(st.median(f["pred"][0] - f["uv"][0] for f in v), 1),
+            "median_dy_px": round(st.median(f["pred"][1] - f["uv"][1] for f in v), 1)}
+
+
 def cmd_score(args) -> dict:
     plan = json.loads((work() / "plan.json").read_text())
     res = {"registered_in": "docs/research/P8_E7a.md", "tol_px": TOL_PX, "report_tols_px": REPORT_TOLS_PX,
            "games": {}, "date": dt.date.today().isoformat()}
-    per_game_frames = {}
+    per_game_frames, diag = {}, {}
     for tag in GAMES + APART:
         pp = work() / f"preds_{tag}.json"
         if not pp.exists():
@@ -319,6 +340,13 @@ def cmd_score(args) -> dict:
              "report_tols": {str(t): {k: (round(v, 4) if v is not None else None) for k, v in prf(count(frames, t)).items()}
                              for t in REPORT_TOLS_PX},
              "seconds_model": run["seconds_model"], "seconds_total": run["seconds_total"]}
+        by_w = {}
+        for f in frames:
+            by_w.setdefault(f["window"], []).append(f)
+        g["window_bootstrap_added_after_registration"] = {
+            k: boot(list(by_w.values()), lambda ws, k=k: prf(count([f for w in ws for f in w]))[k]) for k in ("f1", "precision", "recall")}
+        diag[tag] = {"all": diagnostics(frames), **{b: diagnostics([f for f in frames if f.get("band") == b])
+                                                   for b in ("low", "mid", "high")}}
         res["games"][tag] = g
     dev = [per_game_frames[t] for t in GAMES if t in per_game_frames]
     if len(dev) == len(GAMES):
@@ -330,7 +358,21 @@ def cmd_score(args) -> dict:
                                               for k in ("f1", "precision", "recall")},
                            "report_tols": {str(t): {k: (round(v, 4) if v is not None else None) for k, v in prf(count(pooled, t)).items()}
                                            for t in REPORT_TOLS_PX}}
-    res["mac_hours_model_total"] = round(sum(g.get("seconds_total", 0) for g in res["games"].values()) / 3600, 3)
+    if len(dev) == len(GAMES):
+        pooled = [f for fr in dev for f in fr]
+        vis = sum(1 for f in pooled if f["in_image"] and f.get("pred") is not None)
+        inb = sum(f["in_image"] for f in pooled)
+        p0 = res["pooled_3"]["precision"]
+        rmax = vis / inb
+        diag["pooled_3_ceiling"] = {"visible_on_in_image": vis, "in_image": inb, "recall_ceiling": round(rmax, 4),
+                                    "f1_ceiling_at_infinite_tolerance": round(2 * rmax * (vis / (vis + sum(1 for f in pooled if not f["in_image"] and f.get("pred") is not None))) /
+                                                                              (rmax + vis / (vis + sum(1 for f in pooled if not f["in_image"] and f.get("pred") is not None))), 4)}
+    res["post_hoc_diagnostics"] = {"label": "post hoc, not registered (added after the ML review of e2032857)", **diag}
+    res["run_hours_inside_lock"] = round(sum(g.get("seconds_total", 0) for g in res["games"].values()) / 3600, 3)
+    res["lock_seconds"] = {**LOCK_SECONDS, "total": sum(LOCK_SECONDS.values())}
+    res["frame_bootstrap_note"] = ("the per-game frame bootstrap treats frames as independent; frames 2 s apart in one "
+                                   "clip are not, so it is too narrow; the window bootstrap (added after registration) "
+                                   "resamples whole windows")
     atomic_write(work() / "result.json", json.dumps(res, indent=1))
     atomic_write(REPO / "reports" / "research" / "p8_e7a.json", json.dumps(res, indent=1) + "\n")
     print(json.dumps(res, indent=1))

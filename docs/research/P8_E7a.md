@@ -108,15 +108,47 @@ Reported beside it (pooled 3): F1 0.0064 at 2.67 px, 0.0352 at 10 px, 0.0863 at 
 loose: recall 91 of 578 held, 22 of 228 loose (per game in the JSON). The game-bootstrap interval of 3 games is
 narrow because the 3 games agree; it carries only 3 resamplable units.
 
-Reading, against the scorecard's 0.75 target quoted for context: far below it. Two things point at the truth more
-than at the model, and neither changes the registered reading. (1) F1 rises steadily with the tolerance (0.006,
-0.035, 0.086, 0.181 from 2.67 to 32 px): where WASB predicts, its point lies a median 52.6 px (gsw_bkn_2015) and
-41.4 px (hou_cle_2016) from the projected SportVU ball, with a median vertical offset of -12 to -15 px (the
-prediction above the truth). (2) Three gsw_bkn_2015 frames were drawn with both points to see which is on the ball
-(a look for this report, no label made, nothing scored from it): in the two with the ball in flight, WASB's point
-sits on the visible ball and the projected SportVU ball lies 27 and 90 px away. A ball truth this far off makes the
-ball row unmeasurable at any tolerance that would also reject wrong detections; the projected SportVU ball needs its
-own error measured (time offset and height) before a ball model can be scored against it.
+The per-game frame bootstrap treats sampled frames as independent; frames 2 s apart in one clip are not, so those
+intervals are too narrow. A window bootstrap (whole windows resampled, otherwise the same settings), added after
+registration, gives F1 [0.1272, 0.2290] (gsw_bkn_2015), [0.1274, 0.2323] (gsw_cha_2016), [0.1330, 0.2440]
+(gsw_sac_2015) and [0.2053, 0.3002] (hou_cle_2016); per game in the JSON.
 
-Lock time: 3,236 s (0.90 h): plan 6 s, the stopped first gsw_bkn_2015 run 614 s, then 616, 505, 589 and 906 s for
-gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 and hou_cle_2016. Model time on CPU about 0.7 s a 3-frame triplet.
+Reading, against the scorecard's 0.75 target quoted for context: far below it.
+
+## Post hoc (not registered)
+
+Added after the ML review of e2032857; numbers from `post_hoc_diagnostics` in reports/research/p8_e7a.json. None of
+this changes the registered reading.
+
+1. A ceiling from the model alone. WASB gives a visible point on 442 of the 806 in-image truth frames of the 3
+   games, so recall cannot exceed 0.548 and F1 cannot exceed about 0.707 (pooled) even at an infinite tolerance,
+   below the 0.75 target whatever the truth's error.
+2. Where WASB gives a point on an in-image truth frame, its distance from the projected SportVU ball and its
+   vertical offset (prediction minus truth, negative is above), medians:
+
+   | Game | Points | Median distance (px) | Median vertical offset (px) |
+   |---|---|---|---|
+   | gsw_bkn_2015 | 145 | 52.6 | -12.1 |
+   | gsw_cha_2016 | 145 | 68.4 | -19.2 |
+   | gsw_sac_2015 | 152 | 63.1 | -12.7 |
+   | hou_cle_2016 | 218 | 41.3 | -14.9 |
+
+   By height band (low, mid, high) the medians are in the JSON; the high band holds 9 to 19 points per game.
+3. The projection uses the ball's height through the full camera model (tools/p8_scorecard.py project3d, height
+   entering as minus z in the camera frame), so the 12 to 20 px vertical offset is not a projection that ignores
+   height. Candidates: the ball's radius (SportVU's ball point against the image centre of the ball), dribble
+   timing (SportVU at 25 Hz against 59.94 fps frames), and the camera pose, which is fitted on court-plane points
+   (feet and painted lines), so its accuracy for raised points is untested.
+4. An anecdote, not evidence: three gsw_bkn_2015 frames were drawn with both points, chosen by index (the 11th, 61st
+   and 121st sampled frame with a truth and a visible WASB point), to see which point sits on the ball (a look, no
+   label made, nothing scored). In the first, a ball near a player at the sideline, the two points agree within a
+   few pixels. In the other two, the ball in flight, WASB's point sits on the visible ball and the projected SportVU
+   ball lies 27 and 90 px away.
+
+Together these suggest the truth error should be measured (time offset, height, the pose for raised points)
+before a ball model is scored against the projected SportVU ball; they do not show it, and the model's own
+ceiling (item 1) stands either way.
+
+Lock time: 3,236 s (0.90 h, `lock_seconds` in the JSON): plan 6 s, the stopped first gsw_bkn_2015 run 614 s, then
+616, 505, 589 and 906 s for gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 and hou_cle_2016. The four completed runs spent
+0.725 h inside the lock (`run_hours_inside_lock`); model time on CPU about 0.7 s a 3-frame triplet.

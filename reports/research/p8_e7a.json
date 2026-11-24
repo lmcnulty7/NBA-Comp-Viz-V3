@@ -90,7 +90,21 @@
     }
    },
    "seconds_model": 557.2,
-   "seconds_total": 614.4
+   "seconds_total": 614.4,
+   "window_bootstrap_added_after_registration": {
+    "f1": [
+     0.1272,
+     0.229
+    ],
+    "precision": [
+     0.1948,
+     0.3492
+    ],
+    "recall": [
+     0.0946,
+     0.1713
+    ]
+   }
   },
   "gsw_cha_2016": {
    "sampled": 235,
@@ -175,7 +189,21 @@
     }
    },
    "seconds_model": 454.0,
-   "seconds_total": 503.8
+   "seconds_total": 503.8,
+   "window_bootstrap_added_after_registration": {
+    "f1": [
+     0.1274,
+     0.2323
+    ],
+    "precision": [
+     0.1679,
+     0.3077
+    ],
+    "recall": [
+     0.1024,
+     0.1892
+    ]
+   }
   },
   "gsw_sac_2015": {
    "sampled": 280,
@@ -260,7 +288,21 @@
     }
    },
    "seconds_model": 532.5,
-   "seconds_total": 587.3
+   "seconds_total": 587.3,
+   "window_bootstrap_added_after_registration": {
+    "f1": [
+     0.133,
+     0.244
+    ],
+    "precision": [
+     0.1866,
+     0.3381
+    ],
+    "recall": [
+     0.1037,
+     0.1915
+    ]
+   }
   },
   "hou_cle_2016": {
    "sampled": 467,
@@ -345,7 +387,21 @@
     }
    },
    "seconds_model": 835.0,
-   "seconds_total": 904.2
+   "seconds_total": 904.2,
+   "window_bootstrap_added_after_registration": {
+    "f1": [
+     0.2053,
+     0.3002
+    ],
+    "precision": [
+     0.3267,
+     0.4683
+    ],
+    "recall": [
+     0.1486,
+     0.2225
+    ]
+   }
   }
  },
  "date": "2026-11-23",
@@ -391,5 +447,144 @@
    }
   }
  },
- "mac_hours_model_total": 0.725
+ "post_hoc_diagnostics": {
+  "label": "post hoc, not registered (added after the ML review of e2032857)",
+  "gsw_bkn_2015": {
+   "all": {
+    "visible_on_in_image": 145,
+    "in_image": 296,
+    "median_dist_px": 52.6,
+    "median_dx_px": -0.9,
+    "median_dy_px": -12.1
+   },
+   "low": {
+    "visible_on_in_image": 87,
+    "in_image": 183,
+    "median_dist_px": 49.6,
+    "median_dx_px": -1.5,
+    "median_dy_px": -14.0
+   },
+   "mid": {
+    "visible_on_in_image": 49,
+    "in_image": 98,
+    "median_dist_px": 61.2,
+    "median_dx_px": -0.9,
+    "median_dy_px": 4.2
+   },
+   "high": {
+    "visible_on_in_image": 9,
+    "in_image": 15,
+    "median_dist_px": 183.2,
+    "median_dx_px": 24.3,
+    "median_dy_px": -34.1
+   }
+  },
+  "gsw_cha_2016": {
+   "all": {
+    "visible_on_in_image": 145,
+    "in_image": 235,
+    "median_dist_px": 68.4,
+    "median_dx_px": -3.2,
+    "median_dy_px": -19.2
+   },
+   "low": {
+    "visible_on_in_image": 93,
+    "in_image": 145,
+    "median_dist_px": 53.4,
+    "median_dx_px": -3.5,
+    "median_dy_px": -21.1
+   },
+   "mid": {
+    "visible_on_in_image": 43,
+    "in_image": 78,
+    "median_dist_px": 89.9,
+    "median_dx_px": -0.1,
+    "median_dy_px": -14.7
+   },
+   "high": {
+    "visible_on_in_image": 9,
+    "in_image": 12,
+    "median_dist_px": 161.5,
+    "median_dx_px": -2.0,
+    "median_dy_px": -0.4
+   }
+  },
+  "gsw_sac_2015": {
+   "all": {
+    "visible_on_in_image": 152,
+    "in_image": 275,
+    "median_dist_px": 63.1,
+    "median_dx_px": -4.0,
+    "median_dy_px": -12.7
+   },
+   "low": {
+    "visible_on_in_image": 82,
+    "in_image": 154,
+    "median_dist_px": 51.8,
+    "median_dx_px": -2.5,
+    "median_dy_px": -17.6
+   },
+   "mid": {
+    "visible_on_in_image": 51,
+    "in_image": 97,
+    "median_dist_px": 99.8,
+    "median_dx_px": -10.2,
+    "median_dy_px": 2.0
+   },
+   "high": {
+    "visible_on_in_image": 19,
+    "in_image": 24,
+    "median_dist_px": 68.3,
+    "median_dx_px": -21.0,
+    "median_dy_px": -12.1
+   }
+  },
+  "hou_cle_2016": {
+   "all": {
+    "visible_on_in_image": 218,
+    "in_image": 466,
+    "median_dist_px": 41.3,
+    "median_dx_px": -3.0,
+    "median_dy_px": -14.9
+   },
+   "low": {
+    "visible_on_in_image": 138,
+    "in_image": 268,
+    "median_dist_px": 43.8,
+    "median_dx_px": -2.3,
+    "median_dy_px": -17.7
+   },
+   "mid": {
+    "visible_on_in_image": 70,
+    "in_image": 183,
+    "median_dist_px": 36.1,
+    "median_dx_px": -3.4,
+    "median_dy_px": -9.9
+   },
+   "high": {
+    "visible_on_in_image": 10,
+    "in_image": 15,
+    "median_dist_px": 22.1,
+    "median_dx_px": -2.8,
+    "median_dy_px": -14.0
+   }
+  },
+  "pooled_3_ceiling": {
+   "visible_on_in_image": 442,
+   "in_image": 806,
+   "recall_ceiling": 0.5484,
+   "f1_ceiling_at_infinite_tolerance": 0.7066
+  }
+ },
+ "run_hours_inside_lock": 0.725,
+ "lock_seconds": {
+  "plan": 6,
+  "run gsw_bkn_2015 (stopped)": 614,
+  "run gsw_bkn_2015": 616,
+  "run gsw_cha_2016": 505,
+  "run gsw_sac_2015": 589,
+  "run hou_cle_2016": 906,
+  "total": 3236
+ },
+ "frame_bootstrap_note": "the per-game frame bootstrap treats frames as independent; frames 2 s apart in one clip are not, so it is too narrow; the window bootstrap (added after registration) resamples whole windows"
 }
