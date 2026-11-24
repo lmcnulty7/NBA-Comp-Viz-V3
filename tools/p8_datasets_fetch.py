@@ -22,6 +22,8 @@ files. The test tar (no labels) is not fetched. Its games cannot be identified, 
     python3 -m tools.p8_datasets_fetch hf REPO [--rev REV] [--name NAME] [--only GLOB ...]
     python3 -m tools.p8_datasets_fetch url NAME URL [--file FILENAME]
     python3 -m tools.p8_datasets_fetch sportsmot                  # 30 labelled basketball clips, streamed (D163)
+    python3 -m tools.p8_datasets_fetch sportsmot-probe            # YouTube metadata of their 7 videos, no media
+    python3 -m tools.p8_datasets_fetch sportsmot-screen           # name the games, guard the NBA ones (D150 (2))
     python3 -m tools.p8_datasets_fetch shot-screen                # screen SHOT's clip names, no request
     python3 -m tools.p8_datasets_fetch home-screen                # E-BARD, WASB, PL-NBA: drop D85 home games
     python3 -m tools.p8_datasets_fetch annotate                   # screen character, non-NBA names, empty files, gaps
@@ -128,6 +130,14 @@ def load_record() -> dict:
 
 
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+
+
+def save_entry(name: str, entry: dict) -> None:
+    """Write one set's entry into a freshly read record, so entries other runs wrote meanwhile are kept (a long
+    download that saved the whole record it read at its start once dropped the DeepSportRadar entry)."""
+    rec = load_record()
+    rec[name] = entry
+    save_record(rec)
 
 
 def save_record(rec: dict) -> None:
@@ -681,8 +691,7 @@ def fetch_sportsmot() -> dict:
                       "files_kept": len(r["files"]), "bytes_kept": sum(v["bytes"] for v in r["files"].values())}
         files.update(r["files"])
         entry["tars"] = tars
-        rec[SMOT_NAME] = entry
-        save_record(rec)
+        save_entry(SMOT_NAME, entry)
         print("%s %s: %d bytes, sha256 %s, kept %d files" % (SMOT_NAME, path, r["bytes"],
               "matches" if tars[path]["sha256_matches"] else "DOES NOT MATCH", len(r["files"])), flush=True)
     counts = smot_counts(folder, clips)
@@ -694,11 +703,168 @@ def fetch_sportsmot() -> dict:
                        "clips_frames_match_seq_length": sum(1 for v in counts.values() if v.get("frames_match_seq_length")),
                        "per_clip": counts}
     entry["license_text"] = license_text(folder, ["README.md"])
-    rec[SMOT_NAME] = entry
-    save_record(rec)
+    save_entry(SMOT_NAME, entry)
     if not all(v["sha256_matches"] for v in tars.values()):
         raise SystemExit(f"{WHO}: a SportsMOT tar hash does not match the Hub's LFS oid; see the record")
     return {k: v for k, v in entry["counts"].items() if k != "per_clip"}
+
+
+# ── SportsMOT game identification by YouTube metadata (D150 (2), D37) ────────────────────────────────────────────
+SMOT_PRINT = "%(id)s\t%(upload_date)s\t%(channel)s\t%(duration)s\t%(title)s\t%(description)j"
+SMOT_THROTTLE_S = 1.0
+SMOT_MAX_ERRORS = 5
+
+
+def smot_video_ids(clips) -> dict:
+    """{YouTube id: [clip names]} from clip names 'v_<id>_c<NNN>' (ids may hold '_' and '-')."""
+    out = {}
+    for c in sorted(clips):
+        m = re.fullmatch(r"v_(.+)_c(\d+)", c)
+        if m:
+            out.setdefault(m.group(1), []).append(c)
+    return out
+
+
+def parse_probe(out: str) -> dict | None:
+    """One SMOT_PRINT line -> {id, upload_date, channel, duration, title, description}, or None."""
+    p = out.rstrip("\n").split("\t", 5)
+    if len(p) != 6:
+        return None
+    na = lambda v: None if v in ("NA", "None", "") else v
+    try:
+        desc = json.loads(p[5])
+    except ValueError:
+        desc = na(p[5])
+    return {"id": p[0], "upload_date": na(p[1]), "channel": na(p[2]),
+            "duration": float(p[3]) if na(p[3]) else None, "title": p[4], "description": desc}
+
+
+def probe_ids(ids, runner=None, sleep=None, max_errors: int = SMOT_MAX_ERRORS) -> dict:
+    """Metadata only (yt-dlp --skip-download, no format chosen, no media request) for each id, one second apart;
+    stops after max_errors failures in a row -> {id: metadata or {"error": text}}."""
+    import time
+    from sportvu.manifest import YT_BASE, _run
+    runner = runner or (lambda cmd: _run(cmd, timeout=120))
+    sleep = sleep or time.sleep
+    out, errors = {}, 0
+    for k, vid in enumerate(ids):
+        if k:
+            sleep(SMOT_THROTTLE_S)
+        code, so, se = runner(YT_BASE + ["--no-playlist", "--skip-download", "--ignore-no-formats-error",
+                                         "--print", SMOT_PRINT, "https://www.youtube.com/watch?v=%s" % vid])
+        meta = parse_probe(so) if code == 0 else None
+        if meta is None:
+            errors += 1
+            out[vid] = {"error": ((se or "").strip().splitlines() or ["yt-dlp exit %d" % code])[-1][:200]}
+            if errors >= max_errors:
+                out["_stopped"] = "%d errors in a row" % errors
+                break
+        else:
+            errors = 0
+            out[vid] = meta
+    return out
+
+
+def smot_probe() -> dict:
+    """Probe the SportsMOT basketball clips' YouTube ids; raw metadata (descriptions too) stays in the workspace."""
+    from tools.research_testset import refuse_cv_test
+    clips = list(load_record()[SMOT_NAME]["counts"]["per_clip"])
+    ids = smot_video_ids(clips)
+    refuse_cv_test(list(ids), WHO)
+    res = probe_ids(list(ids))
+    res = {"date": dt.date.today().isoformat(), "clips_by_id": ids, "probe": res}
+    atomic_write(datasets_root() / ("%s.ids.json" % SMOT_NAME), json.dumps(res, indent=1, ensure_ascii=False))
+    return {vid: (m.get("title") or m.get("error")) if isinstance(m, dict) else m for vid, m in res["probe"].items()}
+
+
+# The games, named by reading each video's title, description and uploader (SportsMOT.ids.json, 2026-11-23) and, for
+# the two NBA videos, the home side by the arena in a frame of the clip (floor logo, court branding, scorebug).
+SMOT_GAMES = {
+    "-6Os86HzwCs": {"league": "FIBA", "game": "Australia v Philippines, FIBA Women's Asia Cup 2019, group phase",
+                    "date": None, "nba": False},
+    "00HRwkvvjtQ": {"league": "NCAA", "game": "Kentucky vs. Wichita State, 2014 NCAA men's tournament", "date": None,
+                    "nba": False},
+    "2j7kLB-vEEk": {"league": "NBA", "game": "Miami Heat at Golden State Warriors", "away": "MIA", "home": "GSW",
+                    "date": None, "nba": True,
+                    "how": "title 'NBA Miami Heat vs Golden State Warriors 14.01.17', uploaded 2017-01-14 by the 'Miami "
+                           "Heat Channel'; frame 1 of clip c001 shows the Warriors floor logo, ORACLE courtside "
+                           "branding and a CSN bug, so the home side is GSW; the game date is not stated (on or before "
+                           "the upload), a game after the 2015-16 SportVU window"},
+    "4LXTUim5anY": {"league": "NBA", "game": "Los Angeles Lakers at New Orleans Pelicans", "away": "LAL",
+                    "home": "NOP", "date": "2016-02-04", "nba": True,
+                    "how": "title 'NBA LA Lakers@New Orleans Pelicans 2016.02.04 - Full Game'; description 'LA Lakers "
+                           "defeated New Orleans Pelicans 99-96'; frame 1 of clip c002 shows the Smoothie King Center "
+                           "floor and a LAL against NOP scorebug, so the home side is NOP"},
+    "4r8QL_wglzQ": {"league": "FIBA", "game": "Philippines v Palestine, 2015 FIBA Asia Championship, group B",
+                    "date": "2015-09-23", "nba": False},
+    "5ekaksddqrc": {"league": "FIBA", "game": "Australia v USA, FIBA Women's Basketball World Cup 2018 final",
+                    "date": None, "nba": False},
+    "BgwzTUxJaeU": {"league": "FIBA", "game": "USA vs Russia, FIBA Basketball World Cup 2010 quarter-final",
+                    "date": None, "nba": False},
+}
+
+
+def smot_game_tag(g: dict) -> str:
+    """The repository's game tag form 'MM.DD.YYYY.AWAY.at.HOME' (date part 'undated' when not stated)."""
+    d = g.get("date")
+    day = "%s.%s.%s" % (d[5:7], d[8:10], d[:4]) if d else "undated"
+    return "%s.%s.at.%s" % (day, g["away"], g["home"])
+
+
+def smot_flag(vid: str, g: dict) -> str | None:
+    """Why an identified game would be dropped by D150 (2), or None: tools.p8_common.guard (refuse_cv_test with
+    the home code, then the spent held-out rule) on the video id and game tag of an NBA game. A non-NBA game cannot be
+    a spent held-out (2015-16 NBA) or a D85 arena home game (MIA, TOR, LAC, LAL)."""
+    from tools.p8_common import guard
+    if not g.get("nba"):
+        guard([vid], WHO)
+        return None
+    try:
+        guard([vid, smot_game_tag(g)], WHO, homes=(g["home"],))
+    except SystemExit as e:
+        return str(e)
+    return None
+
+
+def smot_screen() -> dict:
+    """The identification table and D150 (2) screen into the SportsMOT record entry. No clip is dropped or moved."""
+    raw = json.loads((datasets_root() / ("%s.ids.json" % SMOT_NAME)).read_text())
+    rec = load_record()
+    entry = rec[SMOT_NAME]
+    per_clip = entry["counts"]["per_clip"]
+    videos, clips = {}, {}
+    for vid, cl in raw["clips_by_id"].items():
+        m = raw["probe"].get(vid) or {}
+        g = SMOT_GAMES.get(vid)
+        flag = smot_flag(vid, g) if g else None
+        videos[vid] = {"title": m.get("title"), "upload_date": m.get("upload_date"), "channel": m.get("channel"),
+                       "duration_s": m.get("duration"), "probe_error": m.get("error"),
+                       "identified": bool(g), **({k: v for k, v in g.items()} if g else {}),
+                       "game_tag": smot_game_tag(g) if g and g.get("nba") else None,
+                       "flagged": flag, "clips": cl}
+        for c in cl:
+            clips[c] = {"video": vid, "split": per_clip[c]["split"], "frames": per_clip[c]["frames"],
+                        "league": g["league"] if g else None, "game": g["game"] if g else None,
+                        "identified": bool(g), "flagged": bool(flag)}
+    count = lambda rows, key: sum(1 for r in rows.values() if r[key])
+    entry["game_identification"] = {
+        "date": raw["date"], "method": "yt-dlp metadata only (--skip-download, no format chosen, no media request), "
+                                       "1 s apart, stop after 5 errors in a row; games named by hand from title, "
+                                       "description and uploader, NBA home sides from a frame (SMOT_GAMES)",
+        "decided_under": "D37 (lead), shrinking the D150 (2) residual risk",
+        "videos": len(videos), "videos_identified": count(videos, "identified"),
+        "videos_flagged": sum(1 for v in videos.values() if v["flagged"]),
+        "clips": len(clips), "clips_identified": count(clips, "identified"),
+        "clips_unidentified": len(clips) - count(clips, "identified"), "clips_flagged": count(clips, "flagged"),
+        "clips_nba": sum(1 for c in clips.values() if c["league"] == "NBA"),
+        "frames_nba": sum(c["frames"] for c in clips.values() if c["league"] == "NBA"),
+        "by_league": {lg: sum(1 for c in clips.values() if c["league"] == lg)
+                      for lg in sorted({str(c["league"]) for c in clips.values()})},
+        "note": "No clip is dropped or moved here; the lead decides what a flagged clip means.",
+        "per_video": videos, "per_clip": clips}
+    save_entry(SMOT_NAME, entry)
+    gi = entry["game_identification"]
+    return {k: v for k, v in gi.items() if k not in ("per_video", "per_clip", "method", "note")}
 
 
 def main(argv=None) -> int:
@@ -723,6 +889,8 @@ def main(argv=None) -> int:
     sub.add_parser("annotate")
     sub.add_parser("dsr-screen")
     sub.add_parser("sportsmot")
+    sub.add_parser("sportsmot-probe")
+    sub.add_parser("sportsmot-screen")
     a = ap.parse_args(argv)
     if a.cmd == "hf":
         refuse_cv_test([a.repo], WHO)
@@ -736,6 +904,10 @@ def main(argv=None) -> int:
         print(json.dumps(annotate(), indent=1))
     elif a.cmd == "sportsmot":
         print(json.dumps(fetch_sportsmot(), indent=1))
+    elif a.cmd == "sportsmot-probe":
+        print(json.dumps(smot_probe(), indent=1, ensure_ascii=False))
+    elif a.cmd == "sportsmot-screen":
+        print(json.dumps(smot_screen(), indent=1))
     elif a.cmd == "home-screen":
         print(json.dumps(home_screen(), indent=1))
     elif a.cmd == "shot-screen":

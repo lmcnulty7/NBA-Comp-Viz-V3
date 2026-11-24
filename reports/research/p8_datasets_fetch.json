@@ -4879,6 +4879,448 @@
   },
   "license_text": {
    "README.md": "license: cc-by-nc-4.0\nextra_gated_heading: \"Acknowledge license to accept the repository\"\nextra_gated_prompt: \"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License\""
+  },
+  "game_identification": {
+   "date": "2026-11-23",
+   "method": "yt-dlp metadata only (--skip-download, no format chosen, no media request), 1 s apart, stop after 5 errors in a row; games named by hand from title, description and uploader, NBA home sides from a frame (SMOT_GAMES)",
+   "decided_under": "D37 (lead), shrinking the D150 (2) residual risk",
+   "videos": 7,
+   "videos_identified": 7,
+   "videos_flagged": 0,
+   "clips": 30,
+   "clips_identified": 30,
+   "clips_unidentified": 0,
+   "clips_flagged": 0,
+   "clips_nba": 11,
+   "frames_nba": 10106,
+   "by_league": {
+    "FIBA": 13,
+    "NBA": 11,
+    "NCAA": 6
+   },
+   "note": "No clip is dropped or moved here; the lead decides what a flagged clip means.",
+   "per_video": {
+    "-6Os86HzwCs": {
+     "title": "Australia v Philippines - Full Game - FIBA Women's Asia Cup 2019",
+     "upload_date": "20191008",
+     "channel": "FIBA Basketball",
+     "duration_s": 6778.0,
+     "probe_error": null,
+     "identified": true,
+     "league": "FIBA",
+     "game": "Australia v Philippines, FIBA Women's Asia Cup 2019, group phase",
+     "date": null,
+     "nba": false,
+     "game_tag": null,
+     "flagged": null,
+     "clips": [
+      "v_-6Os86HzwCs_c001",
+      "v_-6Os86HzwCs_c003",
+      "v_-6Os86HzwCs_c007",
+      "v_-6Os86HzwCs_c009"
+     ]
+    },
+    "00HRwkvvjtQ": {
+     "title": "Kentucky vs. Wichita State: 2014 NCAA tournament | FULL GAME",
+     "upload_date": "20200319",
+     "channel": "March Madness",
+     "duration_s": 5562.0,
+     "probe_error": null,
+     "identified": true,
+     "league": "NCAA",
+     "game": "Kentucky vs. Wichita State, 2014 NCAA men's tournament",
+     "date": null,
+     "nba": false,
+     "game_tag": null,
+     "flagged": null,
+     "clips": [
+      "v_00HRwkvvjtQ_c001",
+      "v_00HRwkvvjtQ_c003",
+      "v_00HRwkvvjtQ_c005",
+      "v_00HRwkvvjtQ_c007",
+      "v_00HRwkvvjtQ_c008",
+      "v_00HRwkvvjtQ_c011"
+     ]
+    },
+    "2j7kLB-vEEk": {
+     "title": "NBA Miami Heat vs Golden State Warriors 14.01.17",
+     "upload_date": "20170114",
+     "channel": "Miami Heat Channel",
+     "duration_s": 6148.0,
+     "probe_error": null,
+     "identified": true,
+     "league": "NBA",
+     "game": "Miami Heat at Golden State Warriors",
+     "away": "MIA",
+     "home": "GSW",
+     "date": null,
+     "nba": true,
+     "how": "title 'NBA Miami Heat vs Golden State Warriors 14.01.17', uploaded 2017-01-14 by the 'Miami Heat Channel'; frame 1 of clip c001 shows the Warriors floor logo, ORACLE courtside branding and a CSN bug, so the home side is GSW; the game date is not stated (on or before the upload), a game after the 2015-16 SportVU window",
+     "game_tag": "undated.MIA.at.GSW",
+     "flagged": null,
+     "clips": [
+      "v_2j7kLB-vEEk_c001",
+      "v_2j7kLB-vEEk_c002",
+      "v_2j7kLB-vEEk_c005",
+      "v_2j7kLB-vEEk_c007",
+      "v_2j7kLB-vEEk_c009",
+      "v_2j7kLB-vEEk_c010"
+     ]
+    },
+    "4LXTUim5anY": {
+     "title": "NBA LA Lakers@New Orleans Pelicans 2016.02.04 - Full Game",
+     "upload_date": "20190711",
+     "channel": "SHINSTAR LIVE",
+     "duration_s": 6125.0,
+     "probe_error": null,
+     "identified": true,
+     "league": "NBA",
+     "game": "Los Angeles Lakers at New Orleans Pelicans",
+     "away": "LAL",
+     "home": "NOP",
+     "date": "2016-02-04",
+     "nba": true,
+     "how": "title 'NBA LA Lakers@New Orleans Pelicans 2016.02.04 - Full Game'; description 'LA Lakers defeated New Orleans Pelicans 99-96'; frame 1 of clip c002 shows the Smoothie King Center floor and a LAL against NOP scorebug, so the home side is NOP",
+     "game_tag": "02.04.2016.LAL.at.NOP",
+     "flagged": null,
+     "clips": [
+      "v_4LXTUim5anY_c002",
+      "v_4LXTUim5anY_c003",
+      "v_4LXTUim5anY_c010",
+      "v_4LXTUim5anY_c012",
+      "v_4LXTUim5anY_c013"
+     ]
+    },
+    "4r8QL_wglzQ": {
+     "title": "Philippines v Palestine - Group B - Full Game - 2015 FIBA Asia Championship",
+     "upload_date": "20151005",
+     "channel": "FIBA Basketball",
+     "duration_s": 7005.0,
+     "probe_error": null,
+     "identified": true,
+     "league": "FIBA",
+     "game": "Philippines v Palestine, 2015 FIBA Asia Championship, group B",
+     "date": "2015-09-23",
+     "nba": false,
+     "game_tag": null,
+     "flagged": null,
+     "clips": [
+      "v_4r8QL_wglzQ_c001"
+     ]
+    },
+    "5ekaksddqrc": {
+     "title": "Australia v USA - Full Game - Final - FIBA Women's Basketball World Cup 2018",
+     "upload_date": "20181008",
+     "channel": "FIBA Basketball",
+     "duration_s": 8708.0,
+     "probe_error": null,
+     "identified": true,
+     "league": "FIBA",
+     "game": "Australia v USA, FIBA Women's Basketball World Cup 2018 final",
+     "date": null,
+     "nba": false,
+     "game_tag": null,
+     "flagged": null,
+     "clips": [
+      "v_5ekaksddqrc_c001",
+      "v_5ekaksddqrc_c002",
+      "v_5ekaksddqrc_c003",
+      "v_5ekaksddqrc_c004",
+      "v_5ekaksddqrc_c005"
+     ]
+    },
+    "BgwzTUxJaeU": {
+     "title": "USA 🇺🇸 vs Russia 🇷🇺 - Classic Full Game | FIBA Basketball World Cup 2010",
+     "upload_date": "20200402",
+     "channel": "FIBA Basketball",
+     "duration_s": 5127.0,
+     "probe_error": null,
+     "identified": true,
+     "league": "FIBA",
+     "game": "USA vs Russia, FIBA Basketball World Cup 2010 quarter-final",
+     "date": null,
+     "nba": false,
+     "game_tag": null,
+     "flagged": null,
+     "clips": [
+      "v_BgwzTUxJaeU_c008",
+      "v_BgwzTUxJaeU_c012",
+      "v_BgwzTUxJaeU_c014"
+     ]
+    }
+   },
+   "per_clip": {
+    "v_-6Os86HzwCs_c001": {
+     "video": "-6Os86HzwCs",
+     "split": "train",
+     "frames": 825,
+     "league": "FIBA",
+     "game": "Australia v Philippines, FIBA Women's Asia Cup 2019, group phase",
+     "identified": true,
+     "flagged": false
+    },
+    "v_-6Os86HzwCs_c003": {
+     "video": "-6Os86HzwCs",
+     "split": "train",
+     "frames": 403,
+     "league": "FIBA",
+     "game": "Australia v Philippines, FIBA Women's Asia Cup 2019, group phase",
+     "identified": true,
+     "flagged": false
+    },
+    "v_-6Os86HzwCs_c007": {
+     "video": "-6Os86HzwCs",
+     "split": "train",
+     "frames": 550,
+     "league": "FIBA",
+     "game": "Australia v Philippines, FIBA Women's Asia Cup 2019, group phase",
+     "identified": true,
+     "flagged": false
+    },
+    "v_-6Os86HzwCs_c009": {
+     "video": "-6Os86HzwCs",
+     "split": "train",
+     "frames": 500,
+     "league": "FIBA",
+     "game": "Australia v Philippines, FIBA Women's Asia Cup 2019, group phase",
+     "identified": true,
+     "flagged": false
+    },
+    "v_00HRwkvvjtQ_c001": {
+     "video": "00HRwkvvjtQ",
+     "split": "val",
+     "frames": 1162,
+     "league": "NCAA",
+     "game": "Kentucky vs. Wichita State, 2014 NCAA men's tournament",
+     "identified": true,
+     "flagged": false
+    },
+    "v_00HRwkvvjtQ_c003": {
+     "video": "00HRwkvvjtQ",
+     "split": "val",
+     "frames": 1161,
+     "league": "NCAA",
+     "game": "Kentucky vs. Wichita State, 2014 NCAA men's tournament",
+     "identified": true,
+     "flagged": false
+    },
+    "v_00HRwkvvjtQ_c005": {
+     "video": "00HRwkvvjtQ",
+     "split": "val",
+     "frames": 594,
+     "league": "NCAA",
+     "game": "Kentucky vs. Wichita State, 2014 NCAA men's tournament",
+     "identified": true,
+     "flagged": false
+    },
+    "v_00HRwkvvjtQ_c007": {
+     "video": "00HRwkvvjtQ",
+     "split": "val",
+     "frames": 707,
+     "league": "NCAA",
+     "game": "Kentucky vs. Wichita State, 2014 NCAA men's tournament",
+     "identified": true,
+     "flagged": false
+    },
+    "v_00HRwkvvjtQ_c008": {
+     "video": "00HRwkvvjtQ",
+     "split": "val",
+     "frames": 972,
+     "league": "NCAA",
+     "game": "Kentucky vs. Wichita State, 2014 NCAA men's tournament",
+     "identified": true,
+     "flagged": false
+    },
+    "v_00HRwkvvjtQ_c011": {
+     "video": "00HRwkvvjtQ",
+     "split": "val",
+     "frames": 734,
+     "league": "NCAA",
+     "game": "Kentucky vs. Wichita State, 2014 NCAA men's tournament",
+     "identified": true,
+     "flagged": false
+    },
+    "v_2j7kLB-vEEk_c001": {
+     "video": "2j7kLB-vEEk",
+     "split": "train",
+     "frames": 826,
+     "league": "NBA",
+     "game": "Miami Heat at Golden State Warriors",
+     "identified": true,
+     "flagged": false
+    },
+    "v_2j7kLB-vEEk_c002": {
+     "video": "2j7kLB-vEEk",
+     "split": "train",
+     "frames": 1176,
+     "league": "NBA",
+     "game": "Miami Heat at Golden State Warriors",
+     "identified": true,
+     "flagged": false
+    },
+    "v_2j7kLB-vEEk_c005": {
+     "video": "2j7kLB-vEEk",
+     "split": "train",
+     "frames": 1197,
+     "league": "NBA",
+     "game": "Miami Heat at Golden State Warriors",
+     "identified": true,
+     "flagged": false
+    },
+    "v_2j7kLB-vEEk_c007": {
+     "video": "2j7kLB-vEEk",
+     "split": "train",
+     "frames": 726,
+     "league": "NBA",
+     "game": "Miami Heat at Golden State Warriors",
+     "identified": true,
+     "flagged": false
+    },
+    "v_2j7kLB-vEEk_c009": {
+     "video": "2j7kLB-vEEk",
+     "split": "train",
+     "frames": 1825,
+     "league": "NBA",
+     "game": "Miami Heat at Golden State Warriors",
+     "identified": true,
+     "flagged": false
+    },
+    "v_2j7kLB-vEEk_c010": {
+     "video": "2j7kLB-vEEk",
+     "split": "train",
+     "frames": 651,
+     "league": "NBA",
+     "game": "Miami Heat at Golden State Warriors",
+     "identified": true,
+     "flagged": false
+    },
+    "v_4LXTUim5anY_c002": {
+     "video": "4LXTUim5anY",
+     "split": "train",
+     "frames": 876,
+     "league": "NBA",
+     "game": "Los Angeles Lakers at New Orleans Pelicans",
+     "identified": true,
+     "flagged": false
+    },
+    "v_4LXTUim5anY_c003": {
+     "video": "4LXTUim5anY",
+     "split": "train",
+     "frames": 702,
+     "league": "NBA",
+     "game": "Los Angeles Lakers at New Orleans Pelicans",
+     "identified": true,
+     "flagged": false
+    },
+    "v_4LXTUim5anY_c010": {
+     "video": "4LXTUim5anY",
+     "split": "train",
+     "frames": 526,
+     "league": "NBA",
+     "game": "Los Angeles Lakers at New Orleans Pelicans",
+     "identified": true,
+     "flagged": false
+    },
+    "v_4LXTUim5anY_c012": {
+     "video": "4LXTUim5anY",
+     "split": "train",
+     "frames": 875,
+     "league": "NBA",
+     "game": "Los Angeles Lakers at New Orleans Pelicans",
+     "identified": true,
+     "flagged": false
+    },
+    "v_4LXTUim5anY_c013": {
+     "video": "4LXTUim5anY",
+     "split": "train",
+     "frames": 726,
+     "league": "NBA",
+     "game": "Los Angeles Lakers at New Orleans Pelicans",
+     "identified": true,
+     "flagged": false
+    },
+    "v_4r8QL_wglzQ_c001": {
+     "video": "4r8QL_wglzQ",
+     "split": "val",
+     "frames": 886,
+     "league": "FIBA",
+     "game": "Philippines v Palestine, 2015 FIBA Asia Championship, group B",
+     "identified": true,
+     "flagged": false
+    },
+    "v_5ekaksddqrc_c001": {
+     "video": "5ekaksddqrc",
+     "split": "val",
+     "frames": 550,
+     "league": "FIBA",
+     "game": "Australia v USA, FIBA Women's Basketball World Cup 2018 final",
+     "identified": true,
+     "flagged": false
+    },
+    "v_5ekaksddqrc_c002": {
+     "video": "5ekaksddqrc",
+     "split": "val",
+     "frames": 632,
+     "league": "FIBA",
+     "game": "Australia v USA, FIBA Women's Basketball World Cup 2018 final",
+     "identified": true,
+     "flagged": false
+    },
+    "v_5ekaksddqrc_c003": {
+     "video": "5ekaksddqrc",
+     "split": "val",
+     "frames": 1215,
+     "league": "FIBA",
+     "game": "Australia v USA, FIBA Women's Basketball World Cup 2018 final",
+     "identified": true,
+     "flagged": false
+    },
+    "v_5ekaksddqrc_c004": {
+     "video": "5ekaksddqrc",
+     "split": "val",
+     "frames": 824,
+     "league": "FIBA",
+     "game": "Australia v USA, FIBA Women's Basketball World Cup 2018 final",
+     "identified": true,
+     "flagged": false
+    },
+    "v_5ekaksddqrc_c005": {
+     "video": "5ekaksddqrc",
+     "split": "val",
+     "frames": 1000,
+     "league": "FIBA",
+     "game": "Australia v USA, FIBA Women's Basketball World Cup 2018 final",
+     "identified": true,
+     "flagged": false
+    },
+    "v_BgwzTUxJaeU_c008": {
+     "video": "BgwzTUxJaeU",
+     "split": "val",
+     "frames": 500,
+     "league": "FIBA",
+     "game": "USA vs Russia, FIBA Basketball World Cup 2010 quarter-final",
+     "identified": true,
+     "flagged": false
+    },
+    "v_BgwzTUxJaeU_c012": {
+     "video": "BgwzTUxJaeU",
+     "split": "val",
+     "frames": 620,
+     "league": "FIBA",
+     "game": "USA vs Russia, FIBA Basketball World Cup 2010 quarter-final",
+     "identified": true,
+     "flagged": false
+    },
+    "v_BgwzTUxJaeU_c014": {
+     "video": "BgwzTUxJaeU",
+     "split": "val",
+     "frames": 1000,
+     "league": "FIBA",
+     "game": "USA vs Russia, FIBA Basketball World Cup 2010 quarter-final",
+     "identified": true,
+     "flagged": false
+    }
+   }
   }
  },
  "DeepSportRadar": {
