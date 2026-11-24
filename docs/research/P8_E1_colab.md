@@ -98,8 +98,16 @@ runtime's HTTP endpoints with an identical sha256. So the API path moves files o
    then start the run as a detached process with its log in /content:
    `python -m tools.p8_e1_colab colab --fold <fold> --seed <seed> --corpus-dir /content/p8_e1_in/corpus --runs-dir /content/p8_e1_out`
    The run checks members and bytes again before extracting, exactly as on Drive.
-4. The lead reads the log now and then (execute_code); whether a runtime with no client attached survives a 3 h run
-   is the open item of the smoke test.
+   Start it from one execute_code call that waits for the process (subprocess.Popen then wait), behind an O_EXCL lock
+   file so a repeated call never starts a second run. The call times out on the client side within about a minute;
+   do not repeat it with the same executionId (on 2026-11-24 a repeat started a second training on the same GPU).
+4. The lead reads the log now and then from a separate session (execute_code with a new executionId each time).
+   Keep a cell running for the whole run: the Colab FAQ says "Idle timeouts only apply if code execution
+   terminates", and on 2026-11-24 a T4 whose training ran as a detached process with no running cell was gone within
+   about 30 minutes of the last call (the fold 1 run was lost), while a CPU runtime with a detached process and no
+   client lasted at least 113 minutes. The Colab sign-in in Claude Code renews itself through a headersHelper with a
+   stored refresh token (outside the repository); Claude Code's own OAuth gets no refresh token and dies after an
+   hour.
 5. `python3 -m tools.p8_colab_xfer get-run --fold <fold> --seed <seed> --dest <folder outside the repository>`
    downloads the result tar and complete.json and checks best.pt and last.pt inside the tar against complete.json.
 6. The lead deletes the runtime, then scores on the Mac as in section 4.
