@@ -4610,9 +4610,276 @@
     "sha256_matches": true,
     "files_kept": 12414,
     "bytes_kept": 2879889107
+   },
+   "dataset/val.tar": {
+    "bytes": 6592876544,
+    "listed_size": 6592876544,
+    "sha256": "35f1c585297426a2ec104f645c6bf8684e7e856c536775b167fe3f2ffd388ac3",
+    "lfs_sha256": "35f1c585297426a2ec104f645c6bf8684e7e856c536775b167fe3f2ffd388ac3",
+    "sha256_matches": true,
+    "files_kept": 12587,
+    "bytes_kept": 3351963447
    }
   },
-  "license_text": {}
+  "files": {
+   "count": 25005,
+   "bytes": 6231860980,
+   "manifest_sha256": "35ec040fa00e1c320bbe6e6523e33acfed33a6b63396e667d7739a2ceb0e1a44",
+   "lfs_sha256_mismatches": 0,
+   "listed_size_mismatches": 0
+  },
+  "counts": {
+   "clips": 30,
+   "frames": 24941,
+   "gt_lines": 227673,
+   "bytes_kept": 6231852554,
+   "clips_frames_match_seq_length": 30,
+   "per_clip": {
+    "v_-6Os86HzwCs_c001": {
+     "split": "train",
+     "frames": 825,
+     "gt_lines": 8074,
+     "track_ids": 10,
+     "seq_length": 825,
+     "frames_match_seq_length": true
+    },
+    "v_-6Os86HzwCs_c003": {
+     "split": "train",
+     "frames": 403,
+     "gt_lines": 3692,
+     "track_ids": 10,
+     "seq_length": 403,
+     "frames_match_seq_length": true
+    },
+    "v_-6Os86HzwCs_c007": {
+     "split": "train",
+     "frames": 550,
+     "gt_lines": 5227,
+     "track_ids": 10,
+     "seq_length": 550,
+     "frames_match_seq_length": true
+    },
+    "v_-6Os86HzwCs_c009": {
+     "split": "train",
+     "frames": 500,
+     "gt_lines": 4991,
+     "track_ids": 10,
+     "seq_length": 500,
+     "frames_match_seq_length": true
+    },
+    "v_00HRwkvvjtQ_c001": {
+     "split": "val",
+     "frames": 1162,
+     "gt_lines": 11276,
+     "track_ids": 10,
+     "seq_length": 1162,
+     "frames_match_seq_length": true
+    },
+    "v_00HRwkvvjtQ_c003": {
+     "split": "val",
+     "frames": 1161,
+     "gt_lines": 11183,
+     "track_ids": 10,
+     "seq_length": 1161,
+     "frames_match_seq_length": true
+    },
+    "v_00HRwkvvjtQ_c005": {
+     "split": "val",
+     "frames": 594,
+     "gt_lines": 5442,
+     "track_ids": 10,
+     "seq_length": 594,
+     "frames_match_seq_length": true
+    },
+    "v_00HRwkvvjtQ_c007": {
+     "split": "val",
+     "frames": 707,
+     "gt_lines": 6458,
+     "track_ids": 10,
+     "seq_length": 707,
+     "frames_match_seq_length": true
+    },
+    "v_00HRwkvvjtQ_c008": {
+     "split": "val",
+     "frames": 972,
+     "gt_lines": 9538,
+     "track_ids": 10,
+     "seq_length": 972,
+     "frames_match_seq_length": true
+    },
+    "v_00HRwkvvjtQ_c011": {
+     "split": "val",
+     "frames": 734,
+     "gt_lines": 6981,
+     "track_ids": 10,
+     "seq_length": 734,
+     "frames_match_seq_length": true
+    },
+    "v_2j7kLB-vEEk_c001": {
+     "split": "train",
+     "frames": 826,
+     "gt_lines": 7323,
+     "track_ids": 10,
+     "seq_length": 826,
+     "frames_match_seq_length": true
+    },
+    "v_2j7kLB-vEEk_c002": {
+     "split": "train",
+     "frames": 1176,
+     "gt_lines": 10746,
+     "track_ids": 10,
+     "seq_length": 1176,
+     "frames_match_seq_length": true
+    },
+    "v_2j7kLB-vEEk_c005": {
+     "split": "train",
+     "frames": 1197,
+     "gt_lines": 9320,
+     "track_ids": 10,
+     "seq_length": 1197,
+     "frames_match_seq_length": true
+    },
+    "v_2j7kLB-vEEk_c007": {
+     "split": "train",
+     "frames": 726,
+     "gt_lines": 6274,
+     "track_ids": 10,
+     "seq_length": 726,
+     "frames_match_seq_length": true
+    },
+    "v_2j7kLB-vEEk_c009": {
+     "split": "train",
+     "frames": 1825,
+     "gt_lines": 15130,
+     "track_ids": 10,
+     "seq_length": 1825,
+     "frames_match_seq_length": true
+    },
+    "v_2j7kLB-vEEk_c010": {
+     "split": "train",
+     "frames": 651,
+     "gt_lines": 5715,
+     "track_ids": 10,
+     "seq_length": 651,
+     "frames_match_seq_length": true
+    },
+    "v_4LXTUim5anY_c002": {
+     "split": "train",
+     "frames": 876,
+     "gt_lines": 7696,
+     "track_ids": 10,
+     "seq_length": 876,
+     "frames_match_seq_length": true
+    },
+    "v_4LXTUim5anY_c003": {
+     "split": "train",
+     "frames": 702,
+     "gt_lines": 6425,
+     "track_ids": 10,
+     "seq_length": 702,
+     "frames_match_seq_length": true
+    },
+    "v_4LXTUim5anY_c010": {
+     "split": "train",
+     "frames": 526,
+     "gt_lines": 4820,
+     "track_ids": 10,
+     "seq_length": 526,
+     "frames_match_seq_length": true
+    },
+    "v_4LXTUim5anY_c012": {
+     "split": "train",
+     "frames": 875,
+     "gt_lines": 6791,
+     "track_ids": 10,
+     "seq_length": 875,
+     "frames_match_seq_length": true
+    },
+    "v_4LXTUim5anY_c013": {
+     "split": "train",
+     "frames": 726,
+     "gt_lines": 6624,
+     "track_ids": 10,
+     "seq_length": 726,
+     "frames_match_seq_length": true
+    },
+    "v_4r8QL_wglzQ_c001": {
+     "split": "val",
+     "frames": 886,
+     "gt_lines": 8183,
+     "track_ids": 10,
+     "seq_length": 886,
+     "frames_match_seq_length": true
+    },
+    "v_5ekaksddqrc_c001": {
+     "split": "val",
+     "frames": 550,
+     "gt_lines": 5115,
+     "track_ids": 10,
+     "seq_length": 550,
+     "frames_match_seq_length": true
+    },
+    "v_5ekaksddqrc_c002": {
+     "split": "val",
+     "frames": 632,
+     "gt_lines": 5737,
+     "track_ids": 10,
+     "seq_length": 632,
+     "frames_match_seq_length": true
+    },
+    "v_5ekaksddqrc_c003": {
+     "split": "val",
+     "frames": 1215,
+     "gt_lines": 11800,
+     "track_ids": 10,
+     "seq_length": 1215,
+     "frames_match_seq_length": true
+    },
+    "v_5ekaksddqrc_c004": {
+     "split": "val",
+     "frames": 824,
+     "gt_lines": 7753,
+     "track_ids": 10,
+     "seq_length": 824,
+     "frames_match_seq_length": true
+    },
+    "v_5ekaksddqrc_c005": {
+     "split": "val",
+     "frames": 1000,
+     "gt_lines": 9383,
+     "track_ids": 10,
+     "seq_length": 1000,
+     "frames_match_seq_length": true
+    },
+    "v_BgwzTUxJaeU_c008": {
+     "split": "val",
+     "frames": 500,
+     "gt_lines": 4475,
+     "track_ids": 10,
+     "seq_length": 500,
+     "frames_match_seq_length": true
+    },
+    "v_BgwzTUxJaeU_c012": {
+     "split": "val",
+     "frames": 620,
+     "gt_lines": 5801,
+     "track_ids": 10,
+     "seq_length": 620,
+     "frames_match_seq_length": true
+    },
+    "v_BgwzTUxJaeU_c014": {
+     "split": "val",
+     "frames": 1000,
+     "gt_lines": 9700,
+     "track_ids": 10,
+     "seq_length": 1000,
+     "frames_match_seq_length": true
+    }
+   }
+  },
+  "license_text": {
+   "README.md": "license: cc-by-nc-4.0\nextra_gated_heading: \"Acknowledge license to accept the repository\"\nextra_gated_prompt: \"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License\""
+  }
  },
  "DeepSportRadar": {
   "source": "https://www.kaggle.com/datasets/deepsportradar/basketball-instants-dataset (Kaggle dataset version 4, last updated 2022-04-05)",

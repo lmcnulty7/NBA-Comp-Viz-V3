@@ -14,8 +14,14 @@ be a 2015-16 game in Miami, Toronto or Los Angeles, any game at CLE, or PHX at G
 rule 3). Clip names carry team codes, not always dates or a home side, so the screen flags on team codes alone where
 the home side or season cannot be read.
 
+SportsMOT (D163 (1)) comes only from the authors' Hugging Face repo at a pinned revision. Its train and val tars are
+streamed through tarfile without being stored: each whole tar is hashed on the way (sha256, checked against the Hub's
+LFS oid) and only the labelled basketball clips of splits_txt/basketball.txt are written, without the macOS `._*`
+files. The test tar (no labels) is not fetched. Its games cannot be identified, the residual risk D150 (2) accepts.
+
     python3 -m tools.p8_datasets_fetch hf REPO [--rev REV] [--name NAME] [--only GLOB ...]
     python3 -m tools.p8_datasets_fetch url NAME URL [--file FILENAME]
+    python3 -m tools.p8_datasets_fetch sportsmot                  # 30 labelled basketball clips, streamed (D163)
     python3 -m tools.p8_datasets_fetch shot-screen                # screen SHOT's clip names, no request
     python3 -m tools.p8_datasets_fetch home-screen                # E-BARD, WASB, PL-NBA: drop D85 home games
     python3 -m tools.p8_datasets_fetch annotate                   # screen character, non-NBA names, empty files, gaps
@@ -520,6 +526,181 @@ def dsr_screen() -> dict:
     return rec["DeepSportRadar"]["screen"]
 
 
+# ── SportsMOT (D163 (1)): stream the official tars, keep the labelled basketball clips ─────────────────────────────
+SMOT_NAME = "SportsMOT"
+SMOT_REPO = "MCG-NJU/SportsMOT"
+SMOT_REV = "1b0b418ea611a8e934f1e773313e719e4fa1265e"
+SMOT_SPLITS = ("train", "val")                      # test has no labels and is not fetched
+SMOT_SMALL = ("README.md", "splits_txt/basketball.txt", "splits_txt/train.txt", "splits_txt/val.txt")
+SMOT_TERMS = {
+    "source": "github.com/MCG-NJU/SportsMOT README.md, read 2026-11-21 and 2026-11-23",
+    "license": "SportsMOT is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.",
+    "terms": ["SportsMOT is allowed to be used only if you accept these terms and conditions of our competition.",
+              "You agree not to distribute the SportsMOT dataset without prior written permission."],
+    "our_use": "non-commercial research; nothing redistributed, committed or shown on a site (D131, D150 (1))"}
+SMOT_RISK = ("D150 (2): clip names carry a YouTube id and a clip number, not a game, date or team, so the games cannot "
+             "be identified and a spent held-out game or a D85 test-arena game may be inside the set; used with that "
+             "risk disclosed, as the qualified MixSort teacher was already trained on it")
+
+
+def read_list(p: Path) -> list[str]:
+    return [l.strip() for l in p.read_text().splitlines() if l.strip()]
+
+
+def smot_keep(member: str, clips: set[str]) -> str | None:
+    """The relative path to write for a tar member, or None to drop it: <split>/<clip>/... of a listed clip only, no
+    macOS `._*` file, no absolute path and no '..'."""
+    import posixpath
+    if member.startswith("/") or "\\" in member:
+        return None
+    parts = [x for x in member.split("/") if x not in ("", ".")]
+    if ".." in parts or any(x.startswith("._") for x in parts):
+        return None
+    if len(parts) < 3 or parts[0] not in SMOT_SPLITS or parts[1] not in clips:
+        return None
+    return posixpath.join(*parts)
+
+
+class HashingReader:
+    """A file-like reader that hashes and counts every byte read through it."""
+
+    def __init__(self, raw):
+        self.raw, self.h, self.n = raw, hashlib.sha256(), 0
+
+    def read(self, size: int = -1) -> bytes:
+        b = self.raw.read(size)
+        self.h.update(b)
+        self.n += len(b)
+        return b
+
+    def drain(self) -> None:
+        while self.read(1 << 20):
+            pass
+
+
+def extract_stream(fileobj, dest: Path, clips: set[str]) -> dict:
+    """Read a whole tar from a stream (never seeking), write the kept regular files under dest, and read to the end
+    so a wrapping HashingReader sees every byte -> {path: {bytes, sha256}} of the files written."""
+    import tarfile
+    dest = dest.resolve()
+    files = {}
+    with tarfile.open(fileobj=fileobj, mode="r|") as tf:
+        for m in tf:
+            rel = smot_keep(m.name, clips)
+            if rel is None or not m.isfile():
+                continue
+            out = (dest / rel).resolve()
+            if dest not in out.parents:
+                continue
+            out.parent.mkdir(parents=True, exist_ok=True)
+            part = out.with_name(out.name + ".part")
+            h, n = hashlib.sha256(), 0
+            src = tf.extractfile(m)
+            with open(part, "wb") as f:
+                for b in iter(lambda: src.read(1 << 20), b""):
+                    h.update(b)
+                    n += len(b)
+                    f.write(b)
+            part.replace(out)
+            files[rel] = {"bytes": n, "sha256": h.hexdigest()}
+    if hasattr(fileobj, "drain"):
+        fileobj.drain()
+    return files
+
+
+def stream_tar(url: str, dest: Path, clips: set[str]) -> dict:
+    """curl a tar to stdout and extract the kept clips from the stream -> {bytes, sha256, files}."""
+    p = subprocess.Popen(["curl", "-sS", "-L", "--fail", "-A", UA, "--speed-limit", "10000", "--speed-time", "300",
+                          url], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    r = HashingReader(p.stdout)
+    try:
+        files = extract_stream(r, dest, clips)
+    finally:
+        p.stdout.close()
+        err = p.stderr.read().decode(errors="replace").strip()
+        p.wait()
+    if p.returncode != 0:
+        raise SystemExit(f"{WHO}: {url}: curl exit {p.returncode}: {err[-200:]}")
+    return {"bytes": r.n, "sha256": r.h.hexdigest(), "files": files}
+
+
+def smot_counts(root: Path, clips: list[str]) -> dict:
+    """Per clip: frames (img1/*.jpg), gt lines, track ids, seqLength from seqinfo.ini and whether frames match it."""
+    out = {}
+    for c in clips:
+        d = next((root / s / c for s in SMOT_SPLITS if (root / s / c).is_dir()), None)
+        if d is None:
+            out[c] = {"missing": True}
+            continue
+        gt = [l for l in (d / "gt" / "gt.txt").read_text().splitlines() if l.strip()] if (d / "gt" / "gt.txt").exists() else []
+        ini = (d / "seqinfo.ini").read_text() if (d / "seqinfo.ini").exists() else ""
+        m = re.search(r"(?im)^seqLength\s*=\s*(\d+)", ini)
+        frames = sum(1 for _ in (d / "img1").glob("*.jpg"))
+        out[c] = {"split": d.parent.name, "frames": frames, "gt_lines": len(gt),
+                  "track_ids": len({l.split(",")[1].strip() for l in gt}),
+                  "seq_length": int(m.group(1)) if m else None,
+                  "frames_match_seq_length": bool(m) and frames == int(m.group(1))}
+    return out
+
+
+def fetch_sportsmot() -> dict:
+    from tools.research_testset import refuse_cv_test
+    info = hf_info(SMOT_REPO)
+    if info.get("gated") or info.get("private"):
+        raise SystemExit(f"{WHO}: {SMOT_REPO} is gated or private; stopped (no account, no request)")
+    folder = datasets_root() / SMOT_NAME
+    tree = {f["path"]: f for f in hf_tree(SMOT_REPO, SMOT_REV)}
+    rec = load_record()
+    entry = rec.get(SMOT_NAME) or {}
+    entry.update(source="https://huggingface.co/datasets/%s" % SMOT_REPO, revision=SMOT_REV,
+                 repo_sha_now=info.get("sha"), license_tag=[t for t in info.get("tags", []) if t.startswith("license")],
+                 date=dt.date.today().isoformat(), listed_files=len(tree), listed_bytes=sum(f["size"] or 0 for f in tree.values()),
+                 terms_quoted=SMOT_TERMS, residual_risk=SMOT_RISK,
+                 not_fetched={"dataset/test.tar": "no labels (the authors keep them back); %d bytes" %
+                              (tree.get("dataset/test.tar") or {}).get("size", 0)},
+                 mirrors_not_used=["caihongtang/SportsMOT", "Lekim89/sportsmot", "Hellfire98/sportsmot"])
+    small = {}
+    for f in SMOT_SMALL:
+        r = stream(hf_url(SMOT_REPO, SMOT_REV, f), folder / f)
+        r["lfs_sha256_matches"] = None
+        small[f] = r
+    basket = read_list(folder / "splits_txt" / "basketball.txt")
+    by_split = {s: [c for c in read_list(folder / "splits_txt" / ("%s.txt" % s)) if c in set(basket)] for s in SMOT_SPLITS}
+    clips = sorted(c for s in SMOT_SPLITS for c in by_split[s])
+    refuse_cv_test(clips + [hf_url(SMOT_REPO, SMOT_REV, "dataset/%s.tar" % s) for s in SMOT_SPLITS], WHO)
+    entry["clips_by_split"] = {s: len(v) for s, v in by_split.items()}
+    entry["basketball_clips_listed"] = len(basket)
+    tars, files = entry.get("tars") or {}, dict(small)
+    for s in SMOT_SPLITS:
+        path = "dataset/%s.tar" % s
+        want = (tree.get(path) or {}).get("lfs_sha256")
+        print("%s streaming %s (%d bytes)" % (SMOT_NAME, path, (tree.get(path) or {}).get("size") or 0), flush=True)
+        r = stream_tar(hf_url(SMOT_REPO, SMOT_REV, path), folder, set(by_split[s]))
+        tars[path] = {"bytes": r["bytes"], "listed_size": tree[path]["size"], "sha256": r["sha256"],
+                      "lfs_sha256": want, "sha256_matches": r["sha256"] == want,
+                      "files_kept": len(r["files"]), "bytes_kept": sum(v["bytes"] for v in r["files"].values())}
+        files.update(r["files"])
+        entry["tars"] = tars
+        rec[SMOT_NAME] = entry
+        save_record(rec)
+        print("%s %s: %d bytes, sha256 %s, kept %d files" % (SMOT_NAME, path, r["bytes"],
+              "matches" if tars[path]["sha256_matches"] else "DOES NOT MATCH", len(r["files"])), flush=True)
+    counts = smot_counts(folder, clips)
+    entry["files"] = files
+    entry["counts"] = {"clips": sum(1 for v in counts.values() if not v.get("missing")),
+                       "frames": sum(v.get("frames", 0) for v in counts.values()),
+                       "gt_lines": sum(v.get("gt_lines", 0) for v in counts.values()),
+                       "bytes_kept": sum(v["bytes"] for k, v in files.items() if k.split("/")[0] in SMOT_SPLITS),
+                       "clips_frames_match_seq_length": sum(1 for v in counts.values() if v.get("frames_match_seq_length")),
+                       "per_clip": counts}
+    entry["license_text"] = license_text(folder, ["README.md"])
+    rec[SMOT_NAME] = entry
+    save_record(rec)
+    if not all(v["sha256_matches"] for v in tars.values()):
+        raise SystemExit(f"{WHO}: a SportsMOT tar hash does not match the Hub's LFS oid; see the record")
+    return {k: v for k, v in entry["counts"].items() if k != "per_clip"}
+
+
 def main(argv=None) -> int:
     from tools.research_testset import refuse_cv_test
     ap = argparse.ArgumentParser(prog=WHO)
@@ -541,6 +722,7 @@ def main(argv=None) -> int:
     sub.add_parser("home-screen")
     sub.add_parser("annotate")
     sub.add_parser("dsr-screen")
+    sub.add_parser("sportsmot")
     a = ap.parse_args(argv)
     if a.cmd == "hf":
         refuse_cv_test([a.repo], WHO)
@@ -552,6 +734,8 @@ def main(argv=None) -> int:
         print(json.dumps(dsr_screen(), indent=1))
     elif a.cmd == "annotate":
         print(json.dumps(annotate(), indent=1))
+    elif a.cmd == "sportsmot":
+        print(json.dumps(fetch_sportsmot(), indent=1))
     elif a.cmd == "home-screen":
         print(json.dumps(home_screen(), indent=1))
     elif a.cmd == "shot-screen":
