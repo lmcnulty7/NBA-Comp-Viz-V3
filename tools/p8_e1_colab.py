@@ -31,6 +31,11 @@ checked against their pack manifest (members and bytes) and extracted straight f
 separate copy step); the fold trains on the GPU; complete.json (the sha256 of best.pt and last.pt) is written into the
 run folder after training; the run folder goes to DRIVE_RUNS as one tar per run, with <run>.complete.json beside it. A
 result tar of the same name already on Drive is renamed (never deleted) before training starts. The cell flushes Drive.
+
+Colab API runtimes (D164): drive.mount fails there ("mount failed", smoke test of 2026-11-24), so `colab` also takes
+--corpus-dir and --runs-dir. tools/p8_colab_xfer.py uploads the pack tars and pack_manifest.json over the runtime's
+HTTP contents API into --corpus-dir, and downloads the result tar and its complete.json from --runs-dir afterwards.
+The checks are the same either way: unpack_checked verifies members and bytes before extracting.
 """
 
 from __future__ import annotations
@@ -188,30 +193,33 @@ def set_aside(path: Path) -> Path | None:
     return new
 
 
-def colab(fold: str, seed: int) -> Path:
-    """The whole Colab run for one fold: corpus from Drive, checked, training, one result tar to Drive."""
+def colab(fold: str, seed: int, corpus_dir: Path | None = None, runs_dir: Path | None = None) -> Path:
+    """The whole Colab run for one fold: corpus from corpus_dir (Drive by default), checked, training, one result tar
+    to runs_dir (Drive by default)."""
     from tools.p8_e1_pack import unpack_checked
+    corpus_dir = corpus_dir or DRIVE_CORPUS
+    runs_dir = runs_dir or DRIVE_RUNS
     games = fold_games(fold)
     guard(list(GAMES), WHO)
     name = run_name(fold, seed)
-    DRIVE_RUNS.mkdir(parents=True, exist_ok=True)
-    for p in (DRIVE_RUNS / f"{name}.tar", DRIVE_RUNS / f"{name}.complete.json"):
+    runs_dir.mkdir(parents=True, exist_ok=True)
+    for p in (runs_dir / f"{name}.tar", runs_dir / f"{name}.complete.json"):
         moved = set_aside(p)
         if moved:
             print(f"{WHO}: an earlier {p.name} was renamed to {moved.name}", flush=True)
     corpus = LOCAL / "corpus"
     corpus.mkdir(parents=True, exist_ok=True)
-    unpack_checked(DRIVE_CORPUS, corpus, ["common", *games])
+    unpack_checked(corpus_dir, corpus, ["common", *games])
     out = train(corpus, fold, seed, LOCAL / "runs" / name)
     tmp = LOCAL / f"{name}.tar"
     with tarfile.open(tmp, "w") as tf:
         for p in sorted(out.rglob("*")):
             if p.is_file():
                 tf.add(p, arcname=str(p.relative_to(out.parent)))
-    shutil.copy2(tmp, DRIVE_RUNS / tmp.name)
-    shutil.copy2(out / "complete.json", DRIVE_RUNS / f"{name}.complete.json")
-    print(f"{WHO}: {name} written to {DRIVE_RUNS / tmp.name}", flush=True)
-    return DRIVE_RUNS / tmp.name
+    shutil.copy2(tmp, runs_dir / tmp.name)
+    shutil.copy2(out / "complete.json", runs_dir / f"{name}.complete.json")
+    print(f"{WHO}: {name} written to {runs_dir / tmp.name}", flush=True)
+    return runs_dir / tmp.name
 
 
 def main(argv=None) -> None:
@@ -226,11 +234,13 @@ def main(argv=None) -> None:
     c = sub.add_parser("colab")
     c.add_argument("--fold", required=True, choices=GAMES)
     c.add_argument("--seed", type=int, default=0)
+    c.add_argument("--corpus-dir", help="where the pack tars are (Drive by default)")
+    c.add_argument("--runs-dir", help="where the result tar goes (Drive by default)")
     a = ap.parse_args(argv)
     if a.cmd == "train":
         train(Path(a.corpus), a.fold, a.seed, Path(a.out), a.device)
     else:
-        colab(a.fold, a.seed)
+        colab(a.fold, a.seed, a.corpus_dir and Path(a.corpus_dir), a.runs_dir and Path(a.runs_dir))
 
 
 if __name__ == "__main__":

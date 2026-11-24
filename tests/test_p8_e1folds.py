@@ -278,3 +278,18 @@ def test_every_new_tool_guards():
 def test_e1data_writes_no_root_data_yaml():
     from tools import p8_e1data as D
     assert 'root / "data.yaml"' not in open(D.__file__).read()
+
+
+def test_colab_takes_api_folders_instead_of_drive(tmp_path, monkeypatch):
+    seen = {}
+    monkeypatch.setattr(C, "guard", lambda items, who, homes=(): None)
+    monkeypatch.setattr(C, "LOCAL", tmp_path / "local")
+
+    def stop(src, dest, parts):
+        seen["src"] = src
+        raise RuntimeError("stop here")
+    import tools.p8_e1_pack as pack
+    monkeypatch.setattr(pack, "unpack_checked", stop)
+    with pytest.raises(RuntimeError):
+        C.main(["colab", "--fold", "gsw_bkn_2015", "--corpus-dir", str(tmp_path / "in"), "--runs-dir", str(tmp_path / "out")])
+    assert seen["src"] == tmp_path / "in" and (tmp_path / "out").is_dir()
