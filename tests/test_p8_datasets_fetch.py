@@ -93,3 +93,52 @@ def test_sportsmot_stream_extracts_hashes_the_whole_tar_and_counts(tmp_path):
     assert c["v_abc_c001"] == {"split": "train", "frames": 2, "gt_lines": 3, "track_ids": 2, "seq_length": 2,
                                "frames_match_seq_length": True}
     assert c["v_missing_c001"] == {"missing": True}
+
+
+def test_sportsmot_video_ids_and_probe_lines():
+    ids = D.smot_video_ids(["v_-6Os86HzwCs_c001", "v_4r8QL_wglzQ_c001", "v_-6Os86HzwCs_c003", "notaclip"])
+    assert ids == {"-6Os86HzwCs": ["v_-6Os86HzwCs_c001", "v_-6Os86HzwCs_c003"], "4r8QL_wglzQ": ["v_4r8QL_wglzQ_c001"]}
+    m = D.parse_probe('abc\t20170114\tSome Channel\t6148.0\tA v B\t"line one\\nline two"\n')
+    assert m == {"id": "abc", "upload_date": "20170114", "channel": "Some Channel", "duration": 6148.0,
+                 "title": "A v B", "description": "line one\nline two"}
+    assert D.parse_probe("too\tfew") is None
+
+
+def test_sportsmot_probe_is_metadata_only_throttled_and_stops_after_five_errors():
+    calls, sleeps = [], []
+
+    def runner(cmd):
+        calls.append(cmd)
+        return 1, "", "ERROR: unavailable"
+
+    out = D.probe_ids(["a%d" % k for k in range(8)], runner=runner, sleep=sleeps.append)
+    assert len(calls) == 5 and out["_stopped"] == "5 errors in a row" and sleeps == [1.0] * 4
+    assert all("--skip-download" in c and "-f" not in c for c in calls)
+    ok = D.probe_ids(["x", "y"], runner=lambda c: (0, "x\tNA\tC\tNA\tT\tnull\n", ""), sleep=lambda s: None)
+    assert ok["x"]["upload_date"] is None and ok["x"]["description"] is None and "_stopped" not in ok
+
+
+def test_sportsmot_flag_uses_the_guard_on_nba_games_only():
+    nop = {"nba": True, "away": "LAL", "home": "NOP", "date": "2016-02-04"}
+    assert D.smot_game_tag(nop) == "02.04.2016.LAL.at.NOP" and D.smot_flag("vid0", nop) is None
+    assert D.smot_flag("vid1", {"nba": True, "away": "BOS", "home": "MIA", "date": "2019-01-02"})      # D85 home
+    assert D.smot_flag("vid2", {"nba": True, "away": "PHX", "home": "GSW", "date": "2015-12-16"})      # spent
+    assert D.smot_game_tag({"away": "MIA", "home": "GSW", "date": None}) == "undated.MIA.at.GSW"
+    assert D.smot_flag("vid3", {"nba": False}) is None
+    assert set(D.SMOT_GAMES) == {"-6Os86HzwCs", "00HRwkvvjtQ", "2j7kLB-vEEk", "4LXTUim5anY", "4r8QL_wglzQ",
+                                 "5ekaksddqrc", "BgwzTUxJaeU"}
+
+
+def test_save_entry_keeps_entries_written_meanwhile(tmp_path, monkeypatch):
+    import json
+    (tmp_path / "reports" / "research").mkdir(parents=True)
+    monkeypatch.setattr(D, "REPO", tmp_path)
+    monkeypatch.setattr(D, "datasets_root", lambda: tmp_path)
+    D.save_record({"A": {"files": {}}})
+    D.save_entry("B", {"files": {}})                       # a long run that read the record before C was added
+    rec = json.loads((tmp_path / "fetch_record.json").read_text())
+    assert set(rec) == {"A", "B"}
+    D.save_record(dict(rec, C={"files": {}}))
+    D.save_entry("B", {"files": {}, "more": 1})
+    out = json.loads((tmp_path / "reports" / "research" / "p8_datasets_fetch.json").read_text())
+    assert set(out) == {"A", "B", "C"} and out["B"]["more"] == 1
