@@ -69,6 +69,10 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 - Agreement pseudo-labels (two models must both box a player) cut ghosts but can raise misses: what neither model
   boxes, or what they box apart, is taught as background (E1, D171; post hoc until the post-mortem measures it).
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
+- E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
+  while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on
+  2026-11-25 (training-design-reviewer, no outcome read) called it NO-GO for that reason, no pilot, and validation
+  on pseudo-labels. Next designs start with a label oracle: score the labels themselves with the scorer's rules.
 - Appearance embeddings (CLIP, DINOv2) are worse team features than colour on these broadcasts (D154).
 - A flat objective makes a clock offset unstable across builds; reshaping it helped but not enough (D166).
 - Public modern uploads are edited, so the game clock cannot place plays in them (D157, D159).

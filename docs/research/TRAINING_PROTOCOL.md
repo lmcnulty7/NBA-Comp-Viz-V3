@@ -26,8 +26,8 @@ for about 1 to 2 units.
    schedule, scored on that fold's held-out game with the real scorer), then the full first seed, then the other seeds
    only if the first adopts. Extra seeds are never run when the adoption rule can no longer pass (D171).
 4. **Instrumented training.** A truth-aligned validation number during training (recall and ghosts against SportVU on
-   a few training-game windows) besides the framework's mAP; the checkpoint rule recorded (Ultralytics' best.pt is
-   0.1 mAP50 plus 0.9 mAP50-95 on the training labels).
+   a few training-game windows) besides the framework's mAP; the checkpoint rule recorded (Ultralytics 8.4.48 picks
+   best.pt by mAP50-95 alone, on the training labels; older versions weighted 0.1 mAP50 plus 0.9 mAP50-95).
 5. **Statistics.** Paired against r23 on the same windows; window and game cluster bootstrap (2,000 resamples, seed
    0); with 3 games the game interval is close to the range of the game effects. The D85 test set is scored once, at
    the end of P8 (D129).
@@ -45,4 +45,5 @@ for Levels 1 and 2 (D169); Level 3 GPU work needs a cap proposal to Lucien first
 
 | Date | Run | Stage | Compute | Outcome against its gate | Lesson |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-25 | E1 design, blind retro review | design review | none | NO-GO: ceiling about 0.02 on missed, no pilot, pseudo-label validation, COCO start | the reviewer catches this failure class before compute |
 | 2026-11-24 | E1 seed 0, 3 folds | full (no pilot stage existed) | about 15 units (12.7 T4-h) plus about 2 lost | fails: missed +0.0278, both intervals above zero | validate against truth, pilot first, audit what labels teach as background, start from r23 |
