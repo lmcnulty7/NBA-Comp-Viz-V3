@@ -448,13 +448,11 @@ def cmd_sweep(args) -> dict:
             acc = per.setdefault(game, {})
             merge(acc, collapse_counts(json.loads(p.read_text())))
             acc["windows"] = acc.get("windows", 0) + 1
-            key = (game, stem)
             if game not in out["image_size"]:
                 cap = cv2.VideoCapture(str(p8_root() / "label_build" / f"{stem}.mp4"))
                 wh = (int(cap.get(3)), int(cap.get(4)))
                 cap.release()
                 out["image_size"][game] = list(wh) if wh != (0, 0) else "not readable"
-            del key
         if per:
             out["folders"][folder.name] = per
     out["skipped"] = {k: sorted(v) for k, v in out["skipped"].items()}
