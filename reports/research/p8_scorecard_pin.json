@@ -6,7 +6,7 @@
   "tools/p8_scorecard.py": "714d096da99f588b27fe19e09c8a5186beac4764066ac684f91df402fff73aa7",
   "tools/p8_frozen.py": "e4959d3b77c9dde106a1852194967bf20b85ce2a359507e193ad3d3cc820194a",
   "tools/p8_common.py": "00da3c7c54649089def289478f22ff66a3e21481d45a51fb0ca0484db13b3018",
-  "tools/p8_device.py": "75e240b324677e23ff9063d268771e3289c38042926cfb336ea5fcb704aa9440"
+  "tools/p8_device.py": "62ccac3cf38cb7e09d98789d7ca86e29fdcb72136a5c190cd72d62dd0e72d9c5"
  },
  "fixed_constants_file": {
   "reports/research/p8_constants.json": null
