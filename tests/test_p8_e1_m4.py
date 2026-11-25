@@ -60,3 +60,13 @@ def test_games_are_guarded_and_nothing_trains():
             M.check_games([bad])
     src = open(M.__file__).read()
     assert "check_provenance(game, game, 0" in src and ".train(" not in src and ".fit(" not in src
+
+
+def test_guard_refuses_a_held_out_game_even_when_listed(monkeypatch):
+    calls = []
+    real = M.refuse_cv_test
+    monkeypatch.setattr(M, "refuse_cv_test", lambda items, who, **k: calls.append(list(items)) or real(items, who, **k))
+    monkeypatch.setattr(M, "GAMES", M.GAMES + ("gsw_phx_2016",))
+    with pytest.raises(SystemExit, match="held-out"):
+        M.check_games(["gsw_phx_2016"])
+    assert calls == [["gsw_phx_2016"]]

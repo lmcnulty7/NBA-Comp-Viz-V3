@@ -1,11 +1,11 @@
 """tools/p8_e1_m4.py: E1 post-mortem M4, threshold loss or learned loss (docs/research/P8_E1.md, "M4", definitions
 committed before any number). Report only: no threshold is adopted from it. Nothing trains.
 
-    python3 -m export.heavy --name ... -- <frozen CV python> -m tools.p8_e1_m4 run --game G     one held-out game
+    python3 -m export.heavy --name ... -- <frozen CV python> -m tools.p8_e1_m4 run --game G     the fold's left-out game
     python3 -m tools.p8_e1_m4 score                                                            -> e1/p8_e1_m4.json
 
 run: the fold's E1 seed 0 best.pt (provenance by tools.p8_e1_score.check_provenance) and r23 (the production
-detector, player class) on the corpus JPEGs of that fold's held-out game only, CPU, NMS 0.45, image size 640, once at
+detector, player class) on the corpus JPEGs of the fold's left-out game only, CPU, NMS 0.45, image size 640, once at
 confidence 0.10 (the sweep floor). score: M3's rules (tools.p8_e1_postmortem.oracle_counts) at every threshold of the
 sweep, E1 minus r23 at the same threshold and E1 at each threshold minus r23 at 0.40, window bootstrap.
 """
@@ -94,7 +94,7 @@ def cmd_run(args) -> dict:
     root = corpus_root()
     plan = json.loads((root / "plan.json").read_text())
     meta = json.loads((root / "meta.json").read_text())
-    prov = check_provenance(game, game, 0, weights_of(game))         # fold = held-out game; never a training game
+    prov = check_provenance(game, game, 0, weights_of(game))         # fold = its left-out game; never a training game
     r23_w = main_checkout() / "models" / "player_detector.pt"
     from tools.p8_e1_score import _sha
     r23_sha = _sha(r23_w)
