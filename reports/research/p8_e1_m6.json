@@ -117,6 +117,37 @@
   "r23": 0.2605,
   "e1": 0.2935
  },
+ "run": {
+  "source": "run log of 2026-11-24 to 25 (heavy-job output), not recomputed",
+  "pilot_seconds": {
+   "e1": 389.9,
+   "r23": 380.8,
+   "windows": 3,
+   "frames": 859
+  },
+  "full_build_seconds": {
+   "e1": 8905.8,
+   "r23": 8754.7
+  },
+  "records": {
+   "r23": {
+    "device_records": {
+     "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 83
+    },
+    "weights_sha256_prefix": {
+     "4c886d5f1e60": 83
+    }
+   },
+   "e1": {
+    "device_records": {
+     "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 83
+    },
+    "weights_sha256_prefix": {
+     "d4ffed33564b": 83
+    }
+   }
+  }
+ },
  "m4_raw_vs_cpu_sidecar": {
   "r23": {
    "matched": 18155,

@@ -2,13 +2,14 @@
 gsw_bkn_2015 seed 0) (docs/research/P8_E1.md, "M5 and M6", definitions committed before any number). Report only.
 
     <frozen CV python> -m tools.p8_e1_m6 rebuild --model {r23,e1} [--windows N]     inside the heavy-job lock
-    <frozen CV python> -m tools.p8_e1_m6 score --model {r23,e1}                       inside the heavy-job lock
+    <frozen CV python> -m tools.p8_e1_m6 score                                         inside the heavy-job lock
+    python3 -m tools.p8_e1_m6 drop                                                    M4 raw boxes against the CPU sidecars
     python3 -m tools.p8_e1_m6 report                                                  -> e1/p8_e1_m6.json
     (internal) <python> -m tools.p8_e1_m6 child build_trajectories.py <its arguments>
 
 Never touches the registered result: builds go only to builds/e1m6_r23_detcpu and builds/e1m6_e1_gsw_bkn_2015_detcpu
-(any other name is refused), score files only to e1/m6__<model>__gsw_bkn_2015.json, which tools.p8_e1_score report
-never reads. tools.p8_e1_score is imported for its provenance check, window_stats and the bootstrap, never run.
+(any other name is refused), the score of both models only to one combined file, e1/m6__e1__gsw_bkn_2015.json,
+which tools.p8_e1_score report never reads. tools.p8_e1_score is imported for its provenance check, window_stats and the bootstrap, never run.
 
 How: as tools.p8_e1_score rebuild (tools.p8_frozen.safe_build, gate v2 arguments, court model r23), with a proxy
 around sportvu.rebuild's subprocess that runs the build as `python -m tools.p8_e1_m6 child build_trajectories.py ...`.
@@ -37,6 +38,21 @@ BUILD_SCRIPT = "build_trajectories.py"
 ENV = "P8_E1_M6_DETECTOR"
 DEVICE_ENV = {"P8_DEVICE_DETECTOR": "cpu"}
 REGISTERED = {"r23": 0.2605, "e1": 0.2935}        # docs/research/P8_E1.md, per game table (MPS builds)
+RUN_LOG = {"source": "run log of 2026-11-24 to 25 (heavy-job output), not recomputed",
+           "pilot_seconds": {"e1": 389.9, "r23": 380.8, "windows": 3, "frames": 859},
+           "full_build_seconds": {"e1": 8905.8, "r23": 8754.7}}
+
+
+def tally_records(build: Path, game: str = GAME) -> dict:
+    """Counts of each window's device record and detector weights record in an M6 build folder."""
+    dev, wts = {}, {}
+    for p in sorted(Path(build).glob(f"{game}_*_device.json")):
+        k = json.dumps(json.loads(p.read_text())["resolved"], sort_keys=True)
+        dev[k] = dev.get(k, 0) + 1
+    for p in sorted(Path(build).glob(f"{game}_*_detector.json")):
+        k = json.loads(p.read_text())["sha256"][:12]
+        wts[k] = wts.get(k, 0) + 1
+    return {"device_records": dev, "weights_sha256_prefix": wts}
 
 
 def build_dir_name(model: str) -> str:
@@ -247,7 +263,8 @@ def cmd_report(args) -> dict:
            "window_interval": boot({i: [w] for i, w in enumerate(wins)}),
            "registered_mps_same_windows": {"rows": {k: {"r23": a, "e1": b} for k, (a, b) in rows(reg_wins).items()},
                                            "diff": diffs(reg_wins)},
-           "registered_per_game": REGISTERED}
+           "registered_per_game": REGISTERED,
+           "run": {**RUN_LOG, "records": {m: tally_records(p8_root() / "builds" / build_dir_name(m)) for m in MODELS}}}
     m5 = d / f"m6_raw_vs_sidecar.json"
     if m5.exists():
         out["m4_raw_vs_cpu_sidecar"] = json.loads(m5.read_text())
