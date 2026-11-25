@@ -217,6 +217,8 @@ def cmd_compare(args) -> dict:
                           "cpu_m6_note": "M6 full-build seconds over its 80 built windows, divided by their 19,785 "
                                          "processed frames (the game's 20,644 less the 3 pilot windows' 859)"}
     out["passes"] = passed
+    out["rebuild_records"] = {m: json.loads((p8_root() / "parity" / f"m8_rebuild__{m}.json").read_text())
+                              for m in FOLDERS}
     atomic_write(p8_root() / "parity" / "p8_mps_fix.json", json.dumps(out, indent=1))
     print(json.dumps(out, indent=1))
     return out

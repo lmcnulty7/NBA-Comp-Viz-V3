@@ -1,0 +1,507 @@
+{
+ "game": "gsw_bkn_2015",
+ "tolerance_px": 2.0,
+ "windows": {
+  "r23/gsw_bkn_2015_s04_w00": {
+   "same_frames": true,
+   "frames": 1102,
+   "frames_other": 1102,
+   "frames_same_count": 1102,
+   "frames_within_tol": 1102,
+   "worst_gap_px": 1.0,
+   "boxes_ok": true,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.5661,
+     "ghost_rate": 0.1516,
+     "missed": 784,
+     "in_frame": 1385
+    },
+    "cpu": {
+     "missed_rate": 0.5661,
+     "ghost_rate": 0.1516,
+     "missed": 784,
+     "in_frame": 1385
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": true
+  },
+  "r23/gsw_bkn_2015_s05_w00": {
+   "same_frames": true,
+   "frames": 726,
+   "frames_other": 726,
+   "frames_same_count": 726,
+   "frames_within_tol": 726,
+   "worst_gap_px": 1.0,
+   "boxes_ok": true,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.2899,
+     "ghost_rate": 0.1611,
+     "missed": 60,
+     "in_frame": 207
+    },
+    "cpu": {
+     "missed_rate": 0.2899,
+     "ghost_rate": 0.1611,
+     "missed": 60,
+     "in_frame": 207
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": true
+  },
+  "r23/gsw_bkn_2015_s06_w00": {
+   "same_frames": true,
+   "frames": 436,
+   "frames_other": 436,
+   "frames_same_count": 432,
+   "frames_within_tol": 419,
+   "worst_gap_px": 102.7965087890625,
+   "boxes_ok": false,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.38,
+     "ghost_rate": 0.1667,
+     "missed": 19,
+     "in_frame": 50
+    },
+    "cpu": {
+     "missed_rate": 0.38,
+     "ghost_rate": 0.1667,
+     "missed": 19,
+     "in_frame": 50
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": false
+  },
+  "r23/gsw_bkn_2015_s07_w00": {
+   "same_frames": true,
+   "frames": 910,
+   "frames_other": 910,
+   "frames_same_count": 910,
+   "frames_within_tol": 910,
+   "worst_gap_px": 0.000244140625,
+   "boxes_ok": true,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.2447,
+     "ghost_rate": 0.162,
+     "missed": 393,
+     "in_frame": 1606
+    },
+    "cpu": {
+     "missed_rate": 0.2447,
+     "ghost_rate": 0.162,
+     "missed": 393,
+     "in_frame": 1606
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": true
+  },
+  "r23/gsw_bkn_2015_s08_w00": {
+   "same_frames": true,
+   "frames": 145,
+   "frames_other": 145,
+   "frames_same_count": 145,
+   "frames_within_tol": 145,
+   "worst_gap_px": 0.000244140625,
+   "boxes_ok": true,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.2923,
+     "ghost_rate": 0.2248,
+     "missed": 38,
+     "in_frame": 130
+    },
+    "cpu": {
+     "missed_rate": 0.2923,
+     "ghost_rate": 0.2248,
+     "missed": 38,
+     "in_frame": 130
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": true
+  },
+  "e1/gsw_bkn_2015_s04_w00": {
+   "same_frames": true,
+   "frames": 1102,
+   "frames_other": 1102,
+   "frames_same_count": 1102,
+   "frames_within_tol": 1102,
+   "worst_gap_px": 0.000244140625,
+   "boxes_ok": true,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.5307,
+     "ghost_rate": 0.1277,
+     "missed": 735,
+     "in_frame": 1385
+    },
+    "cpu": {
+     "missed_rate": 0.5307,
+     "ghost_rate": 0.1277,
+     "missed": 735,
+     "in_frame": 1385
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": true
+  },
+  "e1/gsw_bkn_2015_s05_w00": {
+   "same_frames": true,
+   "frames": 726,
+   "frames_other": 726,
+   "frames_same_count": 726,
+   "frames_within_tol": 726,
+   "worst_gap_px": 0.000244140625,
+   "boxes_ok": true,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.256,
+     "ghost_rate": 0.1278,
+     "missed": 53,
+     "in_frame": 207
+    },
+    "cpu": {
+     "missed_rate": 0.256,
+     "ghost_rate": 0.1278,
+     "missed": 53,
+     "in_frame": 207
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": true
+  },
+  "e1/gsw_bkn_2015_s06_w00": {
+   "same_frames": true,
+   "frames": 436,
+   "frames_other": 436,
+   "frames_same_count": 436,
+   "frames_within_tol": 436,
+   "worst_gap_px": 0.000244140625,
+   "boxes_ok": true,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.34,
+     "ghost_rate": 0.2444,
+     "missed": 17,
+     "in_frame": 50
+    },
+    "cpu": {
+     "missed_rate": 0.34,
+     "ghost_rate": 0.2444,
+     "missed": 17,
+     "in_frame": 50
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": true
+  },
+  "e1/gsw_bkn_2015_s07_w00": {
+   "same_frames": true,
+   "frames": 910,
+   "frames_other": 910,
+   "frames_same_count": 910,
+   "frames_within_tol": 910,
+   "worst_gap_px": 1.0,
+   "boxes_ok": true,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.2329,
+     "ghost_rate": 0.1139,
+     "missed": 374,
+     "in_frame": 1606
+    },
+    "cpu": {
+     "missed_rate": 0.2329,
+     "ghost_rate": 0.1139,
+     "missed": 374,
+     "in_frame": 1606
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": true
+  },
+  "e1/gsw_bkn_2015_s08_w00": {
+   "same_frames": true,
+   "frames": 145,
+   "frames_other": 145,
+   "frames_same_count": 145,
+   "frames_within_tol": 145,
+   "worst_gap_px": 0.0001220703125,
+   "boxes_ok": true,
+   "score": {
+    "mps_fix": {
+     "missed_rate": 0.3,
+     "ghost_rate": 0.1938,
+     "missed": 39,
+     "in_frame": 130
+    },
+    "cpu": {
+     "missed_rate": 0.3,
+     "ghost_rate": 0.1938,
+     "missed": 39,
+     "in_frame": 130
+    }
+   },
+   "rates_equal_4dp": true,
+   "passes": true
+  }
+ },
+ "cost": {
+  "r23": {
+   "mps_fix_seconds": 501.3,
+   "mps_fix_frames": 3319,
+   "mps_fix_seconds_per_frame": 0.151,
+   "cpu_m6_seconds_per_frame": 0.4425,
+   "cpu_m6_note": "M6 full-build seconds over its 80 built windows, divided by their 19,785 processed frames (the game's 20,644 less the 3 pilot windows' 859)"
+  },
+  "e1": {
+   "mps_fix_seconds": 478.0,
+   "mps_fix_frames": 3319,
+   "mps_fix_seconds_per_frame": 0.144,
+   "cpu_m6_seconds_per_frame": 0.4501,
+   "cpu_m6_note": "M6 full-build seconds over its 80 built windows, divided by their 19,785 processed frames (the game's 20,644 less the 3 pilot windows' 859)"
+  }
+ },
+ "passes": false,
+ "rebuild_records": {
+  "r23": {
+   "model": "r23",
+   "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d",
+   "windows": {
+    "gsw_bkn_2015_s04_w00": {
+     "cached": false,
+     "seconds": 154.7,
+     "frames": 1102,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    },
+    "gsw_bkn_2015_s05_w00": {
+     "cached": false,
+     "seconds": 108.8,
+     "frames": 726,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    },
+    "gsw_bkn_2015_s06_w00": {
+     "cached": false,
+     "seconds": 72.0,
+     "frames": 436,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    },
+    "gsw_bkn_2015_s07_w00": {
+     "cached": false,
+     "seconds": 135.8,
+     "frames": 910,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    },
+    "gsw_bkn_2015_s08_w00": {
+     "cached": false,
+     "seconds": 30.0,
+     "frames": 145,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    }
+   }
+  },
+  "e1": {
+   "model": "e1",
+   "weights_sha256": "d4ffed33564b990954f13430d23dc2401ac063286a9b08b10d80fce7b5a6b664",
+   "windows": {
+    "gsw_bkn_2015_s04_w00": {
+     "cached": false,
+     "seconds": 150.2,
+     "frames": 1102,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    },
+    "gsw_bkn_2015_s05_w00": {
+     "cached": false,
+     "seconds": 103.2,
+     "frames": 726,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    },
+    "gsw_bkn_2015_s06_w00": {
+     "cached": false,
+     "seconds": 67.0,
+     "frames": 436,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    },
+    "gsw_bkn_2015_s07_w00": {
+     "cached": false,
+     "seconds": 127.4,
+     "frames": 910,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    },
+    "gsw_bkn_2015_s08_w00": {
+     "cached": false,
+     "seconds": 30.2,
+     "frames": 145,
+     "device": {
+      "requested": {
+       "detector": "auto",
+       "court": "auto",
+       "gate": "auto"
+      },
+      "resolved": {
+       "detector": "mps",
+       "court": "mps",
+       "gate": "mps"
+      },
+      "clip_fix": true,
+      "clip_fix_names": [
+       "ultralytics.utils.ops.NOT_MACOS14",
+       "ultralytics.nn.modules.head.NOT_MACOS14"
+      ]
+     }
+    }
+   }
+  }
+ }
+}
