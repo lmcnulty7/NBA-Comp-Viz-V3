@@ -321,11 +321,12 @@ reads its token only from the environment variable DRIVE_TOKEN of the one subpro
 prints, logs or writes a token. Prerequisite: the Drive API enabled on the sign-in's Cloud project (a 403
 SERVICE_DISABLED means it is not yet).
 
-How the lead makes DRIVE_TOKEN: the helper drive_token.py (in the nba-colab folder of the user config directory,
-outside the repository) mints a Drive-only access token from the stored refresh token, by the scope parameter on
-refresh, and never caches it. Run it with `--check` first (it must show the scopes drive.file and drive.readonly only,
-and the minutes left); run it without the flag to get the token, and mint a fresh one for each call that needs it if
-the last is near its hour. That token is the one DRIVE_TOKEN carries; it cannot drive Colab. It passes through the
+How the lead makes DRIVE_TOKEN: `python3 "$HOME/.config/nba-colab/drive_token.py"` (outside the repository) mints
+a Drive-only access token (drive.readonly plus drive.file, about 59 minutes) from the stored refresh token, by the
+scope parameter on refresh, and never caches it. Run it with `--check` first (it must show the scopes drive.file and
+drive.readonly only, and the minutes left); run it without the flag to get the token, and mint a fresh one for each
+call that needs it if the last is near its hour. The token is passed only in the execute_code call text, into each
+subprocess's environment. That token is the one DRIVE_TOKEN carries; it cannot drive Colab. It passes through the
 execute_code call text, so it sits in the lead's session transcript for its lifetime (about an hour), and nowhere
 else: not in a file on the Mac or the runtime, not in a log, not in a command line (only in the subprocess's
 environment).
