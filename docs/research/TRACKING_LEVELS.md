@@ -54,15 +54,21 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. E1 post-mortem (Mac, no GPU): label recall of the E1 corpus against SportVU on its own frames, and where E1's
-   extra misses are, by cause. Tests the post hoc reading in P8_E1.md and sets E1b's numbers.
+1. Locate E1's miss rise (D173): M4 found E1's raw CPU boxes miss fewer than r23's, so the rise appears in the build
+   path. M5 (feet rescore) leaves +0.0195 with bottom-centre feet; M6 (one game rebuilt with the detector on CPU) is
+   running. If the device carries it, every Mac MPS build is suspect, which also bears on the truth.
 2. D161 (1) one-cell CUDA check (Colab, about 1 to 2 units): does Colab reproduce the Mac scorecard?
 3. E1b design under TRAINING_PROTOCOL.md: candidate changes are a start from r23 instead of COCO, not teaching
    unlabelled SportVU players as background, and a truth-aligned validation metric. Pilot on one fold first.
-4. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
-5. Footage at low cost, continuously; NUST-NBA181 waits on Lucien's email (D163 (3)).
-6. Level 4 watch, weekly.
-7. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
+4. Camera truth for the development videos in other arenas (nyk_bos_2016, okc_sac_2015, por_okc_2016; Mac lock
+   hours, no Colab), once M6 and the CUDA check settle which build platform the truth is made on. Today only the GSW
+   games and hou_cle_2016 have Mac truth, so cross-arena tuning (Level 1 step 7) has one arena of development truth
+   besides GSW. The sealed side is the D85 set: 4 games in 3 arenas, below the 10 games and 5 arenas of the first
+   draft; its detectable effect is stated before it is sealed (D172).
+5. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
+6. Footage at low cost, continuously; NUST-NBA181 waits on Lucien's email (D163 (3)).
+7. Level 4 watch, weekly.
+8. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
 
 ## Lessons and priors
 
