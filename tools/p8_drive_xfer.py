@@ -24,7 +24,8 @@ Drive's size and md5 against the local file and prints one line: name, Drive id,
 downloads that file id and checks size, md5 and sha256 against the values the runtime printed.
 
 Tokens: the Mac takes its access token from the Colab sign-in helper (nba-colab/colab_headers.py in the user config folder, its token());
-the runtime takes it from the environment variable DRIVE_TOKEN only. A token is never printed, logged, written to a
+the runtime takes it from the environment variable DRIVE_TOKEN only, a Drive-only token (drive.file and
+drive.readonly) that the lead mints with the drive_token.py helper (docs/research/P8_cuda_check.md section 12). A token is never printed, logged, written to a
 file or put in an error message.
 """
 

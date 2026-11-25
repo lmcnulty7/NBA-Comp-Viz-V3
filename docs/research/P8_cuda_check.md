@@ -316,8 +316,19 @@ No tolerance, offset or rule test changed. Each item below was made before any C
 ## 12. Transfer through Google Drive (A14)
 
 Tool: `tools/p8_drive_xfer.py` (stdlib only). The Mac's Drive mount and the Colab runtime use the same Google account.
-The Mac takes its access token from the Colab sign-in helper; the runtime reads it only from the environment variable
-DRIVE_TOKEN of the one subprocess that needs it. The tool never prints, logs or writes a token.
+The Mac commands take their access token from the Colab sign-in helper (colab_headers.py, its token()); the runtime
+reads its token only from the environment variable DRIVE_TOKEN of the one subprocess that needs it. The tool never
+prints, logs or writes a token. Prerequisite: the Drive API enabled on the sign-in's Cloud project (a 403
+SERVICE_DISABLED means it is not yet).
+
+How the lead makes DRIVE_TOKEN: the helper drive_token.py (in the nba-colab folder of the user config directory,
+outside the repository) mints a Drive-only access token from the stored refresh token, by the scope parameter on
+refresh, and never caches it. Run it with `--check` first (it must show the scopes drive.file and drive.readonly only,
+and the minutes left); run it without the flag to get the token, and mint a fresh one for each call that needs it if
+the last is near its hour. That token is the one DRIVE_TOKEN carries; it cannot drive Colab. It passes through the
+execute_code call text, so it sits in the lead's session transcript for its lifetime (about an hour), and nowhere
+else: not in a file on the Mac or the runtime, not in a log, not in a command line (only in the subprocess's
+environment).
 
 Up (replaces step 2):
 
@@ -334,7 +345,7 @@ Up (replaces step 2):
    ```python
    import os, subprocess
    open("/content/p8_drive_ids.json", "w").write('<the push-map line>')
-   env = {**os.environ, "DRIVE_TOKEN": "<access token with drive.readonly>"}
+   env = {**os.environ, "DRIVE_TOKEN": "<the Drive-only token from drive_token.py>"}
    subprocess.Popen(["python", "-m", "tools.p8_drive_xfer", "fetch", "--ids", "/content/p8_drive_ids.json",
                      "--dest", "/content/p8_cuda_in"], cwd="/content/repo", env=env,
                     stdout=open("/content/p8_fetch.log", "w"), stderr=subprocess.STDOUT)
@@ -356,7 +367,7 @@ this OAuth client create files and touch only files it created, so the folder is
 
    ```python
    import os, subprocess
-   env = {**os.environ, "DRIVE_TOKEN": "<access token with drive.file>"}
+   env = {**os.environ, "DRIVE_TOKEN": "<a fresh Drive-only token from drive_token.py>"}
    for name in ("p8_cuda_gsw_ind_2016.complete.json", "p8_cuda_gsw_ind_2016.tar"):
        r = subprocess.run(["python", "-m", "tools.p8_drive_xfer", "upload", "--src", f"/content/p8_cuda_out/{name}",
                            "--drive-dir-id", "<folder id>", "--name", name], cwd="/content/repo", env=env,
@@ -376,7 +387,7 @@ this OAuth client create files and touch only files it created, so the folder is
 Base64 through execute_code output is not used: the output enters the lead's context, and even trimmed to the frames
 files and gzipped, the three arms are about 1.7 MB (hundreds of thousands of tokens).
 
-Token exposure: the token typed into an execute_code call is in that session's transcript for its lifetime (about an
-hour). It is the whole OAuth token, so it carries the Colab scopes too. A token minted from the refresh token with only
-the Drive scopes, by the sign-in helper outside the repository, would narrow this; that is Lucien's or the lead's
-change, not this tool's.
+Token exposure: only the Drive-only token (drive.file and drive.readonly) ever enters an execute_code call, through
+its text, so it is in the lead's session transcript for about an hour. The Colab-scoped token stays on the Mac (the
+Colab MCP server's headers and the Mac commands of this tool). drive.readonly can read the whole Drive for that hour;
+drive.file can write only files this client created.
