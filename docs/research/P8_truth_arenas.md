@@ -11,9 +11,9 @@ held-out game is read and no held-out number is computed (CLAUDE.md rule 4).
 **Layouts (rule as worded in version 3).** A game runs only on a layout that is either in the frozen pipeline code
 (clock_reader.LAYOUTS, from before P8) or found by the D152 finder, and in either case accepted through the frozen
 automatic check at the registered bar (MIN_LAYOUT_SHARE 0.25). New hand calibrations made as P8 work (msg15_720 and
-csn_nw15_720, 2026-11-17) are not used, under D128 and D152 (a box measured by eye is a hand step). Whether those
-pre-D128 P8 hand calibrations may be used after all is Lucien's call; the lead is asking him, and until he answers
-nyk_bos_2016 and por_okc_2016 stay out.
+csn_nw15_720, 2026-11-17) are not used, under D128 and D152 (a box measured by eye is a hand step). Decision (Lucien,
+2026-11-25): msg15_720 and csn_nw15_720 stay out, so nyk_bos_2016 and por_okc_2016 are not used. The plan is
+okc_sac_2015 only.
 
 The finder's answer for both games is already on record, from the D152 validation run (P8 workspace
 layout_find/validation.json, P8_baseline.md):
@@ -237,9 +237,9 @@ No okc_sac_2015 build has run. Each item is applied above and in `tools/p8_truth
 3. A and B need a complete fit (the result's "partial" False).
 4. The verdict is "unused" unless every label window and every r23 rebuild window resolves the detector to cpu.
 5. The layout rule is worded as: in the frozen pipeline code or found by the D152 finder, each accepted through the
-   frozen check; P8's own hand calibrations of 2026-11-17 are not used; whether they may be is Lucien's call, and until
-   he answers nyk_bos_2016 and por_okc_2016 stay out. fso15_720 was measured by hand in 2026-10 as pipeline code before
-   P8.
+   frozen check; P8's own hand calibrations of 2026-11-17 are not used. Decision (Lucien, 2026-11-25): they stay out,
+   and nyk_bos_2016 and por_okc_2016 are not used; the plan is okc_sac_2015 only. fso15_720 was measured by hand in
+   2026-10 as pipeline code before P8.
 6. Check B's mapped-clock range is 2,308 to 2,635 s, from the sync time maps.
 7. The "moved" offset bar's justification is reworded (0.2 s is a per-window threshold in truth v2, borrowed here as a
    round size; the only device-noise evidence is the D99 detector-only pair, 0.04 s on one window).
