@@ -212,6 +212,9 @@ as `get` does. `compare --plumbing` on that result (written to the P8 workspace 
 
 ## 10. Runbook for the lead
 
+While a local web filter blocks the Mac's route to the runtime, steps 2 and 5 go through Google Drive instead
+(section 12, A14). Every other step stays as written.
+
 Before: merge this branch into v4-research and push it; PIN is that pushed commit (the runtime clones from GitHub).
 The pack is already built on the Mac (pack folder: the P8 data folder, cuda_check/pack; tar sha256 in its
 pack_manifest.json); rebuild it with the pack command only if a pinned file changed. Log the runtime's start time.
@@ -306,3 +309,71 @@ No tolerance, offset or rule test changed. Each item below was made before any C
 - A13 (2026-11-25, after A12). Section 5 states that the Mac MPS reference is the unfixed MPS path (clip_boxes'
   in-place clamp corrupts box x coordinates on this Mac, E1 post-mortem M7 and M8), so matching it means matching a
   known-faulty path. No arm, test or reference changes.
+- A14 (2026-11-25). Transfer through Google Drive (section 12): the Mac's HTTP route to the runtime is blocked by a
+  local web filter, so the pack goes up through the Drive mount and the Drive API, and the result comes back the same
+  way. Nothing in the builds, the arms, the tests or the reading changes; the run is still checked by every hash.
+
+## 12. Transfer through Google Drive (A14)
+
+Tool: `tools/p8_drive_xfer.py` (stdlib only). The Mac's Drive mount and the Colab runtime use the same Google account.
+The Mac takes its access token from the Colab sign-in helper; the runtime reads it only from the environment variable
+DRIVE_TOKEN of the one subprocess that needs it. The tool never prints, logs or writes a token.
+
+Up (replaces step 2):
+
+1. On the Mac: `python3 -m tools.p8_drive_xfer stage --pack <pack folder> --drive-dir "<Drive root>/nba_p8_xfer/cuda_check"`,
+   where the Drive root is the parent of DATA_ROOT. It copies the pack's files there (never under DATA_ROOT, reports/
+   or a checkout), polls the Drive API until every file shows the local size and md5, and writes drive_ids.json
+   beside the pack manifest (per file: name, Drive id, size, md5, sha256). The 162 MB pack uploads at the Drive
+   client's speed; the command waits up to an hour.
+2. `python3 -m tools.p8_drive_xfer push-map --pack <pack folder>` prints the id map on one line. It holds no secret
+   and no local path.
+3. One short execute_code call writes that line to /content/p8_drive_ids.json and starts the fetch detached, with
+   the token in that subprocess's environment only:
+
+   ```python
+   import os, subprocess
+   open("/content/p8_drive_ids.json", "w").write('<the push-map line>')
+   env = {**os.environ, "DRIVE_TOKEN": "<access token with drive.readonly>"}
+   subprocess.Popen(["python", "-m", "tools.p8_drive_xfer", "fetch", "--ids", "/content/p8_drive_ids.json",
+                     "--dest", "/content/p8_cuda_in"], cwd="/content/repo", env=env,
+                    stdout=open("/content/p8_fetch.log", "w"), stderr=subprocess.STDOUT)
+   ```
+
+   Poll /content/p8_fetch.log with new short calls until it shows {"files": ...}. fetch reads each file in Range
+   requests, resumes from a .part file, and refuses any file whose size, md5 or sha256 differs from the map. Then
+   start the run as in step 3. The run's own checks (the pack tar against its manifest, every member) still apply.
+
+Down (replaces step 5). The result tar is about 10.7 MB for all three arms (cuda_a and cuda_b about 4.9 MB each,
+4.0 MB of it the report-only window; colab_cpu about 0.9 MB; the one-arm, one-window plumbing tar was 450 KB).
+Recommended way back: a drive.file scope added at Lucien's next sign-in, beside drive.readonly.
+
+1. After "done", one short execute_code call runs, with the drive.file token in that subprocess's environment only:
+   `python -m tools.p8_drive_xfer push --src /content/p8_cuda_out/p8_cuda_gsw_ind_2016.tar --src /content/p8_cuda_out/p8_cuda_gsw_ind_2016.complete.json --folder-name nba_p8_xfer_out`,
+   then prints `tar_sha256` from complete.json. push prints the result's id map on one line (about 500 bytes).
+2. On the Mac: save that line to a file outside the repository and run
+   `python3 -m tools.p8_drive_xfer collect --ids <that file> --dest <result folder>` (same checks as fetch), then
+   `python3 -m tools.p8_cuda_check unpack --dest <result folder> --expect-sha256 <the tar_sha256 the runtime printed>`.
+   unpack checks the tar against complete.json and against the sha256 that came through execute_code, a second
+   channel Drive does not touch, then checks and extracts every member. Then delete the runtime and compare as in
+   step 6.
+
+Why drive.file: it lets the app write only files it creates and read only those (plus files opened through it), so
+it cannot read or change anything else in the Drive. drive.readonly cannot write at all. The full drive scope would
+also work and is broader than needed.
+
+Ways back considered and not chosen:
+
+- Base64 through execute_code output: the output enters the lead's context. Even trimmed to the frames files and
+  gzipped, the three arms are about 1.7 MB (the report-only window's frames alone compress from 2.2 MB to 0.65 MB),
+  about 2.3 MB of base64, hundreds of thousands of tokens. Only complete.json (about 1 KB) and the tar's sha256 come
+  back this way, as the second channel above.
+- Compare on the runtime and return only the comparison json (about 7 KB for the plumbing result, tens of KB for a
+  full one): it needs no write scope, but it ships both games' SportVU moments and the Mac's diagnosis builds up to
+  Colab, runs compare in a second environment, and leaves the builds themselves off the Mac. It stays the fallback
+  if Lucien declines drive.file.
+
+Token exposure: the token typed into an execute_code call is in that session's transcript for its lifetime (about an
+hour). It is the whole OAuth token, so it carries the Colab scopes too. A token minted from the refresh token with only
+the Drive scopes, by the sign-in helper outside the repository, would narrow this; that is Lucien's or the lead's
+change, not this tool's.

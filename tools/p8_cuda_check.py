@@ -7,6 +7,7 @@ model (amendment of 2026-11-25). Design and reading rule, fixed before any run: 
     python -m tools.p8_cuda_check run --pack-dir DIR --out-dir DIR --work DIR [--install-models] [--deadline-s S]
                                                                                             the runtime
     python3 -m tools.p8_cuda_check get --dest <result folder>                               Mac, COLAB_URL and COLAB_TOKEN
+    python3 -m tools.p8_cuda_check unpack --dest <result folder> [--expect-sha256 S]       Mac, after a Drive collect
     <frozen CV python> -m tools.p8_cuda_check compare --result DIR --pack DIR --pin COMMIT  Mac
 
 pack: the window clips the Mac builds read, the sections' local time maps and the two gitignored models (gate head v2,
@@ -427,11 +428,31 @@ def cmd_get(a, rt=None) -> dict:
         rename_prev(p)
     X.get(rt, f"{REMOTE_OUT}/{RESULT}.complete.json", comp)
     info = X.get(rt, f"{REMOTE_OUT}/{RESULT}.tar", tar)
+    info.update(unpack(dest))
+    print(json.dumps(info, indent=1))
+    return info
+
+
+def unpack(dest: Path, expect_sha256: str | None = None) -> dict:
+    """The result tar and complete.json already in dest (by get, or by tools.p8_drive_xfer collect): the tar's
+    sha256 against complete.json and, when given, against the sha256 the runtime printed (A14), then every member
+    checked and extracted."""
+    tar, comp = dest / f"{RESULT}.tar", dest / f"{RESULT}.complete.json"
     complete = json.loads(comp.read_text())
-    if sha256_file(tar) != complete["tar_sha256"]:
+    got = sha256_file(tar)
+    if got != complete["tar_sha256"]:
         raise SystemExit(f"{WHO}: {tar.name} does not match its complete.json (a run may have rewritten it; get again)")
+    if expect_sha256 and got != expect_sha256:
+        raise SystemExit(f"{WHO}: {tar.name} is not the tar the runtime reported")
+    if (dest / RESULT).exists():
+        rename_prev(dest / RESULT)
     extract_checked(tar, complete["members"], dest)
-    info.update({"arms_done": complete["arms_done"], "members": len(complete["members"])})
+    return {"arms_done": complete["arms_done"], "members": len(complete["members"]), "tar_sha256": got}
+
+
+def cmd_unpack(a) -> dict:
+    guard_all()
+    info = unpack(check_outside(Path(a.dest).expanduser()), a.expect_sha256)
     print(json.dumps(info, indent=1))
     return info
 
@@ -506,7 +527,8 @@ def cmd_run(a) -> dict:
     man = check_pack(pack)
     work, out_dir = Path(a.work), Path(a.out_dir)
     os.environ["V3_P8_ROOT"] = str(work)
-    for flag in ("P8_DEVICE", "P8_DEVICE_DETECTOR", "P8_DEVICE_COURT", "P8_DEVICE_GATE", "COURT_GRID_WEIGHTS"):
+    for flag in ("P8_DEVICE", "P8_DEVICE_DETECTOR", "P8_DEVICE_COURT", "P8_DEVICE_GATE", "COURT_GRID_WEIGHTS",
+                 "P8_MPS_CLIP_FIX"):
         os.environ.pop(flag, None)
     from tools import p8_frozen as F
     P = F.install_paths(check_outside(work))
@@ -751,13 +773,17 @@ def main(argv=None) -> None:
     r.add_argument("--plumbing", action="store_true", help="a dry run: marked plumbing only, never read as a result")
     g = sub.add_parser("get")
     g.add_argument("--dest", required=True)
+    k = sub.add_parser("unpack")
+    k.add_argument("--dest", required=True)
+    k.add_argument("--expect-sha256", default=None, help="the result tar's sha256 as the runtime printed it")
     c = sub.add_parser("compare")
     c.add_argument("--result", required=True)
     c.add_argument("--pack", default=None)
     c.add_argument("--pin", default=None, help="the pushed commit the runtime was pinned to")
     c.add_argument("--plumbing", action="store_true")
     a = ap.parse_args(argv)
-    {"pack": cmd_pack, "put": cmd_put, "run": cmd_run, "get": cmd_get, "compare": cmd_compare}[a.cmd](a)
+    {"pack": cmd_pack, "put": cmd_put, "run": cmd_run, "get": cmd_get, "unpack": cmd_unpack,
+     "compare": cmd_compare}[a.cmd](a)
 
 
 if __name__ == "__main__":
