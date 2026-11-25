@@ -54,28 +54,37 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Locate E1's miss rise (D173): M4 found E1's raw CPU boxes miss fewer than r23's, so the rise appears in the build
-   path. M5 (feet rescore) leaves +0.0195 with bottom-centre feet; M6 (one game rebuilt with the detector on CPU) is
-   running. If the device carries it, every Mac MPS build is suspect, which also bears on the truth.
-2. D161 (1) one-cell CUDA check (Colab, about 1 to 2 units): does Colab reproduce the Mac scorecard?
-3. E1b design under TRAINING_PROTOCOL.md: candidate changes are a start from r23 instead of COCO, not teaching
-   unlabelled SportVU players as background, and a truth-aligned validation metric. Pilot on one fold first.
-4. Camera truth for the development videos in other arenas (nyk_bos_2016, okc_sac_2015, por_okc_2016; Mac lock
-   hours, no Colab), once M6 and the CUDA check settle which build platform the truth is made on. Today only the GSW
-   games and hou_cle_2016 have Mac truth, so cross-arena tuning (Level 1 step 7) has one arena of development truth
-   besides GSW. The sealed side is the D85 set: 4 games in 3 arenas, below the 10 games and 5 arenas of the first
-   draft; its detectable effect is stated before it is sealed (D172).
-5. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
-6. Footage at low cost, continuously; NUST-NBA181 waits on Lucien's email (D163 (3)).
-7. Level 4 watch, weekly.
-8. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
+1. Rebuild the development baselines on the reference platform (D175: detector on CPU). M9 (r23 on gsw_cha_2016,
+   gsw_sac_2015, hou_cle_2016) is running, report-only beside the registered MPS rows; gsw_bkn_2015 is M6. Every
+   registered MPS number on this Mac is inferred to carry the clip_boxes fault (D174).
+2. D161 (1) CUDA check on Colab (about 1 to 1.5 units): does a T4 build of r23 agree with the Mac CPU build? If so,
+   heavy builds can move to Colab; it covers r23 on a T4 only.
+3. E1R: does E1 seed 0 beat r23 on the reference platform? A new arm, designed and reviewed before any build, with
+   the forking path disclosed (chosen after M4 and M6 favoured E1 on CPU). Mac lock hours, no units.
+4. E1b design under TRAINING_PROTOCOL.md, after E1R: start from r23, do not teach unlabelled SportVU players as
+   background, a truth-aligned validation metric, a pilot on one fold first, and builds on the reference platform.
+5. Camera truth for the development videos in other arenas (nyk_bos_2016, okc_sac_2015, por_okc_2016; Mac lock
+   hours, no Colab), built on the reference platform. Today only the GSW games and hou_cle_2016 have Mac truth, so
+   cross-arena tuning (Level 1 step 7) has one arena of development truth besides GSW. The sealed side is the D85
+   set: 4 games in 3 arenas, below the 10 games and 5 arenas of the first draft; its detectable effect is stated
+   before it is sealed (D172).
+6. Widen the fixed-MPS parity check (P8_MPS_CLIP_FIX, D174 (5)) to more windows and games: a 3x cost saver for
+   exploratory builds if it passes a new registered rule.
+7. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
+8. Footage at low cost, continuously; NUST-NBA181 waits on Lucien's email (D163 (3)).
+9. Level 4 watch, weekly.
+10. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
 
 ## Lessons and priors
 
-- Agreement pseudo-labels (two models must both box a player) cut ghosts but can raise misses: what neither model
-  boxes, or what they box apart, is taught as background (E1, D171). The post-mortem found E1's extra misses enriched
-  in unlabelled player-frames, but the net rise sits on labelled ones; it cannot yet separate a training cause from a
-  label-noise cause (M4, the confidence sweep, tests the threshold part).
+- Measure the platform before the model. On this Mac, ultralytics 8.4.48 on MPS pins the x of the most confident
+  boxes to 720 px (D174), for r23 and E1 alike. With only the detector moved to CPU, E1 minus r23 on missed turns from
+  +0.0330 to -0.0147 on gsw_bkn_2015 (M6), and E1's raw CPU boxes miss fewer players than r23's (M4); the other games
+  are not rebuilt, so how much of the registered rise the fault carries is the leading explanation, not a
+  measurement (E1R measures it). Every new detector or library version gets a device parity check on the corpus
+  JPEGs (minutes) before any build is scored.
+- Agreement pseudo-labels (two models must both box a player) can teach unlabelled players as background; for E1 the
+  label audit found this explains only a small part of the rise (D173).
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on

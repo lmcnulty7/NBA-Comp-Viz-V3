@@ -20,6 +20,8 @@ for about 1 to 2 units.
      occlusion), and what is left unlabelled and so taught as background.
    - Initialisation: r23 (models/player_detector.pt) unless the design shows a generic base is needed.
    - Baseline: the scorer reproduces r23's recorded rows on the same windows (as the E1 stub did).
+   - Device: registered builds run the detector on CPU (D175). A new detector or library version first passes a
+     device parity check on the corpus JPEGs (tools/p8_device_parity.py, D174); MPS on this Mac corrupts boxes.
    - Mechanics: the label files render the boxes the manifest says (counts per frame), a tiny-batch overfit, the loss
      falls on a short run.
 3. **Ladder, gates written in the design.** Smoke (minutes, scored end to end), then a pilot (one fold, short
