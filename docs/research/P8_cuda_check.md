@@ -345,33 +345,36 @@ Up (replaces step 2):
    start the run as in step 3. The run's own checks (the pack tar against its manifest, every member) still apply.
 
 Down (replaces step 5). The result tar is about 10.7 MB for all three arms (cuda_a and cuda_b about 4.9 MB each,
-4.0 MB of it the report-only window; colab_cpu about 0.9 MB; the one-arm, one-window plumbing tar was 450 KB).
-Recommended way back: a drive.file scope added at Lucien's next sign-in, beside drive.readonly.
+4.0 MB of it the report-only window; colab_cpu about 0.9 MB; the one-arm, one-window plumbing tar was 450 KB). The way
+back is Drive with the drive.file scope, which Lucien approved on 2026-11-25 beside drive.readonly. drive.file lets
+this OAuth client create files and touch only files it created, so the folder is made by the same client first.
 
-1. After "done", one short execute_code call runs, with the drive.file token in that subprocess's environment only:
-   `python -m tools.p8_drive_xfer push --src /content/p8_cuda_out/p8_cuda_gsw_ind_2016.tar --src /content/p8_cuda_out/p8_cuda_gsw_ind_2016.complete.json --folder-name nba_p8_xfer_out`,
-   then prints `tar_sha256` from complete.json. push prints the result's id map on one line (about 500 bytes).
-2. On the Mac: save that line to a file outside the repository and run
-   `python3 -m tools.p8_drive_xfer collect --ids <that file> --dest <result folder>` (same checks as fetch), then
-   `python3 -m tools.p8_cuda_check unpack --dest <result folder> --expect-sha256 <the tar_sha256 the runtime printed>`.
-   unpack checks the tar against complete.json and against the sha256 that came through execute_code, a second
-   channel Drive does not touch, then checks and extracts every member. Then delete the runtime and compare as in
-   step 6.
+1. Before the run, on the Mac: `python3 -m tools.p8_drive_xfer make-folder --name nba_p8_xfer_out` prints the
+   folder's id (not a secret). It reuses a folder of that name the client already owns.
+2. After "done", one short execute_code call uploads the two result files, with the token in each subprocess's
+   environment only:
 
-Why drive.file: it lets the app write only files it creates and read only those (plus files opened through it), so
-it cannot read or change anything else in the Drive. drive.readonly cannot write at all. The full drive scope would
-also work and is broader than needed.
+   ```python
+   import os, subprocess
+   env = {**os.environ, "DRIVE_TOKEN": "<access token with drive.file>"}
+   for name in ("p8_cuda_gsw_ind_2016.complete.json", "p8_cuda_gsw_ind_2016.tar"):
+       r = subprocess.run(["python", "-m", "tools.p8_drive_xfer", "upload", "--src", f"/content/p8_cuda_out/{name}",
+                           "--drive-dir-id", "<folder id>", "--name", name], cwd="/content/repo", env=env,
+                          capture_output=True, text=True)
+       print(r.stdout.strip() or r.stderr[-500:])
+   ```
 
-Ways back considered and not chosen:
+   Each upload is resumable, checks Drive's size and md5 against the local file and prints one line: name, Drive id,
+   size, md5, sha256. The tar (about 10.7 MB) goes up in seconds, so the call stays short.
+3. On the Mac, for each printed line:
+   `python3 -m tools.p8_drive_xfer pull --file-id <id> --name <name> --size <size> --md5 <md5> --sha256 <sha256> --dest <result folder>`.
+   pull checks size, md5 and sha256 against what the runtime printed (a channel Drive does not touch) and refuses on
+   any mismatch. Then `python3 -m tools.p8_cuda_check unpack --dest <result folder> --expect-sha256 <the tar's
+   sha256>` checks the tar against complete.json and every member, and extracts it. Then delete the runtime and
+   compare as in step 6.
 
-- Base64 through execute_code output: the output enters the lead's context. Even trimmed to the frames files and
-  gzipped, the three arms are about 1.7 MB (the report-only window's frames alone compress from 2.2 MB to 0.65 MB),
-  about 2.3 MB of base64, hundreds of thousands of tokens. Only complete.json (about 1 KB) and the tar's sha256 come
-  back this way, as the second channel above.
-- Compare on the runtime and return only the comparison json (about 7 KB for the plumbing result, tens of KB for a
-  full one): it needs no write scope, but it ships both games' SportVU moments and the Mac's diagnosis builds up to
-  Colab, runs compare in a second environment, and leaves the builds themselves off the Mac. It stays the fallback
-  if Lucien declines drive.file.
+Base64 through execute_code output is not used: the output enters the lead's context, and even trimmed to the frames
+files and gzipped, the three arms are about 1.7 MB (hundreds of thousands of tokens).
 
 Token exposure: the token typed into an execute_code call is in that session's transcript for its lifetime (about an
 hour). It is the whole OAuth token, so it carries the Colab scopes too. A token minted from the refresh token with only

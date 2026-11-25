@@ -59,7 +59,9 @@ class FakeDrive:
             parent = q["q"][0].split("'")[1]
             kids = [self.record(i) for i, f in self.files.items() if f["parent"] == parent]
             return 200, {}, json.dumps({"files": kids}).encode()
-        fid = u.path.rsplit("/", 1)[1]                             # files.get alt=media
+        fid = u.path.rsplit("/", 1)[1]
+        if "alt" not in q:                                         # files.get metadata
+            return 200, {}, json.dumps(self.record(fid)).encode()
         if self.fail_next_get:
             self.fail_next_get -= 1
             return 503, {"x-echo-authorization": headers["Authorization"]}, b"busy"
@@ -120,7 +122,8 @@ def test_the_token_never_reaches_output_errors_or_files(tmp_path, capsys, monkey
     assert TOKEN not in str(err)
     fake.fail_next_get = 0
     X.download(X.Drive(TOKEN, fake), idmap, tmp_path)
-    X.push(X.Drive(TOKEN, fake), [tmp_path / "a.tar"], "nba_p8_xfer_out")
+    fid = X.make_folder(X.Drive(TOKEN, fake), "nba_p8_xfer_out")
+    X.upload_one(X.Drive(TOKEN, fake), tmp_path / "a.tar", fid, "a.tar")
     out = capsys.readouterr()
     assert TOKEN not in out.out and TOKEN not in out.err
     for p in tmp_path.rglob("*"):
@@ -131,21 +134,41 @@ def test_the_token_never_reaches_output_errors_or_files(tmp_path, capsys, monkey
         X.runtime_token()
 
 
-def test_push_uploads_in_pieces_and_maps_the_result(tmp_path, monkeypatch, capsys):
+def test_make_folder_upload_and_pull_round_trip(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(X, "UP_CHUNK", 5)
     fake = FakeDrive()
+    fid = X.make_folder(X.Drive(TOKEN, fake), "nba_p8_xfer_out")
+    assert X.make_folder(X.Drive(TOKEN, fake), "nba_p8_xfer_out") == fid           # reused, not made twice
     src = tmp_path / "p8_cuda_gsw_ind_2016.tar"
     src.write_bytes(b"result-bytes-" * 7)
-    m = X.push(X.Drive(TOKEN, fake), [src], "nba_p8_xfer_out")
-    rec = m["files"][src.name]
-    assert rec["sha256"] == hashlib.sha256(src.read_bytes()).hexdigest()
-    assert fake.files[rec["id"]]["data"] == src.read_bytes()
-    assert sum(1 for c in fake.calls if c[0] == "PUT") > 1
-    m2 = X.push(X.Drive(TOKEN, fake), [src], "nba_p8_xfer_out")   # the folder is found, not made twice
-    assert sum(1 for f in fake.files.values() if f["folder"]) == 1
+    rec = X.upload_one(X.Drive(TOKEN, fake), src, fid, src.name)
+    assert fake.files[rec["id"]]["data"] == src.read_bytes() and fake.files[rec["id"]]["parent"] == fid
+    assert sum(1 for c in fake.calls if c[0] == "PUT") > 1                           # resumable, in pieces
+    line = capsys.readouterr().out.strip().splitlines()[-1]
+    assert json.loads(line) == rec                                                    # the line the runtime prints
     back = tmp_path / "back"
-    X.download(X.Drive(TOKEN, fake), m2, back)
+    X.pull(X.Drive(TOKEN, fake), rec["id"], rec["name"], rec["md5"], rec["sha256"], back, rec["size"])
     assert (back / src.name).read_bytes() == src.read_bytes()
+    with pytest.raises(SystemExit):                                                   # not what the runtime printed
+        X.pull(X.Drive(TOKEN, fake), rec["id"], "again.tar", rec["md5"], "0" * 64, back, rec["size"])
+    assert (back / "again.tar.bad").exists()
+    with pytest.raises(SystemExit):
+        X.upload_one(X.Drive(TOKEN, fake), src, fid, "../escape.tar")
+
+
+def test_upload_refuses_when_drive_holds_other_bytes(tmp_path, monkeypatch):
+    fake = FakeDrive()
+    fid = X.make_folder(X.Drive(TOKEN, fake), "out")
+    src = tmp_path / "r.tar"
+    src.write_bytes(b"abc")
+    real = fake.__call__
+
+    def corrupt(method, url, headers, body):
+        if url in fake.sessions and body:
+            body = b"xyz"
+        return real(method, url, headers, body)
+    with pytest.raises(SystemExit):
+        X.upload_one(X.Drive(TOKEN, corrupt), src, fid, "r.tar")
 
 
 def _mount(tmp_path, monkeypatch):
@@ -220,3 +243,14 @@ def test_synced_needs_size_and_md5():
     assert X.synced(local, [{"name": "a", "id": "1", "size": "3", "md5Checksum": hashlib.md5(b"abc").hexdigest()}])
     assert not X.synced(local, [{"name": "a", "id": "1", "size": "2", "md5Checksum": hashlib.md5(b"abc").hexdigest()}])
     assert not X.synced(local, [{"name": "a", "id": "1", "size": "3"}])          # still uploading: no md5 yet
+
+
+def test_pull_without_size_reads_drive_metadata_and_checks_its_md5(tmp_path):
+    fake = FakeDrive()
+    data = b"complete-json-bytes"
+    fid = fake.add("p8_cuda_gsw_ind_2016.complete.json", data=data)
+    md5, sha = hashlib.md5(data).hexdigest(), hashlib.sha256(data).hexdigest()
+    X.pull(X.Drive(TOKEN, fake), fid, "p8_cuda_gsw_ind_2016.complete.json", md5, sha, tmp_path)
+    assert (tmp_path / "p8_cuda_gsw_ind_2016.complete.json").read_bytes() == data
+    with pytest.raises(SystemExit):
+        X.pull(X.Drive(TOKEN, fake), fid, "other.json", "0" * 32, sha, tmp_path)

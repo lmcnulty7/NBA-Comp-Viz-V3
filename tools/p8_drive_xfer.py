@@ -4,8 +4,9 @@ web filter blocks the Mac's HTTP route to the runtime (docs/research/P8_cuda_che
     python3 -m tools.p8_drive_xfer stage --pack <folder> --drive-dir <Drive root>/nba_p8_xfer/<name>       Mac
     python3 -m tools.p8_drive_xfer push-map --pack <folder>                                                Mac
     python -m tools.p8_drive_xfer fetch --ids <id map json> --dest <dir>                                   runtime
-    python -m tools.p8_drive_xfer push --src <file> [--src <file>] --folder-name <name>                    runtime
-    python3 -m tools.p8_drive_xfer collect --ids <id map json> --dest <dir>                                Mac
+    python3 -m tools.p8_drive_xfer make-folder --name <name>                                              Mac
+    python -m tools.p8_drive_xfer upload --src <file> --drive-dir-id <folder id> --name <name>              runtime
+    python3 -m tools.p8_drive_xfer pull --file-id <id> --name <name> --md5 M --sha256 S [--size N] --dest <dir>   Mac
 
 stage: copies the pack's files into a folder of the Drive mount (its root is the parent of DATA_ROOT; under
 nba_p8_xfer/ only; never under DATA_ROOT, reports/ or a checkout), then polls the Drive API (files.list by parent,
@@ -16,10 +17,11 @@ it holds no secret and goes into the execute_code call text.
 fetch: on the runtime, downloads each file of the map (files.get alt=media, Range requests, resumed from a .part
 file), checks size, md5 and sha256 against the map and refuses on any mismatch (the file is renamed .bad).
 
-push and collect (the way back; they need the drive.file scope, which drive.readonly does not give): push uploads
-the result files from the runtime with a resumable upload into a folder it creates or finds by name (drive.file sees
-only files this OAuth client made) and prints their id map; collect downloads them on the Mac with the same checks
-as fetch.
+The way back (drive.file scope, approved by Lucien beside drive.readonly): drive.file lets this OAuth client create
+files and touch only files it created. make-folder creates the result folder from the Mac with the same client, so
+the app owns it, and prints its id. upload (runtime) puts one file into that folder with a resumable upload, checks
+Drive's size and md5 against the local file and prints one line: name, Drive id, size, md5, sha256. pull (Mac)
+downloads that file id and checks size, md5 and sha256 against the values the runtime printed.
 
 Tokens: the Mac takes its access token from the Colab sign-in helper (nba-colab/colab_headers.py in the user config folder, its token());
 the runtime takes it from the environment variable DRIVE_TOKEN only. A token is never printed, logged, written to a
@@ -157,10 +159,10 @@ class Drive:
                                json.dumps(meta).encode())
         return json.loads(data)["id"]
 
-    def upload(self, path: Path, parent: str) -> dict:
+    def upload(self, path: Path, parent: str, name: str | None = None) -> dict:
         """Resumable upload of one file into parent -> Drive's {id, name, size, md5Checksum}."""
         size = path.stat().st_size
-        meta = json.dumps({"name": path.name, "parents": [parent]}).encode()
+        meta = json.dumps({"name": name or path.name, "parents": [parent]}).encode()
         _, rh, _ = self._req("POST", f"{UPLOAD}?uploadType=resumable&fields=id,name,size,md5Checksum",
                              {"Content-Type": "application/json; charset=UTF-8",
                               "X-Upload-Content-Length": str(size)}, meta)
@@ -348,24 +350,42 @@ def download(drive: Drive, idmap: dict, dest: Path) -> dict:
     return done
 
 
-def push(drive: Drive, srcs: list, folder_name: str) -> dict:
-    """Upload result files (runtime, drive.file scope) into a top-level folder of that name -> their id map."""
-    if not safe_name(folder_name):
-        raise SystemExit(f"{WHO}: bad folder name {folder_name!r}")
-    hit = drive.find("root", folder_name, folder=True)
-    fid = hit["id"] if hit else drive.create_folder(folder_name)
-    out = {}
-    for s in map(Path, srcs):
-        if not safe_name(s.name):
-            raise SystemExit(f"{WHO}: bad file name {s.name!r}")
-        h = hashes(s)
-        meta = drive.upload(s, fid)
-        if int(meta.get("size", -1)) != h["size"] or meta.get("md5Checksum") != h["md5"]:
-            raise SystemExit(f"{WHO}: Drive holds another {s.name} than the one sent")
-        out[s.name] = {"id": meta["id"], **h}
-    idmap = {"folder": folder_name, "files": out}
-    print(json.dumps(idmap, separators=(",", ":")), flush=True)
-    return idmap
+def make_folder(drive: Drive, name: str) -> str:
+    """The result folder at the Drive root, created by this OAuth client so drive.file covers it; an existing folder of
+    that name that the client already owns is reused -> its id."""
+    if not safe_name(name):
+        raise SystemExit(f"{WHO}: bad folder name {name!r}")
+    hit = drive.find("root", name, folder=True)
+    fid = hit["id"] if hit else drive.create_folder(name)
+    print(json.dumps({"folder": name, "id": fid}), flush=True)
+    return fid
+
+
+def upload_one(drive: Drive, src: Path, folder_id: str, name: str) -> dict:
+    """One file into the app's folder (runtime) -> {name, id, size, md5, sha256}, printed on one line; Drive's size and
+    md5 must equal the local file's."""
+    if not safe_name(name) or not safe_name(str(folder_id)):
+        raise SystemExit(f"{WHO}: bad name {name!r} or folder id")
+    src = Path(src)
+    h = hashes(src)
+    meta = drive.upload(src, folder_id, name)
+    if int(meta.get("size", -1)) != h["size"] or meta.get("md5Checksum") != h["md5"]:
+        raise SystemExit(f"{WHO}: Drive holds another {name} than the one sent")
+    rec = {"name": name, "id": meta["id"], **h}
+    print(json.dumps(rec, separators=(",", ":")), flush=True)
+    return rec
+
+
+def pull(drive: Drive, file_id: str, name: str, md5: str, sha256: str, dest: Path, size: int | None = None) -> dict:
+    """One file the runtime uploaded (Mac) -> dest/name, checked against the size, md5 and sha256 the runtime printed.
+    Without --size, Drive's reported size is used for the Range requests and still checked by both hashes."""
+    if size is None:
+        _, _, data = drive._req("GET", f"{API}/{file_id}?fields=size,md5Checksum")
+        meta = json.loads(data)
+        if meta.get("md5Checksum") != md5:
+            raise SystemExit(f"{WHO}: Drive's md5 of {name} is not the one the runtime printed")
+        size = int(meta["size"])
+    return download(drive, {"files": {name: {"id": file_id, "size": size, "md5": md5, "sha256": sha256}}}, dest)
 
 
 def main(argv=None) -> None:
@@ -380,12 +400,19 @@ def main(argv=None) -> None:
     f = sub.add_parser("fetch")
     f.add_argument("--ids", required=True)
     f.add_argument("--dest", required=True)
-    p = sub.add_parser("push")
-    p.add_argument("--src", action="append", required=True)
-    p.add_argument("--folder-name", required=True)
-    c = sub.add_parser("collect")
-    c.add_argument("--ids", required=True)
-    c.add_argument("--dest", required=True)
+    k = sub.add_parser("make-folder")
+    k.add_argument("--name", required=True)
+    u = sub.add_parser("upload")
+    u.add_argument("--src", required=True)
+    u.add_argument("--drive-dir-id", required=True)
+    u.add_argument("--name", required=True)
+    p = sub.add_parser("pull")
+    p.add_argument("--file-id", required=True)
+    p.add_argument("--name", required=True)
+    p.add_argument("--md5", required=True)
+    p.add_argument("--sha256", required=True)
+    p.add_argument("--size", type=int, default=None)
+    p.add_argument("--dest", required=True)
     a = ap.parse_args(argv)
     if a.cmd == "stage":
         stage(Path(a.pack), Path(a.drive_dir), Drive(mac_token()), timeout_s=a.timeout_s)
@@ -393,11 +420,13 @@ def main(argv=None) -> None:
         print(push_map(Path(a.pack)))
     elif a.cmd == "fetch":
         download(Drive(runtime_token()), json.loads(Path(a.ids).read_text()), Path(a.dest))
-    elif a.cmd == "push":
-        push(Drive(runtime_token()), a.src, a.folder_name)
+    elif a.cmd == "make-folder":
+        make_folder(Drive(mac_token()), a.name)
+    elif a.cmd == "upload":
+        upload_one(Drive(runtime_token()), Path(a.src), a.drive_dir_id, a.name)
     else:
         from tools.p8_common import check_outside
-        download(Drive(mac_token()), json.loads(Path(a.ids).read_text()), check_outside(Path(a.dest).expanduser()))
+        pull(Drive(mac_token()), a.file_id, a.name, a.md5, a.sha256, check_outside(Path(a.dest).expanduser()), a.size)
 
 
 if __name__ == "__main__":
