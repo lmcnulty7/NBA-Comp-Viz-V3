@@ -1,8 +1,66 @@
 # P8: Mac camera truth for NYK, OKC and POR, design before any build
 
-Written 2026-11-25, before any build, for queue item 5 of docs/research/TRACKING_LEVELS.md. Design only: nothing in
+Written 2026-11-25, before any build, for queue item 5 of docs/research/TRACKING_LEVELS.md. Version 2, the same day
+and still before any build, applies the lead's decisions (section 0); where the two versions differ, version 2 holds. Design only: nothing in
 this document has been built, and nothing here is a result. The three games are development games (D85 (3)); no
 held-out game is read and no held-out number is computed (CLAUDE.md rule 4).
+
+## 0. Version 2 (2026-11-25, after the lead's decisions; still before any build)
+
+**Layouts.** By D152 a box measured by eye is a hand step that D128 forbids, whatever its date, so msg15_720 and
+csn_nw15_720 cannot feed truth. A game without an automatic layout runs only if the D152 finder's proposal passes the
+frozen automatic check at the registered bar (MIN_LAYOUT_SHARE 0.25), exactly as D152 set; otherwise it is dropped and
+recorded.
+
+The finder's answer for both games is already on record, from the D152 validation run (P8 workspace
+layout_find/validation.json, P8_baseline.md):
+
+| Game | Finder proposal | Frozen check of the proposal | Under version 2 |
+| --- | --- | --- | --- |
+| nyk_bos_2016 | no_period: a clock box (seen in 21 of 36 frames) but no period token on the clock's row (MSG puts the period under the clock) | not reached | dropped |
+| por_okc_2016 | no_clock: the best clock group was seen in 9 frames, under the 25 percent share | not reached | dropped |
+
+A rerun would not change this. The finder is deterministic: fixed frame positions ((k + 0.25) / per of each middle
+section) and easyocr on CPU, with no random step. And `tools/p8_layout_find.py find` refuses every game while the
+validation has not passed (3 of 8 passed, D152: "no new game is looked at"). A rerun would need that guard lifted,
+which would change a D152 rule, and it would give the same two answers. Its lock time, if the lead still wants it, is
+about 2 to 4 minutes a video: the validation job held the lock 1,846 s for 8 videos, each with a proposal and a
+control check. So nyk_bos_2016 and por_okc_2016 are dropped on the existing record, with no lock time. nyk_bos_2016's
+time maps made with msg15_720 are not used.
+
+okc_sac_2015 runs on fso15_720 (registry), which passes the frozen automatic check on this video (plausible 0.475,
+consistent 0.35, the D152 control run). It is a layout of the frozen code chosen through the automatic check, the
+route hou_cle_2016's layout took. For the record: the finder's own proposal for okc_sac_2015 also passed (plausible 0.70,
+consistent 0.65) and is not used, per the decision.
+
+**What runs.** okc_sac_2015 alone: about 3.5 to 5.2 lock hours for truth and 5.9 to 8.5 with its r23 baseline
+(section 6). After it, development truth covers three non-sealed arenas (GSW, HOU, OKC), not five. Sections 3, 6 and 7
+below are kept as written; their nyk_bos_2016 and por_okc_2016 parts no longer run.
+
+**Platform mix: a separate queue item, ahead of using cross-arena truth for any tuning.** The truth of the GSW games
+and hou_cle_2016 came from MPS label builds. Before any tuning reads truth across arenas, measure how much truth moves
+when it is rebuilt from CPU-detector builds, on one game first:
+
+- Game: gsw_cha_2016, the cheapest: 18,083 processed frames on its label windows (M9's count of the same windows),
+  about 2.2 lock hours of label builds plus 0.15 h for the fit, in the fresh reference root (its sections, moments,
+  time maps and mirror linked as for the R1.3 games). M9's CPU builds of this game used the r23 court model, so they
+  cannot stand in for the V3 label builds that truth comes from.
+- Compared: the existing MPS truth against the CPU truth of the same game, from each fit's own files.
+- "Moved", fixed now, any one of: the median reprojection after refinement differs by 1.0 px or more (good fits span
+  5.47 to 7.65 px across games, so 1.0 px is a large share of the spread between games); accepted camera-truth frames
+  differ by 10 percent or more of the MPS count; the median absolute difference of the per-window frozen offsets
+  (labels/<game>_offsets.json, windows with an offset in both) is 0.2 s or more (the truth v2 measures' own
+  threshold for a material offset change).
+- Moved: rebuild the truth of gsw_bkn_2015, gsw_sac_2015 and hou_cle_2016 on the CPU detector too (about 2.5, 2.3 and
+  2.9 lock hours of label builds at M6 and M9 frame counts; gsw_ind_2016 stays apart, D98), before any cross-arena
+  tuning. Not moved: the MPS truth stays in use beside the CPU truth, with the platform recorded per game.
+- The comparison needs a small report-only tool, written and reviewed before it runs. Nothing registered is rescored.
+
+**Check C code (written, not run).** `tools/p8_truth_v2.py measure-dev TAG` runs the same per-window measures as the
+registered `measure` on any development game outside the registration, after the project guard. It refuses the four
+registered games and writes truth_v2/dev/<tag>.json, which the registered `report` never reads. `tools/p8_truth_accept.py
+TAG` applies checks A, B and C with the section 5 bars, gives the use verdict (use, apart, unused) and records the
+truth platform from every label window's device record. Tests: tests/test_p8_truth_accept.py.
 
 ## 1. Why
 
@@ -37,7 +95,7 @@ Checked 2026-11-25 from reports/research/p8_registry.json and the P8 workspace (
 "Training game" here means a development game under D85 (3): not a spent held-out game of sportvu/splits.json (the
 guard's `is_heldout_game` check), not a D85 test game, video or arena. None of the three is in splits.json at all.
 
-## 3. Two decisions for the lead before any build
+## 3. Two decisions for the lead before any build (resolved in version 2, section 0)
 
 1. **Hand-measured layouts (nyk_bos_2016, por_okc_2016).** D128 rules out hand labelling of any kind, and D152 ruled
    out measuring a new layout by hand for nop_gsw_2015. msg15_720 and csn_nw15_720 were measured on 2026-11-17, before
@@ -92,9 +150,8 @@ A game that fails A or C is reported apart and flagged, as gsw_ind_2016 is (D98)
 game that fails B is not used. No bar, constant or fit setting changes after a game's numbers are seen (D98); a later
 change would be a new registration.
 
-Check C needs code: `tools/p8_truth_v2.py measure` accepts only its four registered games. A small report-only
-extension (or a separate acceptance tool that reuses its functions read only and writes into the fresh workspace) is
-needed before the first fit, written and reviewed after this design. Checks A and B read the fit's own result file.
+Check C needs code: `tools/p8_truth_v2.py measure` accepts only its four registered games. Version 2 adds the
+report-only `measure-dev` and `tools/p8_truth_accept.py` (section 0). Checks A and B read the fit's own result file.
 
 ## 6. Expected lock hours (estimates from measured rates)
 
@@ -117,7 +174,7 @@ Label-window video for okc_sac_2015 and por_okc_2016 is estimated as 30 to 42 pe
 
 All three: about 8.8 to 12.0 lock hours for truth, about 15 to 20 with the r23 baselines. No Colab units.
 
-## 7. Order
+## 7. Order (version 1; under version 2 only okc_sac_2015 runs)
 
 Smallest first, among the games decision 1 allows: nyk_bos_2016, then por_okc_2016, then okc_sac_2015. Under option
 (b) of decision 1, only okc_sac_2015 runs. por_okc_2016 starts with a probe: the sync of its first two sections (about
