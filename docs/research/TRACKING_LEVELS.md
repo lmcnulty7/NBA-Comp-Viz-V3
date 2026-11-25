@@ -1,4 +1,82 @@
-# Broadcast tracking: levels of claim and a first-draft plan
+# Broadcast tracking: levels of claim, living roadmap
+
+The lead revises this file at every loop iteration (PLAN.md D172): status per step with its D line, the current
+route, a ranked queue of open bets, and the lessons that set the priors for the next design. The first draft of
+2026-11-20 is kept unchanged at the end, so every change of plan can be traced against it. Every training step
+follows docs/research/TRAINING_PROTOCOL.md.
+
+## Status on 2026-11-25
+
+Target (D172, Lucien): Levels 1 to 3. Level 4 is closed (D159) and on watch: a cheap weekly check for a legitimate
+source of uncut modern broadcasts, reopened only if one appears.
+
+| Level | State | What blocks it now |
+| --- | --- | --- |
+| 1, generalizes | Open | Footage: 8 synced 2015-16 broadcasts outside the spent held-out set, 5 arenas (P8_step0.md), most already used for development; the Mac and Colab builds not yet compared (D161 (1)) |
+| 2, complete player tracking | Open | No detector beats r23 yet: E1 failed on misses (D171); team labels from embeddings failed (D154) |
+| 3, analytics-grade | Not started, apart from ball probes | Identity and the ball: WASB's released ball model is weak here (E7a pooled F1 0.1807, D165) and E7b could not run as released (D166 (2)) |
+| 4, new seasons | Closed, on watch | Public 2025-26 uploads are edited, so clock placement fails (D157, D159); League Pass is excluded (D128) |
+
+### Level 1 steps
+
+| Step (first draft) | Status | Record |
+| --- | --- | --- |
+| 1. Colab yes | Done; Colab is driven from Claude Code, cap 60 units for Levels 1 and 2 | D137, D164, D168, D169, D170 |
+| 2. One-cell Colab check against the Mac scorecard | Open, next on Colab | D161 (1) |
+| 3. Timing alignment | Changed: truth v2 failed its bar, the frozen offset rule stays; the play-by-play fallback is not built | D166 (1) |
+| 4. More synced footage | Done as a search, short of the goal: 10 confirmed full broadcasts, 2 new games, 1 new scored arena (hou_cle_2016) | P8_step0.md, D146, D153 |
+| 5. Frame gate without held-out frames | Open | |
+| 6. Pre-register the Level 1 test | Open; when sources run dry, seal what exists with its detectable effect stated in advance (D172) | D172 |
+| 7. Cross-arena accuracy on development games | Open | |
+| 8. Score once on the sealed set | Open | |
+
+### Level 2 steps
+
+| Step (first draft) | Status | Record |
+| --- | --- | --- |
+| 1. Error analysis by cause | Partly done: baseline rows on 3 training games (missed 0.26, ghosts 0.118 to 0.129); the breakdown by cause is the E1 post-mortem | P8_baseline.md, P8_E1.md |
+| 2. Detector labels from outside teachers | Done: YOLOX-X on SportsMOT qualified (+0.0419 recall at our precision); E1 corpus 52,478 labels on 5,592 frames | P8_teachers.md, D155 |
+| 3. Fine-tune the detector | Failed once: E1 seed 0 raised misses 0.2654 to 0.2932; next arm E1b after the post-mortem | D171, P8_E1.md |
+| 4. Team labels from appearance | Failed: CLIP and DINOv2 lower the team row 14 to 21 points; colour stays | D153, D154, tracking.md |
+| 5. Near-camera bias correction | Open | |
+| 6. Fill missed player-frames | Waits on step 3 | |
+| 7. Score once | Open | |
+
+### Level 3 steps
+
+| Step (first draft) | Status | Record |
+| --- | --- | --- |
+| 1. Identity from jerseys (E4) | Not started; needs a GPU cap (D172) | |
+| 2. The ball | Probed: WASB released weights, pooled F1 0.1807 on projected truth (E7a); E7b stopped (2 frames per view, WASB needs 3); human ball labels on broadcast need the NUST-NBA181 videos, which need Lucien's email | D165, D166 (2), D163 (3) |
+| 3 to 5. Data format, equivalence test, score | Open | |
+
+## Current route and queue
+
+Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
+
+1. E1 post-mortem (Mac, no GPU): label recall of the E1 corpus against SportVU on its own frames, and where E1's
+   extra misses are, by cause. Tests the post hoc reading in P8_E1.md and sets E1b's numbers.
+2. D161 (1) one-cell CUDA check (Colab, about 1 to 2 units): does Colab reproduce the Mac scorecard?
+3. E1b design under TRAINING_PROTOCOL.md: candidate changes are a start from r23 instead of COCO, not teaching
+   unlabelled SportVU players as background, and a truth-aligned validation metric. Pilot on one fold first.
+4. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
+5. Footage at low cost, continuously; NUST-NBA181 waits on Lucien's email (D163 (3)).
+6. Level 4 watch, weekly.
+7. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
+
+## Lessons and priors
+
+- Agreement pseudo-labels (two models must both box a player) cut ghosts but can raise misses: what neither model
+  boxes, or what they box apart, is taught as background (E1, D171; post hoc until the post-mortem measures it).
+- A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
+- Appearance embeddings (CLIP, DINOv2) are worse team features than colour on these broadcasts (D154).
+- A flat objective makes a clock offset unstable across builds; reshaping it helped but not enough (D166).
+- Public modern uploads are edited, so the game clock cannot place plays in them (D157, D159).
+- Colab GPU runtimes are reclaimed about 30 minutes after the last client call, even with a running cell; poll every
+  8 minutes or less (D171). Measured cost about 1.15 units a T4-hour or less.
+
+## First draft (2026-11-20), kept as written
+
 
 Written 2026-11-20. A working draft, not a pre-registration: every test below gets its own pre-registration in
 `docs/research/tracking.md` before it runs. Gates mark the points where a finding decides the next step, so the
