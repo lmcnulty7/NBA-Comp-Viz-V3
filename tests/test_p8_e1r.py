@@ -53,7 +53,7 @@ def test_score_files_never_collide_with_the_registered_ones():
 
 def test_record_checks():
     sha_r, sha_e = E.R23_SHA, "0579a034" + "0" * 56
-    dev_cpu = {"requested": {"detector": "cpu"}, "resolved": {"detector": "cpu"}}
+    dev_cpu = {"requested": dict(E.REQUESTED), "resolved": {"detector": "cpu"}}
     assert E.check_records("r23", {"sha256": sha_r}, dev_cpu, sha_r, None, False) == []
     assert E.check_records("new", {"sha256": sha_e, "fold": "gsw_cha_2016"}, dev_cpu, sha_e, "gsw_cha_2016", True) == []
     assert E.check_records("new", {"sha256": sha_e}, dev_cpu, sha_e, "gsw_cha_2016", True)          # fold missing
@@ -62,6 +62,8 @@ def test_record_checks():
     assert E.check_records("r23", {"sha256": sha_r}, {**dev_cpu, "clip_fix": True}, sha_r, None, False)
     assert E.check_records("r23", {"sha256": "x"}, dev_cpu, sha_r, None, False)
     assert E.check_records("r23", None, None, sha_r, None, False)
+    assert E.check_records("r23", {"sha256": sha_r}, {**dev_cpu, "requested": {"detector": "cpu", "court": "cpu",
+                                                                                "gate": "auto"}}, sha_r, None, False)
 
 
 def test_frame_set_and_court_h_checks():
@@ -126,3 +128,73 @@ def test_proxy_rewrites_only_the_build_and_wraps_the_device_proxy():
     assert p8_device.rewrite(E.rewrite(cmd, env)) == E.rewrite(cmd, env)
     src = open(E.__file__).read()
     assert ".train(" not in src and ".fit(" not in src
+
+
+def test_stage_order():
+    none = {"smoke_gate1": None, "smoke_gate4": None, "smoke_score": None, "report": None}
+    assert E.stage_allowed("smoke", none) == []
+    assert len(E.stage_allowed("stage1", none)) == 3
+    ok = {"smoke_gate1": {"passes": True}, "smoke_gate4": {"passes": True}, "smoke_score": {}, "report": None}
+    assert E.stage_allowed("stage1", ok) == []
+    assert E.stage_allowed("stage1", {**ok, "smoke_gate4": {"passes": False}})
+    assert E.stage_allowed("stage2", ok)                                         # no report yet
+    assert E.stage_allowed("stage2", {**ok, "report": {"primary_pass": True, "blind": {"pass": False}}})
+    assert E.stage_allowed("stage2", {**ok, "report": {"primary_pass": False, "blind": {"pass": True}}})
+    assert E.stage_allowed("stage2", {**ok, "report": {"primary_pass": True, "blind": {"pass": True}}}) == []
+    assert E.stage_of("gsw_cha_2016", True) == "smoke" and E.stage_of("gsw_cha_2016", False) == "stage1"
+    assert E.stage_of(E.APART, False) == "stage2"
+
+
+def test_stage2_block_wording():
+    assert E.stage2_block(False, {f: True for f in E.POOL})["runs"] is False
+    assert E.stage2_block(True, {"gsw_bkn_2015": True})["all_three_pass"] is None
+    assert E.stage2_block(True, {f: True for f in E.POOL})["reading"] == E.STAGE2_PASS
+    assert E.stage2_block(True, {**{f: True for f in E.POOL}, "gsw_cha_2016": False})["reading"] == E.STAGE2_FAIL
+
+
+def _file(game, fold, wins, extra_expected=()):
+    names = [f"{game}_s00_w{i:02d}" for i in range(len(wins))]
+    return {"model": fold, "seed": 0, "game": game, "weights_sha256": "sha_" + fold,
+            "expected_windows": names + list(extra_expected), "scored_windows": names, "gate_empty_windows": [],
+            "frame_sets_differ": {}, "windows": dict(zip(names, wins)), "counts": {}}
+
+
+def test_cmd_report_wiring(monkeypatch, tmp_path):
+    import json
+    monkeypatch.setattr(E, "p8_root", lambda: tmp_path)
+    d = tmp_path / "e1r"
+    d.mkdir()
+    good = [_win(5, 4, ghosts=(2, 1), team=(8, 9)) for _ in range(6)]
+    bad = [_win(4, 6, ghosts=(1, 2), team=(9, 8)) for _ in range(6)]
+
+    def write(files):
+        for p in d.glob("*.json"):
+            p.unlink()
+        for (g, f), body in files.items():
+            (d / E.score_name(g, f if g == E.APART else None)).write_text(json.dumps(body))
+
+    # the blind verdict uses only gsw_cha_2016 and gsw_sac_2015; gsw_bkn_2015 is bad
+    write({("gsw_bkn_2015", None): _file("gsw_bkn_2015", "gsw_bkn_2015", bad),
+           ("gsw_cha_2016", None): _file("gsw_cha_2016", "gsw_cha_2016", good),
+           ("gsw_sac_2015", None): _file("gsw_sac_2015", "gsw_sac_2015", good)})
+    out = E.cmd_report(None)
+    assert out["blind"]["windows"] == 12 and out["blind"]["pass"]
+    assert not out["primary_pass"] and out["stage2"]["runs"] is False      # pooled missed does not improve
+    assert out["claim"] == E.reading(False, True)
+    # a gate-empty mismatch (an expected window left unscored) makes the primary pool partial
+    write({("gsw_bkn_2015", None): _file("gsw_bkn_2015", "gsw_bkn_2015", good, extra_expected=["gsw_bkn_2015_s09_w09"]),
+           ("gsw_cha_2016", None): _file("gsw_cha_2016", "gsw_cha_2016", good),
+           ("gsw_sac_2015", None): _file("gsw_sac_2015", "gsw_sac_2015", good)})
+    out = E.cmd_report(None)
+    assert out["partial"] and not out["primary_pass"] and out["claim"].startswith("fail")
+    assert out["stage2"]["runs"] is False
+    # all good: the claim holds; Stage 2 needs all 3 folds
+    files = {(g, None): _file(g, g, good) for g in E.POOL}
+    files.update({(E.APART, f): _file(E.APART, f, good) for f in ("gsw_bkn_2015", "gsw_cha_2016")})
+    write(files)
+    out = E.cmd_report(None)
+    assert out["claim"] == "seed 0 passes on the reference platform"
+    assert out["stage2"]["runs"] and out["stage2"]["all_three_pass"] is None
+    files[(E.APART, "gsw_sac_2015")] = _file(E.APART, "gsw_sac_2015", good)
+    write(files)
+    assert E.cmd_report(None)["stage2"]["reading"] == E.STAGE2_PASS

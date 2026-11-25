@@ -45,6 +45,9 @@ M6_RECORD = "p8_e1_m6.json"
 BUILD_SCRIPT = "build_trajectories.py"
 ENV, ENV_MODEL, ENV_FOLD = "P8_E1R_DETECTOR", "P8_E1R_MODEL", "P8_E1R_FOLD"
 MISS_FT = 2.5
+REQUESTED = {"detector": "cpu", "court": "auto", "gate": "auto"}       # the reference platform (D175)
+STAGE2_PASS = "seed 0 passes on the reference platform, including the new arena"
+STAGE2_FAIL = "the pass does not carry to the new arena"
 
 
 def check_game(game: str) -> str:
@@ -118,6 +121,8 @@ def check_records(arm: str, det: dict | None, dev: dict | None, want_sha: str, w
     bad = []
     if dev is None or (dev.get("resolved") or {}).get("detector") != "cpu":
         bad.append(f"{arm}: detector device is not cpu")
+    if dev is not None and dev.get("requested") != REQUESTED:
+        bad.append(f"{arm}: requested devices are {dev.get('requested')}, not {REQUESTED}")
     if dev is not None and dev.get("clip_fix"):
         bad.append(f"{arm}: built with the MPS clip fix")
     if det is None or det.get("sha256") != want_sha:
@@ -158,6 +163,50 @@ def reading(primary: bool, blind: bool) -> str:
     if blind:
         return "fail: the blind games alone do not override the registered pool"
     return "fail: E1 as built is closed on both platforms"
+
+
+def stage_allowed(stage: str, gates: dict) -> list:
+    """Why a stage may not start yet -> [] when it may. gates holds the parsed e1r/ files (None when absent):
+    smoke_gate1, smoke_gate4, smoke_score, report."""
+    if stage == "smoke":
+        return []
+    missing = []
+    for k in ("smoke_gate1", "smoke_gate4"):
+        if not (gates.get(k) or {}).get("passes"):
+            missing.append(f"{k} has not passed")
+    if gates.get("smoke_score") is None:
+        missing.append("smoke gate 3 (the smoke score) has not passed")
+    if stage == "stage1":
+        return missing
+    if stage == "stage2":
+        rep = gates.get("report") or {}
+        if not (rep.get("primary_pass") and (rep.get("blind") or {}).get("pass")):
+            missing.append("Stage 2 runs only when the primary and the blind verdicts both pass")
+        return missing
+    raise SystemExit(f"{WHO}: unknown stage {stage}")
+
+
+def stage_of(game: str, smoke: bool) -> str:
+    return "smoke" if smoke else ("stage2" if game == APART else "stage1")
+
+
+def load_gates(d: Path) -> dict:
+    def read(name):
+        p = d / name
+        return json.loads(p.read_text()) if p.exists() else None
+    return {"smoke_gate1": read("smoke_gate1.json"), "smoke_gate4": read("smoke_gate4.json"),
+            "smoke_score": read(score_name(SMOKE_GAME, smoke=True)), "report": read("p8_e1r.json")}
+
+
+def stage2_block(claim_passed: bool, fold_verdicts: dict) -> dict:
+    """Stage 2 is reported only when the claim passed, with the design's fixed wording."""
+    if not claim_passed:
+        return {"runs": False, "reason": "Stage 2 runs only when the primary and the blind verdicts both pass"}
+    if len(fold_verdicts) < 3:
+        return {"runs": True, "folds_scored": sorted(fold_verdicts), "all_three_pass": None, "reading": None}
+    ok = stage2_passes(fold_verdicts)
+    return {"runs": True, "folds_scored": sorted(fold_verdicts), "all_three_pass": ok,
+            "reading": STAGE2_PASS if ok else STAGE2_FAIL}
 
 
 def stage2_passes(fold_verdicts: dict) -> bool:
@@ -253,6 +302,11 @@ def cmd_rebuild(args) -> dict:
         os.environ.pop(k, None)
     os.environ["P8_DEVICE_DETECTOR"] = "cpu"
     name = build_folder(args.arm, game, args.fold, args.smoke)
+    why = stage_allowed(stage_of(game, args.smoke), load_gates(p8_root() / "e1r"))
+    if why:
+        raise SystemExit(f"{WHO}: {stage_of(game, args.smoke)} may not start: {why}")
+    if args.smoke and (args.arm, game) not in (("r23", SMOKE_GAME), ("e1", SMOKE_GAME)):
+        raise SystemExit(f"{WHO}: the smoke stage builds only {SMOKE_WINDOW}")
     if args.arm == "e1":
         fold = fold_for(game, args.fold)
         weights = weights_of(fold).resolve()
@@ -371,16 +425,21 @@ def cmd_score(args) -> dict:
         bad += check_frames(sides["r23"], sides["new"])
         if bad:
             raise SystemExit(f"{WHO}: {s}: {bad}")
-        pair = {}
+        pair, scored_f = {}, {}
         for k, d in dirs.items():
-            rec = S.score_window(P, game, w, d, "camera", mom, mirror, refs, events)[0]
+            full = S.score_window(P, game, w, d, "camera", mom, mirror, refs, events)
+            rec = full[0]
             if "skipped" in rec:
                 raise SystemExit(f"{WHO}: {s} {k} skipped: {rec['skipped']}")
+            scored_f[k] = {int(o["f"]) for o in full[1]}
             pair[k] = window_stats(rec)
             counts[k]["in_frame"] += pair[k]["in_frame"]
             counts[k]["nr_boxes"] += pair[k]["nr_boxes"]
             counts[k]["team_n"] += pair[k]["team"]["n"]
-        truth, _ = S.truth_rows(P, game, w, "camera", mom.index, mirror)       # descriptive duplicates count
+        if pair["r23"]["in_frame"] != pair["new"]["in_frame"]:
+            raise SystemExit(f"{WHO}: {s}: in-frame players differ between arms "
+                             f"({pair['r23']['in_frame']} against {pair['new']['in_frame']})")
+        truth, _ = S.truth_rows(P, game, w, "camera", mom.index, mirror)   # descriptive; referee boxes included
         cap = cv2.VideoCapture(str(P["label_build"] / f"{s}.mp4"))
         wd, hd = int(cap.get(3)), int(cap.get(4))
         cap.release()
@@ -388,7 +447,7 @@ def cmd_score(args) -> dict:
             srow = {int(r["frame"]): r for r in sides[k]["frames"]}
             for row in truth:
                 r = srow.get(int(row["frame"]))
-                if r is None:
+                if r is None or int(row["frame"]) not in scored_f[k]:     # scored live-wide frames only
                     continue
                 sv = apply_mirror(mom.index.q[row["q"]]["xy"][row["moment"]], fx, fy)
                 Ht = np.asarray(row["H_truth"], np.float64).reshape(3, 3)
@@ -461,14 +520,17 @@ def cmd_report(args) -> dict:
             f = files[(fold, 0, APART)]
             v = window_pool_verdict(list(f["windows"].values()))
             apart[fold] = {"adopt": bool(v["adopt"]) and complete(f), "verdict": v}
+    claim_passed = primary_pass and blind_pass
+    failing = lambda v: sorted(k for k, c in (v or {}).get("rows", {}).items() if not c.get("pass"))
     out = {"what": "E1R (docs/research/P8_E1R.md version 2): E1 seed 0 against r23 on the reference platform; "
                    "evaluation only", "registered_report": reg, "primary_pass": primary_pass,
-           "blind": {"games": list(BLIND), "verdict": blind_v, "pass": blind_pass},
+           "primary_failing_rows": failing(primary), "partial": bool(primary.get("partial")),
+           "blind": {"games": list(BLIND), "windows": len(blind_wins), "verdict": blind_v, "pass": blind_pass,
+                     "failing_rows": failing(blind_v)},
            "claim": reading(primary_pass, blind_pass),
-           "stage2": {"folds": apart, "all_three_pass": stage2_passes({k: v["adopt"] for k, v in apart.items()})
-                      if len(apart) == 3 else None,
-                      "runs_only_if": "primary and blind both pass"},
-           "counts": {g: files[(g, 0, g)].get("counts") for g in POOL}}
+           "stage2": stage2_block(claim_passed, {k: v["adopt"] for k, v in apart.items()}),
+           "stage2_folds": apart if claim_passed else {},
+           "counts": {f"{g}/{f}": v.get("counts") for (f, _s, g), v in files.items()}}
     atomic_write(d / "p8_e1r.json", json.dumps(out, indent=1, default=float))
     print(json.dumps({k: out[k] for k in ("primary_pass", "claim")} | {"blind_pass": blind_pass}, indent=1))
     return out

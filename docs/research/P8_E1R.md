@@ -169,3 +169,32 @@ If any gate fails, nothing more is built and the failure is reported.
 10. The order of registration and M9's output stated at the top.
 11. Budget noted with the reviewer's measured rate.
 12. The camera-truth note.
+
+## Amendment, 2026-11-25 (after the second review, committed before any E1R build)
+
+No rule changes. Code and notes only:
+
+1. Stage order is enforced in tools/p8_e1r.py: a non-smoke Stage 1 build refuses to start unless e1r/smoke_gate1.json
+   and e1r/smoke_gate4.json say passes: true and the smoke score file exists (it is written only when every check of
+   smoke gate 3 passed); a hou_cle_2016 build refuses unless e1r/p8_e1r.json has primary_pass and blind.pass both
+   true. The report emits Stage 2 only when the claim passed, with the fixed wording ("seed 0 passes on the reference
+   platform, including the new arena" or "the pass does not carry to the new arena"). Tested.
+2. The score stops if a window's in-frame player count differs between the arms, and the device record must request
+   exactly {detector: cpu, court: auto, gate: auto}. Counts are printed for hou_cle_2016 too.
+3. Duplicates are counted on the scored frames only (the live wide frames the scorer used), with referee boxes
+   included: the sidecars carry no class, so this count is descriptive and is not the scorer's non-referee count.
+4. Smoke order: gate 4 first (it builds nothing), then gates 1, 2 and 3.
+5. Notes, given M9 (D176), which was merged after version 2 and read after it was committed:
+   - The missed bar. On the reference platform r23 misses 0.2952 on gsw_cha_2016 and 0.2060 on gsw_sac_2015. For
+     missed to improve, E1 must fall below those, a gain of about 0.057 and 0.050 against its registered MPS rates
+     (0.3525 and 0.2556), where r23's own gain from the platform was 0.030 and 0.027.
+   - The team row. r23's team rate moved with the platform by +0.0376, -0.0111 and +0.0200 (M9), about the size of
+     E1's registered team edge (+0.0114 pooled), so on the blind games team's point estimate is near a coin flip. The
+     report lists the failing rows (primary_failing_rows, blind.failing_rows). A fail that rests only on team's point
+     estimate is still a fail under the registered rule, but it says little for choosing between seeds 1 and 2 and
+     E1b.
+   - The two priors in this design conflict: M4 (raw CPU detections) predicts a pass on missed, while M7 says MPS
+     should, if anything, have favoured E1 (MPS lost more of r23's raw boxes), which would leave less room for E1 to
+     gain on CPU. Neither is a mechanism claim.
+6. Ledger: E1R's line goes into docs/research/TRAINING_PROTOCOL.md's ledger when it finishes (stage, lock hours,
+   outcome against its gate, lesson).
