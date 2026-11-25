@@ -19,10 +19,10 @@ class FakeDrive:
         self.files, self.n, self.calls, self.fail_next_get = {}, 0, [], 0
         self.sessions = {}
 
-    def add(self, name, parent="root", data=b"", folder=False):
+    def add(self, name, parent="root", data=b"", folder=False, app=None):
         self.n += 1
         fid = f"id{self.n}"
-        self.files[fid] = {"name": name, "parent": parent, "data": data, "folder": folder}
+        self.files[fid] = {"name": name, "parent": parent, "data": data, "folder": folder, "app": app or {}}
         return fid
 
     def record(self, fid):
@@ -37,11 +37,6 @@ class FakeDrive:
         assert headers.get("Authorization") == f"Bearer {TOKEN}"
         u = urllib.parse.urlparse(url)
         q = urllib.parse.parse_qs(u.query)
-        if url.startswith(X.UPLOAD):
-            meta = json.loads(body)
-            sid = f"https://upload.example/session{len(self.sessions)}"
-            self.sessions[sid] = {"meta": meta, "data": b"", "size": int(headers["X-Upload-Content-Length"])}
-            return 200, {"location": sid}, b""
         if url in self.sessions:
             s = self.sessions[url]
             rng = headers["Content-Range"]
@@ -51,13 +46,24 @@ class FakeDrive:
                 return 308, {"range": f"bytes=0-{len(s['data']) - 1}"}, b""
             fid = self.add(s["meta"]["name"], s["meta"]["parents"][0], s["data"])
             return 200, {}, json.dumps(self.record(fid)).encode()
+        if url.startswith(X.UPLOAD):
+            meta = json.loads(body)
+            sid = f"{X.UPLOAD}?uploadType=resumable&upload_id=s{len(self.sessions)}"
+            self.sessions[sid] = {"meta": meta, "data": b"", "size": int(headers["X-Upload-Content-Length"])}
+            return 200, {"location": sid}, b""
         if method == "POST":                                       # create folder
             meta = json.loads(body)
-            fid = self.add(meta["name"], (meta.get("parents") or ["root"])[0], folder=True)
+            fid = self.add(meta["name"], (meta.get("parents") or ["root"])[0], folder=True,
+                           app=meta.get("appProperties"))
             return 200, {}, json.dumps({"id": fid}).encode()
         if u.path.endswith("/files") and "q" in q:                 # files.list
-            parent = q["q"][0].split("'")[1]
-            kids = [self.record(i) for i, f in self.files.items() if f["parent"] == parent]
+            qq = q["q"][0]
+            if qq.startswith("appProperties has"):
+                kids = [self.record(i) for i, f in self.files.items()
+                        if f["folder"] and f["app"].get(X.APP_KEY) == X.APP_VALUE]
+            else:
+                parent = qq.split("'")[1]
+                kids = [self.record(i) for i, f in self.files.items() if f["parent"] == parent]
             return 200, {}, json.dumps({"files": kids}).encode()
         fid = u.path.rsplit("/", 1)[1]
         if "alt" not in q:                                         # files.get metadata
@@ -254,3 +260,172 @@ def test_pull_without_size_reads_drive_metadata_and_checks_its_md5(tmp_path):
     assert (tmp_path / "p8_cuda_gsw_ind_2016.complete.json").read_bytes() == data
     with pytest.raises(SystemExit):
         X.pull(X.Drive(TOKEN, fake), fid, "other.json", "0" * 32, sha, tmp_path)
+
+
+
+# ── security review fixes (2026-11-25) ──────────────────────────────────────────────────────────────────────────────
+def test_tokens_are_stripped_and_anything_else_is_refused_unseen(monkeypatch, tmp_path):
+    monkeypatch.setenv("DRIVE_TOKEN", TOKEN + "\n")                       # a token ending in a newline
+    assert X.runtime_token() == TOKEN
+    for bad in ("ya29.abc\ndef", "ya29 abc", "ya29.abc\r\nX-Evil: 1", "   "):
+        monkeypatch.setenv("DRIVE_TOKEN", bad)
+        with pytest.raises(SystemExit) as e:
+            X.runtime_token()
+        assert bad.strip() not in str(e.value) or not bad.strip()
+    helper = tmp_path / "colab_headers.py"
+    helper.write_text("def token():\n    return {'access_token': 'ya29.x\\ny'}\n")
+    monkeypatch.setattr(X, "HELPER", helper)
+    with pytest.raises(SystemExit) as e:
+        X.mac_token()
+    assert "ya29" not in str(e.value)
+    helper.write_text(f"def token():\n    return {{'access_token': '{TOKEN}\\n'}}\n")
+    assert X.mac_token() == TOKEN
+
+
+def test_a_header_http_client_rejects_never_shows_the_token(monkeypatch):
+    class Boom:
+        def open(self, req, timeout=None):
+            raise ValueError(f"Invalid header value b'Bearer {TOKEN}\\n'")      # what http.client says
+    monkeypatch.setattr(X, "opener", lambda: Boom())
+    with pytest.raises(ConnectionError) as e:
+        X.urllib_transport("GET", f"{X.API}/id1?alt=media", {"Authorization": f"Bearer {TOKEN}\n"}, None)
+    assert TOKEN not in str(e.value) and "alt=media" not in str(e.value)
+    monkeypatch.undo()
+    with pytest.raises(ConnectionError) as e:                                  # the real stack, no network reached
+        X.urllib_transport("GET", "http://127.0.0.1:9/x?q=1", {"Authorization": f"Bearer {TOKEN}\nX: y"}, None, timeout=2)
+    assert TOKEN not in str(e.value)
+
+
+def test_redirects_are_refused_so_the_header_never_follows(tmp_path):
+    import http.server
+    import threading
+    seen = []
+
+    class H(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path.startswith("/a"):
+                self.send_response(302)
+                self.send_header("Location", f"http://127.0.0.1:{self.server.server_port}/b")
+                self.end_headers()
+            else:
+                seen.append(self.headers.get("Authorization"))
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"stolen")
+
+        def log_message(self, *a):
+            pass
+    srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+    th = threading.Thread(target=srv.serve_forever, daemon=True)
+    th.start()
+    try:
+        status, _, body = X.urllib_transport("GET", f"http://127.0.0.1:{srv.server_port}/a",
+                                             {"Authorization": f"Bearer {TOKEN}"}, None, timeout=5)
+    finally:
+        srv.shutdown()
+    assert status == 302 and body != b"stolen" and seen == []
+
+
+def test_drive_error_carries_googles_reason_only():
+    body = json.dumps({"error": {"code": 403, "status": "PERMISSION_DENIED",
+                                 "errors": [{"reason": "accessNotConfigured", "message": "Drive API disabled"}]}}).encode()
+    e = X.DriveError(403, f"{X.API}?q=x", body=body)
+    assert "accessNotConfigured" in str(e) and "Drive API disabled" not in str(e) and "q=x" not in str(e)
+    assert X.error_reason(json.dumps({"error": {"status": "SERVICE_DISABLED"}}).encode()) == "SERVICE_DISABLED"
+    assert X.error_reason(json.dumps({"error": {"errors": [{"reason": f"Bearer {TOKEN}"}]}}).encode()) is None
+    assert X.error_reason(b"not json") is None
+
+
+def test_make_folder_reuses_only_its_own_app_folder():
+    fake = FakeDrive()
+    stranger = fake.add("nba_p8_xfer_out", folder=True)                  # same name, not this client's
+    fid = X.make_folder(X.Drive(TOKEN, fake), "nba_p8_xfer_out")
+    assert fid != stranger and fake.files[fid]["app"] == {X.APP_KEY: X.APP_VALUE}
+    assert X.make_folder(X.Drive(TOKEN, fake), "nba_p8_xfer_out") == fid
+    fake.add("nba_p8_xfer_out", folder=True, app={X.APP_KEY: X.APP_VALUE})
+    with pytest.raises(SystemExit):
+        X.make_folder(X.Drive(TOKEN, fake), "nba_p8_xfer_out")
+
+
+def test_refusals_name_the_place_not_the_path(tmp_path, monkeypatch):
+    mydrive = _mount(tmp_path, monkeypatch)
+    secret_parent = str(mydrive)
+    for p, label in ((mydrive / "nba_harvest" / "x", "DATA_ROOT"),
+                     (X.Path(__file__).resolve().parents[1] / "reports" / "y", "the repository")):
+        with pytest.raises(SystemExit) as e:
+            X.outside(p)
+        msg = str(e.value)
+        assert label in msg and p.name in msg and secret_parent not in msg and str(p.parent) not in msg
+    with pytest.raises(SystemExit) as e:
+        X.check_stage_dir(mydrive / "nba_harvest" / "x")
+    assert secret_parent not in str(e.value)
+
+
+def test_drive_ids_are_validated(tmp_path):
+    fake = FakeDrive()
+    for bad_id in ("../x", "id 1", "id1?alt=media", "", 5):
+        with pytest.raises(SystemExit):
+            X.check_map({"files": {"a.tar": {"id": bad_id, "size": 1, "md5": "m", "sha256": "s"}}})
+        with pytest.raises(SystemExit):
+            X.pull(X.Drive(TOKEN, fake), bad_id, "a.tar", "m", "s", tmp_path, 1)
+    with pytest.raises(SystemExit):
+        X.upload_one(X.Drive(TOKEN, fake), tmp_path, "id1/../x", "a.tar")
+
+
+def test_symlinks_and_a_pack_in_the_repository_are_refused(tmp_path, monkeypatch):
+    fake = FakeDrive()
+    idmap = _map(fake, {"a.tar": b"abcdef"})
+    dest = tmp_path / "d"
+    dest.mkdir()
+    (tmp_path / "elsewhere").write_bytes(b"")
+    (dest / "a.tar.part").symlink_to(tmp_path / "elsewhere")
+    with pytest.raises(SystemExit):
+        X.download(X.Drive(TOKEN, fake), idmap, dest)
+    assert (tmp_path / "elsewhere").read_bytes() == b""
+    mydrive = _mount(tmp_path, monkeypatch)
+    with pytest.raises(SystemExit):                                       # a pack inside the repository
+        X.stage(X.Path(__file__).resolve().parents[1] / "reports", mydrive / "nba_p8_xfer" / "t",
+                X.Drive(TOKEN, fake), timeout_s=1, sleep=lambda s: None)
+    pack = tmp_path / "pack"
+    pack.mkdir()
+    (pack / "a.tar").write_bytes(b"x")
+    stage_dir = mydrive / "nba_p8_xfer" / "t"
+    stage_dir.mkdir(parents=True)
+    (stage_dir / "a.tar").symlink_to(tmp_path / "elsewhere")
+    with pytest.raises(SystemExit):
+        X.stage(pack, stage_dir, X.Drive(TOKEN, fake), timeout_s=1, sleep=lambda s: None)
+
+
+def test_upload_gives_up_when_drive_makes_no_progress(tmp_path, monkeypatch):
+    monkeypatch.setattr(X, "UP_CHUNK", 4)
+    fake = FakeDrive()
+    fid = X.make_folder(X.Drive(TOKEN, fake), "out")
+    src = tmp_path / "r.tar"
+    src.write_bytes(b"0123456789")
+    puts = []
+
+    def stuck(method, url, headers, body):
+        if url in fake.sessions:
+            puts.append(1)
+            return 308, {}, b""                                            # never acknowledges a byte
+        return fake(method, url, headers, body)
+    with pytest.raises(X.DriveError) as e:                                 # main() turns it into an exit
+        X.upload_one(X.Drive(TOKEN, stuck), src, fid, "r.tar")
+    assert len(puts) <= X.MAX_STALLS + 2 and TOKEN not in str(e.value)
+
+
+def test_get_range_refuses_an_ignored_range_or_a_wrong_length():
+    def full(method, url, headers, body):
+        return 200, {}, b"whole-file"
+    with pytest.raises(X.DriveError):
+        X.Drive(TOKEN, full).get_range("id1", 5, 9)                       # 200 for a Range not at 0
+    def short(method, url, headers, body):
+        return 206, {}, b"abc"
+    with pytest.raises(X.DriveError):
+        X.Drive(TOKEN, short).get_range("id1", 0, 9)
+    assert X.Drive(TOKEN, lambda *a: (200, {}, b"0123456789")).get_range("id1", 0, 9) == b"0123456789"
+
+
+def test_cuda_check_no_longer_mentions_collect():
+    src = (X.Path(__file__).resolve().parents[1] / "tools" / "p8_cuda_check.py").read_text()
+    assert "collect" not in src

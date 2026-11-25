@@ -36,6 +36,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import shutil
 import sys
 import time
@@ -54,14 +55,45 @@ CHUNK = 16 << 20                       # bytes per Range request
 UP_CHUNK = 8 << 20                     # bytes per upload request (a multiple of 256 KiB)
 RETRIES = 4
 HELPER = Path.home() / ".config" / "nba-colab" / "colab_headers.py"
+TOKEN_RE = re.compile(r"[A-Za-z0-9._~+/=-]+")        # an OAuth access token; anything else is refused unseen
+ID_RE = re.compile(r"[A-Za-z0-9_-]+")                 # a Drive file or folder id
+REASON_RE = re.compile(r"[A-Za-z0-9_.]{1,64}")
+APP_KEY, APP_VALUE = "nba_p8", "out"                  # appProperties of the result folder (visible to this client only)
+MAX_STALLS = 4                                        # upload replies of 308 without progress before giving up
 
 
 class DriveError(Exception):
-    """An HTTP failure, named by status and URL only (never the headers, so never the token)."""
+    """An HTTP failure, named by status, the URL without its query and Google's error reason from the body (Google's
+    error bodies never echo the token); never the headers, so never the token."""
 
-    def __init__(self, status, url: str, what: str = ""):
+    def __init__(self, status, url: str, what: str = "", body: bytes = b""):
         self.status = status
-        super().__init__(f"{WHO}: HTTP {status} on {url.split('?')[0]} {what}".rstrip())
+        reason = error_reason(body)
+        super().__init__(f"{WHO}: HTTP {status} on {url.split('?')[0]} {what}{f' ({reason})' if reason else ''}".rstrip())
+
+
+def error_reason(body: bytes):
+    """error.errors[0].reason (else error.status) of a Google JSON error body, if it is a short plain word."""
+    try:
+        e = json.loads(body or b"{}").get("error") or {}
+        r = ((e.get("errors") or [{}])[0].get("reason")) or e.get("status")
+    except (ValueError, AttributeError, TypeError, IndexError):
+        return None
+    return r if isinstance(r, str) and REASON_RE.fullmatch(r) else None
+
+
+def check_token(tok, source: str) -> str:
+    """A stripped token, or SystemExit naming only where it came from (never the value)."""
+    tok = (tok or "").strip()
+    if not tok or not TOKEN_RE.fullmatch(tok):
+        raise SystemExit(f"{WHO}: the token from {source} is missing or not a plain access token; it is not shown")
+    return tok
+
+
+def check_id(fid, what: str = "Drive id") -> str:
+    if not isinstance(fid, str) or not ID_RE.fullmatch(fid):
+        raise SystemExit(f"{WHO}: bad {what}")
+    return fid
 
 
 # ── tokens ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -72,17 +104,11 @@ def mac_token() -> str:
     spec = importlib.util.spec_from_file_location("nba_colab_headers", HELPER)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    tok = (mod.token() or {}).get("access_token")
-    if not tok:
-        raise SystemExit(f"{WHO}: the sign-in helper gave no access token; sign in again")
-    return tok
+    return check_token((mod.token() or {}).get("access_token"), "the Colab sign-in helper")
 
 
 def runtime_token() -> str:
-    tok = os.environ.get("DRIVE_TOKEN")
-    if not tok:
-        raise SystemExit(f"{WHO}: set DRIVE_TOKEN in this process's environment")
-    return tok
+    return check_token(os.environ.get("DRIVE_TOKEN"), "DRIVE_TOKEN")
 
 
 # ── HTTP ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -95,17 +121,30 @@ def _ssl_context():
         return ssl.create_default_context()
 
 
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse every redirect, so the Authorization header never follows a 3xx to another host: the 3xx comes back as
+    its status."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def opener():
+    return urllib.request.build_opener(urllib.request.HTTPSHandler(context=_ssl_context()), NoRedirect())
+
+
 def urllib_transport(method: str, url: str, headers: dict, body: bytes | None, timeout: int = 600):
-    """One request -> (status, response headers, body). An HTTP error status is returned, not raised; a network
-    failure raises ConnectionError with no header in its message."""
+    """One request -> (status, response headers, body). An HTTP error status (a refused redirect included) is
+    returned, not raised; a network failure, or a header value http.client rejects (its message would hold the
+    token), raises ConnectionError naming only the URL without its query."""
     req = urllib.request.Request(url, data=body, method=method, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=timeout, context=_ssl_context()) as r:
+        with opener().open(req, timeout=timeout) as r:
             return r.status, {k.lower(): v for k, v in r.headers.items()}, r.read()
     except urllib.error.HTTPError as e:
         return e.code, {k.lower(): v for k, v in (e.headers or {}).items()}, e.read() or b""
-    except (urllib.error.URLError, TimeoutError, OSError) as e:
-        raise ConnectionError(f"{WHO}: network error on {url.split('?')[0]}: {type(e).__name__}") from None
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
+        raise ConnectionError(f"{WHO}: request failed on {url.split('?')[0]}: {type(e).__name__}") from None
 
 
 class Drive:
@@ -117,11 +156,13 @@ class Drive:
         h = {"Authorization": f"Bearer {self._token}", **(headers or {})}
         status, rh, data = self._send(method, url, h, body)
         if status not in ok:
-            raise DriveError(status, url)
+            raise DriveError(status, url, body=data)
         return status, rh, data
 
     def list_children(self, parent: str) -> list:
-        q = f"'{parent}' in parents and trashed = false"
+        return self.list_query(f"'{check_id(parent, 'parent id')}' in parents and trashed = false")
+
+    def list_query(self, q: str) -> list:
         out, page = [], None
         while True:
             params = {"q": q, "fields": "nextPageToken,files(id,name,size,md5Checksum,mimeType)", "pageSize": 1000,
@@ -151,14 +192,28 @@ class Drive:
         return fid
 
     def get_range(self, file_id: str, start: int, end: int) -> bytes:
-        _, _, data = self._req("GET", f"{API}/{file_id}?alt=media", {"Range": f"bytes={start}-{end}"}, ok=(200, 206))
+        """Bytes start..end of a file. A 200 for a Range that does not start at 0 (Drive ignored the Range) and a
+        body of another length are refused."""
+        url = f"{API}/{check_id(file_id)}?alt=media"
+        status, _, data = self._req("GET", url, {"Range": f"bytes={start}-{end}"}, ok=(200, 206))
+        if status == 200 and start > 0:
+            raise DriveError(200, url, "for a Range request not at 0")
+        if len(data) != end - start + 1:
+            raise DriveError(status, url, f"returned {len(data)} bytes for {end - start + 1}")
         return data
 
-    def create_folder(self, name: str, parent: str | None = None) -> str:
-        meta = {"name": name, "mimeType": FOLDER_MIME, **({"parents": [parent]} if parent else {})}
+    def app_folders(self, name: str) -> list:
+        """Folders of that name carrying this client's appProperties (only this client can see them)."""
+        q = (f"appProperties has {{ key='{APP_KEY}' and value='{APP_VALUE}' }} and mimeType = '{FOLDER_MIME}' "
+             f"and trashed = false")
+        return [f for f in self.list_query(q) if f.get("name") == name]
+
+    def create_folder(self, name: str, parent: str | None = None, app: bool = False) -> str:
+        meta = {"name": name, "mimeType": FOLDER_MIME, **({"parents": [parent]} if parent else {}),
+                **({"appProperties": {APP_KEY: APP_VALUE}} if app else {})}
         _, _, data = self._req("POST", f"{API}?fields=id", {"Content-Type": "application/json"},
                                json.dumps(meta).encode())
-        return json.loads(data)["id"]
+        return check_id(json.loads(data)["id"])
 
     def upload(self, path: Path, parent: str, name: str | None = None) -> dict:
         """Resumable upload of one file into parent -> Drive's {id, name, size, md5Checksum}."""
@@ -168,9 +223,9 @@ class Drive:
                              {"Content-Type": "application/json; charset=UTF-8",
                               "X-Upload-Content-Length": str(size)}, meta)
         session = rh.get("location")
-        if not session:
-            raise DriveError("no session", UPLOAD)
-        pos = 0
+        if not session or not session.startswith("https://www.googleapis.com/upload/"):
+            raise DriveError("no upload session", UPLOAD)
+        pos, stalls = 0, 0
         with open(path, "rb") as f:
             while True:
                 f.seek(pos)
@@ -183,9 +238,13 @@ class Drive:
                     return json.loads(data)
                 if status == 308:                          # resume from what Drive says it holds
                     got = rh.get("range")
-                    pos = int(got.split("-")[1]) + 1 if got else 0
+                    new = int(got.split("-")[1]) + 1 if got else 0
+                    stalls = 0 if new > pos else stalls + 1
+                    if stalls > MAX_STALLS:
+                        raise DriveError(308, UPLOAD, f"no progress after {MAX_STALLS} tries")
+                    pos = new
                     continue
-                raise DriveError(status, UPLOAD, "during upload")
+                raise DriveError(status, UPLOAD, "during upload", body=data)
 
 
 def _ambiguous(name):
@@ -211,7 +270,8 @@ def check_map(idmap: dict) -> dict:
     if not files:
         raise SystemExit(f"{WHO}: the id map lists no file")
     for name, r in files.items():
-        if not safe_name(name) or not all(k in r for k in ("id", "size", "md5", "sha256")):
+        if not safe_name(name) or not all(k in r for k in ("id", "size", "md5", "sha256")) \
+                or not isinstance(r["id"], str) or not ID_RE.fullmatch(r["id"]):
             raise SystemExit(f"{WHO}: bad id map entry {name!r}")
     return files
 
@@ -235,11 +295,33 @@ def drive_mount() -> Path:
     return Path(os.environ["DATA_ROOT"]).expanduser().resolve().parent
 
 
+def outside(path: Path) -> Path:
+    """tools.p8_common.check_outside, with a refusal that names only the place (DATA_ROOT, the repository, the main
+    checkout) and the item's own name: the full path would show the Drive mount, which holds the account name."""
+    from tools.p8_common import REPO, check_outside, main_checkout
+    try:
+        return check_outside(path)
+    except SystemExit:
+        p = Path(path).expanduser().resolve()
+        label = "a protected folder"
+        for name, root in (("DATA_ROOT", os.environ.get("DATA_ROOT")), ("the repository", REPO),
+                           ("the main checkout", main_checkout())):
+            if root and (p == Path(root).expanduser().resolve() or Path(root).expanduser().resolve() in p.parents):
+                label = name
+                break
+        raise SystemExit(f"{WHO}: {p.name} is under {label}; refused") from None
+
+
+def no_symlink(*paths) -> None:
+    for q in paths:
+        if Path(q).is_symlink():
+            raise SystemExit(f"{WHO}: {Path(q).name} is a symlink; refused")
+
+
 def check_stage_dir(d: Path) -> list:
     """A staging folder must be nba_p8_xfer/<name> at the root of the Drive mount: never under DATA_ROOT, the repository,
     the main checkout or reports/ -> the folder's parts relative to the Drive root."""
-    from tools.p8_common import check_outside
-    p = check_outside(Path(d).expanduser())             # DATA_ROOT, this repository, the main checkout
+    p = outside(Path(d).expanduser())                  # DATA_ROOT, this repository, the main checkout
     root = drive_mount()
     try:
         rel = p.relative_to(root)
@@ -275,6 +357,7 @@ def pack_files(pack: Path) -> dict:
 def stage(pack: Path, drive_dir: Path, drive: Drive, timeout_s: float = 3600, poll_s: float = 15,
           sleep=time.sleep, clock=time.time) -> dict:
     parts = check_stage_dir(drive_dir)
+    pack = outside(Path(pack).expanduser())
     files = pack_files(pack)
     guard_pack(pack, list(files))
     local = {n: hashes(p) for n, p in files.items()}
@@ -282,6 +365,7 @@ def stage(pack: Path, drive_dir: Path, drive: Drive, timeout_s: float = 3600, po
     dest.mkdir(parents=True, exist_ok=True)
     for n, p in files.items():
         q = dest / n
+        no_symlink(q)
         if not (q.exists() and hashes(q) == local[n]):
             shutil.copyfile(p, q)
     t0, got = clock(), {}
@@ -298,7 +382,8 @@ def stage(pack: Path, drive_dir: Path, drive: Drive, timeout_s: float = 3600, po
         sleep(poll_s)
     idmap = {"folder": "/".join(parts), "files": {n: {"id": got[n]["id"], **local[n]} for n in local}}
     from tools.p8_common import atomic_write
-    atomic_write(Path(pack) / ID_MAP, json.dumps(idmap, indent=1))
+    no_symlink(pack / ID_MAP, pack / (ID_MAP + ".part"))
+    atomic_write(pack / ID_MAP, json.dumps(idmap, indent=1))
     print(json.dumps({"staged": len(local), "folder": idmap["folder"], "id_map": ID_MAP}), flush=True)
     return idmap
 
@@ -319,6 +404,7 @@ def download(drive: Drive, idmap: dict, dest: Path) -> dict:
     done = {}
     for name, r in files.items():
         final, part = dest / name, dest / (name + ".part")
+        no_symlink(final, part, dest / (name + ".bad"))
         if final.exists() and hashes(final) == {k: r[k] for k in ("size", "md5", "sha256")}:
             done[name] = "present"
             continue
@@ -352,12 +438,15 @@ def download(drive: Drive, idmap: dict, dest: Path) -> dict:
 
 
 def make_folder(drive: Drive, name: str) -> str:
-    """The result folder at the Drive root, created by this OAuth client so drive.file covers it; an existing folder of
-    that name that the client already owns is reused -> its id."""
+    """The result folder at the Drive root, created by this OAuth client with its appProperties, so drive.file covers
+    it -> its id. A folder is reused only when it carries those appProperties (which only this client can set or
+    see), never by name alone: drive.readonly also shows folders this client does not own, where uploads would fail."""
     if not safe_name(name):
         raise SystemExit(f"{WHO}: bad folder name {name!r}")
-    hit = drive.find("root", name, folder=True)
-    fid = hit["id"] if hit else drive.create_folder(name)
+    hits = drive.app_folders(name)
+    if len(hits) > 1:
+        raise SystemExit(f"{WHO}: {len(hits)} result folders named {name!r}; trash the extra ones by hand")
+    fid = check_id(hits[0]["id"]) if hits else drive.create_folder(name, app=True)
     print(json.dumps({"folder": name, "id": fid}), flush=True)
     return fid
 
@@ -365,8 +454,9 @@ def make_folder(drive: Drive, name: str) -> str:
 def upload_one(drive: Drive, src: Path, folder_id: str, name: str) -> dict:
     """One file into the app's folder (runtime) -> {name, id, size, md5, sha256}, printed on one line; Drive's size and
     md5 must equal the local file's."""
-    if not safe_name(name) or not safe_name(str(folder_id)):
-        raise SystemExit(f"{WHO}: bad name {name!r} or folder id")
+    if not safe_name(name):
+        raise SystemExit(f"{WHO}: bad name {name!r}")
+    check_id(folder_id, "folder id")
     src = Path(src)
     h = hashes(src)
     meta = drive.upload(src, folder_id, name)
@@ -380,6 +470,7 @@ def upload_one(drive: Drive, src: Path, folder_id: str, name: str) -> dict:
 def pull(drive: Drive, file_id: str, name: str, md5: str, sha256: str, dest: Path, size: int | None = None) -> dict:
     """One file the runtime uploaded (Mac) -> dest/name, checked against the size, md5 and sha256 the runtime printed.
     Without --size, Drive's reported size is used for the Range requests and still checked by both hashes."""
+    check_id(file_id, "file id")
     if size is None:
         _, _, data = drive._req("GET", f"{API}/{file_id}?fields=size,md5Checksum")
         meta = json.loads(data)
@@ -426,8 +517,7 @@ def main(argv=None) -> None:
     elif a.cmd == "upload":
         upload_one(Drive(runtime_token()), Path(a.src), a.drive_dir_id, a.name)
     else:
-        from tools.p8_common import check_outside
-        pull(Drive(mac_token()), a.file_id, a.name, a.md5, a.sha256, check_outside(Path(a.dest).expanduser()), a.size)
+        pull(Drive(mac_token()), a.file_id, a.name, a.md5, a.sha256, outside(Path(a.dest).expanduser()), a.size)
 
 
 if __name__ == "__main__":

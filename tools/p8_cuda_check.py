@@ -7,7 +7,7 @@ model (amendment of 2026-11-25). Design and reading rule, fixed before any run: 
     python -m tools.p8_cuda_check run --pack-dir DIR --out-dir DIR --work DIR [--install-models] [--deadline-s S]
                                                                                             the runtime
     python3 -m tools.p8_cuda_check get --dest <result folder>                               Mac, COLAB_URL and COLAB_TOKEN
-    python3 -m tools.p8_cuda_check unpack --dest <result folder> [--expect-sha256 S]       Mac, after a Drive collect
+    python3 -m tools.p8_cuda_check unpack --dest <result folder> [--expect-sha256 S]       Mac, after a Drive pull
     <frozen CV python> -m tools.p8_cuda_check compare --result DIR --pack DIR --pin COMMIT  Mac
 
 pack: the window clips the Mac builds read, the sections' local time maps and the two gitignored models (gate head v2,
@@ -434,7 +434,7 @@ def cmd_get(a, rt=None) -> dict:
 
 
 def unpack(dest: Path, expect_sha256: str | None = None) -> dict:
-    """The result tar and complete.json already in dest (by get, or by tools.p8_drive_xfer collect): the tar's
+    """The result tar and complete.json already in dest (by get, or by tools.p8_drive_xfer pull): the tar's
     sha256 against complete.json and, when given, against the sha256 the runtime printed (A14), then every member
     checked and extracted."""
     tar, comp = dest / f"{RESULT}.tar", dest / f"{RESULT}.complete.json"

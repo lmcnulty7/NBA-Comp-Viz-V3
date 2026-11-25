@@ -326,10 +326,11 @@ a Drive-only access token (drive.readonly plus drive.file, about 59 minutes) fro
 scope parameter on refresh, and never caches it. Run it with `--check` first (it must show the scopes drive.file and
 drive.readonly only, and the minutes left); run it without the flag to get the token, and mint a fresh one for each
 call that needs it if the last is near its hour. The token is passed only in the execute_code call text, into each
-subprocess's environment. That token is the one DRIVE_TOKEN carries; it cannot drive Colab. It passes through the
-execute_code call text, so it sits in the lead's session transcript for its lifetime (about an hour), and nowhere
-else: not in a file on the Mac or the runtime, not in a log, not in a command line (only in the subprocess's
-environment).
+subprocess's environment; it cannot drive Colab. Where it then sits (A15): in the lead's session transcript file on the
+Mac, which is kept after the token expires; and very likely in the runtime kernel's input history and globals (the
+call's code text holds it) until the runtime is deleted. It is valid for about an hour. The tool itself writes it to no
+file and no log and never puts it on a command line. So delete the runtime as soon as the transfer is done, and end
+each snippet with `del env` (which clears the variable, not the input history).
 
 Up (replaces step 2):
 
@@ -350,6 +351,7 @@ Up (replaces step 2):
    subprocess.Popen(["python", "-m", "tools.p8_drive_xfer", "fetch", "--ids", "/content/p8_drive_ids.json",
                      "--dest", "/content/p8_cuda_in"], cwd="/content/repo", env=env,
                     stdout=open("/content/p8_fetch.log", "w"), stderr=subprocess.STDOUT)
+   del env
    ```
 
    Poll /content/p8_fetch.log with new short calls until it shows {"files": ...}. fetch reads each file in Range
@@ -362,7 +364,9 @@ back is Drive with the drive.file scope, which Lucien approved on 2026-11-25 bes
 this OAuth client create files and touch only files it created, so the folder is made by the same client first.
 
 1. Before the run, on the Mac: `python3 -m tools.p8_drive_xfer make-folder --name nba_p8_xfer_out` prints the
-   folder's id (not a secret). It reuses a folder of that name the client already owns.
+   folder's id (not a secret). It creates the folder with this client's appProperties and reuses a folder only when
+   it carries them (only this client can set or see them), never by name alone: drive.readonly also shows folders the
+   client does not own, and uploads there would fail.
 2. After "done", one short execute_code call uploads the two result files, with the token in each subprocess's
    environment only:
 
@@ -374,6 +378,7 @@ this OAuth client create files and touch only files it created, so the folder is
                            "--drive-dir-id", "<folder id>", "--name", name], cwd="/content/repo", env=env,
                           capture_output=True, text=True)
        print(r.stdout.strip() or r.stderr[-500:])
+   del env
    ```
 
    Each upload is resumable, checks Drive's size and md5 against the local file and prints one line: name, Drive id,
@@ -389,6 +394,22 @@ Base64 through execute_code output is not used: the output enters the lead's con
 files and gzipped, the three arms are about 1.7 MB (hundreds of thousands of tokens).
 
 Token exposure: only the Drive-only token (drive.file and drive.readonly) ever enters an execute_code call, through
-its text, so it is in the lead's session transcript for about an hour. The Colab-scoped token stays on the Mac (the
-Colab MCP server's headers and the Mac commands of this tool). drive.readonly can read the whole Drive for that hour;
-drive.file can write only files this client created.
+its text. It stays in the session transcript file on the Mac after it expires, and very likely in the runtime kernel's
+input history and globals until the runtime is deleted; it is valid for about an hour. The Colab-scoped token stays
+on the Mac (the Colab MCP server's headers and the Mac commands of this tool). drive.readonly can read the whole Drive
+while the token is valid; drive.file can write only files this client created. Delete the runtime right after the
+transfer.
+
+Guards of the tool (A15, after the independent security review of 03055873): a token is stripped and must match a
+plain access-token pattern, and a refusal never shows it; a header value http.client rejects becomes a ConnectionError
+naming only the URL without its query; redirects are refused, so the Authorization header never follows a 3xx; Drive
+errors carry Google's error reason from the body; Drive ids must match a plain id pattern; a refusal of a protected
+path names the place (DATA_ROOT, the repository, the main checkout) and the item's own name only, never the Drive
+mount's full path; a destination or .part file that is a symlink is refused; an upload that makes no progress over
+four 308 replies stops; a 200 for a Range not at 0, or a body of the wrong length, is refused.
+- A15 (2026-11-25). Fixes from the independent security review of r-p8-drive-xfer (03055873), all before anything
+  is staged: token format check and stripping, ValueError from http.client caught, redirects refused, appProperties on
+  the result folder, protected-path refusals without the full path, Drive id checks, symlink refusals, the upload stall
+  cap and Range checks, Google's error reason in errors; section 12 states where the token sits (the transcript file on
+  the Mac, kept after expiry; the runtime kernel's history until the runtime is deleted) and the snippets end with
+  `del env`.
