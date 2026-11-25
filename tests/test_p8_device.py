@@ -116,3 +116,28 @@ def test_a_workspace_never_mixes_device_settings(clean_env, tmp_path):
 def test_the_device_wrapper_guards_its_source(clean_env):
     with pytest.raises(SystemExit):
         D.main(["build_trajectories.py", "--source", "/x/12.25.2015.NOP.at.MIA_s00_w00.mp4"])
+
+
+def test_clip_fix_is_off_unless_set_and_routes_and_records(clean_env, monkeypatch):
+    monkeypatch.delenv("P8_MPS_CLIP_FIX", raising=False)
+    assert not D.clip_fix_requested() and not D.is_set()
+    assert D.device_record({"detector": "auto"}, {"detector": "mps"}) == {"requested": {"detector": "auto"},
+                                                                          "resolved": {"detector": "mps"}}
+    monkeypatch.setenv("P8_MPS_CLIP_FIX", "1")
+    assert D.clip_fix_requested() and D.is_set()
+    assert D.rewrite(["python", "build_trajectories.py", "--source", "x.mp4"])[:3] == ["python", "-m", "tools.p8_device"]
+    monkeypatch.setenv("P8_MPS_CLIP_FIX", "yes")
+    with pytest.raises(SystemExit):
+        D.clip_fix_requested()
+
+
+def test_clip_fix_and_cached_windows_never_mix(clean_env, monkeypatch, tmp_path):
+    stem = "gsw_bkn_2015_s00_w00"
+    monkeypatch.delenv("P8_MPS_CLIP_FIX", raising=False)
+    D.check_cached(tmp_path, stem)                                     # no record, no fix: the registered default
+    monkeypatch.setenv("P8_MPS_CLIP_FIX", "1")
+    with pytest.raises(SystemExit):
+        D.check_cached(tmp_path, stem)
+    (tmp_path / f"{stem}_device.json").write_text(json.dumps({"requested": D.requested(), "resolved": {},
+                                                              "clip_fix": True}))
+    D.check_cached(tmp_path, stem)

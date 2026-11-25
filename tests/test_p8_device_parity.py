@@ -85,3 +85,23 @@ def test_sweep_game_tag_and_collapse_counts():
     side = {"frames": [{"frame": 0, "boxes": [{"bbox": [720, 10, 720, 200]}, {"bbox": [100, 10, 150, 721]},
                                               {"bbox": [300, 10, 350, 200]}]}]}
     assert M.collapse_counts(side) == {"boxes": 3, "zero_width_at_720": 1, "y2_over_720": 1}
+
+def test_mps_fix_folders_and_box_matching(monkeypatch):
+    from tools import p8_mps_fix as F
+    assert F.folder("r23") == "m8_r23_mpsfix" and F.folder("e1") == "m8_e1_gsw_bkn_2015_mpsfix"
+    monkeypatch.setitem(F.FOLDERS, "e1", "e1m6_e1_gsw_bkn_2015_detcpu")
+    with pytest.raises(SystemExit):
+        F.folder("e1")
+    b = lambda x, fx: {"bbox": [x, 10, x + 50, 200], "foot_stab": [fx, 200.0], "tid": 1}
+    assert F.frame_match([b(0, 25.0), b(100, 125.0)], [b(101, 126.5), b(1, 25.4)]) == \
+        {"same_count": True, "ok": True, "worst": 1.5}
+    assert not F.frame_match([b(0, 25.0)], [b(3, 28.0)])["ok"]
+    assert not F.frame_match([b(0, 25.0)], [])["same_count"]
+    side = lambda fr: {"frames": [{"frame": f, "boxes": [b(0, 25.0)]} for f in fr]}
+    assert F.window_match(side([0, 6]), side([0, 6]))["boxes_ok"]
+    assert not F.window_match(side([0, 6]), side([0, 12]))["boxes_ok"]
+    assert F.rates({"missed": 1, "in_frame": 3, "boxes": 10, "ref_boxes": 2, "ghosts": 3, "ref_ghosts": 1}) == \
+        {"missed_rate": 0.3333, "ghost_rate": 0.25, "missed": 1, "in_frame": 3}
+    cmd = ["python", "build_trajectories.py", "--source", "x.mp4"]
+    from tools import p8_device
+    assert p8_device.rewrite(F.rewrite(cmd, {F.ENV: "/w.pt"})) == F.rewrite(cmd, {F.ENV: "/w.pt"})
