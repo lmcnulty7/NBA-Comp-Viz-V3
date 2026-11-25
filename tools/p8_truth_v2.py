@@ -5,8 +5,12 @@
                                                              accuracy guard on one development game
     <frozen CV python> -m tools.p8_truth_v2 device           the gsw_ind_2016 device pairs (D99 diagnosis builds)
     python3 -m tools.p8_truth_v2 report                      the registered measures and the bar
+    <frozen CV python> -m tools.p8_truth_v2 measure-dev TAG   report only: the same measures on a development game
+                                                             outside the registration (docs/research/P8_truth_arenas.md,
+                                                             check C), written to truth_v2/dev/<tag>.json; never read
+                                                             by report
 
-Run measure and device under the heavy-job lock, one game at a time. Outputs: truth_v2/ in the P8 workspace. The
+Run measure, measure-dev and device under the heavy-job lock, one game at a time. Outputs: truth_v2/ in the P8 workspace. The
 frozen truth, its offsets (labels/<game>_offsets.json) and every result scored on them stay as recorded.
 """
 
@@ -164,16 +168,13 @@ def _game(tag: str):
     return P, index, F.mirror_of(P, tag)
 
 
-def cmd_measure(args) -> dict:
-    import time
+def measure_windows(P: dict, index, mirror: str, tag: str) -> dict:
+    """Per label window with a V3 label build, an r23 rebuild and a time map: the frozen and v2 offsets of both builds,
+    the stored frozen offset and the V3 candidates at each rule's offset."""
     from tools import p8_frozen as F
-    if args.tag not in POOLED + APART:
-        raise SystemExit(f"{WHO}: {args.tag} is not a registered game for truth v2")
-    P, index, mirror = _game(args.tag)
-    stored = json.loads((P["labels"] / f"{args.tag}_offsets.json").read_text())
-    t0 = time.time()
+    stored = json.loads((P["labels"] / f"{tag}_offsets.json").read_text())
     rows = {}
-    for w in F.label_windows(P, args.tag):
+    for w in F.label_windows(P, tag):
         s = w["window"]
         v3_p, r23_p, tm_p = (P["label_build"] / f"{s}_frames.json", P["builds"] / "r23" / f"{s}_frames.json",
                              P["label_build"] / f"{s}_timemap.json")
@@ -189,12 +190,52 @@ def cmd_measure(args) -> dict:
         rec["candidates_v3"] = {"frozen": candidates(s, v3, tm, index, mirror, fz) if fz is not None else None,
                                 "v2": candidates(s, v3, tm, index, mirror, vz) if vz is not None else None}
         rows[s] = rec
+    return rows
+
+
+def cmd_measure(args) -> dict:
+    import time
+    if args.tag not in POOLED + APART:
+        raise SystemExit(f"{WHO}: {args.tag} is not a registered game for truth v2")
+    P, index, mirror = _game(args.tag)
+    t0 = time.time()
+    rows = measure_windows(P, index, mirror, args.tag)
     out = {"tag": args.tag, "rule": "docs/research/P8_truth_v2.md", "delta_ft": DELTA_FT, "trim": TRIM,
            "windows": rows, "seconds": round(time.time() - t0, 1)}
     d = p8_root() / "truth_v2"
     d.mkdir(parents=True, exist_ok=True)
     atomic_write(d / f"{args.tag}.json", json.dumps(out, indent=1))
     print(json.dumps({"tag": args.tag, "windows": len(rows), "seconds": out["seconds"]}, indent=1))
+    return out
+
+
+def dev_record(tag: str, rows: dict, seconds: float) -> dict:
+    """The report-only record of measure-dev: the windows and the frozen and v2 stability of the game (game_summary),
+    marked as outside the registration."""
+    summ = game_summary(rows)
+    summ.pop("_pairs")
+    return {"tag": tag, "report_only": True, "rule": "docs/research/P8_truth_v2.md measures, read by check C of "
+            "docs/research/P8_truth_arenas.md; not part of the truth v2 registration", "delta_ft": DELTA_FT,
+            "trim": TRIM, "summary": summ, "windows": rows, "seconds": round(seconds, 1)}
+
+
+def dev_path(tag: str) -> Path:
+    return p8_root() / "truth_v2" / "dev" / f"{tag}.json"
+
+
+def cmd_measure_dev(args) -> dict:
+    """Report only. The registered games are refused here (they use measure and the registered report); any other
+    development game passes the project guard through _game first."""
+    import time
+    if args.tag in POOLED + APART:
+        raise SystemExit(f"{WHO}: {args.tag} is a registered truth v2 game; use measure")
+    P, index, mirror = _game(args.tag)
+    t0 = time.time()
+    out = dev_record(args.tag, measure_windows(P, index, mirror, args.tag), time.time() - t0)
+    p = dev_path(args.tag)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    atomic_write(p, json.dumps(out, indent=1))
+    print(json.dumps({"tag": args.tag, "windows": len(out["windows"]), "frozen": out["summary"]["frozen"]}, indent=1))
     return out
 
 
@@ -273,10 +314,12 @@ def main(argv=None) -> None:
     sub = ap.add_subparsers(dest="cmd", required=True)
     m = sub.add_parser("measure")
     m.add_argument("tag")
+    md = sub.add_parser("measure-dev")
+    md.add_argument("tag")
     sub.add_parser("device")
     sub.add_parser("report")
     a = ap.parse_args(argv)
-    {"measure": cmd_measure, "device": cmd_device, "report": cmd_report}[a.cmd](a)
+    {"measure": cmd_measure, "measure-dev": cmd_measure_dev, "device": cmd_device, "report": cmd_report}[a.cmd](a)
 
 
 if __name__ == "__main__":
