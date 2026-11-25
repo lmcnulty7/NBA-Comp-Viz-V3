@@ -65,3 +65,21 @@ def test_m6_proxy_rewrites_only_the_build_and_wraps_the_device_proxy():
     from tools import p8_device
     assert p8_device.rewrite(M6.rewrite(cmd, env)) == M6.rewrite(cmd, env)   # the inner proxy leaves it alone
     assert M6.DEVICE_ENV == {"P8_DEVICE_DETECTOR": "cpu"}
+
+
+def test_m9_allowlist_is_r23_only_and_new_folders_only():
+    assert M6.build_dir_name("r23", "gsw_cha_2016") == "m9_r23_detcpu__gsw_cha_2016"
+    assert M6.build_dir_name("r23", "hou_cle_2016") == "m9_r23_detcpu__hou_cle_2016"
+    assert M6.build_dir_name("r23") == "e1m6_r23_detcpu"
+    for model, game in (("e1", "gsw_cha_2016"), ("e1", "hou_cle_2016"), ("r23", "gsw_ind_2016")):
+        with pytest.raises(SystemExit):
+            M6.build_dir_name(model, game)
+    for bad in ("r23", "m9_r23_detcpu__gsw_ind_2016", "m9_e1_detcpu__gsw_cha_2016"):
+        with pytest.raises(SystemExit):
+            M6.check_new_name(bad)
+    from tools.p8_e1_score import FOLDS
+    for g in M6.M9_GAMES:
+        name = M6.m9_score_name(g)
+        assert not any(fnmatch.fnmatch(name, f"{m}__seed*__{x}.json") for m in FOLDS + ("stub",)
+                       for x in FOLDS + ("hou_cle_2016",))
+    assert set(M6.M9_REGISTERED) == set(M6.M9_GAMES)
