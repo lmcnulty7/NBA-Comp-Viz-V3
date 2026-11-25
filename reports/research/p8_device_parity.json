@@ -1,0 +1,759 @@
+{
+ "what": "M7 device parity of raw detections, CPU against MPS, corpus JPEGs (docs/research/P8_E1.md); report only",
+ "rule": {
+  "mps_box_loss_under": 0.01,
+  "missed_diff_under": 0.005,
+  "cut": 0.4
+ },
+ "runs": {
+  "gsw_bkn_2015": {
+   "game": "gsw_bkn_2015",
+   "device": "mps",
+   "tag": "",
+   "frames": 2075,
+   "conf_floor": 0.1,
+   "nms_iou": 0.45,
+   "imgsz": 640,
+   "torch": "2.2.2",
+   "ultralytics": "8.4.48",
+   "PYTORCH_ENABLE_MPS_FALLBACK": "1",
+   "weights_sha256": {
+    "e1": "d4ffed33564b990954f13430d23dc2401ac063286a9b08b10d80fce7b5a6b664",
+    "r23": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "model_state": {
+    "r23": {
+     "fp16": false,
+     "param_dtype": "torch.float32",
+     "device": "mps:0"
+    },
+    "e1": {
+     "fp16": false,
+     "param_dtype": "torch.float32",
+     "device": "mps:0"
+    }
+   },
+   "warnings": [],
+   "probe_error": null,
+   "seconds_inference": {
+    "r23": 50.48,
+    "e1": 47.48
+   },
+   "cpu_source": "M4 (reproduced by a fresh CPU pilot)",
+   "probe": {
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+    "frames_run": 0,
+    "error": {
+     "model": "r23",
+     "error": "The operator 'torchvision::nms' is not currently implemented for the MPS device"
+    }
+   }
+  },
+  "gsw_cha_2016": {
+   "game": "gsw_cha_2016",
+   "device": "mps",
+   "tag": "",
+   "frames": 1366,
+   "conf_floor": 0.1,
+   "nms_iou": 0.45,
+   "imgsz": 640,
+   "torch": "2.2.2",
+   "ultralytics": "8.4.48",
+   "PYTORCH_ENABLE_MPS_FALLBACK": "1",
+   "weights_sha256": {
+    "e1": "0579a03472afcd56da4e606a0cd5887220c1bce5f6b20117b446bb30e5ca6180",
+    "r23": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "model_state": {
+    "r23": {
+     "fp16": false,
+     "param_dtype": "torch.float32",
+     "device": "mps:0"
+    },
+    "e1": {
+     "fp16": false,
+     "param_dtype": "torch.float32",
+     "device": "mps:0"
+    }
+   },
+   "warnings": [],
+   "probe_error": null,
+   "seconds_inference": {
+    "r23": 34.98,
+    "e1": 32.07
+   },
+   "cpu_source": "M4 (reproduced by a fresh CPU pilot)"
+  },
+  "gsw_sac_2015": {
+   "game": "gsw_sac_2015",
+   "device": "mps",
+   "tag": "",
+   "frames": 2151,
+   "conf_floor": 0.1,
+   "nms_iou": 0.45,
+   "imgsz": 640,
+   "torch": "2.2.2",
+   "ultralytics": "8.4.48",
+   "PYTORCH_ENABLE_MPS_FALLBACK": "1",
+   "weights_sha256": {
+    "e1": "bdad8b768205d492f9a994d1ae258cb910341abb3f970e3f14de25f6b15c964c",
+    "r23": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "model_state": {
+    "r23": {
+     "fp16": false,
+     "param_dtype": "torch.float32",
+     "device": "mps:0"
+    },
+    "e1": {
+     "fp16": false,
+     "param_dtype": "torch.float32",
+     "device": "mps:0"
+    }
+   },
+   "warnings": [],
+   "probe_error": null,
+   "seconds_inference": {
+    "r23": 51.2,
+    "e1": 48.23
+   },
+   "cpu_source": "M4 (reproduced by a fresh CPU pilot)"
+  }
+ },
+ "games": {
+  "gsw_bkn_2015": {
+   "frames": 2075,
+   "r23": {
+    "frames": 2075,
+    "cpu_boxes": 19511,
+    "mps_boxes": 19511,
+    "cpu_boxes_per_frame": 9.4029,
+    "mps_boxes_per_frame": 9.4029,
+    "matched": 17704,
+    "mps_box_loss": 0.09261,
+    "mps_only_share": 0.09261,
+    "loss_by_conf": {
+     "0.40-0.50": {
+      "cpu": 224,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.50-0.70": {
+      "cpu": 708,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.70-0.90": {
+      "cpu": 8585,
+      "lost": 44,
+      "share": 0.00513
+     },
+     ">=0.90": {
+      "cpu": 9994,
+      "lost": 1763,
+      "share": 0.17641
+     }
+    },
+    "loss_by_height": {
+     "150-200": {
+      "cpu": 12098,
+      "lost": 1208,
+      "share": 0.09985
+     },
+     "200-250": {
+      "cpu": 2943,
+      "lost": 331,
+      "share": 0.11247
+     },
+     "<150": {
+      "cpu": 4328,
+      "lost": 260,
+      "share": 0.06007
+     },
+     ">=250": {
+      "cpu": 142,
+      "lost": 8,
+      "share": 0.05634
+     }
+    },
+    "conf_abs_diff_max": 1.0000000000065512e-05,
+    "conf_abs_diff_p99": 1.0000000000010001e-05,
+    "conf_abs_diff_median": 0.0,
+    "conf_pairs": 18439,
+    "missed": {
+     "cpu": 0.2363,
+     "mps": 0.285,
+     "diff": 0.04864,
+     "window_interval": [
+      0.0436,
+      0.05367
+     ]
+    },
+    "ghosts": {
+     "cpu": 0.1483,
+     "mps": 0.1939,
+     "diff": 0.04562,
+     "window_interval": [
+      0.04001,
+      0.05087
+     ]
+    },
+    "passes": false
+   },
+   "e1": {
+    "frames": 2075,
+    "cpu_boxes": 19063,
+    "mps_boxes": 19063,
+    "cpu_boxes_per_frame": 9.187,
+    "mps_boxes_per_frame": 9.187,
+    "matched": 17828,
+    "mps_box_loss": 0.06479,
+    "mps_only_share": 0.06479,
+    "loss_by_conf": {
+     "0.40-0.50": {
+      "cpu": 110,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.50-0.70": {
+      "cpu": 416,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.70-0.90": {
+      "cpu": 3943,
+      "lost": 0,
+      "share": 0.0
+     },
+     ">=0.90": {
+      "cpu": 14594,
+      "lost": 1235,
+      "share": 0.08462
+     }
+    },
+    "loss_by_height": {
+     "150-200": {
+      "cpu": 11846,
+      "lost": 873,
+      "share": 0.0737
+     },
+     "200-250": {
+      "cpu": 2626,
+      "lost": 164,
+      "share": 0.06245
+     },
+     "<150": {
+      "cpu": 4475,
+      "lost": 190,
+      "share": 0.04246
+     },
+     ">=250": {
+      "cpu": 116,
+      "lost": 8,
+      "share": 0.06897
+     }
+    },
+    "conf_abs_diff_max": 1.0000000000065512e-05,
+    "conf_abs_diff_p99": 9.99999999995449e-06,
+    "conf_abs_diff_median": 0.0,
+    "conf_pairs": 18155,
+    "missed": {
+     "cpu": 0.2166,
+     "mps": 0.2533,
+     "diff": 0.03672,
+     "window_interval": [
+      0.03119,
+      0.04329
+     ]
+    },
+    "ghosts": {
+     "cpu": 0.1118,
+     "mps": 0.1467,
+     "diff": 0.03488,
+     "window_interval": [
+      0.02978,
+      0.04083
+     ]
+    },
+    "passes": false
+   }
+  },
+  "gsw_cha_2016": {
+   "frames": 1366,
+   "r23": {
+    "frames": 1366,
+    "cpu_boxes": 13056,
+    "mps_boxes": 13056,
+    "cpu_boxes_per_frame": 9.5578,
+    "mps_boxes_per_frame": 9.5578,
+    "matched": 11423,
+    "mps_box_loss": 0.12508,
+    "mps_only_share": 0.12508,
+    "loss_by_conf": {
+     "0.40-0.50": {
+      "cpu": 151,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.50-0.70": {
+      "cpu": 403,
+      "lost": 1,
+      "share": 0.00248
+     },
+     "0.70-0.90": {
+      "cpu": 4993,
+      "lost": 12,
+      "share": 0.0024
+     },
+     ">=0.90": {
+      "cpu": 7509,
+      "lost": 1620,
+      "share": 0.21574
+     }
+    },
+    "loss_by_height": {
+     "150-200": {
+      "cpu": 8429,
+      "lost": 1172,
+      "share": 0.13904
+     },
+     "200-250": {
+      "cpu": 1555,
+      "lost": 250,
+      "share": 0.16077
+     },
+     "<150": {
+      "cpu": 2968,
+      "lost": 199,
+      "share": 0.06705
+     },
+     ">=250": {
+      "cpu": 104,
+      "lost": 12,
+      "share": 0.11538
+     }
+    },
+    "conf_abs_diff_max": 1.9999999999992246e-05,
+    "conf_abs_diff_p99": 1.0000000000010001e-05,
+    "conf_abs_diff_median": 0.0,
+    "conf_pairs": 12030,
+    "missed": {
+     "cpu": 0.3533,
+     "mps": 0.4055,
+     "diff": 0.05218,
+     "window_interval": [
+      0.04316,
+      0.06052
+     ]
+    },
+    "ghosts": {
+     "cpu": 0.2593,
+     "mps": 0.3084,
+     "diff": 0.04917,
+     "window_interval": [
+      0.03888,
+      0.05814
+     ]
+    },
+    "passes": false
+   },
+   "e1": {
+    "frames": 1366,
+    "cpu_boxes": 12338,
+    "mps_boxes": 12338,
+    "cpu_boxes_per_frame": 9.0322,
+    "mps_boxes_per_frame": 9.0322,
+    "matched": 11382,
+    "mps_box_loss": 0.07748,
+    "mps_only_share": 0.07748,
+    "loss_by_conf": {
+     "0.40-0.50": {
+      "cpu": 60,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.50-0.70": {
+      "cpu": 230,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.70-0.90": {
+      "cpu": 1852,
+      "lost": 0,
+      "share": 0.0
+     },
+     ">=0.90": {
+      "cpu": 10196,
+      "lost": 956,
+      "share": 0.09376
+     }
+    },
+    "loss_by_height": {
+     "150-200": {
+      "cpu": 7945,
+      "lost": 712,
+      "share": 0.08962
+     },
+     "200-250": {
+      "cpu": 1369,
+      "lost": 133,
+      "share": 0.09715
+     },
+     "<150": {
+      "cpu": 2960,
+      "lost": 107,
+      "share": 0.03615
+     },
+     ">=250": {
+      "cpu": 64,
+      "lost": 4,
+      "share": 0.0625
+     }
+    },
+    "conf_abs_diff_max": 1.0000000000065512e-05,
+    "conf_abs_diff_p99": 9.99999999995449e-06,
+    "conf_abs_diff_median": 0.0,
+    "conf_pairs": 11560,
+    "missed": {
+     "cpu": 0.3447,
+     "mps": 0.3793,
+     "diff": 0.03459,
+     "window_interval": [
+      0.02804,
+      0.04087
+     ]
+    },
+    "ghosts": {
+     "cpu": 0.2179,
+     "mps": 0.251,
+     "diff": 0.03315,
+     "window_interval": [
+      0.02516,
+      0.04089
+     ]
+    },
+    "passes": false
+   }
+  },
+  "gsw_sac_2015": {
+   "frames": 2151,
+   "r23": {
+    "frames": 2151,
+    "cpu_boxes": 20824,
+    "mps_boxes": 20824,
+    "cpu_boxes_per_frame": 9.6811,
+    "mps_boxes_per_frame": 9.6811,
+    "matched": 18614,
+    "mps_box_loss": 0.10613,
+    "mps_only_share": 0.10613,
+    "loss_by_conf": {
+     "0.40-0.50": {
+      "cpu": 233,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.50-0.70": {
+      "cpu": 641,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.70-0.90": {
+      "cpu": 7720,
+      "lost": 13,
+      "share": 0.00168
+     },
+     ">=0.90": {
+      "cpu": 12230,
+      "lost": 2197,
+      "share": 0.17964
+     }
+    },
+    "loss_by_height": {
+     "150-200": {
+      "cpu": 13273,
+      "lost": 1533,
+      "share": 0.1155
+     },
+     "200-250": {
+      "cpu": 2778,
+      "lost": 345,
+      "share": 0.12419
+     },
+     "<150": {
+      "cpu": 4569,
+      "lost": 316,
+      "share": 0.06916
+     },
+     ">=250": {
+      "cpu": 204,
+      "lost": 16,
+      "share": 0.07843
+     }
+    },
+    "conf_abs_diff_max": 1.0000000000065512e-05,
+    "conf_abs_diff_p99": 1.0000000000010001e-05,
+    "conf_abs_diff_median": 0.0,
+    "conf_pairs": 19452,
+    "missed": {
+     "cpu": 0.2123,
+     "mps": 0.2725,
+     "diff": 0.06016,
+     "window_interval": [
+      0.05198,
+      0.06722
+     ]
+    },
+    "ghosts": {
+     "cpu": 0.1514,
+     "mps": 0.2072,
+     "diff": 0.05575,
+     "window_interval": [
+      0.04791,
+      0.0627
+     ]
+    },
+    "passes": false
+   },
+   "e1": {
+    "frames": 2151,
+    "cpu_boxes": 19909,
+    "mps_boxes": 19909,
+    "cpu_boxes_per_frame": 9.2557,
+    "mps_boxes_per_frame": 9.2557,
+    "matched": 18656,
+    "mps_box_loss": 0.06294,
+    "mps_only_share": 0.06294,
+    "loss_by_conf": {
+     "0.40-0.50": {
+      "cpu": 96,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.50-0.70": {
+      "cpu": 289,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.70-0.90": {
+      "cpu": 2556,
+      "lost": 0,
+      "share": 0.0
+     },
+     ">=0.90": {
+      "cpu": 16968,
+      "lost": 1253,
+      "share": 0.07384
+     }
+    },
+    "loss_by_height": {
+     "150-200": {
+      "cpu": 12796,
+      "lost": 917,
+      "share": 0.07166
+     },
+     "200-250": {
+      "cpu": 2450,
+      "lost": 182,
+      "share": 0.07429
+     },
+     "<150": {
+      "cpu": 4480,
+      "lost": 148,
+      "share": 0.03304
+     },
+     ">=250": {
+      "cpu": 183,
+      "lost": 6,
+      "share": 0.03279
+     }
+    },
+    "conf_abs_diff_max": 1.0000000000065512e-05,
+    "conf_abs_diff_p99": 9.99999999995449e-06,
+    "conf_abs_diff_median": 0.0,
+    "conf_pairs": 18986,
+    "missed": {
+     "cpu": 0.1961,
+     "mps": 0.2324,
+     "diff": 0.03628,
+     "window_interval": [
+      0.0308,
+      0.04208
+     ]
+    },
+    "ghosts": {
+     "cpu": 0.1067,
+     "mps": 0.1407,
+     "diff": 0.034,
+     "window_interval": [
+      0.02839,
+      0.03922
+     ]
+    },
+    "passes": false
+   }
+  }
+ },
+ "pooled": {
+  "games": [
+   "gsw_bkn_2015",
+   "gsw_cha_2016",
+   "gsw_sac_2015"
+  ],
+  "frames": 5592,
+  "r23": {
+   "frames": 5592,
+   "cpu_boxes": 53391,
+   "mps_boxes": 53391,
+   "cpu_boxes_per_frame": 9.5477,
+   "mps_boxes_per_frame": 9.5477,
+   "matched": 47741,
+   "mps_box_loss": 0.10582,
+   "mps_only_share": 0.10582,
+   "loss_by_conf": {
+    "0.40-0.50": {
+     "cpu": 608,
+     "lost": 0,
+     "share": 0.0
+    },
+    "0.50-0.70": {
+     "cpu": 1752,
+     "lost": 1,
+     "share": 0.00057
+    },
+    "0.70-0.90": {
+     "cpu": 21298,
+     "lost": 69,
+     "share": 0.00324
+    },
+    ">=0.90": {
+     "cpu": 29733,
+     "lost": 5580,
+     "share": 0.18767
+    }
+   },
+   "loss_by_height": {
+    "150-200": {
+     "cpu": 33800,
+     "lost": 3913,
+     "share": 0.11577
+    },
+    "200-250": {
+     "cpu": 7276,
+     "lost": 926,
+     "share": 0.12727
+    },
+    "<150": {
+     "cpu": 11865,
+     "lost": 775,
+     "share": 0.06532
+    },
+    ">=250": {
+     "cpu": 450,
+     "lost": 36,
+     "share": 0.08
+    }
+   },
+   "conf_abs_diff_max": 1.9999999999992246e-05,
+   "conf_abs_diff_p99": 1.0000000000010001e-05,
+   "conf_abs_diff_median": 0.0,
+   "conf_pairs": 49921,
+   "missed": {
+    "cpu": 0.2556,
+    "mps": 0.3095,
+    "diff": 0.05393,
+    "window_interval": [
+     0.04994,
+     0.05808
+    ]
+   },
+   "ghosts": {
+    "cpu": 0.1766,
+    "mps": 0.2271,
+    "diff": 0.05044,
+    "window_interval": [
+     0.04633,
+     0.05481
+    ]
+   },
+   "passes": false
+  },
+  "e1": {
+   "frames": 5592,
+   "cpu_boxes": 51310,
+   "mps_boxes": 51310,
+   "cpu_boxes_per_frame": 9.1756,
+   "mps_boxes_per_frame": 9.1756,
+   "matched": 47866,
+   "mps_box_loss": 0.06712,
+   "mps_only_share": 0.06712,
+   "loss_by_conf": {
+    "0.40-0.50": {
+     "cpu": 266,
+     "lost": 0,
+     "share": 0.0
+    },
+    "0.50-0.70": {
+     "cpu": 935,
+     "lost": 0,
+     "share": 0.0
+    },
+    "0.70-0.90": {
+     "cpu": 8351,
+     "lost": 0,
+     "share": 0.0
+    },
+    ">=0.90": {
+     "cpu": 41758,
+     "lost": 3444,
+     "share": 0.08248
+    }
+   },
+   "loss_by_height": {
+    "150-200": {
+     "cpu": 32587,
+     "lost": 2502,
+     "share": 0.07678
+    },
+    "200-250": {
+     "cpu": 6445,
+     "lost": 479,
+     "share": 0.07432
+    },
+    "<150": {
+     "cpu": 11915,
+     "lost": 445,
+     "share": 0.03735
+    },
+    ">=250": {
+     "cpu": 363,
+     "lost": 18,
+     "share": 0.04959
+    }
+   },
+   "conf_abs_diff_max": 1.0000000000065512e-05,
+   "conf_abs_diff_p99": 9.99999999995449e-06,
+   "conf_abs_diff_median": 0.0,
+   "conf_pairs": 48701,
+   "missed": {
+    "cpu": 0.24,
+    "mps": 0.276,
+    "diff": 0.03603,
+    "window_interval": [
+     0.03274,
+     0.03968
+    ]
+   },
+   "ghosts": {
+    "cpu": 0.1353,
+    "mps": 0.1694,
+    "diff": 0.03413,
+    "window_interval": [
+     0.03051,
+     0.03765
+    ]
+   },
+   "passes": false
+  }
+ },
+ "mps_tag": null
+}

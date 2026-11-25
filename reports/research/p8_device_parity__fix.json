@@ -1,0 +1,373 @@
+{
+ "what": "M7 device parity of raw detections, CPU against MPS, corpus JPEGs (docs/research/P8_E1.md); report only",
+ "rule": {
+  "mps_box_loss_under": 0.01,
+  "missed_diff_under": 0.005,
+  "cut": 0.4
+ },
+ "runs": {
+  "gsw_bkn_2015": {
+   "game": "gsw_bkn_2015",
+   "device": "mps",
+   "tag": "fix",
+   "frames": 2075,
+   "conf_floor": 0.1,
+   "nms_iou": 0.45,
+   "imgsz": 640,
+   "torch": "2.2.2",
+   "ultralytics": "8.4.48",
+   "PYTORCH_ENABLE_MPS_FALLBACK": "1",
+   "weights_sha256": {
+    "e1": "d4ffed33564b990954f13430d23dc2401ac063286a9b08b10d80fce7b5a6b664",
+    "r23": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "model_state": {
+    "r23": {
+     "fp16": false,
+     "param_dtype": "torch.float32",
+     "device": "mps:0"
+    },
+    "e1": {
+     "fp16": false,
+     "param_dtype": "torch.float32",
+     "device": "mps:0"
+    }
+   },
+   "warnings": [],
+   "probe_error": null,
+   "seconds_inference": {
+    "r23": 49.86,
+    "e1": 46.46
+   },
+   "cpu_source": "M4 (reproduced by a fresh CPU pilot)",
+   "probe": {
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+    "frames_run": 0,
+    "error": {
+     "model": "r23",
+     "error": "The operator 'torchvision::nms' is not currently implemented for the MPS device"
+    }
+   }
+  }
+ },
+ "games": {
+  "gsw_bkn_2015": {
+   "frames": 2075,
+   "r23": {
+    "frames": 2075,
+    "cpu_boxes": 19511,
+    "mps_boxes": 19511,
+    "cpu_boxes_per_frame": 9.4029,
+    "mps_boxes_per_frame": 9.4029,
+    "matched": 19511,
+    "mps_box_loss": 0.0,
+    "mps_only_share": 0.0,
+    "loss_by_conf": {
+     "0.40-0.50": {
+      "cpu": 224,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.50-0.70": {
+      "cpu": 708,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.70-0.90": {
+      "cpu": 8585,
+      "lost": 0,
+      "share": 0.0
+     },
+     ">=0.90": {
+      "cpu": 9994,
+      "lost": 0,
+      "share": 0.0
+     }
+    },
+    "loss_by_height": {
+     "150-200": {
+      "cpu": 12098,
+      "lost": 0,
+      "share": 0.0
+     },
+     "200-250": {
+      "cpu": 2943,
+      "lost": 0,
+      "share": 0.0
+     },
+     "<150": {
+      "cpu": 4328,
+      "lost": 0,
+      "share": 0.0
+     },
+     ">=250": {
+      "cpu": 142,
+      "lost": 0,
+      "share": 0.0
+     }
+    },
+    "conf_abs_diff_max": 1.0000000000065512e-05,
+    "conf_abs_diff_p99": 1.0000000000010001e-05,
+    "conf_abs_diff_median": 0.0,
+    "conf_pairs": 20248,
+    "missed": {
+     "cpu": 0.2363,
+     "mps": 0.2363,
+     "diff": 0.0,
+     "window_interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "ghosts": {
+     "cpu": 0.1483,
+     "mps": 0.1483,
+     "diff": 0.0,
+     "window_interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "passes": true
+   },
+   "e1": {
+    "frames": 2075,
+    "cpu_boxes": 19063,
+    "mps_boxes": 19063,
+    "cpu_boxes_per_frame": 9.187,
+    "mps_boxes_per_frame": 9.187,
+    "matched": 19063,
+    "mps_box_loss": 0.0,
+    "mps_only_share": 0.0,
+    "loss_by_conf": {
+     "0.40-0.50": {
+      "cpu": 110,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.50-0.70": {
+      "cpu": 416,
+      "lost": 0,
+      "share": 0.0
+     },
+     "0.70-0.90": {
+      "cpu": 3943,
+      "lost": 0,
+      "share": 0.0
+     },
+     ">=0.90": {
+      "cpu": 14594,
+      "lost": 0,
+      "share": 0.0
+     }
+    },
+    "loss_by_height": {
+     "150-200": {
+      "cpu": 11846,
+      "lost": 0,
+      "share": 0.0
+     },
+     "200-250": {
+      "cpu": 2626,
+      "lost": 0,
+      "share": 0.0
+     },
+     "<150": {
+      "cpu": 4475,
+      "lost": 0,
+      "share": 0.0
+     },
+     ">=250": {
+      "cpu": 116,
+      "lost": 0,
+      "share": 0.0
+     }
+    },
+    "conf_abs_diff_max": 1.0000000000065512e-05,
+    "conf_abs_diff_p99": 9.99999999995449e-06,
+    "conf_abs_diff_median": 0.0,
+    "conf_pairs": 19391,
+    "missed": {
+     "cpu": 0.2166,
+     "mps": 0.2166,
+     "diff": 0.0,
+     "window_interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "ghosts": {
+     "cpu": 0.1118,
+     "mps": 0.1118,
+     "diff": 0.0,
+     "window_interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "passes": true
+   }
+  }
+ },
+ "pooled": {
+  "games": [
+   "gsw_bkn_2015"
+  ],
+  "frames": 2075,
+  "r23": {
+   "frames": 2075,
+   "cpu_boxes": 19511,
+   "mps_boxes": 19511,
+   "cpu_boxes_per_frame": 9.4029,
+   "mps_boxes_per_frame": 9.4029,
+   "matched": 19511,
+   "mps_box_loss": 0.0,
+   "mps_only_share": 0.0,
+   "loss_by_conf": {
+    "0.40-0.50": {
+     "cpu": 224,
+     "lost": 0,
+     "share": 0.0
+    },
+    "0.50-0.70": {
+     "cpu": 708,
+     "lost": 0,
+     "share": 0.0
+    },
+    "0.70-0.90": {
+     "cpu": 8585,
+     "lost": 0,
+     "share": 0.0
+    },
+    ">=0.90": {
+     "cpu": 9994,
+     "lost": 0,
+     "share": 0.0
+    }
+   },
+   "loss_by_height": {
+    "150-200": {
+     "cpu": 12098,
+     "lost": 0,
+     "share": 0.0
+    },
+    "200-250": {
+     "cpu": 2943,
+     "lost": 0,
+     "share": 0.0
+    },
+    "<150": {
+     "cpu": 4328,
+     "lost": 0,
+     "share": 0.0
+    },
+    ">=250": {
+     "cpu": 142,
+     "lost": 0,
+     "share": 0.0
+    }
+   },
+   "conf_abs_diff_max": 1.0000000000065512e-05,
+   "conf_abs_diff_p99": 1.0000000000010001e-05,
+   "conf_abs_diff_median": 0.0,
+   "conf_pairs": 20248,
+   "missed": {
+    "cpu": 0.2363,
+    "mps": 0.2363,
+    "diff": 0.0,
+    "window_interval": [
+     0.0,
+     0.0
+    ]
+   },
+   "ghosts": {
+    "cpu": 0.1483,
+    "mps": 0.1483,
+    "diff": 0.0,
+    "window_interval": [
+     0.0,
+     0.0
+    ]
+   },
+   "passes": true
+  },
+  "e1": {
+   "frames": 2075,
+   "cpu_boxes": 19063,
+   "mps_boxes": 19063,
+   "cpu_boxes_per_frame": 9.187,
+   "mps_boxes_per_frame": 9.187,
+   "matched": 19063,
+   "mps_box_loss": 0.0,
+   "mps_only_share": 0.0,
+   "loss_by_conf": {
+    "0.40-0.50": {
+     "cpu": 110,
+     "lost": 0,
+     "share": 0.0
+    },
+    "0.50-0.70": {
+     "cpu": 416,
+     "lost": 0,
+     "share": 0.0
+    },
+    "0.70-0.90": {
+     "cpu": 3943,
+     "lost": 0,
+     "share": 0.0
+    },
+    ">=0.90": {
+     "cpu": 14594,
+     "lost": 0,
+     "share": 0.0
+    }
+   },
+   "loss_by_height": {
+    "150-200": {
+     "cpu": 11846,
+     "lost": 0,
+     "share": 0.0
+    },
+    "200-250": {
+     "cpu": 2626,
+     "lost": 0,
+     "share": 0.0
+    },
+    "<150": {
+     "cpu": 4475,
+     "lost": 0,
+     "share": 0.0
+    },
+    ">=250": {
+     "cpu": 116,
+     "lost": 0,
+     "share": 0.0
+    }
+   },
+   "conf_abs_diff_max": 1.0000000000065512e-05,
+   "conf_abs_diff_p99": 9.99999999995449e-06,
+   "conf_abs_diff_median": 0.0,
+   "conf_pairs": 19391,
+   "missed": {
+    "cpu": 0.2166,
+    "mps": 0.2166,
+    "diff": 0.0,
+    "window_interval": [
+     0.0,
+     0.0
+    ]
+   },
+   "ghosts": {
+    "cpu": 0.1118,
+    "mps": 0.1118,
+    "diff": 0.0,
+    "window_interval": [
+     0.0,
+     0.0
+    ]
+   },
+   "passes": true
+  }
+ },
+ "mps_tag": "fix"
+}
