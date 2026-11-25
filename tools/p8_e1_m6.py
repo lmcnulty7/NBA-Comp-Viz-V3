@@ -55,18 +55,30 @@ def tally_records(build: Path, game: str = GAME) -> dict:
     return {"device_records": dev, "weights_sha256_prefix": wts}
 
 
-def build_dir_name(model: str) -> str:
+M9_GAMES = ("gsw_cha_2016", "gsw_sac_2015", "hou_cle_2016")    # M9: r23 only, one folder a game
+M9_REGISTERED = {"gsw_cha_2016": "gsw_cha_2016__seed0__gsw_cha_2016.json",
+                 "gsw_sac_2015": "gsw_sac_2015__seed0__gsw_sac_2015.json",
+                 "hou_cle_2016": "gsw_bkn_2015__seed0__hou_cle_2016.json"}   # the registered r23 counts per game
+
+
+def build_dir_name(model: str, game: str = GAME) -> str:
     if model not in MODELS:
         raise SystemExit(f"{WHO}: unknown model {model}; one of {MODELS}")
-    name = "e1m6_r23_detcpu" if model == "r23" else f"e1m6_e1_{FOLD}_detcpu"
+    if game == GAME:
+        name = "e1m6_r23_detcpu" if model == "r23" else f"e1m6_e1_{FOLD}_detcpu"
+    elif game in M9_GAMES and model == "r23":
+        name = f"m9_r23_detcpu__{game}"
+    else:
+        raise SystemExit(f"{WHO}: {model} on {game} is not an M6 or M9 build (E1 on CPU elsewhere is a new arm)")
     check_new_name(name)
     return name
 
 
 def check_new_name(name: str) -> str:
-    """Only the two M6 folder names; never r23 or a registered e1_<fold>_seed<S> folder."""
-    if name not in ("e1m6_r23_detcpu", f"e1m6_e1_{FOLD}_detcpu"):
-        raise SystemExit(f"{WHO}: {name} is not an M6 build folder")
+    """Only the two M6 folder names and the M9 r23 folders; never r23 or a registered e1_<fold>_seed<S> folder."""
+    allowed = ("e1m6_r23_detcpu", f"e1m6_e1_{FOLD}_detcpu", *(f"m9_r23_detcpu__{g}" for g in M9_GAMES))
+    if name not in allowed:
+        raise SystemExit(f"{WHO}: {name} is not an M6 or M9 build folder")
     return name
 
 
@@ -83,9 +95,9 @@ def weights_for(model: str) -> Path:
     return weights_of(FOLD)
 
 
-def check_guard() -> None:
-    refuse_cv_test([GAME], WHO)
-    guard([GAME], WHO)
+def check_guard(game: str = GAME) -> None:
+    refuse_cv_test([game], WHO)
+    guard([game], WHO)
 
 
 # ── the build proxy (driver side) and the child ────────────────────────────────────────────────────────────────────
@@ -141,14 +153,16 @@ def cmd_rebuild(args) -> dict:
     from sportvu.autolabel import gate_args
     from tools import p8_frozen as F
     from tools.p8_e1_score import _sha, check_provenance
-    check_guard()
+    game = args.game or GAME
+    check_guard(game)
     if os.environ.get("V3_HEAVY_HELD") is None:
         raise SystemExit(f"{WHO}: run inside the heavy-job lock")
     for k, v in DEVICE_ENV.items():
         os.environ[k] = v
-    for k in ("P8_DEVICE", "P8_DEVICE_COURT", "P8_DEVICE_GATE"):
+    for k in ("P8_DEVICE", "P8_DEVICE_COURT", "P8_DEVICE_GATE", "P8_MPS_CLIP_FIX"):
         os.environ.pop(k, None)
-    F.game_of(GAME)
+    build_dir_name(args.model, game)                 # refuses anything but the M6 and M9 builds
+    F.game_of(game)
     weights = weights_for(args.model).resolve()
     if args.model == "e1":
         sha = check_provenance(FOLD, GAME, 0, weights)["sha256"]
@@ -161,12 +175,12 @@ def cmd_rebuild(args) -> dict:
     rebuild.subprocess = _Proxy(rebuild.subprocess)
     os.environ[ENV], os.environ["P8_E1_M6_MODEL"] = str(weights), args.model
     os.environ["COURT_GRID_WEIGHTS"] = str(F.court_weights("r23"))
-    out = P["builds"] / build_dir_name(args.model)
+    out = P["builds"] / build_dir_name(args.model, game)
     out.mkdir(parents=True, exist_ok=True)
-    wins = [w for w in F.label_windows(P, GAME) if (P["builds"] / "r23" / f"{w['window']}_frames.json").exists()]
+    wins = [w for w in F.label_windows(P, game) if (P["builds"] / "r23" / f"{w['window']}_frames.json").exists()]
     if args.windows:
         wins = wins[:args.windows]
-    res = {"model": args.model, "game": GAME, "weights_sha256": sha, "windows": 0, "built": 0, "cached": 0,
+    res = {"model": args.model, "game": game, "weights_sha256": sha, "windows": 0, "built": 0, "cached": 0,
            "seconds_built": 0.0}
     for w in wins:
         rec_p = out / f"{w['window']}_detector.json"
@@ -187,6 +201,8 @@ def cmd_rebuild(args) -> dict:
             if got != sha or dev["resolved"]["detector"] != "cpu":
                 raise SystemExit(f"{WHO}: {w['window']} did not record the weights or the CPU detector")
     res["seconds_built"] = round(res["seconds_built"], 1)
+    if game != GAME:
+        atomic_write(p8_root() / "e1" / f"m9_rebuild__r23_detcpu__{game}.json", json.dumps(res, indent=1))
     print(json.dumps(res, indent=1))
     return res
 
@@ -302,6 +318,107 @@ def cmd_drop(args) -> dict:
     return out
 
 
+# ── M9: r23 on CPU beside the registered r23 (MPS) on the other games ──────────────────────────────────────────────
+def m9_score_name(game: str) -> str:
+    if game not in M9_GAMES:
+        raise SystemExit(f"{WHO}: {game} is not an M9 game")
+    return f"m9__r23_detcpu__{game}.json"
+
+
+def cmd_score_m9(args) -> dict:
+    """The pinned score_window on the registered r23 build and its CPU-detector rebuild, shared frames where the
+    frame sets differ; the registered side must reproduce the registered score file where they agree."""
+    import time
+    from sportvu import bench as B
+    from tools import p8_frozen as F
+    from tools import p8_scorecard as S
+    from tools.p8_e1_score import _filtered, frame_sets, window_stats
+    game = args.game
+    check_guard(game)
+    if os.environ.get("V3_HEAVY_HELD") is None:
+        raise SystemExit(f"{WHO}: run inside the heavy-job lock")
+    g = F.game_of(game)
+    P = F.install_paths()
+    S.load_fixed_constants()
+    mirror = F.mirror_of(P, game)
+    mom = S.Moments(json.loads((P["sportvu"] / f"{g['sportvu']}_moments.json").read_text())["moments"])
+    events = S.pbp_events(g["sportvu"])
+    refs = B.References()
+    reg = json.loads((p8_root() / "e1" / M9_REGISTERED[game]).read_text())
+    r23_dir, cpu_dir = P["builds"] / "r23", P["builds"] / build_dir_name("r23", game)
+    t0 = time.time()
+    all_w = F.label_windows(P, game)
+    expected = [w["window"] for w in all_w if (r23_dir / f"{w['window']}_frames.json").exists()]
+    wins, frame_diff, skipped, checked = {}, {}, [], 0
+    tmp = p8_root() / "e1" / "m9_shared_frames" / game
+    for w in all_w:
+        s = w["window"]
+        if s not in expected or not (cpu_dir / f"{s}_frames.json").exists():
+            continue
+        if not (P["cache"] / "scorecard" / f"{s}.json").exists():
+            raise SystemExit(f"{WHO}: {s} has no cached scorecard references; refusing to compute them")
+        fs = frame_sets(json.loads((r23_dir / f"{s}_frames.json").read_text()),
+                        json.loads((cpu_dir / f"{s}_frames.json").read_text()))
+        dirs = {"r23": r23_dir, "new": cpu_dir}
+        if not fs["equal"]:
+            frame_diff[s] = {k: (len(v) if k == "shared" else v) for k, v in fs.items() if k != "equal"}
+            dirs = {"r23": _filtered(r23_dir, s, fs["shared"], tmp / "r23"), "new": _filtered(cpu_dir, s, fs["shared"], tmp / "cpu")}
+        pair = {}
+        for side, bd in dirs.items():
+            rec = S.score_window(P, game, w, bd, "camera", mom, mirror, refs, events)[0]
+            if "skipped" in rec:
+                break
+            pair[side] = window_stats(rec)
+        if len(pair) != 2:
+            skipped.append(s)
+            continue
+        if fs["equal"] and s in reg["windows"]:
+            want = reg["windows"][s]["r23"]
+            if any(pair["r23"][k] != want[k] for k in ("missed", "in_frame", "nr_ghosts", "nr_boxes")):
+                raise SystemExit(f"{WHO}: {s}: the registered r23 build does not reproduce its score file")
+            checked += 1
+        wins[s] = pair
+    out = {"game": game, "sides": {"r23": "builds/r23 (registered, MPS detector)",
+                                   "new": f"builds/{build_dir_name('r23', game)} (CPU detector)"},
+           "expected_windows": expected, "scored_windows": sorted(wins), "skipped_windows": skipped,
+           "frame_sets_differ": frame_diff, "registered_reproduced_windows": checked, "windows": wins,
+           "seconds": round(time.time() - t0, 1)}
+    atomic_write(p8_root() / "e1" / m9_score_name(game), json.dumps(out))
+    print(json.dumps({k: (len(v) if isinstance(v, (list, dict)) else v) for k, v in out.items()}, indent=1))
+    return out
+
+
+def cmd_report_m9(args) -> dict:
+    from tools.p8_e1_score import boot, diffs, rows
+    d = p8_root() / "e1"
+    out = {"what": "M9 (docs/research/P8_E1.md): r23 with the detector on CPU beside the registered r23 (MPS) per game; "
+                   "report only; 'r23' is the registered MPS build, 'cpu' the CPU-detector rebuild", "games": {}}
+    for game in M9_GAMES:
+        p = d / m9_score_name(game)
+        if not p.exists():
+            out["games"][game] = None
+            continue
+        check_guard(game)
+        f = json.loads(p.read_text())
+        wins = list(f["windows"].values())
+        rb = d / f"m9_rebuild__r23_detcpu__{game}.json"
+        out["games"][game] = {"windows": len(wins), "expected": len(f["expected_windows"]),
+                              "frame_sets_differ": len(f["frame_sets_differ"]),
+                              "registered_reproduced_windows": f["registered_reproduced_windows"],
+                              "rows": {k: {"mps": a, "cpu": b} for k, (a, b) in rows(wins).items()},
+                              "cpu_minus_mps": diffs(wins), "window_interval": boot({i: [w] for i, w in enumerate(wins)}),
+                              "rebuild": json.loads(rb.read_text()) if rb.exists() else None}
+    m6 = d / "p8_e1_m6.json"
+    if m6.exists():
+        r = json.loads(m6.read_text())["registered_mps_same_windows"]["rows"]
+        c = json.loads(m6.read_text())["rows"]
+        out["gsw_bkn_2015_from_m6"] = {k: {"mps": r[k]["r23"], "cpu": c[k]["r23"]} for k in c}
+    atomic_write(d / "p8_e1_m9.json", json.dumps(out, indent=1, default=float))
+    print(json.dumps({g: (v and {k: v["rows"][k] for k in ("missed_rate", "ghost_rate", "position_p50_ft")})
+                      for g, v in out["games"].items()}, indent=1, default=float))
+    return out
+
+
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] == "child":
@@ -311,11 +428,16 @@ def main(argv=None) -> int:
     r = sub.add_parser("rebuild")
     r.add_argument("--model", required=True, choices=MODELS)
     r.add_argument("--windows", type=int, default=None)
+    r.add_argument("--game", default=None, choices=(GAME, *M9_GAMES))
+    m9 = sub.add_parser("score-m9")
+    m9.add_argument("--game", required=True, choices=M9_GAMES)
+    sub.add_parser("report-m9")
     s = sub.add_parser("score")
     sub.add_parser("drop")
     sub.add_parser("report")
     a = ap.parse_args(argv)
-    {"rebuild": cmd_rebuild, "score": cmd_score, "drop": cmd_drop, "report": cmd_report}[a.cmd](a)
+    {"rebuild": cmd_rebuild, "score": cmd_score, "drop": cmd_drop, "report": cmd_report,
+     "score-m9": cmd_score_m9, "report-m9": cmd_report_m9}[a.cmd](a)
     return 0
 
 

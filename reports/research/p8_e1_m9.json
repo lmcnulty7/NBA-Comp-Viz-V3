@@ -1,0 +1,287 @@
+{
+ "what": "M9 (docs/research/P8_E1.md): r23 with the detector on CPU beside the registered r23 (MPS) per game; report only; 'r23' is the registered MPS build, 'cpu' the CPU-detector rebuild",
+ "games": {
+  "gsw_cha_2016": {
+   "windows": 73,
+   "expected": 73,
+   "frame_sets_differ": 0,
+   "registered_reproduced_windows": 73,
+   "rows": {
+    "position_p50_ft": {
+     "mps": 1.5105619430541992,
+     "cpu": 1.5085806846618652
+    },
+    "position_p90_ft": {
+     "mps": 3.1293432712554936,
+     "cpu": 3.090482521057129
+    },
+    "nearfield_bias_ft": {
+     "mps": 1.1422691345214844,
+     "cpu": 1.145340919494629
+    },
+    "missed_rate": {
+     "mps": 0.3253538090936465,
+     "cpu": 0.29524239686841314
+    },
+    "ghost_rate": {
+     "mps": 0.17756929637526653,
+     "cpu": 0.18758002560819462
+    },
+    "coverage": {
+     "mps": 0.9930358524632448,
+     "cpu": 0.9930358524632448
+    },
+    "team_accuracy": {
+     "mps": 0.7727789354044327,
+     "cpu": 0.8103509709602708
+    }
+   },
+   "cpu_minus_mps": {
+    "position_p50_ft": -0.0019812583923339844,
+    "position_p90_ft": -0.038860750198364435,
+    "nearfield_bias_ft": 0.0030717849731445312,
+    "missed_rate": -0.030111412225233336,
+    "ghost_rate": 0.01001072923292809,
+    "coverage": 0.0,
+    "team_accuracy": 0.0375720355558381
+   },
+   "window_interval": {
+    "position_p50_ft": [
+     -0.01112,
+     0.00478
+    ],
+    "position_p90_ft": [
+     -0.06776,
+     -0.01368
+    ],
+    "nearfield_bias_ft": [
+     -0.00914,
+     0.02004
+    ],
+    "missed_rate": [
+     -0.03677,
+     -0.0205
+    ],
+    "ghost_rate": [
+     0.00649,
+     0.01393
+    ],
+    "team_accuracy": [
+     0.00603,
+     0.07145
+    ],
+    "coverage": [
+     0.0,
+     0.0
+    ]
+   },
+   "rebuild": {
+    "model": "r23",
+    "game": "gsw_cha_2016",
+    "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d",
+    "windows": 73,
+    "built": 73,
+    "cached": 0,
+    "seconds_built": 7902.0
+   }
+  },
+  "gsw_sac_2015": {
+   "windows": 82,
+   "expected": 82,
+   "frame_sets_differ": 0,
+   "registered_reproduced_windows": 82,
+   "rows": {
+    "position_p50_ft": {
+     "mps": 1.5128722190856934,
+     "cpu": 1.5047106742858887
+    },
+    "position_p90_ft": {
+     "mps": 3.2628570079803465,
+     "cpu": 3.242495393753052
+    },
+    "nearfield_bias_ft": {
+     "mps": 1.336787223815918,
+     "cpu": 1.3265867233276367
+    },
+    "missed_rate": {
+     "mps": 0.23250094589481649,
+     "cpu": 0.20596859629209233
+    },
+    "ghost_rate": {
+     "mps": 0.10823130333386335,
+     "cpu": 0.11442434044273729
+    },
+    "coverage": {
+     "mps": 0.9935192833089777,
+     "cpu": 0.9935192833089777
+    },
+    "team_accuracy": {
+     "mps": 0.8154553289284688,
+     "cpu": 0.8043298628325897
+    }
+   },
+   "cpu_minus_mps": {
+    "position_p50_ft": -0.008161544799804688,
+    "position_p90_ft": -0.020361614227294655,
+    "nearfield_bias_ft": -0.01020050048828125,
+    "missed_rate": -0.02653234960272416,
+    "ghost_rate": 0.006193037108873936,
+    "coverage": 0.0,
+    "team_accuracy": -0.011125466095879166
+   },
+   "window_interval": {
+    "position_p50_ft": [
+     -0.0178,
+     -0.00022
+    ],
+    "position_p90_ft": [
+     -0.04645,
+     -0.00209
+    ],
+    "nearfield_bias_ft": [
+     -0.02189,
+     0.003
+    ],
+    "missed_rate": [
+     -0.03614,
+     -0.01393
+    ],
+    "ghost_rate": [
+     0.00305,
+     0.0096
+    ],
+    "team_accuracy": [
+     -0.02309,
+     0.00112
+    ],
+    "coverage": [
+     0.0,
+     0.0
+    ]
+   },
+   "rebuild": {
+    "model": "r23",
+    "game": "gsw_sac_2015",
+    "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d",
+    "windows": 82,
+    "built": 82,
+    "cached": 0,
+    "seconds_built": 8247.7
+   }
+  },
+  "hou_cle_2016": {
+   "windows": 93,
+   "expected": 93,
+   "frame_sets_differ": 0,
+   "registered_reproduced_windows": 93,
+   "rows": {
+    "position_p50_ft": {
+     "mps": 1.5320743322372437,
+     "cpu": 1.5159962177276611
+    },
+    "position_p90_ft": {
+     "mps": 3.3204749584198,
+     "cpu": 3.286092615127564
+    },
+    "nearfield_bias_ft": {
+     "mps": 1.1527225971221924,
+     "cpu": 1.1543824672698975
+    },
+    "missed_rate": {
+     "mps": 0.2326051591912619,
+     "cpu": 0.19611898675342784
+    },
+    "ghost_rate": {
+     "mps": 0.08301733477789816,
+     "cpu": 0.08592748346069029
+    },
+    "coverage": {
+     "mps": 0.9996554948570303,
+     "cpu": 0.9996554948570303
+    },
+    "team_accuracy": {
+     "mps": 0.7340253679550077,
+     "cpu": 0.754005734525215
+    }
+   },
+   "cpu_minus_mps": {
+    "position_p50_ft": -0.01607811450958252,
+    "position_p90_ft": -0.034382343292235884,
+    "nearfield_bias_ft": 0.0016598701477050781,
+    "missed_rate": -0.03648617243783406,
+    "ghost_rate": 0.0029101486827921297,
+    "coverage": 0.0,
+    "team_accuracy": 0.019980366570207297
+   },
+   "window_interval": {
+    "position_p50_ft": [
+     -0.02154,
+     -0.00881
+    ],
+    "position_p90_ft": [
+     -0.05164,
+     -0.01257
+    ],
+    "nearfield_bias_ft": [
+     -0.0094,
+     0.01578
+    ],
+    "missed_rate": [
+     -0.05263,
+     -0.01478
+    ],
+    "ghost_rate": [
+     0.00054,
+     0.00535
+    ],
+    "team_accuracy": [
+     -0.00379,
+     0.04396
+    ],
+    "coverage": [
+     0.0,
+     0.0
+    ]
+   },
+   "rebuild": {
+    "model": "r23",
+    "game": "hou_cle_2016",
+    "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d",
+    "windows": 93,
+    "built": 93,
+    "cached": 0,
+    "seconds_built": 10337.0
+   }
+  }
+ },
+ "gsw_bkn_2015_from_m6": {
+  "position_p50_ft": {
+   "mps": 1.5452391505241394,
+   "cpu": 1.53544682264328
+  },
+  "position_p90_ft": {
+   "mps": 3.3029615402221686,
+   "cpu": 3.2900443553924563
+  },
+  "nearfield_bias_ft": {
+   "mps": 1.5803260803222656,
+   "cpu": 1.5746936798095703
+  },
+  "missed_rate": {
+   "mps": 0.2604976291733881,
+   "cpu": 0.25252969643642764
+  },
+  "ghost_rate": {
+   "mps": 0.118293434994674,
+   "cpu": 0.12551429041636952
+  },
+  "coverage": {
+   "mps": 0.998061463025258,
+   "cpu": 0.998061463025258
+  },
+  "team_accuracy": {
+   "mps": 0.8679531524971176,
+   "cpu": 0.8684864992894363
+  }
+ }
+}
