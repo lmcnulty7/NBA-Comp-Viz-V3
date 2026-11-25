@@ -1,6 +1,6 @@
 # P8: the CUDA check of D161 (1), design fixed before any run
 
-Written 2026-11-24, before any CUDA build, under PLAN.md D161 (1) (and D98, D99, D100, D164, D169). The code is
+Written 2026-11-25 (UTC; the evening of 2026-11-24 local time), before any CUDA build, amended before the run (section 11), under PLAN.md D161 (1) (and D98, D99, D100, D164, D169). The code is
 `tools/p8_cuda_check.py`. Nothing here is a result. The game is gsw_ind_2016, an R1.3 training game (development
 data, D98); no held-out game is read and no held-out metric is computed (CLAUDE.md rule 4).
 
@@ -21,19 +21,19 @@ Two side questions are measured on the same runtime, so a mismatch can be placed
 
 | Item | Value |
 | --- | --- |
-| Windows | gsw_ind_2016_s02_w03 (145 built frames on the Mac), gsw_ind_2016_s02_w04 (125) |
+| Windows | gsw_ind_2016_s02_w03 (145 built frames on the Mac), gsw_ind_2016_s02_w04 (125); and, report only (section 11, A12), gsw_bkn_2015_s04_w00 (1102) with the r23 court model |
 | Video | the two window clips the Mac builds read (P8 workspace label_build/), shipped as files with their sha256; they are not cut again on the runtime, so ffmpeg versions cannot differ. The section they were cut from (gsw_ind_2016_s02) is recorded with its sha256 and checked against DATA_ROOT/sportvu/MANIFEST_r13.json when the Drive mount is present |
 | Window plan | the frozen `sportvu.rebuild.plan_windows(section, autolabel.EVERY_SPAN)` from the section's local time map, computed on the Mac and stored in the manifest; the runtime computes it again from the shipped time map and stops if it differs |
 | Build path | the frozen path the Mac used: `tools.p8_frozen.install_paths`, then `safe_build` (that is `sportvu.rebuild.build`, `build_trajectories.py --pregate --no-video` at the harvest stride, with `autolabel.gate_args()`: gate head v2 at 0.33) |
 | Devices | `P8_DEVICE=cuda` for every model (detector and tracker, court models, gate CLIP) through `tools/p8_device.py`, which writes each window's device record; `P8_DEVICE=cpu` for the Colab CPU arm |
 | Precision | fp32: no code in the build path asks for half precision; image size 640, confidence 0.40, NMS IoU 0.45 (config) |
-| Weights | player_detector.pt, court_grid_snapped.pt, court_line_seg.pt, thresholds.json (tracked in git; sha256 in the manifest, checked on the clone) and trained_head_v2.joblib (gitignored; shipped, sha256 checked). CLIP ViT-B/32 is checked by a fingerprint, the sha256 of its parameter tensors, because the Mac may load it from pytorch_model.bin or model.safetensors (same tensors, different files) |
+| Weights | player_detector.pt, court_grid_snapped.pt, court_line_seg.pt, thresholds.json (tracked in git; sha256 in the manifest, checked on the clone), trained_head_v2.joblib and, for the report-only window, court_grid_r23.pt (gitignored; shipped, sha256 checked, r23 also against reports/r23_verification.json). CLIP ViT-B/32 is checked by a fingerprint, the sha256 of its parameter tensors, because the Mac may load it from pytorch_model.bin or model.safetensors (same tensors, different files) |
 | Libraries | ultralytics 8.4.48 and transformers 4.49.0 pinned (the Mac's versions; a newer transformers may preprocess CLIP's images another way, which would move the gate's frames for a reason that is not the device) and lap; torch, OpenCV and NumPy are the runtime's stock versions, recorded. The Mac builds used Python 3.12.2, torch 2.2.2, ultralytics 8.4.48, transformers 4.49.0, OpenCV 4.13.0, NumPy 1.26.4. torch is not pinned: torch 2.2.2 needs NumPy 1 and would replace the runtime's stack; the Colab CPU arm measures what the remaining library differences do. If the transformers pin cannot install, the run uses the stock version and the result says so |
-| GPU | a T4 (the R1.3 run used an A100-SXM4-40GB; its ultralytics version was not recorded). The comparison is against the Mac builds, not against R1.3; the R1.3 numbers are reported beside, with no verdict |
+| GPU | a T4 (the R1.3 run used an A100-SXM4-40GB; its ultralytics version was not recorded). The comparison is against the Mac builds, not against R1.3; the R1.3 numbers are reported beside, with no verdict. The verdict holds for a T4 only: an A100 or an L4 computes with TF32 by default (a T4 has none), so it does not cover them; the run records torch's TF32 flags (A3) |
 
 Builds, in this order (each writes the result tar when it ends, so a stop keeps the arms already done):
 
-1. `cuda_a`: both windows on CUDA (the build that is judged)
+1. `cuda_a`: both windows on CUDA (the build that is judged), then the report-only window
 2. `cuda_b`: the same again (repeatability)
 3. `colab_cpu`: both windows on the runtime's CPU (library effect; optional, it is the first to drop if time runs short)
 
@@ -98,7 +98,11 @@ The verdict, in this order:
 If `cuda_b` is missing (the runtime was lost after `cuda_a`), the verdict is read from `cuda_a` and marked
 "repeatability not measured". The Colab CPU arm does not change the verdict; it says where a difference comes from:
 `colab_cpu` matching Mac CPU means the runtime's libraries do not change the build, so a CUDA difference is the
-device; `colab_cpu` not matching Mac CPU means libraries or platform change it too.
+device; `colab_cpu` not matching Mac CPU means libraries or platform change it too. `cuda_a` against `colab_cpu` is
+reported, not in the verdict. If `colab_cpu` is dropped, a "matches neither" cannot be traced to the device or to the
+libraries, and the result says so (A5).
+
+The tests read unrounded values; the written json rounds to 4 decimals for reading only (A9).
 
 No tolerance, offset or test is changed after a CUDA build is seen. A second reading with other tolerances would be a
 new registration.
@@ -108,10 +112,15 @@ new registration.
 Level 1 asks for the same numbers on the Mac and on Colab. The reference platform is the one whose builds define
 camera truth and the scorecard.
 
-- **CUDA matches CPU**: Colab (CUDA) and the Mac CPU build the same boxes and court mapping. Colab CUDA becomes the
+The verdict covers r23 with the frozen court and gate models on a T4; any other detector needs its own device check
+or is built and scored on the reference platform (A2: the E1 post-mortem's M6 found the CPU against MPS effect is
+model-dependent, E1 minus r23 missed on gsw_bkn_2015 -0.0147 with the detector on CPU against +0.0330 on MPS).
+
+- **CUDA matches CPU**: Colab (CUDA) and the Mac CPU agree within the section 4 tolerances on the two windows. Colab CUDA becomes the
   reference platform for heavy builds, with the Mac's detector-on-CPU setting (`P8_DEVICE_DETECTOR=cpu`, D100) as an
   equivalent local build; MPS stays out of every truth build. The R1.3 truth gap on the Mac is then MPS plus the
-  offset rule (D99), as P8_PLATFORM.md proposed. Level 1 step 2 can be marked done for builds.
+  offset rule (D99), as P8_PLATFORM.md proposed. D161 (1) is answered for builds; TRACKING_LEVELS.md step 2's held-out
+  scorecard wording is not done by this check and changes only by a D line.
 - **CUDA matches MPS**: unexpected (R1.3 on CUDA found 89 candidates where MPS finds 45 at the same offset), and it
   would mean the R1.3 truth came from something other than the device (library versions, the A100). Colab CUDA can
   still be the reference platform, but the R1.3 truth is not reproduced and its cause must be found before Level 1
@@ -134,22 +143,24 @@ T4 time, estimated from the Mac timings and the R1.3 run (estimates, not measure
 
 | Step | Expected | Basis |
 | --- | --- | --- |
-| Runtime start, partial clone at the pin, pip install, upload (about 21 MB) | about 5 min | E1 runs (D171); 3.0 MB/s upload (P8_E1_colab.md section 5) |
+| Runtime start, partial clone at the pin, pip install, upload (about 162 MB with the report-only window) | about 6 min | E1 runs (D171); 3.0 MB/s upload (P8_E1_colab.md section 5) |
 | Hash checks, plan check, CLIP fingerprint | about 1 min | |
 | cuda_a and cuda_b, 2 windows each | about 4 to 8 min | R1.3 on an A100 spent 52 s and 60 s on these windows including the cut and the clock reading; a T4 is slower on the models |
+| the report-only window in cuda_a and cuda_b (1102 frames each) | about 4 to 10 min | the Mac MPS build runs about 0.2 s a frame (26 s for 125 frames) |
 | colab_cpu, 2 windows | about 10 to 30 min | Mac CPU took 142 s and 122 s on 10 cores; a T4 runtime may have 2 vCPUs |
 | Download, delete | about 2 min | |
 
-Expected about 25 to 45 T4-minutes, about 0.5 to 0.9 units at about 1.15 units a T4-hour (D171's measured rate,
-CPU hours counted in). Stop rule: at 75 T4-minutes from runtime creation, the lead stops the run and takes whatever
-arms are in the result tar (cuda_a first). The ceiling is then about 1.5 units, inside the D169 cap (17.30 of 60
+Expected about 30 to 55 T4-minutes, about 0.6 to 1.05 units at about 1.15 units a T4-hour (D171's measured rate,
+CPU hours counted in). Stop rule (A4): at 75 minutes from runtime creation, the lead goes to step 5 at once (get, then
+delete_runtime) and does not wait for colab_cpu; the result tar holds every finished arm (cuda_a first). The run also
+skips any arm not started by `--deadline-s` (2400 s in the runbook). The ceiling is then about 1.5 units, inside the D169 cap (17.30 of 60
 spent).
 
 ## 7. Guards
 
-- gsw_ind_2016 is a training game of sportvu/splits.json (D98: development data, reported apart, never pooled).
-  Every command runs `tools.research_testset.refuse_cv_test` and `tools.p8_common.guard` on the game, the section and
-  both windows before reading anything.
+- gsw_ind_2016 and gsw_bkn_2015 are training games of sportvu/splits.json (D98: gsw_ind_2016 is development data,
+  reported apart, never pooled). Every command runs `tools.research_testset.refuse_cv_test` and
+  `tools.p8_common.guard` on both games, their sections and the three windows before reading anything.
 - The pack, the result and the comparison live outside the repository, DATA_ROOT and reports/
   (`tools.p8_common.check_outside`): the pack and result under the P8 data folder, the comparison in the P8
   workspace (cuda_check/). The comparison json holds no local path.
@@ -166,17 +177,18 @@ Mac (pack and compare need the frozen CV Python, which has ultralytics and trans
     <frozen CV python> -m tools.p8_cuda_check pack --dest <pack folder outside the repository>
     python3 -m tools.p8_cuda_check put --pack <pack folder>              (COLAB_URL and COLAB_TOKEN set)
     python3 -m tools.p8_cuda_check get --dest <result folder>            (COLAB_URL and COLAB_TOKEN set)
-    <frozen CV python> -m tools.p8_cuda_check compare --result <result folder> --pack <pack folder>
+    <frozen CV python> -m tools.p8_cuda_check compare --result <result folder> --pack <pack folder> --pin <commit>
 
 Runtime:
 
-    python -m tools.p8_cuda_check run --pack-dir /content/p8_cuda_in --out-dir /content/p8_cuda_out --work /content/p8_cuda_work --install-head
+    python -m tools.p8_cuda_check run --pack-dir /content/p8_cuda_in --out-dir /content/p8_cuda_out --work /content/p8_cuda_work --install-models --deadline-s 2400
 
 The runbook for the lead is section 10.
 
 ## 9. Plumbing dry run on the Mac
 
-Plumbing only, not a result (2026-11-24, under the heavy-job lock). The pack was built on the Mac (21.1 MB tar; the
+Plumbing only, not a result (2026-11-25 05:17 to 05:20 UTC, the evening of 2026-11-24 local time, under the
+heavy-job lock; with the pack and code of aa14ea1e, before the amendments of section 11). The pack was built on the Mac (21.1 MB tar; the
 gsw_ind_2016_s02 section's sha256 equals the R1.3 manifest's; CLIP revision 3d74acf9, 398 parameter tensors). The
 runtime command then ran on the Mac with `--arms colab_cpu --windows gsw_ind_2016_s02_w04 --plumbing` into a fresh
 work folder: every hash, the frozen window plan and the CLIP fingerprint checked; the build went through
@@ -218,7 +230,7 @@ pack_manifest.json); rebuild it with the pack command only if a pinned file chan
    without it; the run records the version it used.
 2. On the Mac, with COLAB_URL and COLAB_TOKEN from get_runtime in the environment:
    `python3 -m tools.p8_cuda_check put --pack <pack folder>` (checks the tar against its manifest, then uploads about
-   21 MB to /content/p8_cuda_in).
+   162 MB to /content/p8_cuda_in, about a minute).
 3. Start the run from one execute_code call that waits for it, behind an O_EXCL lock so a repeated call never starts
    a second run. Do not repeat this call with the same executionId; the client returns after about a minute while
    the cell keeps waiting:
@@ -231,22 +243,58 @@ pack_manifest.json); rebuild it with the pack command only if a pinned file chan
        raise SystemExit("already started: poll the log instead")
    os.write(fd, b"started"); os.close(fd)
    p = subprocess.Popen([sys.executable, "-m", "tools.p8_cuda_check", "run", "--pack-dir", "/content/p8_cuda_in",
-                         "--out-dir", "/content/p8_cuda_out", "--work", "/content/p8_cuda_work", "--install-head"],
+                         "--out-dir", "/content/p8_cuda_out", "--work", "/content/p8_cuda_work", "--install-models",
+                         "--deadline-s", "2400"],
                         cwd="/content/repo", stdout=open("/content/p8_cuda_run.log", "w"), stderr=subprocess.STDOUT)
    print("pid", p.pid, flush=True)
    p.wait()
    print("exit", p.returncode)
    ```
 
-4. Poll at least every 8 minutes for the whole run (D171: a waiting cell alone does not keep a T4), each time a new
-   short call: `print(open("/content/p8_cuda_run.log").read()[-2000:])`. The log holds one json line per step: setup
-   ok (with the GPU name), one line per arm and window (ok, seconds, devices), a "written" line after each arm, and
-   "done" at the end. A SystemExit in the log before "setup ok" means a hash, the plan or the CLIP fingerprint
-   differs: stop and report, do not work around it. Stop rule: at 75 minutes from runtime creation, stop polling for
-   more arms; the result tar already holds every finished arm (cuda_a first).
+4. Poll at least every 8 minutes for the whole run (D171: a waiting cell alone does not keep a T4), from a separate
+   session (a new executionId each time), with no call longer than about a minute (as P8_E1_colab.md section 5):
+   `print(open("/content/p8_cuda_run.log").read()[-2000:])`. The log holds one json line per step: setup ok (with
+   the GPU name and whether the CLIP revision matches the pack's), one line per arm and window (ok, seconds, court
+   weights, devices), a "written" line after each arm, a "skipped" line for an arm past the deadline, and "done" at
+   the end. A SystemExit in the log before "setup ok" means a hash, the plan or the CLIP fingerprint differs: stop
+   and report, do not work around it. Stop rule: at 75 minutes from runtime creation, go to step 5 at once (get, then
+   delete_runtime); do not wait for colab_cpu. The result tar already holds every finished arm (cuda_a first).
 5. On the Mac: `python3 -m tools.p8_cuda_check get --dest <result folder outside the repository>` (checks the tar
    against complete.json and every member's sha256, then extracts it). Then delete the runtime (Colab MCP
    delete_runtime) and log its end time and hours.
 6. On the Mac, under the lock:
-   `python3 -m export.heavy --name "p8 cuda compare" -- <frozen CV python> -m tools.p8_cuda_check compare --result <result folder> --pack <pack folder>`.
-   It writes cuda_check/cuda_check_result.json in the P8 workspace and prints the reading (section 4).
+   `python3 -m export.heavy --name "p8 cuda compare" -- <frozen CV python> -m tools.p8_cuda_check compare --result <result folder> --pack <pack folder> --pin <PIN>`.
+   It writes cuda_check/cuda_check_result.json in the P8 workspace and prints the flags (pin mismatch, CLIP
+   revision, transformers version against the Mac's) and the reading (section 4).
+
+## 11. Amendments before the run (2026-11-25, after the pre-run ML review of aa14ea1e)
+
+No tolerance, offset or rule test changed. Each item below was made before any CUDA build.
+
+- A1. Runbook step 4: polls come from a separate session, a new executionId each time, no call longer than about a
+  minute.
+- A2. Section 5: "agree within the section 4 tolerances on the two windows" replaces "build the same boxes"; the
+  verdict's scope (r23 with the frozen court and gate models on a T4) is stated; step 2's held-out wording is not done
+  by this check.
+- A3. The run records `torch.backends.cudnn.allow_tf32` and `torch.backends.cuda.matmul.allow_tf32`; the verdict holds
+  for a T4 and does not cover an A100 or an L4.
+- A4. Stop rule: at 75 minutes from creation, get and delete at once. `run --deadline-s` skips any arm not started by
+  then; skipped arms are recorded in run_record.json and the log.
+- A5. Section 4: cuda_a against colab_cpu is reported, not in the verdict; without colab_cpu a "matches neither" is
+  not traced (the result carries an attribution note).
+- A6. compare refuses a result without `--pack` and `--pin`, prints the run's commit beside the pin and flags a
+  mismatch.
+- A7. run_record.json and the compare flags say whether the CLIP revision equals the manifest's (the fingerprint must
+  still match).
+- A8. Frames with a homography are counted per build and per pair (reported only).
+- A9. The tests read unrounded values; only the written json is rounded.
+- A10. compare flags a runtime transformers version that differs from the Mac's.
+- A11. Section 9's date is in UTC with the local date beside it.
+- A12. A report-only window, gsw_bkn_2015_s04_w00 (a training game; guarded), built in cuda_a and cuda_b with the r23
+  court model (`COURT_GRID_WEIGHTS`, set for that build only), as the registered P8 builds are. The E1 post-mortem's
+  M6 found it the most device-sensitive window known (r23 missed 362 on MPS against 784 with the detector on CPU).
+  Its Mac builds exist in the P8 workspace, so nothing new is downloaded: `builds/e1m6_r23_detcpu` (detector on CPU,
+  court and gate on MPS) and the registered MPS build `builds/r23`; its clip and section time map come from the
+  workspace. compare reports it with the five tests against both, at the fixed offsets plus the Mac builds' frozen
+  offsets and the stored label offset; it never enters the verdict. Note that its "CPU" reference has the court on
+  MPS, so its court test against CUDA compares two court devices. The pack grows to about 162 MB.

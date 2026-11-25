@@ -1,23 +1,25 @@
 """tools/p8_cuda_check.py: PLAN.md D161 (1), the two D99 windows of gsw_ind_2016 built on CUDA with the frozen path
-and compared with the Mac CPU and MPS builds. Design and reading rule, fixed before any run:
-docs/research/P8_cuda_check.md.
+and compared with the Mac CPU and MPS builds; plus one report-only window of gsw_bkn_2015 built with the r23 court
+model (amendment of 2026-11-25). Design and reading rule, fixed before any run: docs/research/P8_cuda_check.md.
 
     <frozen CV python> -m tools.p8_cuda_check pack --dest <pack folder>                     Mac
     python3 -m tools.p8_cuda_check put --pack <pack folder>                                 Mac, COLAB_URL and COLAB_TOKEN
-    python -m tools.p8_cuda_check run --pack-dir DIR --out-dir DIR --work DIR [--install-head]   the runtime
+    python -m tools.p8_cuda_check run --pack-dir DIR --out-dir DIR --work DIR [--install-models] [--deadline-s S]
+                                                                                            the runtime
     python3 -m tools.p8_cuda_check get --dest <result folder>                               Mac, COLAB_URL and COLAB_TOKEN
-    <frozen CV python> -m tools.p8_cuda_check compare --result <result folder> [--pack <pack folder>]   Mac
+    <frozen CV python> -m tools.p8_cuda_check compare --result DIR --pack DIR --pin COMMIT  Mac
 
-pack: the two window clips the Mac builds read, the section's local time map and the gitignored gate head, in one tar
-with a manifest (each member's sha256 and size, the tar's sha256, the frozen window plan, the sha256 of the tracked
-weights, the CLIP parameter fingerprint, the Mac's library versions). put and get move files over the runtime's HTTP
-endpoints with tools.p8_colab_xfer. run checks every hash, the plan and the fingerprint, builds each arm (cuda_a,
-cuda_b, colab_cpu) through tools.p8_frozen.safe_build with P8_DEVICE, and rewrites the result tar and its
-complete.json after each arm. compare reads the result and the Mac builds (tools.p8_truth_v2.DEVICE_BUILDS) and
-applies the reading rule; it writes cuda_check/cuda_check_result.json in the P8 workspace.
+pack: the window clips the Mac builds read, the sections' local time maps and the two gitignored models (gate head v2,
+court model r23), in one tar with a manifest (each member's sha256 and size, the tar's sha256, the frozen window plan,
+the sha256 of every weights file, the CLIP parameter fingerprint, the Mac's library versions). put and get move files
+over the runtime's HTTP endpoints with tools.p8_colab_xfer. run checks every hash, the plan and the fingerprint,
+builds each arm (cuda_a, cuda_b, colab_cpu) through tools.p8_frozen.safe_build with P8_DEVICE, skips any arm not
+started by --deadline-s, and rewrites the result tar and its complete.json after each arm. compare reads the result
+and the Mac builds and applies the reading rule to the two D99 windows; the gsw_bkn_2015 window is reported only. It
+writes cuda_check/cuda_check_result.json in the P8 workspace.
 
-Only gsw_ind_2016 (an R1.3 training game, D98) is touched; every command guards it first. The module's top level
-imports no model library, so tests import the pure parts with the system Python.
+Only gsw_ind_2016 and gsw_bkn_2015 (R1.3 training games) are touched; every command guards them first. The module's
+top level imports no model library, so tests import the pure parts with the system Python.
 """
 
 from __future__ import annotations
@@ -29,21 +31,29 @@ import json
 import os
 import platform
 import shutil
-import sys
 import tarfile
 import time
 from pathlib import Path
 
-from tools.p8_common import REPO, atomic_write, check_outside, guard, p8_root
+from tools.p8_common import REPO, atomic_write, check_outside, guard, main_checkout, p8_root
 from tools.research_testset import refuse_cv_test
 
 WHO = "tools.p8_cuda_check"
 GAME = "gsw_ind_2016"
 SECTION = "gsw_ind_2016_s02"
-WINDOWS = ("gsw_ind_2016_s02_w03", "gsw_ind_2016_s02_w04")
+WINDOWS = ("gsw_ind_2016_s02_w03", "gsw_ind_2016_s02_w04")          # the verdict's windows (D99)
+# report-only window (amendment 2026-11-25): the most device-sensitive window known (E1 post-mortem M6), built with
+# the r23 court model as the registered P8 builds are; never in the verdict
+EXTRA = {"gsw_bkn_2015_s04_w00": {"game": "gsw_bkn_2015", "section": "gsw_bkn_2015_s04"}}
+EXTRA_ARMS = ("cuda_a", "cuda_b")
+# its Mac builds in the P8 workspace builds/: detector on CPU with court and gate on MPS (M6), and the registered MPS
+MAC_EXTRA_BUILDS = {"mac_detcpu": "e1m6_r23_detcpu", "mac_mps": "r23"}
+ALL_WINDOWS = WINDOWS + tuple(EXTRA)
+SECTIONS = (SECTION,) + tuple(sorted({v["section"] for v in EXTRA.values()}))
 TRACKED_WEIGHTS = ("models/player_detector.pt", "models/court_grid_snapped.pt", "models/court_line_seg.pt",
                    "models/thresholds.json")
 HEAD = "models/trained_head_v2.joblib"
+R23_COURT = "models/court_grid_r23.pt"
 PACK = "p8_cuda_pack"
 RESULT = "p8_cuda_gsw_ind_2016"
 ARMS = {"cuda_a": "cuda", "cuda_b": "cuda", "colab_cpu": "cpu"}
@@ -63,6 +73,8 @@ PLATFORM_JSON = REPO / "reports" / "research" / "p8_platform.json"
 
 def guard_all(who: str = WHO) -> None:
     items = [GAME, SECTION, *WINDOWS]
+    for w, e in EXTRA.items():
+        items += [e["game"], e["section"], w]
     refuse_cv_test(items, who)
     guard(items, who)
 
@@ -87,10 +99,11 @@ def write_tar(path: Path, files: dict) -> str:
     part = path.with_name(path.name + ".part")
     with tarfile.open(part, "w") as tf:
         for name in sorted(files):
-            data = Path(files[name]).read_bytes() if not isinstance(files[name], bytes) else files[name]
+            src = Path(files[name])
             ti = tarfile.TarInfo(name)
-            ti.size, ti.mtime, ti.mode, ti.uid, ti.gid = len(data), 0, 0o644, 0, 0
-            tf.addfile(ti, io.BytesIO(data))
+            ti.size, ti.mtime, ti.mode, ti.uid, ti.gid = src.stat().st_size, 0, 0o644, 0, 0
+            with open(src, "rb") as f:
+                tf.addfile(ti, f)
     os.replace(part, path)
     return sha256_file(path)
 
@@ -173,6 +186,9 @@ def versions() -> dict:
         out["cudnn"] = torch.backends.cudnn.version() if torch.cuda.is_available() else None
         out["gpu"] = torch.cuda.get_device_name(0) if torch.cuda.is_available() else None
         out["mps_available"] = bool(getattr(torch.backends, "mps", None) and torch.backends.mps.is_available())
+        # TF32 is used on Ampere and later (A100, L4), not on a T4; the verdict holds for the GPU recorded here
+        out["cudnn_allow_tf32"] = bool(torch.backends.cudnn.allow_tf32)
+        out["cuda_matmul_allow_tf32"] = bool(torch.backends.cuda.matmul.allow_tf32)
     except Exception:                                   # noqa: BLE001
         pass
     return out
@@ -184,25 +200,59 @@ def rename_prev(p: Path) -> None:
         p.rename(p.with_name(f"{p.name}.prev-{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}"))
 
 
+def round_floats(obj, nd: int = 4):
+    """A copy with every float rounded, for the written json only; the rule reads the unrounded values."""
+    if isinstance(obj, float):
+        return round(obj, nd)
+    if isinstance(obj, dict):
+        return {k: round_floats(v, nd) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [round_floats(v, nd) for v in obj]
+    return obj
+
+
 # ── comparison and reading rule (pure) ──────────────────────────────────────────────────────────────────────────────
 def frames_of(side: dict) -> dict:
     return {r["frame"]: r for r in side["frames"]}
 
 
+def boxes_mean(fr: dict):
+    return sum(len(r["boxes"]) for r in fr.values()) / len(fr) if fr else None
+
+
+def with_h(fr: dict) -> int:
+    """Frames with a court homography (reported only)."""
+    return sum(1 for r in fr.values() if r.get("H"))
+
+
+def h_gap(a: dict, b: dict):
+    """As tools.p8_platform_summary.h_gap_px, unrounded: over common frames where both have an H, the median px gap
+    between the two Hs' images of three court points -> median and p90 over frames."""
+    import numpy as np
+    pts = np.array([[47, 25, 1], [20, 10, 1], [70, 40, 1]], float).T
+    gaps = []
+    for f in sorted(set(a) & set(b)):
+        if a[f].get("H") and b[f].get("H"):
+            ua = np.linalg.inv(np.array(a[f]["H"], float).reshape(3, 3)) @ pts
+            ub = np.linalg.inv(np.array(b[f]["H"], float).reshape(3, 3)) @ pts
+            gaps.append(float(np.median(np.linalg.norm(ua[:2] / ua[2] - ub[:2] / ub[2], axis=0))))
+    return {"median": float(np.median(gaps)), "p90": float(np.percentile(gaps, 90)), "frames": len(gaps)} if gaps else None
+
+
 def pair_metrics(x: dict, r: dict) -> dict:
-    """Two builds' frames ({frame: row}) -> the measures of the design's section 3 (X against reference R)."""
-    from tools.p8_platform_summary import boxes_mean, h_gap_px
+    """Two builds' frames ({frame: row}) -> the measures of the design's section 3 (X against reference R), unrounded."""
     common, union = set(x) & set(r), set(x) | set(r)
     bx, br = boxes_mean(x), boxes_mean(r)
     return {"frames_x": len(x), "frames_r": len(r), "common": len(common),
-            "frames_jaccard": round(len(common) / len(union), 4) if union else None,
+            "frames_with_h_x": with_h(x), "frames_with_h_r": with_h(r),
+            "frames_jaccard": len(common) / len(union) if union else None,
             "boxes_mean_x": bx, "boxes_mean_r": br,
-            "boxes_mean_diff": round(bx - br, 2) if bx is not None and br is not None else None,
-            "same_count_share": round(sum(len(x[f]["boxes"]) == len(r[f]["boxes"]) for f in common) / len(common), 4)
+            "boxes_mean_diff": bx - br if bx is not None and br is not None else None,
+            "same_count_share": sum(len(x[f]["boxes"]) == len(r[f]["boxes"]) for f in common) / len(common)
             if common else None,
-            "identical_boxes_share": round(sum([b["bbox"] for b in x[f]["boxes"]] == [b["bbox"] for b in r[f]["boxes"]]
-                                               for f in common) / len(common), 4) if common else None,
-            "h_gap_px": h_gap_px(x, r)}
+            "identical_boxes_share": sum([b["bbox"] for b in x[f]["boxes"]] == [b["bbox"] for b in r[f]["boxes"]]
+                                         for f in common) / len(common) if common else None,
+            "h_gap_px": h_gap(x, r)}
 
 
 def offset_set(colab_offset, mac_offsets) -> list:
@@ -218,7 +268,8 @@ def cand_ok(x, r, tol: dict = TOL) -> bool:
 
 
 def window_tests(pm: dict, cands_x: dict, cands_r: dict, tol: dict = TOL) -> dict:
-    """The five tests of one window, X against R. cands_*: {offset key: candidates}; every key of cands_r is tested."""
+    """The five tests of one window, X against R, on unrounded values. cands_*: {offset key: candidates}; every key
+    of cands_r is tested."""
     h = pm.get("h_gap_px") or {}
     return {"frames_jaccard": pm["frames_jaccard"] is not None and pm["frames_jaccard"] >= tol["frames_jaccard_min"],
             "boxes_mean": pm["boxes_mean_diff"] is not None and abs(pm["boxes_mean_diff"]) <= tol["boxes_mean_abs_max"],
@@ -228,8 +279,8 @@ def window_tests(pm: dict, cands_x: dict, cands_r: dict, tol: dict = TOL) -> dic
 
 
 def matches(per_window: dict) -> bool:
-    """per_window: {window: tests dict}; a match needs every test on every one of the design's windows."""
-    return all(w in per_window for w in WINDOWS) and all(all(t.values()) for t in per_window.values())
+    """per_window: {window: tests dict}; a match needs every test on every one of the verdict's windows."""
+    return all(w in per_window for w in WINDOWS) and all(all(per_window[w].values()) for w in WINDOWS)
 
 
 def failed(per_window: dict) -> dict:
@@ -237,7 +288,8 @@ def failed(per_window: dict) -> dict:
 
 
 def verdict(tests: dict) -> dict:
-    """tests: {"X~R": {window: tests}} for the pairs present -> the verdict of the design's section 4."""
+    """tests: {"X~R": {window: tests}} for the pairs present (D99 windows only) -> the verdict of section 4.
+    cuda_a against colab_cpu is reported in failed_tests and never decides the verdict."""
     sep = tests.get("mac_cpu~mac_mps")
     out = {"rule_separates_cpu_from_mps": None if sep is None else not matches(sep),
            "cuda_repeatable": None if "cuda_b~cuda_a" not in tests else matches(tests["cuda_b~cuda_a"]),
@@ -259,17 +311,31 @@ def verdict(tests: dict) -> dict:
         v = "matches neither"
     out["verdict"] = v
     out["repeatability"] = "not measured" if out["cuda_repeatable"] is None else "measured"
+    if v == "matches neither" and out["colab_cpu_matches_mac_cpu"] is None:
+        out["attribution"] = "colab_cpu not built: a mismatch cannot be traced to the device or the libraries"
     return out
 
 
+def run_flags(rec: dict, man: dict | None, pin: str | None) -> dict:
+    """The compare flags (amendment 2026-11-25): pin, CLIP revision and transformers version against the pack."""
+    commit = rec.get("commit") or ""
+    mac_t = ((man or {}).get("mac_versions") or {}).get("transformers")
+    run_t = (rec.get("versions") or {}).get("transformers")
+    return {"commit": commit, "pin": pin,
+            "pin_mismatch": None if not pin else not (commit and (commit.startswith(pin) or pin.startswith(commit))),
+            "clip_revision_differs": rec.get("clip_revision_matches_manifest") is False,
+            "transformers_mac": mac_t, "transformers_runtime": run_t,
+            "transformers_differs": None if man is None else mac_t != run_t}
+
+
 # ── pack (Mac, frozen CV python) ────────────────────────────────────────────────────────────────────────────────────
-def section_record(P: dict) -> dict:
-    vid = P["video"] / f"{SECTION}.mp4"
-    rec = {"section": SECTION, "sha256": sha256_file(vid) if vid.exists() else None, "manifest_r13_sha256": None}
+def section_record(P: dict, section: str) -> dict:
+    vid = P["video"] / f"{section}.mp4"
+    rec = {"section": section, "sha256": sha256_file(vid) if vid.exists() else None, "manifest_r13_sha256": None}
     if os.environ.get("DATA_ROOT"):
         man = Path(os.environ["DATA_ROOT"]) / "sportvu" / "MANIFEST_r13.json"
         if man.exists():
-            rec["manifest_r13_sha256"] = (json.loads(man.read_text())["files"].get(f"video/{SECTION}.mp4") or {}).get("sha256")
+            rec["manifest_r13_sha256"] = (json.loads(man.read_text())["files"].get(f"video/{section}.mp4") or {}).get("sha256")
     rec["matches_r13"] = None if not (rec["sha256"] and rec["manifest_r13_sha256"]) else rec["sha256"] == rec["manifest_r13_sha256"]
     return rec
 
@@ -277,11 +343,11 @@ def section_record(P: dict) -> dict:
 def frozen_plan(P: dict) -> dict:
     from sportvu.autolabel import EVERY_SPAN
     from sportvu.rebuild import plan_windows
-    plan = {w["window"]: w for w in plan_windows(SECTION, budget_s=EVERY_SPAN)}
-    missing = [w for w in WINDOWS if w not in plan]
+    plan = {w["window"]: w for s in SECTIONS for w in plan_windows(s, budget_s=EVERY_SPAN)}
+    missing = [w for w in ALL_WINDOWS if w not in plan]
     if missing:
-        raise SystemExit(f"{WHO}: the frozen plan of {SECTION} has no {missing}")
-    return json.loads(json.dumps({w: plan[w] for w in WINDOWS}))
+        raise SystemExit(f"{WHO}: the frozen plan of {SECTIONS} has no {missing}")
+    return json.loads(json.dumps({w: plan[w] for w in ALL_WINDOWS}))
 
 
 def tracked_weights() -> dict:
@@ -295,22 +361,25 @@ def cmd_pack(a) -> dict:
     from tools import p8_frozen as F
     P = F.install_paths()
     import config
-    files = {f"clips/{w}.mp4": P["label_build"] / f"{w}.mp4" for w in WINDOWS}
-    files[f"sync/{SECTION}_local_timemap.json"] = P["sync"] / f"{SECTION}_local_timemap.json"
+    files = {f"clips/{w}.mp4": P["label_build"] / f"{w}.mp4" for w in ALL_WINDOWS}
+    for s in SECTIONS:
+        files[f"sync/{s}_local_timemap.json"] = P["sync"] / f"{s}_local_timemap.json"
     files[HEAD] = config.HEAD_V2_PATH
+    files[R23_COURT] = F.court_weights("r23")          # checked against reports/r23_verification.json
     members = member_records(files)
     tar = dest / f"{PACK}.tar"
     rename_prev(tar)
-    tar_sha = write_tar(tar, {n: Path(p) for n, p in files.items()})
-    weights = {**tracked_weights(), HEAD: members[HEAD]["sha256"]}
+    tar_sha = write_tar(tar, files)
+    weights = {**tracked_weights(), HEAD: members[HEAD]["sha256"], R23_COURT: members[R23_COURT]["sha256"]}
     man = {"what": "PLAN.md D161 (1) CUDA check pack", "design": "docs/research/P8_cuda_check.md", "game": GAME,
-           "section": section_record(P), "windows": frozen_plan(P), "tar": tar.name, "tar_sha256": tar_sha,
-           "members": members, "weights": weights, "clip_fingerprint": clip_fingerprint(), "mac_versions": versions(),
-           "commit": _commit(), "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+           "report_only_windows": sorted(EXTRA), "sections": {s: section_record(P, s) for s in SECTIONS},
+           "windows": frozen_plan(P), "tar": tar.name, "tar_sha256": tar_sha, "members": members, "weights": weights,
+           "clip_fingerprint": clip_fingerprint(), "mac_versions": versions(), "commit": _commit(),
+           "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     p = dest / "pack_manifest.json"
     rename_prev(p)
     atomic_write(p, json.dumps(man, indent=1))
-    print(json.dumps({k: man[k] for k in ("tar", "tar_sha256", "section", "clip_fingerprint")}, indent=1))
+    print(json.dumps({k: man[k] for k in ("tar", "tar_sha256", "sections", "clip_fingerprint")}, indent=1))
     return man
 
 
@@ -325,7 +394,7 @@ def _commit():
 
 def check_pack(pack: Path) -> dict:
     man = json.loads((Path(pack) / "pack_manifest.json").read_text())
-    if man.get("game") != GAME or sorted(man.get("windows", {})) != sorted(WINDOWS):
+    if man.get("game") != GAME or sorted(man.get("windows", {})) != sorted(ALL_WINDOWS):
         raise SystemExit(f"{WHO}: pack_manifest.json is not this check's ({man.get('game')}, {sorted(man.get('windows', {}))})")
     if sha256_file(Path(pack) / man["tar"]) != man["tar_sha256"]:
         raise SystemExit(f"{WHO}: {man['tar']} does not match pack_manifest.json")
@@ -377,11 +446,32 @@ def check_weights(want: dict, paths: dict) -> dict:
     return got
 
 
+def arm_windows(arm: str, wins: list, plumbing: bool = False) -> list:
+    """The windows an arm builds: the D99 windows always; the report-only window in the cuda arms (any arm in a
+    plumbing run)."""
+    return [w for w in wins if w in WINDOWS or (w in EXTRA and (arm in EXTRA_ARMS or plumbing))]
+
+
+def past_deadline(t_start: float, deadline_s, now: float | None = None) -> bool:
+    return deadline_s is not None and ((now if now is not None else time.time()) - t_start) > deadline_s
+
+
+def build_window(safe_build, P: dict, w_plan: dict, snip: Path, arm_dir: Path, extra_args: tuple, court=None) -> dict:
+    """One window through safe_build; a report-only window gets COURT_GRID_WEIGHTS (the r23 court model) for its
+    build subprocess only, and the variable is removed afterwards whatever happens."""
+    if court is not None:
+        os.environ["COURT_GRID_WEIGHTS"] = str(court)
+    try:
+        return safe_build(P, w_plan, snip, arm_dir, extra_args=extra_args)
+    finally:
+        os.environ.pop("COURT_GRID_WEIGHTS", None)
+
+
 def result_members(out_root: Path, arms: list) -> dict:
     """{member name: local path} of the result tar: each arm's kept outputs and run_record.json."""
     files = {f"{RESULT}/run_record.json": out_root / "run_record.json"}
     for arm in arms:
-        for w in WINDOWS:
+        for w in ALL_WINDOWS:
             for suf in KEEP:
                 p = out_root / arm / f"{w}{suf}"
                 if p.exists():
@@ -407,11 +497,11 @@ def cmd_run(a) -> dict:
     arms = [x for x in a.arms.split(",") if x]
     if not arms or any(x not in ARMS for x in arms):
         raise SystemExit(f"{WHO}: arms must be among {sorted(ARMS)}")
-    wins = [w for w in (a.windows.split(",") if a.windows else WINDOWS)]
-    if any(w not in WINDOWS for w in wins):
-        raise SystemExit(f"{WHO}: windows must be among {WINDOWS}")
-    if not a.plumbing and (wins != list(WINDOWS) or "cuda_a" not in arms):
-        raise SystemExit(f"{WHO}: a real run builds both windows and cuda_a; use --plumbing for a partial dry run")
+    wins = [w for w in (a.windows.split(",") if a.windows else ALL_WINDOWS)]
+    if any(w not in ALL_WINDOWS for w in wins):
+        raise SystemExit(f"{WHO}: windows must be among {ALL_WINDOWS}")
+    if not a.plumbing and (not set(WINDOWS) <= set(wins) or "cuda_a" not in arms):
+        raise SystemExit(f"{WHO}: a real run builds both D99 windows and cuda_a; use --plumbing for a partial dry run")
     pack = Path(a.pack_dir)
     man = check_pack(pack)
     work, out_dir = Path(a.work), Path(a.out_dir)
@@ -421,17 +511,23 @@ def cmd_run(a) -> dict:
     from tools import p8_frozen as F
     P = F.install_paths(check_outside(work))
     staging = extract_checked(pack / man["tar"], man["members"], work / "pack")
-    tm = P["sync"] / f"{SECTION}_local_timemap.json"
-    if tm.exists() and sha256_file(tm) != man["members"][f"sync/{SECTION}_local_timemap.json"]["sha256"]:
-        raise SystemExit(f"{WHO}: {tm.name} in the work folder differs from the pack; use a fresh --work")
-    shutil.copyfile(staging / "sync" / tm.name, tm)
+    for s in SECTIONS:
+        tm = P["sync"] / f"{s}_local_timemap.json"
+        if tm.exists() and sha256_file(tm) != man["members"][f"sync/{tm.name}"]["sha256"]:
+            raise SystemExit(f"{WHO}: {tm.name} in the work folder differs from the pack; use a fresh --work")
+        shutil.copyfile(staging / "sync" / tm.name, tm)
     import config
-    if a.install_head and not config.HEAD_V2_PATH.exists():
-        config.HEAD_V2_PATH.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(staging / HEAD, config.HEAD_V2_PATH)
+    r23_path = main_checkout() / "models" / Path(R23_COURT).name
+    if a.install_models:
+        for src, dst in ((staging / HEAD, config.HEAD_V2_PATH), (staging / R23_COURT, r23_path)):
+            if not Path(dst).exists():
+                Path(dst).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(src, dst)
     if Path(config.COURT_GRID_WEIGHTS).resolve() != (REPO / "models" / "court_grid_snapped.pt").resolve():
         raise SystemExit(f"{WHO}: COURT_GRID_WEIGHTS is not the frozen V3 court model")
-    weights = check_weights(man["weights"], {**{rel: REPO / rel for rel in TRACKED_WEIGHTS}, HEAD: config.HEAD_V2_PATH})
+    weights = check_weights(man["weights"], {**{rel: REPO / rel for rel in TRACKED_WEIGHTS}, HEAD: config.HEAD_V2_PATH,
+                                             R23_COURT: r23_path})
+    r23_path = F.court_weights("r23")               # and against reports/r23_verification.json
     plan = frozen_plan(P)
     if plan != man["windows"]:
         raise SystemExit(f"{WHO}: the frozen window plan here differs from the pack's")
@@ -446,13 +542,21 @@ def cmd_run(a) -> dict:
               "purpose": "plumbing only, not a result" if a.plumbing else "result",
               "commit": _commit(), "pack_tar_sha256": man["tar_sha256"],
               "pack_manifest_sha256": sha256_file(pack / "pack_manifest.json"), "weights": weights,
-              "clip_fingerprint": fp, "versions": versions(), "windows": wins, "arms_planned": arms,
-              "arms_done": [], "builds": {}, "setup_seconds": round(time.time() - t_start, 1)}
+              "clip_fingerprint": fp,
+              "clip_revision_matches_manifest": fp["revision"] == man["clip_fingerprint"].get("revision"),
+              "versions": versions(), "windows": wins, "report_only_windows": sorted(EXTRA), "arms_planned": arms,
+              "deadline_s": a.deadline_s, "arms_done": [], "arms_skipped": {}, "builds": {},
+              "setup_seconds": round(time.time() - t_start, 1)}
     out_dir.mkdir(parents=True, exist_ok=True)
     for p in (out_dir / f"{RESULT}.tar", out_dir / f"{RESULT}.complete.json"):
         rename_prev(p)
-    print(json.dumps({"setup": "ok", "seconds": record["setup_seconds"], "gpu": record["versions"].get("gpu")}), flush=True)
+    print(json.dumps({"setup": "ok", "seconds": record["setup_seconds"], "gpu": record["versions"].get("gpu"),
+                      "clip_revision_matches_manifest": record["clip_revision_matches_manifest"]}), flush=True)
     for arm in arms:
+        if past_deadline(t_start, a.deadline_s):
+            record["arms_skipped"][arm] = "deadline"
+            print(json.dumps({"arm": arm, "skipped": "deadline", "elapsed_s": round(time.time() - t_start, 1)}), flush=True)
+            continue
         dev = ARMS[arm]
         if dev == "cuda" and not record["versions"].get("cuda_available"):
             raise SystemExit(f"{WHO}: arm {arm} needs CUDA and this runtime has none")
@@ -460,27 +564,34 @@ def cmd_run(a) -> dict:
         arm_dir = work_out / arm
         arm_dir.mkdir(parents=True, exist_ok=True)
         rec = {}
-        for w in wins:
+        for w in arm_windows(arm, wins, a.plumbing):
             t0 = time.time()
-            r = F.safe_build(P, plan[w], staging / "clips" / f"{w}.mp4", arm_dir, extra_args=gate_args())
+            court = r23_path if w in EXTRA else None
+            r = build_window(F.safe_build, P, plan[w], staging / "clips" / f"{w}.mp4", arm_dir, gate_args(), court)
             rec[w] = {"ok": bool(r.get("ok")) and not r.get("empty"), "empty": bool(r.get("empty")),
                       "cached": bool(r.get("cached")), "rc": r.get("rc"), "seconds": round(time.time() - t0, 1),
+                      "court_weights": Path(court).name if court else "court_grid_snapped.pt",
                       "device": record_of(arm_dir, w), "tail": (r.get("tail") or "")[-300:]}
-            print(json.dumps({"arm": arm, "window": w, **{k: rec[w][k] for k in ("ok", "seconds", "device")}}), flush=True)
+            print(json.dumps({"arm": arm, "window": w, **{k: rec[w][k] for k in ("ok", "seconds", "court_weights", "device")}}),
+                  flush=True)
         record["builds"][arm] = rec
         record["arms_done"].append(arm)
         record["total_seconds"] = round(time.time() - t_start, 1)
         complete = write_result(out_dir, work_out, record)
         print(json.dumps({"written": f"{RESULT}.tar", "arms_done": complete["arms_done"]}), flush=True)
     os.environ.pop("P8_DEVICE", None)
-    print(json.dumps({"done": True, "total_seconds": record["total_seconds"]}), flush=True)
+    record["total_seconds"] = round(time.time() - t_start, 1)
+    if record["arms_skipped"]:
+        write_result(out_dir, work_out, record)
+    print(json.dumps({"done": True, "total_seconds": record["total_seconds"], "arms_done": record["arms_done"],
+                      "arms_skipped": record["arms_skipped"]}), flush=True)
     return record
 
 
 # ── compare (Mac, frozen CV python) ─────────────────────────────────────────────────────────────────────────────────
 def check_result(result: Path, pack: Path | None, plumbing: bool) -> tuple:
     """The run record, checked -> (record, usable arms, {unusable arm: why}). An arm is usable when every window it
-    built is ok and its device record resolves every model to the arm's device."""
+    built is ok, its device record resolves every model to the arm's device, and each window used its court model."""
     rec = json.loads((result / RESULT / "run_record.json").read_text())
     if rec["purpose"] != "result" and not plumbing:
         raise SystemExit(f"{WHO}: this result is marked {rec['purpose']!r}; compare it only with --plumbing")
@@ -488,13 +599,19 @@ def check_result(result: Path, pack: Path | None, plumbing: bool) -> tuple:
         raise SystemExit(f"{WHO}: the result was built from another pack manifest")
     usable, unusable = [], {}
     for arm in rec["arms_done"]:
-        bad = {w: {"ok": b["ok"], "devices": (b.get("device") or {}).get("resolved")}
-               for w, b in rec["builds"][arm].items()
-               if not b["ok"] or set(((b.get("device") or {}).get("resolved") or {}).values()) != {ARMS[arm]}}
-        if bad:
-            unusable[arm] = bad
+        bad = {}
+        for w, b in rec["builds"][arm].items():
+            res = (b.get("device") or {}).get("resolved") or {}
+            court = b.get("court_weights", "court_grid_snapped.pt")
+            want_court = Path(R23_COURT).name if w in EXTRA else "court_grid_snapped.pt"
+            if not b["ok"] or set(res.values()) != {ARMS[arm]} or court != want_court:
+                bad[w] = {"ok": b["ok"], "devices": res or None, "court_weights": court}
+        if any(w in WINDOWS for w in bad) or not any(w in WINDOWS for w in rec["builds"][arm]):
+            unusable[arm] = bad or {"windows": "no D99 window"}
         else:
             usable.append(arm)
+            if bad:
+                unusable[f"{arm} (report-only window)"] = bad
     return rec, usable, unusable
 
 
@@ -502,10 +619,45 @@ def recorded_offset_mismatch(window: str, now: dict) -> dict:
     """{Mac build: frozen offset recomputed now} -> the builds whose offset differs from the recorded one."""
     out = {}
     for k, v in now.items():
-        want = RECORDED_MAC_OFFSETS[window].get(k.replace("mac_", ""))
+        want = RECORDED_MAC_OFFSETS.get(window, {}).get(k.replace("mac_", ""))
         if want is not None and (v is None or abs(want - v) > 1e-6):
             out[k] = {"recorded": want, "now": v}
     return out
+
+
+_GAMES: dict = {}
+
+
+def game_index(V, game: str):
+    """tools.p8_truth_v2._game (workspace, SportVU index, mirror), loaded once per game."""
+    if game not in _GAMES:
+        _GAMES[game] = V._game(game)
+    return _GAMES[game]
+
+
+def _window_block(V, w: str, game: str, sides: dict, mac_keys: list, extra_offsets: list, pair_list: tuple,
+                  wh: tuple) -> tuple:
+    """Builds, pairs and tests of one window (frozen helpers of tools.p8_truth_v2, read only)."""
+    P, index, mirror = game_index(V, game)
+    tmj = json.loads((P["label_build"] / f"{w}_timemap.json").read_text())
+    builds = {}
+    for k, side in sides.items():
+        pc = V.rows_pc_of(side, tmj)
+        fz = V.solve_frozen(pc, index, mirror)
+        builds[k] = {"frames": len(side["frames"]), "frames_with_h": with_h(frames_of(side)),
+                     "frozen_offset_s": None if fz is None else round(float(fz), 2), "v2": V.solve_v2(pc, index, mirror)}
+    offs = offset_set(None, [builds[k]["frozen_offset_s"] for k in mac_keys] + list(extra_offsets))
+    for k, side in sides.items():
+        builds[k]["candidates"] = {"%.2f" % o: V.candidates(w, side, tmj, index, mirror, o, *wh) for o in offs}
+    fr = {k: frames_of(s) for k, s in sides.items()}
+    pairs, tests = {}, {}
+    for x, r in pair_list:
+        if x in fr and r in fr:
+            pm = pair_metrics(fr[x], fr[r])
+            t = window_tests(pm, builds[x]["candidates"], builds[r]["candidates"])
+            pairs[f"{x}~{r}"] = {"metrics": pm, "tests": t}
+            tests[f"{x}~{r}"] = t
+    return offs, builds, pairs, tests
 
 
 def cmd_compare(a) -> dict:
@@ -513,60 +665,69 @@ def cmd_compare(a) -> dict:
     from tools import p8_truth_v2 as V
     guard_all()
     result = Path(a.result).expanduser()
-    rec, usable, unusable = check_result(result, Path(a.pack).expanduser() if a.pack else None, a.plumbing)
-    P, index, mirror = V._game(GAME)
+    pack = Path(a.pack).expanduser() if a.pack else None
+    rec, usable, unusable = check_result(result, pack, a.plumbing)
+    if rec["purpose"] == "result" and (pack is None or not a.pin):
+        raise SystemExit(f"{WHO}: a result is compared only with --pack and --pin (the pushed commit the run used)")
+    man = json.loads((pack / "pack_manifest.json").read_text()) if pack else None
+    flags = run_flags(rec, man, a.pin)
+    P = game_index(V, GAME)[0]
     plat = json.loads(PLATFORM_JSON.read_text())["windows"]
+
+    def wh(w):
+        cap = cv2.VideoCapture(str(P["label_build"] / f"{w}.mp4"))
+        out = (int(cap.get(3)), int(cap.get(4)))
+        cap.release()
+        return out
+
+    def arm_sides(w):
+        return {arm: json.loads((result / RESULT / arm / f"{w}_frames.json").read_text()) for arm in usable
+                if (result / RESULT / arm / f"{w}_frames.json").exists()}
+
     out = {"what": "PLAN.md D161 (1) CUDA check, comparison", "design": "docs/research/P8_cuda_check.md",
-           "purpose": rec["purpose"], "tolerances": TOL, "runtime": rec["versions"], "commit": rec["commit"],
-           "arms_done": rec["arms_done"], "arms_unusable": unusable, "build_seconds": {arm: {w: b["seconds"] for w, b in v.items()}
-                                                           for arm, v in rec["builds"].items()},
-           "windows": {}}
+           "purpose": rec["purpose"], "tolerances": TOL, "flags": flags, "runtime": rec["versions"],
+           "arms_done": rec["arms_done"], "arms_skipped": rec.get("arms_skipped", {}), "arms_unusable": unusable,
+           "build_seconds": {arm: {w: b["seconds"] for w, b in v.items()} for arm, v in rec["builds"].items()},
+           "windows": {}, "report_only": {}}
     tests = {}
     for w in WINDOWS:
-        tmj = json.loads((P["label_build"] / f"{w}_timemap.json").read_text())
-        cap = cv2.VideoCapture(str(P["label_build"] / f"{w}.mp4"))
-        W, H = int(cap.get(3)), int(cap.get(4))
-        cap.release()
         mac = {f"mac_{k}" if k in ("cpu", "mps") else k: (P["label_build"] if d is None else V.DIAG / d) / f"{w}_frames.json"
                for k, d in V.DEVICE_BUILDS[w].items()}
-        sides = {k: json.loads(p.read_text()) for k, p in mac.items()}
-        for arm in usable:
-            p = result / RESULT / arm / f"{w}_frames.json"
-            if p.exists():
-                sides[arm] = json.loads(p.read_text())
-        builds = {}
-        for k, side in sides.items():
-            pc = V.rows_pc_of(side, tmj)
-            fz = V.solve_frozen(pc, index, mirror)
-            builds[k] = {"frames": len(side["frames"]), "frozen_offset_s": None if fz is None else round(float(fz), 2),
-                         "v2": V.solve_v2(pc, index, mirror)}
-        mac_offs = [builds[k]["frozen_offset_s"] for k in mac]
-        offs = offset_set(plat[w]["colab_offset_s"], mac_offs)
-        for k, side in sides.items():
-            builds[k]["candidates"] = {"%.2f" % o: V.candidates(w, side, tmj, index, mirror, o, W, H) for o in offs}
-        offset_flags = recorded_offset_mismatch(w, {k: builds[k]["frozen_offset_s"] for k in mac})
-        fr = {k: frames_of(s) for k, s in sides.items()}
-        pairs = {}
-        for x, r in (("mac_cpu", "mac_mps"), ("cuda_a", "mac_cpu"), ("cuda_a", "mac_mps"), ("cuda_b", "cuda_a"),
-                     ("colab_cpu", "mac_cpu"), ("cuda_a", "colab_cpu")):
-            if x in fr and r in fr:
-                pm = pair_metrics(fr[x], fr[r])
-                t = window_tests(pm, builds[x]["candidates"], builds[r]["candidates"])
-                pairs[f"{x}~{r}"] = {"metrics": pm, "tests": t}
-                tests.setdefault(f"{x}~{r}", {})[w] = t
+        sides = {**{k: json.loads(p.read_text()) for k, p in mac.items()}, **arm_sides(w)}
+        offs, builds, pairs, t = _window_block(
+            V, w, GAME, sides, list(mac), [plat[w]["colab_offset_s"]],
+            (("mac_cpu", "mac_mps"), ("cuda_a", "mac_cpu"), ("cuda_a", "mac_mps"), ("cuda_b", "cuda_a"),
+             ("colab_cpu", "mac_cpu"), ("cuda_a", "colab_cpu")), wh(w))
+        for k, v in t.items():
+            tests.setdefault(k, {})[w] = v
         col = "%.2f" % round(plat[w]["colab_offset_s"], 2)
-        out["windows"][w] = {"offsets_s": offs, "builds": builds, "pairs": pairs, "recorded_offset_mismatch": offset_flags,
+        out["windows"][w] = {"offsets_s": offs, "builds": builds, "pairs": pairs,
+                             "recorded_offset_mismatch": recorded_offset_mismatch(w, {k: builds[k]["frozen_offset_s"] for k in mac}),
                              "r13": {"colab_offset_s": plat[w]["colab_offset_s"],
                                      "colab_candidates": plat[w]["colab_candidates"],
                                      "cuda_a_candidates_at_colab_offset": (builds.get("cuda_a") or {}).get("candidates", {}).get(col)}}
+    for w, e in EXTRA.items():                          # report only: never enters the verdict
+        built = arm_sides(w)
+        if not built:
+            continue
+        Pe = game_index(V, e["game"])[0]
+        sides = {k: json.loads((Pe["builds"] / d / f"{w}_frames.json").read_text()) for k, d in MAC_EXTRA_BUILDS.items()}
+        stored = json.loads((Pe["labels"] / f"{e['game']}_offsets.json").read_text()).get(w)
+        offs, builds, pairs, _ = _window_block(
+            V, w, e["game"], {**sides, **built}, list(MAC_EXTRA_BUILDS), [stored],
+            (("mac_detcpu", "mac_mps"), ("cuda_a", "mac_detcpu"), ("cuda_a", "mac_mps"), ("cuda_b", "cuda_a")), wh(w))
+        out["report_only"][w] = {"note": "report only, not in the verdict; mac_detcpu has the detector on CPU and the "
+                                         "court and gate on MPS (E1 post-mortem M6); mac_mps is the registered r23 build",
+                                 "offsets_s": offs, "stored_label_offset_s": stored, "builds": builds, "pairs": pairs}
     out["reading"] = verdict(tests)
     if rec["purpose"] != "result":
         out["reading"]["verdict"] = "plumbing only, not a result"
     d = p8_root() / "cuda_check"
     d.mkdir(parents=True, exist_ok=True)
     name = "cuda_check_result.json" if rec["purpose"] == "result" else "cuda_check_plumbing.json"
-    atomic_write(d / name, json.dumps(out, indent=1))
-    print(json.dumps({"written": f"P8 workspace cuda_check/{name}", "reading": out["reading"]}, indent=1))
+    atomic_write(d / name, json.dumps(round_floats(out), indent=1))
+    print(json.dumps({"written": f"P8 workspace cuda_check/{name}", "flags": flags,
+                      "reading": round_floats(out["reading"])}, indent=1))
     return out
 
 
@@ -583,13 +744,17 @@ def main(argv=None) -> None:
     r.add_argument("--work", required=True)
     r.add_argument("--arms", default="cuda_a,cuda_b,colab_cpu")
     r.add_argument("--windows", default="")
-    r.add_argument("--install-head", action="store_true", help="copy the pack's gate head into models/ when absent")
+    r.add_argument("--install-models", action="store_true",
+                   help="copy the pack's gate head and r23 court model into models/ when absent (the runtime)")
+    r.add_argument("--deadline-s", type=float, default=None,
+                   help="skip any arm not started this many seconds after the run began")
     r.add_argument("--plumbing", action="store_true", help="a dry run: marked plumbing only, never read as a result")
     g = sub.add_parser("get")
     g.add_argument("--dest", required=True)
     c = sub.add_parser("compare")
     c.add_argument("--result", required=True)
     c.add_argument("--pack", default=None)
+    c.add_argument("--pin", default=None, help="the pushed commit the runtime was pinned to")
     c.add_argument("--plumbing", action="store_true")
     a = ap.parse_args(argv)
     {"pack": cmd_pack, "put": cmd_put, "run": cmd_run, "get": cmd_get, "compare": cmd_compare}[a.cmd](a)

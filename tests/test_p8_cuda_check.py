@@ -63,7 +63,7 @@ def _pack(tmp_path):
     pack.mkdir()
     files = _files(tmp_path)
     sha = C.write_tar(pack / f"{C.PACK}.tar", files)
-    man = {"game": C.GAME, "windows": {w: {"window": w} for w in C.WINDOWS}, "tar": f"{C.PACK}.tar",
+    man = {"game": C.GAME, "windows": {w: {"window": w} for w in C.ALL_WINDOWS}, "tar": f"{C.PACK}.tar",
            "tar_sha256": sha, "members": C.member_records(files)}
     (pack / "pack_manifest.json").write_text(json.dumps(man))
     return pack, man
@@ -192,10 +192,12 @@ def test_pair_metrics():
     x[3] = _frame(3, 8, x0=1)                                      # same count, other coordinates
     x[10] = _frame(10, 8)                                          # a frame only X built
     pm = C.pair_metrics(x, r)
-    assert pm["common"] == 10 and pm["frames_jaccard"] == round(10 / 11, 4)
-    assert pm["same_count_share"] == 0.8 and pm["identical_boxes_share"] == 0.7
-    assert pm["boxes_mean_diff"] == round((8 * 9 + 7 * 2) / 11 - 8, 2)
-    assert pm["h_gap_px"]["median"] == 0.0
+    assert pm["common"] == 10 and pm["frames_jaccard"] == pytest.approx(10 / 11)
+    assert pm["same_count_share"] == 0.8 and pm["identical_boxes_share"] == pytest.approx(0.7)
+    assert pm["boxes_mean_diff"] == pytest.approx((8 * 9 + 7 * 2) / 11 - 8)          # unrounded
+    assert pm["h_gap_px"]["median"] == 0.0 and pm["frames_with_h_x"] == 11
+    x[4] = {**x[4], "H": None}
+    assert C.pair_metrics(x, r)["frames_with_h_x"] == 10
     shifted = [1, 0, -2, 0, 1, 0, 0, 0, 1]                         # court H 2 px apart
     pm2 = C.pair_metrics({f: _frame(f, 8, H=shifted) for f in range(10)}, r)
     assert pm2["h_gap_px"]["median"] == pytest.approx(2.0)
@@ -282,3 +284,80 @@ def test_guard_refuses_nothing_of_this_check_and_the_tolerances_are_the_register
                      "h_gap_median_px_max": 1.0, "cand_rel": 0.10, "cand_floor": 3}
     assert C.FIXED_OFFSETS == (0.30, 0.62, 0.90, 1.20)
     assert C.ARMS == {"cuda_a": "cuda", "cuda_b": "cuda", "colab_cpu": "cpu"}
+
+
+# ── amendments of 2026-11-25 ────────────────────────────────────────────────────────────────────────────────────────
+def test_the_rule_reads_unrounded_values():
+    r = {f: _frame(f, 8) for f in range(103)}
+    x = {f: _frame(f, 9 if f < 26 else 8) for f in range(103)}     # 26/103 = 0.2524 more boxes a frame
+    pm = C.pair_metrics(x, r)
+    assert round(pm["boxes_mean_diff"], 2) == 0.25                 # would pass if the rule read the rounded value
+    assert not C.window_tests(pm, CPU_CANDS, CPU_CANDS)["boxes_mean"]
+    assert C.round_floats({"a": [0.123456, 2], "b": {"c": 1.0 / 3}}) == {"a": [0.1235, 2], "b": {"c": 0.3333}}
+
+
+def test_report_only_window_is_cuda_only_and_never_in_the_verdict():
+    w5 = list(C.EXTRA)[0]
+    assert C.arm_windows("cuda_a", list(C.ALL_WINDOWS)) == list(C.ALL_WINDOWS)
+    assert C.arm_windows("colab_cpu", list(C.ALL_WINDOWS)) == list(C.WINDOWS)
+    assert w5 in C.arm_windows("colab_cpu", list(C.ALL_WINDOWS), plumbing=True)
+    bad5 = {"frames_jaccard": False, "boxes_mean": False, "same_count": False, "court_h_gap": False, "candidates": False}
+    ok = {k: True for k in bad5}
+    assert C.matches({W3: ok, W4: dict(ok), w5: bad5})             # the extra window cannot fail a match
+    C.guard_all()                                                  # gsw_bkn_2015 passes the guard too
+
+
+def test_deadline_skips_arms_not_started():
+    assert not C.past_deadline(100.0, None, now=10_000.0)
+    assert not C.past_deadline(100.0, 600, now=699.0) and C.past_deadline(100.0, 600, now=701.0)
+
+
+def test_build_window_sets_the_r23_court_for_that_build_only(monkeypatch):
+    monkeypatch.delenv("COURT_GRID_WEIGHTS", raising=False)
+    seen = []
+
+    def fake(P, w, snip, out, extra_args=()):
+        seen.append(__import__("os").environ.get("COURT_GRID_WEIGHTS"))
+        return {"ok": True}
+    C.build_window(fake, {}, {}, "s.mp4", "out", (), court="/m/court_grid_r23.pt")
+    C.build_window(fake, {}, {}, "s.mp4", "out", (), court=None)
+    assert seen == ["/m/court_grid_r23.pt", None]
+
+    def boom(*a, **k):
+        raise RuntimeError("build died")
+    with pytest.raises(RuntimeError):
+        C.build_window(boom, {}, {}, "s.mp4", "out", (), court="/m/court_grid_r23.pt")
+    assert "COURT_GRID_WEIGHTS" not in __import__("os").environ
+
+
+def test_run_flags():
+    rec = {"commit": "abc123def", "versions": {"transformers": "4.49.0"}, "clip_revision_matches_manifest": True}
+    man = {"mac_versions": {"transformers": "4.49.0"}}
+    f = C.run_flags(rec, man, "abc123d")
+    assert f["pin_mismatch"] is False and not f["clip_revision_differs"] and f["transformers_differs"] is False
+    f = C.run_flags({**rec, "versions": {"transformers": "4.57.1"}, "clip_revision_matches_manifest": False}, man, "fff000")
+    assert f["pin_mismatch"] is True and f["clip_revision_differs"] and f["transformers_differs"] is True
+    assert C.run_flags({**rec, "commit": None}, man, "abc")["pin_mismatch"] is True
+    assert C.run_flags(rec, None, None)["pin_mismatch"] is None
+
+
+def test_attribution_when_colab_cpu_is_missing():
+    v = C.verdict(_tests(**SEP, cuda_b__cuda_a=True, cuda_a__mac_cpu=["court_h_gap"], cuda_a__mac_mps=["boxes_mean"]))
+    assert v["verdict"] == "matches neither" and "cannot be traced" in v["attribution"]
+    v = C.verdict(_tests(**SEP, cuda_b__cuda_a=True, cuda_a__mac_cpu=["court_h_gap"], cuda_a__mac_mps=["boxes_mean"],
+                         cuda_a__colab_cpu=["same_count"]))
+    assert "cuda_a~colab_cpu" in v["failed_tests"] and v["verdict"] == "matches neither"   # reported, not deciding
+
+
+def test_check_result_keeps_an_arm_whose_report_only_window_failed(tmp_path):
+    out_dir, _ = _result(tmp_path, arms=("cuda_a",))
+    with tarfile.open(out_dir / f"{C.RESULT}.tar") as tf:
+        tf.extractall(tmp_path / "res", filter="data")
+    rr = tmp_path / "res" / C.RESULT / "run_record.json"
+    rec = json.loads(rr.read_text())
+    w5 = list(C.EXTRA)[0]
+    rec["builds"]["cuda_a"][w5] = {"ok": True, "seconds": 1.0, "court_weights": "court_grid_snapped.pt",
+                                   "device": {"resolved": {"detector": "cuda", "court": "cuda", "gate": "cuda"}}}
+    rr.write_text(json.dumps(rec))
+    _, usable, unusable = C.check_result(tmp_path / "res", None, plumbing=False)
+    assert usable == ["cuda_a"] and "cuda_a (report-only window)" in unusable     # wrong court model, flagged
