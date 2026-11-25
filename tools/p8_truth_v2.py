@@ -10,7 +10,7 @@
                                                              check C), written to truth_v2/dev/<tag>.json; never read
                                                              by report
 
-Run measure and device under the heavy-job lock, one game at a time. Outputs: truth_v2/ in the P8 workspace. The
+Run measure, measure-dev and device under the heavy-job lock, one game at a time. Outputs: truth_v2/ in the P8 workspace. The
 frozen truth, its offsets (labels/<game>_offsets.json) and every result scored on them stay as recorded.
 """
 

@@ -1,16 +1,19 @@
 # P8: Mac camera truth for NYK, OKC and POR, design before any build
 
 Written 2026-11-25, before any build, for queue item 5 of docs/research/TRACKING_LEVELS.md. Version 2, the same day
-and still before any build, applies the lead's decisions (section 0); where the two versions differ, version 2 holds. Design only: nothing in
+and still before any build, applies the lead's decisions (section 0); version 3, also before any build, applies the
+ml-review of 06d7e60b (section 12). Where versions differ, the latest holds. Design only: nothing in
 this document has been built, and nothing here is a result. The three games are development games (D85 (3)); no
 held-out game is read and no held-out number is computed (CLAUDE.md rule 4).
 
 ## 0. Version 2 (2026-11-25, after the lead's decisions; still before any build)
 
-**Layouts.** By D152 a box measured by eye is a hand step that D128 forbids, whatever its date, so msg15_720 and
-csn_nw15_720 cannot feed truth. A game without an automatic layout runs only if the D152 finder's proposal passes the
-frozen automatic check at the registered bar (MIN_LAYOUT_SHARE 0.25), exactly as D152 set; otherwise it is dropped and
-recorded.
+**Layouts (rule as worded in version 3).** A game runs only on a layout that is either in the frozen pipeline code
+(clock_reader.LAYOUTS, from before P8) or found by the D152 finder, and in either case accepted through the frozen
+automatic check at the registered bar (MIN_LAYOUT_SHARE 0.25). New hand calibrations made as P8 work (msg15_720 and
+csn_nw15_720, 2026-11-17) are not used, under D128 and D152 (a box measured by eye is a hand step). Whether those
+pre-D128 P8 hand calibrations may be used after all is Lucien's call; the lead is asking him, and until he answers
+nyk_bos_2016 and por_okc_2016 stay out.
 
 The finder's answer for both games is already on record, from the D152 validation run (P8 workspace
 layout_find/validation.json, P8_baseline.md):
@@ -29,8 +32,9 @@ control check. So nyk_bos_2016 and por_okc_2016 are dropped on the existing reco
 time maps made with msg15_720 are not used.
 
 okc_sac_2015 runs on fso15_720 (registry), which passes the frozen automatic check on this video (plausible 0.475,
-consistent 0.35, the D152 control run). It is a layout of the frozen code chosen through the automatic check, the
-route hou_cle_2016's layout took. For the record: the finder's own proposal for okc_sac_2015 also passed (plausible 0.70,
+consistent 0.35, the D152 control run). fso15_720 was also measured by hand (clock_reader.py, on pixel-ruler crops,
+2026-10-04, ROADMAP R1.2), but it is frozen pipeline code from before P8, and it is accepted for okc_sac_2015 through
+the frozen automatic check, the route hou_cle_2016's layout took. For the record: the finder's own proposal for okc_sac_2015 also passed (plausible 0.70,
 consistent 0.65) and is not used, per the decision.
 
 **What runs.** okc_sac_2015 alone: about 3.5 to 5.2 lock hours for truth and 5.9 to 8.5 with its r23 baseline
@@ -49,8 +53,11 @@ when it is rebuilt from CPU-detector builds, on one game first:
 - "Moved", fixed now, any one of: the median reprojection after refinement differs by 1.0 px or more (good fits span
   5.47 to 7.65 px across games, so 1.0 px is a large share of the spread between games); accepted camera-truth frames
   differ by 10 percent or more of the MPS count; the median absolute difference of the per-window frozen offsets
-  (labels/<game>_offsets.json, windows with an offset in both) is 0.2 s or more (the truth v2 measures' own
-  threshold for a material offset change).
+  (labels/<game>_offsets.json, windows with an offset in both) is 0.2 s or more. Why 0.2 s for this median (version
+  3): the truth v2 measures use 0.2 s as a per-window threshold (the share of windows moving by more), not as a bar
+  on a median, so it is borrowed here as a round size of a material shift, not a measured noise floor. The only
+  evidence on device noise alone is the D99 detector-only pair, 0.04 s on one window (s02_w03: MPS 0.90 s against
+  detector on CPU 0.94 s); the court-model pairs of P8_truth_v2.md (median 0.52 s) differ by more than the device.
 - Moved: rebuild the truth of gsw_bkn_2015, gsw_sac_2015 and hou_cle_2016 on the CPU detector too (about 2.5, 2.3 and
   2.9 lock hours of label builds at M6 and M9 frame counts; gsw_ind_2016 stays apart, D98), before any cross-arena
   tuning. Not moved: the MPS truth stays in use beside the CPU truth, with the platform recorded per game.
@@ -59,8 +66,8 @@ when it is rebuilt from CPU-detector builds, on one game first:
 **Check C code (written, not run).** `tools/p8_truth_v2.py measure-dev TAG` runs the same per-window measures as the
 registered `measure` on any development game outside the registration, after the project guard. It refuses the four
 registered games and writes truth_v2/dev/<tag>.json, which the registered `report` never reads. `tools/p8_truth_accept.py
-TAG` applies checks A, B and C with the section 5 bars, gives the use verdict (use, apart, unused) and records the
-truth platform from every label window's device record. Tests: tests/test_p8_truth_accept.py.
+TAG` applies checks A, B and C with the section 5 bars, gives the use verdict (use, apart, unused), and records and
+enforces the truth platform from the device record of every label window and every r23 rebuild window (version 3). Tests: tests/test_p8_truth_accept.py.
 
 ## 1. Why
 
@@ -142,12 +149,13 @@ none of the three new games has been seen.
 
 | Check | Bar | Why this bar |
 | --- | --- | --- |
-| A. Registration | camera fit status ok and median reprojection after refinement (`camera.reproj_px_median_after`) at most 10.0 px | accepted Mac fits: gsw_sac_2015 5.47, hou_cle_2016 6.40, gsw_bkn_2015 6.52, gsw_cha_2016 7.65 px; the fit D98 found broken, gsw_ind_2016 on MPS, 18.35 px; 10.0 sits above the worst good fit and well below the broken one |
-| B. Coverage | at least 1,000 accepted camera-truth frames, and at least 1,500 s of running clock mapped by the time maps | accepted frames on good fits: 1,366 (gsw_cha_2016) to 4,427 (hou_cle_2016); the broken fit had 970. Mapped clock: 2,164 to 2,635 s on complete games; nyk_bos_2016 already has 1,856 s with a lost quarter |
-| C. Offset stability (D166, the frozen offset rule) | between the V3 label build and the r23 rebuild of each window (windows with at least 20 usable frames), median absolute offset difference at most 0.60 s and share over 0.2 s at most 0.80 | the frozen rule's per-game values on development games: 0.44 to 0.60 s and 0.7273 to 0.7978 (P8_truth_v2.md); the bars are the worst development game, so a new game passes if it is no less stable than those already in use |
+| A. Registration | a complete fit (result "partial" False), camera fit status ok and median reprojection after refinement (`camera.reproj_px_median_after`) at most 10.0 px | accepted Mac fits: gsw_sac_2015 5.47, hou_cle_2016 6.40, gsw_bkn_2015 6.52, gsw_cha_2016 7.65 px; the fit D98 found broken, gsw_ind_2016 on MPS, 18.35 px; 10.0 sits above the worst good fit and well below the broken one |
+| B. Coverage | a complete fit, at least 1,000 accepted camera-truth frames, and at least 1,500 s of running clock mapped by the time maps | accepted frames on good fits: 1,366 (gsw_cha_2016) to 4,427 (hou_cle_2016); the broken fit had 970. Mapped clock (sum of mapped_video_s over each game's sync time maps): 2,308 (gsw_cha_2016) to 2,635 s (hou_cle_2016) on complete games; nyk_bos_2016 has 1,856 s with a lost quarter |
+| C. Offset stability (D166, the frozen offset rule) | between the V3 label build and the r23 rebuild of each window (windows with at least 20 usable frames), median absolute offset difference at most 0.54 s and share over 0.2 s at most 0.7945, unrounded, over at least 0.8 of the windows measured (version 3) | the worst in-use pooled game of P8_truth_v2.md: median 0.54 s (gsw_cha_2016), share 0.7945 (gsw_sac_2015); the apart game gsw_ind_2016 (0.60 s, 0.7978) is not a bar. Registered records use 87 percent or more of their measured windows. hou_cle_2016 has no truth_v2 record. The frozen rule moves 73 to 80 percent of windows by more than 0.2 s even on good games, so C catches only gross instability |
 
 A game that fails A or C is reported apart and flagged, as gsw_ind_2016 is (D98), and is not used to tune anything. A
-game that fails B is not used. No bar, constant or fit setting changes after a game's numbers are seen (D98); a later
+game that fails B is not used. Version 3: a game is also not used unless every label window and every r23 rebuild
+window has a device record whose detector resolved to cpu (D175); `tools/p8_truth_accept.py` enforces it. No bar, constant or fit setting changes after a game's numbers are seen (D98); a later
 change would be a new registration.
 
 Check C needs code: `tools/p8_truth_v2.py measure` accepts only its four registered games. Version 2 adds the
@@ -217,3 +225,22 @@ neither or is not repeatable, these builds stay on the Mac as planned here.
 
 No held-out game is read or scored, nothing is tuned on these games before they pass section 5, and the D85 test set is
 not touched. No D line is written by this design; decisions 1 and 2 are the lead's.
+
+## 12. Version 3 (2026-11-25, after the ml-review of 06d7e60b, PASS; before any build)
+
+No okc_sac_2015 build has run. Each item is applied above and in `tools/p8_truth_accept.py`:
+
+1. Check C's bars are the worst in-use pooled game, not the apart game: median at most 0.54 s (gsw_cha_2016), share
+   over 0.2 s at most 0.7945 (gsw_sac_2015), unrounded. The frozen rule moves 73 to 80 percent of windows by more than
+   0.2 s even on good games, so C catches only gross instability. hou_cle_2016 has no truth_v2 record.
+2. C needs n at least 0.8 of the windows measured (registered records: 87 percent or more).
+3. A and B need a complete fit (the result's "partial" False).
+4. The verdict is "unused" unless every label window and every r23 rebuild window resolves the detector to cpu.
+5. The layout rule is worded as: in the frozen pipeline code or found by the D152 finder, each accepted through the
+   frozen check; P8's own hand calibrations of 2026-11-17 are not used; whether they may be is Lucien's call, and until
+   he answers nyk_bos_2016 and por_okc_2016 stay out. fso15_720 was measured by hand in 2026-10 as pipeline code before
+   P8.
+6. Check B's mapped-clock range is 2,308 to 2,635 s, from the sync time maps.
+7. The "moved" offset bar's justification is reworded (0.2 s is a per-window threshold in truth v2, borrowed here as a
+   round size; the only device-noise evidence is the D99 detector-only pair, 0.04 s on one window).
+8. tools/p8_truth_v2.py's docstring says measure-dev runs under the heavy-job lock.
