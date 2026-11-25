@@ -215,7 +215,8 @@ def audit_frame(rec: dict, label_text: str, sv_xy, pids, H_truth, T) -> tuple:
 
 def own_label_within(feet_labels, targets, lab: dict, gate: float = NEAR_FT) -> set:
     """Unlabelled targets (not in lab) matched one to one, Hungarian, within gate to label boxes that no target
-    claims in lab (the unclaimed label boxes): the player's own label box with its foot off, not a neighbour's."""
+    claims in lab (the unclaimed label boxes). A target outside the result has no unclaimed label box matched one
+    to one within gate; a claimed box (a neighbour's) never counts."""
     from scipy.optimize import linear_sum_assignment
     claimed = set(lab.values())
     free = [i for i in range(len(feet_labels)) if i not in claimed]
