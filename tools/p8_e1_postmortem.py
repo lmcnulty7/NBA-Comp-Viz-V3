@@ -189,6 +189,7 @@ def audit_frame(rec: dict, label_text: str, sv_xy, pids, H_truth, T) -> tuple:
     foot, hts = foot_and_height(tg, H_truth, w, h) if len(tg) else (np.zeros((0, 2)), None)
     allfeet = np.vstack([fd.reshape(-1, 2), ft.reshape(-1, 2)])
     s1 = T.agree_boxes(d, t)
+    own = own_label_within(fl, tg, lab)
     rows = []
     for j in range(len(tg)):
         oh, th = j in ad, j in at
@@ -202,11 +203,30 @@ def audit_frame(rec: dict, label_text: str, sv_xy, pids, H_truth, T) -> tuple:
                "edge": is_edge(float(foot[j][0]), float(foot[j][1]), w, h),
                # report only, added after the first run: a label box near the player, its foot off by 2.5 to 5 ft
                "label_foot_within_5ft": j not in lab and bool(len(fl)) and
-                                        bool(np.sqrt(((fl.reshape(-1, 2) - tg[j]) ** 2).sum(1)).min() <= NEAR_FT)}
+                                        bool(np.sqrt(((fl.reshape(-1, 2) - tg[j]) ** 2).sum(1)).min() <= NEAR_FT),
+               # report only, added after review: a label box no in-image player claims at 2.5 ft, matched one to
+               # one to the unlabelled players within 5 ft
+               "own_label_within_5ft": j in own}
         if row["cls"] == "teacher only":   # report only: the teacher box lost to a source 1 box it overlaps (merge rule)
             row["teacher_box_under_source1"] = any(T.iou(t[at[j]], a) >= 0.5 for a in s1)
         rows.append(row)
     return rows, len(labels) - len(lab), len(labels)
+
+
+def own_label_within(feet_labels, targets, lab: dict, gate: float = NEAR_FT) -> set:
+    """Unlabelled targets (not in lab) matched one to one, Hungarian, within gate to label boxes that no target
+    claims in lab (the unclaimed label boxes): the player's own label box with its foot off, not a neighbour's."""
+    from scipy.optimize import linear_sum_assignment
+    claimed = set(lab.values())
+    free = [i for i in range(len(feet_labels)) if i not in claimed]
+    open_t = [j for j in range(len(targets)) if j not in lab]
+    if not free or not open_t:
+        return set()
+    F = np.asarray(feet_labels, np.float64).reshape(-1, 2)[free]
+    G = np.asarray(targets, np.float64).reshape(-1, 2)[open_t]
+    D = np.sqrt(((F[:, None, :] - G[None, :, :]) ** 2).sum(-1))
+    ri, ci = linear_sum_assignment(D)
+    return {open_t[c] for r, c in zip(ri, ci) if D[r, c] <= gate}
 
 
 def breakdown(rows: list) -> dict:
@@ -218,7 +238,10 @@ def breakdown(rows: list) -> dict:
     out["report_only_added_after_first_run"] = {
         "unlabelled_with_a_label_foot_within_5ft": sum(1 for r in un if r["label_foot_within_5ft"]),
         "unlabelled_with_a_label_foot_within_5ft_by_class": tally([r for r in un if r["label_foot_within_5ft"]], "cls", CLASSES),
-        "teacher_only_with_teacher_box_under_a_source1_box": sum(1 for r in un if r.get("teacher_box_under_source1"))}
+        "teacher_only_with_teacher_box_under_a_source1_box": sum(1 for r in un if r.get("teacher_box_under_source1")),
+        "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one": sum(1 for r in un if r.get("own_label_within_5ft")),
+        "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one_by_class":
+            tally([r for r in un if r.get("own_label_within_5ft")], "cls", CLASSES)}
     for field, levels in (("third", THIRDS), ("height", HEIGHT_BINS), ("height_fine", HEIGHT_BINS_FINE),
                           ("edge", (True, False))):
         out[f"by_{field}"] = {"all": tally(rows, field, levels), "unlabelled": tally(un, field, levels),
@@ -491,6 +514,15 @@ STATUS = ("labelled",) + CLASSES + ("not a corpus frame",)
 
 STATUS_NEAR = ("labelled", "unlabelled, a label foot within 5 ft", "unlabelled, no label foot within 5 ft",
                "not a corpus frame")
+STATUS_OWN = ("labelled", "unlabelled, an unclaimed label box within 5 ft", "unlabelled, none", "not a corpus frame")
+REPORT_ONLY = {
+    "m1": ["report_only_added_after_first_run", "by_height_fine", "class_by_height_fine",
+           "neither_with_a_box_foot_within_5ft (report only by the definitions; nearest box, not one to one)"],
+    "m2": ["net_extra_misses_by_label", "e1_recovers_r23_misses", "e1_loses_r23_finds",
+           "extra_miss_rate_given_status", "by_status_near", "by_status_own", "by_height_fine"],
+    "note": "fields added after the definitions; none replaces a registered number. The 5 ft counts of "
+            "by_status_near and label_foot_within_5ft use the nearest label box of any player (a neighbour's box "
+            "counts); the own-box counts match unclaimed label boxes one to one."}
 
 
 def m2_status(rows: list, players: dict) -> list:
@@ -499,7 +531,8 @@ def m2_status(rows: list, players: dict) -> list:
         p = players.get(f"{r['w']}:{r['f']}:{r['pid']}")
         st = "not a corpus frame" if p is None else ("labelled" if p["labelled"] else p["cls"])
         near = st if p is None or p["labelled"] else STATUS_NEAR[1 if p.get("label_foot_within_5ft") else 2]
-        out.append({**r, "status": st, "status_near": near})
+        own = st if p is None or p["labelled"] else STATUS_OWN[1 if p.get("own_label_within_5ft") else 2]
+        out.append({**r, "status": st, "status_near": near, "status_own": own})
     return out
 
 
@@ -509,7 +542,8 @@ def m2_breakdown(rows: list) -> dict:
     groups = {"all player-frames": rows, "r23 found": [r for r in rows if r["cls"] in ("both found", "E1 extra miss")],
               "E1 extra miss": [r for r in rows if r["cls"] == "E1 extra miss"],
               "E1 extra find": [r for r in rows if r["cls"] == "E1 extra find"]}
-    for field, levels in (("status", STATUS), ("status_near", STATUS_NEAR), ("third", THIRDS), ("height", HEIGHT_BINS),
+    for field, levels in (("status", STATUS), ("status_near", STATUS_NEAR), ("status_own", STATUS_OWN),
+                          ("third", THIRDS), ("height", HEIGHT_BINS),
                           ("height_fine", HEIGHT_BINS_FINE), ("edge", (True, False))):
         out[f"by_{field}"] = {k: tally(v, field, levels) for k, v in groups.items()}
     un = lambda rs: sum(1 for r in rs if r["status"] not in ("labelled", "not a corpus frame"))
@@ -570,6 +604,7 @@ def cmd_report(args) -> dict:
     same_dir = all(m2[g]["share_diff"]["diff"] is not None and m2[g]["share_diff"]["diff"] > 0 for g in POOL)
     iv = pooled["share_diff"]["window_interval"]
     out = {"what": "E1 post-mortem (docs/research/P8_E1.md, Post-mortem (measured)); a measurement, nothing trained",
+           "report_only_fields": REPORT_ONLY,
            "m1": m1, "m2": {"games": m2, "pooled": pooled, "apart": apart}, "m3": m3,
            "reading_test_b": {"pooled_diff": pooled["share_diff"]["diff"], "window_interval": iv,
                               "same_direction_all_games": same_dir,

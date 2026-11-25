@@ -1,5 +1,23 @@
 {
  "what": "E1 post-mortem (docs/research/P8_E1.md, Post-mortem (measured)); a measurement, nothing trained",
+ "report_only_fields": {
+  "m1": [
+   "report_only_added_after_first_run",
+   "by_height_fine",
+   "class_by_height_fine",
+   "neither_with_a_box_foot_within_5ft (report only by the definitions; nearest box, not one to one)"
+  ],
+  "m2": [
+   "net_extra_misses_by_label",
+   "e1_recovers_r23_misses",
+   "e1_loses_r23_finds",
+   "extra_miss_rate_given_status",
+   "by_status_near",
+   "by_status_own",
+   "by_height_fine"
+  ],
+  "note": "fields added after the definitions; none replaces a registered number. The 5 ft counts of by_status_near and label_foot_within_5ft use the nearest label box of any player (a neighbour's box counts); the own-box counts match unclaimed label boxes one to one."
+ },
  "m1": {
   "what": "M1 label audit of the E1 corpus (docs/research/P8_E1.md, Post-mortem)",
   "rules": {
@@ -40,7 +58,15 @@
       "both, IoU >= 0.5": 43,
       "neither": 2682
      },
-     "teacher_only_with_teacher_box_under_a_source1_box": 871
+     "teacher_only_with_teacher_box_under_a_source1_box": 871,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one": 2790,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one_by_class": {
+      "r23 only": 135,
+      "teacher only": 460,
+      "both, IoU < 0.5": 9,
+      "both, IoU >= 0.5": 17,
+      "neither": 2169
+     }
     },
     "by_third": {
      "all": {
@@ -269,7 +295,15 @@
       "both, IoU >= 0.5": 25,
       "neither": 3031
      },
-     "teacher_only_with_teacher_box_under_a_source1_box": 481
+     "teacher_only_with_teacher_box_under_a_source1_box": 481,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one": 3007,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one_by_class": {
+      "r23 only": 120,
+      "teacher only": 306,
+      "both, IoU < 0.5": 5,
+      "both, IoU >= 0.5": 8,
+      "neither": 2568
+     }
     },
     "by_third": {
      "all": {
@@ -498,7 +532,15 @@
       "both, IoU >= 0.5": 29,
       "neither": 2699
      },
-     "teacher_only_with_teacher_box_under_a_source1_box": 800
+     "teacher_only_with_teacher_box_under_a_source1_box": 800,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one": 2836,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one_by_class": {
+      "r23 only": 174,
+      "teacher only": 445,
+      "both, IoU < 0.5": 10,
+      "both, IoU >= 0.5": 4,
+      "neither": 2203
+     }
     },
     "by_third": {
      "all": {
@@ -728,7 +770,15 @@
      "both, IoU >= 0.5": 97,
      "neither": 8412
     },
-    "teacher_only_with_teacher_box_under_a_source1_box": 2152
+    "teacher_only_with_teacher_box_under_a_source1_box": 2152,
+    "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one": 8633,
+    "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one_by_class": {
+     "r23 only": 429,
+     "teacher only": 1211,
+     "both, IoU < 0.5": 24,
+     "both, IoU >= 0.5": 29,
+     "neither": 6940
+    }
    },
    "by_third": {
     "all": {
@@ -1011,6 +1061,32 @@
       "not a corpus frame": 0
      }
     },
+    "by_status_own": {
+     "all player-frames": {
+      "labelled": 15900,
+      "unlabelled, an unclaimed label box within 5 ft": 2783,
+      "unlabelled, none": 1774,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 13916,
+      "unlabelled, an unclaimed label box within 5 ft": 807,
+      "unlabelled, none": 405,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 1594,
+      "unlabelled, an unclaimed label box within 5 ft": 190,
+      "unlabelled, none": 89,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 828,
+      "unlabelled, an unclaimed label box within 5 ft": 221,
+      "unlabelled, none": 148,
+      "not a corpus frame": 0
+     }
+    },
     "by_third": {
      "all player-frames": {
       "near": 5672,
@@ -1232,6 +1308,32 @@
       "labelled": 350,
       "unlabelled, a label foot within 5 ft": 221,
       "unlabelled, no label foot within 5 ft": 26,
+      "not a corpus frame": 0
+     }
+    },
+    "by_status_own": {
+     "all player-frames": {
+      "labelled": 8571,
+      "unlabelled, an unclaimed label box within 5 ft": 2995,
+      "unlabelled, none": 1718,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 7583,
+      "unlabelled, an unclaimed label box within 5 ft": 872,
+      "unlabelled, none": 507,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 687,
+      "unlabelled, an unclaimed label box within 5 ft": 199,
+      "unlabelled, none": 72,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 350,
+      "unlabelled, an unclaimed label box within 5 ft": 182,
+      "unlabelled, none": 65,
       "not a corpus frame": 0
      }
     },
@@ -1459,6 +1561,32 @@
       "not a corpus frame": 0
      }
     },
+    "by_status_own": {
+     "all player-frames": {
+      "labelled": 16821,
+      "unlabelled, an unclaimed label box within 5 ft": 2833,
+      "unlabelled, none": 1490,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 14949,
+      "unlabelled, an unclaimed label box within 5 ft": 878,
+      "unlabelled, none": 401,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 1231,
+      "unlabelled, an unclaimed label box within 5 ft": 211,
+      "unlabelled, none": 89,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 742,
+      "unlabelled, an unclaimed label box within 5 ft": 214,
+      "unlabelled, none": 87,
+      "not a corpus frame": 0
+     }
+    },
     "by_third": {
      "all player-frames": {
       "near": 5722,
@@ -1681,6 +1809,32 @@
      "labelled": 1920,
      "unlabelled, a label foot within 5 ft": 835,
      "unlabelled, no label foot within 5 ft": 82,
+     "not a corpus frame": 0
+    }
+   },
+   "by_status_own": {
+    "all player-frames": {
+     "labelled": 41292,
+     "unlabelled, an unclaimed label box within 5 ft": 8611,
+     "unlabelled, none": 4982,
+     "not a corpus frame": 0
+    },
+    "r23 found": {
+     "labelled": 36448,
+     "unlabelled, an unclaimed label box within 5 ft": 2557,
+     "unlabelled, none": 1313,
+     "not a corpus frame": 0
+    },
+    "E1 extra miss": {
+     "labelled": 3512,
+     "unlabelled, an unclaimed label box within 5 ft": 600,
+     "unlabelled, none": 250,
+     "not a corpus frame": 0
+    },
+    "E1 extra find": {
+     "labelled": 1920,
+     "unlabelled, an unclaimed label box within 5 ft": 617,
+     "unlabelled, none": 300,
      "not a corpus frame": 0
     }
    },

@@ -133,3 +133,22 @@ def test_games_are_guarded():
             M.check_games([bad])
     src = open(M.__file__).read()
     assert "refuse_cv_test(" in src and "guard(" in src and ".train(" not in src and ".fit(" not in src
+
+
+def test_guard_refuses_a_held_out_game_even_when_listed(monkeypatch):
+    calls = []
+    real = M.refuse_cv_test
+    monkeypatch.setattr(M, "refuse_cv_test", lambda items, who, **k: calls.append(list(items)) or real(items, who, **k))
+    monkeypatch.setattr(M, "POOL", M.POOL + ("gsw_phx_2016",))
+    with pytest.raises(SystemExit, match="held-out"):
+        M.check_games(["gsw_phx_2016"])
+    assert calls == [["gsw_phx_2016"]]
+
+
+def test_own_label_box_is_one_to_one_and_unclaimed():
+    targets = np.array([[10.0, 5.0], [14.0, 5.0], [40.0, 5.0]])
+    feet = np.array([[10.2, 5.0], [11.0, 5.0], [44.0, 5.0]])     # box 0 claims player 0; box 1 is free, 3 ft from 1
+    lab = M.assignment(feet, targets, 2.5)
+    assert lab == {0: 0}
+    assert M.own_label_within(feet, targets, lab) == {1, 2}      # free boxes 1 and 2 go to players 1 and 2
+    assert M.own_label_within(feet[:1], targets, lab) == set()   # a claimed box never counts for a neighbour
