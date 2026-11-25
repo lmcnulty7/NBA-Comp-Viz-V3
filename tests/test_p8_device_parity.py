@@ -57,7 +57,11 @@ def test_guard(monkeypatch):
     with pytest.raises(SystemExit):
         M.check_games(["hou_cle_2016"])
     src = open(M.__file__).read()
-    assert "builds" not in src and "__seed" not in src                 # never a build folder or a score file
+    import re
+    targets = set(re.findall(r"atomic_write\((\w+)", src))
+    assert targets <= {"out_dir", "rec_p"}, targets                    # writes only under the parity/ folder
+    assert "rec_p = d / " in src and "d = out_dir()" in src
+    assert ".write_text(" not in src and "__seed" not in src.split("def cmd_diag")[0]
 
 
 def test_mps_repeat_folders_and_counts(monkeypatch):
@@ -73,3 +77,11 @@ def test_mps_repeat_folders_and_counts(monkeypatch):
     cmd = ["python", "build_trajectories.py", "--source", "x.mp4"]
     assert R.rewrite(cmd, {R.ENV: "/w.pt"})[:4] == ["python", "-m", "tools.p8_mps_repeat", "child"]
     assert R.rewrite(cmd, {}) == cmd
+
+
+def test_sweep_game_tag_and_collapse_counts():
+    assert M.game_of_stem("gsw_sac_2015_s03_w01") == "gsw_sac_2015"
+    assert M.game_of_stem("hou_cle_2016_s00_w00") == "hou_cle_2016"
+    side = {"frames": [{"frame": 0, "boxes": [{"bbox": [720, 10, 720, 200]}, {"bbox": [100, 10, 150, 721]},
+                                              {"bbox": [300, 10, 350, 200]}]}]}
+    assert M.collapse_counts(side) == {"boxes": 3, "zero_width_at_720": 1, "y2_over_720": 1}

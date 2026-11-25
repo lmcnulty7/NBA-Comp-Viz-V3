@@ -292,8 +292,11 @@ def cmd_score(args) -> dict:
     pooled = {"games": games, "frames": pool_frames,
               **{m: _model_block(pool_acc[m], pool_frames, pool_w, m, oracle_boot, oracle_rates, ORACLE_KEYS)
                  for m in MODELS}}
-    out = {"what": "M7 device parity of raw detections, CPU against MPS, corpus JPEGs (docs/research/P8_E1.md); "
-                   "report only", "rule": {"mps_box_loss_under": LOSS_MAX, "missed_diff_under": MISSED_MAX, "cut": CUT},
+    what = ("M7 device parity of raw detections, CPU against MPS, corpus JPEGs (docs/research/P8_E1.md); report only"
+            if not args.mps_tag else
+            "M7 diagnostic run (report only, added after the numbers): MPS with ultralytics' out-of-place clip branch "
+            "forced in the measuring process (ops.NOT_MACOS14 = False), against CPU; not the pipeline's setting")
+    out = {"what": what, "rule": {"mps_box_loss_under": LOSS_MAX, "missed_diff_under": MISSED_MAX, "cut": CUT},
            "runs": runs, "games": per_game, "pooled": pooled}
     out["mps_tag"] = args.mps_tag or None
     atomic_write(out_dir() / f"p8_device_parity{suffix}.json", json.dumps(out, indent=1, default=float))
@@ -315,6 +318,151 @@ def _model_block(acc, frames, per_w, m, oracle_boot, oracle_rates, keys) -> dict
     return s
 
 
+# ── report-only diagnostics (added after the numbers) ──────────────────────────────────────────────────────────────
+def row_aligned(cpu: dict, mps: dict, m: str, first_rows: int) -> dict:
+    """CPU and MPS outputs compared row by row (output order after the class filter) on frames whose rows carry the
+    same confidences -> counts of x and y changes, the rows the x changes sit in, zero-width boxes at x = 720 and y2
+    above 720 on each device."""
+    st = {"frames_aligned": 0, "frames_unaligned": 0, "rows": 0, "x_changed": 0, "y_changed": 0,
+          "mps_zero_width": 0, "mps_zero_width_at_720": 0, "mps_y2_over_720": 0, "cpu_y2_over_720": 0}
+    rows = {}
+    for k in mps:
+        a, b = cpu[k][m], mps[k][m]
+        if len(a) != len(b) or any(abs(x[4] - y[4]) > 2e-5 for x, y in zip(a, b)):
+            st["frames_unaligned"] += 1
+            continue
+        st["frames_aligned"] += 1
+        for i, (x, y) in enumerate(zip(a, b)):
+            st["rows"] += 1
+            if abs(x[0] - y[0]) > 0.01 or abs(x[2] - y[2]) > 0.01:
+                st["x_changed"] += 1
+                rows[i] = rows.get(i, 0) + 1
+            if abs(x[1] - y[1]) > 0.01 or abs(x[3] - y[3]) > 0.01:
+                st["y_changed"] += 1
+            if y[2] - y[0] < 1:
+                st["mps_zero_width"] += 1
+                st["mps_zero_width_at_720"] += abs(y[0] - 720) < 0.01
+            st["mps_y2_over_720"] += y[3] > 720.0
+            st["cpu_y2_over_720"] += x[3] > 720.0
+    st["x_changed_by_row"] = {str(i): v for i, v in sorted(rows.items())}
+    st[f"x_changed_in_rows_0_to_{first_rows - 1}"] = sum(v for i, v in rows.items() if i < first_rows)
+    return st
+
+
+def fix_differences(cpu: dict, fix: dict, m: str, tol: float = 0.05) -> list:
+    """Boxes of the forced-clip run that differ from CPU by more than tol px. Boxes are paired one to one within a
+    frame (Hungarian on the largest coordinate difference, plus a large cost when confidences differ), so two boxes
+    of equal confidence that swap output rows are not counted."""
+    from scipy.optimize import linear_sum_assignment
+    out = []
+    for k in fix:
+        a, b = cpu[k][m], fix[k][m]
+        if len(a) != len(b):
+            out.append({"frame": k, "note": "box count differs"})
+            continue
+        if not a:
+            continue
+        C = np.array([[max(abs(p - q) for p, q in zip(x[:4], y[:4])) + (1e6 if abs(x[4] - y[4]) > 2e-5 else 0.0)
+                       for y in b] for x in a])
+        for i, j in zip(*linear_sum_assignment(C)):
+            if C[i, j] > tol:
+                out.append({"frame": k, "conf": b[j][4], "diff_px": [round(q - p, 2) for p, q in zip(a[i][:4], b[j][:4])]})
+    return out
+
+
+def collapse_counts(side: dict) -> dict:
+    c = {"boxes": 0, "zero_width_at_720": 0, "y2_over_720": 0}
+    for r in side["frames"]:
+        for b in r["boxes"]:
+            x1, y1, x2, y2 = b["bbox"]
+            c["boxes"] += 1
+            c["zero_width_at_720"] += (x2 - x1) < 1 and abs(x1 - 720) < 1
+            c["y2_over_720"] += y2 > 720
+    return c
+
+
+def cmd_diag(args) -> dict:
+    """Report-only block of the M7 record: row-aligned stats per game, the forced-clip run's differing rows, the
+    s04_w00 numbers of the M5 and M6 paragraph, and the sidecar collapse counts of gsw_bkn_2015's builds."""
+    d = out_dir()
+    e1d = p8_root() / "e1"
+    block = {"note": "report only, added after the numbers (ml-review of M7)", "row_aligned": {}}
+    for g in check_games(GAMES):
+        cpu = json.loads((e1d / f"m4_preds__{g}.json").read_text())["preds"]
+        mps = json.loads((d / f"parity__{g}__mps.json").read_text())["preds"]
+        block["row_aligned"][g] = {"r23": row_aligned(cpu, mps, "r23", 4), "e1": row_aligned(cpu, mps, "e1", 2)}
+    cpu = json.loads((e1d / "m4_preds__gsw_bkn_2015.json").read_text())["preds"]
+    fix = json.loads((d / "parity__gsw_bkn_2015__mps__fix.json").read_text())["preds"]
+    block["forced_clip_rows_differing_over_0.05px"] = {m: {"rows": sum(len(fix[k][m]) for k in fix),
+                                                          "differing": fix_differences(cpu, fix, m)} for m in MODELS}
+    reg = json.loads((e1d / "gsw_bkn_2015__seed0__gsw_bkn_2015.json").read_text())["windows"]
+    cpuw = json.loads((e1d / "m6__e1__gsw_bkn_2015.json").read_text())["windows"]
+    w = "gsw_bkn_2015_s04_w00"
+    net = lambda src, skip=(): sum(v["new"]["missed"] - v["r23"]["missed"] for k, v in src.items() if k not in skip)
+    block["s04_w00"] = {"net_extra_misses_mps_game": net(reg), "net_extra_misses_mps_window": net(reg) - net(reg, {w}),
+                        **{f"{dev}_{s}": {k: src[w][s][k] for k in ("missed", "in_frame", "nr_boxes")}
+                           for dev, src in (("mps", reg), ("cpu", cpuw)) for s in ("r23", "new")}}
+    builds = p8_root() / "builds"
+    block["sidecar_collapse_gsw_bkn_2015"] = {}
+    for b in ("r23", "e1_gsw_bkn_2015_seed0", "e1m6_r23_detcpu", "e1m6_e1_gsw_bkn_2015_detcpu"):
+        acc = {}
+        for p in sorted((builds / b).glob("gsw_bkn_2015_*_frames.json")):
+            merge(acc, collapse_counts(json.loads(p.read_text())))
+        block["sidecar_collapse_gsw_bkn_2015"][b] = acc
+    rec_p = d / "p8_device_parity.json"
+    rec = json.loads(rec_p.read_text())
+    rec["report_only"] = block
+    atomic_write(rec_p, json.dumps(rec, indent=1, default=float))
+    print(json.dumps({k: v for k, v in block.items() if k != "forced_clip_rows_differing_over_0.05px"}, indent=1))
+    return block
+
+
+def game_of_stem(stem: str) -> str:
+    """gsw_sac_2015_s03_w01 -> gsw_sac_2015 (the tag before the _s<section>_w<window> suffix)."""
+    import re
+    m = re.match(r"^(.*)_s\d+_w\d+$", stem)
+    return m.group(1) if m else stem
+
+
+def cmd_sweep(args) -> dict:
+    """M7b: the collapse signature in every sidecar folder of the P8 workspace builds (report only)."""
+    import cv2
+    builds = p8_root() / "builds"
+    out = {"what": "M7b collapse signature per build folder and game (docs/research/P8_E1.md); report only",
+           "folders": {}, "skipped": {}, "image_size": {}}
+    ok_games, bad_games = set(), set()
+    for folder in sorted(p for p in builds.iterdir() if p.is_dir()):
+        per = {}
+        for p in sorted(folder.glob("*_frames.json")):
+            stem = p.name[:-len("_frames.json")]
+            game = game_of_stem(stem)
+            if game not in ok_games | bad_games:
+                try:
+                    guard([game], WHO)
+                    ok_games.add(game)
+                except SystemExit:
+                    bad_games.add(game)
+            if game in bad_games:
+                out["skipped"].setdefault(folder.name, set()).add(game)
+                continue
+            acc = per.setdefault(game, {})
+            merge(acc, collapse_counts(json.loads(p.read_text())))
+            acc["windows"] = acc.get("windows", 0) + 1
+            key = (game, stem)
+            if game not in out["image_size"]:
+                cap = cv2.VideoCapture(str(p8_root() / "label_build" / f"{stem}.mp4"))
+                wh = (int(cap.get(3)), int(cap.get(4)))
+                cap.release()
+                out["image_size"][game] = list(wh) if wh != (0, 0) else "not readable"
+            del key
+        if per:
+            out["folders"][folder.name] = per
+    out["skipped"] = {k: sorted(v) for k, v in out["skipped"].items()}
+    atomic_write(out_dir() / "p8_collapse_sweep.json", json.dumps(out, indent=1))
+    print(json.dumps(out, indent=1))
+    return out
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_device_parity")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -326,8 +474,10 @@ def main(argv=None) -> None:
     s = sub.add_parser("score")
     s.add_argument("--games", default=None)
     s.add_argument("--mps-tag", dest="mps_tag", default="", choices=("", "fix"))
+    sub.add_parser("diag")
+    sub.add_parser("sweep")
     a = ap.parse_args(argv)
-    {"run": cmd_run, "score": cmd_score}[a.cmd](a)
+    {"run": cmd_run, "score": cmd_score, "diag": cmd_diag, "sweep": cmd_sweep}[a.cmd](a)
 
 
 if __name__ == "__main__":

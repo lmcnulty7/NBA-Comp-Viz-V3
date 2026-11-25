@@ -75,5 +75,38 @@
    "boxes_per_frame_b": 4.3367,
    "same_count_frames": 381
   }
+ },
+ "run": {
+  "cached": "all rebuilt windows were built fresh (run log: cached false for every window)",
+  "windows": {
+   "r23/gsw_bkn_2015_s04_w00": {
+    "device": "mps",
+    "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "r23/gsw_bkn_2015_s05_w00": {
+    "device": "mps",
+    "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "r23/gsw_bkn_2015_s06_w00": {
+    "device": "mps",
+    "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "e1/gsw_bkn_2015_s04_w00": {
+    "device": "mps",
+    "weights_sha256": "d4ffed33564b990954f13430d23dc2401ac063286a9b08b10d80fce7b5a6b664"
+   }
+  },
+  "cpu_model_state": {
+   "r23": {
+    "fp16": false,
+    "param_dtype": "torch.float32",
+    "device": "cpu"
+   },
+   "e1": {
+    "fp16": false,
+    "param_dtype": "torch.float32",
+    "device": "cpu"
+   }
+  }
  }
 }

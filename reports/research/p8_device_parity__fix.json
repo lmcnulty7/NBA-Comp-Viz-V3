@@ -1,5 +1,5 @@
 {
- "what": "M7 device parity of raw detections, CPU against MPS, corpus JPEGs (docs/research/P8_E1.md); report only",
+ "what": "M7 diagnostic run (report only, added after the numbers): MPS with ultralytics' out-of-place clip branch forced in the measuring process (ops.NOT_MACOS14 = False), against CPU; not the pipeline's setting",
  "rule": {
   "mps_box_loss_under": 0.01,
   "missed_diff_under": 0.005,

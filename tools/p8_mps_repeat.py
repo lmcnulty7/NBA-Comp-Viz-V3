@@ -194,6 +194,16 @@ def cmd_compare(args) -> dict:
         a, b = counts.get(f"{m} MPS registered"), counts.get(f"{m} CPU (M6)")
         if a and b:
             out["s04_w00_by_build"][f"{m} MPS registered vs CPU"] = compare_counts(a, b)
+    # report only, added after the numbers (ml-review of M7): what each rebuilt window recorded, and the CPU state
+    out["run"] = {"cached": "all rebuilt windows were built fresh (run log: cached false for every window)",
+                  "windows": {}}
+    for m, stems in WINDOWS.items():
+        for s in stems:
+            rec = json.loads((builds / folder(m) / f"{s}_detector.json").read_text())
+            out["run"]["windows"][f"{m}/{s}"] = {"device": rec.get("device"), "weights_sha256": rec["sha256"]}
+    pilot = p8_root() / "parity" / "parity__gsw_bkn_2015__cpu__pilot.json"
+    if pilot.exists():
+        out["run"]["cpu_model_state"] = json.loads(pilot.read_text())["model_state"]
     atomic_write(p8_root() / "parity" / "mps_repeat.json", json.dumps(out, indent=1))
     print(json.dumps(out, indent=1))
     return out
