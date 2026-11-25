@@ -212,6 +212,9 @@ as `get` does. `compare --plumbing` on that result (written to the P8 workspace 
 
 ## 10. Runbook for the lead
 
+While a local web filter blocks the Mac's route to the runtime, steps 2 and 5 go through Google Drive instead
+(section 12, A14). Every other step stays as written.
+
 Before: merge this branch into v4-research and push it; PIN is that pushed commit (the runtime clones from GitHub).
 The pack is already built on the Mac (pack folder: the P8 data folder, cuda_check/pack; tar sha256 in its
 pack_manifest.json); rebuild it with the pack command only if a pinned file changed. Log the runtime's start time.
@@ -306,3 +309,107 @@ No tolerance, offset or rule test changed. Each item below was made before any C
 - A13 (2026-11-25, after A12). Section 5 states that the Mac MPS reference is the unfixed MPS path (clip_boxes'
   in-place clamp corrupts box x coordinates on this Mac, E1 post-mortem M7 and M8), so matching it means matching a
   known-faulty path. No arm, test or reference changes.
+- A14 (2026-11-25). Transfer through Google Drive (section 12): the Mac's HTTP route to the runtime is blocked by a
+  local web filter, so the pack goes up through the Drive mount and the Drive API, and the result comes back the same
+  way. Nothing in the builds, the arms, the tests or the reading changes; the run is still checked by every hash.
+- A15 (2026-11-25). Fixes from the independent security review of r-p8-drive-xfer (03055873), all before anything
+  is staged: token format check and stripping, ValueError from http.client caught, redirects refused, appProperties on
+  the result folder, protected-path refusals without the full path, Drive id checks, symlink refusals, the upload stall
+  cap and Range checks, Google's error reason in errors; section 12 states where the token sits (the transcript file on
+  the Mac, kept after expiry; the runtime kernel's history until the runtime is deleted) and the snippets end with
+  `del env`.
+
+## 12. Transfer through Google Drive (A14)
+
+Tool: `tools/p8_drive_xfer.py` (stdlib only). The Mac's Drive mount and the Colab runtime use the same Google account.
+The Mac commands take their access token from the Colab sign-in helper (colab_headers.py, its token()); the runtime
+reads its token only from the environment variable DRIVE_TOKEN of the one subprocess that needs it. The tool never
+prints, logs or writes a token. Prerequisite: the Drive API enabled on the sign-in's Cloud project (a 403
+SERVICE_DISABLED means it is not yet).
+
+How the lead makes DRIVE_TOKEN: `python3 "$HOME/.config/nba-colab/drive_token.py"` (outside the repository) mints
+a Drive-only access token (drive.readonly plus drive.file, about 59 minutes) from the stored refresh token, by the
+scope parameter on refresh, and never caches it. Run it with `--check` first (it must show the scopes drive.file and
+drive.readonly only, and the minutes left); run it without the flag to get the token, and mint a fresh one for each
+call that needs it if the last is near its hour. The token is passed only in the execute_code call text, into each
+subprocess's environment; it cannot drive Colab. Where it then sits (A15): in the lead's session transcript file on the
+Mac, which is kept after the token expires; and very likely in the runtime kernel's input history and globals (the
+call's code text holds it) until the runtime is deleted. It is valid for about an hour. The tool itself writes it to no
+file and no log and never puts it on a command line. So delete the runtime as soon as the transfer is done, and end
+each snippet with `del env` (which clears the variable, not the input history).
+
+Up (replaces step 2):
+
+1. On the Mac: `python3 -m tools.p8_drive_xfer stage --pack <pack folder> --drive-dir "<Drive root>/nba_p8_xfer/cuda_check"`,
+   where the Drive root is the parent of DATA_ROOT. It copies the pack's files there (never under DATA_ROOT, reports/
+   or a checkout), polls the Drive API until every file shows the local size and md5, and writes drive_ids.json
+   beside the pack manifest (per file: name, Drive id, size, md5, sha256). The 162 MB pack uploads at the Drive
+   client's speed; the command waits up to an hour.
+2. `python3 -m tools.p8_drive_xfer push-map --pack <pack folder>` prints the id map on one line. It holds no secret
+   and no local path.
+3. One short execute_code call writes that line to /content/p8_drive_ids.json and starts the fetch detached, with
+   the token in that subprocess's environment only:
+
+   ```python
+   import os, subprocess
+   open("/content/p8_drive_ids.json", "w").write('<the push-map line>')
+   env = {**os.environ, "DRIVE_TOKEN": "<the Drive-only token from drive_token.py>"}
+   subprocess.Popen(["python", "-m", "tools.p8_drive_xfer", "fetch", "--ids", "/content/p8_drive_ids.json",
+                     "--dest", "/content/p8_cuda_in"], cwd="/content/repo", env=env,
+                    stdout=open("/content/p8_fetch.log", "w"), stderr=subprocess.STDOUT)
+   del env
+   ```
+
+   Poll /content/p8_fetch.log with new short calls until it shows {"files": ...}. fetch reads each file in Range
+   requests, resumes from a .part file, and refuses any file whose size, md5 or sha256 differs from the map. Then
+   start the run as in step 3. The run's own checks (the pack tar against its manifest, every member) still apply.
+
+Down (replaces step 5). The result tar is about 10.7 MB for all three arms (cuda_a and cuda_b about 4.9 MB each,
+4.0 MB of it the report-only window; colab_cpu about 0.9 MB; the one-arm, one-window plumbing tar was 450 KB). The way
+back is Drive with the drive.file scope, which Lucien approved on 2026-11-25 beside drive.readonly. drive.file lets
+this OAuth client create files and touch only files it created, so the folder is made by the same client first.
+
+1. Before the run, on the Mac: `python3 -m tools.p8_drive_xfer make-folder --name nba_p8_xfer_out` prints the
+   folder's id (not a secret). It creates the folder with this client's appProperties and reuses a folder only when
+   it carries them (only this client can set or see them), never by name alone: drive.readonly also shows folders the
+   client does not own, and uploads there would fail.
+2. After "done", one short execute_code call uploads the two result files, with the token in each subprocess's
+   environment only:
+
+   ```python
+   import os, subprocess
+   env = {**os.environ, "DRIVE_TOKEN": "<a fresh Drive-only token from drive_token.py>"}
+   for name in ("p8_cuda_gsw_ind_2016.complete.json", "p8_cuda_gsw_ind_2016.tar"):
+       r = subprocess.run(["python", "-m", "tools.p8_drive_xfer", "upload", "--src", f"/content/p8_cuda_out/{name}",
+                           "--drive-dir-id", "<folder id>", "--name", name], cwd="/content/repo", env=env,
+                          capture_output=True, text=True)
+       print(r.stdout.strip() or r.stderr[-500:])
+   del env
+   ```
+
+   Each upload is resumable, checks Drive's size and md5 against the local file and prints one line: name, Drive id,
+   size, md5, sha256. The tar (about 10.7 MB) goes up in seconds, so the call stays short.
+3. On the Mac, for each printed line:
+   `python3 -m tools.p8_drive_xfer pull --file-id <id> --name <name> --size <size> --md5 <md5> --sha256 <sha256> --dest <result folder>`.
+   pull checks size, md5 and sha256 against what the runtime printed (a channel Drive does not touch) and refuses on
+   any mismatch. Then `python3 -m tools.p8_cuda_check unpack --dest <result folder> --expect-sha256 <the tar's
+   sha256>` checks the tar against complete.json and every member, and extracts it. Then delete the runtime and
+   compare as in step 6.
+
+Base64 through execute_code output is not used: the output enters the lead's context, and even trimmed to the frames
+files and gzipped, the three arms are about 1.7 MB (hundreds of thousands of tokens).
+
+Token exposure: only the Drive-only token (drive.file and drive.readonly) ever enters an execute_code call, through
+its text. It stays in the session transcript file on the Mac after it expires, and very likely in the runtime kernel's
+input history and globals until the runtime is deleted; it is valid for about an hour. The Colab-scoped token stays
+on the Mac (the Colab MCP server's headers and the Mac commands of this tool). drive.readonly can read the whole Drive
+while the token is valid; drive.file can write only files this client created. Delete the runtime right after the
+transfer.
+
+Guards of the tool (A15, after the independent security review of 03055873): a token is stripped and must match a
+plain access-token pattern, and a refusal never shows it; a header value http.client rejects becomes a ConnectionError
+naming only the URL without its query; redirects are refused, so the Authorization header never follows a 3xx; Drive
+errors carry Google's error reason from the body; Drive ids must match a plain id pattern; a refusal of a protected
+path names the place (DATA_ROOT, the repository, the main checkout) and the item's own name only, never the Drive
+mount's full path; a destination or .part file that is a symlink is refused; an upload that makes no progress over
+four 308 replies stops; a 200 for a Range not at 0, or a body of the wrong length, is refused.

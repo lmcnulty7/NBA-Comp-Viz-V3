@@ -361,3 +361,14 @@ def test_check_result_keeps_an_arm_whose_report_only_window_failed(tmp_path):
     rr.write_text(json.dumps(rec))
     _, usable, unusable = C.check_result(tmp_path / "res", None, plumbing=False)
     assert usable == ["cuda_a"] and "cuda_a (report-only window)" in unusable     # wrong court model, flagged
+
+
+def test_unpack_checks_the_tar_against_complete_json_and_the_runtime_sha(tmp_path):
+    out_dir, complete = _result(tmp_path)
+    assert C.unpack(out_dir, complete["tar_sha256"])["members"] == len(complete["members"])
+    assert (out_dir / C.RESULT / "cuda_a" / f"{W3}_frames.json").exists()
+    with pytest.raises(SystemExit):
+        C.unpack(out_dir, "0" * 64)                                # not the tar the runtime reported
+    (out_dir / f"{C.RESULT}.tar").write_bytes(b"changed")
+    with pytest.raises(SystemExit):
+        C.unpack(out_dir)
