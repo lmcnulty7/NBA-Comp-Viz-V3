@@ -101,13 +101,21 @@ runtime's HTTP endpoints with an identical sha256. So the API path moves files o
    Start it from one execute_code call that waits for the process (subprocess.Popen then wait), behind an O_EXCL lock
    file so a repeated call never starts a second run. The call times out on the client side within about a minute;
    do not repeat it with the same executionId (on 2026-11-24 a repeat started a second training on the same GPU).
-4. The lead reads the log now and then from a separate session (execute_code with a new executionId each time).
-   Keep a cell running for the whole run: the Colab FAQ says "Idle timeouts only apply if code execution
-   terminates", and on 2026-11-24 a T4 whose training ran as a detached process with no running cell was gone within
-   about 30 minutes of the last call (the fold 1 run was lost), while a CPU runtime with a detached process and no
-   client lasted at least 113 minutes. The Colab sign-in in Claude Code renews itself through a headersHelper with a
-   stored refresh token (outside the repository); Claude Code's own OAuth gets no refresh token and dies after an
-   hour.
+4. The lead reads the log from a separate session (execute_code with a new executionId each time) at least every
+   8 minutes for the whole run, and makes no call longer than about a minute. A running cell is not enough: on
+   2026-11-24 a T4 with a waiting cell still running (the run of step 3) was reclaimed between 10:37 and 11:01 UTC,
+   with no client call after 10:37, and a T4 whose training ran as a detached process with no cell was gone within
+   about 30 minutes of the last call (fold 1, seed 0 lost both times). With a check about every 7.5 minutes the
+   third T4 ran all three folds of seed 0 (13.2 hours) without a loss (times from the lead's runtime log, not in
+   the repository). A CPU runtime with a detached process and no
+   client lasted at least 113 minutes, so the rule is for GPU runtimes. The Colab sign-in in Claude Code renews
+   itself through a headersHelper with a stored refresh token (outside the repository); Claude Code's own OAuth gets
+   no refresh token and dies after an hour.
 5. `python3 -m tools.p8_colab_xfer get-run --fold <fold> --seed <seed> --dest <folder outside the repository>`
    downloads the result tar and complete.json and checks best.pt and last.pt inside the tar against complete.json.
 6. The lead deletes the runtime, then scores on the Mac as in section 4.
+
+Measured cost (2026-11-24, Colab Pro balance read by Lucien before and after): 17.30 units for about 15.1 T4-hours
+and 1.9 CPU-hours (runtime hours from the lead's runtime log, not in the repository), at most about 1.15 units a
+T4-hour with the CPU hours counted in. Seed 0 of all three folds trained in 12.7 hours (3.784, 4.785 and 4.167 h, from
+results.csv); the two lost T4 runtimes cost about 2 units.
