@@ -176,7 +176,22 @@ The runbook for the lead is section 10.
 
 ## 9. Plumbing dry run on the Mac
 
-Section 9 records the Mac dry run of the runtime command (CPU, one window): plumbing only, not a result.
+Plumbing only, not a result (2026-11-24, under the heavy-job lock). The pack was built on the Mac (21.1 MB tar; the
+gsw_ind_2016_s02 section's sha256 equals the R1.3 manifest's; CLIP revision 3d74acf9, 398 parameter tensors). The
+runtime command then ran on the Mac with `--arms colab_cpu --windows gsw_ind_2016_s02_w04 --plumbing` into a fresh
+work folder: every hash, the frozen window plan and the CLIP fingerprint checked; the build went through
+`safe_build` with `P8_DEVICE=cpu` (device record: cpu for detector, court and gate) in 131 s (the D99 CPU build took
+122 s); the result tar and complete.json were written, and its 5 members checked against complete.json and extracted
+as `get` does. `compare --plumbing` on that result (written to the P8 workspace as cuda_check_plumbing.json):
+
+- The runtime path against the D99 Mac CPU build of s02_w04: same 125 frames, identical boxes on every frame,
+  court mapping gap 0.0 px, the same frozen offset (-0.78 s) and the same candidates at all 7 offsets. The path
+  reproduces the Mac build exactly.
+- The Mac numbers recomputed by compare equal P8_PLATFORM.md: MPS against CPU 1.04 and 0.90 boxes a frame, same
+  count 0.20 and 0.312, court gap 3.84 and 4.65 px; s02_w03 candidates 65, 45, 30, 16 (MPS), 98, 88, 55, 35 (CPU)
+  and 97, 88, 55, 35 (detector CPU) at 0.30, 0.62, 0.90, 1.20 s; every recorded frozen offset matches. The rule
+  separates Mac CPU from Mac MPS on both windows (four of five tests fail; frame sets agree).
+- No CUDA was involved and no verdict was read. The reading stays "plumbing only, not a result".
 
 ## 10. Runbook for the lead
 
