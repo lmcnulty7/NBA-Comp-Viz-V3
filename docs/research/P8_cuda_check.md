@@ -312,6 +312,12 @@ No tolerance, offset or rule test changed. Each item below was made before any C
 - A14 (2026-11-25). Transfer through Google Drive (section 12): the Mac's HTTP route to the runtime is blocked by a
   local web filter, so the pack goes up through the Drive mount and the Drive API, and the result comes back the same
   way. Nothing in the builds, the arms, the tests or the reading changes; the run is still checked by every hash.
+- A15 (2026-11-25). Fixes from the independent security review of r-p8-drive-xfer (03055873), all before anything
+  is staged: token format check and stripping, ValueError from http.client caught, redirects refused, appProperties on
+  the result folder, protected-path refusals without the full path, Drive id checks, symlink refusals, the upload stall
+  cap and Range checks, Google's error reason in errors; section 12 states where the token sits (the transcript file on
+  the Mac, kept after expiry; the runtime kernel's history until the runtime is deleted) and the snippets end with
+  `del env`.
 
 ## 12. Transfer through Google Drive (A14)
 
@@ -407,9 +413,3 @@ errors carry Google's error reason from the body; Drive ids must match a plain i
 path names the place (DATA_ROOT, the repository, the main checkout) and the item's own name only, never the Drive
 mount's full path; a destination or .part file that is a symlink is refused; an upload that makes no progress over
 four 308 replies stops; a 200 for a Range not at 0, or a body of the wrong length, is refused.
-- A15 (2026-11-25). Fixes from the independent security review of r-p8-drive-xfer (03055873), all before anything
-  is staged: token format check and stripping, ValueError from http.client caught, redirects refused, appProperties on
-  the result folder, protected-path refusals without the full path, Drive id checks, symlink refusals, the upload stall
-  cap and Range checks, Google's error reason in errors; section 12 states where the token sits (the transcript file on
-  the Mac, kept after expiry; the runtime kernel's history until the runtime is deleted) and the snippets end with
-  `del env`.

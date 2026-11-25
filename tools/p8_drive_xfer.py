@@ -326,7 +326,7 @@ def check_stage_dir(d: Path) -> list:
     try:
         rel = p.relative_to(root)
     except ValueError:
-        raise SystemExit(f"{WHO}: {p.name} is not on the Drive mount; stage under {XFER_ROOT}/<name> at the Drive root") from None
+        raise SystemExit(f"{WHO}: --drive-dir is not on the Drive mount; stage under {XFER_ROOT}/<name> at the Drive root") from None
     parts = list(rel.parts)
     if len(parts) != 2 or parts[0] != XFER_ROOT or not safe_name(parts[1]) or "reports" in parts:
         raise SystemExit(f"{WHO}: stage only into {XFER_ROOT}/<name> at the Drive root, not {'/'.join(parts)}")
