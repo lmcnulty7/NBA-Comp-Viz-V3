@@ -67,7 +67,9 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 ## Lessons and priors
 
 - Agreement pseudo-labels (two models must both box a player) cut ghosts but can raise misses: what neither model
-  boxes, or what they box apart, is taught as background (E1, D171; post hoc until the post-mortem measures it).
+  boxes, or what they box apart, is taught as background (E1, D171). The post-mortem found E1's extra misses enriched
+  in unlabelled player-frames, but the net rise sits on labelled ones; it cannot yet separate a training cause from a
+  label-noise cause (M4, the confidence sweep, tests the threshold part).
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on
