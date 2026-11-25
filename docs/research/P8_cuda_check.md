@@ -121,6 +121,11 @@ model-dependent, E1 minus r23 missed on gsw_bkn_2015 -0.0147 with the detector o
   equivalent local build; MPS stays out of every truth build. The R1.3 truth gap on the Mac is then MPS plus the
   offset rule (D99), as P8_PLATFORM.md proposed. D161 (1) is answered for builds; TRACKING_LEVELS.md step 2's held-out
   scorecard wording is not done by this check and changes only by a D line.
+The Mac MPS reference in this check is the unfixed MPS path: the E1 post-mortem (M7, M8) found that MPS on this
+Mac corrupts box x coordinates through ultralytics clip_boxes' in-place clamp branch, and the tools-side switch
+`P8_MPS_CLIP_FIX` (branch r-p8-mps-fix) is not used here. So "CUDA matches MPS" would mean matching a known-faulty
+path. The CUDA arms do not use that switch and are unchanged (A13).
+
 - **CUDA matches MPS**: unexpected (R1.3 on CUDA found 89 candidates where MPS finds 45 at the same offset), and it
   would mean the R1.3 truth came from something other than the device (library versions, the A100). Colab CUDA can
   still be the reference platform, but the R1.3 truth is not reproduced and its cause must be found before Level 1
@@ -298,3 +303,6 @@ No tolerance, offset or rule test changed. Each item below was made before any C
   workspace. compare reports it with the five tests against both, at the fixed offsets plus the Mac builds' frozen
   offsets and the stored label offset; it never enters the verdict. Note that its "CPU" reference has the court on
   MPS, so its court test against CUDA compares two court devices. The pack grows to about 162 MB.
+- A13 (2026-11-25, after A12). Section 5 states that the Mac MPS reference is the unfixed MPS path (clip_boxes'
+  in-place clamp corrupts box x coordinates on this Mac, E1 post-mortem M7 and M8), so matching it means matching a
+  known-faulty path. No arm, test or reference changes.
