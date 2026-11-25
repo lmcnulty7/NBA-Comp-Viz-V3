@@ -1,0 +1,2226 @@
+{
+ "what": "E1 post-mortem (docs/research/P8_E1.md, Post-mortem (measured)); a measurement, nothing trained",
+ "report_only_fields": {
+  "m1": [
+   "report_only_added_after_first_run",
+   "by_height_fine",
+   "class_by_height_fine",
+   "neither_with_a_box_foot_within_5ft (report only by the definitions; nearest box, not one to one)"
+  ],
+  "m2": [
+   "net_extra_misses_by_label",
+   "e1_recovers_r23_misses",
+   "e1_loses_r23_finds",
+   "extra_miss_rate_given_status",
+   "by_status_near",
+   "by_status_own",
+   "by_height_fine"
+  ],
+  "note": "fields added after the definitions; none replaces a registered number. The 5 ft counts of by_status_near and label_foot_within_5ft use the nearest label box of any player (a neighbour's box counts); the own-box counts match unclaimed label boxes one to one."
+ },
+ "m1": {
+  "what": "M1 label audit of the E1 corpus (docs/research/P8_E1.md, Post-mortem)",
+  "rules": {
+   "in_image": "tools.p8_teachers.targets_in_frame",
+   "find": "tools.p8_teachers.found_targets",
+   "confirm_ft": 2.5,
+   "teacher_conf": 0.1471,
+   "edge_px": 40.0,
+   "nominal_height_ft": 6.5,
+   "height_edges_px": [
+    50.0,
+    75.0,
+    100.0,
+    150.0
+   ],
+   "near_box_ft": 5.0
+  },
+  "games": {
+   "gsw_bkn_2015": {
+    "in_image": 20505,
+    "labelled": 15918,
+    "unlabelled": 4587,
+    "label_recall": 0.7763,
+    "unlabelled_by_class": {
+     "r23 only": 185,
+     "teacher only": 872,
+     "both, IoU < 0.5": 35,
+     "both, IoU >= 0.5": 43,
+     "neither": 3452
+    },
+    "neither_with_a_box_foot_within_5ft": 2997,
+    "report_only_added_after_first_run": {
+     "unlabelled_with_a_label_foot_within_5ft": 3682,
+     "unlabelled_with_a_label_foot_within_5ft_by_class": {
+      "r23 only": 164,
+      "teacher only": 771,
+      "both, IoU < 0.5": 22,
+      "both, IoU >= 0.5": 43,
+      "neither": 2682
+     },
+     "teacher_only_with_teacher_box_under_a_source1_box": 871,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one": 2790,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one_by_class": {
+      "r23 only": 135,
+      "teacher only": 460,
+      "both, IoU < 0.5": 9,
+      "both, IoU >= 0.5": 17,
+      "neither": 2169
+     }
+    },
+    "by_third": {
+     "all": {
+      "near": 5702,
+      "middle": 8719,
+      "far": 6084
+     },
+     "unlabelled": {
+      "near": 1199,
+      "middle": 1731,
+      "far": 1657
+     },
+     "label_recall": {
+      "near": 0.7897,
+      "middle": 0.8015,
+      "far": 0.7276
+     }
+    },
+    "class_by_third": {
+     "near": {
+      "r23 only": 50,
+      "teacher only": 266,
+      "both, IoU < 0.5": 5,
+      "both, IoU >= 0.5": 14,
+      "neither": 864
+     },
+     "middle": {
+      "r23 only": 75,
+      "teacher only": 316,
+      "both, IoU < 0.5": 14,
+      "both, IoU >= 0.5": 15,
+      "neither": 1311
+     },
+     "far": {
+      "r23 only": 60,
+      "teacher only": 290,
+      "both, IoU < 0.5": 16,
+      "both, IoU >= 0.5": 14,
+      "neither": 1277
+     }
+    },
+    "by_height": {
+     "all": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 2,
+      "100-150": 3898,
+      ">=150": 16605,
+      "no pose": 0
+     },
+     "unlabelled": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 1,
+      "100-150": 1137,
+      ">=150": 3449,
+      "no pose": 0
+     },
+     "label_recall": {
+      "<50": null,
+      "50-75": null,
+      "75-100": 0.5,
+      "100-150": 0.7083,
+      ">=150": 0.7923,
+      "no pose": null
+     }
+    },
+    "class_by_height": {
+     "<50": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     },
+     "50-75": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     },
+     "75-100": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 1
+     },
+     "100-150": {
+      "r23 only": 41,
+      "teacher only": 196,
+      "both, IoU < 0.5": 3,
+      "both, IoU >= 0.5": 7,
+      "neither": 890
+     },
+     ">=150": {
+      "r23 only": 144,
+      "teacher only": 676,
+      "both, IoU < 0.5": 32,
+      "both, IoU >= 0.5": 36,
+      "neither": 2561
+     },
+     "no pose": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     }
+    },
+    "by_height_fine": {
+     "all": {
+      "<150": 3900,
+      "150-200": 13888,
+      "200-250": 2657,
+      ">=250": 60,
+      "no pose": 0
+     },
+     "unlabelled": {
+      "<150": 1138,
+      "150-200": 2737,
+      "200-250": 688,
+      ">=250": 24,
+      "no pose": 0
+     },
+     "label_recall": {
+      "<150": 0.7082,
+      "150-200": 0.8029,
+      "200-250": 0.7411,
+      ">=250": 0.6,
+      "no pose": null
+     }
+    },
+    "class_by_height_fine": {
+     "<150": {
+      "r23 only": 41,
+      "teacher only": 196,
+      "both, IoU < 0.5": 3,
+      "both, IoU >= 0.5": 7,
+      "neither": 891
+     },
+     "150-200": {
+      "r23 only": 111,
+      "teacher only": 521,
+      "both, IoU < 0.5": 31,
+      "both, IoU >= 0.5": 26,
+      "neither": 2048
+     },
+     "200-250": {
+      "r23 only": 31,
+      "teacher only": 153,
+      "both, IoU < 0.5": 1,
+      "both, IoU >= 0.5": 10,
+      "neither": 493
+     },
+     ">=250": {
+      "r23 only": 2,
+      "teacher only": 2,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 20
+     },
+     "no pose": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     }
+    },
+    "by_edge": {
+     "all": {
+      "True": 263,
+      "False": 20242
+     },
+     "unlabelled": {
+      "True": 93,
+      "False": 4494
+     },
+     "label_recall": {
+      "True": 0.6464,
+      "False": 0.778
+     }
+    },
+    "class_by_edge": {
+     "True": {
+      "r23 only": 11,
+      "teacher only": 9,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 73
+     },
+     "False": {
+      "r23 only": 174,
+      "teacher only": 863,
+      "both, IoU < 0.5": 35,
+      "both, IoU >= 0.5": 43,
+      "neither": 3379
+     }
+    },
+    "labels_e1b_could_add": 220,
+    "frames": 2075,
+    "label_boxes": 19466,
+    "label_boxes_no_player_within_2_5ft": 3548
+   },
+   "gsw_cha_2016": {
+    "in_image": 13450,
+    "labelled": 8581,
+    "unlabelled": 4869,
+    "label_recall": 0.638,
+    "unlabelled_by_class": {
+     "r23 only": 158,
+     "teacher only": 481,
+     "both, IoU < 0.5": 26,
+     "both, IoU >= 0.5": 26,
+     "neither": 4178
+    },
+    "neither_with_a_box_foot_within_5ft": 3306,
+    "report_only_added_after_first_run": {
+     "unlabelled_with_a_label_foot_within_5ft": 3665,
+     "unlabelled_with_a_label_foot_within_5ft_by_class": {
+      "r23 only": 139,
+      "teacher only": 452,
+      "both, IoU < 0.5": 18,
+      "both, IoU >= 0.5": 25,
+      "neither": 3031
+     },
+     "teacher_only_with_teacher_box_under_a_source1_box": 481,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one": 3007,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one_by_class": {
+      "r23 only": 120,
+      "teacher only": 306,
+      "both, IoU < 0.5": 5,
+      "both, IoU >= 0.5": 8,
+      "neither": 2568
+     }
+    },
+    "by_third": {
+     "all": {
+      "near": 3859,
+      "middle": 5845,
+      "far": 3746
+     },
+     "unlabelled": {
+      "near": 1429,
+      "middle": 1700,
+      "far": 1740
+     },
+     "label_recall": {
+      "near": 0.6297,
+      "middle": 0.7092,
+      "far": 0.5355
+     }
+    },
+    "class_by_third": {
+     "near": {
+      "r23 only": 45,
+      "teacher only": 162,
+      "both, IoU < 0.5": 5,
+      "both, IoU >= 0.5": 6,
+      "neither": 1211
+     },
+     "middle": {
+      "r23 only": 74,
+      "teacher only": 157,
+      "both, IoU < 0.5": 14,
+      "both, IoU >= 0.5": 15,
+      "neither": 1440
+     },
+     "far": {
+      "r23 only": 39,
+      "teacher only": 162,
+      "both, IoU < 0.5": 7,
+      "both, IoU >= 0.5": 5,
+      "neither": 1527
+     }
+    },
+    "by_height": {
+     "all": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 4,
+      "100-150": 4121,
+      ">=150": 9325,
+      "no pose": 0
+     },
+     "unlabelled": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 3,
+      "100-150": 1920,
+      ">=150": 2946,
+      "no pose": 0
+     },
+     "label_recall": {
+      "<50": null,
+      "50-75": null,
+      "75-100": 0.25,
+      "100-150": 0.5341,
+      ">=150": 0.6841,
+      "no pose": null
+     }
+    },
+    "class_by_height": {
+     "<50": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     },
+     "50-75": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     },
+     "75-100": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 3
+     },
+     "100-150": {
+      "r23 only": 55,
+      "teacher only": 155,
+      "both, IoU < 0.5": 9,
+      "both, IoU >= 0.5": 9,
+      "neither": 1692
+     },
+     ">=150": {
+      "r23 only": 103,
+      "teacher only": 326,
+      "both, IoU < 0.5": 17,
+      "both, IoU >= 0.5": 17,
+      "neither": 2483
+     },
+     "no pose": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     }
+    },
+    "by_height_fine": {
+     "all": {
+      "<150": 4125,
+      "150-200": 8478,
+      "200-250": 841,
+      ">=250": 6,
+      "no pose": 0
+     },
+     "unlabelled": {
+      "<150": 1923,
+      "150-200": 2541,
+      "200-250": 402,
+      ">=250": 3,
+      "no pose": 0
+     },
+     "label_recall": {
+      "<150": 0.5338,
+      "150-200": 0.7003,
+      "200-250": 0.522,
+      ">=250": 0.5,
+      "no pose": null
+     }
+    },
+    "class_by_height_fine": {
+     "<150": {
+      "r23 only": 55,
+      "teacher only": 155,
+      "both, IoU < 0.5": 9,
+      "both, IoU >= 0.5": 9,
+      "neither": 1695
+     },
+     "150-200": {
+      "r23 only": 87,
+      "teacher only": 302,
+      "both, IoU < 0.5": 16,
+      "both, IoU >= 0.5": 13,
+      "neither": 2123
+     },
+     "200-250": {
+      "r23 only": 16,
+      "teacher only": 24,
+      "both, IoU < 0.5": 1,
+      "both, IoU >= 0.5": 3,
+      "neither": 358
+     },
+     ">=250": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 1,
+      "neither": 2
+     },
+     "no pose": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     }
+    },
+    "by_edge": {
+     "all": {
+      "True": 189,
+      "False": 13261
+     },
+     "unlabelled": {
+      "True": 128,
+      "False": 4741
+     },
+     "label_recall": {
+      "True": 0.3228,
+      "False": 0.6425
+     }
+    },
+    "class_by_edge": {
+     "True": {
+      "r23 only": 12,
+      "teacher only": 5,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 1,
+      "neither": 110
+     },
+     "False": {
+      "r23 only": 146,
+      "teacher only": 476,
+      "both, IoU < 0.5": 26,
+      "both, IoU >= 0.5": 25,
+      "neither": 4068
+     }
+    },
+    "labels_e1b_could_add": 184,
+    "frames": 1366,
+    "label_boxes": 12659,
+    "label_boxes_no_player_within_2_5ft": 4078
+   },
+   "gsw_sac_2015": {
+    "in_image": 21192,
+    "labelled": 16845,
+    "unlabelled": 4347,
+    "label_recall": 0.7949,
+    "unlabelled_by_class": {
+     "r23 only": 228,
+     "teacher only": 803,
+     "both, IoU < 0.5": 41,
+     "both, IoU >= 0.5": 29,
+     "neither": 3246
+    },
+    "neither_with_a_box_foot_within_5ft": 2883,
+    "report_only_added_after_first_run": {
+     "unlabelled_with_a_label_foot_within_5ft": 3719,
+     "unlabelled_with_a_label_foot_within_5ft_by_class": {
+      "r23 only": 208,
+      "teacher only": 748,
+      "both, IoU < 0.5": 35,
+      "both, IoU >= 0.5": 29,
+      "neither": 2699
+     },
+     "teacher_only_with_teacher_box_under_a_source1_box": 800,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one": 2836,
+     "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one_by_class": {
+      "r23 only": 174,
+      "teacher only": 445,
+      "both, IoU < 0.5": 10,
+      "both, IoU >= 0.5": 4,
+      "neither": 2203
+     }
+    },
+    "by_third": {
+     "all": {
+      "near": 5753,
+      "middle": 9841,
+      "far": 5598
+     },
+     "unlabelled": {
+      "near": 1031,
+      "middle": 1919,
+      "far": 1397
+     },
+     "label_recall": {
+      "near": 0.8208,
+      "middle": 0.805,
+      "far": 0.7504
+     }
+    },
+    "class_by_third": {
+     "near": {
+      "r23 only": 44,
+      "teacher only": 214,
+      "both, IoU < 0.5": 11,
+      "both, IoU >= 0.5": 5,
+      "neither": 757
+     },
+     "middle": {
+      "r23 only": 111,
+      "teacher only": 330,
+      "both, IoU < 0.5": 18,
+      "both, IoU >= 0.5": 16,
+      "neither": 1444
+     },
+     "far": {
+      "r23 only": 73,
+      "teacher only": 259,
+      "both, IoU < 0.5": 12,
+      "both, IoU >= 0.5": 8,
+      "neither": 1045
+     }
+    },
+    "by_height": {
+     "all": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 1,
+      "100-150": 2904,
+      ">=150": 18287,
+      "no pose": 0
+     },
+     "unlabelled": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 1,
+      "100-150": 776,
+      ">=150": 3570,
+      "no pose": 0
+     },
+     "label_recall": {
+      "<50": null,
+      "50-75": null,
+      "75-100": 0.0,
+      "100-150": 0.7328,
+      ">=150": 0.8048,
+      "no pose": null
+     }
+    },
+    "class_by_height": {
+     "<50": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     },
+     "50-75": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     },
+     "75-100": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 1
+     },
+     "100-150": {
+      "r23 only": 49,
+      "teacher only": 114,
+      "both, IoU < 0.5": 4,
+      "both, IoU >= 0.5": 7,
+      "neither": 602
+     },
+     ">=150": {
+      "r23 only": 179,
+      "teacher only": 689,
+      "both, IoU < 0.5": 37,
+      "both, IoU >= 0.5": 22,
+      "neither": 2643
+     },
+     "no pose": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     }
+    },
+    "by_height_fine": {
+     "all": {
+      "<150": 2905,
+      "150-200": 15153,
+      "200-250": 3019,
+      ">=250": 115,
+      "no pose": 0
+     },
+     "unlabelled": {
+      "<150": 777,
+      "150-200": 2964,
+      "200-250": 583,
+      ">=250": 23,
+      "no pose": 0
+     },
+     "label_recall": {
+      "<150": 0.7325,
+      "150-200": 0.8044,
+      "200-250": 0.8069,
+      ">=250": 0.8,
+      "no pose": null
+     }
+    },
+    "class_by_height_fine": {
+     "<150": {
+      "r23 only": 49,
+      "teacher only": 114,
+      "both, IoU < 0.5": 4,
+      "both, IoU >= 0.5": 7,
+      "neither": 603
+     },
+     "150-200": {
+      "r23 only": 146,
+      "teacher only": 544,
+      "both, IoU < 0.5": 32,
+      "both, IoU >= 0.5": 19,
+      "neither": 2223
+     },
+     "200-250": {
+      "r23 only": 30,
+      "teacher only": 138,
+      "both, IoU < 0.5": 4,
+      "both, IoU >= 0.5": 3,
+      "neither": 408
+     },
+     ">=250": {
+      "r23 only": 3,
+      "teacher only": 7,
+      "both, IoU < 0.5": 1,
+      "both, IoU >= 0.5": 0,
+      "neither": 12
+     },
+     "no pose": {
+      "r23 only": 0,
+      "teacher only": 0,
+      "both, IoU < 0.5": 0,
+      "both, IoU >= 0.5": 0,
+      "neither": 0
+     }
+    },
+    "by_edge": {
+     "all": {
+      "True": 365,
+      "False": 20827
+     },
+     "unlabelled": {
+      "True": 109,
+      "False": 4238
+     },
+     "label_recall": {
+      "True": 0.7014,
+      "False": 0.7965
+     }
+    },
+    "class_by_edge": {
+     "True": {
+      "r23 only": 15,
+      "teacher only": 11,
+      "both, IoU < 0.5": 1,
+      "both, IoU >= 0.5": 0,
+      "neither": 82
+     },
+     "False": {
+      "r23 only": 213,
+      "teacher only": 792,
+      "both, IoU < 0.5": 40,
+      "both, IoU >= 0.5": 29,
+      "neither": 3164
+     }
+    },
+    "labels_e1b_could_add": 269,
+    "frames": 2151,
+    "label_boxes": 20353,
+    "label_boxes_no_player_within_2_5ft": 3508
+   }
+  },
+  "pooled": {
+   "in_image": 55147,
+   "labelled": 41344,
+   "unlabelled": 13803,
+   "label_recall": 0.7497,
+   "unlabelled_by_class": {
+    "r23 only": 571,
+    "teacher only": 2156,
+    "both, IoU < 0.5": 102,
+    "both, IoU >= 0.5": 98,
+    "neither": 10876
+   },
+   "neither_with_a_box_foot_within_5ft": 9186,
+   "report_only_added_after_first_run": {
+    "unlabelled_with_a_label_foot_within_5ft": 11066,
+    "unlabelled_with_a_label_foot_within_5ft_by_class": {
+     "r23 only": 511,
+     "teacher only": 1971,
+     "both, IoU < 0.5": 75,
+     "both, IoU >= 0.5": 97,
+     "neither": 8412
+    },
+    "teacher_only_with_teacher_box_under_a_source1_box": 2152,
+    "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one": 8633,
+    "unlabelled_with_an_unclaimed_label_box_within_5ft_one_to_one_by_class": {
+     "r23 only": 429,
+     "teacher only": 1211,
+     "both, IoU < 0.5": 24,
+     "both, IoU >= 0.5": 29,
+     "neither": 6940
+    }
+   },
+   "by_third": {
+    "all": {
+     "near": 15314,
+     "middle": 24405,
+     "far": 15428
+    },
+    "unlabelled": {
+     "near": 3659,
+     "middle": 5350,
+     "far": 4794
+    },
+    "label_recall": {
+     "near": 0.7611,
+     "middle": 0.7808,
+     "far": 0.6893
+    }
+   },
+   "class_by_third": {
+    "near": {
+     "r23 only": 139,
+     "teacher only": 642,
+     "both, IoU < 0.5": 21,
+     "both, IoU >= 0.5": 25,
+     "neither": 2832
+    },
+    "middle": {
+     "r23 only": 260,
+     "teacher only": 803,
+     "both, IoU < 0.5": 46,
+     "both, IoU >= 0.5": 46,
+     "neither": 4195
+    },
+    "far": {
+     "r23 only": 172,
+     "teacher only": 711,
+     "both, IoU < 0.5": 35,
+     "both, IoU >= 0.5": 27,
+     "neither": 3849
+    }
+   },
+   "by_height": {
+    "all": {
+     "<50": 0,
+     "50-75": 0,
+     "75-100": 7,
+     "100-150": 10923,
+     ">=150": 44217,
+     "no pose": 0
+    },
+    "unlabelled": {
+     "<50": 0,
+     "50-75": 0,
+     "75-100": 5,
+     "100-150": 3833,
+     ">=150": 9965,
+     "no pose": 0
+    },
+    "label_recall": {
+     "<50": null,
+     "50-75": null,
+     "75-100": 0.2857,
+     "100-150": 0.6491,
+     ">=150": 0.7746,
+     "no pose": null
+    }
+   },
+   "class_by_height": {
+    "<50": {
+     "r23 only": 0,
+     "teacher only": 0,
+     "both, IoU < 0.5": 0,
+     "both, IoU >= 0.5": 0,
+     "neither": 0
+    },
+    "50-75": {
+     "r23 only": 0,
+     "teacher only": 0,
+     "both, IoU < 0.5": 0,
+     "both, IoU >= 0.5": 0,
+     "neither": 0
+    },
+    "75-100": {
+     "r23 only": 0,
+     "teacher only": 0,
+     "both, IoU < 0.5": 0,
+     "both, IoU >= 0.5": 0,
+     "neither": 5
+    },
+    "100-150": {
+     "r23 only": 145,
+     "teacher only": 465,
+     "both, IoU < 0.5": 16,
+     "both, IoU >= 0.5": 23,
+     "neither": 3184
+    },
+    ">=150": {
+     "r23 only": 426,
+     "teacher only": 1691,
+     "both, IoU < 0.5": 86,
+     "both, IoU >= 0.5": 75,
+     "neither": 7687
+    },
+    "no pose": {
+     "r23 only": 0,
+     "teacher only": 0,
+     "both, IoU < 0.5": 0,
+     "both, IoU >= 0.5": 0,
+     "neither": 0
+    }
+   },
+   "by_height_fine": {
+    "all": {
+     "<150": 10930,
+     "150-200": 37519,
+     "200-250": 6517,
+     ">=250": 181,
+     "no pose": 0
+    },
+    "unlabelled": {
+     "<150": 3838,
+     "150-200": 8242,
+     "200-250": 1673,
+     ">=250": 50,
+     "no pose": 0
+    },
+    "label_recall": {
+     "<150": 0.6489,
+     "150-200": 0.7803,
+     "200-250": 0.7433,
+     ">=250": 0.7238,
+     "no pose": null
+    }
+   },
+   "class_by_height_fine": {
+    "<150": {
+     "r23 only": 145,
+     "teacher only": 465,
+     "both, IoU < 0.5": 16,
+     "both, IoU >= 0.5": 23,
+     "neither": 3189
+    },
+    "150-200": {
+     "r23 only": 344,
+     "teacher only": 1367,
+     "both, IoU < 0.5": 79,
+     "both, IoU >= 0.5": 58,
+     "neither": 6394
+    },
+    "200-250": {
+     "r23 only": 77,
+     "teacher only": 315,
+     "both, IoU < 0.5": 6,
+     "both, IoU >= 0.5": 16,
+     "neither": 1259
+    },
+    ">=250": {
+     "r23 only": 5,
+     "teacher only": 9,
+     "both, IoU < 0.5": 1,
+     "both, IoU >= 0.5": 1,
+     "neither": 34
+    },
+    "no pose": {
+     "r23 only": 0,
+     "teacher only": 0,
+     "both, IoU < 0.5": 0,
+     "both, IoU >= 0.5": 0,
+     "neither": 0
+    }
+   },
+   "by_edge": {
+    "all": {
+     "True": 817,
+     "False": 54330
+    },
+    "unlabelled": {
+     "True": 330,
+     "False": 13473
+    },
+    "label_recall": {
+     "True": 0.5961,
+     "False": 0.752
+    }
+   },
+   "class_by_edge": {
+    "True": {
+     "r23 only": 38,
+     "teacher only": 25,
+     "both, IoU < 0.5": 1,
+     "both, IoU >= 0.5": 1,
+     "neither": 265
+    },
+    "False": {
+     "r23 only": 533,
+     "teacher only": 2131,
+     "both, IoU < 0.5": 101,
+     "both, IoU >= 0.5": 97,
+     "neither": 10611
+    }
+   },
+   "labels_e1b_could_add": 673,
+   "frames": 5592,
+   "label_boxes": 52478,
+   "label_boxes_no_player_within_2_5ft": 11134
+  }
+ },
+ "m2": {
+  "games": {
+   "gsw_bkn_2015": {
+    "player_frames": 20457,
+    "classes": {
+     "both found": 13255,
+     "E1 extra miss": 1873,
+     "E1 extra find": 1197,
+     "both missed": 4132
+    },
+    "net_extra_misses": 676,
+    "by_status": {
+     "all player-frames": {
+      "labelled": 15900,
+      "r23 only": 183,
+      "teacher only": 872,
+      "both, IoU < 0.5": 35,
+      "both, IoU >= 0.5": 43,
+      "neither": 3424,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 13916,
+      "r23 only": 132,
+      "teacher only": 304,
+      "both, IoU < 0.5": 28,
+      "both, IoU >= 0.5": 40,
+      "neither": 708,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 1594,
+      "r23 only": 41,
+      "teacher only": 49,
+      "both, IoU < 0.5": 6,
+      "both, IoU >= 0.5": 8,
+      "neither": 175,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 828,
+      "r23 only": 13,
+      "teacher only": 185,
+      "both, IoU < 0.5": 3,
+      "both, IoU >= 0.5": 1,
+      "neither": 167,
+      "not a corpus frame": 0
+     }
+    },
+    "by_status_near": {
+     "all player-frames": {
+      "labelled": 15900,
+      "unlabelled, a label foot within 5 ft": 3675,
+      "unlabelled, no label foot within 5 ft": 882,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 13916,
+      "unlabelled, a label foot within 5 ft": 1154,
+      "unlabelled, no label foot within 5 ft": 58,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 1594,
+      "unlabelled, a label foot within 5 ft": 255,
+      "unlabelled, no label foot within 5 ft": 24,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 828,
+      "unlabelled, a label foot within 5 ft": 328,
+      "unlabelled, no label foot within 5 ft": 41,
+      "not a corpus frame": 0
+     }
+    },
+    "by_status_own": {
+     "all player-frames": {
+      "labelled": 15900,
+      "unlabelled, an unclaimed label box within 5 ft": 2783,
+      "unlabelled, none": 1774,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 13916,
+      "unlabelled, an unclaimed label box within 5 ft": 807,
+      "unlabelled, none": 405,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 1594,
+      "unlabelled, an unclaimed label box within 5 ft": 190,
+      "unlabelled, none": 89,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 828,
+      "unlabelled, an unclaimed label box within 5 ft": 221,
+      "unlabelled, none": 148,
+      "not a corpus frame": 0
+     }
+    },
+    "by_third": {
+     "all player-frames": {
+      "near": 5672,
+      "middle": 8708,
+      "far": 6077
+     },
+     "r23 found": {
+      "near": 4239,
+      "middle": 6869,
+      "far": 4020
+     },
+     "E1 extra miss": {
+      "near": 544,
+      "middle": 800,
+      "far": 529
+     },
+     "E1 extra find": {
+      "near": 401,
+      "middle": 358,
+      "far": 438
+     }
+    },
+    "by_height": {
+     "all player-frames": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 2,
+      "100-150": 3891,
+      ">=150": 16564,
+      "no pose": 0
+     },
+     "r23 found": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 0,
+      "100-150": 2573,
+      ">=150": 12555,
+      "no pose": 0
+     },
+     "E1 extra miss": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 0,
+      "100-150": 297,
+      ">=150": 1576,
+      "no pose": 0
+     },
+     "E1 extra find": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 0,
+      "100-150": 270,
+      ">=150": 927,
+      "no pose": 0
+     }
+    },
+    "by_height_fine": {
+     "all player-frames": {
+      "<150": 3893,
+      "150-200": 13872,
+      "200-250": 2638,
+      ">=250": 54,
+      "no pose": 0
+     },
+     "r23 found": {
+      "<150": 2573,
+      "150-200": 10607,
+      "200-250": 1915,
+      ">=250": 33,
+      "no pose": 0
+     },
+     "E1 extra miss": {
+      "<150": 297,
+      "150-200": 1384,
+      "200-250": 188,
+      ">=250": 4,
+      "no pose": 0
+     },
+     "E1 extra find": {
+      "<150": 270,
+      "150-200": 745,
+      "200-250": 181,
+      ">=250": 1,
+      "no pose": 0
+     }
+    },
+    "by_edge": {
+     "all player-frames": {
+      "True": 235,
+      "False": 20222
+     },
+     "r23 found": {
+      "True": 140,
+      "False": 14988
+     },
+     "E1 extra miss": {
+      "True": 12,
+      "False": 1861
+     },
+     "E1 extra find": {
+      "True": 14,
+      "False": 1183
+     }
+    },
+    "unlabelled_share": {
+     "all player-frames": 0.2228,
+     "r23 found": 0.0801,
+     "E1 extra miss": 0.149,
+     "E1 extra find": 0.3083
+    },
+    "net_extra_misses_by_label": {
+     "labelled": 766,
+     "unlabelled": -90
+    },
+    "e1_recovers_r23_misses": {
+     "labelled": 0.4173,
+     "unlabelled": 0.1103
+    },
+    "e1_loses_r23_finds": {
+     "labelled": 0.1145,
+     "unlabelled": 0.2302
+    },
+    "extra_miss_rate_given_status": {
+     "labelled": 0.1145,
+     "r23 only": 0.3106,
+     "teacher only": 0.1612,
+     "both, IoU < 0.5": 0.2143,
+     "both, IoU >= 0.5": 0.2,
+     "neither": 0.2472,
+     "not a corpus frame": null
+    },
+    "totals": {
+     "r23": {
+      "in_frame": 20457,
+      "missed": 5329
+     },
+     "e1": {
+      "in_frame": 20457,
+      "missed": 6005
+     }
+    },
+    "windows": 83,
+    "share_diff": {
+     "diff": 0.06884,
+     "window_interval": [
+      0.03514,
+      0.12165
+     ],
+     "windows": 62
+    }
+   },
+   "gsw_cha_2016": {
+    "player_frames": 13284,
+    "classes": {
+     "both found": 8004,
+     "E1 extra miss": 958,
+     "E1 extra find": 597,
+     "both missed": 3725
+    },
+    "net_extra_misses": 361,
+    "by_status": {
+     "all player-frames": {
+      "labelled": 8571,
+      "r23 only": 157,
+      "teacher only": 480,
+      "both, IoU < 0.5": 26,
+      "both, IoU >= 0.5": 26,
+      "neither": 4024,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 7583,
+      "r23 only": 106,
+      "teacher only": 197,
+      "both, IoU < 0.5": 22,
+      "both, IoU >= 0.5": 20,
+      "neither": 1034,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 687,
+      "r23 only": 32,
+      "teacher only": 28,
+      "both, IoU < 0.5": 4,
+      "both, IoU >= 0.5": 5,
+      "neither": 202,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 350,
+      "r23 only": 8,
+      "teacher only": 71,
+      "both, IoU < 0.5": 1,
+      "both, IoU >= 0.5": 2,
+      "neither": 165,
+      "not a corpus frame": 0
+     }
+    },
+    "by_status_near": {
+     "all player-frames": {
+      "labelled": 8571,
+      "unlabelled, a label foot within 5 ft": 3653,
+      "unlabelled, no label foot within 5 ft": 1060,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 7583,
+      "unlabelled, a label foot within 5 ft": 1160,
+      "unlabelled, no label foot within 5 ft": 219,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 687,
+      "unlabelled, a label foot within 5 ft": 239,
+      "unlabelled, no label foot within 5 ft": 32,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 350,
+      "unlabelled, a label foot within 5 ft": 221,
+      "unlabelled, no label foot within 5 ft": 26,
+      "not a corpus frame": 0
+     }
+    },
+    "by_status_own": {
+     "all player-frames": {
+      "labelled": 8571,
+      "unlabelled, an unclaimed label box within 5 ft": 2995,
+      "unlabelled, none": 1718,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 7583,
+      "unlabelled, an unclaimed label box within 5 ft": 872,
+      "unlabelled, none": 507,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 687,
+      "unlabelled, an unclaimed label box within 5 ft": 199,
+      "unlabelled, none": 72,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 350,
+      "unlabelled, an unclaimed label box within 5 ft": 182,
+      "unlabelled, none": 65,
+      "not a corpus frame": 0
+     }
+    },
+    "by_third": {
+     "all player-frames": {
+      "near": 3793,
+      "middle": 5792,
+      "far": 3699
+     },
+     "r23 found": {
+      "near": 2470,
+      "middle": 4395,
+      "far": 2097
+     },
+     "E1 extra miss": {
+      "near": 289,
+      "middle": 373,
+      "far": 296
+     },
+     "E1 extra find": {
+      "near": 202,
+      "middle": 215,
+      "far": 180
+     }
+    },
+    "by_height": {
+     "all player-frames": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 4,
+      "100-150": 4031,
+      ">=150": 9249,
+      "no pose": 0
+     },
+     "r23 found": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 1,
+      "100-150": 2359,
+      ">=150": 6602,
+      "no pose": 0
+     },
+     "E1 extra miss": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 0,
+      "100-150": 273,
+      ">=150": 685,
+      "no pose": 0
+     },
+     "E1 extra find": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 0,
+      "100-150": 176,
+      ">=150": 421,
+      "no pose": 0
+     }
+    },
+    "by_height_fine": {
+     "all player-frames": {
+      "<150": 4035,
+      "150-200": 8425,
+      "200-250": 819,
+      ">=250": 5,
+      "no pose": 0
+     },
+     "r23 found": {
+      "<150": 2360,
+      "150-200": 6144,
+      "200-250": 456,
+      ">=250": 2,
+      "no pose": 0
+     },
+     "E1 extra miss": {
+      "<150": 273,
+      "150-200": 638,
+      "200-250": 47,
+      ">=250": 0,
+      "no pose": 0
+     },
+     "E1 extra find": {
+      "<150": 176,
+      "150-200": 389,
+      "200-250": 32,
+      ">=250": 0,
+      "no pose": 0
+     }
+    },
+    "by_edge": {
+     "all player-frames": {
+      "True": 150,
+      "False": 13134
+     },
+     "r23 found": {
+      "True": 65,
+      "False": 8897
+     },
+     "E1 extra miss": {
+      "True": 7,
+      "False": 951
+     },
+     "E1 extra find": {
+      "True": 4,
+      "False": 593
+     }
+    },
+    "unlabelled_share": {
+     "all player-frames": 0.3548,
+     "r23 found": 0.1539,
+     "E1 extra miss": 0.2829,
+     "E1 extra find": 0.4137
+    },
+    "net_extra_misses_by_label": {
+     "labelled": 337,
+     "unlabelled": 24
+    },
+    "e1_recovers_r23_misses": {
+     "labelled": 0.3543,
+     "unlabelled": 0.0741
+    },
+    "e1_loses_r23_finds": {
+     "labelled": 0.0906,
+     "unlabelled": 0.1965
+    },
+    "extra_miss_rate_given_status": {
+     "labelled": 0.0906,
+     "r23 only": 0.3019,
+     "teacher only": 0.1421,
+     "both, IoU < 0.5": 0.1818,
+     "both, IoU >= 0.5": 0.25,
+     "neither": 0.1954,
+     "not a corpus frame": null
+    },
+    "totals": {
+     "r23": {
+      "in_frame": 13284,
+      "missed": 4322
+     },
+     "e1": {
+      "in_frame": 13284,
+      "missed": 4683
+     }
+    },
+    "windows": 73,
+    "share_diff": {
+     "diff": 0.12901,
+     "window_interval": [
+      0.08007,
+      0.18079
+     ],
+     "windows": 53
+    }
+   },
+   "gsw_sac_2015": {
+    "player_frames": 21144,
+    "classes": {
+     "both found": 14697,
+     "E1 extra miss": 1531,
+     "E1 extra find": 1043,
+     "both missed": 3873
+    },
+    "net_extra_misses": 488,
+    "by_status": {
+     "all player-frames": {
+      "labelled": 16821,
+      "r23 only": 223,
+      "teacher only": 803,
+      "both, IoU < 0.5": 41,
+      "both, IoU >= 0.5": 29,
+      "neither": 3227,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 14949,
+      "r23 only": 155,
+      "teacher only": 348,
+      "both, IoU < 0.5": 31,
+      "both, IoU >= 0.5": 26,
+      "neither": 719,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 1231,
+      "r23 only": 53,
+      "teacher only": 68,
+      "both, IoU < 0.5": 2,
+      "both, IoU >= 0.5": 7,
+      "neither": 170,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 742,
+      "r23 only": 9,
+      "teacher only": 129,
+      "both, IoU < 0.5": 5,
+      "both, IoU >= 0.5": 1,
+      "neither": 157,
+      "not a corpus frame": 0
+     }
+    },
+    "by_status_near": {
+     "all player-frames": {
+      "labelled": 16821,
+      "unlabelled, a label foot within 5 ft": 3715,
+      "unlabelled, no label foot within 5 ft": 608,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 14949,
+      "unlabelled, a label foot within 5 ft": 1239,
+      "unlabelled, no label foot within 5 ft": 40,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 1231,
+      "unlabelled, a label foot within 5 ft": 285,
+      "unlabelled, no label foot within 5 ft": 15,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 742,
+      "unlabelled, a label foot within 5 ft": 286,
+      "unlabelled, no label foot within 5 ft": 15,
+      "not a corpus frame": 0
+     }
+    },
+    "by_status_own": {
+     "all player-frames": {
+      "labelled": 16821,
+      "unlabelled, an unclaimed label box within 5 ft": 2833,
+      "unlabelled, none": 1490,
+      "not a corpus frame": 0
+     },
+     "r23 found": {
+      "labelled": 14949,
+      "unlabelled, an unclaimed label box within 5 ft": 878,
+      "unlabelled, none": 401,
+      "not a corpus frame": 0
+     },
+     "E1 extra miss": {
+      "labelled": 1231,
+      "unlabelled, an unclaimed label box within 5 ft": 211,
+      "unlabelled, none": 89,
+      "not a corpus frame": 0
+     },
+     "E1 extra find": {
+      "labelled": 742,
+      "unlabelled, an unclaimed label box within 5 ft": 214,
+      "unlabelled, none": 87,
+      "not a corpus frame": 0
+     }
+    },
+    "by_third": {
+     "all player-frames": {
+      "near": 5722,
+      "middle": 9824,
+      "far": 5598
+     },
+     "r23 found": {
+      "near": 4345,
+      "middle": 7821,
+      "far": 4062
+     },
+     "E1 extra miss": {
+      "near": 435,
+      "middle": 624,
+      "far": 472
+     },
+     "E1 extra find": {
+      "near": 353,
+      "middle": 387,
+      "far": 303
+     }
+    },
+    "by_height": {
+     "all player-frames": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 1,
+      "100-150": 2904,
+      ">=150": 18239,
+      "no pose": 0
+     },
+     "r23 found": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 0,
+      "100-150": 2075,
+      ">=150": 14153,
+      "no pose": 0
+     },
+     "E1 extra miss": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 0,
+      "100-150": 232,
+      ">=150": 1299,
+      "no pose": 0
+     },
+     "E1 extra find": {
+      "<50": 0,
+      "50-75": 0,
+      "75-100": 0,
+      "100-150": 157,
+      ">=150": 886,
+      "no pose": 0
+     }
+    },
+    "by_height_fine": {
+     "all player-frames": {
+      "<150": 2905,
+      "150-200": 15139,
+      "200-250": 2987,
+      ">=250": 113,
+      "no pose": 0
+     },
+     "r23 found": {
+      "<150": 2075,
+      "150-200": 11767,
+      "200-250": 2291,
+      ">=250": 95,
+      "no pose": 0
+     },
+     "E1 extra miss": {
+      "<150": 232,
+      "150-200": 1090,
+      "200-250": 194,
+      ">=250": 15,
+      "no pose": 0
+     },
+     "E1 extra find": {
+      "<150": 157,
+      "150-200": 718,
+      "200-250": 164,
+      ">=250": 4,
+      "no pose": 0
+     }
+    },
+    "by_edge": {
+     "all player-frames": {
+      "True": 317,
+      "False": 20827
+     },
+     "r23 found": {
+      "True": 220,
+      "False": 16008
+     },
+     "E1 extra miss": {
+      "True": 9,
+      "False": 1522
+     },
+     "E1 extra find": {
+      "True": 25,
+      "False": 1018
+     }
+    },
+    "unlabelled_share": {
+     "all player-frames": 0.2045,
+     "r23 found": 0.0788,
+     "E1 extra miss": 0.196,
+     "E1 extra find": 0.2886
+    },
+    "net_extra_misses_by_label": {
+     "labelled": 489,
+     "unlabelled": -1
+    },
+    "e1_recovers_r23_misses": {
+     "labelled": 0.3964,
+     "unlabelled": 0.0989
+    },
+    "e1_loses_r23_finds": {
+     "labelled": 0.0823,
+     "unlabelled": 0.2346
+    },
+    "extra_miss_rate_given_status": {
+     "labelled": 0.0823,
+     "r23 only": 0.3419,
+     "teacher only": 0.1954,
+     "both, IoU < 0.5": 0.0645,
+     "both, IoU >= 0.5": 0.2692,
+     "neither": 0.2364,
+     "not a corpus frame": null
+    },
+    "totals": {
+     "r23": {
+      "in_frame": 21144,
+      "missed": 4916
+     },
+     "e1": {
+      "in_frame": 21144,
+      "missed": 5404
+     }
+    },
+    "windows": 82,
+    "share_diff": {
+     "diff": 0.11714,
+     "window_interval": [
+      0.09003,
+      0.14297
+     ],
+     "windows": 60
+    }
+   }
+  },
+  "pooled": {
+   "player_frames": 54885,
+   "classes": {
+    "both found": 35956,
+    "E1 extra miss": 4362,
+    "E1 extra find": 2837,
+    "both missed": 11730
+   },
+   "net_extra_misses": 1525,
+   "by_status": {
+    "all player-frames": {
+     "labelled": 41292,
+     "r23 only": 563,
+     "teacher only": 2155,
+     "both, IoU < 0.5": 102,
+     "both, IoU >= 0.5": 98,
+     "neither": 10675,
+     "not a corpus frame": 0
+    },
+    "r23 found": {
+     "labelled": 36448,
+     "r23 only": 393,
+     "teacher only": 849,
+     "both, IoU < 0.5": 81,
+     "both, IoU >= 0.5": 86,
+     "neither": 2461,
+     "not a corpus frame": 0
+    },
+    "E1 extra miss": {
+     "labelled": 3512,
+     "r23 only": 126,
+     "teacher only": 145,
+     "both, IoU < 0.5": 12,
+     "both, IoU >= 0.5": 20,
+     "neither": 547,
+     "not a corpus frame": 0
+    },
+    "E1 extra find": {
+     "labelled": 1920,
+     "r23 only": 30,
+     "teacher only": 385,
+     "both, IoU < 0.5": 9,
+     "both, IoU >= 0.5": 4,
+     "neither": 489,
+     "not a corpus frame": 0
+    }
+   },
+   "by_status_near": {
+    "all player-frames": {
+     "labelled": 41292,
+     "unlabelled, a label foot within 5 ft": 11043,
+     "unlabelled, no label foot within 5 ft": 2550,
+     "not a corpus frame": 0
+    },
+    "r23 found": {
+     "labelled": 36448,
+     "unlabelled, a label foot within 5 ft": 3553,
+     "unlabelled, no label foot within 5 ft": 317,
+     "not a corpus frame": 0
+    },
+    "E1 extra miss": {
+     "labelled": 3512,
+     "unlabelled, a label foot within 5 ft": 779,
+     "unlabelled, no label foot within 5 ft": 71,
+     "not a corpus frame": 0
+    },
+    "E1 extra find": {
+     "labelled": 1920,
+     "unlabelled, a label foot within 5 ft": 835,
+     "unlabelled, no label foot within 5 ft": 82,
+     "not a corpus frame": 0
+    }
+   },
+   "by_status_own": {
+    "all player-frames": {
+     "labelled": 41292,
+     "unlabelled, an unclaimed label box within 5 ft": 8611,
+     "unlabelled, none": 4982,
+     "not a corpus frame": 0
+    },
+    "r23 found": {
+     "labelled": 36448,
+     "unlabelled, an unclaimed label box within 5 ft": 2557,
+     "unlabelled, none": 1313,
+     "not a corpus frame": 0
+    },
+    "E1 extra miss": {
+     "labelled": 3512,
+     "unlabelled, an unclaimed label box within 5 ft": 600,
+     "unlabelled, none": 250,
+     "not a corpus frame": 0
+    },
+    "E1 extra find": {
+     "labelled": 1920,
+     "unlabelled, an unclaimed label box within 5 ft": 617,
+     "unlabelled, none": 300,
+     "not a corpus frame": 0
+    }
+   },
+   "by_third": {
+    "all player-frames": {
+     "near": 15187,
+     "middle": 24324,
+     "far": 15374
+    },
+    "r23 found": {
+     "near": 11054,
+     "middle": 19085,
+     "far": 10179
+    },
+    "E1 extra miss": {
+     "near": 1268,
+     "middle": 1797,
+     "far": 1297
+    },
+    "E1 extra find": {
+     "near": 956,
+     "middle": 960,
+     "far": 921
+    }
+   },
+   "by_height": {
+    "all player-frames": {
+     "<50": 0,
+     "50-75": 0,
+     "75-100": 7,
+     "100-150": 10826,
+     ">=150": 44052,
+     "no pose": 0
+    },
+    "r23 found": {
+     "<50": 0,
+     "50-75": 0,
+     "75-100": 1,
+     "100-150": 7007,
+     ">=150": 33310,
+     "no pose": 0
+    },
+    "E1 extra miss": {
+     "<50": 0,
+     "50-75": 0,
+     "75-100": 0,
+     "100-150": 802,
+     ">=150": 3560,
+     "no pose": 0
+    },
+    "E1 extra find": {
+     "<50": 0,
+     "50-75": 0,
+     "75-100": 0,
+     "100-150": 603,
+     ">=150": 2234,
+     "no pose": 0
+    }
+   },
+   "by_height_fine": {
+    "all player-frames": {
+     "<150": 10833,
+     "150-200": 37436,
+     "200-250": 6444,
+     ">=250": 172,
+     "no pose": 0
+    },
+    "r23 found": {
+     "<150": 7008,
+     "150-200": 28518,
+     "200-250": 4662,
+     ">=250": 130,
+     "no pose": 0
+    },
+    "E1 extra miss": {
+     "<150": 802,
+     "150-200": 3112,
+     "200-250": 429,
+     ">=250": 19,
+     "no pose": 0
+    },
+    "E1 extra find": {
+     "<150": 603,
+     "150-200": 1852,
+     "200-250": 377,
+     ">=250": 5,
+     "no pose": 0
+    }
+   },
+   "by_edge": {
+    "all player-frames": {
+     "True": 702,
+     "False": 54183
+    },
+    "r23 found": {
+     "True": 425,
+     "False": 39893
+    },
+    "E1 extra miss": {
+     "True": 28,
+     "False": 4334
+    },
+    "E1 extra find": {
+     "True": 43,
+     "False": 2794
+    }
+   },
+   "unlabelled_share": {
+    "all player-frames": 0.2477,
+    "r23 found": 0.096,
+    "E1 extra miss": 0.1949,
+    "E1 extra find": 0.3232
+   },
+   "net_extra_misses_by_label": {
+    "labelled": 1592,
+    "unlabelled": -67
+   },
+   "e1_recovers_r23_misses": {
+    "labelled": 0.3964,
+    "unlabelled": 0.0943
+   },
+   "e1_loses_r23_finds": {
+    "labelled": 0.0964,
+    "unlabelled": 0.2196
+   },
+   "extra_miss_rate_given_status": {
+    "labelled": 0.0964,
+    "r23 only": 0.3206,
+    "teacher only": 0.1708,
+    "both, IoU < 0.5": 0.1481,
+    "both, IoU >= 0.5": 0.2326,
+    "neither": 0.2223,
+    "not a corpus frame": null
+   },
+   "share_diff": {
+    "diff": 0.09888,
+    "window_interval": [
+     0.0693,
+     0.13265
+    ],
+    "windows": 175
+   }
+  },
+  "apart": {}
+ },
+ "m3": {
+  "what": "M3 label oracle on the E1 corpus frames (docs/research/P8_E1.md, Post-mortem); sportvu.eval rules on raw boxes (bottom-centre foot), not the registered build rows",
+  "rules": {
+   "miss_ft": 2.5,
+   "ghost_ft": 3.0,
+   "frame_margin_px": 10
+  },
+  "games": {
+   "gsw_bkn_2015": {
+    "windows": 62,
+    "labels": {
+     "missed_rate": 0.1938,
+     "ghost_rate": 0.109,
+     "boxes_per_in_frame_player": 0.9506,
+     "duplicate_rate": 0.0572,
+     "in_frame": 20477,
+     "missed": 3969,
+     "boxes": 19466,
+     "ghosts": 2121,
+     "duplicates": 1171
+    },
+    "ours": {
+     "missed_rate": 0.2366,
+     "ghost_rate": 0.1476,
+     "boxes_per_in_frame_player": 0.9524,
+     "duplicate_rate": 0.0538,
+     "in_frame": 20477,
+     "missed": 4845,
+     "boxes": 19503,
+     "ghosts": 2878,
+     "duplicates": 1102
+    },
+    "teacher": {
+     "missed_rate": 0.165,
+     "ghost_rate": 0.1171,
+     "boxes_per_in_frame_player": 1.0107,
+     "duplicate_rate": 0.0736,
+     "in_frame": 20477,
+     "missed": 3379,
+     "boxes": 20697,
+     "ghosts": 2424,
+     "duplicates": 1507
+    },
+    "labels_minus_ours": {
+     "missed_rate": {
+      "diff": -0.04278,
+      "window_interval": [
+       -0.04793,
+       -0.03701
+      ]
+     },
+     "ghost_rate": {
+      "diff": -0.03861,
+      "window_interval": [
+       -0.04409,
+       -0.03344
+      ]
+     }
+    }
+   },
+   "gsw_cha_2016": {
+    "windows": 53,
+    "labels": {
+     "missed_rate": 0.3302,
+     "ghost_rate": 0.218,
+     "boxes_per_in_frame_player": 0.9437,
+     "duplicate_rate": 0.0511,
+     "in_frame": 13414,
+     "missed": 4429,
+     "boxes": 12659,
+     "ghosts": 2760,
+     "duplicates": 685
+    },
+    "ours": {
+     "missed_rate": 0.3539,
+     "ghost_rate": 0.2596,
+     "boxes_per_in_frame_player": 0.9755,
+     "duplicate_rate": 0.0493,
+     "in_frame": 13414,
+     "missed": 4747,
+     "boxes": 13086,
+     "ghosts": 3397,
+     "duplicates": 661
+    },
+    "teacher": {
+     "missed_rate": 0.3095,
+     "ghost_rate": 0.2187,
+     "boxes_per_in_frame_player": 0.994,
+     "duplicate_rate": 0.0646,
+     "in_frame": 13414,
+     "missed": 4151,
+     "boxes": 13334,
+     "ghosts": 2916,
+     "duplicates": 867
+    },
+    "labels_minus_ours": {
+     "missed_rate": {
+      "diff": -0.02371,
+      "window_interval": [
+       -0.02825,
+       -0.01938
+      ]
+     },
+     "ghost_rate": {
+      "diff": -0.04156,
+      "window_interval": [
+       -0.04806,
+       -0.03617
+      ]
+     }
+    }
+   },
+   "gsw_sac_2015": {
+    "windows": 60,
+    "labels": {
+     "missed_rate": 0.1779,
+     "ghost_rate": 0.1052,
+     "boxes_per_in_frame_player": 0.9626,
+     "duplicate_rate": 0.0688,
+     "in_frame": 21144,
+     "missed": 3762,
+     "boxes": 20353,
+     "ghosts": 2142,
+     "duplicates": 1454
+    },
+    "ours": {
+     "missed_rate": 0.2115,
+     "ghost_rate": 0.1514,
+     "boxes_per_in_frame_player": 0.9856,
+     "duplicate_rate": 0.0664,
+     "in_frame": 21144,
+     "missed": 4473,
+     "boxes": 20840,
+     "ghosts": 3156,
+     "duplicates": 1403
+    },
+    "teacher": {
+     "missed_rate": 0.1556,
+     "ghost_rate": 0.1123,
+     "boxes_per_in_frame_player": 1.0099,
+     "duplicate_rate": 0.0853,
+     "in_frame": 21144,
+     "missed": 3290,
+     "boxes": 21354,
+     "ghosts": 2399,
+     "duplicates": 1804
+    },
+    "labels_minus_ours": {
+     "missed_rate": {
+      "diff": -0.03363,
+      "window_interval": [
+       -0.0397,
+       -0.02839
+      ]
+     },
+     "ghost_rate": {
+      "diff": -0.0462,
+      "window_interval": [
+       -0.05528,
+       -0.03758
+      ]
+     }
+    }
+   }
+  },
+  "pooled": {
+   "windows": 175,
+   "labels": {
+    "missed_rate": 0.221,
+    "ghost_rate": 0.1338,
+    "boxes_per_in_frame_player": 0.9535,
+    "duplicate_rate": 0.0601,
+    "in_frame": 55035,
+    "missed": 12160,
+    "boxes": 52478,
+    "ghosts": 7023,
+    "duplicates": 3310
+   },
+   "ours": {
+    "missed_rate": 0.2556,
+    "ghost_rate": 0.1765,
+    "boxes_per_in_frame_player": 0.9708,
+    "duplicate_rate": 0.0575,
+    "in_frame": 55035,
+    "missed": 14065,
+    "boxes": 53429,
+    "ghosts": 9431,
+    "duplicates": 3166
+   },
+   "teacher": {
+    "missed_rate": 0.1966,
+    "ghost_rate": 0.1397,
+    "boxes_per_in_frame_player": 1.0064,
+    "duplicate_rate": 0.0759,
+    "in_frame": 55035,
+    "missed": 10820,
+    "boxes": 55385,
+    "ghosts": 7739,
+    "duplicates": 4178
+   },
+   "labels_minus_ours": {
+    "missed_rate": {
+     "diff": -0.03461,
+     "window_interval": [
+      -0.03837,
+      -0.03088
+     ]
+    },
+    "ghost_rate": {
+     "diff": -0.04269,
+     "window_interval": [
+      -0.04694,
+      -0.0386
+     ]
+    }
+   },
+   "teacher_minus_ours": {
+    "missed_rate": {
+     "diff": -0.05896,
+     "window_interval": [
+      -0.06417,
+      -0.05382
+     ]
+    },
+    "ghost_rate": {
+     "diff": -0.03678,
+     "window_interval": [
+      -0.04185,
+      -0.03216
+     ]
+    }
+   }
+  }
+ },
+ "reading_test_b": {
+  "pooled_diff": 0.09888,
+  "window_interval": [
+   0.0693,
+   0.13265
+  ],
+  "same_direction_all_games": true,
+  "holds": true
+ }
+}
