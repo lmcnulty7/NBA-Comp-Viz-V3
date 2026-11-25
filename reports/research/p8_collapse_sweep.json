@@ -1,0 +1,314 @@
+{
+ "what": "M7b collapse signature per build folder and game (docs/research/P8_E1.md); report only",
+ "folders": {
+  "e1_gsw_bkn_2015_seed0": {
+   "gsw_bkn_2015": {
+    "boxes": 133119,
+    "zero_width_at_720": 38,
+    "y2_over_720": 0,
+    "windows": 83
+   },
+   "hou_cle_2016": {
+    "boxes": 154513,
+    "zero_width_at_720": 29,
+    "y2_over_720": 0,
+    "windows": 93
+   }
+  },
+  "e1_gsw_cha_2016_seed0": {
+   "gsw_cha_2016": {
+    "boxes": 115320,
+    "zero_width_at_720": 26,
+    "y2_over_720": 0,
+    "windows": 73
+   },
+   "hou_cle_2016": {
+    "boxes": 155582,
+    "zero_width_at_720": 34,
+    "y2_over_720": 0,
+    "windows": 93
+   }
+  },
+  "e1_gsw_sac_2015_seed0": {
+   "gsw_sac_2015": {
+    "boxes": 128879,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 82
+   },
+   "hou_cle_2016": {
+    "boxes": 151063,
+    "zero_width_at_720": 37,
+    "y2_over_720": 0,
+    "windows": 93
+   }
+  },
+  "e1_stub": {
+   "gsw_bkn_2015": {
+    "boxes": 3829,
+    "zero_width_at_720": 3,
+    "y2_over_720": 0,
+    "windows": 2
+   }
+  },
+  "e1_stub_seed0": {
+   "gsw_bkn_2015": {
+    "boxes": 3829,
+    "zero_width_at_720": 3,
+    "y2_over_720": 0,
+    "windows": 2
+   }
+  },
+  "e1m6_e1_gsw_bkn_2015_detcpu": {
+   "gsw_bkn_2015": {
+    "boxes": 145058,
+    "zero_width_at_720": 0,
+    "y2_over_720": 0,
+    "windows": 83
+   }
+  },
+  "e1m6_r23_detcpu": {
+   "gsw_bkn_2015": {
+    "boxes": 149356,
+    "zero_width_at_720": 0,
+    "y2_over_720": 0,
+    "windows": 83
+   }
+  },
+  "e2": {
+   "gsw_bkn_2015": {
+    "boxes": 139190,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 83
+   },
+   "gsw_cha_2016": {
+    "boxes": 79030,
+    "zero_width_at_720": 22,
+    "y2_over_720": 0,
+    "windows": 54
+   },
+   "gsw_ind_2016": {
+    "boxes": 176489,
+    "zero_width_at_720": 41,
+    "y2_over_720": 0,
+    "windows": 92
+   },
+   "gsw_sac_2015": {
+    "boxes": 54223,
+    "zero_width_at_720": 20,
+    "y2_over_720": 0,
+    "windows": 33
+   }
+  },
+  "e2_m1": {
+   "gsw_bkn_2015": {
+    "boxes": 139190,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 83
+   },
+   "gsw_cha_2016": {
+    "boxes": 79030,
+    "zero_width_at_720": 22,
+    "y2_over_720": 0,
+    "windows": 54
+   },
+   "gsw_ind_2016": {
+    "boxes": 176489,
+    "zero_width_at_720": 41,
+    "y2_over_720": 0,
+    "windows": 92
+   },
+   "gsw_sac_2015": {
+    "boxes": 54223,
+    "zero_width_at_720": 20,
+    "y2_over_720": 0,
+    "windows": 33
+   }
+  },
+  "e3_clip": {
+   "gsw_bkn_2015": {
+    "boxes": 139190,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 83
+   },
+   "gsw_cha_2016": {
+    "boxes": 115403,
+    "zero_width_at_720": 28,
+    "y2_over_720": 0,
+    "windows": 73
+   },
+   "gsw_ind_2016": {
+    "boxes": 176489,
+    "zero_width_at_720": 41,
+    "y2_over_720": 0,
+    "windows": 92
+   },
+   "gsw_sac_2015": {
+    "boxes": 132653,
+    "zero_width_at_720": 48,
+    "y2_over_720": 0,
+    "windows": 82
+   },
+   "hou_cle_2016": {
+    "boxes": 155715,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 93
+   }
+  },
+  "e3_colour_replay": {
+   "gsw_bkn_2015": {
+    "boxes": 139190,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 83
+   },
+   "gsw_cha_2016": {
+    "boxes": 115403,
+    "zero_width_at_720": 28,
+    "y2_over_720": 0,
+    "windows": 73
+   },
+   "gsw_ind_2016": {
+    "boxes": 176489,
+    "zero_width_at_720": 41,
+    "y2_over_720": 0,
+    "windows": 92
+   },
+   "gsw_sac_2015": {
+    "boxes": 132653,
+    "zero_width_at_720": 48,
+    "y2_over_720": 0,
+    "windows": 82
+   },
+   "hou_cle_2016": {
+    "boxes": 155715,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 93
+   }
+  },
+  "e3_dinov2_small": {
+   "gsw_bkn_2015": {
+    "boxes": 139190,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 83
+   },
+   "gsw_cha_2016": {
+    "boxes": 115403,
+    "zero_width_at_720": 28,
+    "y2_over_720": 0,
+    "windows": 73
+   },
+   "gsw_ind_2016": {
+    "boxes": 176489,
+    "zero_width_at_720": 41,
+    "y2_over_720": 0,
+    "windows": 92
+   },
+   "gsw_sac_2015": {
+    "boxes": 132653,
+    "zero_width_at_720": 48,
+    "y2_over_720": 0,
+    "windows": 82
+   },
+   "hou_cle_2016": {
+    "boxes": 155715,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 93
+   }
+  },
+  "m7_e1_gsw_bkn_2015_mps_repeat": {
+   "gsw_bkn_2015": {
+    "boxes": 4190,
+    "zero_width_at_720": 0,
+    "y2_over_720": 0,
+    "windows": 1
+   }
+  },
+  "m7_r23_mps_repeat": {
+   "gsw_bkn_2015": {
+    "boxes": 16590,
+    "zero_width_at_720": 0,
+    "y2_over_720": 0,
+    "windows": 3
+   }
+  },
+  "m8_e1_gsw_bkn_2015_mpsfix": {
+   "gsw_bkn_2015": {
+    "boxes": 20110,
+    "zero_width_at_720": 0,
+    "y2_over_720": 0,
+    "windows": 5
+   }
+  },
+  "m8_r23_mpsfix": {
+   "gsw_bkn_2015": {
+    "boxes": 20561,
+    "zero_width_at_720": 0,
+    "y2_over_720": 0,
+    "windows": 5
+   }
+  },
+  "r23": {
+   "gsw_bkn_2015": {
+    "boxes": 139190,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 83
+   },
+   "gsw_cha_2016": {
+    "boxes": 115403,
+    "zero_width_at_720": 28,
+    "y2_over_720": 0,
+    "windows": 73
+   },
+   "gsw_ind_2016": {
+    "boxes": 176489,
+    "zero_width_at_720": 41,
+    "y2_over_720": 0,
+    "windows": 92
+   },
+   "gsw_sac_2015": {
+    "boxes": 132653,
+    "zero_width_at_720": 48,
+    "y2_over_720": 0,
+    "windows": 82
+   },
+   "hou_cle_2016": {
+    "boxes": 155715,
+    "zero_width_at_720": 40,
+    "y2_over_720": 0,
+    "windows": 93
+   }
+  }
+ },
+ "skipped": {},
+ "image_size": {
+  "gsw_bkn_2015": [
+   1280,
+   720
+  ],
+  "hou_cle_2016": [
+   1280,
+   720
+  ],
+  "gsw_cha_2016": [
+   1280,
+   720
+  ],
+  "gsw_sac_2015": [
+   1280,
+   720
+  ],
+  "gsw_ind_2016": [
+   1280,
+   720
+  ]
+ }
+}

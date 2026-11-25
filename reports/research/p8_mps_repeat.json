@@ -1,0 +1,112 @@
+{
+ "game": "gsw_bkn_2015",
+ "repeat": {
+  "r23/gsw_bkn_2015_s04_w00": {
+   "byte_identical": {
+    "frames": true,
+    "trajectories": true,
+    "identity": true
+   },
+   "all_identical": true
+  },
+  "r23/gsw_bkn_2015_s05_w00": {
+   "byte_identical": {
+    "frames": true,
+    "trajectories": true,
+    "identity": true
+   },
+   "all_identical": true
+  },
+  "r23/gsw_bkn_2015_s06_w00": {
+   "byte_identical": {
+    "frames": true,
+    "trajectories": true,
+    "identity": true
+   },
+   "all_identical": true
+  },
+  "e1/gsw_bkn_2015_s04_w00": {
+   "byte_identical": {
+    "frames": true,
+    "trajectories": true,
+    "identity": true
+   },
+   "all_identical": true
+  }
+ },
+ "s04_w00_by_build": {
+  "r23 MPS registered": {
+   "frames": 1102,
+   "boxes_per_frame": 7.2151
+  },
+  "r23 MPS repeat": {
+   "frames": 1102,
+   "boxes_per_frame": 7.2151
+  },
+  "r23 CPU (M6)": {
+   "frames": 1102,
+   "boxes_per_frame": 4.2713
+  },
+  "E1 MPS registered": {
+   "frames": 1102,
+   "boxes_per_frame": 3.8022
+  },
+  "E1 MPS repeat": {
+   "frames": 1102,
+   "boxes_per_frame": 3.8022
+  },
+  "E1 CPU (M6)": {
+   "frames": 1102,
+   "boxes_per_frame": 4.3367
+  },
+  "r23 MPS registered vs CPU": {
+   "frames_a": 1102,
+   "frames_b": 1102,
+   "shared_frames": 1102,
+   "boxes_per_frame_a": 7.2151,
+   "boxes_per_frame_b": 4.2713,
+   "same_count_frames": 255
+  },
+  "E1 MPS registered vs CPU": {
+   "frames_a": 1102,
+   "frames_b": 1102,
+   "shared_frames": 1102,
+   "boxes_per_frame_a": 3.8022,
+   "boxes_per_frame_b": 4.3367,
+   "same_count_frames": 381
+  }
+ },
+ "run": {
+  "cached": "all rebuilt windows were built fresh (run log: cached false for every window)",
+  "windows": {
+   "r23/gsw_bkn_2015_s04_w00": {
+    "device": "mps",
+    "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "r23/gsw_bkn_2015_s05_w00": {
+    "device": "mps",
+    "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "r23/gsw_bkn_2015_s06_w00": {
+    "device": "mps",
+    "weights_sha256": "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+   },
+   "e1/gsw_bkn_2015_s04_w00": {
+    "device": "mps",
+    "weights_sha256": "d4ffed33564b990954f13430d23dc2401ac063286a9b08b10d80fce7b5a6b664"
+   }
+  },
+  "cpu_model_state": {
+   "r23": {
+    "fp16": false,
+    "param_dtype": "torch.float32",
+    "device": "cpu"
+   },
+   "e1": {
+    "fp16": false,
+    "param_dtype": "torch.float32",
+    "device": "cpu"
+   }
+  }
+ }
+}
