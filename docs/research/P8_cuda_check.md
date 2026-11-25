@@ -28,7 +28,7 @@ Two side questions are measured on the same runtime, so a mismatch can be placed
 | Devices | `P8_DEVICE=cuda` for every model (detector and tracker, court models, gate CLIP) through `tools/p8_device.py`, which writes each window's device record; `P8_DEVICE=cpu` for the Colab CPU arm |
 | Precision | fp32: no code in the build path asks for half precision; image size 640, confidence 0.40, NMS IoU 0.45 (config) |
 | Weights | player_detector.pt, court_grid_snapped.pt, court_line_seg.pt, thresholds.json (tracked in git; sha256 in the manifest, checked on the clone) and trained_head_v2.joblib (gitignored; shipped, sha256 checked). CLIP ViT-B/32 is checked by a fingerprint, the sha256 of its parameter tensors, because the Mac may load it from pytorch_model.bin or model.safetensors (same tensors, different files) |
-| Libraries | ultralytics 8.4.48 pinned (as on the Mac) and lap; torch, transformers, OpenCV and NumPy are the runtime's stock versions, recorded. The Mac builds used Python 3.12.2, torch 2.2.2, ultralytics 8.4.48, transformers 4.49.0, OpenCV 4.13.0, NumPy 1.26.4. torch is not pinned: torch 2.2.2 needs NumPy 1 and would replace the runtime's stack; the Colab CPU arm measures the library effect instead |
+| Libraries | ultralytics 8.4.48 and transformers 4.49.0 pinned (the Mac's versions; a newer transformers may preprocess CLIP's images another way, which would move the gate's frames for a reason that is not the device) and lap; torch, OpenCV and NumPy are the runtime's stock versions, recorded. The Mac builds used Python 3.12.2, torch 2.2.2, ultralytics 8.4.48, transformers 4.49.0, OpenCV 4.13.0, NumPy 1.26.4. torch is not pinned: torch 2.2.2 needs NumPy 1 and would replace the runtime's stack; the Colab CPU arm measures what the remaining library differences do. If the transformers pin cannot install, the run uses the stock version and the result says so |
 | GPU | a T4 (the R1.3 run used an A100-SXM4-40GB; its ultralytics version was not recorded). The comparison is against the Mac builds, not against R1.3; the R1.3 numbers are reported beside, with no verdict |
 
 Builds, in this order (each writes the result tar when it ends, so a stop keeps the arms already done):
@@ -180,4 +180,58 @@ Section 9 records the Mac dry run of the runtime command (CPU, one window): plum
 
 ## 10. Runbook for the lead
 
-Filled in with the code.
+Before: merge this branch into v4-research and push it; PIN is that pushed commit (the runtime clones from GitHub).
+The pack is already built on the Mac (pack folder: the P8 data folder, cuda_check/pack; tar sha256 in its
+pack_manifest.json); rebuild it with the pack command only if a pinned file changed. Log the runtime's start time.
+
+1. Create a T4 runtime (Colab MCP create_runtime). Setup, one short execute_code call that starts a detached job and
+   returns at once:
+
+   ```python
+   import subprocess
+   PIN = "<pushed merge commit>"
+   subprocess.Popen(["bash", "-c", f"""set -e
+   [ -d /content/repo ] || git clone -q --filter=blob:none https://github.com/lmcnulty7/NBA-Comp-Viz-V3.git /content/repo
+   cd /content/repo && git fetch -q origin && git checkout -q --detach {PIN} && git log --oneline -1
+   pip -q install ultralytics==8.4.48 transformers==4.49.0 lap
+   python -c 'import torch, ultralytics, transformers; print(torch.__version__, ultralytics.__version__, transformers.__version__, torch.cuda.get_device_name(0))'
+   echo SETUP DONE"""], stdout=open("/content/p8_setup.log", "w"), stderr=subprocess.STDOUT)
+   ```
+
+   Poll with a new execute_code call (a new executionId each time) until the log ends in SETUP DONE:
+   `print(open("/content/p8_setup.log").read()[-1500:])`. If the transformers pin fails to install, rerun the setup
+   without it; the run records the version it used.
+2. On the Mac, with COLAB_URL and COLAB_TOKEN from get_runtime in the environment:
+   `python3 -m tools.p8_cuda_check put --pack <pack folder>` (checks the tar against its manifest, then uploads about
+   21 MB to /content/p8_cuda_in).
+3. Start the run from one execute_code call that waits for it, behind an O_EXCL lock so a repeated call never starts
+   a second run. Do not repeat this call with the same executionId; the client returns after about a minute while
+   the cell keeps waiting:
+
+   ```python
+   import os, subprocess, sys
+   try:
+       fd = os.open("/content/p8_cuda.lock", os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+   except FileExistsError:
+       raise SystemExit("already started: poll the log instead")
+   os.write(fd, b"started"); os.close(fd)
+   p = subprocess.Popen([sys.executable, "-m", "tools.p8_cuda_check", "run", "--pack-dir", "/content/p8_cuda_in",
+                         "--out-dir", "/content/p8_cuda_out", "--work", "/content/p8_cuda_work", "--install-head"],
+                        cwd="/content/repo", stdout=open("/content/p8_cuda_run.log", "w"), stderr=subprocess.STDOUT)
+   print("pid", p.pid, flush=True)
+   p.wait()
+   print("exit", p.returncode)
+   ```
+
+4. Poll at least every 8 minutes for the whole run (D171: a waiting cell alone does not keep a T4), each time a new
+   short call: `print(open("/content/p8_cuda_run.log").read()[-2000:])`. The log holds one json line per step: setup
+   ok (with the GPU name), one line per arm and window (ok, seconds, devices), a "written" line after each arm, and
+   "done" at the end. A SystemExit in the log before "setup ok" means a hash, the plan or the CLIP fingerprint
+   differs: stop and report, do not work around it. Stop rule: at 75 minutes from runtime creation, stop polling for
+   more arms; the result tar already holds every finished arm (cuda_a first).
+5. On the Mac: `python3 -m tools.p8_cuda_check get --dest <result folder outside the repository>` (checks the tar
+   against complete.json and every member's sha256, then extracts it). Then delete the runtime (Colab MCP
+   delete_runtime) and log its end time and hours.
+6. On the Mac, under the lock:
+   `python3 -m export.heavy --name "p8 cuda compare" -- <frozen CV python> -m tools.p8_cuda_check compare --result <result folder> --pack <pack folder>`.
+   It writes cuda_check/cuda_check_result.json in the P8 workspace and prints the reading (section 4).
