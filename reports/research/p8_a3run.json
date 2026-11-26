@@ -1,0 +1,201 @@
+{
+ "what": "r23 in the build runtime (predict and the build's tracker) on the a3-heavy and control windows (docs/research/P8_a3run.md); report only",
+ "windows": {
+  "gsw_bkn_2015_s04_w00": {
+   "frames": 1102,
+   "reproduced_share": 1.0,
+   "pred_boxes": 8939,
+   "track_boxes": 4707,
+   "dropped": 4228,
+   "dropped_under_unconfirmed": 138,
+   "corpus_frames": 140,
+   "ours_boxes": 1325,
+   "pred_boxes_on_corpus_frames": 1327,
+   "ours_matched": 1319
+  },
+  "gsw_cha_2016_s05_w00": {
+   "frames": 1053,
+   "reproduced_share": 1.0,
+   "pred_boxes": 8766,
+   "track_boxes": 2657,
+   "dropped": 6103,
+   "dropped_under_unconfirmed": 3,
+   "corpus_frames": 8,
+   "ours_boxes": 85,
+   "pred_boxes_on_corpus_frames": 84,
+   "ours_matched": 84
+  },
+  "gsw_cha_2016_s05_w03": {
+   "frames": 206,
+   "reproduced_share": 1.0,
+   "pred_boxes": 1689,
+   "track_boxes": 387,
+   "dropped": 1302,
+   "dropped_under_unconfirmed": 4,
+   "corpus_frames": 2,
+   "ours_boxes": 20,
+   "pred_boxes_on_corpus_frames": 20,
+   "ours_matched": 20
+  },
+  "gsw_sac_2015_s01_w00": {
+   "frames": 650,
+   "reproduced_share": 1.0,
+   "pred_boxes": 5370,
+   "track_boxes": 1696,
+   "dropped": 3671,
+   "dropped_under_unconfirmed": 37,
+   "corpus_frames": 16,
+   "ours_boxes": 152,
+   "pred_boxes_on_corpus_frames": 153,
+   "ours_matched": 152
+  },
+  "gsw_sac_2015_s09_w01": {
+   "frames": 425,
+   "reproduced_share": 1.0,
+   "pred_boxes": 3701,
+   "track_boxes": 1763,
+   "dropped": 1937,
+   "dropped_under_unconfirmed": 40,
+   "corpus_frames": 16,
+   "ours_boxes": 157,
+   "pred_boxes_on_corpus_frames": 155,
+   "ours_matched": 155
+  },
+  "gsw_sac_2015_s07_w00": {
+   "frames": 1014,
+   "reproduced_share": 1.0,
+   "pred_boxes": 8851,
+   "track_boxes": 7262,
+   "dropped": 1585,
+   "dropped_under_unconfirmed": 196,
+   "corpus_frames": 178,
+   "ours_boxes": 1695,
+   "pred_boxes_on_corpus_frames": 1694,
+   "ours_matched": 1686
+  },
+  "gsw_bkn_2015_s07_w00": {
+   "frames": 910,
+   "reproduced_share": 0.0011,
+   "pred_boxes": 7773,
+   "track_boxes": 5094,
+   "dropped": 2676,
+   "dropped_under_unconfirmed": 161,
+   "corpus_frames": 161,
+   "ours_boxes": 1562,
+   "pred_boxes_on_corpus_frames": 1563,
+   "ours_matched": 1555
+  },
+  "gsw_cha_2016_s07_w00": {
+   "frames": 968,
+   "reproduced_share": 0.0,
+   "pred_boxes": 8532,
+   "track_boxes": 6945,
+   "dropped": 1582,
+   "dropped_under_unconfirmed": 224,
+   "corpus_frames": 164,
+   "ours_boxes": 1523,
+   "pred_boxes_on_corpus_frames": 1521,
+   "ours_matched": 1519
+  },
+  "gsw_sac_2015_s04_w00": {
+   "frames": 609,
+   "reproduced_share": 0.02299,
+   "pred_boxes": 5232,
+   "track_boxes": 4989,
+   "dropped": 241,
+   "dropped_under_unconfirmed": 241,
+   "corpus_frames": 186,
+   "ours_boxes": 1879,
+   "pred_boxes_on_corpus_frames": 1878,
+   "ours_matched": 1869
+  }
+ },
+ "heavy_tracker": {
+  "windows": [
+   "gsw_bkn_2015_s04_w00",
+   "gsw_cha_2016_s05_w00",
+   "gsw_cha_2016_s05_w03",
+   "gsw_sac_2015_s01_w00",
+   "gsw_sac_2015_s09_w01",
+   "gsw_sac_2015_s07_w00"
+  ],
+  "pred_boxes": 37316,
+  "track_boxes": 18472,
+  "dropped": 18826,
+  "dropped_under_unconfirmed": 418,
+  "ours_boxes": 3434,
+  "pred_boxes_on_corpus_frames": 3433,
+  "ours_matched": 3416,
+  "yield": 0.49502,
+  "unconfirmed_share_of_dropped": 0.0222,
+  "pred_over_ours": 0.99971,
+  "ours_matched_share": 0.99476
+ },
+ "control_tracker": {
+  "windows": [],
+  "pred_boxes": 0,
+  "track_boxes": 0,
+  "dropped": 0,
+  "dropped_under_unconfirmed": 0,
+  "ours_boxes": 0,
+  "pred_boxes_on_corpus_frames": 0,
+  "ours_matched": 0,
+  "yield": null,
+  "unconfirmed_share_of_dropped": null,
+  "pred_over_ours": null,
+  "ours_matched_share": null
+ },
+ "heavy_runtime": {
+  "windows": [
+   "gsw_bkn_2015_s04_w00",
+   "gsw_cha_2016_s05_w00",
+   "gsw_cha_2016_s05_w03",
+   "gsw_sac_2015_s01_w00",
+   "gsw_sac_2015_s09_w01",
+   "gsw_sac_2015_s07_w00"
+  ],
+  "pred_boxes": 37316,
+  "track_boxes": 18472,
+  "dropped": 18826,
+  "dropped_under_unconfirmed": 418,
+  "ours_boxes": 3434,
+  "pred_boxes_on_corpus_frames": 3433,
+  "ours_matched": 3416,
+  "yield": 0.49502,
+  "unconfirmed_share_of_dropped": 0.0222,
+  "pred_over_ours": 0.99971,
+  "ours_matched_share": 0.99476
+ },
+ "control_runtime": {
+  "windows": [
+   "gsw_bkn_2015_s07_w00",
+   "gsw_cha_2016_s07_w00",
+   "gsw_sac_2015_s04_w00"
+  ],
+  "pred_boxes": 21537,
+  "track_boxes": 17028,
+  "dropped": 4499,
+  "dropped_under_unconfirmed": 626,
+  "ours_boxes": 4964,
+  "pred_boxes_on_corpus_frames": 4962,
+  "ours_matched": 4943,
+  "yield": 0.79064,
+  "unconfirmed_share_of_dropped": 0.13914,
+  "pred_over_ours": 0.9996,
+  "ours_matched_share": 0.99577
+ },
+ "tracker_explains": false,
+ "runtime_differs": false,
+ "reading": "neither",
+ "missing_windows": [],
+ "rule": {
+  "repro_px": 2.0,
+  "repro_share": 0.95,
+  "runtime_ratio": 0.9,
+  "runtime_match": 0.9,
+  "runtime_iou": 0.7,
+  "drop_iou": 0.5,
+  "yield_heavy": 0.8,
+  "yield_control": 0.95
+ }
+}

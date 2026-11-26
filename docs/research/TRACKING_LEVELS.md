@@ -54,11 +54,12 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Detection row (D184, detrow): far misses are 0.052 to 0.091 of in-frame players; occluded and small dominate,
-   but r23's raw detector had a box near 37 percent of them (post hoc), a build-side loss above the bar on every
-   game. Now: where the build loses those boxes (gate, activation, track loss, foot stabilisation), registered
-   first, stored files; then possibly a tracking or gating arm rebuilt on the reference platform. The placement
-   and output-position lines are closed (D184 to D188): no correction passed on every game; hou_cle_2016 is unspent.
+1. Tracker reset fix (D192): after any tracker reset the build's tracker updated twice per frame and dropped new
+   players (tracker yield 0.30 against 0.955 with the fix on one window). The fix is a tools-side switch; its build
+   arm (P8_resetfix.md: reset windows rebuilt on the reference platform, missed must improve pooled and be worse
+   nowhere, non-inferiority on the other rows, hou_cle_2016 gate) is under design review and runs after the CPU
+   truth rebuilds. Expected missed change about -0.009 to -0.013 pooled. The placement and output-position lines are
+   closed (D184 to D188).
 2. Truth on the reference platform (D191): gsw_cha_2016's truth MOVED when rebuilt with the detector on CPU (accepted
    frames +80 percent), so hou_cle_2016, gsw_bkn_2015 and gsw_sac_2015 are rebuilt next (about 9.4 lock hours, after
    the a3 model run), with check C per game. Every earlier result on the MPS truth is provisional where it depends on
@@ -108,6 +109,9 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   (D190). Two environments are two platforms (see the MPS lesson).
 - The truth is a platform too: rebuilt with the detector on CPU, one game's camera truth accepted 80 percent more
   frames (D191). Check the truth's platform before reading any result against it, as for the model.
+- Instrument every call, not the last: a trace that kept only the last tracker update per frame pointed at the wrong
+  step until a review counted the frame ids (D192). A pipeline bug can look like a model limit; replay the build
+  exactly before blaming the detector or its labels.
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on
