@@ -83,6 +83,7 @@ def test_colab_guards_before_it_reads_drive_and_sets_an_old_result_aside(tmp_pat
     order = []
     monkeypatch.setattr(C, "guard", lambda items, who, homes=(): order.append("guard"))
     monkeypatch.setattr(C, "DRIVE_RUNS", tmp_path / "runs")
+    monkeypatch.setattr(C, "DRIVE_CORPUS", tmp_path / "corpus")
     monkeypatch.setattr(C, "LOCAL", tmp_path / "local")
     (tmp_path / "runs").mkdir()
     old = tmp_path / "runs" / "e1_gsw_bkn_2015_seed0.tar"

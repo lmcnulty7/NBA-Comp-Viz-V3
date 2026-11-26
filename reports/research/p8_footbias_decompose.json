@@ -1,0 +1,35 @@
+{
+ "what": "Decomposition of d_H into r23 court against V3 label build (court) and V3 against fitted truth (fit); report only; stored files (docs/research/P8_footbias.md)",
+ "convention_median_abs_V_minus_T_ft": {
+  "as stored": 6.91579,
+  "x mirrored": 56.73746,
+  "y mirrored": 19.26621,
+  "both mirrored": 60.96908
+ },
+ "convention_used": null,
+ "trusted": false,
+ "left_out_player_frames": {
+  "gsw_bkn_2015": {
+   "no_build_H_or_pose": 0,
+   "no_label_H": 0
+  },
+  "gsw_cha_2016": {
+   "no_build_H_or_pose": 0,
+   "no_label_H": 0
+  },
+  "gsw_sac_2015": {
+   "no_build_H_or_pose": 0,
+   "no_label_H": 0
+  },
+  "hou_cle_2016": {
+   "no_build_H_or_pose": 0,
+   "no_label_H": 0
+  }
+ },
+ "rows": {
+  "gsw_bkn_2015": 18586,
+  "gsw_cha_2016": 12286,
+  "gsw_sac_2015": 20040,
+  "hou_cle_2016": 40303
+ }
+}

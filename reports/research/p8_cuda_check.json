@@ -1,0 +1,763 @@
+{
+ "what": "PLAN.md D161 (1) CUDA check, comparison",
+ "design": "docs/research/P8_cuda_check.md",
+ "purpose": "result",
+ "tolerances": {
+  "frames_jaccard_min": 0.95,
+  "boxes_mean_abs_max": 0.25,
+  "same_count_share_min": 0.8,
+  "h_gap_median_px_max": 1.0,
+  "cand_rel": 0.1,
+  "cand_floor": 3
+ },
+ "flags": {
+  "commit": "3a6327f19fba21c9b07a6df32ca77dfd5323e85a",
+  "pin": "3a6327f1",
+  "pin_mismatch": false,
+  "clip_revision_differs": false,
+  "transformers_mac": "4.49.0",
+  "transformers_runtime": "4.49.0",
+  "transformers_differs": false
+ },
+ "runtime": {
+  "python": "3.13.16",
+  "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "cpu_count": 2,
+  "torch": "2.14.1+cu130",
+  "ultralytics": "8.4.48",
+  "transformers": "4.49.0",
+  "cv2": "4.14.0",
+  "numpy": "2.4.6",
+  "scipy": "1.16.3",
+  "lap": "0.5.14",
+  "cuda_available": true,
+  "torch_cuda": "13.0",
+  "cudnn": 92800,
+  "gpu": "Tesla T4",
+  "mps_available": false,
+  "cudnn_allow_tf32": true,
+  "cuda_matmul_allow_tf32": false
+ },
+ "arms_done": [
+  "cuda_a",
+  "cuda_b"
+ ],
+ "arms_skipped": {},
+ "arms_unusable": {},
+ "build_seconds": {
+  "cuda_a": {
+   "gsw_ind_2016_s02_w03": 51.5,
+   "gsw_ind_2016_s02_w04": 44.4,
+   "gsw_bkn_2015_s04_w00": 276.3
+  },
+  "cuda_b": {
+   "gsw_ind_2016_s02_w03": 49.0,
+   "gsw_ind_2016_s02_w04": 43.8,
+   "gsw_bkn_2015_s04_w00": 271.7
+  }
+ },
+ "windows": {
+  "gsw_ind_2016_s02_w03": {
+   "offsets_s": [
+    0.3,
+    0.62,
+    0.9,
+    0.94,
+    1.2,
+    1.42
+   ],
+   "builds": {
+    "mac_mps": {
+     "frames": 145,
+     "frames_with_h": 145,
+     "frozen_offset_s": 0.9,
+     "v2": {
+      "offset_s": 1.206,
+      "j_min_ft": 6.373,
+      "near_min": 15,
+      "at_edge": false,
+      "frames": 140
+     },
+     "candidates": {
+      "0.30": 65,
+      "0.62": 45,
+      "0.90": 30,
+      "0.94": 27,
+      "1.20": 16,
+      "1.42": 7
+     }
+    },
+    "mac_cpu": {
+     "frames": 145,
+     "frames_with_h": 145,
+     "frozen_offset_s": 1.42,
+     "v2": {
+      "offset_s": 1.074,
+      "j_min_ft": 7.104,
+      "near_min": 13,
+      "at_edge": false,
+      "frames": 141
+     },
+     "candidates": {
+      "0.30": 98,
+      "0.62": 88,
+      "0.90": 55,
+      "0.94": 53,
+      "1.20": 35,
+      "1.42": 30
+     }
+    },
+    "detector_cpu": {
+     "frames": 145,
+     "frames_with_h": 145,
+     "frozen_offset_s": 0.94,
+     "v2": {
+      "offset_s": 1.061,
+      "j_min_ft": 7.111,
+      "near_min": 13,
+      "at_edge": false,
+      "frames": 141
+     },
+     "candidates": {
+      "0.30": 97,
+      "0.62": 88,
+      "0.90": 55,
+      "0.94": 53,
+      "1.20": 35,
+      "1.42": 30
+     }
+    },
+    "cuda_a": {
+     "frames": 145,
+     "frames_with_h": 145,
+     "frozen_offset_s": 0.82,
+     "v2": {
+      "offset_s": 1.005,
+      "j_min_ft": 6.816,
+      "near_min": 12,
+      "at_edge": false,
+      "frames": 141
+     },
+     "candidates": {
+      "0.30": 102,
+      "0.62": 88,
+      "0.90": 59,
+      "0.94": 54,
+      "1.20": 34,
+      "1.42": 30
+     }
+    },
+    "cuda_b": {
+     "frames": 145,
+     "frames_with_h": 145,
+     "frozen_offset_s": 0.82,
+     "v2": {
+      "offset_s": 1.005,
+      "j_min_ft": 6.816,
+      "near_min": 12,
+      "at_edge": false,
+      "frames": 141
+     },
+     "candidates": {
+      "0.30": 102,
+      "0.62": 88,
+      "0.90": 59,
+      "0.94": 54,
+      "1.20": 34,
+      "1.42": 30
+     }
+    }
+   },
+   "pairs": {
+    "mac_cpu~mac_mps": {
+     "metrics": {
+      "frames_x": 145,
+      "frames_r": 145,
+      "common": 145,
+      "frames_with_h_x": 145,
+      "frames_with_h_r": 145,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 8.469,
+      "boxes_mean_r": 7.4276,
+      "boxes_mean_diff": 1.0414,
+      "same_count_share": 0.2,
+      "identical_boxes_share": 0.0,
+      "h_gap_px": {
+       "median": 3.8428,
+       "p90": 12.3286,
+       "frames": 145
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": false,
+      "same_count": false,
+      "court_h_gap": false,
+      "candidates": false
+     }
+    },
+    "cuda_a~mac_cpu": {
+     "metrics": {
+      "frames_x": 145,
+      "frames_r": 145,
+      "common": 145,
+      "frames_with_h_x": 145,
+      "frames_with_h_r": 145,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 8.4621,
+      "boxes_mean_r": 8.469,
+      "boxes_mean_diff": -0.0069,
+      "same_count_share": 0.8966,
+      "identical_boxes_share": 0.0,
+      "h_gap_px": {
+       "median": 8.8228,
+       "p90": 33.7496,
+       "frames": 145
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": true,
+      "same_count": true,
+      "court_h_gap": false,
+      "candidates": true
+     }
+    },
+    "cuda_a~mac_mps": {
+     "metrics": {
+      "frames_x": 145,
+      "frames_r": 145,
+      "common": 145,
+      "frames_with_h_x": 145,
+      "frames_with_h_r": 145,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 8.4621,
+      "boxes_mean_r": 7.4276,
+      "boxes_mean_diff": 1.0345,
+      "same_count_share": 0.2138,
+      "identical_boxes_share": 0.0,
+      "h_gap_px": {
+       "median": 9.4164,
+       "p90": 36.7011,
+       "frames": 145
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": false,
+      "same_count": false,
+      "court_h_gap": false,
+      "candidates": false
+     }
+    },
+    "cuda_b~cuda_a": {
+     "metrics": {
+      "frames_x": 145,
+      "frames_r": 145,
+      "common": 145,
+      "frames_with_h_x": 145,
+      "frames_with_h_r": 145,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 8.4621,
+      "boxes_mean_r": 8.4621,
+      "boxes_mean_diff": 0.0,
+      "same_count_share": 1.0,
+      "identical_boxes_share": 1.0,
+      "h_gap_px": {
+       "median": 0.0,
+       "p90": 0.0,
+       "frames": 145
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": true,
+      "same_count": true,
+      "court_h_gap": true,
+      "candidates": true
+     }
+    }
+   },
+   "recorded_offset_mismatch": {},
+   "r13": {
+    "colab_offset_s": 0.62,
+    "colab_candidates": 89,
+    "cuda_a_candidates_at_colab_offset": 88
+   }
+  },
+  "gsw_ind_2016_s02_w04": {
+   "offsets_s": [
+    -1.34,
+    -0.78,
+    -0.06,
+    0.3,
+    0.62,
+    0.9,
+    1.2
+   ],
+   "builds": {
+    "mac_mps": {
+     "frames": 125,
+     "frames_with_h": 125,
+     "frozen_offset_s": -1.34,
+     "v2": {
+      "offset_s": 0.158,
+      "j_min_ft": 6.039,
+      "near_min": 17,
+      "at_edge": false,
+      "frames": 71
+     },
+     "candidates": {
+      "-1.34": 2,
+      "-0.78": 6,
+      "-0.06": 30,
+      "0.30": 27,
+      "0.62": 21,
+      "0.90": 7,
+      "1.20": 4
+     }
+    },
+    "mac_cpu": {
+     "frames": 125,
+     "frames_with_h": 125,
+     "frozen_offset_s": -0.78,
+     "v2": {
+      "offset_s": 0.523,
+      "j_min_ft": 6.733,
+      "near_min": 18,
+      "at_edge": false,
+      "frames": 71
+     },
+     "candidates": {
+      "-1.34": 6,
+      "-0.78": 20,
+      "-0.06": 63,
+      "0.30": 57,
+      "0.62": 33,
+      "0.90": 19,
+      "1.20": 3
+     }
+    },
+    "cuda_a": {
+     "frames": 125,
+     "frames_with_h": 125,
+     "frozen_offset_s": -0.78,
+     "v2": {
+      "offset_s": 0.487,
+      "j_min_ft": 6.69,
+      "near_min": 18,
+      "at_edge": false,
+      "frames": 71
+     },
+     "candidates": {
+      "-1.34": 7,
+      "-0.78": 22,
+      "-0.06": 56,
+      "0.30": 53,
+      "0.62": 39,
+      "0.90": 20,
+      "1.20": 4
+     }
+    },
+    "cuda_b": {
+     "frames": 125,
+     "frames_with_h": 125,
+     "frozen_offset_s": -0.78,
+     "v2": {
+      "offset_s": 0.487,
+      "j_min_ft": 6.69,
+      "near_min": 18,
+      "at_edge": false,
+      "frames": 71
+     },
+     "candidates": {
+      "-1.34": 7,
+      "-0.78": 22,
+      "-0.06": 56,
+      "0.30": 53,
+      "0.62": 39,
+      "0.90": 20,
+      "1.20": 4
+     }
+    }
+   },
+   "pairs": {
+    "mac_cpu~mac_mps": {
+     "metrics": {
+      "frames_x": 125,
+      "frames_r": 125,
+      "common": 125,
+      "frames_with_h_x": 125,
+      "frames_with_h_r": 125,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 7.776,
+      "boxes_mean_r": 6.88,
+      "boxes_mean_diff": 0.896,
+      "same_count_share": 0.312,
+      "identical_boxes_share": 0.024,
+      "h_gap_px": {
+       "median": 4.6492,
+       "p90": 16.8449,
+       "frames": 125
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": false,
+      "same_count": false,
+      "court_h_gap": false,
+      "candidates": false
+     }
+    },
+    "cuda_a~mac_cpu": {
+     "metrics": {
+      "frames_x": 125,
+      "frames_r": 125,
+      "common": 125,
+      "frames_with_h_x": 125,
+      "frames_with_h_r": 125,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 7.808,
+      "boxes_mean_r": 7.776,
+      "boxes_mean_diff": 0.032,
+      "same_count_share": 0.92,
+      "identical_boxes_share": 0.0,
+      "h_gap_px": {
+       "median": 8.0166,
+       "p90": 29.0629,
+       "frames": 125
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": true,
+      "same_count": true,
+      "court_h_gap": false,
+      "candidates": false
+     }
+    },
+    "cuda_a~mac_mps": {
+     "metrics": {
+      "frames_x": 125,
+      "frames_r": 125,
+      "common": 125,
+      "frames_with_h_x": 125,
+      "frames_with_h_r": 125,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 7.808,
+      "boxes_mean_r": 6.88,
+      "boxes_mean_diff": 0.928,
+      "same_count_share": 0.296,
+      "identical_boxes_share": 0.0,
+      "h_gap_px": {
+       "median": 10.585,
+       "p90": 41.2106,
+       "frames": 125
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": false,
+      "same_count": false,
+      "court_h_gap": false,
+      "candidates": false
+     }
+    },
+    "cuda_b~cuda_a": {
+     "metrics": {
+      "frames_x": 125,
+      "frames_r": 125,
+      "common": 125,
+      "frames_with_h_x": 125,
+      "frames_with_h_r": 125,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 7.808,
+      "boxes_mean_r": 7.808,
+      "boxes_mean_diff": 0.0,
+      "same_count_share": 1.0,
+      "identical_boxes_share": 1.0,
+      "h_gap_px": {
+       "median": 0.0,
+       "p90": 0.0,
+       "frames": 125
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": true,
+      "same_count": true,
+      "court_h_gap": true,
+      "candidates": true
+     }
+    }
+   },
+   "recorded_offset_mismatch": {},
+   "r13": {
+    "colab_offset_s": -0.06,
+    "colab_candidates": 73,
+    "cuda_a_candidates_at_colab_offset": 56
+   }
+  }
+ },
+ "report_only": {
+  "gsw_bkn_2015_s04_w00": {
+   "note": "report only, not in the verdict; mac_detcpu has the detector on CPU and the court and gate on MPS (E1 post-mortem M6); mac_mps is the registered r23 build",
+   "offsets_s": [
+    0.3,
+    0.62,
+    0.9,
+    1.02,
+    1.2,
+    1.22,
+    1.34
+   ],
+   "stored_label_offset_s": 1.22,
+   "builds": {
+    "mac_detcpu": {
+     "frames": 1102,
+     "frames_with_h": 1102,
+     "frozen_offset_s": 1.02,
+     "v2": {
+      "offset_s": 0.891,
+      "j_min_ft": 3.483,
+      "near_min": 16,
+      "at_edge": false,
+      "frames": 519
+     },
+     "candidates": {
+      "0.30": 177,
+      "0.62": 188,
+      "0.90": 160,
+      "1.02": 134,
+      "1.20": 123,
+      "1.22": 119,
+      "1.34": 108
+     }
+    },
+    "mac_mps": {
+     "frames": 1102,
+     "frames_with_h": 1102,
+     "frozen_offset_s": 1.34,
+     "v2": {
+      "offset_s": 1.386,
+      "j_min_ft": 3.339,
+      "near_min": 9,
+      "at_edge": true,
+      "frames": 980
+     },
+     "candidates": {
+      "0.30": 214,
+      "0.62": 289,
+      "0.90": 336,
+      "1.02": 360,
+      "1.20": 383,
+      "1.22": 377,
+      "1.34": 370
+     }
+    },
+    "cuda_a": {
+     "frames": 1102,
+     "frames_with_h": 1102,
+     "frozen_offset_s": 0.54,
+     "v2": {
+      "offset_s": 0.887,
+      "j_min_ft": 3.403,
+      "near_min": 16,
+      "at_edge": false,
+      "frames": 511
+     },
+     "candidates": {
+      "0.30": 175,
+      "0.62": 181,
+      "0.90": 155,
+      "1.02": 129,
+      "1.20": 118,
+      "1.22": 119,
+      "1.34": 107
+     }
+    },
+    "cuda_b": {
+     "frames": 1102,
+     "frames_with_h": 1102,
+     "frozen_offset_s": 0.54,
+     "v2": {
+      "offset_s": 0.887,
+      "j_min_ft": 3.403,
+      "near_min": 16,
+      "at_edge": false,
+      "frames": 511
+     },
+     "candidates": {
+      "0.30": 175,
+      "0.62": 181,
+      "0.90": 155,
+      "1.02": 129,
+      "1.20": 118,
+      "1.22": 119,
+      "1.34": 107
+     }
+    }
+   },
+   "pairs": {
+    "mac_detcpu~mac_mps": {
+     "metrics": {
+      "frames_x": 1102,
+      "frames_r": 1102,
+      "common": 1102,
+      "frames_with_h_x": 1102,
+      "frames_with_h_r": 1102,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 4.2713,
+      "boxes_mean_r": 7.2151,
+      "boxes_mean_diff": -2.9437,
+      "same_count_share": 0.2314,
+      "identical_boxes_share": 0.0154,
+      "h_gap_px": {
+       "median": 0.0,
+       "p90": 0.0,
+       "frames": 1102
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": false,
+      "same_count": false,
+      "court_h_gap": true,
+      "candidates": false
+     }
+    },
+    "cuda_a~mac_detcpu": {
+     "metrics": {
+      "frames_x": 1102,
+      "frames_r": 1102,
+      "common": 1102,
+      "frames_with_h_x": 1102,
+      "frames_with_h_r": 1102,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 4.2486,
+      "boxes_mean_r": 4.2713,
+      "boxes_mean_diff": -0.0227,
+      "same_count_share": 0.9555,
+      "identical_boxes_share": 0.0935,
+      "h_gap_px": {
+       "median": 10.0971,
+       "p90": 29.2664,
+       "frames": 1102
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": true,
+      "same_count": true,
+      "court_h_gap": false,
+      "candidates": true
+     }
+    },
+    "cuda_a~mac_mps": {
+     "metrics": {
+      "frames_x": 1102,
+      "frames_r": 1102,
+      "common": 1102,
+      "frames_with_h_x": 1102,
+      "frames_with_h_r": 1102,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 4.2486,
+      "boxes_mean_r": 7.2151,
+      "boxes_mean_diff": -2.9664,
+      "same_count_share": 0.2214,
+      "identical_boxes_share": 0.0,
+      "h_gap_px": {
+       "median": 10.0971,
+       "p90": 29.2664,
+       "frames": 1102
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": false,
+      "same_count": false,
+      "court_h_gap": false,
+      "candidates": false
+     }
+    },
+    "cuda_b~cuda_a": {
+     "metrics": {
+      "frames_x": 1102,
+      "frames_r": 1102,
+      "common": 1102,
+      "frames_with_h_x": 1102,
+      "frames_with_h_r": 1102,
+      "frames_jaccard": 1.0,
+      "boxes_mean_x": 4.2486,
+      "boxes_mean_r": 4.2486,
+      "boxes_mean_diff": 0.0,
+      "same_count_share": 1.0,
+      "identical_boxes_share": 1.0,
+      "h_gap_px": {
+       "median": 0.0,
+       "p90": 0.0,
+       "frames": 1102
+      }
+     },
+     "tests": {
+      "frames_jaccard": true,
+      "boxes_mean": true,
+      "same_count": true,
+      "court_h_gap": true,
+      "candidates": true
+     }
+    }
+   }
+  }
+ },
+ "reading": {
+  "rule_separates_cpu_from_mps": true,
+  "cuda_repeatable": true,
+  "cuda_matches_cpu": false,
+  "cuda_matches_mps": false,
+  "colab_cpu_matches_mac_cpu": null,
+  "failed_tests": {
+   "mac_cpu~mac_mps": {
+    "gsw_ind_2016_s02_w03": [
+     "boxes_mean",
+     "candidates",
+     "court_h_gap",
+     "same_count"
+    ],
+    "gsw_ind_2016_s02_w04": [
+     "boxes_mean",
+     "candidates",
+     "court_h_gap",
+     "same_count"
+    ]
+   },
+   "cuda_a~mac_cpu": {
+    "gsw_ind_2016_s02_w03": [
+     "court_h_gap"
+    ],
+    "gsw_ind_2016_s02_w04": [
+     "candidates",
+     "court_h_gap"
+    ]
+   },
+   "cuda_a~mac_mps": {
+    "gsw_ind_2016_s02_w03": [
+     "boxes_mean",
+     "candidates",
+     "court_h_gap",
+     "same_count"
+    ],
+    "gsw_ind_2016_s02_w04": [
+     "boxes_mean",
+     "candidates",
+     "court_h_gap",
+     "same_count"
+    ]
+   },
+   "cuda_b~cuda_a": {}
+  },
+  "verdict": "matches neither",
+  "repeatability": "measured",
+  "attribution": "colab_cpu not built: a mismatch cannot be traced to the device or the libraries"
+ }
+}

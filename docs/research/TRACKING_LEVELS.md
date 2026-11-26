@@ -36,9 +36,9 @@ source of uncut modern broadcasts, reopened only if one appears.
 | --- | --- | --- |
 | 1. Error analysis by cause | Partly done: baseline rows on 3 training games (missed 0.26, ghosts 0.118 to 0.129); the breakdown by cause is the E1 post-mortem | P8_baseline.md, P8_E1.md |
 | 2. Detector labels from outside teachers | Done: YOLOX-X on SportsMOT qualified (+0.0419 recall at our precision); E1 corpus 52,478 labels on 5,592 frames | P8_teachers.md, D155 |
-| 3. Fine-tune the detector | Failed once: E1 seed 0 raised misses 0.2654 to 0.2932; next arm E1b after the post-mortem | D171, P8_E1.md |
+| 3. Fine-tune the detector | Paused: E1 not adopted (D182); E1b stopped at its transfer gate before any unit (D183): the reachable misses are mostly foot placement, which survives the build at about 0.3 | D171, D182, D183, P8_E1.md, P8_E1R.md, P8_E1B.md |
 | 4. Team labels from appearance | Failed: CLIP and DINOv2 lower the team row 14 to 21 points; colour stays | D153, D154, tracking.md |
-| 5. Near-camera bias correction | Open | |
+| 5. Near-camera bias correction | Step 1 measured (D184): the foot offset grows along the camera ray and varies by game; no correction fitted on two games passes on the third | D184, P8_placement.md |
 | 6. Fill missed player-frames | Waits on step 3 | |
 | 7. Score once | Open | |
 
@@ -54,26 +54,25 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Rebuild the development baselines on the reference platform (D175: detector on CPU). M9 (r23 on gsw_cha_2016,
-   gsw_sac_2015, hou_cle_2016) is running, report-only beside the registered MPS rows; gsw_bkn_2015 is M6. Every
-   registered MPS number on this Mac is inferred to carry the clip_boxes fault (D174).
-2. D161 (1) CUDA check on Colab (about 1 to 1.5 units): does a T4 build of r23 agree with the Mac CPU build? If so,
-   heavy builds can move to Colab; it covers r23 on a T4 only.
-3. E1R: does E1 seed 0 beat r23 on the reference platform? A new arm, designed and reviewed before any build, with
-   the forking path disclosed (chosen after M4 and M6 favoured E1 on CPU). Mac lock hours, no units.
-4. E1b design under TRAINING_PROTOCOL.md, after E1R: start from r23, do not teach unlabelled SportVU players as
-   background, a truth-aligned validation metric, a pilot on one fold first, and builds on the reference platform.
-5. Camera truth for the development videos in other arenas (nyk_bos_2016, okc_sac_2015, por_okc_2016; Mac lock
-   hours, no Colab), built on the reference platform. Today only the GSW games and hou_cle_2016 have Mac truth, so
-   cross-arena tuning (Level 1 step 7) has one arena of development truth besides GSW. The sealed side is the D85
-   set: 4 games in 3 arenas, below the 10 games and 5 arenas of the first draft; its detectable effect is stated
-   before it is sealed (D172).
-6. Widen the fixed-MPS parity check (P8_MPS_CLIP_FIX, D174 (5)) to more windows and games: a 3x cost saver for
+1. Placement route (D183 to D186), 0 units: the missed row's placement part has no correction that passes on
+   every game (step 1 SCATTERED; step 1b MIXED, gsw_cha_2016's truth suspect; the short-foot bias under the r23
+   court's H is consistent but correcting it raises missed and ghosts on gsw_sac_2015). On the position rows the
+   same shift lowers p50 by 0.25 to 0.28 ft and near-field bias by about 1 ft on every pool game (D187). Now: the
+   shift on output positions only (detection unchanged), design reviewed before hou_cle_2016 is scored once. The missed row is reported as detection (no foot
+   within 5 ft, 0.052 to 0.091) and placement (2.5 to 5 ft, 0.15 to 0.22); whether Level 2's 5 percent target should
+   be restated against the split is Lucien's call.
+2. Camera truth for okc_sac_2015 on the reference platform (D178, running): bars A, B, C fixed before the build.
+   nyk_bos_2016 and por_okc_2016 stay out (hand-measured layouts). Then the gsw_cha_2016 CPU truth rebuild to test
+   whether the existing MPS truth moved; if it moved, rebuild the other in-use truth before any cross-arena tuning.
+3. Court output against camera truth: done (D181), no change; court device stays as in D175.
+4. Colab as a build helper: only through a tested split route (detector on CUDA, court on the reference device),
+   since CUDA matches neither Mac build (D179). Transfers go through Google Drive (D177).
+5. Widen the fixed-MPS parity check (P8_MPS_CLIP_FIX, D174 (5)) to more windows and games: a 3x cost saver for
    exploratory builds if it passes a new registered rule.
-7. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
-8. Footage at low cost, continuously; NUST-NBA181 waits on Lucien's email (D163 (3)).
-9. Level 4 watch, weekly.
-10. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
+6. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
+7. Footage at low cost, continuously; NUST-NBA181 waits on Lucien's email (D163 (3)).
+8. Level 4 watch, weekly.
+9. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
 
 ## Lessons and priors
 
@@ -83,8 +82,25 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   are not rebuilt, so how much of the registered rise the fault carries is the leading explanation, not a
   measurement (E1R measures it). Every new detector or library version gets a device parity check on the corpus
   JPEGs (minutes) before any build is scored.
+- Check what a measure measures before reading its size. The court gap of D179 (3.8 to 10.6 px between platforms) used
+  three fixed court points, and on 90 to 100 percent of truth frames two of them are off the image, so it largely
+  measures extrapolation; on-frame line errors differ by under 1 px (D181). A build's platform is still recorded per
+  window.
+- A remote runtime loses its outputs if it is not polled; chain the result upload into the runtime job itself and poll
+  every 5 minutes, even mid-conversation (D179, about 1.1 units lost).
 - Agreement pseudo-labels (two models must both box a player) can teach unlabelled players as background; for E1 the
   label audit found this explains only a small part of the rise (D173).
+- A pass on the development pool can fail in a new arena: E1 seed 0 passed both GSW pools but only 2 of 3 folds on
+  hou_cle_2016 (D182). Keep a non-GSW gate in every detector design. Seed 0 point estimates favoured E1 on ghosts and
+  position everywhere while missed barely moved (post hoc): the label recipe, not the platform, is the next suspect.
+- Measure transfer to the scored row before sizing a label set: E1's raw gains kept only 0.24 to 0.38 (placement)
+  and 0.36 to 0.62 (presence) at build level, so a label set with a -0.080 raw ceiling was worth about -0.020 at
+  build level (D183). The cheapest falsifier was a per-game ceiling from stored files, seconds of compute.
+- Most misses are not missing boxes: on the reference platform 64 to 75 percent of r23's build-level misses have a
+  stabilised foot 2.5 to 5 ft away, offset along the camera ray (D184). Split detection from placement before
+  choosing a fix; a detector cannot move the placement row.
+- Name which build a truth came from before reading a disagreement with it: camera truth was initialised from and
+  fitted to the V3 label build, not the scored r23 court, and a review caught a doc that assumed otherwise (D185).
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on

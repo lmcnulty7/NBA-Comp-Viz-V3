@@ -1,0 +1,186 @@
+{
+ "what": "K1 on the position rows (docs/research/P8_footpos.md); report only; stored files; pool games only, hou_cle_2016 not read",
+ "games": {
+  "gsw_bkn_2015": {
+   "rows_baseline_corrected": {
+    "position_p50_ft": [
+     1.5394392007915187,
+     1.284822743598926
+    ],
+    "position_p90_ft": [
+     3.3000134510707713,
+     3.067705017018619
+    ],
+    "nearfield_bias_ft": [
+     1.5923633575439453,
+     0.6527390480041504
+    ],
+    "missed_rate": [
+     0.25252969643642764,
+     0.24803245832722295
+    ],
+    "ghost_rate": [
+     0.12551429041636952,
+     0.12644687037138624
+    ]
+   },
+   "diff": {
+    "position_p50_ft": -0.25462,
+    "position_p90_ft": -0.23231,
+    "nearfield_bias_ft": -0.93962,
+    "missed_rate": -0.0045,
+    "ghost_rate": 0.00093
+   },
+   "iv": {
+    "position_p50_ft": [
+     -0.28824,
+     -0.21452
+    ],
+    "position_p90_ft": [
+     -0.30937,
+     -0.15435
+    ],
+    "nearfield_bias_ft": [
+     -0.95631,
+     -0.91195
+    ],
+    "missed_rate": [
+     -0.01101,
+     0.00205
+    ],
+    "ghost_rate": [
+     -0.00237,
+     0.00454
+    ]
+   },
+   "matched_both": 17110,
+   "matched_baseline": 17414,
+   "matched_corrected": 17364,
+   "windows": 62
+  },
+  "gsw_cha_2016": {
+   "rows_baseline_corrected": {
+    "position_p50_ft": [
+     1.5105356940646923,
+     1.2270107616823973
+    ],
+    "position_p90_ft": [
+     3.0819399482872574,
+     2.9399381724793736
+    ],
+    "nearfield_bias_ft": [
+     1.1565216779708862,
+     0.06219673156738281
+    ],
+    "missed_rate": [
+     0.29524239686841314,
+     0.2876392652815417
+    ],
+    "ghost_rate": [
+     0.18758002560819462,
+     0.18437900128040974
+    ]
+   },
+   "diff": {
+    "position_p50_ft": -0.28352,
+    "position_p90_ft": -0.142,
+    "nearfield_bias_ft": -1.09432,
+    "missed_rate": -0.0076,
+    "ghost_rate": -0.0032
+   },
+   "iv": {
+    "position_p50_ft": [
+     -0.32214,
+     -0.23509
+    ],
+    "position_p90_ft": [
+     -0.21396,
+     -0.07008
+    ],
+    "nearfield_bias_ft": [
+     -1.11606,
+     -0.93666
+    ],
+    "missed_rate": [
+     -0.01649,
+     0.00144
+    ],
+    "ghost_rate": [
+     -0.01094,
+     0.00348
+    ]
+   },
+   "matched_both": 11348,
+   "matched_baseline": 11593,
+   "matched_corrected": 11534,
+   "windows": 53
+  },
+  "gsw_sac_2015": {
+   "rows_baseline_corrected": {
+    "position_p50_ft": [
+     1.4956952682687712,
+     1.2243663922322507
+    ],
+    "position_p90_ft": [
+     3.218160309097321,
+     3.0092292907231384
+    ],
+    "nearfield_bias_ft": [
+     1.3453361988067627,
+     0.25450658798217773
+    ],
+    "missed_rate": [
+     0.20596859629209233,
+     0.21438706015891032
+    ],
+    "ghost_rate": [
+     0.11442434044273729,
+     0.12276357020115233
+    ]
+   },
+   "diff": {
+    "position_p50_ft": -0.27133,
+    "position_p90_ft": -0.20893,
+    "nearfield_bias_ft": -1.09083,
+    "missed_rate": 0.00842,
+    "ghost_rate": 0.00834
+   },
+   "iv": {
+    "position_p50_ft": [
+     -0.31531,
+     -0.21686
+    ],
+    "position_p90_ft": [
+     -0.28172,
+     -0.11945
+    ],
+    "nearfield_bias_ft": [
+     -1.10934,
+     -1.05552
+    ],
+    "missed_rate": [
+     -0.0002,
+     0.01649
+    ],
+    "ghost_rate": [
+     0.00307,
+     0.0134
+    ]
+   },
+   "matched_both": 18512,
+   "matched_baseline": 18883,
+   "matched_corrected": 18803,
+   "windows": 60
+  }
+ },
+ "verdict": {
+  "position_gain": true,
+  "non_inferior": false,
+  "pass": false
+ },
+ "rule": {
+  "position": "p50 and near-field bias differences below zero with window intervals wholly below zero on every pool game",
+  "non_inferior": "window upper end of missed <= 0.01 and of ghosts <= 0.01 on every pool game",
+  "boot": "tools.p8_e1_score.boot"
+ }
+}
