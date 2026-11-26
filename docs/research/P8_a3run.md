@@ -205,6 +205,7 @@ half of the detector's boxes there. P8_a3trace.md locates where.
    state at the end of a frame: "The dropped boxes are almost never unconfirmed tracks (2.2 percent)" and "The 'never
    confirmed' mechanism is not supported". After a reset that state follows two update calls per frame, not one
    (docs/research/P8_a3input.md, cause confirmed). The second call removes the new tracks the first one created.
-   "Not supported" is withdrawn: the never-confirmed mechanism is what happens, through the double update. See the
-   amendment in P8_a3trace.md.
+   "Not supported" is withdrawn: the never-confirmed mechanism is what happens, through the double update. This is
+   tested on gsw_cha_2016_s05_w00; the other heavy windows each have a reset (P8_trackreset.md), so the code path
+   applies there; its size there is untested. See the amendment in P8_a3trace.md.
 
