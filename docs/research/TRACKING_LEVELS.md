@@ -54,20 +54,20 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Rebuild the development baselines on the reference platform (D175: detector on CPU). M9 (r23 on gsw_cha_2016,
-   gsw_sac_2015, hou_cle_2016) is running, report-only beside the registered MPS rows; gsw_bkn_2015 is M6. Every
-   registered MPS number on this Mac is inferred to carry the clip_boxes fault (D174).
-2. D161 (1) CUDA check on Colab (about 1 to 1.5 units): does a T4 build of r23 agree with the Mac CPU build? If so,
-   heavy builds can move to Colab; it covers r23 on a T4 only.
-3. E1R: does E1 seed 0 beat r23 on the reference platform? A new arm, designed and reviewed before any build, with
-   the forking path disclosed (chosen after M4 and M6 favoured E1 on CPU). Mac lock hours, no units.
-4. E1b design under TRAINING_PROTOCOL.md, after E1R: start from r23, do not teach unlabelled SportVU players as
-   background, a truth-aligned validation metric, a pilot on one fold first, and builds on the reference platform.
-5. Camera truth for the development videos in other arenas (nyk_bos_2016, okc_sac_2015, por_okc_2016; Mac lock
-   hours, no Colab), built on the reference platform. Today only the GSW games and hou_cle_2016 have Mac truth, so
-   cross-arena tuning (Level 1 step 7) has one arena of development truth besides GSW. The sealed side is the D85
-   set: 4 games in 3 arenas, below the 10 games and 5 arenas of the first draft; its detectable effect is stated
-   before it is sealed (D172).
+1. E1R (D174 to D176, running): on the reference platform E1 seed 0 passes the registered pool (missed -0.0067,
+   ghosts -0.0160, position p50 -0.09 ft, near-field bias -0.16 ft, team +0.024) and the blind 2-game pool; the
+   missed gain is narrow (game interval crosses zero; gsw_cha_2016 alone is worse). Stage 2 (hou_cle_2016, all three
+   folds, the only non-GSW arena) is running. Then decide between seeds 1 and 2 (about 30 units, within the cap) and
+   E1b (start from r23); the design pre-wrote that a pass alone does not justify the seeds.
+2. Camera truth for okc_sac_2015 on the reference platform (D178, running): bars A, B, C fixed before the build.
+   nyk_bos_2016 and por_okc_2016 stay out (hand-measured layouts). Then the gsw_cha_2016 CPU truth rebuild to test
+   whether the existing MPS truth moved; if it moved, rebuild the other in-use truth before any cross-arena tuning.
+3. Court output against camera truth (D179 (3)): the court model moves 4 to 11 px between platforms; a JSON-only
+   comparison of each build's court with H_truth (s04_w00 first) says which is closest. Needs its own short design.
+4. E1b design under TRAINING_PROTOCOL.md, after E1R and item 3: start from r23, do not teach unlabelled players as
+   background, truth-aligned validation, pilot on one fold, builds on the reference platform.
+5. Colab as a build helper: only through a tested split route (detector on CUDA, court on the reference device),
+   since CUDA matches neither Mac build (D179). Transfers go through Google Drive (D177).
 6. Widen the fixed-MPS parity check (P8_MPS_CLIP_FIX, D174 (5)) to more windows and games: a 3x cost saver for
    exploratory builds if it passes a new registered rule.
 7. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
@@ -83,6 +83,10 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   are not rebuilt, so how much of the registered rise the fault carries is the leading explanation, not a
   measurement (E1R measures it). Every new detector or library version gets a device parity check on the corpus
   JPEGs (minutes) before any build is scored.
+- Platforms differ in the court model too: the court homography moves 3.8 to 4.7 px between Mac CPU and MPS and 8.0
+  to 10.6 px between CUDA and the Mac (D179). A build's platform is part of its result; record it per window.
+- A remote runtime loses its outputs if it is not polled; chain the result upload into the runtime job itself and poll
+  every 5 minutes, even mid-conversation (D179, about 1.1 units lost).
 - Agreement pseudo-labels (two models must both box a player) can teach unlabelled players as background; for E1 the
   label audit found this explains only a small part of the rise (D173).
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
