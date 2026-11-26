@@ -9,6 +9,8 @@ scored windows of the game's registered score file (tools.p8_placement.SCORES). 
 sidecar row is accepted with an H (sportvu.bench.accepted). Reported for each truth on all its frames and on the
 frames both truths accept, with the median |T_cpu(p) - T_mps(p)| on those common frames. All boxes, not step 1b's
 nearest-box player population (docs/research/P8_placement.md), so the values are not step 1b's.
+Confound: B and the new truth share the CPU detector (the truth is fitted from CPU-detector label builds), so a
+smaller |d_H| under the new truth is partly expected and is not evidence that it is closer to SportVU.
 
 It also checks that the label windows' time maps are the same in both roots (the windows cover the same frames).
 Stored files only: no model, no video, no lock. Writes <cpu root>/truth_moved/<game>_dh_posthoc.json (and --out).

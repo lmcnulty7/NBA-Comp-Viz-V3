@@ -54,16 +54,14 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Placement route (D183 to D186), 0 units: the missed row's placement part has no correction that passes on
-   every game (step 1 SCATTERED; step 1b MIXED, gsw_cha_2016's truth suspect; the short-foot bias under the r23
-   court's H is consistent but correcting it raises missed and ghosts on gsw_sac_2015). On the position rows the
-   same shift lowers p50 by 0.25 to 0.28 ft and near-field bias by about 1 ft on every pool game (D187). Now: the
-   shift on output positions only (detection unchanged), design reviewed before hou_cle_2016 is scored once. The missed row is reported as detection (no foot
-   within 5 ft, 0.052 to 0.091) and placement (2.5 to 5 ft, 0.15 to 0.22); whether Level 2's 5 percent target should
-   be restated against the split is Lucien's call.
-2. Camera truth for okc_sac_2015 on the reference platform (D178, running): bars A, B, C fixed before the build.
-   nyk_bos_2016 and por_okc_2016 stay out (hand-measured layouts). Then the gsw_cha_2016 CPU truth rebuild to test
-   whether the existing MPS truth moved; if it moved, rebuild the other in-use truth before any cross-arena tuning.
+1. Detection row (D184, detrow): far misses are 0.052 to 0.091 of in-frame players; occluded and small dominate,
+   but r23's raw detector had a box near 37 percent of them (post hoc), a build-side loss above the bar on every
+   game. Now: where the build loses those boxes (gate, activation, track loss, foot stabilisation), registered
+   first, stored files; then possibly a tracking or gating arm rebuilt on the reference platform. The placement
+   and output-position lines are closed (D184 to D188): no correction passed on every game; hou_cle_2016 is unspent.
+2. okc_sac_2015 closed by its kill rule (mirror vote ambiguous, 0.67). Now running: the gsw_cha_2016 CPU truth
+   rebuild (label and fit, V3 court), then the registered truth-moved test; gsw_cha_2016's truth is also the first
+   suspect from placement step 1b (D185).
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
 4. Colab as a build helper: only through a tested split route (detector on CUDA, court on the reference device),
    since CUDA matches neither Mac build (D179). Transfers go through Google Drive (D177).
@@ -101,6 +99,12 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   choosing a fix; a detector cannot move the placement row.
 - Name which build a truth came from before reading a disagreement with it: camera truth was initialised from and
   fitted to the V3 label build, not the scored r23 court, and a review caught a doc that assumed otherwise (D185).
+- A test on numbers already seen is a forecast check, not a discovery: the outpos v1 hou_cle_2016 rule was a
+  near-sure pass from committed per-cell medians (D188). Write the forecast and a naive comparator before scoring,
+  and count subgroup tails as harm before the first look, not after.
+- Record the runtime of every stored prediction: the E1 corpus detector ran in the teacher environment, not the
+  build's, so raw-against-build comparisons mixed tracker loss with a runtime difference until a review caught it
+  (D190). Two environments are two platforms (see the MPS lesson).
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on

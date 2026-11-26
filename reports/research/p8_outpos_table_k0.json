@@ -1,0 +1,24 @@
+{
+ "what": "K0 table frozen from the 3 pool games (docs/research/P8_outpos.md version 2): one global median depth offset (ft) under the r23 court's H, the same value in every cell",
+ "games": [
+  "gsw_bkn_2015",
+  "gsw_cha_2016",
+  "gsw_sac_2015"
+ ],
+ "global": -0.78515,
+ "fit_rows": 51198,
+ "table": {
+  "150-200|far": -0.78515,
+  "150-200|middle": -0.78515,
+  "150-200|near": -0.78515,
+  "200-250|far": -0.78515,
+  "200-250|middle": -0.78515,
+  "200-250|near": -0.78515,
+  "<150|far": -0.78515,
+  "<150|middle": -0.78515,
+  "<150|near": -0.78515,
+  ">=250|far": -0.78515,
+  ">=250|middle": -0.78515,
+  ">=250|near": -0.78515
+ }
+}

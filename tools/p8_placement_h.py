@@ -55,6 +55,7 @@ import json
 import numpy as np
 
 from tools.p8_common import REPO, atomic_write, p8_root
+from tools.research_testset import refuse_cv_test
 from tools.p8_placement import (CHECK, POOL, THIRDS, BOOT_N, SEED, MISS_FT, NEAR_FT, check_games, depth_basis, klass,
                                 load_game, nearest_foot, rnd)
 
@@ -202,7 +203,7 @@ def summarise(rows: list, tag: str) -> dict:
 
 
 def cmd_measure(args) -> dict:
-    check_games(POOL + CHECK)
+    refuse_cv_test(check_games(POOL + CHECK), WHO)
     res, meta = {}, {}
     for t in POOL + CHECK:
         rows, m = rows_of(t)

@@ -83,5 +83,6 @@
    "new_common": 8606,
    "truth_shift_common": 8606
   }
- }
+ },
+ "provenance": "Keys game through cpu_label_windows equal the tool output truth_moved/gsw_cha_2016.json in the reference workspace; the post hoc block equals gsw_cha_2016_dh_posthoc.json; the roots and rebuild blocks were copied by hand from logs/cha_truth.log and both roots' labels/gsw_cha_2016_result.json (checked by ml-review, 2026-11-26)."
 }
