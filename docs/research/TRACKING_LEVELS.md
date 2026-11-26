@@ -38,7 +38,7 @@ source of uncut modern broadcasts, reopened only if one appears.
 | 2. Detector labels from outside teachers | Done: YOLOX-X on SportsMOT qualified (+0.0419 recall at our precision); E1 corpus 52,478 labels on 5,592 frames | P8_teachers.md, D155 |
 | 3. Fine-tune the detector | Paused: E1 not adopted (D182); E1b stopped at its transfer gate before any unit (D183): the reachable misses are mostly foot placement, which survives the build at about 0.3 | D171, D182, D183, P8_E1.md, P8_E1R.md, P8_E1B.md |
 | 4. Team labels from appearance | Failed: CLIP and DINOv2 lower the team row 14 to 21 points; colour stays | D153, D154, tracking.md |
-| 5. Near-camera bias correction | Open | |
+| 5. Near-camera bias correction | Step 1 measured (D184): the foot offset grows along the camera ray and varies by game; no correction fitted on two games passes on the third | D184, P8_placement.md |
 | 6. Fill missed player-frames | Waits on step 3 | |
 | 7. Score once | Open | |
 
@@ -54,11 +54,12 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Placement route (D183), 0 units: step 1 measures whether the offset from SportVU to the stabilised foot on
-   build-level placement misses (57 percent of r23's raw misses) is systematic, by depth, third and motion, with the
-   reading rule fixed first; step 2, if systematic, a foot_stab correction fitted leave one game out and scored by
-   rescoring sidecars; step 3, if scattered, restate the Level 2 missed target against the truth's own floor. This
-   also covers Level 2 step 5 (near-camera bias).
+1. Placement route (D183, D184), 0 units: step 1 read SCATTERED (the offset runs along the camera ray, size varies
+   by game, no timing signature, no correction passes on every game). Now step 1b: does the build homography against
+   the truth camera at the foot pixel explain the depth offset (reading rule fixed first)? Then either the truth
+   rebuild test (item 2) or a foot-pixel question. The missed row is reported as detection (no foot within 5 ft,
+   0.052 to 0.091) and placement (2.5 to 5 ft, 0.15 to 0.22); whether Level 2's 5 percent target should be restated
+   against the split is Lucien's call.
 2. Camera truth for okc_sac_2015 on the reference platform (D178, running): bars A, B, C fixed before the build.
    nyk_bos_2016 and por_okc_2016 stay out (hand-measured layouts). Then the gsw_cha_2016 CPU truth rebuild to test
    whether the existing MPS truth moved; if it moved, rebuild the other in-use truth before any cross-arena tuning.
@@ -94,6 +95,9 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 - Measure transfer to the scored row before sizing a label set: E1's raw gains kept only 0.24 to 0.38 (placement)
   and 0.36 to 0.62 (presence) at build level, so a label set with a -0.080 raw ceiling was worth about -0.020 at
   build level (D183). The cheapest falsifier was a per-game ceiling from stored files, seconds of compute.
+- Most misses are not missing boxes: on the reference platform 64 to 75 percent of r23's build-level misses have a
+  stabilised foot 2.5 to 5 ft away, offset along the camera ray (D184). Split detection from placement before
+  choosing a fix; a detector cannot move the placement row.
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on
