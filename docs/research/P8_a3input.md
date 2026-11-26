@@ -102,10 +102,10 @@ reads the detector's output from the first update call's input of each frame.
   itself (frame_id 14 to 2).
 - **The status of the explanation.** The double-update explanation above (reset drops the predictor; the callbacks
   are re-registered and run twice) is post hoc until this run confirms it. It comes from reading the code and from
-  the stored frame_id steps. The reviewer found the same double update independently: 107 calls against 107 frames
+  the stored frame_id steps. The reviewer found the same double update independently: 14 calls against 14 frames
   before the reset, and recorded input equal to output after it.
 
-## Results (run 2026-11-26 under the lock, 655 s)
+## Results (run 2026-11-26 under the lock, 652 s)
 
 Versions: OpenCV 4.13.0, torch 2.2.2, ultralytics 8.4.48; r23 sha256 checked. Record: reports/research/p8_a3input.json.
 
@@ -120,9 +120,13 @@ Versions: OpenCV 4.13.0, torch 2.2.2, ultralytics 8.4.48; r23 sha256 checked. Re
 | Resets | 1 | 2 |
 | Postprocess callbacks before the call (frames) | 1 (1), 2 (14), 3 (1,038) | 1 (3), 2 (1,050) |
 
-The detector's output in the first update call equals P8_a3trace.md's predict count exactly (8,766), so the detector
-always saw every player. The callback count includes ultralytics' own default entry: A holds one tracker callback
-until the reset and two after it, and B holds one throughout.
+The detector's output in the first update call equals P8_a3trace.md's predict count exactly (8,766), so the first
+update call received every box the detector output. The callback count includes ultralytics' own default entry: A
+holds one tracker callback until the reset and two after it, and B holds one throughout. The count is taken before
+Model.track registers the tracker callbacks for that frame, so the first frame of the window and the first frame after
+each reset show one fewer than ran on that frame: A's single frame at 1 is the first frame, and its 14 frames at 2 are
+the 13 frames before the reset plus the first frame after it; B's 3 frames at 1 are the first frame and the first frame
+after each of its 2 resets.
 
 ## Reading by the registered rule
 
@@ -132,7 +136,8 @@ Cause confirmed:
 - In A, every frame after the reset runs the tracker update twice. In B, no frame runs it more than once.
 - B keeps 0.955 of the detector's boxes against A's 0.303.
 
-The double update after PlayerTracker.reset is the cause of the a3 loss on this window. It is no longer post hoc.
+The double update after PlayerTracker.reset is the cause of the a3 loss on this window, confirmed by a registered
+in-process intervention on one window.
 
 What follows, as registered: a build arm. The reset fix becomes a tools-side patch with no frozen file edited, in the
 same way as P8_MPS_CLIP_FIX. It needs its own registration, is rebuilt on the reference platform under the lock, and
@@ -142,6 +147,20 @@ Notes for that registration:
 
 - B reset twice where A reset once. With more tracks alive, the camera-cut rule fires at different frames. The arm's
   registration should expect the reset count to change.
-- Every build with at least one reset carries the bug. That includes r23's registered baselines and the held-out
-  numbers already recorded. Paired comparisons (E1 against r23, E1R) had it on both sides.
+- Any build made with detect/tracker.PlayerTracker under ultralytics 8.4.48 that had at least one reset carries the
+  bug (a code fact). Whether r23's registered baselines and the recorded held-out numbers had resets, and how much the
+  bug moved them, is not tested here. Held-out numbers are not rebuilt or re-scored (CLAUDE.md rule 4). Reset timing
+  differs between detectors (the cut rule counts each build's own tracked ids), so the bug need not cancel in paired
+  comparisons such as E1 against r23.
 - The size of the gain across the pool, and on the missed and detection rows, is the arm's question, not this run's.
+
+## Review corrections (2026-11-26; registered text above unchanged)
+
+Wording fixes in the results and reading sections above, from the ml-review: the first update call received every box
+the detector output (not "the detector saw every player": r23 misses players); the scope of the bug is a code fact for
+builds with a reset, and its size on recorded baselines and held-out numbers is untested; the reviewer's independent
+count is 14 calls against 14 frames before the reset; the run time is the record's 651.7 s; the callback table is
+explained; "confirmed by a registered in-process intervention on one window". The reproduction check in
+tools/p8_a3input.py now matches boxes one to one (the same rule as tools.p8_a3run.same_boxes); the earlier check let
+one sidecar box stand for two output boxes. Recomputed from the stored record: A still reproduces 1.0 of 1,053 frames,
+and every other number in reports/research/p8_a3input.json is unchanged.
