@@ -37,3 +37,28 @@ def test_summarize_and_leads():
     assert s["ours_after_not_ghost"] == {"n": 1, "with_flag": {"A": 0, "B": 1, "C": 0}}
     named = G.leads({"gsw_cha_2016": s}, s)
     assert [x["class"] for x in named] == ["B"]
+
+
+
+def test_frame_pairs():
+    import numpy as np
+    sv = np.array([[0.0, 0.0], [20.0, 0.0], [40.0, 0.0]] + [[100.0, 100.0]] * 7)
+    inside = np.array([True, True, True] + [False] * 7)
+    feet = np.array([[0.5, 0.0], [24.0, 0.0], [60.0, 0.0]])   # finds p0; p1's box 4 ft off; one far ghost
+    c = G.frame_pairs(feet, sv, inside)
+    assert c == {"in_frame": 3, "missed": 2, "ghosts": 2, "pairs": 1, "pairs_tight": 1}
+    c = G.frame_pairs(np.array([[0.5, 0.0], [25.0, 0.0]]), sv, inside)
+    assert c["pairs"] == 1 and c["pairs_tight"] == 0                   # 5 ft: within 6.0, not 4.5
+    assert G.frame_pairs(np.zeros((0, 2)), sv, inside)["missed"] == 3
+
+
+def test_stab_feet_and_explained():
+    import numpy as np
+    raw = np.array([[1.0, 1.0], [5.0, 5.0]])
+    out = G.stab_feet([[0, 0, 10, 10], [50, 50, 60, 60]], [[0, 0, 10, 11]], raw, np.array([[2.0, 2.0]]))
+    assert out.tolist() == [[2.0, 2.0], [5.0, 5.0]]
+    e = G.explained({"in_frame": 100, "missed": 20, "ghosts": 15, "pairs": 6},
+                    {"in_frame": 100, "missed": 25, "ghosts": 5, "pairs": 2})
+    assert abs(e["dE"] - 0.05) < 1e-12 and abs(e["dE_from_pairs"] - 0.08) < 1e-12 and abs(e["explained_share"] - 1.6) < 1e-12
+    assert G.explained({"in_frame": 100, "missed": 20, "ghosts": 5, "pairs": 0},
+                       {"in_frame": 100, "missed": 25, "ghosts": 5, "pairs": 0})["explained_share"] is None

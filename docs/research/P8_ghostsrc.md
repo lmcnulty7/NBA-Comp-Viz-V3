@@ -85,3 +85,29 @@ shares are rough. The corpus boxes use the raw bottom centre, not the build's st
 player's box past 3 ft more often than the build would. After-reset ghosts look much like ordinary r23 ghosts (the
 before-reset split is close), apart from gsw_cha_2016's cut-adjacent share. Post hoc and unregistered: the D near
 reading (a placement error counted twice) is an explanation, not a measurement.
+
+## Pairing check (registered 2026-11-26, before any number; the lead's next item)
+
+Question: how much of gsw_cha_2016's forecast rise in net error is one real player counted twice, missed (no foot
+within 2.5 ft) and its own box counted a ghost (more than 3 ft from every player)? It changes no rule; P8_resetfix.md
+version 2.3 stands as registered, and this only explains its forecast. Stored files, no lock. Code:
+tools/p8_ghostsrc.py pairs; record reports/research/p8_ghostsrc_pairs.json.
+
+Definitions, per scored frame (the same MPS-truth universe), for a set of non-referee boxes with feet in truth court ft:
+missed players (in frame, no foot within 2.5 ft), ghost boxes (foot more than 3.0 ft from all 10 players), and
+double-count pairs: a one-to-one assignment (Hungarian, by distance) between ghost boxes and missed players with the
+pair's distance at most 6.0 ft (also reported at 4.5 ft). E = (missed + ghosts) / in-frame players. Resolving a pair
+(the box placed within 2.5 ft) would lower E by 2 / in-frame players per pair.
+
+Box sets, after the r23 build's first reset (and, for context, before it):
+- sidecar: the build's non-referee boxes, foot_stab (the scorer's own counts);
+- r23 raw: the corpus r23 player boxes at 0.40, raw bottom centre (the forecasts' population);
+- r23 stab: the same r23 boxes, but each one that matches a sidecar box one to one at IoU 0.5 or more takes that
+  sidecar box's foot_stab; the rest keep the raw bottom centre.
+
+Reported per game, gsw_cha_2016 first, for each r23 set against the sidecar on after-reset frames: in-frame players,
+missed, ghosts, pairs (6.0 and 4.5 ft), E; the observed full-fix change dE = E(r23) - E(sidecar) (the forecasts' f = 1,
+unscaled); the part of it from added pairs, 2 (pairs(r23) - pairs(sidecar)) / in-frame; and the explained share
+(that part over dE, when dE is above zero). Reading (fixed now): on gsw_cha_2016, if the explained share is at least
+0.5 under both r23 sets, the forecast's net-error rise is mostly placement counted twice; if under 0.5 under both, it
+is mostly not; otherwise the two foot choices disagree and both are reported.

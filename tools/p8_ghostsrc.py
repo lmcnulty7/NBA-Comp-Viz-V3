@@ -2,6 +2,7 @@
 model runs, no lock.
 
     python3 -m tools.p8_ghostsrc run      -> reports/research/p8_ghostsrc.json
+    python3 -m tools.p8_ghostsrc pairs    -> reports/research/p8_ghostsrc_pairs.json   (the pairing check)
 
 Population (the one the reset-fix forecasts used, docs/research/P8_resetfix.md sections 12 to 19): on the scored
 frames of the registered score files (the MPS-truth universe; tools.p8_footbias.load_frames), the r23 corpus player
@@ -213,12 +214,136 @@ def cmd_run(args) -> dict:
     return res
 
 
+# ── pairing check (docs/research/P8_ghostsrc.md, "Pairing check") ─────────────────────────────────────────────
+PAIR_FT, PAIR_FT_TIGHT, MISS_FT = 6.0, 4.5, 2.5
+
+
+def frame_pairs(feet, sv, inside) -> dict:
+    """One frame, one box set: missed players, ghost boxes and one-to-one ghost-missed pairs within PAIR_FT and
+    PAIR_FT_TIGHT."""
+    sv = np.asarray(sv, np.float64).reshape(-1, 2)
+    feet = np.asarray(feet, np.float64).reshape(-1, 2)
+    ins = np.asarray(inside, bool)
+    out = {"in_frame": int(ins.sum()), "missed": int(ins.sum()), "ghosts": 0, "pairs": 0, "pairs_tight": 0}
+    if not len(feet):
+        return out
+    D = np.sqrt(((sv[:, None, :] - feet[None, :, :]) ** 2).sum(-1))
+    miss = np.where(ins & (D.min(1) > MISS_FT))[0]
+    ghost = np.where(D.min(0) > GHOST_FT)[0]
+    out["missed"], out["ghosts"] = len(miss), len(ghost)
+    if len(miss) and len(ghost):
+        from scipy.optimize import linear_sum_assignment
+        C = D[np.ix_(miss, ghost)]
+        ri, ci = linear_sum_assignment(C)
+        d = C[ri, ci]
+        out["pairs"], out["pairs_tight"] = int((d <= PAIR_FT).sum()), int((d <= PAIR_FT_TIGHT).sum())
+    return out
+
+
+def stab_feet(ours: list, side_boxes: list, raw_ft, side_ft) -> np.ndarray:
+    """r23 feet with each r23 box that matches a sidecar box one to one at IoU 0.5 or more taking that box's foot."""
+    out = np.asarray(raw_ft, np.float64).reshape(-1, 2).copy()
+    if not len(ours) or not len(side_boxes):
+        return out
+    from scipy.optimize import linear_sum_assignment
+    M = np.array([[iou(a, b) for b in side_boxes] for a in ours])
+    ri, ci = linear_sum_assignment(-M)
+    sf = np.asarray(side_ft, np.float64).reshape(-1, 2)
+    for i, j in zip(ri, ci):
+        if M[i, j] >= 0.5:
+            out[i] = sf[j]
+    return out
+
+
+def explained(r23: dict, side: dict) -> dict:
+    """The full-fix change in net error and the part of it from added double-count pairs."""
+    n = r23["in_frame"] or None
+    if n is None:
+        return {"dE": None, "dE_from_pairs": None, "explained_share": None}
+    e = lambda c: (c["missed"] + c["ghosts"]) / c["in_frame"]
+    dE = e(r23) - e(side)
+    dp = 2 * (r23["pairs"] - side["pairs"]) / n
+    return {"E_r23": e(r23), "E_sidecar": e(side), "dE": dE, "dE_from_pairs": dp,
+            "explained_share": (dp / dE) if dE > 0 else None}
+
+
+def cmd_pairs(args) -> dict:
+    import cv2
+    from tools import p8_teachers as T
+    from tools.p8_common import REPO, atomic_write, p8_root
+    from tools.p8_e1data import corpus_root
+    from tools.p8_footbias import load_frames, scorer_court
+    from tools.p8_frozen import layout
+    from tools.p8_placement import BUILDS, SCORES, check_games, rnd
+    from tools.p8_resetfix import first_reset_index
+    from tools.research_testset import refuse_cv_test
+    refuse_cv_test(check_games(list(GAMES)), WHO)
+    wr = p8_root()
+    P = layout(wr)
+    root = corpus_root()
+    plan = json.loads((root / "plan.json").read_text())
+    out = {}
+    for game in GAMES:
+        ours = {}
+        for k in range(len(plan["chunks"])):
+            for key, rec in json.loads((root / "preds" / f"chunk_{k:02d}.json").read_text())["preds"].items():
+                g, stem = key.split("/", 1)
+                if g == game:
+                    ours[stem] = [p for p in rec[T.OURS] if p[5] == "player" and p[4] >= 0.40]
+        sf = json.loads((wr / "e1" / SCORES[game]).read_text())
+        first, srows = {}, {}
+        for w in sf["scored_windows"]:
+            fr = sorted(json.loads((P["builds"] / BUILDS[game] / f"{w}_frames.json").read_text())["frames"],
+                        key=lambda r: int(r["frame"]))
+            i0 = first_reset_index(fr)
+            first[w] = None if i0 is None else int(fr[i0]["frame"])
+            srows[w] = {int(r["frame"]): r for r in fr}
+        tot = {(per, s): {"in_frame": 0, "missed": 0, "ghosts": 0, "pairs": 0, "pairs_tight": 0}
+               for per in ("after", "before") for s in ("sidecar", "r23_raw", "r23_stab")}
+        for f in load_frames(game)["frames"]:
+            w, fi = f["w"], int(f["f"])
+            per = "after" if first[w] is not None and fi >= first[w] else "before"
+            keep = ~np.asarray(f["is_ref"], bool)
+            side_ft = scorer_court(f["Ht"], f["px32"])[keep] if len(f["px32"]) else np.zeros((0, 2))
+            side_boxes = [b["bbox"] for b, r in zip(srows[w][fi]["boxes"], f["is_ref"]) if not r]
+            ob = ours[f"{w}_f{fi:06d}"]
+            raw = T.feet_ft(ob, f["Ht"]) if ob else np.zeros((0, 2))
+            stab = stab_feet([b[:4] for b in ob], side_boxes, raw, side_ft)
+            for s, ft in (("sidecar", side_ft), ("r23_raw", raw), ("r23_stab", stab)):
+                c = frame_pairs(ft, f["sv"], f["inside"])
+                for k2, v in c.items():
+                    tot[(per, s)][k2] += v
+        res = {}
+        for per in ("after", "before"):
+            side = tot[(per, "sidecar")]
+            res[per] = {"counts": {s: tot[(per, s)] for s in ("sidecar", "r23_raw", "r23_stab")},
+                        "r23_raw": explained(tot[(per, "r23_raw")], side),
+                        "r23_stab": explained(tot[(per, "r23_stab")], side)}
+        out[game] = res
+        print(game, json.dumps(rnd({s: res["after"][s] for s in ("r23_raw", "r23_stab")})))
+    cha = out["gsw_cha_2016"]["after"]
+    shares = [cha[s]["explained_share"] for s in ("r23_raw", "r23_stab")]
+    if all(x is not None and x >= 0.5 for x in shares):
+        reading = "mostly placement counted twice"
+    elif all(x is not None and x < 0.5 for x in shares):
+        reading = "mostly not placement counted twice"
+    else:
+        reading = "the two foot choices disagree"
+    res = rnd({"what": "Double-count pairs (one player missed and its box a ghost) after a reset "
+                       "(docs/research/P8_ghostsrc.md, pairing check); report only", "games": out,
+               "reading_gsw_cha_2016": reading})
+    atomic_write(REPO / "reports" / "research" / "p8_ghostsrc_pairs.json", json.dumps(res, indent=1))
+    print(reading)
+    return res
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_ghostsrc")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("run")
+    sub.add_parser("pairs")
     a = ap.parse_args(argv)
-    {"run": cmd_run}[a.cmd](a)
+    {"run": cmd_run, "pairs": cmd_pairs}[a.cmd](a)
 
 
 if __name__ == "__main__":
