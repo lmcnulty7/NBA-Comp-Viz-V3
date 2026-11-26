@@ -344,7 +344,7 @@ Nothing registered is rescored.
 **What this means for earlier results.** Every analysis scored on the Mac MPS camera truth of the pool games
 (gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015; hou_cle_2016 as a check where used), all from MPS label builds,
 among them: the registered r23 baseline rows (P8_baseline.md), P8_E1.md, P8_E1B.md, E1R's scores (P8_E1R.md),
-P8_E7a.md, P8_truth_v2.md, P8_court_truth.md, P8_teachers.md source 2, P8_step0_trackB.md, P8_placement.md steps 1
+P8_E7a.md, P8_truth_v2.md, P8_court_truth.md, P8_teachers.md source 2 (gsw_bkn_2015 and the apart gsw_ind_2016), P8_step0_trackB.md, P8_placement.md steps 1
 and 1b, P8_footbias.md, P8_footpos.md, P8_outpos.md, P8_detrow.md, P8_buildloss.md, P8_trackreset.md and
 P8_a3align.md. Their numbers stand as recorded and nothing is rescored. Any
 conclusion that depends on the GSW or HOU camera truth is provisional until those games have CPU-detector truth; a
