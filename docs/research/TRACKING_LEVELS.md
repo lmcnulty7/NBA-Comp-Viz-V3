@@ -36,7 +36,7 @@ source of uncut modern broadcasts, reopened only if one appears.
 | --- | --- | --- |
 | 1. Error analysis by cause | Partly done: baseline rows on 3 training games (missed 0.26, ghosts 0.118 to 0.129); the breakdown by cause is the E1 post-mortem | P8_baseline.md, P8_E1.md |
 | 2. Detector labels from outside teachers | Done: YOLOX-X on SportsMOT qualified (+0.0419 recall at our precision); E1 corpus 52,478 labels on 5,592 frames | P8_teachers.md, D155 |
-| 3. Fine-tune the detector | E1 not adopted: on the reference platform seed 0 passes the development pool but not hou_cle_2016 (2 of 3 folds), missed gain small; next arm E1b, design in progress | D171, D182, P8_E1.md, P8_E1R.md |
+| 3. Fine-tune the detector | Paused: E1 not adopted (D182); E1b stopped at its transfer gate before any unit (D183): the reachable misses are mostly foot placement, which survives the build at about 0.3 | D171, D182, D183, P8_E1.md, P8_E1R.md, P8_E1B.md |
 | 4. Team labels from appearance | Failed: CLIP and DINOv2 lower the team row 14 to 21 points; colour stays | D153, D154, tracking.md |
 | 5. Near-camera bias correction | Open | |
 | 6. Fill missed player-frames | Waits on step 3 | |
@@ -54,9 +54,11 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. E1b design (D182): under TRAINING_PROTOCOL.md; upper bound from r23's misses by cause and a label oracle
-   against r23 come first, then training-design-reviewer, then a one-fold pilot. E1R closed (D182): E1 not adopted;
-   seeds 1 and 2 rejected. If E1b's bound or oracle falls short, detector fine-tuning stops and item 6 moves up.
+1. Placement route (D183), 0 units: step 1 measures whether the offset from SportVU to the stabilised foot on
+   build-level placement misses (57 percent of r23's raw misses) is systematic, by depth, third and motion, with the
+   reading rule fixed first; step 2, if systematic, a foot_stab correction fitted leave one game out and scored by
+   rescoring sidecars; step 3, if scattered, restate the Level 2 missed target against the truth's own floor. This
+   also covers Level 2 step 5 (near-camera bias).
 2. Camera truth for okc_sac_2015 on the reference platform (D178, running): bars A, B, C fixed before the build.
    nyk_bos_2016 and por_okc_2016 stay out (hand-measured layouts). Then the gsw_cha_2016 CPU truth rebuild to test
    whether the existing MPS truth moved; if it moved, rebuild the other in-use truth before any cross-arena tuning.
@@ -89,6 +91,9 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 - A pass on the development pool can fail in a new arena: E1 seed 0 passed both GSW pools but only 2 of 3 folds on
   hou_cle_2016 (D182). Keep a non-GSW gate in every detector design. Seed 0 point estimates favoured E1 on ghosts and
   position everywhere while missed barely moved (post hoc): the label recipe, not the platform, is the next suspect.
+- Measure transfer to the scored row before sizing a label set: E1's raw gains kept only 0.24 to 0.38 (placement)
+  and 0.36 to 0.62 (presence) at build level, so a label set with a -0.080 raw ceiling was worth about -0.020 at
+  build level (D183). The cheapest falsifier was a per-game ceiling from stored files, seconds of compute.
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on
