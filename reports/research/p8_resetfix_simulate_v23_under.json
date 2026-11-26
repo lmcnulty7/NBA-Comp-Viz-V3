@@ -457,6 +457,10 @@
      0.0
     ],
     "zero": true
+   },
+   "net_error_rate": {
+    "point_equal": true,
+    "window_interval_equal": true
    }
   }
  },

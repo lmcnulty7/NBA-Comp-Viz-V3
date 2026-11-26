@@ -629,3 +629,25 @@ def test_net_error_rows_in_unit_eval():
     ev = R.unit_eval(wins, R.resample_picks(6, 100, 0), R.resample_picks(2, 100, 0), [wins[:3], wins[3:]])
     assert abs(ev["point"]["net_error_rate"] - ((26 + 7) - (30 + 5)) / 100) < 1e-12
     assert ev["game_interval"]["net_error_rate"] is not None
+
+
+# ── re-review B1: a source problem and a record problem are both kept ────────────────────────────────────────────
+def test_arm_window_problems_keeps_every_problem(tmp_path):
+    import json
+    ws, ref = tmp_path / "work", tmp_path / "work_ref"
+    for r in (ws, ref):
+        (r / "label_build").mkdir(parents=True)
+        (r / "label_build" / "w.mp4").write_bytes(b"clip")
+    out = ref / "builds" / "arm"
+    out.mkdir(parents=True)
+    det, dev, log = _arm_records()
+    (out / "w_frames.json").write_text(json.dumps({"source": str(ref / "label_build" / "w.mp4"), "frames": []}))
+    (out / "w_detector.json").write_text(json.dumps(det))
+    (out / "w_device.json").write_text(json.dumps(dev))
+    (out / "w_resetfix.json").write_text(json.dumps(log))
+    (out / "w_identity.json").write_text(json.dumps({"identity": {"camera_cut_resets": 1}}))
+    assert R.arm_window_problems(out, "w", ref, ws) == []
+    (out / "w_frames.json").write_text(json.dumps({"source": str(ws / "label_build" / "w.mp4"), "frames": []}))
+    (out / "w_detector.json").write_text(json.dumps({**det, "sha256": "x"}))
+    bad = R.arm_window_problems(out, "w", ref, ws)
+    assert any("reference root's clip" in b for b in bad) and any("r23" in b for b in bad)

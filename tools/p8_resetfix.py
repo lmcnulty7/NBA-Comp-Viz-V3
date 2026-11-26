@@ -697,6 +697,17 @@ def cmd_simulate(args) -> dict:
     for r in ("position_p50_ft", "position_p90_ft", "nearfield_bias_ft", "team_accuracy"):
         check[r] = {"point": real_point[r], "window_interval": real_wiv[r], "game_interval": real_giv[r],
                     "zero": real_point[r] == 0 and real_wiv[r] == [0.0, 0.0]}
+    # net error (version 2.3 review, B4): the fast value against a plain loop over the same resample indices
+    pick_loop = []
+    for pk in picks_pool:
+        sel = [allw[i] for i in pk]
+        nb = sum(w["r23"]["missed"] + w["r23"]["nr_ghosts"] for w in sel) / sum(w["r23"]["in_frame"] for w in sel)
+        nn = sum(w["new"]["missed"] + w["new"]["nr_ghosts"] for w in sel) / sum(w["new"]["in_frame"] for w in sel)
+        pick_loop.append(nn - nb)
+    loop_iv = [round(float(np.percentile(pick_loop, 2.5)), 5), round(float(np.percentile(pick_loop, 97.5)), 5)]
+    direct = (sum(w["new"]["missed"] + w["new"]["nr_ghosts"] for w in allw) / sum(w["new"]["in_frame"] for w in allw)
+              - sum(w["r23"]["missed"] + w["r23"]["nr_ghosts"] for w in allw) / sum(w["r23"]["in_frame"] for w in allw))
+    check[NET_ROW] = {"point_equal": abs(fast_p[NET_ROW] - direct) < 1e-12, "window_interval_equal": fast_wiv[NET_ROW] == loop_iv}
     if not all(all(v for k, v in c.items() if k in ("point_equal", "window_interval_equal", "game_interval_equal",
                                                     "zero")) for c in check.values()):
         raise SystemExit(f"{WHO}: the fast intervals do not reproduce tools.p8_e1_score.boot: {check}")
@@ -1208,15 +1219,7 @@ def cmd_build(args) -> dict:
                 break
         else:
             raise SystemExit(f"{WHO}: build of {s} failed three times: {rr.get('tail')}")
-        bad = []
-        if not rr.get("empty"):
-            why = arm_source_problem(_read(out / f"{s}_frames.json"), s, r, r.parent / "work")
-            if why:
-                bad.append(why)
-            ident = _read(out / f"{s}_identity.json")
-            bad = check_arm_records(_read(out / f"{s}_detector.json"), _read(out / f"{s}_device.json"),
-                                    _read(out / f"{s}_resetfix.json"),
-                                    None if ident is None else int(ident["identity"].get("camera_cut_resets") or 0))
+        bad = [] if rr.get("empty") else arm_window_problems(out, s, r, r.parent / "work")
         if bad:
             raise SystemExit(f"{WHO}: {s}: {bad}")
         res["windows"][s] = {"cached": bool(rr.get("cached")), "empty": bool(rr.get("empty")), "attempts": attempt,
@@ -1243,6 +1246,19 @@ def arm_source_problem(side: dict, w: str, r: Path, ws: Path) -> str | None:
     if not wclip.exists() or sha256_file(wclip) != sha256_file(rclip):
         return "the reference root's clip differs from the workspace clip"
     return None
+
+
+def arm_window_problems(out: Path, s: str, r: Path, ws: Path) -> list:
+    """Every problem of one built arm window: its source (A1) and its records and reset log (14.4), all kept."""
+    bad = []
+    why = arm_source_problem(_read(out / f"{s}_frames.json") or {}, s, r, ws)
+    if why:
+        bad.append(why)
+    ident = _read(out / f"{s}_identity.json")
+    bad += check_arm_records(_read(out / f"{s}_detector.json"), _read(out / f"{s}_device.json"),
+                             _read(out / f"{s}_resetfix.json"),
+                             None if ident is None else int(ident["identity"].get("camera_cut_resets") or 0))
+    return bad
 
 
 def compare_window(base: Path, arm: Path, w: str) -> dict:

@@ -281,11 +281,16 @@ No seeds: the builds are deterministic (E1R smoke gate 1), so one build per arm 
   on hou was read.
 - The 14 windows with a corpus decode offset (D190) do not bear on this arm: both arms are builds scored against
   truth, and the corpus is used only for the section 4 estimate.
+- Note (2026-11-26, re-review B3): the decision rule was changed (versions 2.2 and 2.3) after forecasts derived from
+  stored MPS-truth rows (sections 13, 17 and 19); no outcome on the rebuilt truth was seen.
 
 ## 11. Ledger line (to add when the arm runs)
 
 `resetfix | reset-fix build arm, r23 CPU, reset windows only | <lock hours> | <pool and hou outcome against section 5> |
 <lesson>`
+
+Note (2026-11-26, re-review B3): the ledger line will name the rule of section 18 (version 2.3) and say "rule changed
+after forecasts derived from stored MPS-truth rows".
 
 ## 12. Version 2, part 1 (2026-11-26): two stored-files measurements, registered before any number
 
@@ -677,7 +682,8 @@ The lead weighed three options after section 17: keep the rule (the fix would be
 detector boxes, some of them ghosts), widen the ghost margin (arbitrary), or judge a bug fix by net error (chosen).
 Reason: the fix restores what the pipeline was designed to do; the bug suppressed boxes by accident. For Level 2 a
 missed player and a ghost box are two errors that count the same. This is a design change made before any outcome on
-truth, not a fork on outcomes. It replaces sections 14.7 and 16 (A3) where they differ; everything else stands.
+truth; the rule changed after forecasts derived from stored MPS-truth rows (wording of the 2026-11-26 re-review). It
+replaces sections 14.7 and 16 (A3) where they differ; everything else stands.
 
 **Rule (tools.p8_resetfix.v23_verdict and v23_pool; tested).**
 - Net error E = (missed players + non-referee ghost boxes) / in-frame players: two counts over one denominator
@@ -744,3 +750,16 @@ the boxes the fix returns after a reset are about two thirds ghosts, so it adds 
 players. That one condition (section 18's per-game "not worse", which I wrote as my reading of the lead's rule)
 decides the forecast: without it, the pool would pass in about 0.98 of draws under the registered scaling and about
 0.38 under the sensitivity. The ghost source (section 18's next item) bears directly on it.
+
+## 20. Note (2026-11-26, the lead's decision, self-decided; PLAN.md D193): what this arm decides
+
+The tracker bug is a defect, not a design choice. From now on every development arm builds both its baseline and its
+candidate with the fixed tracker (P8_TRACKER_RESET_FIX=1), matching the truth rebuilt on the fixed tracker. This arm's
+verdict decides one thing only: whether the fixed r23 pipeline replaces r23's registered rows as the reported
+reference baseline. If the pool passes (section 18), it does. If it fails, r23's registered rows stay as recorded and
+are reported as carrying the bug, the fixed pipeline stays the development standard, and the net-error loss on
+gsw_cha_2016 is the ghost-source study's question (docs/research/P8_ghostsrc.md on r-p8-ghostsrc).
+
+Also from the re-review: B1, a built window's source problem is no longer overwritten by its record problems
+(arm_window_problems; tested); B4, the simulation's centre check also checks the net-error row against a plain loop
+over the same resample indices.
