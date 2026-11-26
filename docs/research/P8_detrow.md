@@ -122,21 +122,25 @@ pooled.
 ## Reading by the registered rule
 
 Two classes matter: 2 occluded (0.016 to 0.025 of in-frame players) and 3 small (0.018 to 0.031), on every pool game.
-Class 4 (raw had a box) matters on gsw_bkn_2015 only (0.017; 0.007 on the other two). Classes 5 (teacher only) and 6
+Class 4 (raw had a box) reaches 0.010 on gsw_bkn_2015 only (0.017; 0.007 on the other two), so it does not matter
+by the rule. Classes 5 (teacher only) and 6
 (none) stay under 0.010 on at least one game. By the rule, the detection row is mostly hard geometry: close to two
 thirds of the far misses (63 percent pooled) are overlapping or small or far-third players. No fix is proposed from
 this measurement, and those classes are reported as the floor of the row. Neither a detector change (class 5) nor
 tracking or gating (class 4) reaches the bar on every game in the ordered breakdown.
 
-What the numbers say beyond the rule (post hoc, not tested):
+What the numbers say beyond the rule (post hoc, not tested; shares and the hou_cle_2016 column above are point
+estimates unless an interval is shown, the share intervals are in the record):
 
 - The ordering hides a large build-side loss. Without the ordering, r23's own raw detector at its operating point
-  had a box within 5 ft for 37 percent of far misses (rate 0.038, 0.020 and 0.020 of in-frame players, each above
-  0.010). Most of these players are also small or overlapping, so the ordered rule files them under geometry. For a
-  far miss, the raw box is not the neighbour's that the build also kept: a kept neighbour's foot would put the player
-  inside 5 ft. So a raw box near a far miss is a box the build lost, or a foot stabilisation moved more than 5 ft
-  away. The raw run is on the corpus JPEGs and the build on decoded video, so decode differences are mixed in (M6
-  found raw-only boxes at 6.9 percent of r23's raw boxes with the detector on CPU).
+  had a box within 5 ft for 37 percent of far misses (point estimates, not bootstrapped: rate 0.038, 0.020 and 0.020
+  of in-frame players). These are upper bounds on any missed gain: only a recovered foot within 2.5 ft on the player
+  moves the missed row (a recovered box 2.5 to 5 ft away becomes a placement miss), and that share is not measured. Most of these players are also small or overlapping, so the ordered rule files them under geometry. For a
+  far miss every kept build foot_stab lies beyond 5 ft, so the build either lost the box or placed its foot_stab
+  outside 5 ft while the raw bottom centre is inside; the second case needs a shift of only 5 ft minus the raw
+  distance, which this record does not measure. The raw run is on the corpus JPEGs and the build on decoded video, so decode differences are mixed in ; the
+  decode share is not measured here (M6's 6.9 percent is the overall raw-only share on gsw_bkn_2015, build losses and
+  decode together, per box, not per far miss).
 - The teacher reaches 71 percent of far misses within 5 ft, but the 5 ft gate is loose in crowds, and 9.4 percent are
   teacher-only in the ordered breakdown. A detector change aimed at presence has a small registered target, in line
   with P8_E1B.md (presence 0.016 of in-frame players at raw level).
