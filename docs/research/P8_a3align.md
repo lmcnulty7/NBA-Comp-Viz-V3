@@ -80,9 +80,9 @@ Typical window: the median S_0 is 0.974, 0.978 and 0.979, and the median same-fr
 
 Misaligned windows: 8 on gsw_bkn_2015, 4 on gsw_cha_2016 and 2 on gsw_sac_2015, 14 of 175 in all.
 
-- In almost all of them the build's frame one stride earlier (k = -1, sometimes -2) matches the corpus frame better
+- In almost all of them the build's frame one processed frame earlier (usually 6 video frames; k = -1, sometimes -2) matches the corpus frame better
   than the same index. In s02_w05, for example, S_-1 is 0.987 against S_0 0.923, and the median same-frame IoU is 0.68
-  to 0.79. The build's decode shows at index f - 6 what the corpus decode shows at f.
+  in s02_w05. The build's decode shows at index f - 6 what the corpus decode shows at f.
 - Two windows (bkn s05_w01 and s06_w00) are flagged by the sub-stride check alone. cha s01_w02 has few boxes
   (S_0 0.27).
 
@@ -114,13 +114,15 @@ whether the tracker creates new tracks there and never confirms them. It needs i
 lock.
 
 In the heavy windows the build's boxes that do exist match the raw boxes well (median IoU 0.91 to 0.94, best at
-offset 0). The build simply has fewer of them: S_0 is 0.10 to 0.61 in five of the six. That fits the tracker leaving
-detections out, as P8_trackreset.md saw. In gsw_sac_2015_s07_w00 (S_0 0.96) the 23 a3 player-frames are something
+offset 0). The build has fewer of them in four of the six (bkn s04_w00, cha s05_w00 and s05_w03, sac s01_w00); in sac s09_w01
+the boxes are there (yield 0.91) but do not match at IoU 0.5 at any offset, unexplained. Whether the build's detector
+fired there is open (runtime and decode differences, see the P8_buildloss.md correction); the run must use the build
+environment, raw detections and model.track both, to split the detector from the tracker. In gsw_sac_2015_s07_w00 (S_0 0.96) the 23 a3 player-frames are something
 else, not measured here.
 
 Beyond the rule (post hoc, and it reaches past a3): 14 of 175 pool windows (8 percent) show the corpus decode one
-stride behind the build's decode at the same frame index. The truth rows (camera truth, SportVU moment) are attached
-to frame indices of the build-side decode: the V3 label build reads with the same SeqReader path. Corpus JPEGs in those
+stride behind the build's decode at the same frame index. Inferred (not checked): the truth rows (camera truth, SportVU moment)
+are attached to frame indices of the build-side decode: the V3 label build reads with the same SeqReader path. Corpus JPEGs in those
 windows may therefore show a frame about 0.1 s off from their truth rows. That bears on every analysis that scored the
 corpus JPEGs against SportVU:
 

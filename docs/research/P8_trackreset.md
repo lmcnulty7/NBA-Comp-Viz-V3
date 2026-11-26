@@ -90,9 +90,10 @@ Heavy windows by the rule:
 Reachable a3 on empty or reset frames: 0 of 374, 0 of 51 and 0 of 161. Every reachable a3 player-frame lies on a frame
 that has sidecar boxes and no reset nearby.
 
-Heavy windows against all other pool windows of the same game:
+Heavy windows against all other pool windows of the same game (the registration said every other pool window; the
+tool compares within each game, a descriptive deviation that does not touch the rule):
 
-| Window set | Empty frames | Empty where detector fired | Longest empty run | Turnover | Resets | Median players a frame | Box yield where detector fired |
+| Window set | Empty frames | Empty where detector fired | Longest empty run | Turnover | camera_cut_resets (identity) | Median players a frame | Box yield where detector fired |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | gsw_bkn_2015 heavy (1) | 0.0% | 0.0% | 0 | 0.028 | 1 | 3 | 0.52 |
 | gsw_bkn_2015 others (82) | 0.1% | 0.0% | 1 | 0.055 | 18 | 8 | 1.00 |
@@ -107,14 +108,14 @@ cha s05_w00 0.18 (8 frames) and s05_w03 0.10 (2); sac s01_w00 0.22 (16), s09_w01
 ## Reading by the registered rule
 
 No tracker robustness arm. None of the reachable a3 lies on an empty or reset frame, against a bar of 50 percent.
-Exceptions and resets do not explain a3: the heavy windows have almost no empty frames, one reset each, and lower
+Exceptions and resets do not explain a3: the heavy windows have almost no empty frames, one camera_cut_reset each (identity count), and lower
 track-id turnover than the other windows.
 
 What the numbers say beyond the rule (post hoc, descriptive):
 
 - In four of the six heavy windows (bkn s04_w00, cha s05_w00 and s05_w03, sac s01_w00) the tracker steadily outputs
-  a few long-lived tracks and leaves most of the detector's boxes out. The box yield is 0.10 to 0.52, the median
-  players a frame 1.5 to 3, and turnover is low. That pattern fits new tracks that are never confirmed, which a fresh
+  a few long-lived tracks and outputs far fewer boxes than the corpus detector found. The box yield is 0.10 to 0.52,
+  the median players a frame 1 to 3, and turnover is low. That pattern fits new tracks that are never confirmed, which a fresh
   tracker after a reset would not show. It is not tested here.
 - In sac s09_w01 and s07_w00 the yield is 0.91 to 1.00: the build has about as many boxes as the detector, yet none
   overlaps the raw box near the a3 player at IoU 0.3 in this or the adjacent frames. That fits boxes that are there
@@ -125,6 +126,12 @@ both came from the corpus decode path (tools/p8_e1data.py, sequential grab from 
 compression, not a difference between the corpus decode and the build's decode (build_trajectories.py, SeqReader with
 the pre-gate jumps, in the frozen environment). "Decode is negligible" holds only in that narrower sense. The lead's
 alignment check, dropped on that basis, is still relevant, at least for the two high-yield sac windows.
+
+Notes after review (2026-11-26): the alignment check was later registered and run (docs/research/P8_a3align.md); it
+found sac s09_w01 and s07_w00 aligned, so the frame-offset reading of the two high-yield sac windows is refuted.
+a1 to a3 still mix tracker loss with decode-path and runtime differences (OpenCV 5.1.0 and torch 2.15.0 in the
+corpus, OpenCV 4.13.0 and torch 2.2.2 in the builds); box yield compares the build's tracks with the corpus
+detector, not with the build's own detector, whose raw boxes are not stored.
 
 Proposal for the lead:
 
