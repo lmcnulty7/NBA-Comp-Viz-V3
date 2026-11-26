@@ -36,7 +36,7 @@ source of uncut modern broadcasts, reopened only if one appears.
 | --- | --- | --- |
 | 1. Error analysis by cause | Partly done: baseline rows on 3 training games (missed 0.26, ghosts 0.118 to 0.129); the breakdown by cause is the E1 post-mortem | P8_baseline.md, P8_E1.md |
 | 2. Detector labels from outside teachers | Done: YOLOX-X on SportsMOT qualified (+0.0419 recall at our precision); E1 corpus 52,478 labels on 5,592 frames | P8_teachers.md, D155 |
-| 3. Fine-tune the detector | Failed once: E1 seed 0 raised misses 0.2654 to 0.2932; next arm E1b after the post-mortem | D171, P8_E1.md |
+| 3. Fine-tune the detector | E1 not adopted: on the reference platform seed 0 passes the development pool but not hou_cle_2016 (2 of 3 folds), missed gain small; next arm E1b, design in progress | D171, D182, P8_E1.md, P8_E1R.md |
 | 4. Team labels from appearance | Failed: CLIP and DINOv2 lower the team row 14 to 21 points; colour stays | D153, D154, tracking.md |
 | 5. Near-camera bias correction | Open | |
 | 6. Fill missed player-frames | Waits on step 3 | |
@@ -54,25 +54,21 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. E1R (D174 to D176, running): on the reference platform E1 seed 0 passes the registered pool (missed -0.0067,
-   ghosts -0.0160, position p50 -0.09 ft, near-field bias -0.16 ft, team +0.024) and the blind 2-game pool; the
-   missed gain is narrow (game interval crosses zero; gsw_cha_2016 alone is worse). Stage 2 (hou_cle_2016, all three
-   folds, the only non-GSW arena) is running. Then decide between seeds 1 and 2 (about 30 units, within the cap) and
-   E1b (start from r23); the design pre-wrote that a pass alone does not justify the seeds.
+1. E1b design (D182): under TRAINING_PROTOCOL.md; upper bound from r23's misses by cause and a label oracle
+   against r23 come first, then training-design-reviewer, then a one-fold pilot. E1R closed (D182): E1 not adopted;
+   seeds 1 and 2 rejected. If E1b's bound or oracle falls short, detector fine-tuning stops and item 6 moves up.
 2. Camera truth for okc_sac_2015 on the reference platform (D178, running): bars A, B, C fixed before the build.
    nyk_bos_2016 and por_okc_2016 stay out (hand-measured layouts). Then the gsw_cha_2016 CPU truth rebuild to test
    whether the existing MPS truth moved; if it moved, rebuild the other in-use truth before any cross-arena tuning.
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
-4. E1b design under TRAINING_PROTOCOL.md, after E1R and item 3: start from r23, do not teach unlabelled players as
-   background, truth-aligned validation, pilot on one fold, builds on the reference platform.
-5. Colab as a build helper: only through a tested split route (detector on CUDA, court on the reference device),
+4. Colab as a build helper: only through a tested split route (detector on CUDA, court on the reference device),
    since CUDA matches neither Mac build (D179). Transfers go through Google Drive (D177).
-6. Widen the fixed-MPS parity check (P8_MPS_CLIP_FIX, D174 (5)) to more windows and games: a 3x cost saver for
+5. Widen the fixed-MPS parity check (P8_MPS_CLIP_FIX, D174 (5)) to more windows and games: a 3x cost saver for
    exploratory builds if it passes a new registered rule.
-7. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
-8. Footage at low cost, continuously; NUST-NBA181 waits on Lucien's email (D163 (3)).
-9. Level 4 watch, weekly.
-10. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
+6. Level 2 error analysis by cause on development games, then the near-camera bias correction (Mac).
+7. Footage at low cost, continuously; NUST-NBA181 waits on Lucien's email (D163 (3)).
+8. Level 4 watch, weekly.
+9. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
 
 ## Lessons and priors
 
@@ -90,6 +86,9 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   every 5 minutes, even mid-conversation (D179, about 1.1 units lost).
 - Agreement pseudo-labels (two models must both box a player) can teach unlabelled players as background; for E1 the
   label audit found this explains only a small part of the rise (D173).
+- A pass on the development pool can fail in a new arena: E1 seed 0 passed both GSW pools but only 2 of 3 folds on
+  hou_cle_2016 (D182). Keep a non-GSW gate in every detector design. Seed 0 point estimates favoured E1 on ghosts and
+  position everywhere while missed barely moved (post hoc): the label recipe, not the platform, is the next suspect.
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on
