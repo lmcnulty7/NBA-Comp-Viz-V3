@@ -245,3 +245,7 @@ The registered text above is kept as written; these notes qualify it.
   found no tracker robustness arm.
 - foot_corrected flags only this frame's correction, so c_occlusion includes the EMA and earlier corrections reach
   c_ema through it. Table rows without an interval are point estimates.
+- Frame offset: docs/research/P8_a3align.md finds 14 of 175 pool windows where the corpus decode runs one stride
+  behind the build's. This doc pairs M4's JPEG boxes with the sidecar on the same frame index, so class assignments
+  in those windows may be skewed; the size is not measured. The verdict does not depend on it: v1's a3 is below 0.010
+  on two games, and 98.8 percent of reachable a3 lies in aligned windows.
