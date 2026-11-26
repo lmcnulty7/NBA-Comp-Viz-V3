@@ -1,0 +1,130 @@
+{
+ "what": "Reset-fix design estimate from stored files (docs/research/P8_resetfix.md); not a result",
+ "games": {
+  "gsw_bkn_2015": {
+   "windows": 83,
+   "windows_with_reset": 17,
+   "resets_total": 19,
+   "processed_frames": 20644,
+   "frames_after_first_reset": 2702,
+   "counts": {
+    "in_frame": 20457,
+    "missed": 5166,
+    "raw_reach": 1250,
+    "raw_reach_after": 494,
+    "missed_after": 706,
+    "in_frame_after": 1188,
+    "far": 1871,
+    "far_raw_reach": 785,
+    "side_boxes": 18570,
+    "side_ghosts": 2466,
+    "ours_boxes": 19499,
+    "ours_ghosts": 2875,
+    "corpus_frames": 2073
+   },
+   "rates": {
+    "missed": 0.25253,
+    "raw_reachable_missed": 0.0611,
+    "raw_reachable_missed_after_reset": 0.02415,
+    "far_missed": 0.09146,
+    "far_raw_reachable": 0.03837,
+    "in_frame_after_reset_share": 0.05807,
+    "sidecar_ghost_rate_all_boxes": 0.13279,
+    "ours_ghost_rate_all_boxes": 0.14744,
+    "sidecar_boxes_per_in_frame": 0.90776,
+    "ours_boxes_per_in_frame": 0.95317
+   }
+  },
+  "gsw_cha_2016": {
+   "windows": 73,
+   "windows_with_reset": 12,
+   "resets_total": 12,
+   "processed_frames": 18083,
+   "frames_after_first_reset": 3067,
+   "counts": {
+    "in_frame": 13284,
+    "missed": 3922,
+    "raw_reach": 532,
+    "raw_reach_after": 51,
+    "missed_after": 107,
+    "in_frame_after": 149,
+    "far": 998,
+    "far_raw_reach": 263,
+    "side_boxes": 12718,
+    "side_ghosts": 2528,
+    "ours_boxes": 13065,
+    "ours_ghosts": 3377,
+    "corpus_frames": 1353
+   },
+   "rates": {
+    "missed": 0.29524,
+    "raw_reachable_missed": 0.04005,
+    "raw_reachable_missed_after_reset": 0.00384,
+    "far_missed": 0.07513,
+    "far_raw_reachable": 0.0198,
+    "in_frame_after_reset_share": 0.01122,
+    "sidecar_ghost_rate_all_boxes": 0.19877,
+    "ours_ghost_rate_all_boxes": 0.25848,
+    "sidecar_boxes_per_in_frame": 0.95739,
+    "ours_boxes_per_in_frame": 0.98351
+   }
+  },
+  "gsw_sac_2015": {
+   "windows": 82,
+   "windows_with_reset": 10,
+   "resets_total": 10,
+   "processed_frames": 18710,
+   "frames_after_first_reset": 2061,
+   "counts": {
+    "in_frame": 21144,
+    "missed": 4355,
+    "raw_reach": 1011,
+    "raw_reach_after": 191,
+    "missed_after": 295,
+    "in_frame_after": 447,
+    "far": 1104,
+    "far_raw_reach": 435,
+    "side_boxes": 20195,
+    "side_ghosts": 2621,
+    "ours_boxes": 20840,
+    "ours_ghosts": 3156,
+    "corpus_frames": 2151
+   },
+   "rates": {
+    "missed": 0.20597,
+    "raw_reachable_missed": 0.04781,
+    "raw_reachable_missed_after_reset": 0.00903,
+    "far_missed": 0.05221,
+    "far_raw_reachable": 0.02057,
+    "in_frame_after_reset_share": 0.02114,
+    "sidecar_ghost_rate_all_boxes": 0.12978,
+    "ours_ghost_rate_all_boxes": 0.15144,
+    "sidecar_boxes_per_in_frame": 0.95512,
+    "ours_boxes_per_in_frame": 0.98562
+   }
+  },
+  "hou_cle_2016": {
+   "windows": 93,
+   "windows_with_reset": 23,
+   "resets_total": 23,
+   "processed_frames": 23813,
+   "frames_after_first_reset": 5816,
+   "counts": {
+    "in_frame": 0,
+    "missed": 0,
+    "raw_reach": 0,
+    "raw_reach_after": 0,
+    "missed_after": 0,
+    "in_frame_after": 0,
+    "far": 0,
+    "far_raw_reach": 0,
+    "side_boxes": 0,
+    "side_ghosts": 0,
+    "ours_boxes": 0,
+    "ours_ghosts": 0,
+    "corpus_frames": 0
+   },
+   "rates": null
+  }
+ }
+}
