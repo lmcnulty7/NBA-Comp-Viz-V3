@@ -95,6 +95,16 @@ At the reviewer's suggestion, the run records the number of entries in model.cal
 before each update call, per frame and variant. This is report only, and the reading rule is unchanged. The rule
 reads the detector's output from the first update call's input of each frame.
 
+## Wording note (2026-11-26, from the review; registered text above unchanged)
+
+- **The frame_id count.** Where this document and the tool's docstring say "on 1,038 of 1,052 steps", read: on all
+  1,038 steps after the reset at frame 312. The other 14 steps are the 13 single steps before it and the reset step
+  itself (frame_id 14 to 2).
+- **The status of the explanation.** The double-update explanation above (reset drops the predictor; the callbacks
+  are re-registered and run twice) is post hoc until this run confirms it. It comes from reading the code and from
+  the stored frame_id steps. The reviewer found the same double update independently: 107 calls against 107 frames
+  before the reset, and recorded input equal to output after it.
+
 ## Results
 
 Not run yet.
