@@ -30,6 +30,7 @@
   "torch": "2.2.2",
   "ultralytics": "8.4.48"
  },
+ "status": "withdrawn (2026-11-26): the trace is incomplete, the registered U or H case. It recorded only the last BYTETracker.update call of each frame, and after the reset at frame 312 every frame ran two (docs/research/P8_a3input.md, cause confirmed). The G reading and the input-check proposal are withdrawn.",
  "rule": {
   "same_iou": 0.9,
   "keep_iou": 0.5,

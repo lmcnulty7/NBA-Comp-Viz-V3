@@ -15,6 +15,10 @@ Filters between model.track and the sidecar, read before registering:
 - build_trajectories.py: every track PlayerTracker returns goes to _frame_record; the foot stabiliser changes feet,
   not boxes. No box filter.
 So no wrapper filter explains dropped boxes; the instrumented run checks that too.
+(Amendment, 2026-11-26, after the a3input result: this reading missed the reset path. PlayerTracker.reset drops the
+predictor, and Model.track then re-registers the tracker callbacks, which append; after a reset the tracker updates
+twice per frame. See docs/research/P8_a3input.md. The report's reproduction check now uses tools.p8_a3run.same_boxes,
+one to one.)
 
 `run` (window gsw_cha_2016_s05_w00, the build's runtime, detector on CPU, the read order of P8_a3run.md with both
 amendments) wraps, in this process only:
@@ -239,6 +243,7 @@ def cmd_run(args) -> dict:
 
 # ── report (system python) ─────────────────────────────────────────────────────────────────────────────────────────
 def cmd_report(args) -> dict:
+    from tools.p8_a3run import same_boxes
     from tools.p8_frozen import layout
     refuse_cv_test(check_games(["gsw_cha_2016"]), WHO)
     wr = p8_root()
@@ -250,7 +255,7 @@ def cmd_report(args) -> dict:
     for fr in rec["per_frame"]:
         tb = [t[:4] for t in fr["track"]]
         sb = srow.get(fr["frame"], [])
-        reproduced += len(tb) == len(sb) and all(any(max(abs(a - b) for a, b in zip(t, s)) <= 2 for s in sb) for t in tb)
+        reproduced += same_boxes(tb, sb)        # amendment (2026-11-26): one-to-one, tools.p8_a3run.same_boxes
         n_pred += len(fr["pred"])
         n_in += len(fr.get("input", []))
         for p in fr["pred"]:
@@ -264,6 +269,10 @@ def cmd_report(args) -> dict:
                        "report only", "frames": rec["frames"], "reproduced_share": reproduced / rec["frames"],
                "predict_boxes": n_pred, "tracker_input_boxes": n_in, "dropped": n_drop, "classes": counts,
                "shares": shares, "step": step, "resets_at": rec["resets_at"], "versions": rec["versions"],
+               "status": "withdrawn (2026-11-26): the trace is incomplete, the registered U or H case. It recorded only "
+                         "the last BYTETracker.update call of each frame, and after the reset at frame 312 every frame "
+                         "ran two (docs/research/P8_a3input.md, cause confirmed). The G reading and the input-check "
+                         "proposal are withdrawn.",
                "rule": {"same_iou": SAME_IOU, "keep_iou": KEEP_IOU, "step_share": STEP_SHARE}})
     atomic_write(wr / "placement" / "a3trace_report.json", json.dumps(out, indent=1))
     atomic_write(REPO / "reports" / "research" / "p8_a3trace.json", json.dumps(out, indent=1))
