@@ -244,3 +244,30 @@ No okc_sac_2015 build has run. Each item is applied above and in `tools/p8_truth
 7. The "moved" offset bar's justification is reworded (0.2 s is a per-window threshold in truth v2, borrowed here as a
    round size; the only device-noise evidence is the D99 detector-only pair, 0.04 s on one window).
 8. tools/p8_truth_v2.py's docstring says measure-dev runs under the heavy-job lock.
+
+## 13. Version 4 (2026-11-26, PLAN.md D180; committed before the second OCR run)
+
+**What happened.** okc_sac_2015 ran on fso15_720 in the fresh reference root and stopped at the first kill criterion:
+445 s of running clock mapped against the 1,500 s bar (2,933 of 6,589 reads ok, 0.445; about 152 s mapped per 1,000 ok
+reads, against 545 to 555 on the games that ran). No model build ran; the 12 sync jobs held the lock 2,294 s. The
+frozen check had already shown fso15_720 weak on this video (consistent 0.35).
+
+**The exception (D180, the lead's, with this disclosure).** The D152 finder's own proposal for okc_sac_2015 is tried
+once. It is automatic (no hand step), and it passed the frozen automatic check at the registered bar in the D152
+validation record before this kill (plausible 0.70, consistent 0.65, 40 pairs). Disclosed: the finder failed its
+overall validation (3 of 8), so this is not a general clearance for it; the choice was made after fso15_720 failed the
+sync kill; nothing scored depends on it yet.
+
+**Conditions, fixed now.**
+
+1. The layout is registered from the validation record exactly as recorded, with its provenance, by
+   `tools/p8_layout_find.py register-validated okc_sac_2015 --decision D180`: registry layout auto_okc_sac_2015, clock
+   box [942, 586, 1008, 624], period box [828, 586, 879, 624], period as digits; games.okc_sac_2015.layout set to it.
+   The command accepts only this game under D180, and only a proposal whose recorded frozen check chose it; the `find`
+   guard (no new game while the validation has not passed) stays in place.
+2. The fso15_720 time maps and their sync done markers are moved aside in the reference root (kept, not deleted), and
+   the sync runs again from scratch with the new layout. Same platform, same kill criteria, same acceptance bars A, B
+   and C (sections 5 and 12), unchanged.
+3. If this layout also maps under 1,500 s, okc_sac_2015 is unused and the matter is closed: no third layout.
+
+Lock cost of the second sync: about 0.65 h (the first took 2,294 s).

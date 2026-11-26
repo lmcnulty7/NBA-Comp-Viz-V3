@@ -153,8 +153,8 @@
     "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
    },
    "date": "2015-12-06",
-   "layout": "fso15_720",
-   "layout_note": "the Fox Sports Oklahoma strip has the same geometry as the registered fso15_720 (Fox Sports Ohio); clock_reader read 2nd 10:47 on the check frame"
+   "layout": "auto_okc_sac_2015",
+   "layout_note": "found automatically (D152 validation record), registered under D180; no frame read by a person"
   },
   "por_okc_2016": {
    "video_id": "UiAdZkI4tb0",
@@ -264,6 +264,21 @@
    ],
    "period_words": true,
    "measured_on": "por_okc_2016 frame at 1500 s (SECOND QTR 10:31), 5x pixel crop, 2026-11-17; lower-centre strip, the period is written as a word under the clock"
+  },
+  "auto_okc_sac_2015": {
+   "period_box": [
+    828,
+    586,
+    879,
+    624
+   ],
+   "clock_box": [
+    942,
+    586,
+    1008,
+    624
+   ],
+   "measured_on": "found automatically (D152) by tools/p8_layout_find.py on 40 frames of okc_sac_2015; frozen check plausible 0.7, consistent 0.65; registered from layout_find/validation.json unedited, PLAN.md D180 (a pre-stated exception after fso15_720 failed the sync kill; the finder failed its overall validation, 3 of 8, so this is no general clearance)"
   }
  }
 }

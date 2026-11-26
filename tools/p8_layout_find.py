@@ -3,6 +3,10 @@
     <frozen CV python> -m tools.p8_layout_find validate     the development videos whose layouts already exist
     <frozen CV python> -m tools.p8_layout_find find TAG     propose a layout for one development game and check it
     <frozen CV python> -m tools.p8_layout_find register TAG write an accepted proposal into the P8 registry
+    python3 -m tools.p8_layout_find register-validated TAG --decision D180
+                                                         register a proposal exactly as the validation record holds
+                                                         it, when that record shows it passed the frozen check (a
+                                                         pre-stated exception, PLAN.md D180; the find guard stays)
 
 Run each under the heavy-job lock (python3 -m export.heavy --name ... -- ...): it runs OCR on video frames.
 
@@ -293,29 +297,61 @@ def cmd_find(args) -> dict:
     return out
 
 
-def cmd_register(args) -> dict:
-    """Write an accepted proposal into reports/research/p8_registry.json: layouts[auto_<tag>] and games[tag].layout."""
-    root = p8_root() / "layout_find"
-    rec = json.loads((root / f"{args.tag}.json").read_text())
-    if rec["proposal"].get("status") != "ok" or rec.get("check", {}).get("chosen") != CHECK_NAME:
-        raise SystemExit(f"{WHO}: {args.tag}: no accepted proposal")
-    refuse_cv_test([args.tag], WHO)
+def write_registration(tag: str, prop: dict, check: dict, source: str, note: str) -> dict:
+    """Write an accepted proposal into reports/research/p8_registry.json: layouts[auto_<tag>] and games[tag].layout,
+    the boxes exactly as given, with their provenance."""
+    if prop.get("status") != "ok" or check.get("chosen") != CHECK_NAME:
+        raise SystemExit(f"{WHO}: {tag}: no accepted proposal")
+    refuse_cv_test([tag], WHO)
     p = REPO / "reports" / "research" / "p8_registry.json"
     reg = json.loads(p.read_text())
-    if args.tag not in reg["games"]:
-        raise SystemExit(f"{WHO}: {args.tag} is not a registry game")
-    name = f"auto_{args.tag}"
-    prop = rec["proposal"]
+    if tag not in reg["games"]:
+        raise SystemExit(f"{WHO}: {tag} is not a registry game")
+    name = f"auto_{tag}"
     reg.setdefault("layouts", {})[name] = {
         "period_box": prop["period_box"], "clock_box": prop["clock_box"],
         **({"period_words": True} if prop.get("period_words") else {}),
-        "measured_on": f"found automatically (D152) by tools/p8_layout_find.py on {prop['frames']} frames of {args.tag}; "
-                       f"frozen check plausible {rec['check']['plausible_share']}, consistent {rec['check']['consistent_share']}"}
-    reg["games"][args.tag]["layout"] = name
-    reg["games"][args.tag]["layout_note"] = "found automatically (D152); no frame read by a person"
+        "measured_on": f"found automatically (D152) by tools/p8_layout_find.py on {prop['frames']} frames of {tag}; "
+                       f"frozen check plausible {check['plausible_share']}, consistent {check['consistent_share']}; {source}"}
+    reg["games"][tag]["layout"] = name
+    reg["games"][tag]["layout_note"] = note
     p.write_text(json.dumps(reg, indent=1) + "\n")
     print(json.dumps(reg["layouts"][name], indent=1))
     return reg["layouts"][name]
+
+
+def cmd_register(args) -> dict:
+    """Write an accepted proposal of `find` into the registry."""
+    rec = json.loads((p8_root() / "layout_find" / f"{args.tag}.json").read_text())
+    return write_registration(args.tag, rec["proposal"], rec.get("check", {}), "from layout_find/<tag>.json",
+                              "found automatically (D152); no frame read by a person")
+
+
+def validated_proposal(validation: dict, tag: str) -> tuple:
+    """(proposal, check) of one video of the validation record, only if its proposal passed the frozen check."""
+    row = (validation.get("videos") or {}).get(tag)
+    if not row:
+        raise SystemExit(f"{WHO}: {tag} is not in the validation record")
+    prop, check = row.get("proposal") or {}, row.get("check") or {}
+    if prop.get("status") != "ok" or check.get("chosen") != CHECK_NAME:
+        raise SystemExit(f"{WHO}: {tag}: its validation proposal did not pass the frozen check")
+    return prop, check
+
+
+def cmd_register_validated(args) -> dict:
+    """A pre-stated exception (PLAN.md D180): register one video's proposal exactly as the D152 validation record holds
+    it. The validation as a whole failed (3 of 8), so `find` stays refused for every game; this registers only a
+    proposal that already passed the frozen check, unedited, and says so in its provenance."""
+    if args.decision != "D180" or args.tag != "okc_sac_2015":
+        raise SystemExit(f"{WHO}: register-validated is the D180 exception for okc_sac_2015 only")
+    val = json.loads((p8_root() / "layout_find" / "validation.json").read_text())
+    prop, check = validated_proposal(val, args.tag)
+    return write_registration(args.tag, prop, check,
+                              "registered from layout_find/validation.json unedited, PLAN.md D180 (a pre-stated "
+                              "exception after fso15_720 failed the sync kill; the finder failed its overall "
+                              "validation, 3 of 8, so this is no general clearance)",
+                              "found automatically (D152 validation record), registered under D180; no frame read by a "
+                              "person")
 
 
 def main(argv=None) -> None:
@@ -326,8 +362,12 @@ def main(argv=None) -> None:
     f.add_argument("tag")
     r = sub.add_parser("register")
     r.add_argument("tag")
+    rv = sub.add_parser("register-validated")
+    rv.add_argument("tag")
+    rv.add_argument("--decision", required=True)
     a = ap.parse_args(argv)
-    {"validate": cmd_validate, "find": cmd_find, "register": cmd_register}[a.cmd](a)
+    {"validate": cmd_validate, "find": cmd_find, "register": cmd_register,
+     "register-validated": cmd_register_validated}[a.cmd](a)
 
 
 if __name__ == "__main__":

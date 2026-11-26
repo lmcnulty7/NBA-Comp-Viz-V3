@@ -61,3 +61,48 @@ def test_the_tool_guards_every_video_and_validates_on_existing_layouts_only():
     src = open(L.__file__).read()
     assert "refuse_cv_test(" in src and "game_of(tag)" in src
     assert "nop_gsw_2015" not in L.VALIDATION and len(L.VALIDATION) == 8
+
+
+# ── D180: register one validated proposal, unedited ─────────────────────────────────────────────────────────────────
+VAL = {"videos": {
+    "okc_sac_2015": {"proposal": {"status": "ok", "clock_box": [942, 586, 1008, 624], "period_box": [828, 586, 879, 624],
+                                  "period_words": False, "clock_frames": 26, "period_frames": 27, "frames": 40},
+                     "check": {"chosen": "proposal", "plausible_share": 0.7, "consistent_share": 0.65, "pairs": 40}},
+    "nyk_bos_2016": {"proposal": {"status": "no_period", "clock_box": [1110, 621, 1184, 655]}, "check": None},
+    "por_okc_2016": {"proposal": {"status": "no_clock"}}}}
+
+
+def test_only_a_proposal_that_passed_the_frozen_check_is_taken():
+    from tools import p8_layout_find as L
+    prop, check = L.validated_proposal(VAL, "okc_sac_2015")
+    assert prop["clock_box"] == [942, 586, 1008, 624] and check["consistent_share"] == 0.65
+    for tag in ("nyk_bos_2016", "por_okc_2016", "hou_cle_2016"):
+        with pytest.raises(SystemExit):
+            L.validated_proposal(VAL, tag)
+
+
+def test_register_validated_is_the_d180_exception_only(tmp_path, monkeypatch):
+    import json
+    from argparse import Namespace
+    from tools import p8_layout_find as L
+    for tag, dec in (("nyk_bos_2016", "D180"), ("okc_sac_2015", "D179"), ("por_okc_2016", "D180")):
+        with pytest.raises(SystemExit):
+            L.cmd_register_validated(Namespace(tag=tag, decision=dec))
+    repo = tmp_path / "repo"
+    (repo / "reports" / "research").mkdir(parents=True)
+    reg = json.loads((L.REPO / "reports" / "research" / "p8_registry.json").read_text())
+    (repo / "reports" / "research" / "p8_registry.json").write_text(json.dumps(reg))
+    root = tmp_path / "p8"
+    (root / "layout_find").mkdir(parents=True)
+    (root / "layout_find" / "validation.json").write_text(json.dumps(VAL))
+    monkeypatch.setattr(L, "REPO", repo)
+    monkeypatch.setattr(L, "p8_root", lambda: root)
+    L.cmd_register_validated(Namespace(tag="okc_sac_2015", decision="D180"))
+    out = json.loads((repo / "reports" / "research" / "p8_registry.json").read_text())
+    lay = out["layouts"]["auto_okc_sac_2015"]
+    assert lay["clock_box"] == [942, 586, 1008, 624] and lay["period_box"] == [828, 586, 879, 624]   # unedited
+    assert "period_words" not in lay and "D180" in lay["measured_on"] and "3 of 8" in lay["measured_on"]
+    assert out["games"]["okc_sac_2015"]["layout"] == "auto_okc_sac_2015"
+    assert out["layouts"]["msg15_720"] == reg["layouts"]["msg15_720"]           # nothing else changes
+    assert {k: v for k, v in out["games"].items() if k != "okc_sac_2015"} == \
+        {k: v for k, v in reg["games"].items() if k != "okc_sac_2015"}
