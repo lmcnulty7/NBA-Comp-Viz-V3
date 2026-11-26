@@ -100,8 +100,8 @@ TABLE_K0 = REPO / "reports" / "research" / "p8_outpos_table_k0.json"
 FORMS_RECORD = REPO / "reports" / "research" / "p8_outpos_forms.json"
 FOOTBIAS_RECORD = REPO / "reports" / "research" / "p8_footbias.json"
 K1_SHA = "c420b0a642851104894aec03189cce3404c407703347b3fff29dfc96b7cb80ce"     # the table at 18df8e7f
-K0_SHA = None             # pinned after `forms` freezes the K0 table, before hou_cle_2016 is read
-CHOSEN_FORM = None        # pinned after `forms` applies the form rule, before hou_cle_2016 is read
+K0_SHA = "21bc22d960410a5b1723bc20133cfd781ee6691ec3cf2be4a2914064fa7f47ba"     # the K0 table frozen by `forms`
+CHOSEN_FORM = "K1"        # the form rule's result in reports/research/p8_outpos_forms.json
 P50_BAR_FT = -0.10
 GUARDED_FILES = ("tools/p8_outpos.py", "tools/p8_footbias.py", "tools/p8_placement.py", "tools/p8_scorecard.py",
                  "tools/p8_e1_score.py")
