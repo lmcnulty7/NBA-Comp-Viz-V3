@@ -120,3 +120,18 @@ minutes, on gsw_cha_2016_s05_w00 or gsw_bkn_2015_s04_w00. It would record, per f
 receives, the first-association matches, the unconfirmed matches, the new tracks created, and the tracks removed by
 remove_duplicate_stracks. That shows the step where the detections vanish. It needs its own registration. The arm the
 rule names would follow only if the instrumented run confirms an activation cause.
+
+## Review amendment (2026-11-26, after the ml-review and the a3input result; the registered text above is unchanged)
+
+The caution in the reading section rests on the replay's state at the end of each frame. That covers the 2.2 percent
+under unconfirmed tracks, and the conclusion that the detections "neither match a kept track, nor start a track, nor
+sit under a lost one". After a reset, each frame runs two update calls (docs/research/P8_a3input.md, cause confirmed).
+
+- In the first call, these detections do start new, unconfirmed tracks.
+- In the second call, which receives only the tracked boxes, those tracks find no match and are removed, so the end of
+  the frame shows none of them.
+
+The caution's statement that the recorded fields "do not explain where these detections go" is answered there. The
+registered reading (an activation arm) stays as registered. The fix that follows is the reset fix that P8_a3input.md
+names, not an activation parameter. See the amendment in P8_a3trace.md.
+
