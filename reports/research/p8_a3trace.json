@@ -1,0 +1,38 @@
+{
+ "what": "Instrumented replay of the build's tracker on gsw_cha_2016_s05_w00 (docs/research/P8_a3trace.md); report only",
+ "frames": 1053,
+ "reproduced_share": 1.0,
+ "predict_boxes": 8766,
+ "tracker_input_boxes": 2663,
+ "dropped": 6103,
+ "classes": {
+  "G_not_in_input": 6097,
+  "F_matched_not_output": 0,
+  "E_removed_as_duplicate": 0,
+  "D_new_unconfirmed": 6,
+  "U_unmatched_no_new_track": 0,
+  "H_other": 0
+ },
+ "shares": {
+  "G_not_in_input": 0.99902,
+  "F_matched_not_output": 0.0,
+  "E_removed_as_duplicate": 0.0,
+  "D_new_unconfirmed": 0.00098,
+  "U_unmatched_no_new_track": 0.0,
+  "H_other": 0.0
+ },
+ "step": "G_not_in_input",
+ "resets_at": [
+  312
+ ],
+ "versions": {
+  "opencv": "4.13.0",
+  "torch": "2.2.2",
+  "ultralytics": "8.4.48"
+ },
+ "rule": {
+  "same_iou": 0.9,
+  "keep_iou": 0.5,
+  "step_share": 0.5
+ }
+}

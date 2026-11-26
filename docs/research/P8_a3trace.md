@@ -82,6 +82,43 @@ Commands, from the worktree root, where <frozen CV python> is the anaconda inter
 The a3run yield and the a3drop classes are seen. The window was chosen as the heavy window with the largest share of
 dropped detections: 6,103 of 8,766, with only 3 of them under unconfirmed tracks.
 
-## Results
+## Results (run 2026-11-26 under the lock, 609 s)
 
-Not run yet.
+The traced output reproduces the sidecar on 100 percent of the 1,053 frames. Versions: OpenCV 4.13.0, torch 2.2.2 and
+ultralytics 8.4.48, with the r23 sha256 checked. There was one reset, at frame 312. Record:
+reports/research/p8_a3trace.json.
+
+On the same frames, predict found 8,766 boxes, and the tracker's input (the detections BYTETracker.update received
+inside model.track) held 2,663. There are 6,103 dropped boxes:
+
+| Class | Count | Share |
+| --- | --- | --- |
+| G not in the tracker's input | 6,097 | 99.9% |
+| F matched but not output | 0 | 0% |
+| E removed as a duplicate | 0 | 0% |
+| D new and unconfirmed | 6 | 0.1% |
+| U unmatched with no new track | 0 | 0% |
+| H other | 0 | 0% |
+
+## Reading by the registered rule
+
+The step is G: the dropped detections never reach the tracker. BoT-SORT drops nothing: no match is lost, nothing is
+removed as a duplicate, and new tracks are a rounding error. The detector, called through model.track inside
+PlayerTracker, returns about 30 percent of the boxes that model.predict returns on the same decoded frame, in the same
+process and with the same weights, confidence (0.40), NMS (0.45) and class (player).
+
+By the rule, an input check comes next. No tracker arm follows: activation, association and duplicate removal are not
+where the loss is.
+
+What the input check should separate (a proposal; it needs its own registration):
+
+- **Instance state.** The tracker's YOLO instance and predictor have run frame after frame, while predict used a fresh
+  instance. Running the tracker's own instance through predict on the same frame would show whether state is the
+  cause.
+- **Track-mode arguments.** Model.track sets mode "track", batch 1 and conf, and registers the tracker callbacks. The
+  check would compare the two predictors' full argument sets (imgsz, half, augment, agnostic_nms, max_det, classes)
+  and their preprocessed input tensor shape.
+- **Window dependence.** On the control windows the yield is 0.66 to 0.95, against 0.23 to 0.82 on the heavy windows,
+  so whatever cuts the input acts more in some scenes than others.
+
+The check is a model run under the lock, about 10 minutes on this window. It waits behind the truth-cpu driver.
