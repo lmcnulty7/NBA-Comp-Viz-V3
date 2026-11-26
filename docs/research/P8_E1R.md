@@ -247,3 +247,37 @@ duplicates 1,360 and 1,298, team rows 18,153 and 18,103, paired matched players 
   gains are ghosts, position, near-field bias and team, on every game.
 - This is seed 0 only. A pass alone does not justify about 30 units for seeds 1 and 2; that choice is weighed against
   E1b (design, "What E1R can and cannot decide").
+
+## Stage 2 results (2026-11-26)
+
+The code's gate allowed Stage 2 (primary and blind both passed). Each fold's E1 seed 0 was built on hou_cle_2016 (93
+windows each; 10,727 s, 10,311 s and 10,372 s, 8.7 lock hours) and scored against M9's r23 CPU build. Every window
+passed every check; no gate-empty, mismatched or missing window. In-frame players 43,030 on both arms for each fold.
+
+hou_cle_2016, E1 minus r23, window interval, d5_verdict per fold:
+
+| Row | Fold gsw_bkn_2015 | Fold gsw_cha_2016 | Fold gsw_sac_2015 |
+| --- | --- | --- | --- |
+| Missed | -0.0012 [-0.0176, 0.0125] | -0.0107 [-0.0254, -0.0004] | +0.0014 [-0.0140, 0.0127] |
+| Ghosts | -0.0093 [-0.0133, -0.0053] | -0.0125 [-0.0167, -0.0081] | -0.0116 [-0.0166, -0.0061] |
+| Position p50 (ft) | -0.0522 [-0.0620, -0.0429] | -0.0457 [-0.0569, -0.0351] | -0.0520 [-0.0645, -0.0380] |
+| Position p90 (ft) | -0.0666 [-0.1007, -0.0453] | -0.0559 [-0.0934, -0.0356] | -0.0798 [-0.1262, -0.0505] |
+| Near-field bias (ft) | -0.0555 [-0.0850, -0.0273] | -0.0241 [-0.0559, 0.0022] | -0.0536 [-0.0874, -0.0241] |
+| Team | +0.0232 [-0.0083, 0.0548] | +0.0467 [0.0077, 0.0859] | +0.0390 [0.0043, 0.0754] |
+| Coverage | equal | equal | equal |
+| Fold passes | yes | yes | no (missed) |
+
+r23's missed rate on hou_cle_2016 on the reference platform is 0.1961; E1's is 0.1949, 0.1854 and 0.1975 by fold.
+
+### Stage 2 reading and the E1R result
+
+- Two of three folds pass; the design asked all three. Fold gsw_sac_2015 fails only on missed, whose point estimate
+  is +0.0014 with an interval across zero. By the wording fixed in advance: "the pass does not carry to the new
+  arena".
+- E1R's result, in full: seed 0 passes on the reference platform on the development pool (primary and blind), and
+  the pass does not carry to hou_cle_2016. On missed, the row E1 was meant to fix, the gain is small everywhere
+  (-0.0067 pooled, -0.0019 blind, -0.0107 to +0.0014 on hou_cle_2016) and below the 0.010 to 0.016 expected. The
+  consistent gains are ghosts, position, near-field bias and team, on every game and every fold.
+- E1 is not adopted (1 of 3 seeds, D85 (3)), and nothing here triggers training. For choosing between seeds 1 and 2
+  and E1b, the evidence is that E1's labels and recipe buy position, ghost and team gains but not the recall gain on
+  missed; seeds 1 and 2 would test the same recipe. The choice is the lead's.
