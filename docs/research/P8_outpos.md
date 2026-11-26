@@ -245,7 +245,57 @@ that headline number nearly unchanged.
 4. Stop for the lead's short re-review.
 5. score-hou, once, only after the lead's go.
 
-### Version 2 results
+### Version 2 results, pool only (computed 2026-11-26, after a10b35d2; no hou_cle_2016 file read)
 
-Not computed yet.
+Stored files only, no lock, about a minute. Every check passed on every pool game:
+
+- the registered counts and matched entries reproduce;
+- for both forms, the variant's detection rows equal the pinned ones on every window.
+
+Records: reports/research/p8_outpos_forms.json and the frozen K0 table reports/research/p8_outpos_table_k0.json (one
+global shift of -0.785 ft from 51,198 fit rows; sha256 21bc22d960410a5b1723bc20133cfd781ee6691ec3cf2be4a2914064fa7f47ba).
+
+Leave one game out, variant minus pinned (window intervals):
+
+| Row | Form | gsw_bkn_2015 | gsw_cha_2016 | gsw_sac_2015 |
+| --- | --- | --- | --- | --- |
+| Position p50 (ft) | K1 | -0.253 [-0.287, -0.214] | -0.284 [-0.319, -0.232] | -0.269 [-0.311, -0.215] |
+| Position p50 (ft) | K0 | -0.229 [-0.265, -0.180] | -0.267 [-0.305, -0.227] | -0.264 [-0.306, -0.207] |
+| Position p90 (ft) | K1 | -0.219 [-0.294, -0.134] | -0.120 [-0.201, -0.050] | -0.174 [-0.258, -0.097] |
+| Position p90 (ft) | K0 | -0.140 [-0.217, -0.070] | -0.103 [-0.189, -0.026] | -0.151 [-0.231, -0.076] |
+| Near-field bias, before to after (third read) | K1 | 1.576 to 0.642 (far, far) | 1.150 to 0.050 (far, far) | 1.330 to 0.231 (far, far) |
+| Near-field bias, before to after (third read) | K0 | 1.576 to 0.827 (far, far) | 1.150 to 0.402 (far, far) | 1.330 to 0.549 (far, near) |
+
+Form decision by the rule: K1. Its p50 difference is below K0's on every pool game, by 0.025, 0.017 and 0.005 ft.
+The margin on gsw_sac_2015 is small against the window intervals; the rule asks only for the order.
+
+Report only:
+
+- Frames where near_side(B) differs from near_side(truth): 0 of 2,073, 0 of 1,353 and 0 of 2,151.
+- p90 by third, pinned to K1: the near third worsens on every pool game (3.11 to 3.23, 3.05 to 3.12, 3.13 to 3.26 ft).
+  The middle and far thirds improve (far 3.66 to 3.14, 3.19 to 2.95, 3.49 to 3.07 ft). K0 worsens the near third
+  more (to 3.42, 3.25 and 3.44 ft).
+- p90 by box height, pinned to K1: improves in every bin on every game, except 200 to 250 px on gsw_cha_2016 (3.13 to
+  3.15 ft).
+
+Forecast for hou_cle_2016, from committed numbers only (written before score-hou):
+
+| Form | R_hou (ft) | k_p50 | Forecast p50 difference | k_p90 | Forecast p90 difference | Near-field bias, depth terms, before to after |
+| --- | --- | --- | --- | --- | --- | --- |
+| K1 (chosen) | 0.627 | -0.419 | -0.263 | -0.266 | -0.167 | 0.84 (far) to 0.33 (near) |
+| K0 | 0.715 | -0.472 | -0.337 | -0.245 | -0.175 | 0.84 (far) to 0.08 (near) |
+
+Calibration check on the pool, predicted against observed p50 differences: K1 -0.268/-0.253, -0.264/-0.284,
+-0.275/-0.269; K0 -0.230/-0.229, -0.268/-0.267, -0.262/-0.264.
+
+What the forecast says, before any hou_cle_2016 file is read:
+
+- The chosen form (K1) passes the p50 bar (-0.10 ft) with room, forecast -0.26 ft.
+- The forecast puts K0 ahead of K1 on hou_cle_2016 p50 (-0.34 against -0.26 ft). Its cells are more uniform than the
+  pool's, about -0.7 to -1.0 ft in every third, so K1's small near-third shifts leave more of its near-third bias in
+  place. The forecast therefore expects the claim "the cells matter" to fail on hou_cle_2016.
+- The near-field bias guard is forecast to hold for both forms.
+
+Next: a commit pinning the K0 table's sha256 and the chosen form (K1) in tools/p8_outpos.py. Then stop for the lead's
+re-review. score-hou has not run.
 
