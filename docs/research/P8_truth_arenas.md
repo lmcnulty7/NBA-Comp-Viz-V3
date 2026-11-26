@@ -617,3 +617,32 @@ Composer, final (the lead's definitive instruction, 2026-11-26, overriding every
 above (29b97e62). Why: the reset-fix arm's design v2.1 has no composer, and there must be exactly one. Commits
 f0948913 and 208c846a, which left the composing to the arm after crossed messages, are superseded; the code equals
 29b97e62's.
+
+**Version 4.2 (2026-11-26, the ml-review of cc0e05db, NO-GO on one file-only blocker; before any fixed build).**
+
+1. The label-check reads what the build wrote, not only what it was asked to do. The device record says reset_fix true
+   before the build starts, so for every built label window (a sidecar) tools/p8_truth_fixprep.py label-check now also
+   requires <window>_resetfix.json with reset_fix true, tracker_reid_env None, versions equal to
+   tools.p8_resetfix.PINNED_VERSIONS (opencv 4.13.0, torch 2.2.2, ultralytics 8.4.48), every reset with a frame and
+   exactly 2 callbacks stripped, and as many resets as the identity file's camera_cut_resets. The log is written by the
+   build child at exit into the build's tracking folder and moved next to the window's outputs by sportvu.rebuild.build
+   (every <window>_* file); a test pins that path, and the arm's smoke window gsw_cha_2016_s00_w00 shows it (its
+   _resetfix.json sits beside its sidecar and passes the same check). Gate-empty windows have no sidecar and need no
+   log. At start the driver also checks that the build interpreter's library versions equal PINNED_VERSIONS (they do:
+   4.13.0, 2.2.2, 8.4.48).
+2. The truth phase exits at start unless resetfix/smoke_check.json in the reference root shows "passes": true.
+3. compose (the only writer of builds/r23): every <window>_* file already in builds/r23 must be byte-identical to its
+   source, or the step stops; the arm's equivalence record must be newer than every reset window's arm sidecar, or the
+   step stops; an arm build must also carry a reset log that passes the same check as item 1.
+4. The driver exits at start if P8_DEVICE, P8_DEVICE_COURT, P8_DEVICE_GATE or P8_MPS_CLIP_FIX is set.
+5. STOP is checked at the top of every game, before supersede moves anything. The lead removes work_ref/STOP only at
+   the go.
+6. Records of version 4 are named apart from section 15's: reports/research/p8_truth_moved_<game>_fix.json and
+   reports/research/p8_truth_accept_<game>_fix.json (version 4's "Reading the reports" names are replaced by these).
+7. Folders the driver writes in the reference root (correcting the list of version 4, decision 5): label_build/,
+   labels/, truth_v2/dev/, truth_accept/, truth_moved/, builds/r23/ and builds/r23_checkc_<game>.json, superseded_nofix/,
+   meta/done/, logs/ (truth_fix.log), failed/ and tmp/ (the frozen build path's own scratch), and symbolic links:
+   for gsw_bkn_2015 and gsw_sac_2015 the frozen link step's links in video/, sportvu/ and sync/ to the main checkout's
+   sections, moments and sync maps (gsw_cha_2016's exist already), and for hou_cle_2016 links in video/, sportvu/,
+   sync/, meta/ and reports/ to the P8 workspace's files (all read only). tools.p8_frozen.install_paths also creates
+   the workspace layout's empty folders if missing.

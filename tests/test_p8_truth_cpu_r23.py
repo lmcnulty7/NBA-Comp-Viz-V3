@@ -14,6 +14,8 @@ REC = {"requested": {"detector": "cpu", "court": "auto", "gate": "auto"},
        "resolved": {"detector": "cpu", "court": "mps", "gate": "mps"}, "clip_fix": None}
 FIX = {**REC, "reset_fix": True}
 DET = {"weights": "player_detector.pt", "sha256": L.R23_DETECTOR_SHA256, "model": "r23", "seed": 0}
+LOG = {"reset_fix": True, "resets": [{"frame": 120, "stripped": 2}], "tracker_reid_env": None,
+       "tracker_config": "botsort.yaml", "versions": {"opencv": "4.13.0", "torch": "2.2.2", "ultralytics": "8.4.48"}}
 
 
 def clip(path, data=b"clip"):
@@ -28,6 +30,9 @@ def build(folder, stem, source, device, detector=DET):
     (folder / f"{stem}_device.json").write_text(json.dumps(device))
     (folder / f"{stem}_detector.json").write_text(json.dumps(detector))
     (folder / f"{stem}_trajectories.json").write_text("{}")
+    (folder / f"{stem}_identity.json").write_text(json.dumps({"identity": {"camera_cut_resets": 1}}))
+    if device.get("reset_fix"):
+        (folder / f"{stem}_resetfix.json").write_text(json.dumps(LOG))
 
 
 def make_roots(tmp_path, reset=(1,), passes=True):
@@ -102,6 +107,11 @@ def test_a_refused_window_leaves_check_c_incomplete(tmp_path):
     mps, ref, base, arm, stems = make_roots(tmp_path)
     clip(ref / "label_build" / f"{stems[0]}.mp4", b"a different cut")                    # clip differs
     build(arm, stems[1], mps / "label_build" / f"{stems[1]}.mp4", FIX)                   # arm build names the wrong clip
+    eq = ref / "resetfix" / f"equiv__{G}.json"
+    eq.write_text(eq.read_text())                                                          # equivalence rerun after it
+    import os
+    t = (arm / f"{stems[1]}_frames.json").stat().st_mtime
+    os.utime(eq, (t + 1, t + 1))
     out = L.compose(G, mps, ref)
     assert set(out["refused"]) == {stems[0], stems[1]} and out["refused"][stems[0]] == "clips differ"
     assert out["refused"][stems[1]].startswith("built from")
@@ -163,3 +173,31 @@ def test_an_unfixed_copy_left_on_a_reset_window_stops_the_step_until_supersede_m
     assert (ref / "label_build" / f"{stems[1]}_frames.json").exists()                  # fixed label builds stay
     out = L.compose(G, mps, ref)
     assert out["complete"] and out["v3_label_windows"] == 3 and out["copied_from_arm"] == 1
+
+
+def test_a_stale_equivalence_record_stops_the_step(tmp_path):
+    import os
+    mps, ref, base, arm, stems = make_roots(tmp_path)
+    eq = ref / "resetfix" / f"equiv__{G}.json"
+    t = (arm / f"{stems[1]}_frames.json").stat().st_mtime
+    os.utime(eq, (t - 60, t - 60))                                                      # equivalence older than the build
+    with pytest.raises(SystemExit, match="older than the arm build"):
+        L.compose(G, mps, ref)
+
+
+def test_a_present_file_that_differs_from_its_source_stops_the_step(tmp_path):
+    mps, ref, base, arm, stems = make_roots(tmp_path)
+    L.compose(G, mps, ref)
+    (ref / "builds" / "r23" / f"{stems[0]}_trajectories.json").write_text('{"changed": 1}')
+    with pytest.raises(SystemExit, match="differs from its source"):
+        L.compose(G, mps, ref)
+
+
+def test_an_arm_build_needs_a_valid_reset_log(tmp_path):
+    mps, ref, base, arm, stems = make_roots(tmp_path)
+    (arm / f"{stems[1]}_resetfix.json").write_text(json.dumps({**LOG, "resets": [{"frame": 120, "stripped": 1}]}))
+    out = L.compose(G, mps, ref)
+    assert out["refused"][stems[1]].startswith("a reset did not strip") and not out["complete"]
+    (arm / f"{stems[1]}_resetfix.json").unlink()
+    (ref / "builds" / f"r23_checkc_{G}.json").unlink()
+    assert L.compose(G, mps, ref)["refused"][stems[1]] == "no reset log"

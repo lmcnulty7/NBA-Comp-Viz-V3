@@ -19,7 +19,10 @@ The link markers and every other builds/ folder are not touched. It runs once pe
 is a no-op when that record exists. It refuses to overwrite a file already in superseded_nofix/.
 
 label-check: exit 1 unless every label window of the game (a sidecar or a gate-empty marker in label_build) has a device
-record with "reset_fix": true, the detector requested and resolved cpu, court and gate requested auto, and no clip fix.
+record with "reset_fix": true, the detector requested and resolved cpu, court and gate requested auto, and no clip fix;
+and every built window (a sidecar) has a reset log (<window>_resetfix.json) with reset_fix true, TRACKER_REID unset,
+the library versions of tools.p8_resetfix.PINNED_VERSIONS, every reset with a frame and exactly 2 callbacks stripped,
+and as many resets as the identity file's camera_cut_resets (version 4.2).
 """
 
 from __future__ import annotations
@@ -109,12 +112,46 @@ def supersede(game: str, ref_root: Path) -> dict:
     return out
 
 
-def label_problems(label_build: Path, game: str) -> dict:
+def log_problem(label_build: Path, stem: str, pinned: dict) -> str | None:
+    """The reset log of a built window (<window>_resetfix.json, written by the build child when it exits and moved next
+    to the window's outputs by sportvu.rebuild.build): None when it shows the fix ran as registered, else the reason.
+    The device record alone says reset_fix true before the build starts; this log is written by the build itself."""
+    lp = label_build / f"{stem}_resetfix.json"
+    if not lp.exists():
+        return "no reset log"
+    log = json.loads(lp.read_text())
+    if log.get("reset_fix") is not True:
+        return "reset log without reset_fix"
+    if log.get("tracker_reid_env") is not None:
+        return f"TRACKER_REID was set ({log.get('tracker_reid_env')!r})"
+    if log.get("versions") != pinned:
+        return f"library versions {log.get('versions')}, not {pinned}"
+    rs = log.get("resets")
+    if not isinstance(rs, list):
+        return "reset log has no resets list"
+    if any(r.get("stripped") != 2 for r in rs):
+        return f"a reset did not strip exactly 2 callbacks: {[r.get('stripped') for r in rs]}"
+    if any(r.get("frame") is None for r in rs):
+        return "a reset has no frame index"
+    ip = label_build / f"{stem}_identity.json"
+    if not ip.exists():
+        return "no identity file"
+    n = (json.loads(ip.read_text()).get("identity") or {}).get("camera_cut_resets")
+    if n is None or len(rs) != int(n):
+        return f"the reset log has {len(rs)} entries, the identity file {n}"
+    return None
+
+
+def label_problems(label_build: Path, game: str, pinned: dict | None = None) -> dict:
     """{window: reason} for label windows (sidecar or gate-empty marker) whose device record is not the fixed
-    reference setting."""
+    reference setting, or, for a built window (a sidecar), whose reset log does not show the fix as registered
+    (log_problem; pinned: the library versions, tools.p8_resetfix.PINNED_VERSIONS by default)."""
+    if pinned is None:
+        from tools.p8_resetfix import PINNED_VERSIONS as pinned
     bad = {}
     for s in window_stems(label_build, game):
-        if not ((label_build / f"{s}_frames.json").exists() or (label_build / f"{s}_gate_empty.json").exists()):
+        built = (label_build / f"{s}_frames.json").exists()
+        if not (built or (label_build / f"{s}_gate_empty.json").exists()):
             continue
         r = record(label_build, s)
         if not r:
@@ -125,6 +162,8 @@ def label_problems(label_build: Path, game: str) -> dict:
             bad[s] = f"devices {r.get('requested')} resolved {r.get('resolved')}"
         elif r.get("clip_fix"):
             bad[s] = "clip fix"
+        elif built and (why := log_problem(label_build, s, pinned)):
+            bad[s] = why
     return bad
 
 

@@ -19,7 +19,10 @@
 # done marker (or a measure-dev record) is skipped and built windows are cached (a cached window built without the fix
 # is refused by tools.p8_device.check_cached). A failed step is retried at most twice, then the driver stops. A game
 # whose lock time in this driver passes its cap (1.5 times its estimate) stops the driver before its next step. A file
-# named STOP in the reference root stops it before the next step. Nothing is written to the P8 workspace (work).
+# named STOP in the reference root stops it before the next step and before each game. Nothing is written to the P8
+# workspace (work). Start guards (version 4.2): P8_DEVICE, P8_DEVICE_COURT, P8_DEVICE_GATE and P8_MPS_CLIP_FIX unset;
+# the build interpreter's opencv, torch and ultralytics equal tools.p8_resetfix.PINNED_VERSIONS; for the truth phase,
+# resetfix/smoke_check.json shows "passes": true.
 set -u -o pipefail
 MPS="${V3_P8_MPS_ROOT:-$HOME/Developer/nba-v3-worktrees/_p8-data/work}"
 R="${V3_P8_REF_ROOT:-$HOME/Developer/nba-v3-worktrees/_p8-data/work_ref}"
@@ -45,6 +48,18 @@ case "$PHASE" in truth|accept) ;; *) echo "usage: p8_truth_cpu.sh truth|accept [
 [ -z "${TRACKER_REID:-}" ] || { echo "TRACKER_REID must be unset (P8_resetfix.md)" >&2; exit 2; }
 "$SYS" -c "from tools.p8_device import RESET_FIX_FLAG, reset_fix_requested; from tools.p8_resetfix import apply_reset_fix" 2>/dev/null \
   || { echo "the reset fix code (tools.p8_resetfix, P8_TRACKER_RESET_FIX in tools.p8_device) is not on this branch" >&2; exit 2; }
+for v in P8_DEVICE P8_DEVICE_COURT P8_DEVICE_GATE P8_MPS_CLIP_FIX; do   # only the detector flag and the reset fix are set
+  [ -z "${!v:-}" ] || { echo "$v must be unset (section 16 version 4.2)" >&2; exit 2; }
+done
+"$CV" -c "import sys, cv2, torch, ultralytics
+from tools.p8_resetfix import library_versions, PINNED_VERSIONS
+v = library_versions(); print('build libraries', v)
+sys.exit(0 if v == PINNED_VERSIONS else 1)" \
+  || { echo "the build interpreter's library versions are not tools.p8_resetfix.PINNED_VERSIONS" >&2; exit 2; }
+if [ "$PHASE" = truth ]; then
+  "$SYS" -c "import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get('passes') is True else 1)" "$R/resetfix/smoke_check.json" 2>/dev/null \
+    || { echo "the reset-fix smoke has not passed (resetfix/smoke_check.json)" >&2; exit 2; }
+fi
 mkdir -p "$R/logs"
 say() { echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $*" | tee -a "$LOG"; }
 held() { grep -h "^\[heavy\] 'p8 fixtruth $PHASE $1 .*done in" "$LOG" 2>/dev/null | sed -E 's/.*done in ([0-9]+) s.*/\1/' | awk '{s+=$1} END {print s+0}'; }
@@ -86,6 +101,7 @@ sections_of() { ls "$R/video" | sed -n "s/^\(${1}_s[0-9][0-9]\)\.mp4$/\1/p" | so
 say "=== reset-fix truth driver, phase $PHASE: $GAMES"
 for TAG in $GAMES; do
   [ "$(cap_of "$TAG")" -gt 0 ] || { say "FAIL: $TAG is not in this plan"; exit 2; }
+  if [ -f "$R/STOP" ]; then say "STOP file present; stopping before $TAG"; exit 3; fi     # before supersede moves anything
   if [ "$PHASE" = truth ]; then
     "$SYS" -m tools.p8_truth_fixprep supersede "$TAG" --ref-root "$R" 2>&1 | tee -a "$LOG" || { say "FAIL supersede $TAG"; exit 6; }
     case "$TAG" in

@@ -11,6 +11,9 @@ G = "gsw_cha_2016"
 FIXED = {"requested": {"detector": "cpu", "court": "auto", "gate": "auto"},
          "resolved": {"detector": "cpu", "court": "mps", "gate": "mps"}, "reset_fix": True}
 UNFIXED = {k: v for k, v in FIXED.items() if k != "reset_fix"}
+PINNED = {"opencv": "4.13.0", "torch": "2.2.2", "ultralytics": "8.4.48"}
+LOG = {"reset_fix": True, "resets": [{"frame": 120, "stripped": 2}], "tracker_reid_env": None,
+       "tracker_config": "botsort.yaml", "versions": PINNED}
 
 
 def window(lb, stem, rec, built=True):
@@ -19,8 +22,11 @@ def window(lb, stem, rec, built=True):
     if rec is not None:
         (lb / f"{stem}_device.json").write_text(json.dumps(rec))
     if built:
-        for k in ("frames", "trajectories", "identity", "timemap"):
+        for k in ("frames", "trajectories", "timemap"):
             (lb / f"{stem}_{k}.json").write_text("{}")
+        (lb / f"{stem}_identity.json").write_text(json.dumps({"identity": {"camera_cut_resets": 1}}))
+        if rec and rec.get("reset_fix"):
+            (lb / f"{stem}_resetfix.json").write_text(json.dumps(LOG))
         (lb / f"team_clusters_{stem}.png").write_bytes(b"png")
     else:
         (lb / f"{stem}_gate_empty.json").write_text("{}")
@@ -97,3 +103,48 @@ def test_guards(tmp_path):
         F.supersede("gsw_ind_2016", tmp_path)
     with pytest.raises(SystemExit, match="CV test"):
         F.label_check("tor_gsw_2016", tmp_path)
+
+
+def test_label_check_reads_the_reset_log_of_every_built_window(tmp_path):
+    from tools.p8_resetfix import PINNED_VERSIONS
+    assert PINNED_VERSIONS == PINNED
+    lb = tmp_path / "work_ref" / "label_build"
+    bad_logs = {"w01": None,                                                   # no log at all
+                "w02": {**LOG, "tracker_reid_env": "1"},
+                "w03": {**LOG, "versions": {**PINNED, "ultralytics": "8.4.49"}},
+                "w04": {**LOG, "resets": [{"frame": 120, "stripped": 1}]},
+                "w05": {**LOG, "resets": [{"frame": None, "stripped": 2}]},
+                "w06": {**LOG, "resets": []},                                  # identity says 1 reset
+                "w07": {**LOG, "reset_fix": False}}
+    window(lb, f"{G}_s01_w00", FIXED)
+    for w, log in bad_logs.items():
+        window(lb, f"{G}_s01_{w}", FIXED)
+        if log is None:
+            (lb / f"{G}_s01_{w}_resetfix.json").unlink()
+        else:
+            (lb / f"{G}_s01_{w}_resetfix.json").write_text(json.dumps(log))
+    bad = F.label_problems(lb, G)
+    assert f"{G}_s01_w00" not in bad
+    want = {"w01": "no reset log", "w02": "TRACKER_REID", "w03": "library versions", "w04": "a reset did not strip",
+            "w05": "a reset has no frame", "w06": "the reset log has 0 entries", "w07": "reset log without reset_fix"}
+    for w, start in want.items():
+        assert bad[f"{G}_s01_{w}"].startswith(start), (w, bad[f"{G}_s01_{w}"])
+    assert not F.label_check(G, tmp_path / "work_ref")["ok"]
+
+
+def test_a_gate_empty_window_needs_no_reset_log(tmp_path):
+    lb = tmp_path / "work_ref" / "label_build"
+    window(lb, f"{G}_s01_w00", FIXED, built=False)
+    assert F.label_problems(lb, G) == {}
+
+
+def test_the_build_moves_the_reset_log_next_to_the_window_outputs():
+    """sportvu.rebuild.build moves every <window>_* file of the build's tracking folder; the reset log is written there
+    by the build child at exit (tools.p8_resetfix.start_reset_log), before the move."""
+    import inspect
+    from sportvu import rebuild
+    from tools import p8_device, p8_resetfix
+    assert 'TRACKING_DIR.glob(stem + "_*")' in inspect.getsource(rebuild.build)
+    assert "_resetfix.json" in inspect.getsource(p8_device.main)
+    assert "TRACKING_DIR" in inspect.getsource(p8_device.main)
+    assert "atexit" in inspect.getsource(p8_resetfix.start_reset_log)

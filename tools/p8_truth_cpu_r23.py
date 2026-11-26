@@ -21,8 +21,10 @@ A window's build is copied only when:
   true for an arm build or absent for a baseline build;
 - its detector record names the r23 player detector (model "r23", weights sha256 R23_DETECTOR_SHA256, the
   repository's models/player_detector.pt).
-A window already in builds/r23 passes the same checks on its own files or stops the step; a build there with no build
-on record stops it too. The record (builds/r23_checkc_<game>.json) says whether every V3 label window now has an r23
+An arm build must also carry a reset log that passes tools.p8_truth_fixprep.log_problem. The equivalence record must be
+newer than every reset window's arm sidecar. A window already in builds/r23 passes the same checks on its own files,
+and each of its <window>_* files there is byte-identical to its source, or the step stops; a build there with no build
+on record stops it too (version 4.2). The record (builds/r23_checkc_<game>.json) says whether every V3 label window now has an r23
 build ("complete"); check C runs only then, because tools.p8_truth_v2 measures only windows with both builds and a
 missing one would drop out unseen. Files are copied, not linked; nothing is built here.
 """
@@ -30,6 +32,7 @@ missing one would drop out unseen. Files are copied, not linked; nothing is buil
 from __future__ import annotations
 
 import argparse
+import filecmp
 import hashlib
 import json
 import shutil
@@ -125,6 +128,11 @@ def compose(game: str, mps_root: Path, ref_root: Path) -> dict:
         raise SystemExit(f"{WHO}: the two roots are the same folder")
     reset, _ = arm_records(ref_root, game)
     base, arm = mps_root / "builds" / BUILDS[game], ref_root / "builds" / f"resetfix_r23_detcpu__{game}"
+    eq_time = (ref_root / "resetfix" / f"equiv__{game}.json").stat().st_mtime
+    newer = sorted(w for w in reset if (arm / f"{w}_frames.json").exists() and (arm / f"{w}_frames.json").stat().st_mtime > eq_time)
+    if newer:
+        raise SystemExit(f"{WHO}: equiv__{game}.json is older than the arm build of {newer[0]} (and {len(newer) - 1} "
+                         "more); run the arm's equivalence again first")
     dst = ref_root / "builds" / "r23"
     dst.mkdir(parents=True, exist_ok=True)
     stems = sorted(p.name[:-len("_frames.json")] for p in base.glob(f"{game}_s[0-9][0-9]_w[0-9][0-9]_frames.json"))
@@ -142,12 +150,19 @@ def compose(game: str, mps_root: Path, ref_root: Path) -> dict:
         fixed = s in reset
         if (dst / f"{s}_frames.json").exists():
             why = check(s, dst, mps_root, ref_root, fixed)     # a copy already here passes the same checks, or stops
+            src = arm if fixed else base
+            why = why or next((f"{q.name} differs from its source" for q in sorted(dst.glob(f"{s}_*"))
+                               if not (src / q.name).exists() or not filecmp.cmp(q, src / q.name, shallow=False)), None)
             if why:
                 raise SystemExit(f"{WHO}: {s} is already in {dst} but fails the checks ({why}); remove it first")
             present.append(s)
             continue
         src = arm if fixed else base
         why = check(s, src, mps_root, ref_root, fixed)
+        if not why and fixed:
+            from tools.p8_resetfix import PINNED_VERSIONS
+            from tools.p8_truth_fixprep import log_problem
+            why = log_problem(src, s, PINNED_VERSIONS)
         if why:
             refused[s] = why
             continue
