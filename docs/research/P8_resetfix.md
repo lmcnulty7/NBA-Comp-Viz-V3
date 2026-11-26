@@ -286,3 +286,55 @@ No seeds: the builds are deterministic (E1R smoke gate 1), so one build per arm 
 
 `resetfix | reset-fix build arm, r23 CPU, reset windows only | <lock hours> | <pool and hou outcome against section 5> |
 <lesson>`
+
+## 12. Version 2, part 1 (2026-11-26): two stored-files measurements, registered before any number
+
+The training-design-reviewer returned GO WITH FIXES on e5858f14. Its key finding: camera truth frames come from the
+label build's tracker boxes, so the same bug thins truth after a reset. The lead paused the CPU truth rebuild, and the
+truth's label builds will be rebuilt with the fix after this arm's stage 0 passes. Before design v2 and before any
+lock time, two measurements run on stored files only (no model code, no lock). Both are report only: they feed the
+design and change no registered rule. Code: tools/p8_resetfix.py (truthreset, simulate; the estimate now keeps per-window
+counts split at the first reset). Records: reports/research/p8_resetfix_truthreset.json and p8_resetfix_simulate.json.
+
+**(a) Truth acceptance before and after the first reset** (review finding 3).
+- Units: the MPS truth of gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 and hou_cle_2016 (the P8 workspace's label builds
+  and labels), and gsw_cha_2016's CPU truth (the reference root's label builds and labels).
+- Per label window with a label-build sidecar: processed frames are the sidecar rows; accepted frames are the rows of
+  labels/<game>/<window>.jsonl; the first reset is the first reset-like frame of the label build's sidecar
+  (tools.p8_trackreset.reset_like); "after" is that frame and every later one. A window whose identity file counts a
+  reset that no reset-like frame locates is counted apart and kept out of the before and after rates.
+- Reported per unit: acceptance rate before and after the first reset, pooled over windows with a located reset; their
+  ratio; the window-cluster interval of the difference (2,000 resamples, seed 0, drawn as tools.p8_e1_score.boot
+  draws); the rate in windows with no reset; the share of processed frames after a reset against the share of
+  accepted frames after a reset, and their ratio (the under-representation factor).
+
+**(b) A simulation of the expected change under the v2 rule** (review findings 1, 4 and 5).
+- Base: the reference-platform r23 rows of the registered score files on the MPS truth (M6's r23 side for
+  gsw_bkn_2015, M9's CPU side for gsw_cha_2016 and gsw_sac_2015), per window, used for both arms. The per-window
+  counts of the estimate are recomputed on the same scored frames and must equal the score files' in-frame and missed
+  counts per window (checked; the scored frames all have r23 corpus boxes).
+- The arm: in each window with a reset (identity camera_cut_resets at least 1), and on frames from its first reset-like
+  frame on: missed falls by K ~ Binomial(R, f), R the missed players an r23 corpus box (0.40) reaches within 2.5 ft;
+  the detection row's far misses fall by K5 ~ Binomial(R5, f), R5 the far misses an r23 box reaches within 5 ft;
+  A ~ Binomial(E, f) non-referee boxes are added, E the r23 corpus boxes minus the sidecar's non-referee boxes on
+  those frames (0 if negative), of which G ~ Binomial(A, q) are ghosts, q the game's ghost share of that excess (r23
+  corpus ghosts minus sidecar non-referee ghosts, over E, after the first reset, clipped to 0 to 1).
+- f is uniform on 0.5 to 0.9 per draw (centre 0.7, the lead's "about 0.7"); 500 draws, seed 0.
+- Not simulated, held at zero difference: position p50 and p90, near-field bias and team (the scorer pairs these on
+  players matched in both arms, so arm-only matches do not enter them; changes to players matched in both are not
+  modelled). The one-to-one missed row is taken equal to missed.
+- The rule is design v2's (tools.p8_resetfix.v2_verdict and pool_verdict, written before this run): missed and the
+  detection row are judged by D158 "worse" (window or game interval wholly above zero) per game and pooled and must
+  improve pooled; ghosts, p50, p90, bias and team only by their margins (+0.010, +0.05 ft, +0.10 ft, +0.10 ft, -0.03)
+  on the bad-side end of the window interval, per game and pooled; coverage floor; the one-to-one missed row must
+  improve pooled.
+- Intervals: for speed, the draws use count-row intervals computed from the same resample indices as
+  tools.p8_e1_score.boot. At the centre (f = 0.7, expected counts) the real rows, diffs and boot are run, and the fast
+  values must equal them exactly (else the run stops).
+- Reported: the pool pass probability, the pooled-only and per-game pass probabilities, the probability that missed's
+  pooled window interval lies wholly below zero, how often each condition fails, and forecasts (5th, 50th and 95th
+  percentiles) of the pooled missed, detection and ghost differences and of the ghost interval's upper end, pooled
+  and by game.
+- Limits fixed now: this is a forecast on the MPS-truth scored frames, which the bug thins after resets (part a); a
+  truth rebuilt with the fix holds more post-reset frames, so the scored effect can be larger. hou_cle_2016 is not
+  simulated (no corpus boxes). The numbers decide nothing by themselves.
