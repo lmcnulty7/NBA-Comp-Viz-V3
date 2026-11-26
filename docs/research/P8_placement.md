@@ -266,9 +266,9 @@ Correction, 2026-11-26 (ml-review of step 1b; the registered text above is kept 
 was not initialised from the scored build's H. It was initialised from, and fitted to, the V3 label build
 (sportvu/camera.py line 169, pose_from_h of H_v3; tools/p8_frozen.py reads the truth's sidecars from label_build),
 whose court model is V3, not the r23 court of the scored builds. So d_H is (r23 court minus V3 court) plus (V3
-start minus the fitted truth), not the truth fit's own movement; an error invisible here is one shared by the V3
-court, the r23 court and the truth; and the feet the truth was fitted to are the V3 label build's feet, not the
-scored r23 feet. The reading (MIXED) does not depend on this.
+start minus the fitted truth), not the truth fit's own movement; an error the r23 court and the truth share is
+invisible here (since the truth starts from V3, the likely case is an error V3 and r23 share that the fit did not
+remove); and the feet the truth was fitted to are the V3 label build's feet, not the scored r23 feet. The reading (MIXED) does not depend on this.
 
 ### Step 1b results (computed 2026-11-26, after the section above was committed in 89fb82cf)
 
@@ -311,18 +311,20 @@ Report only, the missed rate of all in-frame players with the same feet under th
 ### Step 1b reading by the registered rule
 
 MIXED. No game reaches GEOMETRY (excess at least 0.25): gsw_cha_2016 comes closest (moved in 0.567, excess 0.242).
-No game is FOOT PIXEL on every count: gsw_bkn_2015's excess is 0.106, just above 0.10, and its interval [0.098, 0.145] crosses 0.10; the reading does
-not depend on it, because gsw_sac_2015's excess (0.166) has its interval [0.131, 0.179] between 0.10 and 0.25.
+No game is FOOT PIXEL on every count: gsw_bkn_2015's excess is 0.106, just above 0.10, and its interval
+[0.098, 0.145] crosses 0.10; the reading does not depend on it, because gsw_sac_2015's excess (0.166) has its interval [0.131, 0.179] between 0.10 and 0.25.
 
 The split, by third and game (descriptive):
 
 - Middle and far thirds, every game: the foot lands short of the player under both geometries. The placement misses'
   median depth is -1.3 to -2.5 ft under the build's H (r) against -0.7 to -2.9 ft under the truth (e_T), and the
-  hits' is -0.8 to -1.4 ft under the build's H against -0.2 to -0.9 ft under the truth. The disagreement explains little
-  of this bias: none on the middle thirds or on the far third of gsw_bkn_2015 and gsw_sac_2015, about a quarter to
-  a third on the far third of gsw_cha_2016 (-0.85 of -2.69) and hou_cle_2016 (-0.66 of -2.94). The rest sits in the
-  foot pixel, or in a geometry error shared by the V3 court, the r23 court and the truth. The truth fit removes part of it for
-  the feet it fitted (hits), not for the rest.
+  hits' is -0.8 to -1.4 ft under the build's H against -0.2 to -0.9 ft under the truth. Measured by
+  the median of -d_H, the disagreement explains none of this bias on the middle thirds or on the far third of
+  gsw_bkn_2015 and gsw_sac_2015 (its median points the other way there), and about a quarter to a third on the far
+  third of gsw_cha_2016 (-0.85 of -2.69) and hou_cle_2016 (-0.66 of -2.94). Medians do not add: the median of r is
+  0.1 to 1.1 ft less short than that of e_T in these cells. The rest sits in the foot pixel, or in a geometry error
+  the r23 court and the truth share. The truth fit removes part of it for the scored feet that fall inside the gate
+  (hits), which partly overlap the V3 label build's feet it was fitted to; not for the rest.
 - Near third, gsw_cha_2016 and hou_cle_2016: the placement misses' positive depth (+2.6 and +2.8 ft) is mostly
   disagreement (-d_H +1.7 and +1.5; r +0.45 and +0.76; 0.64 and 0.59 moved in). On gsw_bkn_2015 and gsw_sac_2015
   the near third is not (-d_H +0.40 and -0.07).

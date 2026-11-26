@@ -43,7 +43,7 @@ Rules, fixed before any number:
   (sportvu/camera.py lines 169 to 174, 206 to 208) and fitted to that build's foot_stab pixels paired with SportVU
   (lines 120 to 160), so d_H is how far the truth fit moved from its starting H, and an error both share is invisible.
 - Correction (2026-11-26, ml-review): the truth started from the V3 label build's H (camera.py line 169, H_v3), not
-  from B, the r23 court's H; so d_H = (r23 court minus V3 court) + (V3 start minus fitted truth). The point null is a
+  from B, the r23 court's H; so d_H = (r23 court minus V3 court) + (V3 start minus fitted truth); an error B and the truth share is invisible. The point null is a
   single permutation (seed 0); each bootstrap resample draws its own.
 """
 
