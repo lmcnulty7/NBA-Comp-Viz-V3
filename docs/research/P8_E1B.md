@@ -146,7 +146,8 @@ record: reports/research/p8_e1b_transfer.json):
   gains on which, at build level, E1 reaches the player and r23 does not; f_loss, the share of E1's raw losses on
   which, at build level, E1 misses the player and r23 reaches it.
 - L1's net per game: P presence gains and Q placement gains (r23 raw misses the teacher reaches), and L losses (r23
-  raw finds the teacher does not reach, the displaced and dropped players of section 2).
+  raw finds the teacher does not reach, the displaced and dropped players of section 2). Here r23 is M4's CPU run, so
+  P, Q and L differ slightly from section 2's counts, which use the corpus preds.
 - Perfect-imitation build ceiling per game: C = -(P f_pres + Q f_plc - L f_loss) / N. Pooled: the sum of the three
   numerators over the sum of N, each game with its own fractions.
 - Gate, on the point estimates: C pooled at most -0.020 AND C at most -0.010 on every game. If any game is above
@@ -178,32 +179,37 @@ DATA_ROOT was read, about 7 seconds. Every corpus frame of the 3 games was proce
 | E1 build difference on these frames | -0.0147 | +0.0067 | -0.0074 | -0.0067 |
 | Transfer model's prediction for E1 (check) | -0.0080 | +0.0019 | -0.0018 | -0.0032 |
 
-Gate: fails on both clauses. C pooled is -0.0199 (needed at most -0.020) and gsw_cha_2016 is -0.0079 (needed at most
--0.010). By the rule fixed in advance, E1b with the L1 label set stops here, before any unit is spent. The reviewer's
-independent estimate (about -0.020 pooled, -0.008 on gsw_cha_2016) agrees.
+Gate: fails. The pooled clause misses by 0.0001 (C pooled -0.0199, needed at most -0.020), a tie in practice; the
+per-game clause decides: gsw_cha_2016 is -0.0079 (needed at most -0.010), and its window interval [-0.0117, -0.0033]
+includes -0.010. The rule is on point estimates, so by the rule fixed in advance E1b with the L1 label set stops
+here, before any unit is spent. Disclosure: the training-design-reviewer's independent estimate (about -0.020 pooled,
+-0.008 on gsw_cha_2016) was known when this gate was registered (43af4ded). Both thresholds come from version 1
+(commit 5ead2674: the 0.020 needed and the -0.010 bar); only the per-game clause is new, derived in 2b from the
+adoption rule.
 
 Reading:
 
 - Even a student that reproduced the teacher's boxes exactly would, on E1's transfer, lower build-level misses by
   about 0.008 on gsw_cha_2016; a realistic half is about 0.004, inside that game's window noise (half-width about
-  0.006). The pool rule needs every game below zero, so the arm would most likely fail on gsw_cha_2016.
+  0.006, P8_E1R.md, gsw_cha_2016 window interval [0.0016, 0.0130]). The pool rule needs every game below zero, so the arm would most likely fail on gsw_cha_2016.
 - The optimistic variant (a student that also keeps every r23 find) reaches -0.0172 on gsw_cha_2016 and -0.0287
   pooled; at half that is about -0.009 and -0.014, still short of a reliable pass on every game. It is report only.
 - The check: the transfer model predicts -0.0032 pooled for E1 against E1's measured -0.0067 on the same frames. The
-  rest (-0.0035 pooled) comes from players whose raw status is the same in both arms but whose build status differs
-  (tracking), and it has no fixed sign: -0.0067 on gsw_bkn_2015, +0.0048 on gsw_cha_2016, -0.0056 on gsw_sac_2015.
+  rest (-0.0035 pooled) comes from build changes the transfer model does not count (same raw status in both arms,
+  or raw gains and losses that reverse at build level), not split here, and it has no fixed sign: -0.0067 on gsw_bkn_2015, +0.0048 on gsw_cha_2016, -0.0056 on gsw_sac_2015.
   The model is therefore uncertain by about that much per game, in both directions; on gsw_cha_2016 the residual
   would make the ceiling worse, not better.
-- Placement gains keep only 0.24 to 0.38 of their raw size at build level, presence gains 0.36 to 0.62. Three
-  quarters of L1's reachable headroom is placement, which the build's foot stabilisation already partly corrects.
-  This is why a better detector label set buys little at build level here.
+- Placement gains keep only 0.24 to 0.38 of their raw size at build level, presence gains 0.36 to 0.62. Four
+  fifths of L1's reachable headroom is placement (3,494 of 4,385), which the build's foot stabilisation already
+  partly corrects. That is the leading explanation (post hoc) of why a better detector label set buys little at
+  build level here.
 
 ### 2c. What this implies for the placement route: the proposed next step
 
 The measured numbers point at the foot, not the detector. 57 percent of r23's raw misses are boxes whose foot lands
 2.5 to 5 ft from SportVU with no model doing better (section 2); a further 25 percent are placement misses the teacher
-places closer; and gains made by moving raw box bottoms survive the build at only about 0.3, because the build's foot
-stabilisation acts on the same error. A fix should act where the scorer reads the position, on the build's
+places closer; and gains made by moving raw box bottoms survive the build at only about 0.3, the leading explanation (post hoc) being that the
+build's foot stabilisation acts on the same error. A fix should act where the scorer reads the position, on the build's
 stabilised foot, and be measured there.
 
 Proposed next step, in order, each with its own registration:
