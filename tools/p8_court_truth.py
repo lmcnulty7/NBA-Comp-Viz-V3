@@ -9,6 +9,12 @@ and p90. Per pair: median paired difference with a frame bootstrap (deciding) an
 (beside). Frames: those the GSW gold-key paint check keeps (primary) and all truth frames (sensitivity). The two
 gsw_ind_2016 windows (Colab R1.3 truth, clips cut on Colab) are measured only after a frame-alignment check against the
 Mac CPU build's boxes. Output: <P8 root>/court_truth/result.json, no local path.
+
+Version 2 (ml-review of d86ac0e2 and 82190894): every reading means "closer to this truth", not "more accurate";
+beside each window the median paint edge_px of its primary frames and the on-frame count of the three court points;
+beside each pair the median build-to-build gap, the number of bootstrap blocks and a paired line-error difference;
+an outcome that would lead to a D line needs the frame and the block interval to exclude zero, and the point gap and
+the line error to agree in sign; the frame size is read from each window's clip header and must be 1280x720.
 """
 
 from __future__ import annotations
@@ -46,6 +52,18 @@ def point_gap(H_build, H_truth):
     except np.linalg.LinAlgError:
         return None
     return float(np.median(np.linalg.norm(ub[:2] / ub[2] - ut[:2] / ut[2], axis=0)))
+
+
+def on_frame_points(H, w: int = W_PX, h: int = H_PX):
+    """How many of the three court points land inside the frame under H (image -> court), or None."""
+    if H is None:
+        return None
+    try:
+        u = np.linalg.inv(np.asarray(H, float).reshape(3, 3)) @ PTS
+    except np.linalg.LinAlgError:
+        return None
+    xy = u[:2] / u[2]
+    return int(((xy[0] >= 0) & (xy[0] <= w - 1) & (xy[1] >= 0) & (xy[1] <= h - 1)).sum())
 
 
 def iou(a, b) -> float:
@@ -94,15 +112,42 @@ def reading(median: float, ci: list, a: str, b: str) -> str:
     return "no difference resolved"
 
 
-def pair_row(gaps_a: dict, gaps_b: dict, a: str, b: str) -> dict:
-    """Paired difference (A minus B) over frames where both gaps exist, in frame order."""
+def side_of(ci: list):
+    """-1 when an interval lies below zero, +1 above, 0 when it holds zero."""
+    return -1 if ci[1] < 0 else (1 if ci[0] > 0 else 0)
+
+
+def pair_row(gaps_a: dict, gaps_b: dict, a: str, b: str, between: dict | None = None, lines_a: dict | None = None,
+             lines_b: dict | None = None) -> dict:
+    """Paired difference (A minus B) over frames where both gaps exist, in frame order. The frame interval decides the
+    reading; beside it the block interval (and its block count), the median build-to-build gap on the same frames
+    (between: frame -> gap of A's H to B's H), and the paired line-error difference over frames where both line errors
+    exist (on-frame samples only), with the same bootstraps. d_line_ready: the reading is a 'closer' one, the block
+    interval excludes zero on the same side, and the line-error difference's median has the same sign."""
     frames = sorted(f for f in gaps_a if gaps_a[f] is not None and gaps_b.get(f) is not None)
     if len(frames) < 2:
-        return {"frames": len(frames), "reading": "not enough frames"}
+        return {"frames": len(frames), "reading": "not enough frames", "d_line_ready": False}
     d = np.array([gaps_a[f] - gaps_b[f] for f in frames])
     med, ci = float(np.median(d)), boot(d)
-    return {"frames": len(frames), "median_diff_px": med, "frame_ci": ci, "block_ci": boot(d, block=BLOCK),
-            "reading": reading(med, ci, a, b)}
+    bci = boot(d, block=BLOCK)
+    out = {"frames": len(frames), "blocks": -(-len(frames) // BLOCK), "median_diff_px": med, "frame_ci": ci,
+           "block_ci": bci, "reading": reading(med, ci, a, b)}
+    if between is not None:
+        bg = [between[f] for f in frames if between.get(f) is not None]
+        out["median_build_to_build_gap_px"] = float(np.median(bg)) if bg else None
+    if lines_a is not None and lines_b is not None:
+        lf = [f for f in frames if lines_a.get(f) is not None and lines_b.get(f) is not None]
+        if len(lf) >= 2:
+            ld = np.array([lines_a[f] - lines_b[f] for f in lf])
+            out["line_error"] = {"frames": len(lf), "median_diff_px": float(np.median(ld)), "frame_ci": boot(ld),
+                                 "block_ci": boot(ld, block=BLOCK)}
+        else:
+            out["line_error"] = {"frames": len(lf)}
+    side = -1 if out["reading"] == f"{a} closer" else (1 if out["reading"] == f"{b} closer" else 0)
+    lmed = (out.get("line_error") or {}).get("median_diff_px")
+    out["line_error_sign_agrees"] = None if lmed is None or side == 0 else bool(np.sign(lmed) == side)
+    out["d_line_ready"] = bool(side != 0 and side_of(bci) == side and out["line_error_sign_agrees"])
+    return out
 
 
 def build_row(gaps: dict, lines: dict) -> dict:
@@ -120,38 +165,72 @@ def measure(truth: dict, builds: dict, frames: list, line_error) -> dict:
     lines = {n: {f: (line_error((b.get(f) or {}).get("H"), truth[f]["H_truth"], W_PX, H_PX)
                      if (b.get(f) or {}).get("H") else None) for f in frames} for n, b in builds.items()}
     names = sorted(builds)
-    return {"frames": len(frames), "builds": {n: build_row(gaps[n], lines[n]) for n in names},
-            "pairs": {f"{a}~{b}": pair_row(gaps[a], gaps[b], a, b) for i, a in enumerate(names) for b in names[i + 1:]}}
+
+    def between(a, b):
+        return {f: point_gap((builds[a].get(f) or {}).get("H"), (builds[b].get(f) or {}).get("H")) for f in frames}
+    on = [on_frame_points(truth[f]["H_truth"]) for f in frames]
+    return {"frames": len(frames),
+            "truth_on_frame_points": {str(k): sum(1 for v in on if v == k) for k in (0, 1, 2, 3)},
+            "builds": {n: build_row(gaps[n], lines[n]) for n in names},
+            "pairs": {f"{a}~{b}": pair_row(gaps[a], gaps[b], a, b, between(a, b), lines[a], lines[b])
+                      for i, a in enumerate(names) for b in names[i + 1:]}}
 
 
-def pair_reading(win: dict, a: str, b: str):
+def pair_of(win: dict, a: str, b: str):
+    """The pair row of A and B on a window's primary frames, oriented as A minus B, or None."""
     p = ((win.get("primary") or {}).get("pairs") or {})
     if f"{a}~{b}" in p:
-        return p[f"{a}~{b}"]["reading"]
+        return p[f"{a}~{b}"]
     if f"{b}~{a}" in p:
-        return p[f"{b}~{a}"]["reading"]
+        return p[f"{b}~{a}"]
     return None
 
 
+def pair_reading(win: dict, a: str, b: str):
+    r = pair_of(win, a, b)
+    return r["reading"] if r else None
+
+
+def closer(win: dict, a: str, b: str, for_d_line: bool = False) -> bool:
+    """A closer to this truth than B; for an outcome that would lead to a D line, the block interval and the line
+    error must agree too."""
+    r = pair_of(win, a, b)
+    return bool(r) and r["reading"] == f"{a} closer" and (not for_d_line or r.get("d_line_ready", False))
+
+
 def summary(windows: dict) -> dict:
-    """The design's section 5 readings from the primary frame sets."""
+    """The design's section 5 readings (version 2) from the primary frame sets. Every reading is "closer to this
+    truth", not "more accurate"."""
     ind = [w for w in (W03, W04) if (windows.get(w) or {}).get("measured")]
-    cpu_mps = [pair_reading(windows[w], "mac_cpu", "mac_mps") for w in ind]
-    if len(ind) < 2:
-        device = "not enough aligned gsw_ind_2016 windows"
-    elif all(r == "mac_cpu closer" for r in cpu_mps):
-        device = "CPU court closer on both: propose the court on CPU for reference builds (a D line)"
-    elif all(r == "mac_mps closer" for r in cpu_mps):
-        device = "MPS court closer on both: D175 stands"
-    else:
-        device = "no change: mixed or no difference resolved"
     w00 = windows.get(W00) or {}
-    mps_on_bkn = w00.get("measured") and pair_reading(w00, "cuda_a", "mac_mps") == "mac_mps closer"
-    cuda_on_ind = bool(ind) and all(pair_reading(windows[w], "cuda_a", "mac_mps") == "cuda_a closer" for w in ind)
-    return {"court_device": device, "cpu_vs_mps_readings": dict(zip(ind, cpu_mps)),
-            "cuda_readings": {w: {r: pair_reading(windows[w], "cuda_a", r) for r in ("mac_mps", "mac_cpu")}
-                              for w in [W00, *ind] if (windows.get(w) or {}).get("measured")},
-            "bias_signal": bool(mps_on_bkn and cuda_on_ind)}
+    out = {"meaning": "closer to this camera truth, not more accurate (truth was picked and initialised through one "
+                      "build's homography, P8_court_truth.md section 4)",
+           "cpu_vs_mps_readings": {w: pair_reading(windows[w], "mac_cpu", "mac_mps") for w in ind}}
+    if len(ind) < 2:
+        out["court_device"] = "not enough aligned gsw_ind_2016 windows"
+    elif all(closer(windows[w], "mac_cpu", "mac_mps", True) for w in ind):
+        out["court_device"] = ("CPU court closer to this truth on both: propose a confirmation measurement (a D line "
+                               "for a test, not a device change)")
+    elif all(closer(windows[w], "mac_mps", "mac_cpu", True) for w in ind):
+        out["court_device"] = "MPS court closer to this truth on both: D175 stands"
+    else:
+        out["court_device"] = "no change: mixed, no difference resolved, or the block interval or line error disagrees"
+    cuda_w00 = bool(w00.get("measured")) and closer(w00, "cuda_a", "mac_mps", True)
+    cuda_ind = len(ind) == 2 and all(closer(windows[w], "cuda_a", "mac_mps", True)
+                                     and closer(windows[w], "cuda_a", "mac_cpu", True) for w in ind)
+    if cuda_w00 and cuda_ind:
+        out["cuda"] = "CUDA court closer to this truth on s04_w00 and both gsw_ind_2016 windows"
+    elif cuda_ind:
+        out["cuda"] = "CUDA closer on the gsw_ind_2016 windows only: consistent with a lean, no change"
+    else:
+        out["cuda"] = "CUDA not closer on every window: no change"
+    mps_w00 = bool(w00.get("measured")) and closer(w00, "mac_mps", "cuda_a")
+    cuda_ind_any = len(ind) == 2 and all(closer(windows[w], "cuda_a", "mac_mps") for w in ind)
+    out["bias_signal"] = ("consistent with a lean toward the selecting build's court" if mps_w00 and cuda_ind_any
+                          else "does not show a lean, does not rule it out")
+    out["cuda_readings"] = {w: {r: pair_reading(windows[w], "cuda_a", r) for r in ("mac_mps", "mac_cpu")}
+                            for w in [W00, *ind] if (windows.get(w) or {}).get("measured")}
+    return out
 
 
 # ── files ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -170,19 +249,34 @@ def specs(p8: Path, diag: Path, main: Path, cuda: Path) -> dict:
                  "builds": {"mac_mps": p8 / "builds" / "r23", "mac_detcpu": p8 / "builds" / "e1m6_r23_detcpu",
                             "cuda_a": cuda / CUDA_RESULT / "cuda_a"}, "align": False}}
     for w in (W03, W04):
-        b = {("mac_" + k if k in ("cpu", "mps") else k): (p8 / "label_build" if d is None else diag / d)
-             for k, d in DEVICE_BUILDS[w].items()}
+        names = {"cpu": "mac_cpu", "mps": "mac_mps", "detector_cpu": "mac_detcpu"}
+        b = {names[k]: (p8 / "label_build" if d is None else diag / d) for k, d in DEVICE_BUILDS[w].items()}
         out[w] = {"game": IND, "truth": main / "data" / "sportvu" / "labels" / IND / f"{w}.jsonl",
                   "paint": main / "data" / "sportvu" / "labels" / f"{IND}_paint.jsonl",
                   "builds": {**b, "cuda_a": cuda / CUDA_RESULT / "cuda_a"}, "align": True}
     return out
 
 
-def window_result(w: str, spec: dict, line_error) -> dict:
+def clip_size(clip: Path) -> tuple:
+    """(width, height) from the clip's header (no frame decoded)."""
+    import cv2
+    cap = cv2.VideoCapture(str(clip))
+    try:
+        return int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    finally:
+        cap.release()
+
+
+def window_result(w: str, spec: dict, line_error, size=None) -> dict:
+    if size is not None and tuple(size) != (W_PX, H_PX):
+        raise SystemExit(f"{WHO}: {w} is {size[0]}x{size[1]}, not {W_PX}x{H_PX}")
     truth = {r["frame"]: r for r in read_jsonl(spec["truth"]) if r.get("window", w) == w}
-    keep = {r["frame"] for r in read_jsonl(spec["paint"]) if r["window"] == w and r.get("keep")}
+    paint = {r["frame"]: r for r in read_jsonl(spec["paint"]) if r["window"] == w}
+    keep = {f for f, r in paint.items() if r.get("keep")}
     builds = {n: frames_of(d / f"{w}_frames.json") for n, d in spec["builds"].items()}
-    out = {"truth_frames": len(truth), "paint_kept": len(keep & set(truth))}
+    edges = [paint[f]["edge_px"] for f in keep & set(truth) if paint[f].get("edge_px") is not None]
+    out = {"truth_frames": len(truth), "paint_kept": len(keep & set(truth)), "frame_size": [W_PX, H_PX],
+           "primary_paint_edge_px_median": float(np.median(edges)) if edges else None}
     if spec["align"]:
         ref = builds["mac_cpu"]
         fs = sorted(ref)
@@ -208,7 +302,9 @@ def run(cuda_result: Path, line_error=None) -> dict:
     rec = json.loads((cuda / CUDA_RESULT / "run_record.json").read_text())
     if rec.get("purpose") != "result":
         raise SystemExit(f"{WHO}: the CUDA folder holds a {rec.get('purpose')!r} run, not the result")
-    windows = {w: window_result(w, s, line_error) for w, s in specs(p8_root(), DIAG, main_checkout(), cuda).items()}
+    P8 = p8_root()
+    windows = {w: window_result(w, s, line_error, clip_size(P8 / "label_build" / f"{w}.mp4"))
+               for w, s in specs(P8, DIAG, main_checkout(), cuda).items()}
     out = {"what": "court homography against camera truth", "design": "docs/research/P8_court_truth.md",
            "report_only": True, "bars": {"closer_px": CLOSER_PX, "align_iou": ALIGN_IOU, "align_share": ALIGN_SHARE,
                                          "boot_n": BOOT_N, "seed": SEED, "block": BLOCK},
