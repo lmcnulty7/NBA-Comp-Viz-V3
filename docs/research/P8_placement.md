@@ -211,3 +211,55 @@ Step 3, proposed for the lead:
 Cost of step 3: no compute; a D line and a rewrite of the Level 2 rows in TRACKING_LEVELS.md. Splitting the scorecard's
 missed row into the two rows would be a reporting change to tools/p8_scorecard.py's breakdowns (report only, the pinned
 rows unchanged), about an hour of code and tests, and minutes of rescoring per game under the lock.
+
+## Step 1b: the build's H against the truth camera at the same foot pixel (registered before any number)
+
+Asked by the lead on 2026-11-26 after step 1. Report only, stored files, no model, no units. Tool:
+tools/p8_placement_h.py (rules in its docstring, the same as here); record: reports/research/p8_placement_h.json.
+
+Why: step 1's offset runs along the camera ray, grows with distance and varies by game. That is the shape of a
+disagreement between two court geometries. Whether the offset comes from geometry or from the foot pixel decides which
+fix is possible.
+
+Definitions:
+
+- Universe and population: step 1's, on frames whose sidecar row is accepted with an H (the frames of the scorer's
+  position rows). Pool games gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015; hou_cle_2016 reported apart and used for
+  nothing.
+- p is the foot_stab pixel of the player's nearest box under the truth camera (the box the missed rule scores). T(p)
+  maps it through the truth H; B(p) maps it through the build's per-frame H, as the scorer's position rows do.
+- e_T = T(p) - SportVU is step 1's offset. d_H = B(p) - T(p) is the disagreement of the two geometries at that pixel.
+  If the build's H were right, the truth would have moved the foot by -d_H, so -d_H is the disagreement's share of
+  the scored offset. The residual after removing it is r = e_T + d_H = B(p) - SportVU, the same pixel's offset under
+  the build's H. (Sign: "offset minus the disagreement's contribution" is e_T - (-d_H).)
+- Reported by game and camera third, for placement misses and for hits: the median depth of e_T, of -d_H and of r;
+  the share with |r| at most 2.5 ft (for placement misses "moved in", for hits "kept"); the correlation of the depth of
+  e_T with the depth of -d_H and the slope of the first on the second (a slope of 1 means one for one); the median
+  |d_H|.
+- Null: d_H shuffled among the same game's placement misses of the same third (seed 0). The excess is the moved-in
+  share minus the null's: what the pairing of a foot with its own disagreement explains, beyond adding any vector of
+  that size, which can also push a 2.5 to 5 ft miss inside the gate by chance.
+- Window bootstrap (2,000, seed 0) of the moved-in share and the excess per game. Report only: the share of placement
+  misses with any box within 2.5 ft under the build's H, and the missed rate under the build's H; and whether the
+  CPU build's per-frame H equals the registered MPS build's (builds/r23), which would make B the selecting build's H.
+
+Reading rule, fixed now (on each of the three pool games):
+
+- (i) GEOMETRY if the moved-in share is at least 0.50 and the excess at least 0.25 on every pool game. "Most" is read
+  as a majority, and the excess bar asks that at least a quarter of the placement misses be explained by their own
+  disagreement, not by chance. Next step: the gsw_cha_2016 CPU truth rebuild test (queue item 2), plus a look at which
+  side moved, the build's H or the truth fit.
+- (ii) FOOT PIXEL if the excess is at most 0.10 on every pool game: the pairing explains at most one placement miss in
+  ten beyond chance. The error then sits in the foot pixel (the box bottom against the true contact point). Next step:
+  a foot-pixel model question for the detector or foot_stab, by box height and third.
+- (iii) MIXED otherwise: an excess between 0.10 and 0.25 on some game, games on different sides, or a moved-in share
+  of 0.50 or more without an excess of 0.25. The split is then reported per game and third, and the lead chooses.
+
+What it cannot tell. It cannot separate build error from truth error. The truth camera is initialised from the
+selecting build's H (sportvu/camera.py lines 169 to 174 for the game's camera position, 206 to 208 per frame) and is
+fitted to that build's foot_stab pixels paired with SportVU positions (lines 120 to 160, inlier pairs only). So d_H is
+how far the truth fit moved away from the H it started from, not the error of either. An error both share is
+invisible. And because the truth is fitted to inlier feet, the feet that fit it are hits almost by construction:
+placement misses are the feet the fit did not follow.
+
+Results: not computed yet.
