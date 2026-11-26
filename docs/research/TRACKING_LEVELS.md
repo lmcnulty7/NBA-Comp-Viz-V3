@@ -98,6 +98,8 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 - Most misses are not missing boxes: on the reference platform 64 to 75 percent of r23's build-level misses have a
   stabilised foot 2.5 to 5 ft away, offset along the camera ray (D184). Split detection from placement before
   choosing a fix; a detector cannot move the placement row.
+- Name which build a truth came from before reading a disagreement with it: camera truth was initialised from and
+  fitted to the V3 label build, not the scored r23 court, and a review caught a doc that assumed otherwise (D185).
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on
