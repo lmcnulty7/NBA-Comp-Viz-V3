@@ -710,3 +710,44 @@ def test_unmatched_1to1():
     e = R.frame_extra(feet[:3], sv, inside, is_ref[:3])
     assert e["unmatched_1to1"] == 2 and "unmatched_1to1" not in R.frame_extra(feet[:3], sv, inside)
     assert R.unmatched_1to1(np.zeros((0, 2)), sv, inside, []) == 3
+
+
+def test_label_build_path_through_p8_device_main_writes_a_full_log(monkeypatch, tmp_path):
+    """The truth's label builds run `python -m tools.p8_device build_trajectories.py ...` (p8_device as __main__, this
+    module imported canonically). Run tools.p8_device.main from a second copy of p8_device, with the build replaced by
+    a stand-in that makes a tracker and resets it twice: the written log holds both resets with frames."""
+    import importlib.util
+    import json
+    import config
+    from tools import p8_device as D
+    spec = importlib.util.spec_from_file_location("p8_device_main_copy", D.__file__)
+    dmain = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(dmain)
+    mod = _tracker_module()
+    fake_dt = types.ModuleType("detect.tracker")
+    fake_dt.PlayerTracker = type("PlayerTracker", (FakeTracker,), {})
+    pkg = types.ModuleType("detect")
+    pkg.tracker = fake_dt
+    monkeypatch.setitem(sys.modules, "detect", pkg)
+    monkeypatch.setitem(sys.modules, "detect.tracker", fake_dt)
+    monkeypatch.setattr(R, "RESET_LOG", {"path": None, "resets": [], "last_frame": None})
+    monkeypatch.setenv("P8_TRACKER_RESET_FIX", "1")
+    for k in ("P8_DEVICE", "P8_DEVICE_DETECTOR", "P8_DEVICE_COURT", "P8_DEVICE_GATE", "P8_MPS_CLIP_FIX", "TRACKER_REID"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setattr(config, "TRACKING_DIR", tmp_path)
+    registered = []
+    monkeypatch.setattr("atexit.register", registered.append)
+
+    def fake_build(path, run_name=None):                 # stands in for build_trajectories.py
+        t = fake_dt.PlayerTracker(mod)
+        for f in (0, 6):
+            t.update(None, f)
+            t.reset()
+    monkeypatch.setattr(dmain.runpy, "run_path", fake_build)
+    monkeypatch.setattr(sys, "argv", list(sys.argv))
+    assert dmain.main(["build_trajectories.py", "--source", str(tmp_path / "g_s00_w00.mp4")]) == 0
+    assert json.loads((tmp_path / "g_s00_w00_device.json").read_text())["reset_fix"] is True
+    for f in registered:
+        f()
+    log = json.loads((tmp_path / "g_s00_w00_resetfix.json").read_text())
+    assert log["resets"] == [{"frame": 0, "stripped": 2}, {"frame": 6, "stripped": 2}]

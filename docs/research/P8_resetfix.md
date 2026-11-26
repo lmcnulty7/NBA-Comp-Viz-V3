@@ -774,7 +774,10 @@ build child runs tools/p8_resetfix.py as __main__, and tools.p8_device imports i
 patched reset appended to one module's log while the exit writer, registered from __main__, wrote the other's. Fix:
 the log, its start and its writer all go through the canonical tools.p8_resetfix module (_log); a test loads a second
 copy of the module, starts the log there and checks that the written log holds the resets the canonical patch
-recorded. The smoke's two windows are moved aside (not deleted) before a rerun, on the lead's go.
+recorded. The smoke's two windows are moved aside (not deleted) before a rerun, on the lead's go; the rerun is retry
+1 of 2 (lead). The truth's label builds take another path (`python -m tools.p8_device`, which imports this module
+canonically); a test runs tools.p8_device.main from a second copy of p8_device with a stand-in build that resets twice
+and checks that the written log holds both resets. The failed smoke is also in TRAINING_PROTOCOL.md's ledger.
 
 **Truth pin checks the label builds' reset logs (truth-cpu review).** The label device record is written before the
 build starts, so label_fix_problems also requires, per label window: <window>_resetfix.json, TRACKER_REID unset, the
