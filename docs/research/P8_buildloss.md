@@ -1,0 +1,86 @@
+# P8 detection row: where the build loses r23's raw boxes (registered before any number)
+
+Written 2026-11-26 after P8_detrow.md. The lead took its post hoc proposal: ignoring the class order, r23's raw
+detector had a box within 5 ft for 37 percent of far misses. That is 0.020 to 0.038 of in-frame players, above the bar
+on every pool game. Fixing such a loss is tracking or gating code, not GPU work.
+
+This measurement is report only. No model runs, and nothing is built, trained or changed. Tool:
+tools/p8_buildloss.py, with the same rules in its docstring. Record: reports/research/p8_buildloss.json. This document
+and the tool were committed before the tool produced any number.
+
+## The build path, read first (what is recorded where)
+
+- **Gate v2** (build_trajectories.py, --pregate and the per-frame gate). A rejected frame is skipped whole and gets no
+  sidecar row. The scorer's universe needs a sidecar row, so a gate drop never produces a far miss in this
+  population; it lowers coverage instead. No gate class is therefore possible here. The lead's "gate v2 drop" split
+  is empty by construction.
+- **Detector and tracker** (detect/tracker.py). One ultralytics model.track call at confidence 0.40, with BoT-SORT
+  (track_high_thresh 0.25, new_track_thresh 0.25, track_buffer 30, match_thresh 0.8).
+  - Only tracks the tracker outputs reach the sidecar. Raw detections are not stored.
+  - In ultralytics 8.4.48 (trackers/byte_tracker.py), a new track is activated at once only on the tracker's first
+    frame. Later it starts unconfirmed and is output after a second match.
+  - A camera-cut detector (detect/camera_cut.py) resets the tracker when 80 percent of 4 or more tracks vanish.
+    Resets are not recorded, but new track ids show them.
+- **Foot stabilisation** (detect/footpoint.py). For each track it keeps an EMA of the foot (alpha 0.6). It also
+  applies an occlusion correction: when a box is shorter than 0.85 of its median height, the foot moves down to that
+  median height. The sidecar records foot_raw, foot_stab and foot_corrected.
+- **Sidecar rows.** Each processed frame records boxes with tid, bbox, foot_raw, foot_stab and foot_corrected.
+
+## Registered definitions
+
+Population:
+
+- The pool games only (gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015).
+- Far misses (no foot_stab within 5 ft under the truth camera) for which an M4 r23 raw box at 0.40 has its
+  bottom-centre foot, through the truth camera, within 5 ft. This is order-free. The raw box used is the one whose
+  foot is nearest.
+- M4's raw boxes exist only on the corpus frames, so hou_cle_2016 cannot be measured this way.
+- Check: per game, the count must equal P8_detrow.md's order-free "raw had a box" count (786, 261, 431), or the tool
+  stops.
+
+Classes, a partition, in this order:
+
+- **a1, activation lag.** No sidecar box at IoU 0.5 or more with the raw box in this frame, and none at IoU 0.3 or
+  more in the previous processed frame. In the next processed frame there is a box at IoU 0.3 or more whose track id
+  is in neither this frame nor the previous one: the tracker started the track later.
+- **a2, track gap.** No sidecar box at IoU 0.5 or more in this frame. But there is a box at IoU 0.3 or more in the
+  previous processed frame, or one in the next with a track id that was already present. A track existed and was not
+  output here: lost, cut or left unmatched. The lead's "(b) a track dropped or cut there" shows up here, because a box
+  that is present in the frame would be scored.
+- **a3, never tracked nearby.** No sidecar box at IoU 0.5 or more here, and none at IoU 0.3 or more in the previous
+  or next processed frame. Either the tracker never output this player around here, or the build's own detector did
+  not fire on the decoded video. The stored data cannot tell those two apart.
+- **b, tracked box differs.** A sidecar box at IoU 0.5 or more exists, but its foot_raw is also more than 5 ft away
+  through the truth camera. The tracker's box state is at fault, not the stabiliser.
+- **c, foot stabilisation moved it.** A sidecar box at IoU 0.5 or more exists, its foot_raw is within 5 ft, and its
+  foot_stab is not. Split into c_occlusion (foot_corrected true) and c_ema (false).
+- **e, other.** Anything else; expected to be empty.
+- **(d) decode or frame mismatch.** Not separable per player. It is sized from M6's stand-in on gsw_bkn_2015, with
+  both sides on CPU: 1,356 of 19,511 raw boxes at 0.40 (6.9 percent) had no sidecar box at IoU 0.5. That figure bounds
+  tracking and decode together, and the decode part is mixed into a1 to a3.
+
+Report only: for a1 and a2, the frames whose track ids look reset (80 percent or more of 4 or more previous ids
+absent).
+
+Measures: per class and per game, the count, the share of the population and the rate among in-frame players, with
+window intervals (2,000 resamples, seed 0, windows within the game).
+
+## Reading rule (fixed now)
+
+A class matters at a rate of at least 0.010 among in-frame players on every pool game. What each leads to:
+
+- **a1:** a tracker activation arm, for example activating new tracks at once or a lower new_track_thresh.
+- **a2:** a tracker buffer or association arm (track_buffer, match_thresh, fuse_score).
+- **a3:** a check of the build's own detector on the decoded video, which is a model run under the lock.
+- **b:** a tracker box-state arm.
+- **c:** a foot_stab arm (the EMA weight or the occlusion correction).
+
+Any arm needs its own registration and a rebuild under the heavy-job lock, scored on the reference platform.
+
+## Forking path
+
+The order-free 37 percent figure, and every number in P8_detrow.md, are already seen.
+
+## Results
+
+Not computed yet.
