@@ -313,3 +313,52 @@ item: GSW (gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015 in use; gsw_ind_2016 apar
 All of it comes from MPS label builds; the platform-mix test of section 0 (gsw_cha_2016 rebuilt on the CPU detector)
 is the next item. Cross-arena work at Level 1 step 7 has one non-GSW arena, HOU, until another arena gets truth by
 the registered route.
+
+## 15. Result (2026-11-26): the gsw_cha_2016 platform-mix test of section 0, MOVED
+
+**What ran.** gsw_cha_2016's camera truth rebuilt in the reference root with the detector on CPU (court and gate
+unchanged, no clip fix), by the steps of section 4: link (the main checkout's sections, moments and sync maps, the
+same files the MPS truth used), label one job a section (V3 court model, gate v2), then fit. Every model step held the
+heavy-job lock alone; no step failed or was retried. Label: 74 windows, 73 built, 1 gate-empty (the MPS root had the
+same 73 and 1). All 73 built windows carry a device record that resolves the detector to cpu (court mps, gate mps).
+All 73 window time maps equal the MPS root's, so the windows cover the same frames.
+
+**Lock time.** 9,745 s (2.71 h): label 9,567 s in 10 jobs, fit 178 s. Section 0's estimate was about 2.35 h (2.2 h of
+label builds and 0.15 h of fit); the run used 1.15 times that, under the driver's cap of 1.5 times. The estimate left
+out the label step's own clip cuts and window clock reads (about 1,000 s, judging by the MPS label and rebuild logs).
+
+**Measures against the bars fixed in section 0** (tools/p8_truth_moved.py; record reports/research/p8_truth_moved_gsw_cha_2016.json):
+
+| Measure | MPS truth | CPU truth | Difference | Bar for "moved" | Moved |
+| --- | --- | --- | --- | --- | --- |
+| Median reprojection after refinement | 7.65 px | 7.06 px | 0.59 px | 1.0 px or more | no |
+| Accepted camera-truth frames | 1,366 | 2,459 | +1,093, 0.800 of the MPS count | 10 percent or more | yes |
+| Per-window frozen offsets (73 windows in both) | | | median abs difference 0.08 s; share over 0.2 s 0.356; max 2.6 s | median 0.2 s or more | no |
+
+**Verdict: MOVED**, on accepted frames alone. Section 0 fixed the consequence: rebuild the truth of gsw_bkn_2015,
+gsw_sac_2015 and hou_cle_2016 on the CPU detector (about 2.5, 2.3 and 2.9 lock hours of label builds by section 0's
+rates; this run suggests adding about 15 percent) before any cross-arena tuning. gsw_ind_2016 stays apart (D98).
+Nothing registered is rescored.
+
+Descriptive, not part of the bars. The fit's camera position moved about 10 ft (C from (42.6, 118.7, -31.1) to
+(46.9, 127.8, -31.4) ft; 400 frames pooled in both). The extra accepted frames come mostly before the line checks:
+"untestable_boxes" fell from 5,181 to 3,770, as expected from the CPU detector's extra player boxes
+(P8_PLATFORM.md), while more candidates then failed the line checks (line_matches_low 653 to 985, support_low 131 to
+208, feet_resid_high 429 to 467).
+
+**Report only, post hoc, not ruled** (asked by the lead after P8_placement.md step 1b; tools/p8_truth_moved_dh.py,
+stored files, no lock). |d_H| = |B(p) - T(p)| in ft at every box's foot_stab pixel p of the scored reference-platform
+r23 sidecar (builds/m9_r23_detcpu__gsw_cha_2016, B its per-frame H), on truth-accepted frames whose sidecar row is
+accepted with an H. All boxes, not step 1b's nearest-box player population, so the values are not step 1b's 2.09 ft.
+
+| | Frames | Boxes | Median abs d_H |
+| --- | --- | --- | --- |
+| MPS truth, all its frames | 1,366 | 12,835 | 1.53 ft |
+| CPU truth, all its frames | 2,459 | 23,068 | 1.14 ft |
+| MPS truth, frames accepted by both | 904 | 8,606 | 1.48 ft |
+| CPU truth, frames accepted by both | 904 | 8,606 | 1.05 ft |
+
+On the frames both accept, the truth itself moved a median 1.10 ft at the same foot pixels. Read only as a
+description: the CPU truth sits closer to the r23 build's H than the MPS truth did, which fits step 1b's post hoc
+suspicion that gsw_cha_2016's MPS truth camera was the side that disagreed. It does not show which truth is closer
+to SportVU, and no rule was fixed for it.

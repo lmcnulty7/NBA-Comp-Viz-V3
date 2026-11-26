@@ -1,0 +1,87 @@
+{
+ "game": "gsw_cha_2016",
+ "design": "docs/research/P8_truth_arenas.md section 0 (platform mix)",
+ "report_only": true,
+ "bars": {
+  "reproj_px_abs_min": 1.0,
+  "accepted_rel_min": 0.1,
+  "offset_median_s_min": 0.2
+ },
+ "measures": {
+  "reprojection": {
+   "mps_px": 7.65,
+   "cpu_px": 7.06,
+   "abs_diff_px": 0.5900000000000007,
+   "moved": false
+  },
+  "accepted": {
+   "mps": 1366,
+   "cpu": 2459,
+   "rel_diff": 0.8001464128843339,
+   "moved": true
+  },
+  "offsets": {
+   "windows_both": 73,
+   "windows_mps": 73,
+   "windows_cpu": 73,
+   "median_abs_diff_s": 0.08000000000000007,
+   "share_over_0_2_s": 0.3561643835616438,
+   "max_abs_diff_s": 2.6,
+   "moved": false
+  }
+ },
+ "moved": true,
+ "reading": "moved: rebuild the other in-use games' truth on the CPU detector before any cross-arena tuning",
+ "cpu_platform": {
+  "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 73
+ },
+ "cpu_label_windows": 73,
+ "roots": {
+  "mps": "P8 workspace (work), the existing truth",
+  "cpu": "reference root (work_ref), detector on CPU"
+ },
+ "rebuild": {
+  "steps": "link, label (V3 court, gate v2, detector cpu), fit; tools.p8_frozen under the heavy-job lock",
+  "label_windows": 74,
+  "built": 73,
+  "gate_empty": 1,
+  "lock_s": 9745,
+  "camera_C_ft": {
+   "mps": [
+    42.64,
+    118.67,
+    -31.05
+   ],
+   "cpu": [
+    46.91,
+    127.75,
+    -31.37
+   ]
+  }
+ },
+ "report_only_post_hoc_not_ruled": {
+  "tool": "tools/p8_truth_moved_dh.py",
+  "what": "report only, post hoc, not ruled: median |B(p) - T(p)| in ft at every r23 box foot_stab pixel",
+  "frames": {
+   "old": 1366,
+   "new": 2459,
+   "common": 904
+  },
+  "label_window_timemaps_identical": {
+   "windows": 73,
+   "same_frames": 73
+  },
+  "median_abs_d_H_ft_old_all": 1.526,
+  "median_abs_d_H_ft_new_all": 1.139,
+  "median_abs_d_H_ft_old_common": 1.478,
+  "median_abs_d_H_ft_new_common": 1.046,
+  "median_abs_truth_shift_ft_common": 1.1,
+  "boxes": {
+   "old_all": 12835,
+   "new_all": 23068,
+   "old_common": 8606,
+   "new_common": 8606,
+   "truth_shift_common": 8606
+  }
+ }
+}
