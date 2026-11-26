@@ -155,8 +155,8 @@ the truth was picked and initialised through one build's homography.
 
 **Alignment.** Both gsw_ind_2016 windows are aligned: the share of R1.3 truth boxes matched in the Mac CPU build is
 0.971 at offset 0 against 0.212 and 0.224 one build step either side (s02_w03), and 0.953 against 0.121 and 0.137
-(s02_w04). The detector-CPU build's court homography equals the MPS build's on every frame of every window (gap 0.0
-px), as expected, so mac_detcpu adds no court output of its own.
+(s02_w04). The detector-CPU build's court homography equals the MPS build's on s04_w00 and s02_w03 (not built for s02_w04):
+median gap 0.0 px and identical statistics, as expected, so mac_detcpu adds no court output of its own.
 
 **Per window and build, primary frames** (point gap median and p90, frozen line error median, px):
 
@@ -197,13 +197,14 @@ becomes "no difference resolved".
 
 The minimum honest claim (section 4): on these frames, no court output is consistently closer to camera truth than
 another across the three windows; the one resolved difference that holds on both frame sets, cuda_a closer on
-gsw_ind_2016_s02_w03 by 5.4 to 6.4 px, is on a window whose truth was picked and initialised through a CUDA build.
+gsw_ind_2016_s02_w03 by 5.4 and 6.3 px on the primary frames (4.9 and 6.3 on all truth frames), is on a window whose truth was picked and initialised through a CUDA build.
 
-**What the measure shows about itself (report only; nothing re-read).** On almost every primary frame only one of the
+**What the measure shows about itself (post hoc, seen after the run; report only; changes no reading).** On almost every primary frame only one of the
 three court points lies on the frame (95 of 106, 70 of 70, 34 of 36): the broadcast camera is zoomed in. So the point
 gap, fixed as primary in section 2, mostly measures how the homographies extrapolate beyond the image; its medians
-(38 px on s04_w00, 220 to 266 px on gsw_ind_2016) are far larger than the on-frame line error (6.7 px on s04_w00,
-18.7 to 21.0 px on gsw_ind_2016). Every paired line-error difference is under 1.0 px. Separately, on the gsw_ind_2016
-windows every build's court lines sit about 19 to 21 px from the R1.3 truth, against 6.7 px on s04_w00 from the Mac
-truth, while both truths sit 6.3 to 7.5 px (median) from the painted key. A measure on on-frame court points, or the
+(38 px on s04_w00, 222 to 266 px on gsw_ind_2016, primary frames) are far larger than the on-frame line error (6.7 px on s04_w00,
+18.7 to 21.0 px on gsw_ind_2016). Every median paired line-error difference is under 1.0 px. Separately, on the gsw_ind_2016
+windows every build's court lines sit about 19 to 21 px (primary frames) from the R1.3 truth, against 6.7 px on s04_w00 from the Mac
+truth, while both truths sit 6.3 to 7.5 px (median) from the painted key; the windows differ in game, court model and truth fit, and the paint figure is on paint-kept
+frames, so this does not locate the cause. A measure on on-frame court points, or the
 line error as the deciding measure, would be a new registration; none is started here.
