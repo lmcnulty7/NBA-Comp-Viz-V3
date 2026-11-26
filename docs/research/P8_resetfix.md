@@ -763,3 +763,27 @@ gsw_cha_2016 is the ghost-source study's question (docs/research/P8_ghostsrc.md 
 Also from the re-review: B1, a built window's source problem is no longer overwritten by its record problems
 (arm_window_problems; tested); B4, the simulation's centre check also checks the net-error row against a plain loop
 over the same resample indices.
+
+## 21. Version 2.4 (2026-11-26; after the first smoke and the truth-cpu review; before any score)
+
+**The first smoke (2026-11-26, 598 lock seconds) failed by its registered gate.** smoke-check: stage0_passed,
+arm_sources, no_reset_byte_identical, clip_byte_identical and every_frame_matches_B (1,053 of 1,053 frames, 8,371
+boxes in both) passed; resets_equal_B, records_pass and prefix_equal failed, all because gsw_cha_2016_s05_w00's reset
+log was empty while its identity file counts 2 resets. Cause (code reading; post hoc until the rerun confirms it): the
+build child runs tools/p8_resetfix.py as __main__, and tools.p8_device imports it again as tools.p8_resetfix, so the
+patched reset appended to one module's log while the exit writer, registered from __main__, wrote the other's. Fix:
+the log, its start and its writer all go through the canonical tools.p8_resetfix module (_log); a test loads a second
+copy of the module, starts the log there and checks that the written log holds the resets the canonical patch
+recorded. The smoke's two windows are moved aside (not deleted) before a rerun, on the lead's go.
+
+**Truth pin checks the label builds' reset logs (truth-cpu review).** The label device record is written before the
+build starts, so label_fix_problems also requires, per label window: <window>_resetfix.json, TRACKER_REID unset, the
+pinned versions, a frame and stripped 2 on every reset, and as many resets as the identity file's camera_cut_resets
+(log_problems, the same rules as the arm's minus the detector record). Tested.
+
+**One-to-one net error, report only (lead's decision).** Per scored frame, non-referee boxes (the scorer's referee
+rule) and the 10 players are matched one to one within 2.5 ft (Hungarian, by distance); the count is unmatched
+in-frame players plus unmatched non-referee boxes, divided by in-frame players (a box on a player just outside the
+frame margin is matched, not a false box). Reported pooled and per game with window intervals (and the game interval
+pooled), beside E; it does not gate. It gives the double-count-free view for the write-up and is the candidate primary
+metric for future arms, to be registered in their own designs. Section 18's gate stands as registered.
