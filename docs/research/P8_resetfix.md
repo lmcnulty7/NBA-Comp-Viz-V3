@@ -710,6 +710,12 @@ passing, the centre checked against the real rows, diffs and boot):
 Reported for each: the pass probability, the forecast of the pooled E difference and of its window interval's upper
 end, E by game, missed, and the ghost cost. Neither run decides anything by itself.
 
+**Notes (2026-11-26, after the version 2.3 simulations; nothing else in this section changed).** Lead decision: the
+per-game condition stays (E and missed not worse in any game), because dropping it after a forecast showed it binds
+would tailor the rule to the forecast, and "not worse in any game" is this project's standard (D158, E1R's all-folds
+gate); if the fix worsens one game's net error, it is not yet known to help. Citation fix: the compose step in force
+is r-p8-truth-cpu 55c94cc8 (the same code as 29b97e62), not cf840892 as section 15 says.
+
 **Next work item, named and not run.** After a reset, many of r23's extra boxes are more than 3 ft from every
 SportVU player (about two thirds on gsw_cha_2016, a fifth on the other two). Are they non-court shots that gate v2
 lets through, the bench, or fans? That becomes its own stored-files study, registered after this arm.
