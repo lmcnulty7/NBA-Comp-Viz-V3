@@ -171,6 +171,54 @@ tools/p8_buildloss.py has one. On this branch the test still lists tools/p8_detr
 and p8_placement_h.py, which the lead fixes on v4-research (30c30de3 and the P8_detrow.md merge). This branch does not
 touch them.
 
-### Version 2 results
+### Version 2 results (computed 2026-11-26, after f7290d99)
 
-Not computed yet.
+Stored files only, no lock, about 17 seconds. Checks passed: the scorer counts reproduce, the population equals
+P8_detrow.md's order-free count on every game (786, 261, 431), and every population frame has corpus preds. Record:
+reports/research/p8_buildloss_v2.json.
+
+Reachable players (raw foot within 2.5 ft): 519 of 786, 101 of 261 and 239 of 431. The raw distance quartiles are
+1.19, 1.92 and 3.02 ft; 1.82, 3.26 and 4.37 ft; 1.14, 2.24 and 3.88 ft.
+
+Count; reachable count; reachable rate among in-frame players:
+
+| Class | gsw_bkn_2015 | gsw_cha_2016 | gsw_sac_2015 |
+| --- | --- | --- | --- |
+| d decode (no box on the decoded frame) | 8; 3; 0.0001 | 3; 1; 0.0001 | 5; 1; 0.0000 |
+| a1 activation lag | 25; 13; 0.0006 | 17; 4; 0.0003 | 24; 16; 0.0008 |
+| a2 track gap | 116; 77; 0.0038 [0.0017, 0.0066] | 56; 24; 0.0018 [0.0008, 0.0029] | 58; 28; 0.0013 [0.0008, 0.0021] |
+| a3 never tracked nearby | 470; 374; 0.0183 [0.0002, 0.0538] | 79; 51; 0.0038 [0.0002, 0.0112] | 202; 161; 0.0076 [0.0010, 0.0180] |
+| b tracked box differs | 49; 7; 0.0003 | 28; 3; 0.0002 | 46; 3; 0.0001 |
+| c occlusion correction | 62; 40; 0.0020 [0.0011, 0.0029] | 38; 16; 0.0012 [0.0004, 0.0022] | 42; 25; 0.0012 [0.0006, 0.0020] |
+| c EMA | 56; 5; 0.0002 | 40; 2; 0.0002 | 54; 5; 0.0002 |
+| e other | 0 | 0 | 0 |
+
+For class c, the matched box's median foot_raw distance is 3.6, 4.0 and 4.1 ft, and its median foot_stab distance is
+5.5, 5.6 and 5.4 ft. Stabilisation moves these feet by under 2 ft. Most of them were already beyond 2.5 ft raw, so
+only the occlusion-correction part is mostly reachable.
+
+## Version 2 reading by the registered rule
+
+No class matters. No reachable rate reaches 0.010 on every pool game. a3 (never tracked nearby) is 0.018 on
+gsw_bkn_2015 but 0.004 and 0.008 on the other two games. No tracking, gating or foot-stabilisation arm is selected.
+
+Decode is now sized on this population: 8, 3 and 5 players. The detector on the decoded clip frame (corpus "ours")
+had a box near almost every population player. So almost all of the "no box in the build" loss is not decode; it
+happens between the detector and the sidecar.
+
+What the numbers say beyond the rule (post hoc, descriptive):
+
+- a3's reachable players sit in a few windows.
+  - gsw_bkn_2015: 363 of 374 are in gsw_bkn_2015_s04_w00. That is the window M6 and M7 already singled out: on CPU
+    the r23 build holds 4.27 boxes a frame there and misses 784 of 1,385 players.
+  - gsw_cha_2016: 36 of 51 are in gsw_cha_2016_s05_w00.
+  - gsw_sac_2015: 69, 47 and 23 of 161 are in s01_w00, s09_w01 and s07_w00.
+  - Outside those windows a3 is small. The loss is a window-level failure of the tracker path, not a per-player one.
+- detect/tracker.py returns no tracks for a frame when the tracker raises (a Kalman LinAlgError or the ultralytics
+  re-identification AttributeError) and resets it. A run of such frames, or repeated resets, would empty the sidecar
+  where the detector still fires. This is a hypothesis; the stored data were not checked for it.
+
+Proposal for the lead (needs its own registration; stored files, minutes, no lock): for the windows carrying a3,
+count processed frames with zero sidecar boxes, track-id turnover between frames, and the build logs' reset and
+exception lines where they are stored. If empty frames or resets explain them, a fix is tracker robustness code (catch
+and keep tracks, or avoid the reset), scored by a rebuild of those windows on the reference platform under the lock.
