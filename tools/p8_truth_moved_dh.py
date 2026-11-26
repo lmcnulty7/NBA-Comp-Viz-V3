@@ -5,6 +5,8 @@ B: the per-frame H of the reference-platform r23 sidecar (builds/m9_r23_detcpu__
 sidecar step 1b scored). T: H_truth of each truth's accepted rows. p: foot_stab of every r23 box on the frame.
 Windows: the scored windows of e1/m9__r23_detcpu__gsw_cha_2016.json. Frames: truth-accepted frames whose sidecar row
 is accepted with an H (sportvu.bench.accepted).
+Confound: B and the new truth share the CPU detector (the truth is fitted from CPU-detector label builds), so a
+smaller |d_H| under the new truth is partly expected and is not evidence that it is closer to SportVU.
 """
 import json
 import sys

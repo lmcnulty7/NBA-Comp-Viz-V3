@@ -311,7 +311,7 @@ no fallback. Report only, not a resolution: the leading mirror, identity, is the
 Lucien's decision of 2026-11-25), Mac development camera truth covers two non-sealed arenas, as before P8's arena
 item: GSW (gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015 in use; gsw_ind_2016 apart under D98) and HOU (hou_cle_2016).
 All of it comes from MPS label builds; the platform-mix test of section 0 (gsw_cha_2016 rebuilt on the CPU detector)
-is the next item. Cross-arena work at Level 1 step 7 has one non-GSW arena, HOU, until another arena gets truth by
+is the next item. (Update after section 15: that test read MOVED; see there.) Cross-arena work at Level 1 step 7 has one non-GSW arena, HOU, until another arena gets truth by
 the registered route.
 
 ## 15. Result (2026-11-26): the gsw_cha_2016 platform-mix test of section 0, MOVED
@@ -340,6 +340,14 @@ gsw_sac_2015 and hou_cle_2016 on the CPU detector (about 2.5, 2.3 and 2.9 lock h
 rates; this run suggests adding about 15 percent) before any cross-arena tuning. gsw_ind_2016 stays apart (D98).
 Nothing registered is rescored.
 
+**What this means for earlier results.** Every analysis below scored on the MPS camera truth of the pool games
+(gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015; hou_cle_2016 as a check), all from MPS label builds: E1R's scores
+(P8_E1R.md), P8_placement.md steps 1 and 1b, P8_footbias.md, P8_footpos.md, P8_outpos.md, P8_detrow.md,
+P8_buildloss.md, P8_trackreset.md and P8_a3align.md. Their numbers stand as recorded and nothing is rescored. Any
+conclusion that depends on the GSW or HOU camera truth is provisional until those games have CPU-detector truth; a
+rescore needs its own registration. The gsw_cha_2016 truth in use stays the MPS truth for now: the CPU truth has
+not passed section 5's acceptance (check C needs an r23 rebuild in the reference root, not yet run).
+
 Descriptive, not part of the bars. The fit's camera position moved about 10 ft (C from (42.6, 118.7, -31.1) to
 (46.9, 127.8, -31.4) ft; 400 frames pooled in both). The extra accepted frames come mostly before the line checks:
 "untestable_boxes" fell from 5,181 to 3,770, as expected from the CPU detector's extra player boxes
@@ -359,6 +367,7 @@ accepted with an H. All boxes, not step 1b's nearest-box player population, so t
 | CPU truth, frames accepted by both | 904 | 8,606 | 1.05 ft |
 
 On the frames both accept, the truth itself moved a median 1.10 ft at the same foot pixels. Read only as a
-description: the CPU truth sits closer to the r23 build's H than the MPS truth did, which fits step 1b's post hoc
-suspicion that gsw_cha_2016's MPS truth camera was the side that disagreed. It does not show which truth is closer
+description: the CPU truth sits closer to the r23 build's H than the MPS truth did. That is partly expected from a
+shared input: B comes from a CPU-detector r23 build, and the new truth was fitted from CPU-detector label builds with
+player feet among its inputs. So it is not evidence that the CPU truth is better. It does not show which truth is closer
 to SportVU, and no rule was fixed for it.
