@@ -234,11 +234,10 @@ def cmd_measure(args) -> dict:
     step1 = REPO / "reports" / "research" / "p8_placement.json"       # step 1's far-miss counts, the same rule
     if not step1.exists():
         raise SystemExit(f"{WHO}: {step1.name} is missing; the step 1 count check cannot run")
-    if True:
-        far1 = {g: json.loads(step1.read_text())["counts"][g]["far"] for g in POOL + CHECK}
-        got = {g: games[g]["far_misses"] for g in POOL + CHECK}
-        if far1 != got:
-            raise SystemExit(f"{WHO}: far misses {got} differ from step 1's {far1}")
+    far1 = {g: json.loads(step1.read_text())["counts"][g]["far"] for g in POOL + CHECK}
+    got = {g: games[g]["far_misses"] for g in POOL + CHECK}
+    if far1 != got:
+        raise SystemExit(f"{WHO}: far misses {got} differ from step 1's {far1}")
     pooled = {**summarise(allrows, allin), "intervals": boot(allrows, allin)}
     reading = {c: {"rates": {g: games[g]["classes"][c]["rate_in_frame"] for g in POOL},
                    "matters": matters({g: games[g]["classes"][c]["rate_in_frame"] for g in POOL})}
