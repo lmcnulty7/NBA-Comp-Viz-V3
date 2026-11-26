@@ -1,0 +1,170 @@
+{
+ "what": "K1 on output positions, pool rows leave one game out (development evidence; docs/research/P8_outpos.md); pinned rows unchanged, variant report only",
+ "games": {
+  "gsw_bkn_2015": {
+   "pinned_variant": {
+    "position_p50_ft": [
+     1.5461775701082097,
+     1.2928875385468488
+    ],
+    "position_p90_ft": [
+     3.3285792780241525,
+     3.1099946347697833
+    ],
+    "nearfield_bias_ft": [
+     1.575993537902832,
+     0.6421725802850791
+    ],
+    "missed_rate": [
+     0.25252969643642764,
+     0.25252969643642764
+    ],
+    "ghost_rate": [
+     0.12551429041636952,
+     0.12551429041636952
+    ]
+   },
+   "diff": {
+    "position_p50_ft": -0.25329,
+    "position_p90_ft": -0.21858,
+    "nearfield_bias_ft": -0.93382,
+    "missed_rate": 0.0,
+    "ghost_rate": 0.0
+   },
+   "iv": {
+    "position_p50_ft": [
+     -0.28701,
+     -0.21354
+    ],
+    "position_p90_ft": [
+     -0.29368,
+     -0.13419
+    ],
+    "nearfield_bias_ft": [
+     -0.95995,
+     -0.91232
+    ],
+    "missed_rate": [
+     0.0,
+     0.0
+    ],
+    "ghost_rate": [
+     0.0,
+     0.0
+    ]
+   },
+   "matched": 17414,
+   "windows": 62
+  },
+  "gsw_cha_2016": {
+   "pinned_variant": {
+    "position_p50_ft": [
+     1.5191085358871907,
+     1.2353383946088698
+    ],
+    "position_p90_ft": [
+     3.105598528387623,
+     2.986062385173742
+    ],
+    "nearfield_bias_ft": [
+     1.1502525806427002,
+     0.050186433775177175
+    ],
+    "missed_rate": [
+     0.29524239686841314,
+     0.29524239686841314
+    ],
+    "ghost_rate": [
+     0.18758002560819462,
+     0.18758002560819462
+    ]
+   },
+   "diff": {
+    "position_p50_ft": -0.28377,
+    "position_p90_ft": -0.11954,
+    "nearfield_bias_ft": -1.10007,
+    "missed_rate": 0.0,
+    "ghost_rate": 0.0
+   },
+   "iv": {
+    "position_p50_ft": [
+     -0.31945,
+     -0.23231
+    ],
+    "position_p90_ft": [
+     -0.20077,
+     -0.05029
+    ],
+    "nearfield_bias_ft": [
+     -1.11595,
+     -0.93948
+    ],
+    "missed_rate": [
+     0.0,
+     0.0
+    ],
+    "ghost_rate": [
+     0.0,
+     0.0
+    ]
+   },
+   "matched": 11593,
+   "windows": 53
+  },
+  "gsw_sac_2015": {
+   "pinned_variant": {
+    "position_p50_ft": [
+     1.5047106469981433,
+     1.2352170830125488
+    ],
+    "position_p90_ft": [
+     3.24673239642927,
+     3.0727229805092073
+    ],
+    "nearfield_bias_ft": [
+     1.3300848007202148,
+     0.23089812113148778
+    ],
+    "missed_rate": [
+     0.20596859629209233,
+     0.20596859629209233
+    ],
+    "ghost_rate": [
+     0.11442434044273729,
+     0.11442434044273729
+    ]
+   },
+   "diff": {
+    "position_p50_ft": -0.26949,
+    "position_p90_ft": -0.17401,
+    "nearfield_bias_ft": -1.09919,
+    "missed_rate": 0.0,
+    "ghost_rate": 0.0
+   },
+   "iv": {
+    "position_p50_ft": [
+     -0.31134,
+     -0.21536
+    ],
+    "position_p90_ft": [
+     -0.25845,
+     -0.09699
+    ],
+    "nearfield_bias_ft": [
+     -1.11683,
+     -1.0403
+    ],
+    "missed_rate": [
+     0.0,
+     0.0
+    ],
+    "ghost_rate": [
+     0.0,
+     0.0
+    ]
+   },
+   "matched": 18883,
+   "windows": 60
+  }
+ }
+}

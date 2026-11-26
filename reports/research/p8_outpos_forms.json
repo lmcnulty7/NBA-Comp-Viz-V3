@@ -1,0 +1,865 @@
+{
+ "what": "Outpos version 2, pool only: K0 against K1 leave one game out through the variant scorer, the form decision, the frozen K0 table and the hou_cle_2016 forecast from committed numbers (docs/research/P8_outpos.md); no hou_cle_2016 file read",
+ "games": {
+  "gsw_bkn_2015": {
+   "near_side_differs": {
+    "frames_with_build_H": 2073,
+    "differs": 0
+   },
+   "forms": {
+    "K1": {
+     "pinned_variant": {
+      "position_p50_ft": [
+       1.5461775701082097,
+       1.2928875385468488
+      ],
+      "position_p90_ft": [
+       3.3285792780241525,
+       3.1099946347697833
+      ],
+      "nearfield_bias_ft": [
+       1.575993537902832,
+       0.6421725802850791
+      ],
+      "missed_rate": [
+       0.25252969643642764,
+       0.25252969643642764
+      ],
+      "ghost_rate": [
+       0.12551429041636952,
+       0.12551429041636952
+      ]
+     },
+     "diff": {
+      "position_p50_ft": -0.25329,
+      "position_p90_ft": -0.21858,
+      "nearfield_bias_ft": -0.93382,
+      "missed_rate": 0.0,
+      "ghost_rate": 0.0
+     },
+     "iv": {
+      "position_p50_ft": [
+       -0.28701,
+       -0.21354
+      ],
+      "position_p90_ft": [
+       -0.29368,
+       -0.13419
+      ],
+      "nearfield_bias_ft": [
+       -0.95995,
+       -0.91232
+      ],
+      "missed_rate": [
+       0.0,
+       0.0
+      ],
+      "ghost_rate": [
+       0.0,
+       0.0
+      ]
+     },
+     "matched": 17414,
+     "windows": 62,
+     "bias_by_third": {
+      "near": {
+       "before": 0.00958,
+       "after": 0.40376
+      },
+      "middle": {
+       "before": 0.81128,
+       "after": 0.01786
+      },
+      "far": {
+       "before": 1.57599,
+       "after": 0.64217
+      }
+     },
+     "bias_reads": {
+      "before": 1.57599,
+      "third_before": "far",
+      "after": 0.64217,
+      "third_after": "far"
+     },
+     "p90_by_third": {
+      "near": [
+       3.1102,
+       3.22614
+      ],
+      "middle": [
+       3.15098,
+       2.98285
+      ],
+      "far": [
+       3.65886,
+       3.13839
+      ]
+     },
+     "p90_by_height": {
+      "<150": [
+       3.65793,
+       3.3003
+      ],
+      "150-200": [
+       3.19942,
+       3.03748
+      ],
+      "200-250": [
+       3.20062,
+       3.11398
+      ],
+      ">=250": [
+       2.92633,
+       2.73173
+      ]
+     }
+    },
+    "K0": {
+     "pinned_variant": {
+      "position_p50_ft": [
+       1.5461775701082097,
+       1.3175829404825543
+      ],
+      "position_p90_ft": [
+       3.3285792780241525,
+       3.1883574479911396
+      ],
+      "nearfield_bias_ft": [
+       1.575993537902832,
+       0.8272594331006711
+      ],
+      "missed_rate": [
+       0.25252969643642764,
+       0.25252969643642764
+      ],
+      "ghost_rate": [
+       0.12551429041636952,
+       0.12551429041636952
+      ]
+     },
+     "diff": {
+      "position_p50_ft": -0.22859,
+      "position_p90_ft": -0.14022,
+      "nearfield_bias_ft": -0.74873,
+      "missed_rate": 0.0,
+      "ghost_rate": 0.0
+     },
+     "iv": {
+      "position_p50_ft": [
+       -0.2654,
+       -0.18014
+      ],
+      "position_p90_ft": [
+       -0.21672,
+       -0.06964
+      ],
+      "nearfield_bias_ft": [
+       -0.75575,
+       -0.63986
+      ],
+      "missed_rate": [
+       0.0,
+       0.0
+      ],
+      "ghost_rate": [
+       0.0,
+       0.0
+      ]
+     },
+     "matched": 17414,
+     "windows": 62,
+     "bias_by_third": {
+      "near": {
+       "before": 0.00958,
+       "after": 0.71918
+      },
+      "middle": {
+       "before": 0.81128,
+       "after": 0.0612
+      },
+      "far": {
+       "before": 1.57599,
+       "after": 0.82726
+      }
+     },
+     "bias_reads": {
+      "before": 1.57599,
+      "third_before": "far",
+      "after": 0.82726,
+      "third_after": "far"
+     },
+     "p90_by_third": {
+      "near": [
+       3.1102,
+       3.41643
+      ],
+      "middle": [
+       3.15098,
+       2.94185
+      ],
+      "far": [
+       3.65886,
+       3.21731
+      ]
+     },
+     "p90_by_height": {
+      "<150": [
+       3.65793,
+       3.34975
+      ],
+      "150-200": [
+       3.19942,
+       3.10987
+      ],
+      "200-250": [
+       3.20062,
+       3.22134
+      ],
+      ">=250": [
+       2.92633,
+       2.73854
+      ]
+     }
+    }
+   },
+   "tables": {
+    "K1": {
+     "150-200|far": -1.07238,
+     "150-200|middle": -0.89023,
+     "150-200|near": -0.46903,
+     "200-250|far": -1.07284,
+     "200-250|middle": -0.81583,
+     "200-250|near": -0.39461,
+     "<150|far": -0.93655,
+     "<150|middle": -0.84433,
+     "<150|near": -0.19817,
+     ">=250|middle": -0.77163,
+     ">=250|near": -0.21423
+    },
+    "K0": {
+     "150-200|far": -0.77828,
+     "150-200|middle": -0.77828,
+     "150-200|near": -0.77828,
+     "200-250|far": -0.77828,
+     "200-250|middle": -0.77828,
+     "200-250|near": -0.77828,
+     "<150|far": -0.77828,
+     "<150|middle": -0.77828,
+     "<150|near": -0.77828,
+     ">=250|far": -0.77828,
+     ">=250|middle": -0.77828,
+     ">=250|near": -0.77828
+    }
+   }
+  },
+  "gsw_cha_2016": {
+   "near_side_differs": {
+    "frames_with_build_H": 1353,
+    "differs": 0
+   },
+   "forms": {
+    "K1": {
+     "pinned_variant": {
+      "position_p50_ft": [
+       1.5191085358871907,
+       1.2353383946088698
+      ],
+      "position_p90_ft": [
+       3.105598528387623,
+       2.986062385173742
+      ],
+      "nearfield_bias_ft": [
+       1.1502525806427002,
+       0.050186433775177175
+      ],
+      "missed_rate": [
+       0.29524239686841314,
+       0.29524239686841314
+      ],
+      "ghost_rate": [
+       0.18758002560819462,
+       0.18758002560819462
+      ]
+     },
+     "diff": {
+      "position_p50_ft": -0.28377,
+      "position_p90_ft": -0.11954,
+      "nearfield_bias_ft": -1.10007,
+      "missed_rate": 0.0,
+      "ghost_rate": 0.0
+     },
+     "iv": {
+      "position_p50_ft": [
+       -0.31945,
+       -0.23231
+      ],
+      "position_p90_ft": [
+       -0.20077,
+       -0.05029
+      ],
+      "nearfield_bias_ft": [
+       -1.11595,
+       -0.93948
+      ],
+      "missed_rate": [
+       0.0,
+       0.0
+      ],
+      "ghost_rate": [
+       0.0,
+       0.0
+      ]
+     },
+     "matched": 11593,
+     "windows": 53,
+     "bias_by_third": {
+      "near": {
+       "before": 0.36695,
+       "after": 0.0366
+      },
+      "middle": {
+       "before": 0.97229,
+       "after": 0.18471
+      },
+      "far": {
+       "before": 1.15025,
+       "after": 0.05019
+      }
+     },
+     "bias_reads": {
+      "before": 1.15025,
+      "third_before": "far",
+      "after": 0.05019,
+      "third_after": "far"
+     },
+     "p90_by_third": {
+      "near": [
+       3.04596,
+       3.12485
+      ],
+      "middle": [
+       3.10791,
+       2.92698
+      ],
+      "far": [
+       3.18503,
+       2.94784
+      ]
+     },
+     "p90_by_height": {
+      "<150": [
+       3.47148,
+       3.20624
+      ],
+      "150-200": [
+       3.01994,
+       2.88056
+      ],
+      "200-250": [
+       3.12922,
+       3.15323
+      ],
+      ">=250": [
+       3.1076,
+       3.02081
+      ]
+     }
+    },
+    "K0": {
+     "pinned_variant": {
+      "position_p50_ft": [
+       1.5191085358871907,
+       1.2523411886519704
+      ],
+      "position_p90_ft": [
+       3.105598528387623,
+       3.0024851973696416
+      ],
+      "nearfield_bias_ft": [
+       1.1502525806427002,
+       0.40160502393663844
+      ],
+      "missed_rate": [
+       0.29524239686841314,
+       0.29524239686841314
+      ],
+      "ghost_rate": [
+       0.18758002560819462,
+       0.18758002560819462
+      ]
+     },
+     "diff": {
+      "position_p50_ft": -0.26677,
+      "position_p90_ft": -0.10311,
+      "nearfield_bias_ft": -0.74865,
+      "missed_rate": 0.0,
+      "ghost_rate": 0.0
+     },
+     "iv": {
+      "position_p50_ft": [
+       -0.30526,
+       -0.22658
+      ],
+      "position_p90_ft": [
+       -0.18943,
+       -0.0264
+      ],
+      "nearfield_bias_ft": [
+       -0.75397,
+       -0.59221
+      ],
+      "missed_rate": [
+       0.0,
+       0.0
+      ],
+      "ghost_rate": [
+       0.0,
+       0.0
+      ]
+     },
+     "matched": 11593,
+     "windows": 53,
+     "bias_by_third": {
+      "near": {
+       "before": 0.36695,
+       "after": 0.3614
+      },
+      "middle": {
+       "before": 0.97229,
+       "after": 0.22504
+      },
+      "far": {
+       "before": 1.15025,
+       "after": 0.40161
+      }
+     },
+     "bias_reads": {
+      "before": 1.15025,
+      "third_before": "far",
+      "after": 0.40161,
+      "third_after": "far"
+     },
+     "p90_by_third": {
+      "near": [
+       3.04596,
+       3.25065
+      ],
+      "middle": [
+       3.10791,
+       2.84625
+      ],
+      "far": [
+       3.18503,
+       2.90295
+      ]
+     },
+     "p90_by_height": {
+      "<150": [
+       3.47148,
+       3.20962
+      ],
+      "150-200": [
+       3.01994,
+       2.89456
+      ],
+      "200-250": [
+       3.12922,
+       3.17911
+      ],
+      ">=250": [
+       3.1076,
+       3.06501
+      ]
+     }
+    }
+   },
+   "tables": {
+    "K1": {
+     "150-200|far": -1.22869,
+     "150-200|middle": -0.85105,
+     "150-200|near": -0.36275,
+     "200-250|far": -1.06663,
+     "200-250|middle": -0.9396,
+     "200-250|near": -0.35035,
+     "<150|far": -1.14246,
+     "<150|middle": -0.77464,
+     "<150|near": -0.15287,
+     ">=250|far": 0.0,
+     ">=250|middle": -0.79496,
+     ">=250|near": -0.4481
+    },
+    "K0": {
+     "150-200|far": -0.77441,
+     "150-200|middle": -0.77441,
+     "150-200|near": -0.77441,
+     "200-250|far": -0.77441,
+     "200-250|middle": -0.77441,
+     "200-250|near": -0.77441,
+     "<150|far": -0.77441,
+     "<150|middle": -0.77441,
+     "<150|near": -0.77441,
+     ">=250|far": -0.77441,
+     ">=250|middle": -0.77441,
+     ">=250|near": -0.77441
+    }
+   }
+  },
+  "gsw_sac_2015": {
+   "near_side_differs": {
+    "frames_with_build_H": 2151,
+    "differs": 0
+   },
+   "forms": {
+    "K1": {
+     "pinned_variant": {
+      "position_p50_ft": [
+       1.5047106469981433,
+       1.2352170830125488
+      ],
+      "position_p90_ft": [
+       3.24673239642927,
+       3.0727229805092073
+      ],
+      "nearfield_bias_ft": [
+       1.3300848007202148,
+       0.23089812113148778
+      ],
+      "missed_rate": [
+       0.20596859629209233,
+       0.20596859629209233
+      ],
+      "ghost_rate": [
+       0.11442434044273729,
+       0.11442434044273729
+      ]
+     },
+     "diff": {
+      "position_p50_ft": -0.26949,
+      "position_p90_ft": -0.17401,
+      "nearfield_bias_ft": -1.09919,
+      "missed_rate": 0.0,
+      "ghost_rate": 0.0
+     },
+     "iv": {
+      "position_p50_ft": [
+       -0.31134,
+       -0.21536
+      ],
+      "position_p90_ft": [
+       -0.25845,
+       -0.09699
+      ],
+      "nearfield_bias_ft": [
+       -1.11683,
+       -1.0403
+      ],
+      "missed_rate": [
+       0.0,
+       0.0
+      ],
+      "ghost_rate": [
+       0.0,
+       0.0
+      ]
+     },
+     "matched": 18883,
+     "windows": 60,
+     "bias_by_third": {
+      "near": {
+       "before": 0.21319,
+       "after": 0.12793
+      },
+      "middle": {
+       "before": 0.85572,
+       "after": 0.01637
+      },
+      "far": {
+       "before": 1.33008,
+       "after": 0.2309
+      }
+     },
+     "bias_reads": {
+      "before": 1.33008,
+      "third_before": "far",
+      "after": 0.2309,
+      "third_after": "far"
+     },
+     "p90_by_third": {
+      "near": [
+       3.1286,
+       3.2613
+      ],
+      "middle": [
+       3.15302,
+       2.93768
+      ],
+      "far": [
+       3.49035,
+       3.06934
+      ]
+     },
+     "p90_by_height": {
+      "<150": [
+       3.59042,
+       3.45399
+      ],
+      "150-200": [
+       3.14404,
+       2.926
+      ],
+      "200-250": [
+       3.18918,
+       3.05205
+      ],
+      ">=250": [
+       3.01407,
+       2.67474
+      ]
+     }
+    },
+    "K0": {
+     "pinned_variant": {
+      "position_p50_ft": [
+       1.5047106469981433,
+       1.2405930743993498
+      ],
+      "position_p90_ft": [
+       3.24673239642927,
+       3.09544105640125
+      ],
+      "nearfield_bias_ft": [
+       1.3300848007202148,
+       0.5494775749198624
+      ],
+      "missed_rate": [
+       0.20596859629209233,
+       0.20596859629209233
+      ],
+      "ghost_rate": [
+       0.11442434044273729,
+       0.11442434044273729
+      ]
+     },
+     "diff": {
+      "position_p50_ft": -0.26412,
+      "position_p90_ft": -0.15129,
+      "nearfield_bias_ft": -0.78061,
+      "missed_rate": 0.0,
+      "ghost_rate": 0.0
+     },
+     "iv": {
+      "position_p50_ft": [
+       -0.30588,
+       -0.20708
+      ],
+      "position_p90_ft": [
+       -0.23078,
+       -0.0762
+      ],
+      "nearfield_bias_ft": [
+       -0.78416,
+       -0.61412
+      ],
+      "missed_rate": [
+       0.0,
+       0.0
+      ],
+      "ghost_rate": [
+       0.0,
+       0.0
+      ]
+     },
+     "matched": 18883,
+     "windows": 60,
+     "bias_by_third": {
+      "near": {
+       "before": 0.21319,
+       "after": 0.54948
+      },
+      "middle": {
+       "before": 0.85572,
+       "after": 0.0792
+      },
+      "far": {
+       "before": 1.33008,
+       "after": 0.54766
+      }
+     },
+     "bias_reads": {
+      "before": 1.33008,
+      "third_before": "far",
+      "after": 0.54948,
+      "third_after": "near"
+     },
+     "p90_by_third": {
+      "near": [
+       3.1286,
+       3.4379
+      ],
+      "middle": [
+       3.15302,
+       2.87951
+      ],
+      "far": [
+       3.49035,
+       3.0911
+      ]
+     },
+     "p90_by_height": {
+      "<150": [
+       3.59042,
+       3.48691
+      ],
+      "150-200": [
+       3.14404,
+       2.9923
+      ],
+      "200-250": [
+       3.18918,
+       3.05011
+      ],
+      ">=250": [
+       3.01407,
+       2.63793
+      ]
+     }
+    }
+   },
+   "tables": {
+    "K1": {
+     "150-200|far": -1.17601,
+     "150-200|middle": -0.88101,
+     "150-200|near": -0.40851,
+     "200-250|far": -0.65745,
+     "200-250|middle": -0.84343,
+     "200-250|near": -0.25157,
+     "<150|far": -1.20716,
+     "<150|middle": -1.00759,
+     "<150|near": -0.33298,
+     ">=250|far": 0.0,
+     ">=250|middle": -0.78245,
+     ">=250|near": -0.61075
+    },
+    "K0": {
+     "150-200|far": -0.80761,
+     "150-200|middle": -0.80761,
+     "150-200|near": -0.80761,
+     "200-250|far": -0.80761,
+     "200-250|middle": -0.80761,
+     "200-250|near": -0.80761,
+     "<150|far": -0.80761,
+     "<150|middle": -0.80761,
+     "<150|near": -0.80761,
+     ">=250|far": -0.80761,
+     ">=250|middle": -0.80761,
+     ">=250|near": -0.80761
+    }
+   }
+  }
+ },
+ "p50_diff_by_form": {
+  "K0": {
+   "gsw_bkn_2015": -0.22859,
+   "gsw_cha_2016": -0.26677,
+   "gsw_sac_2015": -0.26412
+  },
+  "K1": {
+   "gsw_bkn_2015": -0.25329,
+   "gsw_cha_2016": -0.28377,
+   "gsw_sac_2015": -0.26949
+  }
+ },
+ "chosen_form": "K1",
+ "form_rule": "K1 kept only if its p50 difference is below K0's on every pool game",
+ "k0_table_sha256": "21bc22d960410a5b1723bc20133cfd781ee6691ec3cf2be4a2914064fa7f47ba",
+ "k1_table_sha256": "c420b0a642851104894aec03189cce3404c407703347b3fff29dfc96b7cb80ce",
+ "forecast": {
+  "K0": {
+   "R_pool": {
+    "gsw_bkn_2015": 0.4868,
+    "gsw_cha_2016": 0.56744,
+    "gsw_sac_2015": 0.55529
+   },
+   "k_p50": -0.47186,
+   "k_p90": -0.24518,
+   "R_hou": 0.71464,
+   "forecast_p50_diff": -0.33721,
+   "forecast_p90_diff": -0.17521,
+   "forecast_passes_p50_bar": true,
+   "bias_forecast_depth_terms": {
+    "by_third": {
+     "near": {
+      "before": 0.7067,
+      "after": 0.07845
+     },
+     "far": {
+      "before": 0.84348,
+      "after": 0.05833
+     }
+    },
+    "before": 0.84348,
+    "third_before": "far",
+    "after": 0.07845,
+    "third_after": "near"
+   },
+   "pool_check": {
+    "gsw_bkn_2015": {
+     "predicted_p50": -0.2297,
+     "observed_p50": -0.22859
+    },
+    "gsw_cha_2016": {
+     "predicted_p50": -0.26775,
+     "observed_p50": -0.26677
+    },
+    "gsw_sac_2015": {
+     "predicted_p50": -0.26202,
+     "observed_p50": -0.26412
+    }
+   }
+  },
+  "K1": {
+   "R_pool": {
+    "gsw_bkn_2015": 0.63985,
+    "gsw_cha_2016": 0.6293,
+    "gsw_sac_2015": 0.65647
+   },
+   "k_p50": -0.41885,
+   "k_p90": -0.26596,
+   "R_hou": 0.62674,
+   "forecast_p50_diff": -0.26251,
+   "forecast_p90_diff": -0.16669,
+   "forecast_passes_p50_bar": true,
+   "bias_forecast_depth_terms": {
+    "by_third": {
+     "near": {
+      "before": 0.7067,
+      "after": 0.33078
+     },
+     "far": {
+      "before": 0.84348,
+      "after": 0.2827
+     }
+    },
+    "before": 0.84348,
+    "third_before": "far",
+    "after": 0.33078,
+    "third_after": "near"
+   },
+   "pool_check": {
+    "gsw_bkn_2015": {
+     "predicted_p50": -0.268,
+     "observed_p50": -0.25329
+    },
+    "gsw_cha_2016": {
+     "predicted_p50": -0.26358,
+     "observed_p50": -0.28377
+    },
+    "gsw_sac_2015": {
+     "predicted_p50": -0.27497,
+     "observed_p50": -0.26949
+    }
+   }
+  }
+ },
+ "forecast_inputs": "reports/research/p8_footbias.json cells (hou_cle_2016 per-cell median depth and counts), frozen tables, pool rows above"
+}
