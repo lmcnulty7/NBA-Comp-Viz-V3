@@ -1,5 +1,8 @@
 # P8 E1R: E1 seed 0 on the reference platform (design, before any build)
 
+Results were appended later, below the design, in "Stage 1 results" and "Stage 2 results"; the design text above
+them is unchanged.
+
 Version 2, 2026-11-25, after training-design-reviewer returned GO WITH FIXES on version 1 (commit 989da1fb). Version 1
 stays in git history; the changes are listed at the end. When this version was committed, no score-m9 output existed
 and none had been read (the M9 r23 builds were still running; no e1/m9__*.json file had been written).
@@ -244,15 +247,20 @@ duplicates 1,360 and 1,298, team rows 18,153 and 18,103, paired matched players 
   0.0067 and its game interval crosses zero. On the blind games it improves by 0.0019 with a window interval across
   zero, and on gsw_cha_2016 alone E1 misses more than r23 (+0.0069, window interval above zero). The rule counts
   per-game rows only through the pool, so this is not a fail, but missed is where the pass is weakest. The clear
-  gains are ghosts, position, near-field bias and team, on every game.
+  point estimates favour E1 on ghosts, position, near-field bias and team on every game; ghosts, position and
+  near-field bias have intervals below zero on every game, while team's window interval crosses zero on gsw_bkn_2015
+  and gsw_cha_2016.
 - This is seed 0 only. A pass alone does not justify about 30 units for seeds 1 and 2; that choice is weighed against
   E1b (design, "What E1R can and cannot decide").
 
 ## Stage 2 results (2026-11-26)
 
 The code's gate allowed Stage 2 (primary and blind both passed). Each fold's E1 seed 0 was built on hou_cle_2016 (93
-windows each; 10,727 s, 10,311 s and 10,372 s, 8.7 lock hours) and scored against M9's r23 CPU build. Every window
+windows each; 10,727 s, 10,311 s and 10,372 s, 8.7 lock hours, from the workspace build records e1r/rebuild__*.json) and scored against M9's r23 CPU build. Every window
 passed every check; no gate-empty, mismatched or missing window. In-frame players 43,030 on both arms for each fold.
+
+What was already seen on hou_cle_2016 before these builds: E1's registered MPS rows (P8_E1.md, missed interval above
+zero on all three folds) and M9's r23 CPU rates. The CPU E1 rows were unseen until these builds were scored.
 
 hou_cle_2016, E1 minus r23, window interval, d5_verdict per fold:
 
@@ -276,8 +284,9 @@ r23's missed rate on hou_cle_2016 on the reference platform is 0.1961; E1's is 0
   arena".
 - E1R's result, in full: seed 0 passes on the reference platform on the development pool (primary and blind), and
   the pass does not carry to hou_cle_2016. On missed, the row E1 was meant to fix, the gain is small everywhere
-  (-0.0067 pooled, -0.0019 blind, -0.0107 to +0.0014 on hou_cle_2016) and below the 0.010 to 0.016 expected. The
-  consistent gains are ghosts, position, near-field bias and team, on every game and every fold.
+  (-0.0067 pooled, -0.0019 blind, -0.0107 to +0.0014 on hou_cle_2016) and below the 0.010 to 0.016 expected. Point
+  estimates favour E1 on ghosts, position, near-field bias and team on every game and every fold; the team interval
+  crosses zero on 3 of 6 game or fold cells, and near-field bias on hou_cle_2016 fold gsw_cha_2016.
 - E1 is not adopted (1 of 3 seeds, D85 (3)), and nothing here triggers training. For choosing between seeds 1 and 2
-  and E1b, the evidence is that E1's labels and recipe buy position, ghost and team gains but not the recall gain on
-  missed; seeds 1 and 2 would test the same recipe. The choice is the lead's.
+  and E1b, a post hoc reading on seed 0 only: E1's labels and recipe go with position and ghost gains (team weaker)
+  but not the expected recall gain on missed; seeds 1 and 2 would test the same recipe. E1R claims no mechanism. The choice is the lead's.
