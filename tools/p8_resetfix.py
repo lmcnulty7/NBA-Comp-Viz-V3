@@ -76,6 +76,14 @@ def strip_tracker_callbacks(callbacks: dict) -> int:
 RESET_LOG = {"path": None, "resets": [], "last_frame": None}
 
 
+def _log() -> dict:
+    """The one reset log of the process: the canonical module's. The build child runs this file as __main__ while
+    tools.p8_device imports it as tools.p8_resetfix, so a module-level name alone would give two logs (version 2.4:
+    the first smoke wrote an empty log this way)."""
+    import importlib
+    return importlib.import_module("tools.p8_resetfix").RESET_LOG
+
+
 def apply_reset_fix() -> str:
     """In the build child, before the build runs: PlayerTracker.reset also strips the tracker callbacks. Each reset
     appends {"frame": the frame index of the last update call, "stripped": n} to RESET_LOG (n = 2 when the tracker had
@@ -87,14 +95,15 @@ def apply_reset_fix() -> str:
     def reset(self):
         orig(self)
         cbs = getattr(getattr(self, "model", None), "callbacks", None)
-        RESET_LOG["resets"].append({"frame": RESET_LOG.get("last_frame"),
+        log = _log()
+        log["resets"].append({"frame": log.get("last_frame"),
                                     "stripped": strip_tracker_callbacks(cbs) if isinstance(cbs, dict) else None})
     DT.PlayerTracker.reset = reset
     if hasattr(DT.PlayerTracker, "update"):
         orig_update = DT.PlayerTracker.update
 
         def update(self, bgr, frame_idx: int = 0, *a, **k):
-            RESET_LOG["last_frame"] = int(frame_idx)
+            _log()["last_frame"] = int(frame_idx)
             return orig_update(self, bgr, frame_idx, *a, **k)
         DT.PlayerTracker.update = update
     return "detect.tracker.PlayerTracker.reset"
@@ -109,7 +118,8 @@ def library_versions() -> dict:
 
 def write_reset_log() -> None:
     import os
-    path = RESET_LOG["path"]
+    log = _log()
+    path = log["path"]
     if path is None:
         return
     try:
@@ -119,7 +129,7 @@ def write_reset_log() -> None:
         tracker = None
     part = f"{path}.part"
     with open(part, "w") as fh:
-        json.dump({"reset_fix": True, "resets": [{k: v for k, v in r.items()} for r in RESET_LOG["resets"]],
+        json.dump({"reset_fix": True, "resets": [{k: v for k, v in r.items()} for r in log["resets"]],
                    "tracker_reid_env": os.environ.get("TRACKER_REID"), "tracker_config": tracker,
                    "versions": library_versions()}, fh)
     os.replace(part, path)
@@ -129,8 +139,10 @@ def start_reset_log(path) -> None:
     """<window>_resetfix.json in config.TRACKING_DIR (sportvu.rebuild.build moves every <window>_* file next to the
     window's outputs), written when the build child exits."""
     import atexit
-    RESET_LOG["path"] = str(path)
-    atexit.register(write_reset_log)
+    import importlib
+    canonical = importlib.import_module("tools.p8_resetfix")
+    canonical.RESET_LOG["path"] = str(path)
+    atexit.register(canonical.write_reset_log)
 
 
 # ── estimate (stored files only) ───────────────────────────────────────────────────────────────────────────────────
@@ -380,7 +392,8 @@ def adoption(pv: dict, pooled: dict, bracket_ok: bool) -> dict:
 # ── version 2.3: the net-error rule (the lead's decision, registered before any build or score) ──────────────────
 NET_ROW = "net_error_rate"           # (missed players + non-referee ghost boxes) / in-frame players
 MARGINS_V23 = {k: v for k, v in MARGINS.items() if k != "ghost_rate"}
-REPORTED_V23 = ("ghost_rate", "detection_rate")
+NET_1TO1_ROW = "net_error_1to1_rate"   # version 2.4, report only: one-to-one unmatched players and boxes / in-frame
+REPORTED_V23 = ("ghost_rate", "detection_rate", NET_1TO1_ROW)
 
 
 def v23_verdict(point: dict, window_iv: dict, coverage: tuple, mode: str) -> dict:
@@ -891,9 +904,15 @@ def check_arm_records(det: dict | None, dev: dict | None, log: dict | None, rese
         bad.append("device record does not carry reset_fix")
     if det is None or det.get("sha256") != R23_SHA or det.get("model") != "r23":
         bad.append("detector record is not r23")
+    return bad + log_problems(log, resets)
+
+
+def log_problems(log: dict | None, resets: int | None) -> list:
+    """The reset log's rules (14.4), shared by the arm and the truth's label builds: present, TRACKER_REID unset, the
+    pinned versions, every reset with a frame and 2 callbacks stripped, as many resets as the identity file counts."""
     if log is None:
-        bad.append("no reset log")
-        return bad
+        return ["no reset log"]
+    bad = []
     if log.get("tracker_reid_env") not in (None,):
         bad.append(f"TRACKER_REID was set ({log.get('tracker_reid_env')!r})")
     if log.get("versions") != PINNED_VERSIONS:
@@ -971,9 +990,29 @@ def one_to_one_missed(feet, sv, inside, miss_ft: float = 2.5) -> int:
     return int(len(ins) - (C[ri, ci] <= miss_ft).sum())
 
 
-def frame_extra(feet, sv, inside) -> dict:
+def unmatched_1to1(feet, sv, inside, is_ref, miss_ft: float = 2.5) -> int:
+    """Version 2.4, report only: non-referee box feet and the 10 players matched one to one within miss_ft
+    (Hungarian, by distance) -> unmatched in-frame players plus unmatched non-referee boxes. A box on a player just
+    outside the frame margin is matched (not a false box); only in-frame players are counted as unmatched."""
+    sv = np.asarray(sv, np.float64).reshape(-1, 2)
+    keep = ~np.asarray(is_ref, bool).reshape(-1) if len(np.asarray(is_ref).reshape(-1)) else np.zeros(0, bool)
+    feet = np.asarray(feet, np.float64).reshape(-1, 2)[keep] if len(keep) else np.zeros((0, 2))
+    ins = np.asarray(inside, bool)
+    if not len(feet):
+        return int(ins.sum())
+    from scipy.optimize import linear_sum_assignment
+    D = np.sqrt(((sv[:, None, :] - feet[None, :, :]) ** 2).sum(-1))
+    C = np.where(D <= miss_ft, D, 1e6)
+    ri, ci = linear_sum_assignment(C)
+    ok = C[ri, ci] <= miss_ft
+    matched_players, matched_boxes = set(ri[ok]), set(ci[ok])
+    return int(sum(1 for j in np.where(ins)[0] if j not in matched_players) + (len(feet) - len(matched_boxes)))
+
+
+def frame_extra(feet, sv, inside, is_ref=None) -> dict:
     """Report-only and detection counts of one scored frame: far misses (no foot within 5 ft), one-to-one misses,
-    duplicates (in-frame players with two or more feet within 2.5 ft)."""
+    duplicates (in-frame players with two or more feet within 2.5 ft) and, with is_ref, the one-to-one net-error
+    count (version 2.4)."""
     sv = np.asarray(sv, np.float64).reshape(-1, 2)
     feet = np.asarray(feet, np.float64).reshape(-1, 2)
     ins = np.asarray(inside, bool)
@@ -983,7 +1022,10 @@ def frame_extra(feet, sv, inside) -> dict:
         dup = int((ins & ((D <= 2.5).sum(1) >= 2)).sum())
     else:
         far, dup = int(ins.sum()), 0
-    return {"far": far, "missed_1to1": one_to_one_missed(feet, sv, inside), "duplicates": dup}
+    out = {"far": far, "missed_1to1": one_to_one_missed(feet, sv, inside), "duplicates": dup}
+    if is_ref is not None:
+        out["unmatched_1to1"] = unmatched_1to1(feet, sv, inside, is_ref)
+    return out
 
 
 def truth_pin_problems(pin: dict | None, now: dict) -> list:
@@ -1013,12 +1055,21 @@ def pin_order_problems(build_mtimes: list, truth_mtimes: dict, acc_label_windows
     return bad
 
 
-def label_fix_problems(device_records: dict) -> list:
+def label_fix_problems(device_records: dict, logs: dict | None = None, resets: dict | None = None) -> list:
     """{label window: its label build's device record or None} -> [] when every built label window ran on the
-    reference platform with the reset fix (the truth is rebuilt with the fix, design v2 section 6)."""
+    reference platform with the reset fix (the truth is rebuilt with the fix, design v2 section 6). Version 2.4: the
+    device record is written before the build starts, so each window's reset log must also pass log_problems against
+    its identity file's camera_cut_resets (logs and resets: {window: log or None}, {window: count or None})."""
     bad = [w for w, d in device_records.items()
            if d is None or d.get("reset_fix") is not True or (d.get("resolved") or {}).get("detector") != "cpu"]
-    return [f"{len(bad)} label windows lack the reset fix or the cpu detector (first: {sorted(bad)[:3]})"] if bad else []
+    out = [f"{len(bad)} label windows lack the reset fix or the cpu detector (first: {sorted(bad)[:3]})"] if bad else []
+    if logs is not None:
+        lb = {w: log_problems(logs.get(w), (resets or {}).get(w)) for w in device_records}
+        lb = {w: v for w, v in lb.items() if v}
+        if lb:
+            w0 = sorted(lb)[0]
+            out.append(f"{len(lb)} label windows fail the reset-log rules (first: {w0}: {lb[w0]})")
+    return out
 
 
 # child (frozen CV python, inside the build)
@@ -1433,7 +1484,11 @@ def cmd_pin_truth(args) -> dict:
     if acc is None or acc.get("use") not in FINAL_TRUTH:
         raise SystemExit(f"{WHO}: {game} has no final acceptance record; its truth status is not final")
     labels = sorted(p.name[:-len("_frames.json")] for p in (r / "label_build").glob(f"{game}_s*_frames.json"))
-    why = label_fix_problems({w: _read(r / "label_build" / f"{w}_device.json") for w in labels})
+    idents = {w: _read(r / "label_build" / f"{w}_identity.json") for w in labels}
+    why = label_fix_problems({w: _read(r / "label_build" / f"{w}_device.json") for w in labels},
+                             {w: _read(r / "label_build" / f"{w}_resetfix.json") for w in labels},
+                             {w: (None if i is None else int(i["identity"].get("camera_cut_resets") or 0))
+                              for w, i in idents.items()})
     mt = lambda p: p.stat().st_mtime if p.exists() else None
     builds = [t for w in labels for t in (mt(r / "label_build" / f"{w}_frames.json"),
                                           mt(r / "label_build" / f"{w}_device.json")) if t is not None]
@@ -1476,9 +1531,13 @@ def score_pair(P: dict, game: str, w: dict, dirs: dict, sides: dict, ctx: dict) 
     cap = cv2.VideoCapture(str(P["label_build"] / f"{s}.mp4"))
     wd, hd = int(cap.get(3)), int(cap.get(4))
     cap.release()
+    from sportvu import bench as B
+    cache = json.loads((P["cache"] / "scorecard" / f"{s}.json").read_text())
+    refd = {int(k): v for k, v in cache.get("referees", {}).items()}
     for k in dirs:
         srow = {int(x["frame"]): x for x in sides[k]["frames"]}
-        c = {"far": 0, "missed_1to1": 0, "duplicates": 0}
+        sidecar_cls = any("cls" in b for x in srow.values() for b in x["boxes"])
+        c = {"far": 0, "missed_1to1": 0, "duplicates": 0, "unmatched_1to1": 0}
         for row in truth:
             x = srow.get(int(row["frame"]))
             if x is None or int(row["frame"]) not in scored_f[k]:
@@ -1490,7 +1549,10 @@ def score_pair(P: dict, game: str, w: dict, dirs: dict, sides: dict, ctx: dict) 
             inside = (px[:, 0] > m) & (px[:, 0] < wd - m) & (px[:, 1] > m) & (px[:, 1] < hd - m)
             feet = np.array([b["foot_stab"] for b in x["boxes"]], np.float32).reshape(-1, 1, 2)
             ft = cv2.perspectiveTransform(feet, Ht).reshape(-1, 2).astype(np.float64) if len(feet) else np.zeros((0, 2))
-            _add(c, frame_extra(ft, sv, inside))
+            is_ref = [(b.get("cls") in ("referee", B.REFEREE_CLASS)) if sidecar_cls else
+                      any(B._iou(b["bbox"], dd[:4]) >= B.REF_IOU for dd in refd.get(int(row["frame"]), []))
+                      for b in x["boxes"]]                   # the scorer's referee rule (tools.p8_scorecard)
+            _add(c, frame_extra(ft, sv, inside, is_ref))
         pair[k].update(c)
     return pair
 
@@ -1614,7 +1676,9 @@ def unit_eval(wins: list, picks_w: np.ndarray, picks_g: np.ndarray | None = None
     wiv = boot({i: [w] for i, w in enumerate(wins)})
     giv = boot({i: g for i, g in enumerate(groups)}) if groups else None
     for row, num in (("detection_rate", ("far",)), (ONE_TO_ONE_ROW, ("missed_1to1",)),
-                     (NET_ROW, ("missed", "nr_ghosts"))):
+                     (NET_ROW, ("missed", "nr_ghosts")), (NET_1TO1_ROW, ("unmatched_1to1",))):
+        if not all(num[0] in w[s] for w in wins for s in ("r23", "new")):
+            continue                                 # a score file written before a row existed
         bn = [sum(w["r23"][k] for k in num) for w in wins]; nn = [sum(w["new"][k] for k in num) for w in wins]
         bd = [w["r23"]["in_frame"] for w in wins]; nd = [w["new"]["in_frame"] for w in wins]
         point[row] = sum(nn) / sum(nd) - sum(bn) / sum(bd)
