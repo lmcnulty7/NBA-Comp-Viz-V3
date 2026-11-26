@@ -40,6 +40,10 @@ Per frame and variant: every BYTETracker.update call (its input count and frame 
   registered on its own and rebuilt on the reference platform under the lock, scored by the registered scorer.
 - Doubling confirmed but B's yield under 0.90: the doubling is part of the cause, not all of it; reported.
 - Doubling not confirmed: the code reading is wrong; reported, nothing follows.
+
+Amendment 1 (2026-11-26, registered before the run started, at the reviewer's suggestion): per frame and variant, the
+number of entries in model.callbacks["on_predict_postprocess_end"] before the update call is recorded and reported
+(report only; the reading rule is unchanged). The rule reads the detector's output from the FIRST update call's input.
 """
 
 from __future__ import annotations
@@ -170,8 +174,10 @@ def cmd_run(args) -> dict:
                 raise SystemExit(f"{WHO}: {name} frame {f} unreadable")
             calls.clear()
             resets_before = tracker.n_resets
+            n_cb = len(tracker.model.callbacks.get("on_predict_postprocess_end", []))     # amendment 1
             tracks = tracker.update(img, f, f / fps)
             out.append({"frame": f, "reset_before": resets_before > 0, "calls": list(calls),
+                        "postprocess_callbacks_before": n_cb,
                         "output": [[round(float(v), 2) for v in t.bbox] for t in tracks]})
         cap.release()
         res[name] = {"n_resets": tracker.n_resets, "per_frame": out}
@@ -210,6 +216,11 @@ def cmd_report(args) -> dict:
                "predict_boxes_a3trace": sum(pred.get(f["frame"], 0) for f in A),
                "output_boxes": {"A": sum(len(f["output"]) for f in A), "B": sum(len(f["output"]) for f in B)},
                "yield": {"A": yA, "B": yB}, "resets": {k: v["n_resets"] for k, v in rec["variants"].items()},
+               "postprocess_callbacks_count": {k: {str(n): sum(1 for f in v["per_frame"]
+                                                               if f.get("postprocess_callbacks_before") == n)
+                                                   for n in sorted({f.get("postprocess_callbacks_before")
+                                                                    for f in v["per_frame"]}, key=str)}
+                                               for k, v in rec["variants"].items()},
                "reading": read(repro, dA, dB, yA, yB), "versions": rec["versions"],
                "rule": {"repro_share": REPRO_SHARE, "double_share": DOUBLE_SHARE, "fixed_yield": FIXED_YIELD,
                         "bug_yield": BUG_YIELD}})

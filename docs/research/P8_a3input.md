@@ -89,6 +89,12 @@ Commands, where <frozen CV python> is the anaconda interpreter the builds use:
 The yield, drop and trace results (P8_a3run.md, P8_a3drop.md, P8_a3trace.md) are all seen, and so is the stored
 frame_id doubling. This run confirms a mechanism found by reading the code. It is not a blind test.
 
+## Amendment 1 (2026-11-26, registered before the run started)
+
+At the reviewer's suggestion, the run records the number of entries in model.callbacks["on_predict_postprocess_end"]
+before each update call, per frame and variant. This is report only, and the reading rule is unchanged. The rule
+reads the detector's output from the first update call's input of each frame.
+
 ## Results
 
 Not run yet.
