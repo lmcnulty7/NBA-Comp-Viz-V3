@@ -76,6 +76,47 @@ scorer.
 The a3run yield result is already seen: a pooled yield of 0.50, with 2.2 percent of dropped boxes under unconfirmed
 tracks. The classes were written knowing it.
 
-## Results
+## Results (computed 2026-11-26, after the definitions above were committed in e2ca4cd9)
 
-Not computed yet.
+Stored files only, no lock, about 7 seconds. load_frames' count check passed. Record: reports/research/p8_a3drop.json.
+
+There are 932 dropped boxes on the scored frames of the six heavy windows. Their median confidence is 0.89.
+
+| Class | Count | Share | Among the 578 dropped boxes on a far-miss player |
+| --- | --- | --- | --- |
+| 1 duplicate | 78 | 8.4% | 30 (5.2%) |
+| 2 displaced track box | 0 | 0% | 0 |
+| 3 low confidence | 22 | 2.4% | 7 (1.2%) |
+| 4a real player, gap | 43 | 4.6% | 21 (3.6%) |
+| 4b real player, never tracked nearby | 581 | 62.3% | 520 (90.0%) |
+| 5 near a player | 58 | 6.2% | 0 |
+| 6 false positive | 150 | 16.1% | 0 |
+
+Class 4b by window: 387 of 619 on gsw_bkn_2015_s04_w00, 38 of 70 and 10 of 18 on the two gsw_cha_2016 windows, and
+76 of 98, 46 of 59 and 24 of 68 on the three gsw_sac_2015 windows. By third, the dropped boxes split 293 near, 397
+middle and 242 far. By height, 242 are under 150 px, 511 are 150 to 200, 165 are 200 to 250 and 14 are 250 and over.
+
+## Reading by the registered rule
+
+Class 4b holds 62.3 percent of the dropped boxes, so the rule leads to an activation arm. These are high-confidence
+detections of real players (foot within 2.5 ft of SportVU) with no kept track within two processed frames, and they
+make up 90 percent of the dropped boxes that sit on the a3 players.
+
+A caution before that arm is designed (post hoc, descriptive, from the same replay records):
+
+- The activation arm as written assumes these detections start new tracks that are never output. The replay does not
+  support that. At the end of their frame, only 2.2 percent of all dropped boxes on these windows lie under an
+  unconfirmed track (P8_a3run.md).
+- No kept box lies off its detection: every kept box on every heavy window matches a predict box at IoU 0.5 or more.
+- The windows hold few distinct track ids (33 over 1,053 frames on gsw_cha_2016_s05_w00) and few lost tracks (0.3 to
+  2.9 on average).
+- So most of these detections neither match a kept track, nor start a track, nor sit under a lost one, by what the
+  replay recorded. Reading the code, an unmatched detection at 0.40 always starts a track (new_track_thresh 0.25). The
+  replay's recorded fields therefore do not explain where these detections go.
+- Outputting new tracks on their first frame would most likely not recover them.
+
+Proposal for the lead, before any tracker arm: one instrumented replay of a heavy window under the lock, about 10 to 20
+minutes, on gsw_cha_2016_s05_w00 or gsw_bkn_2015_s04_w00. It would record, per frame, the detections BoT-SORT's update
+receives, the first-association matches, the unconfirmed matches, the new tracks created, and the tracks removed by
+remove_duplicate_stracks. That shows the step where the detections vanish. It needs its own registration. The arm the
+rule names would follow only if the instrumented run confirms an activation cause.
