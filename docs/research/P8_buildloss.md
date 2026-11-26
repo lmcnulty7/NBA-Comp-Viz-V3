@@ -81,6 +81,51 @@ Any arm needs its own registration and a rebuild under the heavy-job lock, score
 
 The order-free 37 percent figure, and every number in P8_detrow.md, are already seen.
 
-## Results
+## Results (computed 2026-11-26, after the definitions above were committed in 1f18d81f)
 
-Not computed yet.
+Stored files only, no lock, about 12 seconds. Checks passed: load_frames' count check against the registered score
+files, and the population equals P8_detrow.md's order-free count on every game (786, 261 and 431). Record:
+reports/research/p8_buildloss.json.
+
+Rate among in-frame players [window interval]; share of the population:
+
+| Class | gsw_bkn_2015 | gsw_cha_2016 | gsw_sac_2015 |
+| --- | --- | --- | --- |
+| a1 activation lag | 0.0013; 3.4% | 0.0013; 6.5% | 0.0011; 5.6% |
+| a2 track gap | 0.0059 [0.0033, 0.0093]; 15.4% | 0.0044 [0.0026, 0.0062]; 22.6% | 0.0029 [0.0021, 0.0039]; 14.4% |
+| a3 never tracked nearby | 0.0230 [0.0007, 0.0666]; 59.9% | 0.0060 [0.0004, 0.0170]; 30.3% | 0.0096 [0.0014, 0.0220]; 47.1% |
+| b tracked box differs | 0.0024; 6.2% | 0.0021; 10.7% | 0.0022; 10.7% |
+| c occlusion correction | 0.0030 [0.0017, 0.0046]; 7.9% | 0.0029 [0.0014, 0.0046]; 14.6% | 0.0020 [0.0012, 0.0029]; 9.7% |
+| c EMA | 0.0027 [0.0019, 0.0037]; 7.1% | 0.0030 [0.0019, 0.0045]; 15.3% | 0.0026 [0.0018, 0.0035]; 12.5% |
+| e other | 0 | 0 | 0 |
+
+No a1 or a2 player-frame falls on a frame whose track ids look reset. (d), the bound from M6: 6.9 percent of r23's raw
+boxes had no sidecar box on gsw_bkn_2015 with both sides on CPU, tracking and decode together.
+
+## Reading by the registered rule
+
+No class matters: none reaches 0.010 of in-frame players on every pool game.
+
+- a3, never tracked nearby, is the largest class. It is 0.023 on gsw_bkn_2015 but 0.006 on gsw_cha_2016 and 0.0096 on
+  gsw_sac_2015, so it falls short of the bar on two games.
+- Every other class stays at 0.006 or below on every game.
+- By the rule, no tracking, gating or foot-stabilisation arm is selected.
+
+What the numbers say beyond the rule (post hoc, not tested):
+
+- The loss is mostly "no box at all in the build". Together a1, a2 and a3 are 0.030, 0.012 and 0.014 of in-frame
+  players. That would be above the bar on every game if the rule had pooled them, which it did not.
+- Within that loss, a3 dominates, and it is the part the stored data cannot attribute. Either the tracker never output
+  a track, for example an unconfirmed track that never got its second match, or the build's detector on the decoded
+  video did not fire where the CPU run on the corpus JPEG did.
+- a3's window intervals are very wide (up to [0.0007, 0.067] on gsw_bkn_2015). The loss sits in a few windows, not
+  across the game. That fits a window-level cause, such as decode, scene type or a tracker state, better than a
+  per-player one. It is not measured here.
+- Foot stabilisation (c) loses 0.005 to 0.006 of in-frame players per game, split about evenly between the occlusion
+  correction and the EMA. It is small but steady, with narrow intervals.
+
+Proposal for the lead (it needs its own registration; the rule did not select it): find what a3 is. The cheapest
+discriminating step is a model run on the windows that carry most of a3. It would run r23 on the decoded video frames
+the build used, the same frames as the corpus JPEGs, on CPU, both raw and through model.track. That separates "the
+detector did not fire on the video" from "the tracker did not output it". It needs the heavy-job lock (model code)
+for minutes per window, and no units.
