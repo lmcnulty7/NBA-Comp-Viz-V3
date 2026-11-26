@@ -651,3 +651,62 @@ def test_arm_window_problems_keeps_every_problem(tmp_path):
     (out / "w_detector.json").write_text(json.dumps({**det, "sha256": "x"}))
     bad = R.arm_window_problems(out, "w", ref, ws)
     assert any("reference root's clip" in b for b in bad) and any("r23" in b for b in bad)
+
+
+# ── version 2.4 ───────────────────────────────────────────────────────────────────────────────────────────────────
+def test_reset_log_is_shared_with_a_second_module_copy(monkeypatch, tmp_path):
+    """The build child runs the file as __main__ while tools.p8_device imports tools.p8_resetfix: the log started in
+    the __main__ copy must hold the resets the canonical patch records (the first smoke wrote an empty log)."""
+    import importlib.util
+    import json
+    spec = importlib.util.spec_from_file_location("p8_resetfix_main_copy", R.__file__)
+    copy = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(copy)
+    assert copy is not R
+    mod = _tracker_module()
+    fake_dt = types.ModuleType("detect.tracker")
+    fake_dt.PlayerTracker = type("PlayerTracker", (FakeTracker,), {})
+    pkg = types.ModuleType("detect")
+    pkg.tracker = fake_dt
+    monkeypatch.setitem(sys.modules, "detect", pkg)
+    monkeypatch.setitem(sys.modules, "detect.tracker", fake_dt)
+    monkeypatch.setattr(R, "RESET_LOG", {"path": None, "resets": [], "last_frame": None})
+    registered = []
+    monkeypatch.setattr("atexit.register", registered.append)
+    copy.start_reset_log(tmp_path / "w_resetfix.json")          # as child() does in __main__
+    R.apply_reset_fix()                                         # as tools.p8_device.device_record does
+    t = fake_dt.PlayerTracker(mod)
+    t.update(None, 0)
+    t.reset()
+    t.update(None, 6)
+    t.reset()
+    assert registered and registered[0] is R.write_reset_log
+    registered[0]()
+    log = json.loads((tmp_path / "w_resetfix.json").read_text())
+    assert log["resets"] == [{"frame": 0, "stripped": 2}, {"frame": 6, "stripped": 2}]
+    assert copy.RESET_LOG["resets"] == []                       # the copy's own dict stays unused
+
+
+def test_label_fix_problems_checks_reset_logs():
+    ok_dev = {"reset_fix": True, "resolved": {"detector": "cpu"}}
+    log = {"resets": [{"frame": 30, "stripped": 2}], "tracker_reid_env": None, "versions": dict(R.PINNED_VERSIONS)}
+    assert R.label_fix_problems({"w": ok_dev}, {"w": log}, {"w": 1}) == []
+    assert R.label_fix_problems({"w": ok_dev}, {"w": None}, {"w": 1})                      # no log
+    assert R.label_fix_problems({"w": ok_dev}, {"w": log}, {"w": 2})                       # count differs
+    assert R.label_fix_problems({"w": ok_dev}, {"w": {**log, "resets": []}}, {"w": 1})     # the empty-log case
+    assert R.label_fix_problems({"w": ok_dev}, {"w": {**log, "tracker_reid_env": "1"}}, {"w": 1})
+    assert R.label_fix_problems({"w": ok_dev}, {"w": {**log, "versions": {}}}, {"w": 1})
+    assert R.label_fix_problems({"w": ok_dev}) == []                                      # device check alone
+
+
+def test_unmatched_1to1():
+    sv = np.array([[0.0, 0.0], [1.0, 0.0], [20.0, 0.0], [-30.0, 0.0]] + [[100.0, 100.0]] * 6)
+    inside = np.array([True, True, True, False] + [False] * 6)
+    feet = np.array([[0.5, 0.0], [0.6, 0.0], [40.0, 0.0], [-30.5, 0.0], [1.0, 1.0]])
+    is_ref = [False, False, False, False, True]
+    # p0 and p1 each take one box; p2 unmatched; the box at 40 unmatched; the box on the out-of-frame player is
+    # matched; the referee box is left out
+    assert R.unmatched_1to1(feet, sv, inside, is_ref) == 2
+    e = R.frame_extra(feet[:3], sv, inside, is_ref[:3])
+    assert e["unmatched_1to1"] == 2 and "unmatched_1to1" not in R.frame_extra(feet[:3], sv, inside)
+    assert R.unmatched_1to1(np.zeros((0, 2)), sv, inside, []) == 3
