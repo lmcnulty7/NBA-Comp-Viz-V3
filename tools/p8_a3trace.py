@@ -269,8 +269,8 @@ def cmd_report(args) -> dict:
                        "report only", "frames": rec["frames"], "reproduced_share": reproduced / rec["frames"],
                "predict_boxes": n_pred, "tracker_input_boxes": n_in, "dropped": n_drop, "classes": counts,
                "shares": shares, "step": step, "resets_at": rec["resets_at"], "versions": rec["versions"],
-               "status": "withdrawn (2026-11-26): the trace is incomplete, the registered U or H case. It recorded only "
-                         "the last BYTETracker.update call of each frame, and after the reset at frame 312 every frame "
+               "status": "withdrawn (2026-11-26): the rule returned G, but the trace is incomplete, the situation its "
+                         "U or H case covers; the reading is withdrawn outside the rule. It recorded only the last BYTETracker.update call of each frame, and after the reset at frame 312 every frame "
                          "ran two (docs/research/P8_a3input.md, cause confirmed). The G reading and the input-check "
                          "proposal are withdrawn.",
                "rule": {"same_iou": SAME_IOU, "keep_iou": KEEP_IOU, "step_share": STEP_SHARE}})

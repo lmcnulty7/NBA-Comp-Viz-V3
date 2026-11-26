@@ -125,11 +125,12 @@ The check is a model run under the lock, about 10 minutes on this window. It wai
 
 ## Review amendments (2026-11-26, after the ml-review FAIL and the a3input result; the registered text above is unchanged)
 
-1. **The reading is withdrawn: the trace is incomplete.** This is the registered "U or H" case. The trace recorded
+1. **The reading is withdrawn: the trace is incomplete.** The rule returned G, but the trace is incomplete, the
+   situation its U or H case covers; the reading is withdrawn outside the rule. The trace recorded
    only the last BYTETracker.update call of each frame. After the reset at frame 312, every frame ran two.
    - The stored frame_id rises by 2 on all 1,038 steps after the reset at frame 312. The other 14 steps are the 13
      single steps before it and the reset step itself (frame_id 14 to 2).
-   - The reviewer counted 107 against 107 before the reset, and recorded input equal to output after it.
+   - The reviewer counted 14 calls against 14 frames before the reset, and recorded input equal to output after it.
    - So "step G" measured the second call's input (the already-tracked boxes), not the detector's output.
    - The G reading and the input-check proposal are withdrawn. The cause is in docs/research/P8_a3input.md, which
      confirms it: the double update after PlayerTracker.reset.
