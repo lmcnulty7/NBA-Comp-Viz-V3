@@ -1,0 +1,58 @@
+{
+ "what": "Doubled tracker callbacks after a reset, as built (A) and with the reset fixed in process (B), on gsw_cha_2016_s05_w00 (docs/research/P8_a3input.md); report only",
+ "reproduced_share_A": 1.0,
+ "doubling_A": {
+  "frames_after_first_reset": 1039,
+  "with_two_or_more_calls": 1039,
+  "share": 1.0,
+  "frames_with_one_call": 14,
+  "frames_with_two_or_more_calls": 1039,
+  "frames": 1053
+ },
+ "doubling_B": {
+  "frames_after_first_reset": 1039,
+  "with_two_or_more_calls": 0,
+  "share": 0.0,
+  "frames_with_one_call": 1053,
+  "frames_with_two_or_more_calls": 0,
+  "frames": 1053
+ },
+ "detector_boxes_first_call_B": 8766,
+ "detector_boxes_first_call_A": 8766,
+ "predict_boxes_a3trace": 8766,
+ "output_boxes": {
+  "A": 2657,
+  "B": 8371
+ },
+ "yield": {
+  "A": 0.3031,
+  "B": 0.95494
+ },
+ "resets": {
+  "A": 1,
+  "B": 2
+ },
+ "postprocess_callbacks_count": {
+  "A": {
+   "1": 1,
+   "2": 14,
+   "3": 1038
+  },
+  "B": {
+   "1": 3,
+   "2": 1050
+  }
+ },
+ "reading": "cause confirmed",
+ "versions": {
+  "opencv": "4.13.0",
+  "torch": "2.2.2",
+  "ultralytics": "8.4.48"
+ },
+ "rule": {
+  "repro_share": 0.95,
+  "double_share": 0.95,
+  "fixed_yield": 0.9,
+  "bug_yield": 0.5
+ }
+}

@@ -105,6 +105,43 @@ reads the detector's output from the first update call's input of each frame.
   the stored frame_id steps. The reviewer found the same double update independently: 107 calls against 107 frames
   before the reset, and recorded input equal to output after it.
 
-## Results
+## Results (run 2026-11-26 under the lock, 655 s)
 
-Not run yet.
+Versions: OpenCV 4.13.0, torch 2.2.2, ultralytics 8.4.48; r23 sha256 checked. Record: reports/research/p8_a3input.json.
+
+| | A, as built | B, reset fixed in process |
+| --- | --- | --- |
+| Reproduces the sidecar | 100% of 1,053 frames | (not required) |
+| Frames after the first reset with two or more update calls | 1,039 of 1,039 | 0 of 1,039 |
+| Frames with exactly one update call | 14 | 1,053 |
+| Detector boxes (first update call's input) | 8,766 | 8,766 |
+| Output boxes | 2,657 | 8,371 |
+| Yield | 0.303 | 0.955 |
+| Resets | 1 | 2 |
+| Postprocess callbacks before the call (frames) | 1 (1), 2 (14), 3 (1,038) | 1 (3), 2 (1,050) |
+
+The detector's output in the first update call equals P8_a3trace.md's predict count exactly (8,766), so the detector
+always saw every player. The callback count includes ultralytics' own default entry: A holds one tracker callback
+until the reset and two after it, and B holds one throughout.
+
+## Reading by the registered rule
+
+Cause confirmed:
+
+- A reproduces the build.
+- In A, every frame after the reset runs the tracker update twice. In B, no frame runs it more than once.
+- B keeps 0.955 of the detector's boxes against A's 0.303.
+
+The double update after PlayerTracker.reset is the cause of the a3 loss on this window. It is no longer post hoc.
+
+What follows, as registered: a build arm. The reset fix becomes a tools-side patch with no frozen file edited, in the
+same way as P8_MPS_CLIP_FIX. It needs its own registration, is rebuilt on the reference platform under the lock, and
+is scored by the registered scorer.
+
+Notes for that registration:
+
+- B reset twice where A reset once. With more tracks alive, the camera-cut rule fires at different frames. The arm's
+  registration should expect the reset count to change.
+- Every build with at least one reset carries the bug. That includes r23's registered baselines and the held-out
+  numbers already recorded. Paired comparisons (E1 against r23, E1R) had it on both sides.
+- The size of the gain across the pool, and on the missed and detection rows, is the arm's question, not this run's.
