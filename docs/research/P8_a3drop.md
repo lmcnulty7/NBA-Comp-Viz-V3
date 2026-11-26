@@ -126,10 +126,16 @@ rule names would follow only if the instrumented run confirms an activation caus
 The caution in the reading section rests on the replay's state at the end of each frame. That covers the 2.2 percent
 under unconfirmed tracks, and the conclusion that the detections "neither match a kept track, nor start a track, nor
 sit under a lost one". After a reset, each frame runs two update calls (docs/research/P8_a3input.md, cause confirmed).
+This is tested on gsw_cha_2016_s05_w00; the other heavy windows each have a reset (P8_trackreset.md), so the code path
+applies there; its size there is untested.
 
 - In the first call, these detections do start new, unconfirmed tracks.
 - In the second call, which receives only the tracked boxes, those tracks find no match and are removed, so the end of
   the frame shows none of them.
+- The reading's last bullet, "Outputting new tracks on their first frame would most likely not recover them", is
+  withdrawn. Under the double update the first call does create these tracks, so outputting first-frame tracks would
+  likely recover them in a build with the bug. The reset fix is still the right fix: it removes the cause rather than
+  working around it.
 
 The caution's statement that the recorded fields "do not explain where these detections go" is answered there. The
 registered reading (an activation arm) stays as registered. The fix that follows is the reset fix that P8_a3input.md
