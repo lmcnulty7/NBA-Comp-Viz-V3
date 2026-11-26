@@ -59,9 +59,10 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
    game. Now: where the build loses those boxes (gate, activation, track loss, foot stabilisation), registered
    first, stored files; then possibly a tracking or gating arm rebuilt on the reference platform. The placement
    and output-position lines are closed (D184 to D188): no correction passed on every game; hou_cle_2016 is unspent.
-2. okc_sac_2015 closed by its kill rule (mirror vote ambiguous, 0.67). Now running: the gsw_cha_2016 CPU truth
-   rebuild (label and fit, V3 court), then the registered truth-moved test; gsw_cha_2016's truth is also the first
-   suspect from placement step 1b (D185).
+2. Truth on the reference platform (D191): gsw_cha_2016's truth MOVED when rebuilt with the detector on CPU (accepted
+   frames +80 percent), so hou_cle_2016, gsw_bkn_2015 and gsw_sac_2015 are rebuilt next (about 9.4 lock hours, after
+   the a3 model run), with check C per game. Every earlier result on the MPS truth is provisional where it depends on
+   it. okc_sac_2015 is closed (mirror vote 0.67).
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
 4. Colab as a build helper: only through a tested split route (detector on CUDA, court on the reference device),
    since CUDA matches neither Mac build (D179). Transfers go through Google Drive (D177).
@@ -105,6 +106,8 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 - Record the runtime of every stored prediction: the E1 corpus detector ran in the teacher environment, not the
   build's, so raw-against-build comparisons mixed tracker loss with a runtime difference until a review caught it
   (D190). Two environments are two platforms (see the MPS lesson).
+- The truth is a platform too: rebuilt with the detector on CPU, one game's camera truth accepted 80 percent more
+  frames (D191). Check the truth's platform before reading any result against it, as for the model.
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on
