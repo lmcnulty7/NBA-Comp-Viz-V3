@@ -106,6 +106,40 @@ Why the p90 margin is +0.10 ft:
 3. Stop for the lead's independent review.
 4. `score-hou`, once, only after the review.
 
-## Pool results
+## Pool results (computed 2026-11-26, after the design commit 3b777b99; no hou_cle_2016 file read)
 
-Not computed yet.
+Stored files only, no lock, about 45 seconds. Every check passed:
+
+- load_frames' count check against the registered score files;
+- every window's pinned matched entries equal to the registered score file's CPU side;
+- on every window, the variant's missed, in-frame, ghost and box counts and matched keys equal to the pinned ones
+  (missed and ghost differences are exactly 0.0000 with zero-width intervals).
+
+Records: reports/research/p8_outpos_pool.json and the frozen table reports/research/p8_outpos_table.json.
+
+Leave one game out, variant minus pinned, on all matched players (17,414, 11,593 and 18,883; the same set for both
+arms):
+
+| Row | gsw_bkn_2015 | gsw_cha_2016 | gsw_sac_2015 |
+| --- | --- | --- | --- |
+| Position p50 (ft) | 1.546 to 1.293; -0.253 [-0.287, -0.214] | 1.519 to 1.235; -0.284 [-0.319, -0.232] | 1.505 to 1.235; -0.269 [-0.311, -0.215] |
+| Position p90 (ft) | 3.329 to 3.110; -0.219 [-0.294, -0.134] | 3.106 to 2.986; -0.120 [-0.201, -0.050] | 3.247 to 3.073; -0.174 [-0.258, -0.097] |
+| Near-field bias (ft) | 1.576 to 0.642; -0.934 [-0.960, -0.912] | 1.150 to 0.050; -1.100 [-1.116, -0.939] | 1.330 to 0.231; -1.099 [-1.117, -1.040] |
+| Missed, ghosts | identical | identical | identical |
+
+As expected, the rows are close to P8_footpos.md's. On the pool, the hou_cle_2016 rule would pass on every game:
+p50 and near-field bias below zero with intervals below zero, and p90 improving. The pinned single-arm values here
+(for example gsw_bkn_2015 p50 1.546) differ from the registered paired rows (1.535 in M6) only because those were
+computed on the players both of two builds matched.
+
+Frozen table: the median depth offset per cell, from all three pool games (ft; negative means short). The cells:
+
+| Box height | Near | Middle | Far |
+| --- | --- | --- | --- |
+| 150 to 200 px | -0.41 | -0.87 | -1.16 |
+| 200 to 250 px | -0.34 | -0.87 | -0.88 |
+| under 150 px | -0.21 | -0.88 | -1.10 |
+| 250 px and over | -0.39 | -0.79 | 0.00 (1 fit row, under 50) |
+
+The fit rows per cell are in the table file. hou_cle_2016 has not been read for this arm. `score-hou` waits for the
+lead's independent review.
