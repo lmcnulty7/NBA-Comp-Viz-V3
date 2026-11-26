@@ -713,3 +713,28 @@ end, E by game, missed, and the ghost cost. Neither run decides anything by itse
 **Next work item, named and not run.** After a reset, many of r23's extra boxes are more than 3 ft from every
 SportVU player (about two thirds on gsw_cha_2016, a fifth on the other two). Are they non-court shots that gate v2
 lets through, the bench, or fans? That becomes its own stored-files study, registered after this arm.
+
+## 19. Results of the version 2.3 simulations (2026-11-26, stored files, no lock)
+
+Records: reports/research/p8_resetfix_simulate_v23_under.json and p8_resetfix_simulate_v23_processed.json. The
+centres' fast intervals equal the real rows, diffs and boot (checked in both runs). Scaling factors u (gsw_bkn_2015,
+gsw_cha_2016, gsw_sac_2015): registered 14.0, 16.2, 8.4; sensitivity 2.4, 18.0, 5.7.
+
+| | registered scaling | sensitivity (processed share) |
+|---|---|---|
+| pool pass probability | 0.09 | 0.07 |
+| per game pass: gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 | 1.00, 0.09, 1.00 | 1.00, 0.09, 1.00 |
+| failing conditions (share of draws) | gsw_cha_2016 net error worse 0.91; pooled net error interval not wholly below zero 0.02 | gsw_cha_2016 net error worse 0.91; pooled net error interval not wholly below zero 0.62 |
+| pooled net error difference (5th, 50th, 95th) | -0.073, -0.059, -0.043 | -0.022, -0.017, -0.013 |
+| upper end of its pooled window interval | -0.005, -0.003, -0.001 | -0.002, +0.000, +0.003 |
+| net error by game (median): gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 | -0.105, +0.010, -0.035 | -0.030, +0.011, -0.025 |
+| pooled missed difference (median) | -0.087 | -0.037 |
+| pooled ghost difference (median), its upper end (median) | +0.014, +0.030 | +0.013, +0.033 |
+| gsw_cha_2016 ghost upper end (median) | +0.091 | +0.097 |
+
+Reading (report only): under the net-error rule the pooled missed and net-error gains are large under the registered
+scaling, but gsw_cha_2016's own net error gets worse in about 91 percent of draws under either scaling, because there
+the boxes the fix returns after a reset are about two thirds ghosts, so it adds more ghost boxes than it finds missed
+players. That one condition (section 18's per-game "not worse", which I wrote as my reading of the lead's rule)
+decides the forecast: without it, the pool would pass in about 0.98 of draws under the registered scaling and about
+0.38 under the sensitivity. The ghost source (section 18's next item) bears directly on it.

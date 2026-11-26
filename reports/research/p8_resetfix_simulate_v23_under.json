@@ -1,0 +1,566 @@
+{
+ "what": "Simulated reset-fix arm, version 2.3 (docs/research/P8_resetfix.md section 18): the net-error rule; post-reset counts scaled by each game's under-representation factor (registered); q from a Beta on its counts; the bracket guard taken as passing; a forecast, not a result",
+ "version": "2.3",
+ "under_representation": {
+  "gsw_bkn_2015": 14.02458,
+  "gsw_cha_2016": 16.18079,
+  "gsw_sac_2015": 8.40889
+ },
+ "adoption_probability": 0.092,
+ "central": {
+  "f": 0.7,
+  "verdict": {
+   "pass": false,
+   "adopt": false,
+   "bracket_guard": true,
+   "failing": [
+    "gsw_cha_2016:net_error_rate"
+   ],
+   "pooled": true,
+   "games": {
+    "gsw_bkn_2015": true,
+    "gsw_cha_2016": false,
+    "gsw_sac_2015": true
+   }
+  },
+  "pooled": {
+   "pass": true,
+   "rows": {
+    "net_error_rate": {
+     "diff": -0.05817,
+     "window_interval": [
+      -0.11699,
+      -0.0027
+     ],
+     "improves": true,
+     "interval_below_zero": true,
+     "worse": false,
+     "pass": true
+    },
+    "missed_rate": {
+     "diff": -0.08626,
+     "window_interval": [
+      -0.16117,
+      -0.01374
+     ],
+     "improves": true,
+     "interval_below_zero": true,
+     "worse": false,
+     "pass": true
+    },
+    "missed_1to1_rate": {
+     "diff": -0.08626,
+     "improves": true,
+     "pass": true
+    },
+    "position_p50_ft": {
+     "diff": 0.0,
+     "window_interval": [
+      0.0,
+      0.0
+     ],
+     "bad_end": 0.0,
+     "margin": 0.05,
+     "pass": true
+    },
+    "position_p90_ft": {
+     "diff": 0.0,
+     "window_interval": [
+      0.0,
+      0.0
+     ],
+     "bad_end": 0.0,
+     "margin": 0.1,
+     "pass": true
+    },
+    "nearfield_bias_ft": {
+     "diff": 0.0,
+     "window_interval": [
+      0.0,
+      0.0
+     ],
+     "bad_end": 0.0,
+     "margin": 0.1,
+     "pass": true
+    },
+    "team_accuracy": {
+     "diff": 0.0,
+     "window_interval": [
+      0.0,
+      0.0
+     ],
+     "bad_end": 0.0,
+     "margin": -0.03,
+     "pass": true
+    },
+    "ghost_rate": {
+     "diff": 0.01456,
+     "window_interval": [
+      0.0024,
+      0.02961
+     ],
+     "gated": false,
+     "pass": true
+    },
+    "detection_rate": {
+     "diff": -0.09107,
+     "window_interval": [
+      -0.16972,
+      -0.01438
+     ],
+     "gated": false,
+     "pass": true
+    },
+    "coverage": {
+     "baseline": 0.995,
+     "arm": 0.995,
+     "floor_holds": true,
+     "pass": true
+    }
+   }
+  },
+  "per_game": {
+   "gsw_bkn_2015": {
+    "pass": true,
+    "rows": {
+     "net_error_rate": {
+      "diff": -0.1039,
+      "window_interval": [
+       -0.17258,
+       0.0
+      ],
+      "improves": true,
+      "interval_below_zero": false,
+      "worse": false,
+      "pass": true
+     },
+     "missed_rate": {
+      "diff": -0.13496,
+      "window_interval": [
+       -0.22553,
+       0.0
+      ],
+      "improves": true,
+      "interval_below_zero": false,
+      "worse": false,
+      "pass": true
+     },
+     "position_p50_ft": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": 0.05,
+      "pass": true
+     },
+     "position_p90_ft": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": 0.1,
+      "pass": true
+     },
+     "nearfield_bias_ft": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": 0.1,
+      "pass": true
+     },
+     "team_accuracy": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": -0.03,
+      "pass": true
+     },
+     "ghost_rate": {
+      "diff": 0.01282,
+      "window_interval": [
+       0.0,
+       0.02626
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "detection_rate": {
+      "diff": -0.13524,
+      "window_interval": [
+       -0.23068,
+       0.0
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "coverage": {
+      "baseline": 0.99806,
+      "arm": 0.99806,
+      "floor_holds": true,
+      "pass": true
+     }
+    }
+   },
+   "gsw_cha_2016": {
+    "pass": false,
+    "rows": {
+     "net_error_rate": {
+      "diff": 0.00991,
+      "window_interval": [
+       0.00113,
+       0.02175
+      ],
+      "improves": false,
+      "interval_below_zero": false,
+      "worse": true,
+      "pass": false
+     },
+     "missed_rate": {
+      "diff": -0.03712,
+      "window_interval": [
+       -0.09311,
+       0.0
+      ],
+      "improves": true,
+      "interval_below_zero": false,
+      "worse": false,
+      "pass": true
+     },
+     "position_p50_ft": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": 0.05,
+      "pass": true
+     },
+     "position_p90_ft": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": 0.1,
+      "pass": true
+     },
+     "nearfield_bias_ft": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": 0.1,
+      "pass": true
+     },
+     "team_accuracy": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": -0.03,
+      "pass": true
+     },
+     "ghost_rate": {
+      "diff": 0.03625,
+      "window_interval": [
+       0.00086,
+       0.08999
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "detection_rate": {
+      "diff": -0.05384,
+      "window_interval": [
+       -0.13564,
+       -0.00072
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "coverage": {
+      "baseline": 0.99304,
+      "arm": 0.99304,
+      "floor_holds": true,
+      "pass": true
+     }
+    }
+   },
+   "gsw_sac_2015": {
+    "pass": true,
+    "rows": {
+     "net_error_rate": {
+      "diff": -0.03427,
+      "window_interval": [
+       -0.07193,
+       -0.00473
+      ],
+      "improves": true,
+      "interval_below_zero": true,
+      "worse": false,
+      "pass": true
+     },
+     "missed_rate": {
+      "diff": -0.04596,
+      "window_interval": [
+       -0.094,
+       -0.0074
+      ],
+      "improves": true,
+      "interval_below_zero": true,
+      "worse": false,
+      "pass": true
+     },
+     "position_p50_ft": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": 0.05,
+      "pass": true
+     },
+     "position_p90_ft": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": 0.1,
+      "pass": true
+     },
+     "nearfield_bias_ft": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": 0.1,
+      "pass": true
+     },
+     "team_accuracy": {
+      "diff": 0.0,
+      "window_interval": [
+       0.0,
+       0.0
+      ],
+      "bad_end": 0.0,
+      "margin": -0.03,
+      "pass": true
+     },
+     "ghost_rate": {
+      "diff": 0.00522,
+      "window_interval": [
+       0.00105,
+       0.01075
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "detection_rate": {
+      "diff": -0.04984,
+      "window_interval": [
+       -0.10103,
+       -0.00747
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "coverage": {
+      "baseline": 0.99352,
+      "arm": 0.99352,
+      "floor_holds": true,
+      "pass": true
+     }
+    }
+   }
+  },
+  "checked_against_real_code": {
+   "missed_rate": {
+    "point_equal": true,
+    "window_interval_equal": true,
+    "game_interval_equal": true
+   },
+   "ghost_rate": {
+    "point_equal": true,
+    "window_interval_equal": true,
+    "game_interval_equal": true
+   },
+   "coverage": {
+    "point_equal": true,
+    "window_interval_equal": true,
+    "game_interval_equal": true
+   },
+   "position_p50_ft": {
+    "point": 0.0,
+    "window_interval": [
+     0.0,
+     0.0
+    ],
+    "game_interval": [
+     0.0,
+     0.0
+    ],
+    "zero": true
+   },
+   "position_p90_ft": {
+    "point": 0.0,
+    "window_interval": [
+     0.0,
+     0.0
+    ],
+    "game_interval": [
+     0.0,
+     0.0
+    ],
+    "zero": true
+   },
+   "nearfield_bias_ft": {
+    "point": 0.0,
+    "window_interval": [
+     0.0,
+     0.0
+    ],
+    "game_interval": [
+     0.0,
+     0.0
+    ],
+    "zero": true
+   },
+   "team_accuracy": {
+    "point": 0.0,
+    "window_interval": [
+     0.0,
+     0.0
+    ],
+    "game_interval": [
+     0.0,
+     0.0
+    ],
+    "zero": true
+   }
+  }
+ },
+ "draws": 500,
+ "boot": 2000,
+ "pass_probability": 0.092,
+ "pooled_pass_probability": 0.98,
+ "game_pass_probability": {
+  "gsw_bkn_2015": 1.0,
+  "gsw_cha_2016": 0.092,
+  "gsw_sac_2015": 1.0
+ },
+ "missed_interval_below_zero_probability": 1.0,
+ "failing_conditions": {
+  "gsw_cha_2016:net_error_rate": 0.908,
+  "pool:net_error_rate": 0.02
+ },
+ "forecast": {
+  "missed_pooled": {
+   "p05": -0.10846,
+   "p50": -0.08708,
+   "p95": -0.06437
+  },
+  "detection_pooled": {
+   "p05": -0.11425,
+   "p50": -0.092,
+   "p95": -0.06774
+  },
+  "ghost_pooled": {
+   "p05": 0.01045,
+   "p50": 0.01433,
+   "p95": 0.01929
+  },
+  "ghost_window_hi_pooled": {
+   "p05": 0.0225,
+   "p50": 0.03009,
+   "p95": 0.03835
+  },
+  "ghost_window_hi_by_game": {
+   "gsw_bkn_2015": {
+    "p05": 0.01628,
+    "p50": 0.02512,
+    "p95": 0.03746
+   },
+   "gsw_cha_2016": {
+    "p05": 0.0678,
+    "p50": 0.09083,
+    "p95": 0.11701
+   },
+   "gsw_sac_2015": {
+    "p05": 0.00502,
+    "p50": 0.01071,
+    "p95": 0.01775
+   }
+  },
+  "missed_by_game": {
+   "gsw_bkn_2015": {
+    "p05": -0.16967,
+    "p50": -0.1361,
+    "p95": -0.10058
+   },
+   "gsw_cha_2016": {
+    "p05": -0.04664,
+    "p50": -0.03744,
+    "p95": -0.02779
+   },
+   "gsw_sac_2015": {
+    "p05": -0.05766,
+    "p50": -0.04663,
+    "p95": -0.03443
+   }
+  },
+  "net_error_pooled": {
+   "p05": -0.07291,
+   "p50": -0.05895,
+   "p95": -0.04337
+  },
+  "net_error_window_hi_pooled": {
+   "p05": -0.00537,
+   "p50": -0.00264,
+   "p95": -0.00063
+  },
+  "net_error_by_game": {
+   "gsw_bkn_2015": {
+    "p05": -0.13076,
+    "p50": -0.10519,
+    "p95": -0.07788
+   },
+   "gsw_cha_2016": {
+    "p05": 0.0038,
+    "p50": 0.01016,
+    "p95": 0.01743
+   },
+   "gsw_sac_2015": {
+    "p05": -0.04388,
+    "p50": -0.03455,
+    "p95": -0.02506
+   }
+  }
+ },
+ "excess_ghost_share": {
+  "gsw_bkn_2015": 0.1824,
+  "gsw_cha_2016": 0.65347,
+  "gsw_sac_2015": 0.19141
+ },
+ "scaling": "under"
+}
