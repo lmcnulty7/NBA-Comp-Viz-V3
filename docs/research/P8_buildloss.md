@@ -17,8 +17,8 @@ and the tool were committed before the tool produced any number.
 - **Detector and tracker** (detect/tracker.py). One ultralytics model.track call at confidence 0.40, with BoT-SORT
   (track_high_thresh 0.25, new_track_thresh 0.25, track_buffer 30, match_thresh 0.8).
   - Only tracks the tracker outputs reach the sidecar. Raw detections are not stored.
-  - In ultralytics 8.4.48 (trackers/byte_tracker.py), a new track is activated at once only on the tracker's first
-    frame. Later it starts unconfirmed and is output after a second match.
+  - In ultralytics 8.4.48 (trackers/byte_tracker.py), a new track is activated at once only on a tracker's first
+    frame (the run's first frame and the first frame after every camera-cut or exception reset). Later it starts unconfirmed and is output after a second match.
   - A camera-cut detector (detect/camera_cut.py) resets the tracker when 80 percent of 4 or more tracks vanish.
     Resets are not recorded, but new track ids show them.
 - **Foot stabilisation** (detect/footpoint.py). For each track it keeps an EMA of the foot (alpha 0.6). It also
@@ -43,7 +43,8 @@ Classes, a partition, in this order:
 - **a1, activation lag.** No sidecar box at IoU 0.5 or more with the raw box in this frame, and none at IoU 0.3 or
   more in the previous processed frame. In the next processed frame there is a box at IoU 0.3 or more whose track id
   is in neither this frame nor the previous one: the tracker started the track later.
-- **a2, track gap.** No sidecar box at IoU 0.5 or more in this frame. But there is a box at IoU 0.3 or more in the
+- **a2, track gap.** No sidecar box at IoU 0.5 or more in this frame (a box at IoU 0.3 to 0.5 here is not checked,
+  so a displaced output box also lands in a2). But there is a box at IoU 0.3 or more in the
   previous processed frame, or one in the next with a track id that was already present. A track existed and was not
   output here: lost, cut or left unmatched. The lead's "(b) a track dropped or cut there" shows up here, because a box
   that is present in the frame would be scored.
@@ -126,7 +127,7 @@ What the numbers say beyond the rule (post hoc, not tested):
 
 Proposal for the lead (it needs its own registration; the rule did not select it): find what a3 is. The cheapest
 discriminating step is a model run on the windows that carry most of a3. It would run r23 on the decoded video frames
-the build used, the same frames as the corpus JPEGs, on CPU, both raw and through model.track. That separates "the
+the build used, the frames the build decoded (alignment with the corpus JPEGs is a check, not an assumption), on CPU, both raw and through model.track. That separates "the
 detector did not fire on the video" from "the tracker did not output it". It needs the heavy-job lock (model code)
 for minutes per window, and no units.
 
@@ -159,8 +160,10 @@ reports/research/p8_buildloss_v2.json; per-player rows stay in the P8 workspace 
      The box then exists only on the JPEG, which differs from the video frame by the JPEG compression and the corpus
      environment's library versions.
    - Order: a matched box gives b or c as in version 1; otherwise d when the decoded-frame detector has no box within
-     5 ft; otherwise a1, a2 or a3. A player in a1 to a3 now had a box from the detector on the decoded frame, so the
-     loss is the tracker's.
+     5 ft; otherwise a1, a2 or a3. A player in a1 to a3 had a box from the detector on the corpus's decoded frame.
+     Correction (ml-review, 2026-11-26): d sizes JPEG compression only. The corpus decoded sequentially from frame 0
+     in the teacher environment (OpenCV 5.1.0, torch 2.15.0), the builds with SeqReader seeks after the pre-gate scan
+     (OpenCV 4.13.0, torch 2.2.2), so a1 to a3 still mix tracker loss with decode-path and runtime differences.
 
 What each class leads to is unchanged from version 1. d leads to no build-side arm: the detector input differs, not
 the build. The tool fails loudly if a record or corpus file it needs is missing, and it calls refuse_cv_test at the
@@ -203,20 +206,24 @@ No class matters. No reachable rate reaches 0.010 on every pool game. a3 (never 
 gsw_bkn_2015 but 0.004 and 0.008 on the other two games. No tracking, gating or foot-stabilisation arm is selected.
 
 Decode is now sized on this population: 8, 3 and 5 players. The detector on the decoded clip frame (corpus "ours")
-had a box near almost every population player. So almost all of the "no box in the build" loss is not decode; it
-happens between the detector and the sidecar.
+had a box near almost every population player. So almost none of the "no box in the build" loss is JPEG compression.
+Whether it happens in the tracker or in a decode-path or runtime difference between the corpus and the build is not
+settled (see the correction above). On reachable rates, v1's pooled line no longer holds: a1 + a2 + a3 is 0.0227,
+0.0059 and 0.0097, below 0.010 on two games.
 
-What the numbers say beyond the rule (post hoc, descriptive):
+What the numbers say beyond the rule (post hoc, descriptive; rows without an interval are point estimates; foot_corrected
+flags only this frame's correction, so c_occlusion includes the EMA and earlier corrections reach c_ema through it):
 
 - a3's reachable players sit in a few windows.
   - gsw_bkn_2015: 363 of 374 are in gsw_bkn_2015_s04_w00. That is the window M6 and M7 already singled out: on CPU
     the r23 build holds 4.27 boxes a frame there and misses 784 of 1,385 players.
   - gsw_cha_2016: 36 of 51 are in gsw_cha_2016_s05_w00.
   - gsw_sac_2015: 69, 47 and 23 of 161 are in s01_w00, s09_w01 and s07_w00.
-  - Outside those windows a3 is small. The loss is a window-level failure of the tracker path, not a per-player one.
+  - Outside those windows a3 is small. The loss is window-level, not per-player; whether it is the tracker path is a hypothesis (see the correction).
 - detect/tracker.py returns no tracks for a frame when the tracker raises (a Kalman LinAlgError or the ultralytics
   re-identification AttributeError) and resets it. A run of such frames, or repeated resets, would empty the sidecar
-  where the detector still fires. This is a hypothesis; the stored data were not checked for it.
+  where the detector still fires. This hypothesis is refuted by stored data (P8_trackreset.md, ml-review: 0 or 1 empty processed frames in each a3
+  window).
 
 Proposal for the lead (needs its own registration; stored files, minutes, no lock): for the windows carrying a3,
 count processed frames with zero sidecar boxes, track-id turnover between frames, and the build logs' reset and
