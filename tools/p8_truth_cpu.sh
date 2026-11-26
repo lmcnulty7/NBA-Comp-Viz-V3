@@ -1,30 +1,39 @@
 #!/bin/bash
-# tools/p8_truth_cpu.sh: CPU-detector camera truth and its acceptance (docs/research/P8_truth_arenas.md section 16).
-# Order: gsw_cha_2016 (truth built in section 15; only check C's r23 side and acceptance), then hou_cle_2016,
-# gsw_bkn_2015, gsw_sac_2015 (link; label one job a section with V3 court, gate v2 and the detector on CPU; fit).
-# Then, per game, report steps after the fit: check C's r23 side, copied from the workspace's reference-platform r23
-# builds for verified windows (tools.p8_truth_cpu_r23; no r23 is built), and only when every V3 label window has one,
-# check C's measures (tools.p8_truth_v2 measure-dev) and the acceptance checks (tools.p8_truth_accept); then the
-# report-only comparisons with the MPS truth (tools.p8_truth_moved, tools.p8_truth_moved_dh).
+# tools/p8_truth_cpu.sh: CPU-detector camera truth built with the tracker reset fix, and its acceptance
+# (docs/research/P8_truth_arenas.md section 16 version 4; PLAN.md D192).
 #
-#     V3_CV_PYTHON=<anaconda python> bash tools/p8_truth_cpu.sh [GAME ...]
+#     V3_CV_PYTHON=<anaconda python> bash tools/p8_truth_cpu.sh truth  [GAME ...]
+#     V3_CV_PYTHON=<anaconda python> bash tools/p8_truth_cpu.sh accept [GAME ...]
 #
-# One heavy-job lock per model step (label, fit, measure-dev); the file-only steps take none. Resumable: a step
-# with a done marker (or a measure-dev record) is skipped and built windows are cached. A failed step is retried at
-# most twice, then the driver stops. A game whose lock time passes its cap (1.5 times its estimate, section 16) stops
-# the driver before its next step. A file named STOP in the reference root stops it before the next step. Nothing is
-# written to the P8 workspace (work): hou_cle_2016's inputs are linked from it read only, r23 builds are copied.
+# truth, per game in the order gsw_cha_2016, hou_cle_2016, gsw_bkn_2015, gsw_sac_2015: move the game's label builds
+# made without the fix and the truth fitted from them aside, kept (tools.p8_truth_fixprep supersede; clips and window
+# time maps stay); link; label one job a section (V3 court, gate v2, detector on CPU, P8_TRACKER_RESET_FIX=1); check
+# that every label window carries the fix (tools.p8_truth_fixprep label-check); fit; the report-only comparisons with
+# the MPS truth (tools.p8_truth_moved, tools.p8_truth_moved_dh).
+# accept, per game, after the reset-fix arm's builds and passing equivalence for that game: builds/r23 composed fixed
+# with fixed (tools.p8_truth_cpu_r23 compose: the arm's builds on reset windows, the workspace baseline elsewhere),
+# then, only if every label window has one, check C (tools.p8_truth_v2 measure-dev) and the acceptance checks
+# (tools.p8_truth_accept), both unchanged. A game not ready is reported and skipped; rerun accept later.
+#
+# One heavy-job lock per model step (label, fit, measure-dev); the file-only steps take none. Resumable: a step with a
+# done marker (or a measure-dev record) is skipped and built windows are cached (a cached window built without the fix
+# is refused by tools.p8_device.check_cached). A failed step is retried at most twice, then the driver stops. A game
+# whose lock time in this driver passes its cap (1.5 times its estimate) stops the driver before its next step. A file
+# named STOP in the reference root stops it before the next step. Nothing is written to the P8 workspace (work).
 set -u -o pipefail
 MPS="${V3_P8_MPS_ROOT:-$HOME/Developer/nba-v3-worktrees/_p8-data/work}"
 R="${V3_P8_REF_ROOT:-$HOME/Developer/nba-v3-worktrees/_p8-data/work_ref}"
 CV="${V3_CV_PYTHON:?set V3_CV_PYTHON to the interpreter that has ultralytics and easyocr (CLAUDE.md: the anaconda one)}"
 SYS=/usr/local/bin/python3
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-LOG="$R/logs/truth_cpu.log"
+LOG="$R/logs/truth_fix.log"
+PHASE="${1:-}"; shift || true
 ORDER="gsw_cha_2016 hou_cle_2016 gsw_bkn_2015 gsw_sac_2015"
-cap_of() {   # lock seconds in this driver: 1.5 times the section 16 version 3 estimate
-  case "$1" in
-    gsw_cha_2016) echo 450;; hou_cle_2016) echo 19570;; gsw_bkn_2015) echo 16850;; gsw_sac_2015) echo 15680;; *) echo 0;;
+cap_of() {   # lock seconds per phase and game: 1.5 times the section 16 version 4 estimate
+  case "$PHASE:$1" in
+    truth:gsw_cha_2016) echo 14630;; truth:hou_cle_2016) echo 19190;; truth:gsw_bkn_2015) echo 16470;; truth:gsw_sac_2015) echo 15300;;
+    accept:gsw_cha_2016|accept:hou_cle_2016|accept:gsw_bkn_2015|accept:gsw_sac_2015) echo 450;;
+    *) echo 0;;
   esac
 }
 GAMES="${*:-$ORDER}"
@@ -32,9 +41,13 @@ cd "$REPO" || exit 2
 same=$("$SYS" -c "import os,sys; print(int(os.path.realpath(sys.argv[1]) == os.path.realpath(sys.argv[2])))" "$MPS" "$R")
 [ "$same" = 0 ] || { echo "the reference root and the P8 workspace are the same folder" >&2; exit 2; }
 "$SYS" -m tools.p8_truth_cpu_r23 detector-check || { echo "models/player_detector.pt is not the r23 detector" >&2; exit 2; }
+case "$PHASE" in truth|accept) ;; *) echo "usage: p8_truth_cpu.sh truth|accept [GAME ...]" >&2; exit 2;; esac
+[ -z "${TRACKER_REID:-}" ] || { echo "TRACKER_REID must be unset (P8_resetfix.md)" >&2; exit 2; }
+"$SYS" -c "from tools.p8_device import RESET_FIX_FLAG, reset_fix_requested; from tools.p8_resetfix import apply_reset_fix" 2>/dev/null \
+  || { echo "the reset fix code (tools.p8_resetfix, P8_TRACKER_RESET_FIX in tools.p8_device) is not on this branch" >&2; exit 2; }
 mkdir -p "$R/logs"
 say() { echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $*" | tee -a "$LOG"; }
-held() { grep -h "^\[heavy\] 'p8 cpu truth $1 .*done in" "$LOG" 2>/dev/null | sed -E 's/.*done in ([0-9]+) s.*/\1/' | awk '{s+=$1} END {print s+0}'; }
+held() { grep -h "^\[heavy\] 'p8 fixtruth $PHASE $1 .*done in" "$LOG" 2>/dev/null | sed -E 's/.*done in ([0-9]+) s.*/\1/' | awk '{s+=$1} END {print s+0}'; }
 done_marker() { [ -f "$1" ]; }
 mk() { echo "$R/meta/done/$1.json"; }
 step() {   # step <game> <name> <done file> <module> <args...>: one lock, at most two retries
@@ -45,7 +58,7 @@ step() {   # step <game> <name> <done file> <module> <args...>: one lock, at mos
     if [ -f "$R/STOP" ]; then say "STOP file present; stopping before $name of $game"; exit 3; fi
     local h; h=$(held "$game"); if [ "$h" -gt "$cap" ]; then say "KILL: $game lock time $h s passed its cap $cap s"; exit 4; fi
     say "start $game $name attempt $attempt"
-    "$SYS" -m export.heavy --name "p8 cpu truth $game $name" -- env V3_P8_ROOT="$R" P8_DEVICE_DETECTOR=cpu "$CV" -m "$mod" "$@" \
+    "$SYS" -m export.heavy --name "p8 fixtruth $PHASE $game $name" -- env V3_P8_ROOT="$R" P8_DEVICE_DETECTOR=cpu P8_TRACKER_RESET_FIX=1 "$CV" -m "$mod" "$@" \
       2>&1 | grep -v "Warning\|warn(\|pandas\|NUMEXPR\|NNPACK" | tee -a "$LOG" | tail -3
     local rc=${PIPESTATUS[0]}
     say "end $game $name attempt $attempt rc=$rc"
@@ -70,37 +83,46 @@ link_from_mps() {   # a channel game (not R1.3): its sections, moments, time map
 }
 sections_of() { ls "$R/video" | sed -n "s/^\(${1}_s[0-9][0-9]\)\.mp4$/\1/p" | sort; }
 
-say "=== CPU truth driver start: $GAMES"
+say "=== reset-fix truth driver, phase $PHASE: $GAMES"
 for TAG in $GAMES; do
   [ "$(cap_of "$TAG")" -gt 0 ] || { say "FAIL: $TAG is not in this plan"; exit 2; }
-  # truth: link, label, fit (gsw_cha_2016's were built in section 15; their done markers make these skip)
-  case "$TAG" in
-    gsw_*) if ! done_marker "$(mk "link__${TAG}")"; then
-             env V3_P8_ROOT="$R" P8_DEVICE_DETECTOR=cpu "$CV" -m tools.p8_frozen link "$TAG" 2>&1 \
-               | grep -v "Warning\|warn(\|pandas\|NUMEXPR" | tee -a "$LOG" | tail -2
-             done_marker "$(mk "link__${TAG}")" || { say "FAIL link $TAG"; exit 5; }
-           fi;;
-    *) link_from_mps "$TAG" || exit 5;;
-  esac
-  SECTIONS=$(sections_of "$TAG")
-  say "$TAG sections: $(echo $SECTIONS | wc -w)"
-  for s in $SECTIONS; do
-    [ -e "$R/sync/${s}_local_timemap.json" ] || { say "skip $s (no time map)"; continue; }
-    step "$TAG" "label $s" "$(mk "label__${TAG}__${s}")" tools.p8_frozen label "$TAG" --section "$s" \
-      || { say "KILL: label $s failed three times; stop and diagnose"; exit 10; }
-  done
-  step "$TAG" "fit" "$(mk "fit__${TAG}")" tools.p8_frozen fit "$TAG" || { say "FAIL fit $TAG"; exit 11; }
-  say "=== $TAG truth built; lock held so far: $(held "$TAG") s"
-  # report steps: check C's r23 side (copied, no build), then check C and acceptance only when it is complete
-  "$SYS" -m tools.p8_truth_cpu_r23 link "$TAG" --mps-root "$MPS" --ref-root "$R" 2>&1 | tee -a "$LOG" || { say "FAIL r23 copy $TAG"; exit 12; }
-  if "$SYS" -c "import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))['complete'] else 1)" "$R/builds/r23_source_${TAG}.json"; then
-    step "$TAG" "measure-dev" "$R/truth_v2/dev/${TAG}.json" tools.p8_truth_v2 measure-dev "$TAG" || { say "FAIL measure-dev $TAG"; exit 14; }
-    env V3_P8_ROOT="$R" "$SYS" -m tools.p8_truth_accept "$TAG" 2>&1 | tee -a "$LOG" | tail -4 || say "truth_accept $TAG failed"
+  if [ "$PHASE" = truth ]; then
+    "$SYS" -m tools.p8_truth_fixprep supersede "$TAG" --ref-root "$R" 2>&1 | tee -a "$LOG" || { say "FAIL supersede $TAG"; exit 6; }
+    case "$TAG" in
+      gsw_*) if ! done_marker "$(mk "link__${TAG}")"; then
+               env V3_P8_ROOT="$R" P8_DEVICE_DETECTOR=cpu P8_TRACKER_RESET_FIX=1 "$CV" -m tools.p8_frozen link "$TAG" 2>&1 \
+                 | grep -v "Warning\|warn(\|pandas\|NUMEXPR" | tee -a "$LOG" | tail -2
+               done_marker "$(mk "link__${TAG}")" || { say "FAIL link $TAG"; exit 5; }
+             fi;;
+      *) link_from_mps "$TAG" || exit 5;;
+    esac
+    SECTIONS=$(sections_of "$TAG")
+    say "$TAG sections: $(echo $SECTIONS | wc -w)"
+    for s in $SECTIONS; do
+      [ -e "$R/sync/${s}_local_timemap.json" ] || { say "skip $s (no time map)"; continue; }
+      step "$TAG" "label $s" "$(mk "label__${TAG}__${s}")" tools.p8_frozen label "$TAG" --section "$s" \
+        || { say "KILL: label $s failed three times; stop and diagnose"; exit 10; }
+    done
+    "$SYS" -m tools.p8_truth_fixprep label-check "$TAG" --ref-root "$R" 2>&1 | tee -a "$LOG" \
+      || { say "KILL: a label window of $TAG lacks the reset fix or the reference devices"; exit 7; }
+    step "$TAG" "fit" "$(mk "fit__${TAG}")" tools.p8_frozen fit "$TAG" || { say "FAIL fit $TAG"; exit 11; }
+    say "=== $TAG truth built; lock held: $(held "$TAG") s"
+    "$SYS" -m tools.p8_truth_moved "$TAG" --mps-root "$MPS" --cpu-root "$R" 2>&1 | tee -a "$LOG" || say "truth_moved $TAG failed"
+    "$SYS" -m tools.p8_truth_moved_dh "$TAG" --mps-root "$MPS" --cpu-root "$R" 2>&1 | tail -25 | tee -a "$LOG" || say "truth_moved_dh $TAG failed"
   else
-    say "CHECK C NOT RUN for $TAG: some V3 label windows have no verified r23 build (see builds/r23_source_${TAG}.json); acceptance pending"
+    [ -f "$(mk "fit__${TAG}")" ] && "$SYS" -m tools.p8_truth_fixprep label-check "$TAG" --ref-root "$R" >/dev/null \
+      || { say "CHECK C NOT RUN for $TAG: no fixed truth yet"; continue; }
+    if ! "$SYS" -m tools.p8_truth_cpu_r23 compose "$TAG" --mps-root "$MPS" --ref-root "$R" 2>&1 | tee -a "$LOG"; then
+      say "CHECK C NOT RUN for $TAG: the reset-fix arm's plan or passing equivalence is not there yet, or the composition stopped"
+      continue
+    fi
+    if "$SYS" -c "import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))['complete'] else 1)" "$R/builds/r23_checkc_${TAG}.json"; then
+      step "$TAG" "measure-dev" "$R/truth_v2/dev/${TAG}.json" tools.p8_truth_v2 measure-dev "$TAG" || { say "FAIL measure-dev $TAG"; exit 14; }
+      env V3_P8_ROOT="$R" "$SYS" -m tools.p8_truth_accept "$TAG" 2>&1 | tee -a "$LOG" | tail -4 || say "truth_accept $TAG failed"
+    else
+      say "CHECK C NOT RUN for $TAG: some V3 label windows have no verified r23 build (builds/r23_checkc_${TAG}.json); acceptance pending"
+    fi
   fi
-  "$SYS" -m tools.p8_truth_moved "$TAG" --mps-root "$MPS" --cpu-root "$R" 2>&1 | tee -a "$LOG" || say "truth_moved $TAG failed"
-  "$SYS" -m tools.p8_truth_moved_dh "$TAG" --mps-root "$MPS" --cpu-root "$R" 2>&1 | tail -25 | tee -a "$LOG" || say "truth_moved_dh $TAG failed"
-  say "=== $TAG done; lock held: $(held "$TAG") s"
+  say "=== $TAG phase $PHASE done; lock held: $(held "$TAG") s"
 done
-say "=== CPU truth driver done"
+say "=== reset-fix truth driver, phase $PHASE, done"

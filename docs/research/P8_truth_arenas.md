@@ -505,3 +505,80 @@ the copy, and one there with no build on record stops it too. The driver exits a
 the P8 workspace are different folders (real paths) and the repository's models/player_detector.pt has the r23
 sha256. The registered workspace path of measure-dev's guard stays written out in tools/p8_truth_v2.py (moving it into
 tools/p8_common.py would change a file under the scorer's pin); a test checks it equals p8_common's default root.
+
+**Version 4 (2026-11-26, PLAN.md D192 and the lead's decisions; registered before any fixed build). Where it differs
+from versions 2 and 3 above, version 4 holds.**
+
+*Why.* D192: the tracker double-update bug after a reset (detect/tracker.py PlayerTracker.reset; the tracker keeps
+about 0.3 of the detector's boxes after a reset) also thins camera truth, since truth frames come from the label
+build's tracker boxes. Truth built with the bug under-represents post-reset frames. The lead stopped the version 3 run
+after hou_cle_2016 label s03 (lock spent on unfixed builds: gsw_cha_2016 9,745 s in section 15 plus 130 s, and
+hou_cle_2016 4,658 s for s00 to s03).
+
+*Decisions (the lead's).*
+
+1. Every label build of all four games (gsw_cha_2016 included) is rebuilt with the reset fix:
+   `P8_TRACKER_RESET_FIX=1` (tools/p8_device.py and tools/p8_resetfix.py of the reset-fix arm, branch r-p8-resetfix,
+   design docs/research/P8_resetfix.md section 14), with the detector on CPU, court and gate auto, no clip fix,
+   TRACKER_REID unset. Each label window's device record must carry "reset_fix": true.
+2. Every earlier label window in the reference root is invalid. tools.p8_device.check_cached refuses a cached window
+   whose reset_fix differs, so they cannot mix. They are moved aside, kept and not deleted (tools/p8_truth_fixprep.py
+   supersede, into work_ref/superseded_nofix/ at the same relative paths): every unfixed label window's outputs, the
+   truth fitted from them (labels/<game>/ and its result, offsets and paint files), the records read from that truth
+   (truth_v2/dev, truth_accept, truth_moved), the label and fit done markers, and version 3's unfixed r23 copies
+   (builds/r23/<window>_*, builds/r23_source_<game>.json). The label clips (<window>.mp4) and window time maps stay in
+   place and are reused, never cut again, so they stay byte-identical to the P8 workspace's.
+3. The unfixed gsw_cha_2016 CPU truth stays on record as it is: section 15, and its acceptance ("use"; A 7.06 px, B
+   2,459 frames and 2,308 s, C n 63 of 73, median 0.48 s, share 0.7619) in
+   reports/research/p8_truth_accept_gsw_cha_2016_nofix.json. It is not used for anything further.
+4. Check C pairs fixed with fixed, so it stays a court-model comparison and section 5's bars keep their meaning. In
+   the reference root, builds/r23 becomes check C's composite, filled per game by tools/p8_truth_cpu_r23.py compose
+   only after the reset-fix arm's equivalence record for that game (resetfix/equiv__<game>.json) shows "passes": true:
+   - the windows listed in resetfix/plan__<game>.json "reset_windows" (a reset in the baseline build, identity
+     camera_cut_resets above 0): the arm's fixed build, builds/resetfix_r23_detcpu__<game> of the reference root;
+   - every other window: the workspace's reference-platform r23 build (tools.p8_placement.BUILDS). With no reset, the
+     fix changes nothing, which the arm's equivalence windows test byte for byte.
+   A build is copied only when its sidecar's source is the window's label clip (the reference root's for an arm build,
+   the workspace's for a baseline build) and that clip is byte-identical in both roots; its device record asks for the
+   reference setting with reset_fix true (arm) or absent (baseline) and no clip fix; and its detector record is the
+   r23 detector (model r23, sha256 4c886d5f...). Check C and the acceptance run only when every fixed V3 label window
+   has such an r23 build ("complete"); otherwise "CHECK C NOT RUN" and acceptance waits. tools/p8_truth_v2.py
+   measure-dev and tools/p8_truth_accept.py are unchanged; the folder r23_resetfix_checkc of an earlier message is
+   dropped.
+5. The arm's unfixed baseline is the arm's, in builds/r23_nofix of the reference root (made by the arm's own command
+   with this tool's checks). The arm writes only builds/resetfix_r23_detcpu__<game>, builds/r23_nofix, resetfix/,
+   cache/scorecard copies and tmp/resetfix_common_labels; this driver writes only label_build/, labels/, truth_v2/dev/,
+   truth_accept/, truth_moved/, builds/r23/ and its records, superseded_nofix/ and meta/done/.
+6. hou_cle_2016's reset-window arm builds run before the arm's pool verdict (the lead lifted that gate for builds,
+   not for scoring), so hou_cle_2016's check C waits only for them; no r23 build is made by this plan.
+
+*Order, one heavy job at a time.* (1) The arm's stage 0 and smoke, reviewed. (2) This driver's truth phase, all four
+games: supersede, link, label with the fix, label-check, fit, then truth_moved and the d_H report against the MPS truth.
+(3) The arm's builds and equivalence for the three pool games and hou_cle_2016 (build only, no score). (4) This
+driver's accept phase per game: compose, measure-dev, p8_truth_accept. (5) The arm's pin-truth (it requires a final
+use verdict and every label device record with reset_fix true and detector cpu) and pool scoring. (6) hou_cle_2016
+scoring only if the pool passes. Steps 2 and 3 do not overlap.
+
+*Driver.* tools/p8_truth_cpu.sh, two phases: `truth` and `accept`, a new log (logs/truth_fix.log) and lock names
+("p8 fixtruth <phase> <game> ..."), so version 3's lock time does not count against version 4's caps. It exits at
+start unless the reset-fix code is on the branch (tools.p8_resetfix importable, RESET_FIX_FLAG in tools.p8_device;
+r-p8-resetfix must be merged first), TRACKER_REID is unset, the two roots differ and models/player_detector.pt is
+r23's. The label-check runs before every fit and stops the driver if any label window lacks the fix or the reference
+devices. Resumable, two retries at most, STOP file, as before.
+
+*Estimates and caps (lock seconds).* Truth as in version 2's rates (label 1.21 times the CPU r23 build, fit 1.22 times
+the MPS fit; gsw_cha_2016 from its section 15 run). The fix is not expected to change build time materially (it removes
+a second tracker update per frame after a reset). Accept: measure-dev, 130 s on gsw_cha_2016.
+
+| Game | Truth estimate | Truth cap | Accept estimate | Accept cap |
+| --- | --- | --- | --- | --- |
+| gsw_cha_2016 | 9,750 s (2.71 h) | 14,630 s | 130 to 250 s | 450 s |
+| hou_cle_2016 | 12,795 s (3.55 h) | 19,190 s | 130 to 250 s | 450 s |
+| gsw_bkn_2015 | 10,980 s (3.05 h) | 16,470 s | 130 to 250 s | 450 s |
+| gsw_sac_2015 | 10,200 s (2.83 h) | 15,300 s | 130 to 250 s | 450 s |
+| All four | 43,725 s (12.1 h) | | under 0.3 h | |
+
+*Reading the reports.* p8_truth_moved now compares MPS truth without the fix with CPU truth with the fix, so a MOVED
+reading carries both the platform and the fix; section 15 isolates the platform part on gsw_cha_2016. The bars of
+section 0 and section 5 are unchanged. Records: reports/research/p8_truth_moved_<game>.json and
+reports/research/p8_truth_accept_<game>.json, committed with a dated result section.

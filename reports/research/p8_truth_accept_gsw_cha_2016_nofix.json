@@ -1,0 +1,93 @@
+{
+ "game": "gsw_cha_2016",
+ "what": "the CPU-detector camera truth built WITHOUT the tracker reset fix (P8_truth_arenas.md sections 15 and 16 version 3); superseded by section 16 version 4 (PLAN.md D192), kept on record as it is",
+ "acceptance": {
+  "checks": {
+   "A": {
+    "pass": true,
+    "partial": false,
+    "reproj_px_median_after": 7.06,
+    "bar": 10.0
+   },
+   "B": {
+    "pass": true,
+    "partial": false,
+    "accepted": 2459,
+    "mapped_s": 2308.0,
+    "bars": {
+     "accepted_min": 1000,
+     "mapped_s_min": 1500.0
+    }
+   },
+   "C": {
+    "pass": true,
+    "n": 63,
+    "windows_measured": 73,
+    "median_abs_s": 0.48,
+    "share_over_0_2_s": 0.7619,
+    "bars": {
+     "offset_median_s_max": 0.54,
+     "offset_share_max": 0.7945,
+     "offset_n_share_min": 0.8
+    }
+   }
+  },
+  "platform_ok": true,
+  "use": "use",
+  "truth_platform": {
+   "label": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 73
+   },
+   "r23_rebuild": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 73
+   }
+  },
+  "label_windows": 73,
+  "rebuild_windows": 73
+ },
+ "check_c_r23_side": {
+  "source": "builds/m9_r23_detcpu__gsw_cha_2016 of the P8 workspace",
+  "windows_on_record": 73,
+  "copied": 0,
+  "refused": {},
+  "v3_label_windows": 73,
+  "complete": true
+ },
+ "measure_dev_summary": {
+  "windows": 73,
+  "frozen_recompute_mismatch": [
+   "gsw_cha_2016_s01_w05",
+   "gsw_cha_2016_s03_w02",
+   "gsw_cha_2016_s04_w07",
+   "gsw_cha_2016_s05_w03",
+   "gsw_cha_2016_s06_w02",
+   "gsw_cha_2016_s06_w08",
+   "gsw_cha_2016_s06_w09",
+   "gsw_cha_2016_s07_w06",
+   "gsw_cha_2016_s08_w05",
+   "gsw_cha_2016_s08_w08"
+  ],
+  "frozen": {
+   "n": 63,
+   "median_abs_s": 0.48,
+   "share_over_0_2_s": 0.7619,
+   "max_abs_s": 2.76
+  },
+  "v2": {
+   "n": 63,
+   "median_abs_s": 0.351,
+   "share_over_0_2_s": 0.6984,
+   "max_abs_s": 1.771
+  },
+  "v2_at_edge": {
+   "v3": 18,
+   "r23": 1
+  },
+  "candidates_v3": {
+   "frozen": 4118,
+   "v2": 4648,
+   "ratio": 1.1287
+  }
+ },
+ "files_now_under": "the reference root's superseded_nofix/ once section 16 version 4 runs"
+}
