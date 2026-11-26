@@ -132,9 +132,10 @@ Cells (box height by third) with at least 200 rows on every pool game, game medi
 | 200 to 250, near | -0.24, -0.28, -0.45 | -0.34 | 0.21 | no |
 | under 150, far | -1.40, -0.96, -0.91 | -1.10 | 0.49 | yes |
 | under 150, middle | -0.94, -1.06, -0.67 | -0.88 | 0.39 | yes |
-| under 150, near | -0.34, -0.33, -0.12 | -0.21 | 0.22 | no |
+| under 150, near | -0.34, -0.33, -0.12 | -0.21 | 0.22 | no (156 rows on gsw_cha_2016; spread above half too) |
 
-Lateral medians are within plus or minus 0.3 ft in every populated cell. The consistent cells hold 69.5 percent of
+Lateral medians are within 0.31 ft in the cells with at least 200 rows on every pool game, and up to 0.43 ft in
+sparse cells. The consistent cells hold 69.5 percent of
 the pool's offset population, so the bias is consistent by the registered rule (60 percent).
 
 Leave-one-game-out corrections, scored through the truth camera (net change in missed over all in-frame players
@@ -148,8 +149,8 @@ Leave-one-game-out corrections, scored through the truth camera (net change in m
 Fitted shifts: K1 removes 0.15 to 0.61 ft in the near third and 0.66 to 1.23 ft in the middle and far thirds; K2 moves
 the foot pixel up by 1.7 to 4.5 percent of the box height (the fitted ratios are negative).
 
-Check game, report only (fitted on the whole pool): hou_cle_2016 K1 -0.0087 [-0.0141, -0.0037], ghosts -0.0048; K2
--0.0060, ghosts -0.0033.
+Check game, report only (fitted on the whole pool): hou_cle_2016 K1 -0.0087 [-0.0141, -0.0037], ghosts -0.0048
+[-0.0083, -0.0017]; K2 -0.0060 [-0.0111, -0.0014], ghosts -0.0033 [-0.0067, -0.0000].
 
 ## Reading by the registered rule
 
@@ -159,10 +160,12 @@ gets worse on missed (+0.008) and on ghosts (+0.008, interval above zero), and g
 
 Why a consistent bias does not lower the missed row (post hoc, consistent with step 1b, not tested here): the bias is
 measured in the r23 court's frame, but missed is scored through the truth camera. The truth camera was initialised
-from, and fitted to, the V3 label build (same detector and foot pixels, V3 court model; sportvu/camera.py line 169,
-tools/p8_frozen.py line 495), so it already absorbs part of the same short-foot bias (step 1b: hits' median depth
--0.2 to -0.9 ft under the truth against -0.8 to -1.4 ft under the r23 court's H). Removing the build-frame bias therefore over-corrects in the truth frame, by about
-the depth of -d_H (step 1b: +0.3 to +0.8 ft for hits' median). On gsw_sac_2015 it pushes found players out. The
+from, and fitted to, the V3 label build (the same detector, with nearly the same foot pixels, most within 0.5 px on the one window
+checked but not identical; V3 court model; sportvu/camera.py line 169,
+tools/p8_frozen.py line 495), so it already absorbs part of the same short-foot bias (step 1b, middle and far thirds,
+pool games with hou_cle_2016 included: hits' median depth -0.2 to -0.9 ft under the truth against -0.8 to -1.4 ft
+under the r23 court's H). Removing the build-frame bias therefore over-corrects in the truth frame, by about the depth
+of -d_H (step 1b, hou_cle_2016 included: +0.3 to +0.8 ft for hits' median). On gsw_sac_2015 it pushes found players out. The
 size of -d_H alone does not explain which game loses: gsw_cha_2016 has the largest -d_H and still gains a little, so
 the per-player spread of -d_H, not only its median, likely decides it (not measured).
 
