@@ -646,3 +646,7 @@ f0948913 and 208c846a, which left the composing to the arm after crossed message
    sections, moments and sync maps (gsw_cha_2016's exist already), and for hou_cle_2016 links in video/, sportvu/,
    sync/, meta/ and reports/ to the P8 workspace's files (all read only). tools.p8_frozen.install_paths also creates
    the workspace layout's empty folders if missing.
+
+**Version 4.3 (2026-11-26, the re-review of dc8cf478, PASS with one accept-phase leftover).** compose also requires
+that every <window>_* file of a window's source (the arm's folder or the workspace baseline) is present in builds/r23
+for a window already there, so a copy with a missing file stops the step (test added). The truth phase is unchanged.

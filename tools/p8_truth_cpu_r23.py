@@ -23,7 +23,8 @@ A window's build is copied only when:
   repository's models/player_detector.pt).
 An arm build must also carry a reset log that passes tools.p8_truth_fixprep.log_problem. The equivalence record must be
 newer than every reset window's arm sidecar. A window already in builds/r23 passes the same checks on its own files,
-and each of its <window>_* files there is byte-identical to its source, or the step stops; a build there with no build
+each of its <window>_* files there is byte-identical to its source, and every <window>_* file of the source is
+there (version 4.3), or the step stops; a build there with no build
 on record stops it too (version 4.2). The record (builds/r23_checkc_<game>.json) says whether every V3 label window now has an r23
 build ("complete"); check C runs only then, because tools.p8_truth_v2 measures only windows with both builds and a
 missing one would drop out unseen. Files are copied, not linked; nothing is built here.
@@ -153,6 +154,8 @@ def compose(game: str, mps_root: Path, ref_root: Path) -> dict:
             src = arm if fixed else base
             why = why or next((f"{q.name} differs from its source" for q in sorted(dst.glob(f"{s}_*"))
                                if not (src / q.name).exists() or not filecmp.cmp(q, src / q.name, shallow=False)), None)
+            why = why or next((f"{q.name} of the source is missing here" for q in sorted(src.glob(f"{s}_*"))
+                               if not (dst / q.name).exists()), None)
             if why:
                 raise SystemExit(f"{WHO}: {s} is already in {dst} but fails the checks ({why}); remove it first")
             present.append(s)

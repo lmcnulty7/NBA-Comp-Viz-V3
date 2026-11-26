@@ -201,3 +201,16 @@ def test_an_arm_build_needs_a_valid_reset_log(tmp_path):
     (arm / f"{stems[1]}_resetfix.json").unlink()
     (ref / "builds" / f"r23_checkc_{G}.json").unlink()
     assert L.compose(G, mps, ref)["refused"][stems[1]] == "no reset log"
+
+
+def test_a_present_copy_missing_a_source_file_stops_the_step(tmp_path):
+    mps, ref, base, arm, stems = make_roots(tmp_path)
+    L.compose(G, mps, ref)
+    dst = ref / "builds" / "r23"
+    (dst / f"{stems[1]}_resetfix.json").unlink()                                        # an arm copy without its log
+    with pytest.raises(SystemExit, match="missing here"):
+        L.compose(G, mps, ref)
+    (dst / f"{stems[1]}_resetfix.json").write_text((arm / f"{stems[1]}_resetfix.json").read_text())
+    (dst / f"{stems[0]}_identity.json").unlink()                                        # a baseline copy without one file
+    with pytest.raises(SystemExit, match="missing here"):
+        L.compose(G, mps, ref)
