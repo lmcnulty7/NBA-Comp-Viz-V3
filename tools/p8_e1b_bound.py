@@ -38,6 +38,9 @@ Rules, fixed before any number (the scorer's, as M3 of the E1 post-mortem, tools
   box within 5 ft ("placement") or none ("presence"), and r23 finds that E1 loses.
 - Interval: 2,000 window bootstrap resamples, seed 0, corpus windows resampled whole, for the pooled ceilings and the
   reach shares.
+- Report only, added after the first run: r23's misses by reach class among those where r23 has a box (0.10 floor)
+  within 5 ft, which splits the teacher-reachable misses into placement (r23 boxes the player, its foot is off) and
+  presence (r23 has no box near the player).
 """
 
 from __future__ import annotations
@@ -222,6 +225,9 @@ def summary(rows: list) -> dict:
                                      for k, v in tally(miss, "reach", REACH).items()},
            "placement_or_none_with_an_r23_box_within_5ft": sum(1 for r in miss if r["r23_box_within_5ft"]
                                                                and r["reach"] in ("placement", "none")),
+           # report only, added after the first run: does r23 already have a box within 5 ft (its foot off), by class
+           "report_only_misses_by_reach_with_an_r23_box_within_5ft":
+               tally([r for r in miss if r["r23_box_within_5ft"]], "reach", REACH),
            "ceilings": {k: (round(v, 5) if isinstance(v, float) else v) for k, v in ceilings(rows).items()},
            "r23_finds_under_teacher_labels": tally(finds, "l1", L1_ON_FINDS)}
     for field, levels in CAUSES:
