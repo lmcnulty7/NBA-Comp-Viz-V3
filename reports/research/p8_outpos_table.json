@@ -1,0 +1,36 @@
+{
+ "what": "K1 table frozen from the 3 pool games (docs/research/P8_outpos.md); median depth offset (ft) per cell box height|third under the r23 court's H; tools.p8_footbias.fit, unchanged",
+ "games": [
+  "gsw_bkn_2015",
+  "gsw_cha_2016",
+  "gsw_sac_2015"
+ ],
+ "table": {
+  "150-200|far": -1.15987,
+  "150-200|middle": -0.8723,
+  "150-200|near": -0.41019,
+  "200-250|far": -0.88038,
+  "200-250|middle": -0.87387,
+  "200-250|near": -0.34111,
+  "<150|far": -1.09615,
+  "<150|middle": -0.88057,
+  "<150|near": -0.2094,
+  ">=250|far": 0.0,
+  ">=250|middle": -0.78729,
+  ">=250|near": -0.3946
+ },
+ "fit_rows_per_cell": {
+  "150-200|far": 5695,
+  "150-200|middle": 17733,
+  "150-200|near": 10067,
+  "200-250|far": 157,
+  "200-250|middle": 2414,
+  "200-250|near": 4365,
+  "<150|far": 5756,
+  "<150|middle": 3983,
+  "<150|near": 636,
+  ">=250|far": 1,
+  ">=250|middle": 197,
+  ">=250|near": 194
+ }
+}

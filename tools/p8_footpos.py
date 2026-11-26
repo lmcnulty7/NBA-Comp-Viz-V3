@@ -61,6 +61,7 @@ import json
 import numpy as np
 
 from tools.p8_common import REPO, atomic_write, p8_root
+from tools.research_testset import refuse_cv_test
 from tools.p8_footbias import corrected_px, fit, load_frames, offset_rows, score_frame, scorer_court
 from tools.p8_placement import POOL, check_games, rnd
 
@@ -129,7 +130,7 @@ def window_records(game: dict, table: dict | None) -> dict:
 def cmd_measure(args) -> dict:
     from tools.p8_e1_score import boot, diffs, rows
     from tools.p8_placement import SCORES, SIDE
-    check_games(POOL)
+    refuse_cv_test(check_games(POOL), WHO)
     games = {t: load_frames(t) for t in POOL}
     offs = {t: offset_rows(games[t])[0] for t in POOL}
     prior = json.loads((REPO / "reports" / "research" / "p8_footbias.json").read_text())

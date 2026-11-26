@@ -244,3 +244,133 @@ No okc_sac_2015 build has run. Each item is applied above and in `tools/p8_truth
 7. The "moved" offset bar's justification is reworded (0.2 s is a per-window threshold in truth v2, borrowed here as a
    round size; the only device-noise evidence is the D99 detector-only pair, 0.04 s on one window).
 8. tools/p8_truth_v2.py's docstring says measure-dev runs under the heavy-job lock.
+
+## 13. Version 4 (2026-11-26, PLAN.md D180; committed before the second OCR run)
+
+**What happened.** okc_sac_2015 ran on fso15_720 in the fresh reference root and stopped at the first kill criterion:
+445 s of running clock mapped against the 1,500 s bar (2,933 of 6,589 reads ok, 0.445; about 152 s mapped per 1,000 ok
+reads, against 545 to 555 on the games that ran). No model build ran; the 12 sync jobs held the lock 2,294 s. The
+frozen check had already shown fso15_720 weak on this video (consistent 0.35).
+
+**The exception (D180, the lead's, with this disclosure).** The D152 finder's own proposal for okc_sac_2015 is tried
+once. It is automatic (no hand step), and it passed the frozen automatic check at the registered bar in the D152
+validation record before this kill (plausible 0.70, consistent 0.65, 40 pairs). Disclosed: the finder failed its
+overall validation (3 of 8), so this is not a general clearance for it; the choice was made after fso15_720 failed the
+sync kill; nothing scored depends on it yet.
+
+**Conditions, fixed now.**
+
+1. The layout is registered from the validation record exactly as recorded, with its provenance, by
+   `tools/p8_layout_find.py register-validated okc_sac_2015 --decision D180`: registry layout auto_okc_sac_2015, clock
+   box [942, 586, 1008, 624], period box [828, 586, 879, 624], period as digits; games.okc_sac_2015.layout set to it.
+   The command accepts only this game under D180, and only a proposal whose recorded frozen check chose it; the `find`
+   guard (no new game while the validation has not passed) stays in place.
+2. The fso15_720 time maps and their sync done markers are moved aside in the reference root (kept, not deleted), and
+   the sync runs again from scratch with the new layout. Same platform, same kill criteria, same acceptance bars A, B
+   and C (sections 5 and 12), unchanged.
+3. If this layout also maps under 1,500 s, okc_sac_2015 is unused and the matter is closed: no third layout.
+
+Lock cost of the second sync: about 0.65 h (the first took 2,294 s).
+
+## 14. Result (2026-11-26): okc_sac_2015 closed at the mirror vote
+
+**What ran.** The D180 retry of section 13: registry layout auto_okc_sac_2015, the fresh reference root, the detector
+on CPU, one heavy-job lock per step, kill criteria checked between steps by the driver. Log: the reference root's
+logs/okc_truth.log; mirror record: the reference root's reports/sportvu_direction_okc_sac_2015.json.
+
+**Sync passed check B's clock bar.** 12 sections, 6,589 clock reads, 3,860 ok (0.586), 105 running spans, 1,792 s of
+running clock mapped (1,791.6 unrounded) against the 1,500 s bar. Per section: s00 and s01 map 0 s (6 and 9 good
+reads of about 580), s02 to s10 map 55.0 to 280.0 s, s11 (a short tail) 3.0 s. The fso15_720 attempt of section 13
+had mapped 445 s.
+
+**Direction did not resolve, so the game stops (section 8).** 13 direction windows built in s02 to s10 (40 s of running
+clock a section, the frozen budget); 12 could vote. The frozen vote (sportvu/direction.py, VOTE_SHARE 0.8, on the far
+statistic) returned status "ambiguous", leading mirror identity, vote share 0.67 (8 of 12 windows: identity 8, flip_y
+3, flip_xy 1, flip_x 0). Median distance by mirror: identity 6.42 ft, flip_y 6.94, flip_xy 22.68, flip_x 22.91; far
+statistic: identity 8.93 ft, flip_y 11.49, flip_x 32.41, flip_xy 35.44; offsets from -0.26 to 1.50 s. As at the R1.2
+games, the y-flip is the weak axis: identity and flip_y sit within about 0.5 ft on the median. Section 8 fixed in
+advance: "After direction: the frozen mirror vote does not resolve (status not ok): stop the game." No label build,
+fit or rebuild ran. Nothing is retuned and there is no third try: no new layout, no second direction budget, no
+change to VOTE_SHARE, and the leading identity vote is not adopted by hand.
+
+**Lock time.** This retry held the lock 4,306 s (1.20 h): sync 2,584 s in 12 jobs, direction 1,700 s in 12 jobs, mirror
+22 s. The first sync on fso15_720 (section 13) held 2,294 s, so okc_sac_2015 used 6,600 s (1.83 h) of lock time in
+all, inside the section 6 estimate for its sync and direction (1.1 to 2.0 h). The driver waited for the lock behind
+another job before its first step; waiting time is not counted.
+
+**The arena fallback (ok_by_arena) was not possible.** The rule in sportvu/prepare.py (do_report, near line 158) turns
+"ambiguous" into "ok_by_arena" only when at least one other game with the same home team resolved "ok" on its own
+windows, all such games agree on one mirror, and the ambiguous game's leading vote is that mirror. cle_gsw_2016 took
+it from cle_nyk_2015. okc_sac_2015 has no peer: it is the only game with home OKC in reports/research/p8_registry.json
+and in the R1.2 direction reports, and the one other OKC home video in data/harvest/games.json (gsw_okc_2016wcf_g6, a
+2016 playoff game) has no SportVU game, so it has no direction result. The fallback is also a step of the R1.2 report,
+not of tools/p8_frozen.py's mirror step, so using it here would have been a new rule after the result; section 8 names
+no fallback. Report only, not a resolution: the leading mirror, identity, is the one every other resolved game took.
+
+**What this leaves for development truth.** okc_sac_2015 is unused. With nyk_bos_2016 and por_okc_2016 out (section 0,
+Lucien's decision of 2026-11-25), Mac development camera truth covers two non-sealed arenas, as before P8's arena
+item: GSW (gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015 in use; gsw_ind_2016 apart under D98) and HOU (hou_cle_2016).
+All of it comes from MPS label builds; the platform-mix test of section 0 (gsw_cha_2016 rebuilt on the CPU detector)
+is the next item.
+(Update after section 15: that test read MOVED; see there.) Cross-arena work at Level 1 step 7 has one non-GSW arena, HOU, until another arena gets truth by
+the registered route.
+
+## 15. Result (2026-11-26): the gsw_cha_2016 platform-mix test of section 0, MOVED
+
+**What ran.** gsw_cha_2016's camera truth rebuilt in the reference root with the detector on CPU (court and gate
+unchanged, no clip fix), by the steps of section 4: link (the main checkout's sections, moments and sync maps, the
+same files the MPS truth used), label one job a section (V3 court model, gate v2), then fit. Every model step held the
+heavy-job lock alone; no step failed or was retried. Label: 74 windows, 73 built, 1 gate-empty (the MPS root had the
+same 73 and 1). All 73 built windows carry a device record that resolves the detector to cpu (court mps, gate mps).
+All 73 window time maps equal the MPS root's, so the windows cover the same frames.
+
+**Lock time.** 9,745 s (2.71 h): label 9,567 s in 10 jobs, fit 178 s. Section 0's estimate was about 2.35 h (2.2 h of
+label builds and 0.15 h of fit); the run used 1.15 times that, under the driver's cap of 1.5 times. The estimate left
+out the label step's own clip cuts and window clock reads (about 1,000 s, judging by the MPS label and rebuild logs).
+
+**Measures against the bars fixed in section 0** (tools/p8_truth_moved.py; record reports/research/p8_truth_moved_gsw_cha_2016.json):
+
+| Measure | MPS truth | CPU truth | Difference | Bar for "moved" | Moved |
+| --- | --- | --- | --- | --- | --- |
+| Median reprojection after refinement | 7.65 px | 7.06 px | 0.59 px | 1.0 px or more | no |
+| Accepted camera-truth frames | 1,366 | 2,459 | +1,093, 0.800 of the MPS count | 10 percent or more | yes |
+| Per-window frozen offsets (73 windows in both) | | | median abs difference 0.08 s; share over 0.2 s 0.356; max 2.6 s | median 0.2 s or more | no |
+
+**Verdict: MOVED**, on accepted frames alone. Section 0 fixed the consequence: rebuild the truth of gsw_bkn_2015,
+gsw_sac_2015 and hou_cle_2016 on the CPU detector (about 2.5, 2.3 and 2.9 lock hours of label builds by section 0's
+rates; this run suggests adding about 15 percent) before any cross-arena tuning. gsw_ind_2016 stays apart (D98).
+Nothing registered is rescored.
+
+**What this means for earlier results.** Every analysis scored on the Mac MPS camera truth of the pool games
+(gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015; hou_cle_2016 as a check where used), all from MPS label builds,
+among them: the registered r23 baseline rows (P8_baseline.md), P8_E1.md, P8_E1B.md, E1R's scores (P8_E1R.md),
+P8_E7a.md, P8_truth_v2.md, P8_court_truth.md, P8_teachers.md source 2 (gsw_bkn_2015 and the apart gsw_ind_2016), P8_step0_trackB.md, P8_placement.md steps 1
+and 1b, P8_footbias.md, P8_footpos.md, P8_outpos.md, P8_detrow.md, P8_buildloss.md, P8_trackreset.md and
+P8_a3align.md. Their numbers stand as recorded and nothing is rescored. Any
+conclusion that depends on the GSW or HOU camera truth is provisional until those games have CPU-detector truth; a
+rescore needs its own registration. The gsw_cha_2016 truth in use stays the MPS truth for now: the CPU truth has
+not passed section 5's acceptance (check C needs an r23 rebuild in the reference root, not yet run).
+
+Descriptive, not part of the bars. The fit's camera position moved about 10 ft (C from (42.6, 118.7, -31.1) to
+(46.9, 127.8, -31.4) ft; 400 frames pooled in both). The extra accepted frames come mostly before the line checks:
+"untestable_boxes" fell from 5,181 to 3,770, as expected from the CPU detector's extra player boxes
+(P8_PLATFORM.md), while more candidates then failed the line checks (line_matches_low 653 to 985, support_low 131 to
+208, feet_resid_high 429 to 467).
+
+**Report only, post hoc, not ruled** (asked by the lead after P8_placement.md step 1b; tools/p8_truth_moved_dh.py,
+stored files, no lock). |d_H| = |B(p) - T(p)| in ft at every box's foot_stab pixel p of the scored reference-platform
+r23 sidecar (builds/m9_r23_detcpu__gsw_cha_2016, B its per-frame H), on truth-accepted frames whose sidecar row is
+accepted with an H. All boxes, not step 1b's nearest-box player population, so the values are not step 1b's 2.09 ft.
+
+| | Frames | Boxes | Median abs d_H |
+| --- | --- | --- | --- |
+| MPS truth, all its frames | 1,366 | 12,835 | 1.53 ft |
+| CPU truth, all its frames | 2,459 | 23,068 | 1.14 ft |
+| MPS truth, frames accepted by both | 904 | 8,606 | 1.48 ft |
+| CPU truth, frames accepted by both | 904 | 8,606 | 1.05 ft |
+
+On the frames both accept, the truth itself moved a median 1.10 ft at the same foot pixels. Read only as a
+description: the CPU truth sits closer to the r23 build's H than the MPS truth did. That is partly expected from a
+shared input: B comes from a CPU-detector r23 build, and the new truth was fitted from CPU-detector label builds with
+player feet among its inputs. So it is not evidence that the CPU truth is better. It does not show which truth is closer
+to SportVU, and no rule was fixed for it.

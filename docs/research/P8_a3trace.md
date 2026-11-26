@@ -122,3 +122,28 @@ What the input check should separate (a proposal; it needs its own registration)
   so whatever cuts the input acts more in some scenes than others.
 
 The check is a model run under the lock, about 10 minutes on this window. It waits behind the truth-cpu driver.
+
+## Review amendments (2026-11-26, after the ml-review FAIL and the a3input result; the registered text above is unchanged)
+
+1. **The reading is withdrawn: the trace is incomplete.** The rule returned G, but the trace is incomplete, the
+   situation its U or H case covers; the reading is withdrawn outside the rule. The trace recorded
+   only the last BYTETracker.update call of each frame. After the reset at frame 312, every frame ran two.
+   - The stored frame_id rises by 2 on all 1,038 steps after the reset at frame 312. The other 14 steps are the 13
+     single steps before it and the reset step itself (frame_id 14 to 2).
+   - The reviewer counted 14 calls against 14 frames before the reset, and recorded input equal to output after it.
+   - So "step G" measured the second call's input (the already-tracked boxes), not the detector's output.
+   - The G reading and the input-check proposal are withdrawn. The cause is in docs/research/P8_a3input.md, which
+     confirms it: the double update after PlayerTracker.reset.
+   - The record's JSON now carries a "status" field saying so.
+2. **The free step missed the reset path.** "Filters between model.track and the sidecar" should have said:
+   PlayerTracker.reset drops the predictor (self.model.predictor = None). Model.track then re-registers the tracker
+   callbacks, and Model.add_callback appends them, so after a reset the tracker updates twice per frame.
+3. **The reproduction check is now one to one.** The report now uses tools.p8_a3run.same_boxes, a one-to-one match.
+   The old check paired each box with any box within 2 px, which is weaker. Re-run on the stored record, the share is
+   still 100 percent of frames.
+4. **Control yields.** The "Window dependence" bullet in the reading section is replaced by the following. After
+   P8_a3run.md's amendment 2, the controls' yields are 0.66, 0.81 and 0.95 (gsw_bkn_2015_s07_w00,
+   gsw_cha_2016_s07_w00, gsw_sac_2015_s04_w00, reports/research/p8_a3run.json). None of those replays reproduces its
+   sidecar (0.1, 0.0 and 2.3 percent), so these yields are not the build's, and the comparison with the heavy windows
+   (0.23 to 0.82) is not read.
+

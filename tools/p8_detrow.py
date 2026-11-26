@@ -57,6 +57,7 @@ import json
 import numpy as np
 
 from tools.p8_common import REPO, atomic_write, p8_root
+from tools.research_testset import refuse_cv_test
 from tools.p8_placement import CHECK, POOL, check_games, rnd
 
 WHO = "tools.p8_detrow"
@@ -221,7 +222,7 @@ def boot(rows: list, in_frame: dict, n: int = BOOT_N, seed: int = SEED) -> dict:
 
 
 def cmd_measure(args) -> dict:
-    check_games(POOL + CHECK)
+    refuse_cv_test(check_games(POOL + CHECK), WHO)
     games, allrows, allin = {}, [], {}
     for t in POOL + CHECK:
         rows, in_frame, reg, nwin = game_rows(t)
@@ -231,11 +232,12 @@ def cmd_measure(args) -> dict:
             allin.update(in_frame)
         print(t, json.dumps(rnd({c: games[t]["classes"][c] for c in CLASSES})))
     step1 = REPO / "reports" / "research" / "p8_placement.json"       # step 1's far-miss counts, the same rule
-    if step1.exists():
-        far1 = {g: json.loads(step1.read_text())["counts"][g]["far"] for g in POOL + CHECK}
-        got = {g: games[g]["far_misses"] for g in POOL + CHECK}
-        if far1 != got:
-            raise SystemExit(f"{WHO}: far misses {got} differ from step 1's {far1}")
+    if not step1.exists():
+        raise SystemExit(f"{WHO}: {step1.name} is missing; the step 1 count check cannot run")
+    far1 = {g: json.loads(step1.read_text())["counts"][g]["far"] for g in POOL + CHECK}
+    got = {g: games[g]["far_misses"] for g in POOL + CHECK}
+    if far1 != got:
+        raise SystemExit(f"{WHO}: far misses {got} differ from step 1's {far1}")
     pooled = {**summarise(allrows, allin), "intervals": boot(allrows, allin)}
     reading = {c: {"rates": {g: games[g]["classes"][c]["rate_in_frame"] for g in POOL},
                    "matters": matters({g: games[g]["classes"][c]["rate_in_frame"] for g in POOL})}

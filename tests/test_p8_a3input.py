@@ -31,3 +31,6 @@ def test_read():
 def test_same_boxes():
     assert M.same_boxes([[0, 0, 10, 10]], [[1, 1, 11, 10]])
     assert not M.same_boxes([[0, 0, 10, 10]], [])
+    # one to one: one sidecar box cannot stand for two output boxes
+    assert not M.same_boxes([[0, 0, 10, 10], [1, 0, 11, 10]], [[0, 0, 10, 10], [50, 50, 60, 60]])
+    assert M.same_boxes([[0, 0, 10, 10], [50, 50, 60, 60]], [[50, 51, 60, 60], [1, 0, 10, 10]])

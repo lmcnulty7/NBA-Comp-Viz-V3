@@ -126,7 +126,7 @@ What the numbers say beyond the rule (post hoc, not tested):
 
 Proposal for the lead (it needs its own registration; the rule did not select it): find what a3 is. The cheapest
 discriminating step is a model run on the windows that carry most of a3. It would run r23 on the decoded video frames
-the build used, the same frames as the corpus JPEGs, on CPU, both raw and through model.track. That separates "the
+the build used, the same frames as the corpus JPEGs (corrected after review: alignment is a check, not an assumption), on CPU, both raw and through model.track. That separates "the
 detector did not fire on the video" from "the tracker did not output it". It needs the heavy-job lock (model code)
 for minutes per window, and no units.
 
@@ -204,7 +204,7 @@ gsw_bkn_2015 but 0.004 and 0.008 on the other two games. No tracking, gating or 
 
 Decode is now sized on this population: 8, 3 and 5 players. The detector on the decoded clip frame (corpus "ours")
 had a box near almost every population player. So almost all of the "no box in the build" loss is not decode; it
-happens between the detector and the sidecar.
+happens between the detector and the sidecar. (Narrowed after review, see "Corrections after review" below.)
 
 What the numbers say beyond the rule (post hoc, descriptive):
 
@@ -213,12 +213,39 @@ What the numbers say beyond the rule (post hoc, descriptive):
     the r23 build holds 4.27 boxes a frame there and misses 784 of 1,385 players.
   - gsw_cha_2016: 36 of 51 are in gsw_cha_2016_s05_w00.
   - gsw_sac_2015: 69, 47 and 23 of 161 are in s01_w00, s09_w01 and s07_w00.
-  - Outside those windows a3 is small. The loss is a window-level failure of the tracker path, not a per-player one.
+  - Outside those windows a3 is small. The loss is a window-level failure of the tracker path, not a per-player one. (Narrowed after review: the tracker
+    path is a hypothesis; see below.)
 - detect/tracker.py returns no tracks for a frame when the tracker raises (a Kalman LinAlgError or the ultralytics
   re-identification AttributeError) and resets it. A run of such frames, or repeated resets, would empty the sidecar
-  where the detector still fires. This is a hypothesis; the stored data were not checked for it.
+  where the detector still fires. This is a hypothesis; the stored data were not checked for it. (Refuted after review: see below.)
 
 Proposal for the lead (needs its own registration; stored files, minutes, no lock): for the windows carrying a3,
 count processed frames with zero sidecar boxes, track-id turnover between frames, and the build logs' reset and
 exception lines where they are stored. If empty frames or resets explain them, a fix is tracker robustness code (catch
 and keep tracks, or avoid the reset), scored by a rebuild of those windows on the reference platform under the lock.
+
+## Corrections after review (2026-11-26)
+
+The registered text above is kept as written; these notes qualify it.
+
+- Build path, activation (registered in 1f18d81f): immediate activation happens on a tracker's first frame, which is
+  the run's first frame and the first frame after every camera-cut or exception reset, not only the run's first.
+- a2 definition (1f18d81f): a box at IoU 0.3 to 0.5 in this frame is not checked, so a displaced output box also
+  lands in a2.
+- Decode class d (f7290d99, "so the loss is the tracker's"): d sizes JPEG compression only. The corpus decoded
+  sequentially from frame 0 in the teacher environment (OpenCV 5.1.0, torch 2.15.0); the builds used SeqReader seeks
+  after the pre-gate scan (OpenCV 4.13.0, torch 2.2.2). So a1 to a3 still mix tracker loss with decode-path and
+  runtime differences, and "it happens between the detector and the sidecar" and "of the tracker path" in the v2
+  reading are hypotheses. Alignment was checked afterwards (docs/research/P8_a3align.md, branch r-p8-a3align): 98.8
+  percent of reachable a3 lies in aligned windows; the runtime difference is still open.
+- v1's pooled post hoc line does not hold on reachable rates: a1 + a2 + a3 is 0.0227, 0.0059 and 0.0097, below 0.010
+  on two games.
+- The tracker-exception hypothesis is refuted: docs/research/P8_trackreset.md (branch r-p8-trackreset) finds 0 of 374,
+  0 of 51 and 0 of 161 reachable a3 on empty or reset frames. The empty-frame and reset proposal was done there and
+  found no tracker robustness arm.
+- foot_corrected flags only this frame's correction, so c_occlusion includes the EMA and earlier corrections reach
+  c_ema through it. Table rows without an interval are point estimates.
+- Frame offset: docs/research/P8_a3align.md finds 14 of 175 pool windows where the corpus decode runs one stride
+  behind the build's. This doc pairs M4's JPEG boxes with the sidecar on the same frame index, so class assignments
+  in those windows may be skewed; the size is not measured. The verdict does not depend on it: v1's a3 is below 0.010
+  on two games, and 98.8 percent of reachable a3 lies in aligned windows.

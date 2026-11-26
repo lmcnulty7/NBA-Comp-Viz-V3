@@ -68,6 +68,7 @@ import json
 import numpy as np
 
 from tools.p8_common import REPO, atomic_write, guard, p8_root
+from tools.research_testset import refuse_cv_test
 from tools.p8_placement import (BUILDS, CHECK, POOL, SCORES, SIDE, THIRDS, BOOT_N, SEED, MISS_FT, NEAR_FT, MARGIN,
                                 W_PX, H_PX, check_games, depth_basis, hbin, rnd)
 
@@ -318,7 +319,7 @@ def cell_summary(rows_by_game: dict, games) -> dict:
 
 
 def cmd_measure(args) -> dict:
-    check_games(POOL + CHECK)
+    refuse_cv_test(check_games(POOL + CHECK), WHO)
     games = {t: load_frames(t) for t in POOL + CHECK}
     rows, left = {}, {}
     for t in games:
@@ -463,7 +464,7 @@ def decompose_summary(rows: list, conv: str) -> dict:
 
 
 def cmd_decompose(args) -> dict:
-    check_games(POOL + CHECK)
+    refuse_cv_test(check_games(POOL + CHECK), WHO)
     rows, left = {}, {}
     for t in POOL + CHECK:
         rows[t], left[t] = decompose_rows(load_frames(t))

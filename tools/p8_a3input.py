@@ -54,6 +54,8 @@ import json
 import os
 import time
 
+import numpy as np
+
 from tools.p8_common import REPO, atomic_write, main_checkout, p8_root
 from tools.p8_placement import BUILDS, check_games, rnd
 from tools.research_testset import refuse_cv_test
@@ -73,9 +75,17 @@ def need(path):
 
 # ── pure ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 def same_boxes(a: list, b: list, px: float = 2.0) -> bool:
+    """Same count, and a one-to-one match with every coordinate within px (as tools.p8_a3run.same_boxes; review fix
+    2026-11-26: the earlier any-match let one box stand for two)."""
     if len(a) != len(b):
         return False
-    return all(any(max(abs(x - y) for x, y in zip(t, s)) <= px for s in b) for t in a)
+    if not a:
+        return True
+    from scipy.optimize import linear_sum_assignment
+    A, B = np.asarray(a, float)[:, :4], np.asarray(b, float)[:, :4]
+    D = np.abs(A[:, None, :] - B[None, :, :]).max(-1)
+    ri, ci = linear_sum_assignment(D)
+    return bool(D[ri, ci].max() <= px)
 
 
 def doubling(frames: list) -> dict:
