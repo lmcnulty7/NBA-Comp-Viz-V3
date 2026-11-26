@@ -583,28 +583,37 @@ reading carries both the platform and the fix; section 15 isolates the platform 
 section 0 and section 5 are unchanged. Records: reports/research/p8_truth_moved_<game>.json and
 reports/research/p8_truth_accept_<game>.json, committed with a dated result section.
 
-**Version 4.1 (2026-11-26, the lead's decision; before any fixed build). One check C composer.** Decision 4 of
-version 4 had two composers for builds/r23, this plan's tools/p8_truth_cpu_r23.py compose and the reset-fix arm's
-`tools.p8_resetfix compose-checkc`. Only the arm's is kept, because the arm owns the reset-window list and the
-equivalence gate. Its rules are those of decision 4: the arm's fixed build on the plan's reset windows, the verified
-unfixed baseline (builds/r23_nofix, the arm's) elsewhere, per game only after the arm's equivalence passes; it writes
-builds/r23_checkc_<game>.json. In this plan:
+**Version 4.1 (2026-11-26, the lead's decisions after the reset-fix design review; before any fixed build).** (Commit
+f0948913 briefly wrote the opposite composer choice; the lead reversed it the same day, before any review or run, and
+this text replaces it.)
 
-- tools/p8_truth_cpu_r23.py keeps only `detector-check` (the driver's start guard); its copy and compose commands are
-  removed, and nothing in this plan writes builds/r23.
-- The accept phase composes nothing. Per game it requires builds/r23_checkc_<game>.json with "complete": true, then
-  runs tools/p8_truth_v2.py measure-dev and tools/p8_truth_accept.py, both unchanged; otherwise it writes "CHECK C NOT
-  RUN" and the game's acceptance waits.
-- The truth phase's supersede still moves version 3's unfixed gsw_cha_2016 copies out of builds/r23 (into
-  superseded_nofix/builds/r23/), so the arm's composer finds builds/r23 without them; it runs after the truth phase.
+1. One check C composer, this plan's: `tools/p8_truth_cpu_r23.py compose` is the only writer of builds/r23. The
+   reset-fix arm composes nothing; it writes its unfixed baseline to builds/r23_nofix (with its own
+   builds/r23_nofix_source_<game>.json). compose gates on resetfix/equiv__<game>.json "passes": true; takes the reset
+   windows from resetfix/plan__<game>.json "reset_windows" (a sorted list of window stems) and ignores the arm
+   folder's other windows (equivalence and smoke windows); accepts an arm build only when its sidecar source resolves
+   to the reference root's clip and that clip's SHA-256 equals the workspace clip's; takes every other window from the
+   workspace's baseline build; and stops if builds/r23 already holds a file that fails these checks or a window with
+   no build on record. The accept phase runs compose, then measure-dev and p8_truth_accept (unchanged) only when its
+   record builds/r23_checkc_<game>.json shows "complete": true.
+2. Before any composition, builds/r23 is cleared of unfixed copies: the truth phase's supersede moves version 3's
+   unfixed copies (gsw_cha_2016's 73 windows, and any hou_cle_2016 ones; there are none) and
+   builds/r23_source_<game>.json into superseded_nofix/builds/. supersede runs per game at the start of the truth phase;
+   compose runs only in the accept phase, after the truth phase.
+3. Before any fixed label build, supersede also moves aside every artefact of the bug-carrying truth that the arm's
+   pin-truth could capture: labels/<game>/ (the jsonl files), labels/<game>_result.json, _offsets.json and
+   _paint.jsonl, truth_v2/dev/<game>.json, truth_accept/<game>.json, truth_moved/<game>*.json, and the label and fit
+   done markers. The fixed truth's files are then all written after every fixed label build of the game (the fit
+   follows the label-check of every window), which the pin checks.
+4. Clips (label_build/<window>.mp4) and window time maps are never moved, cut again or rewritten; the arm checks clip
+   SHA-256 at plan, build, equivalence and score, and compose checks it per window.
 
-Nothing else changes: order, estimates, caps and bars as in version 4.
+Order: the arm's design v2.2 and its re-review, its merge to v4-research, this branch's merge of v4-research, an
+ml-review of version 4.1, the arm's smoke, then the lead's go for the truth phase. Estimates, caps and bars as in
+version 4.
 
-Version 4.1 stands as above (the lead's final decision, 2026-11-26). Commit 29b97e62, which restored this plan's
-compose after crossed messages, is reverted; the arm's `tools.p8_resetfix compose-checkc` is the only composer of
-builds/r23 and writes builds/r23_checkc_<game>.json. The design review's items hold under version 4.1: the truth
-phase's supersede clears builds/r23 of version 3's unfixed copies (gsw_cha_2016's 73 windows; hou_cle_2016 has none)
-and moves aside every bug-carrying truth artefact the arm's pin could capture (labels/<game>/ and its result, offsets
-and paint files, truth_v2/dev, truth_accept, truth_moved, the label and fit done markers) before any fixed label build
-of the game, and the composer runs only after the truth phase; clips and window time maps are never moved, cut again
-or rewritten.
+Composer, final (the lead's definitive instruction, 2026-11-26, overriding every earlier message on it): this plan's
+`tools.p8_truth_cpu_r23 compose` is present and is the only writer of builds/r23, as in the corrected version 4.1
+above (29b97e62). Why: the reset-fix arm's design v2.1 has no composer, and there must be exactly one. Commits
+f0948913 and 208c846a, which left the composing to the arm after crossed messages, are superseded; the code equals
+29b97e62's.
