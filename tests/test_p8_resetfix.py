@@ -710,3 +710,78 @@ def test_unmatched_1to1():
     e = R.frame_extra(feet[:3], sv, inside, is_ref[:3])
     assert e["unmatched_1to1"] == 2 and "unmatched_1to1" not in R.frame_extra(feet[:3], sv, inside)
     assert R.unmatched_1to1(np.zeros((0, 2)), sv, inside, []) == 3
+
+
+def test_label_build_path_through_p8_device_main_writes_a_full_log(monkeypatch, tmp_path):
+    """The truth's label builds run `python -m tools.p8_device build_trajectories.py ...` (p8_device as __main__, this
+    module imported canonically). Run tools.p8_device.main from a second copy of p8_device, with the build replaced by
+    a stand-in that makes a tracker and resets it twice: the written log holds both resets with frames."""
+    import importlib.util
+    import json
+    import config
+    from tools import p8_device as D
+    spec = importlib.util.spec_from_file_location("p8_device_main_copy", D.__file__)
+    dmain = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(dmain)
+    mod = _tracker_module()
+    fake_dt = types.ModuleType("detect.tracker")
+    fake_dt.PlayerTracker = type("PlayerTracker", (FakeTracker,), {})
+    pkg = types.ModuleType("detect")
+    pkg.tracker = fake_dt
+    monkeypatch.setitem(sys.modules, "detect", pkg)
+    monkeypatch.setitem(sys.modules, "detect.tracker", fake_dt)
+    monkeypatch.setattr(R, "RESET_LOG", {"path": None, "resets": [], "last_frame": None})
+    monkeypatch.setenv("P8_TRACKER_RESET_FIX", "1")
+    for k in ("P8_DEVICE", "P8_DEVICE_DETECTOR", "P8_DEVICE_COURT", "P8_DEVICE_GATE", "P8_MPS_CLIP_FIX", "TRACKER_REID"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setattr(config, "TRACKING_DIR", tmp_path)
+    registered = []
+    monkeypatch.setattr("atexit.register", registered.append)
+
+    def fake_build(path, run_name=None):                 # stands in for build_trajectories.py
+        t = fake_dt.PlayerTracker(mod)
+        for f in (0, 6):
+            t.update(None, f)
+            t.reset()
+    monkeypatch.setattr(dmain.runpy, "run_path", fake_build)
+    monkeypatch.setattr(sys, "argv", list(sys.argv))
+    assert dmain.main(["build_trajectories.py", "--source", str(tmp_path / "g_s00_w00.mp4")]) == 0
+    assert json.loads((tmp_path / "g_s00_w00_device.json").read_text())["reset_fix"] is True
+    for f in registered:
+        f()
+    log = json.loads((tmp_path / "g_s00_w00_resetfix.json").read_text())
+    assert log["resets"] == [{"frame": 0, "stripped": 2}, {"frame": 6, "stripped": 2}]
+
+
+
+def test_render_report_from_a_synthetic_record(tmp_path, monkeypatch):
+    """The result page is drawn from the report record alone: verdict, every pooled and per-game row, the ghost cost,
+    the bracket, report-only rows, resets and the hou section (absent before a pool pass)."""
+    import json
+    from tools import p8_common
+    root = tmp_path / "ref"
+    (root / "builds").mkdir(parents=True)
+    (root / "label_build").mkdir()
+    d = root / "resetfix"
+    d.mkdir()
+    rng = np.random.default_rng(4)
+    for g in R.GAMES:
+        wins = {}
+        for i in range(6):
+            m = {f"{f}:0": [float(rng.random()), 0.1, "near"] for f in range(4)}
+            b, n = _win(30, 10, 32, 5, 90, m), _win(27, 8, 28, 6, 92, dict(m))
+            b["unmatched_1to1"], n["unmatched_1to1"] = 40, 36
+            wins[f"{g}_s00_w{i:02d}"] = {"r23": b, "new": n}
+        (d / f"score__{g}.json").write_text(json.dumps({"windows": wins, "windows_common": wins}))
+        (d / f"plan__{g}.json").write_text(json.dumps({"reset_windows": [f"{g}_s00_w00"],
+                                                      "baseline_resets": {f"{g}_s00_w00": 1}}))
+        (d / f"truth_pin__{g}.json").write_text(json.dumps({"status": "use", "files": {}}))
+    monkeypatch.setenv("V3_P8_ROOT", str(root))
+    monkeypatch.setattr(p8_common, "atomic_write", lambda path, text: None)
+    rep = json.loads(json.dumps(R.cmd_report(None)))           # as the record is read back
+    md = R.render_report(rep)
+    assert "**Pool: PASS; adopted: yes.**" in md and "net error E" in md and "one-to-one net error" in md
+    assert "### Ghost cost (reported, not gated)" in md and "gsw_cha_2016" in md and "hou_cle_2016 (after a pool pass)" in md
+    assert "\u2014" not in md and "\u2013" not in md
+    rep["hou"] = None
+    assert "Not scored: it is scored only after a pool pass" in R.render_report(rep)

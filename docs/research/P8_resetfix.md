@@ -774,7 +774,10 @@ build child runs tools/p8_resetfix.py as __main__, and tools.p8_device imports i
 patched reset appended to one module's log while the exit writer, registered from __main__, wrote the other's. Fix:
 the log, its start and its writer all go through the canonical tools.p8_resetfix module (_log); a test loads a second
 copy of the module, starts the log there and checks that the written log holds the resets the canonical patch
-recorded. The smoke's two windows are moved aside (not deleted) before a rerun, on the lead's go.
+recorded. The smoke's two windows are moved aside (not deleted) before a rerun, on the lead's go; the rerun is retry
+1 of 2 (lead). The truth's label builds take another path (`python -m tools.p8_device`, which imports this module
+canonically); a test runs tools.p8_device.main from a second copy of p8_device with a stand-in build that resets twice
+and checks that the written log holds both resets. The failed smoke is also in TRAINING_PROTOCOL.md's ledger.
 
 **Truth pin checks the label builds' reset logs (truth-cpu review).** The label device record is written before the
 build starts, so label_fix_problems also requires, per label window: <window>_resetfix.json, TRACKER_REID unset, the
@@ -787,3 +790,24 @@ in-frame players plus unmatched non-referee boxes, divided by in-frame players (
 frame margin is matched, not a false box). Reported pooled and per game with window intervals (and the game interval
 pooled), beside E; it does not gate. It gives the double-count-free view for the write-up and is the candidate primary
 metric for future arms, to be registered in their own designs. Section 18's gate stands as registered.
+
+**Smoke retry 1 (2026-11-26, 601 lock seconds, peak 1.0 GB): passes.** Every gate of 14.5 holds: stage0_passed,
+arm_sources, no_reset_byte_identical (gsw_cha_2016_s00_w00 equals the r23_nofix baseline), clip_byte_identical,
+every_frame_matches_B (1,053 of 1,053 frames, 8,371 boxes in both), resets_equal_B (2 and 2), records_pass and
+prefix_equal. gsw_cha_2016_s05_w00's reset log holds 2 resets (frames 312 and 6,534, each stripped 2; the first is
+the reset a3input found at frame 312); s00_w00's holds none. This confirms the cause of the first smoke's failure (the
+empty log of the second module copy). Record: <reference root>/resetfix/smoke_check.json.
+
+
+## 22. Result page template (2026-11-26, before any score)
+
+`python3 -m tools.p8_resetfix render` writes the result section from the report record alone
+(reports/research/p8_resetfix_result.md; every number comes from resetfix/report.json, none is typed): the pool
+verdict, adoption, label, failing conditions and bracket guard; the pooled rows (E, missed, one-to-one missed, the
+margin rows and coverage, then the reported rows: ghosts, the detection row, one-to-one net error) with baseline, arm,
+difference, window and game intervals and the gate; the same per game; the ghost cost per game and pooled; the
+bracket's rows; the report-only rows (boxes, duplicates and ghosts per in-frame player for both arms, arm-only matches
+and their error, matched only in the baseline, label-build consistency, reset counts by game); hou_cle_2016's section
+(or "not scored" before a pool pass); and a closing part written by hand afterwards (against the forecasts of
+sections 17 and 19, diagnosis by cause, the lesson, the ledger row), which quotes only numbers that are in a record.
+Tested on a synthetic record.
