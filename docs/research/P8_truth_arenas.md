@@ -362,3 +362,52 @@ On the frames both accept, the truth itself moved a median 1.10 ft at the same f
 description: the CPU truth sits closer to the r23 build's H than the MPS truth did, which fits step 1b's post hoc
 suspicion that gsw_cha_2016's MPS truth camera was the side that disagreed. It does not show which truth is closer
 to SportVU, and no rule was fixed for it.
+
+## 16. Plan (2026-11-26, registered before any run): CPU-detector truth for hou_cle_2016, gsw_bkn_2015, gsw_sac_2015
+
+**Why.** Section 15 read MOVED on gsw_cha_2016. Section 0 fixed the consequence: the truth of the other in-use games is
+rebuilt on the CPU detector before any cross-arena tuning. gsw_ind_2016 stays apart (D98). This plan builds the three
+truths and reports, per game, whether each moved. It runs only on the lead's go, after the a3run job's report.
+
+**Games and order.** hou_cle_2016 first (the only non-GSW arena with truth), then gsw_bkn_2015, then gsw_sac_2015. All
+three are development games: the guard and refuse_cv_test run at every step; no held-out game and no D85 test game.
+
+**Steps, the same as gsw_cha_2016 (section 15).** Driver: tools/p8_truth_cpu.sh, in the reference root (work_ref), the
+detector on CPU (`P8_DEVICE_DETECTOR=cpu`), court and gate unchanged, no clip fix. Per game: link; label one job a
+section (V3 court model, gate v2); fit. Every model step takes the heavy-job lock alone, one job at a time.
+
+- Links, read only. The GSW games use the frozen link step (the main checkout's sections, moments and sync maps, the
+  files their MPS truth used). hou_cle_2016 is a channel game, so its inputs are linked from the MPS root (work): its
+  12 sections, its SportVU moments, its 12 sync time maps (the OCR runs on CPU, so they do not depend on the device),
+  its layout result (abc_finals16_720, a frozen layout) and its mirror record (status ok, identity, vote share 1.0).
+  The mirror is not voted again: as for the GSW games, whose mirror comes from the R1.2 record, it is a resolved
+  property of the game, and this test is about the label builds and the fit only. Nothing is written to the MPS root.
+- Resumable: a step with a done marker is skipped and built windows are cached. A failed step is retried at most
+  twice, then the driver stops and the failure is reported. A STOP file in the reference root stops it before the
+  next step.
+
+**Lock estimates and caps.** The label step's lock time on gsw_cha_2016 was 1.21 times its M9 CPU r23 rebuild
+(9,567 s against 7,905 s on the same windows: the label step also cuts the clips and reads each window's clock).
+The same ratio is applied to each game's CPU r23 build time; the fit is the MPS fit's time times 1.22 (gsw_cha_2016:
+146 s on MPS, 178 s here). A game whose lock time passes 1.5 times its estimate stops the driver before its next step.
+
+| Game | CPU r23 build on record | Label estimate | Fit estimate | Game estimate | Cap (1.5 times) |
+| --- | --- | --- | --- | --- | --- |
+| hou_cle_2016 | 10,339 s (M9) | 12,510 s | 285 s | 12,795 s (3.55 h) | 19,190 s |
+| gsw_bkn_2015 | 8,906 s (M6, r23 arm, 80 built windows) | 10,780 s | 200 s | 10,980 s (3.05 h) | 16,470 s |
+| gsw_sac_2015 | 8,249 s (M9) | 9,980 s | 222 s | 10,200 s (2.83 h) | 15,300 s |
+| All three | | | | about 9.4 h | |
+
+**Reports, per game, after its fit (stored files, no lock).**
+
+- tools/p8_truth_moved.py with section 0's bars unchanged (reprojection 1.0 px, accepted frames 10 percent of the MPS
+  count, median per-window offset difference 0.2 s): the three measures and the moved verdict, beside each game's MPS
+  truth. Its refusals stand: both fits complete, every CPU label window resolving the detector to cpu.
+- Report only, post hoc, not ruled: tools/p8_truth_moved_dh.py (now with tests), the median |d_H| at the scored r23
+  sidecar's foot pixels for each truth, as in section 15.
+- Records: reports/research/p8_truth_moved_<game>.json, committed with a dated result section here.
+
+**What this plan does not decide.** Which truth is used afterwards (CPU truth in place of MPS truth, or both with
+the platform recorded) is the lead's decision once the three verdicts are in. Nothing registered is rescored and no
+bar changes. Checks A and B of section 5 can be read from each CPU fit; check C needs an r23 build of the same
+windows in the same root, which this plan does not run.
