@@ -143,9 +143,9 @@ REFERENCE = ("K1", "K0")
 NEAR_P90_MARGIN_FT = 0.05
 FORECAST_TOL_FT = 0.05
 S_GRID = tuple(round(-1.50 + 0.01 * i, 2) for i in range(201))
-K1M_SHA = None            # v3: pinned after forms3
-K1T_SHA = None            # v3: pinned after forms3
-CHOSEN_FORM_V3 = None     # v3: pinned after forms3 ("STOP" if no candidate passes)
+K1M_SHA = "abb7a1097744995fb03240bf39a8a687c6090e8f80b1b517bb8782d34559d8ca"     # v3: the K1m table frozen by forms3
+K1T_SHA = "5d190844b3d164b63a2c4969f196e460ebe10749861d21053bcd8d28aaad4b60"     # v3: the K1t table frozen by forms3
+CHOSEN_FORM_V3 = "STOP"   # v3: forms3 found no candidate passing the pool rule; score-hou refuses
 
 
 # ── pure ───────────────────────────────────────────────────────────────────────────────────────────────────────────
