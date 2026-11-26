@@ -798,3 +798,16 @@ prefix_equal. gsw_cha_2016_s05_w00's reset log holds 2 resets (frames 312 and 6,
 the reset a3input found at frame 312); s00_w00's holds none. This confirms the cause of the first smoke's failure (the
 empty log of the second module copy). Record: <reference root>/resetfix/smoke_check.json.
 
+
+## 22. Result page template (2026-11-26, before any score)
+
+`python3 -m tools.p8_resetfix render` writes the result section from the report record alone
+(reports/research/p8_resetfix_result.md; every number comes from resetfix/report.json, none is typed): the pool
+verdict, adoption, label, failing conditions and bracket guard; the pooled rows (E, missed, one-to-one missed, the
+margin rows and coverage, then the reported rows: ghosts, the detection row, one-to-one net error) with baseline, arm,
+difference, window and game intervals and the gate; the same per game; the ghost cost per game and pooled; the
+bracket's rows; the report-only rows (boxes, duplicates and ghosts per in-frame player for both arms, arm-only matches
+and their error, matched only in the baseline, label-build consistency, reset counts by game); hou_cle_2016's section
+(or "not scored" before a pool pass); and a closing part written by hand afterwards (against the forecasts of
+sections 17 and 19, diagnosis by cause, the lesson, the ledger row), which quotes only numbers that are in a record.
+Tested on a synthetic record.

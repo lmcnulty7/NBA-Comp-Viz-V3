@@ -751,3 +751,37 @@ def test_label_build_path_through_p8_device_main_writes_a_full_log(monkeypatch, 
         f()
     log = json.loads((tmp_path / "g_s00_w00_resetfix.json").read_text())
     assert log["resets"] == [{"frame": 0, "stripped": 2}, {"frame": 6, "stripped": 2}]
+
+
+
+def test_render_report_from_a_synthetic_record(tmp_path, monkeypatch):
+    """The result page is drawn from the report record alone: verdict, every pooled and per-game row, the ghost cost,
+    the bracket, report-only rows, resets and the hou section (absent before a pool pass)."""
+    import json
+    from tools import p8_common
+    root = tmp_path / "ref"
+    (root / "builds").mkdir(parents=True)
+    (root / "label_build").mkdir()
+    d = root / "resetfix"
+    d.mkdir()
+    rng = np.random.default_rng(4)
+    for g in R.GAMES:
+        wins = {}
+        for i in range(6):
+            m = {f"{f}:0": [float(rng.random()), 0.1, "near"] for f in range(4)}
+            b, n = _win(30, 10, 32, 5, 90, m), _win(27, 8, 28, 6, 92, dict(m))
+            b["unmatched_1to1"], n["unmatched_1to1"] = 40, 36
+            wins[f"{g}_s00_w{i:02d}"] = {"r23": b, "new": n}
+        (d / f"score__{g}.json").write_text(json.dumps({"windows": wins, "windows_common": wins}))
+        (d / f"plan__{g}.json").write_text(json.dumps({"reset_windows": [f"{g}_s00_w00"],
+                                                      "baseline_resets": {f"{g}_s00_w00": 1}}))
+        (d / f"truth_pin__{g}.json").write_text(json.dumps({"status": "use", "files": {}}))
+    monkeypatch.setenv("V3_P8_ROOT", str(root))
+    monkeypatch.setattr(p8_common, "atomic_write", lambda path, text: None)
+    rep = json.loads(json.dumps(R.cmd_report(None)))           # as the record is read back
+    md = R.render_report(rep)
+    assert "**Pool: PASS; adopted: yes.**" in md and "net error E" in md and "one-to-one net error" in md
+    assert "### Ghost cost (reported, not gated)" in md and "gsw_cha_2016" in md and "hou_cle_2016 (after a pool pass)" in md
+    assert "\u2014" not in md and "\u2013" not in md
+    rep["hou"] = None
+    assert "Not scored: it is scored only after a pool pass" in R.render_report(rep)
