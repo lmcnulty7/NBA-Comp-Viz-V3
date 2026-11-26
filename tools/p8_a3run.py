@@ -55,6 +55,15 @@ before rerunning; only gsw_bkn_2015_s04_w00 had completed and its result had not
   the build.
 - A window that still fails after its retries is recorded as missing in the report, and the pooled tests use the
   windows that ran.
+
+Amendment 2 (2026-11-26, after the first full report; registered before rerunning the controls): every heavy window
+starts at processed frame 0 and reproduced the sidecar on 100 percent of frames; every control starts later (frames
+318, 234, 162) and either failed reproduction (0.1 and 0.0 percent) or failed to run (gsw_sac_2015_s04_w00). After
+the pre-gate pass the replay sought straight to the first processed frame, while the build sought to its pre-gate
+interval's start and read on from there, so the two decoders started differently. Fix: when the first processed frame
+is not 0, the replay seeks to frame 0 (a seek that lands exactly) and reads every stride frame up to it, with no
+other seek. The three controls are run again with this order (their first outputs are kept as <window>__amend1.json);
+the six heavy windows are unchanged (they start at 0, where both orders agree). The reproduction check still decides.
 """
 
 from __future__ import annotations
@@ -181,6 +190,13 @@ def cmd_run(args) -> dict:
     from videoseq import SEEK_MIN_GAP
     stride = int(side.get("stride") or 1)
     out, prev, filled = [], None, 0
+    if frames and frames[0] > 0:                 # amendment 2: reach the first processed frame by sequential reads
+        ok, _ = reader.read(0)
+        for i in range(stride, frames[0], stride):
+            ok, _ = reader.read(i)
+            filled += 1
+            if not ok:
+                raise SystemExit(f"{WHO}: {w} start frame {i} unreadable")
     for f in frames:
         if prev is not None and f - reader.next > SEEK_MIN_GAP:     # amendment 1: no seek inside the window
             for i in range(prev + stride, f, stride):
@@ -211,7 +227,7 @@ def cmd_run(args) -> dict:
     rec = {"window": w, "frames": len(out), "smoke": bool(args.frames), "weights_sha256": sha, "device": "cpu",
            "versions": {"opencv": cv2.__version__, "torch": torch.__version__, "ultralytics": ultralytics.__version__},
            "tracker_config": str(config.TRACKER_CONFIG), "seconds": round(time.time() - t0, 1),
-           "n_resets": tracker.n_resets, "read_order": "gapfill", "gap_frames_read": filled, "per_frame": out}
+           "n_resets": tracker.n_resets, "read_order": "gapfill_from_0", "gap_frames_read": filled, "per_frame": out}
     d = p8_root() / "placement" / "a3run"
     d.mkdir(parents=True, exist_ok=True)
     name = f"{w}__smoke.json" if args.frames else f"{w}.json"

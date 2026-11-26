@@ -111,6 +111,60 @@ The fix:
 - The registered reproduction check decides whether each replay matches the build.
 - A window that still fails after its retries is recorded as missing, and the pooled tests use the windows that ran.
 
-## Results
+## Results, first full report (2026-11-26, read order of amendment 1)
 
-Not computed yet.
+The chain ended at 08:54. Eight of the nine windows have records. gsw_sac_2015_s04_w00 has none: it failed
+all three attempts, and the chain output that would name its error was not kept (only the chain's tail was saved, a
+logging slip). The report ran and recorded that window as missing, as amendment 1 provides. Record:
+reports/research/p8_a3run_amend1.json, a copy of the report as written by this run.
+
+| Window | Reproduced | (1) predict boxes | (2) track boxes | Yield | Dropped under an unconfirmed track | (1) against "ours" on corpus frames |
+| --- | --- | --- | --- | --- | --- | --- |
+| bkn s04_w00 (heavy) | 100% | 8,939 | 4,707 | 0.53 | 138 of 4,228 | 1,319 of 1,325 matched; 1,327 against 1,325 boxes |
+| cha s05_w00 (heavy) | 100% | 8,766 | 2,657 | 0.30 | 3 of 6,103 | 84 of 85 |
+| cha s05_w03 (heavy) | 100% | 1,689 | 387 | 0.23 | 4 of 1,302 | 20 of 20 |
+| sac s01_w00 (heavy) | 100% | 5,370 | 1,696 | 0.32 | 37 of 3,671 | 152 of 152 |
+| sac s09_w01 (heavy) | 100% | 3,701 | 1,763 | 0.48 | 40 of 1,937 | 155 of 157 |
+| sac s07_w00 (heavy) | 100% | 8,851 | 7,262 | 0.82 | 196 of 1,585 | 1,686 of 1,695 |
+| bkn s07_w00 (control) | 0.1% | 7,757 | 5,117 | 0.66 | 133 of 2,636 | 1,351 of 1,562 |
+| cha s07_w00 (control) | 0.0% | 8,557 | 8,211 | 0.96 | 345 of 345 | 1,345 of 1,523 |
+| sac s04_w00 (control) | missing | | | | | |
+
+Heavy windows pooled:
+
+- yield 0.495;
+- 2.2 percent of dropped boxes lie under an unconfirmed track;
+- (1) holds 0.9997 times the "ours" boxes and matches 0.995 of them at IoU 0.7.
+
+### Reading by the registered rule
+
+- Runtime: it does not differ. On the heavy windows the build runtime's detector reproduces the corpus runtime's boxes
+  (0.9997 of the count, 0.995 matched).
+- Tracker: not readable. The rule needs the controls reproduced at a yield of 0.95 or more, and no control reproduced.
+- So the rule reads "neither". That reading comes from the controls failing their own reproduction check, not from
+  the tracker test.
+
+What the heavy windows show, all six reproduced exactly:
+
+- The build's tracker outputs about half of what its detector finds there (yield 0.23 to 0.82, pooled 0.50).
+- The dropped boxes are almost never unconfirmed tracks (2.2 percent).
+- With the runtime ruled out, the a3 loss in these windows sits in the tracker. The "never confirmed" mechanism is not
+  supported: 98 percent of dropped boxes are not unconfirmed tracks at the end of their frame. Which tracker step drops
+  them is not measured.
+
+Why the controls failed: every heavy window starts at processed frame 0, and every control starts later (318, 234,
+162). After the pre-gate pass, the replay sought straight to the first processed frame. The build sought to its
+pre-gate interval's start and read on from there. The two decoders therefore started differently. This also explains
+the controls' lower match against "ours" (0.87): the replay's frames there are not the corpus's frames either.
+
+## Amendment 2 (registered before rerunning the controls)
+
+When the first processed frame is not 0, the replay seeks to frame 0, where a seek lands exactly. It then reads every
+stride frame up to the first processed frame, with no other seek. The three controls are run again in this order.
+Their first outputs are kept in the P8 workspace as <window>__amend1.json, and the first report as
+reports/research/p8_a3run_amend1.json. The six heavy windows are unchanged, because they start at 0, where both orders
+agree. The reproduction check and every rule stay as registered.
+
+## Results after amendment 2
+
+Not computed yet. The controls queue behind the truth-cpu driver's lock.
