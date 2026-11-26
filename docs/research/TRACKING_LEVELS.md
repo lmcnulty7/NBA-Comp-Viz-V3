@@ -62,8 +62,7 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 2. Camera truth for okc_sac_2015 on the reference platform (D178, running): bars A, B, C fixed before the build.
    nyk_bos_2016 and por_okc_2016 stay out (hand-measured layouts). Then the gsw_cha_2016 CPU truth rebuild to test
    whether the existing MPS truth moved; if it moved, rebuild the other in-use truth before any cross-arena tuning.
-3. Court output against camera truth (D179 (3)): the court model moves 4 to 11 px between platforms; a JSON-only
-   comparison of each build's court with H_truth (s04_w00 first) says which is closest. Needs its own short design.
+3. Court output against camera truth: done (D181), no change; court device stays as in D175.
 4. E1b design under TRAINING_PROTOCOL.md, after E1R and item 3: start from r23, do not teach unlabelled players as
    background, truth-aligned validation, pilot on one fold, builds on the reference platform.
 5. Colab as a build helper: only through a tested split route (detector on CUDA, court on the reference device),
@@ -83,8 +82,10 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   are not rebuilt, so how much of the registered rise the fault carries is the leading explanation, not a
   measurement (E1R measures it). Every new detector or library version gets a device parity check on the corpus
   JPEGs (minutes) before any build is scored.
-- Platforms differ in the court model too: the court homography moves 3.8 to 4.7 px between Mac CPU and MPS and 8.0
-  to 10.6 px between CUDA and the Mac (D179). A build's platform is part of its result; record it per window.
+- Check what a measure measures before reading its size. The court gap of D179 (3.8 to 10.6 px between platforms) used
+  three fixed court points, and on 90 to 100 percent of truth frames two of them are off the image, so it largely
+  measures extrapolation; on-frame line errors differ by under 1 px (D181). A build's platform is still recorded per
+  window.
 - A remote runtime loses its outputs if it is not polled; chain the result upload into the runtime job itself and poll
   every 5 minutes, even mid-conversation (D179, about 1.1 units lost).
 - Agreement pseudo-labels (two models must both box a player) can teach unlabelled players as background; for E1 the
