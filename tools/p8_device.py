@@ -13,6 +13,11 @@ code does (config.get_device(): CUDA, else MPS, else CPU).
                                     and M8): on this Mac the in-place clamp_ of ops.clip_boxes on MPS sets the x
                                     coordinates of the most confident boxes to the image height. Off unless set; with
                                     it set, the window's device record carries "clip_fix": true.
+    P8_TRACKER_RESET_FIX=1          after detect.tracker.PlayerTracker.reset the ultralytics tracker callbacks are
+                                    removed from the model, so Model.track registers them once again instead of
+                                    appending a second copy (docs/research/P8_a3input.md, P8_resetfix.md; the fix is
+                                    tools.p8_resetfix.apply_reset_fix). Off unless set; with it set, the window's
+                                    device record carries "reset_fix": true.
 
 Why: on this Mac MPS gives about one player box per frame fewer than CPU and a court H about 5 px away, which moves
 the frozen per-window clock offset and shrinks the camera-truth candidates (docs/research/P8_PLATFORM.md).
@@ -38,6 +43,7 @@ FLAGS = {"detector": "P8_DEVICE_DETECTOR", "court": "P8_DEVICE_COURT", "gate": "
 DEFAULT_FLAG = "P8_DEVICE"
 DEVICES = ("cpu", "mps", "cuda")
 CLIP_FIX_FLAG = "P8_MPS_CLIP_FIX"
+RESET_FIX_FLAG = "P8_TRACKER_RESET_FIX"
 BUILD_SCRIPT = "build_trajectories.py"
 
 
@@ -61,8 +67,17 @@ def clip_fix_requested(env=None) -> bool:
     return v == "1"
 
 
+def reset_fix_requested(env=None) -> bool:
+    """P8_TRACKER_RESET_FIX: "1" sets it, unset, empty or "0" leaves it off; anything else is refused."""
+    env = os.environ if env is None else env
+    v = env.get(RESET_FIX_FLAG) or ""
+    if v not in ("", "0", "1"):
+        raise SystemExit(f"{WHO}: {RESET_FIX_FLAG} must be 1 (or unset), not {v!r}")
+    return v == "1"
+
+
 def is_set(env=None) -> bool:
-    return any(v != "auto" for v in requested(env).values()) or clip_fix_requested(env)
+    return any(v != "auto" for v in requested(env).values()) or clip_fix_requested(env) or reset_fix_requested(env)
 
 
 def apply_clip_fix() -> list:
@@ -126,6 +141,9 @@ def check_cached(out_dir: Path, stem: str) -> None:
     if bool((rec or {}).get("clip_fix", False)) != clip_fix_requested():
         raise SystemExit(f"{WHO}: {stem} in {out_dir} was built with clip_fix {bool((rec or {}).get('clip_fix'))}, "
                          f"not {clip_fix_requested()}")
+    if bool((rec or {}).get("reset_fix", False)) != reset_fix_requested():
+        raise SystemExit(f"{WHO}: {stem} in {out_dir} was built with reset_fix {bool((rec or {}).get('reset_fix'))}, "
+                         f"not {reset_fix_requested()}")
 
 
 # ── child side: the patched build ───────────────────────────────────────────────────────────────────────────────────
@@ -161,6 +179,10 @@ def device_record(req: dict, resolved: dict) -> dict:
     if clip_fix_requested():
         rec["clip_fix"] = True
         rec["clip_fix_names"] = apply_clip_fix()
+    if reset_fix_requested():
+        from tools.p8_resetfix import apply_reset_fix
+        rec["reset_fix"] = True
+        rec["reset_fix_patched"] = apply_reset_fix()
     return rec
 
 
@@ -178,6 +200,9 @@ def main(argv=None) -> int:
     part = config.TRACKING_DIR / f"{stem}_device.json.part"
     part.write_text(json.dumps(device_record(req, resolved)))
     os.replace(part, config.TRACKING_DIR / f"{stem}_device.json")
+    if reset_fix_requested():
+        from tools.p8_resetfix import start_reset_log
+        start_reset_log(config.TRACKING_DIR / f"{stem}_resetfix.json")
     script = Path(config.PROJECT_ROOT) / BUILD_SCRIPT
     sys.argv = [str(script), *argv[1:]]
     runpy.run_path(str(script), run_name="__main__")

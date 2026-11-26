@@ -1,0 +1,3761 @@
+{
+ "what": "Truth acceptance before and after the first reset of each label-build window (docs/research/P8_resetfix.md version 2, measurement a); report only",
+ "units": {
+  "gsw_bkn_2015__mps": {
+   "game": "gsw_bkn_2015",
+   "truth": "mps",
+   "label_windows": 83,
+   "windows_without_label_build": [],
+   "windows": 83,
+   "windows_with_reset": 18,
+   "windows_reset_located": 18,
+   "windows_reset_not_located": 0,
+   "rate_before_in_reset_windows": 0.15854,
+   "rate_after_in_reset_windows": 0.00717,
+   "ratio_before_over_after": 22.12052,
+   "rate_before_minus_after_window_interval": [
+    0.06847,
+    0.23216
+   ],
+   "rate_no_reset_windows": 0.10101,
+   "share_after_reset_processed": 0.1149,
+   "share_after_reset_accepted": 0.00819,
+   "under_representation": 14.02458,
+   "accepted_not_processed": 0,
+   "per_window": {
+    "gsw_bkn_2015_s00_w00": {
+     "resets": 1,
+     "first_reset_frame": 1644,
+     "proc_before": 201,
+     "proc_after": 71,
+     "acc_before": 20,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s00_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 282,
+     "proc_after": 0,
+     "acc_before": 11,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s00_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 305,
+     "proc_after": 0,
+     "acc_before": 33,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s00_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 235,
+     "proc_after": 0,
+     "acc_before": 12,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s00_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 185,
+     "proc_after": 0,
+     "acc_before": 57,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s00_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 16,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s00_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 161,
+     "proc_after": 0,
+     "acc_before": 31,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s00_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 114,
+     "proc_after": 0,
+     "acc_before": 6,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s00_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 4,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w00": {
+     "resets": 1,
+     "first_reset_frame": 3720,
+     "proc_before": 620,
+     "proc_after": 26,
+     "acc_before": 24,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 495,
+     "proc_after": 0,
+     "acc_before": 55,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 355,
+     "proc_after": 0,
+     "acc_before": 5,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 131,
+     "proc_after": 0,
+     "acc_before": 14,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 195,
+     "proc_after": 0,
+     "acc_before": 6,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 175,
+     "proc_after": 0,
+     "acc_before": 13,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 165,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 118,
+     "proc_after": 0,
+     "acc_before": 8,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 115,
+     "proc_after": 0,
+     "acc_before": 7,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 105,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w10": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 46,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s01_w11": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s02_w00": {
+     "resets": 1,
+     "first_reset_frame": 2922,
+     "proc_before": 428,
+     "proc_after": 106,
+     "acc_before": 149,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s02_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 491,
+     "proc_after": 0,
+     "acc_before": 40,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s02_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 389,
+     "proc_after": 0,
+     "acc_before": 60,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s02_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 349,
+     "proc_after": 0,
+     "acc_before": 33,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s02_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 295,
+     "proc_after": 0,
+     "acc_before": 11,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s02_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 51,
+     "proc_after": 0,
+     "acc_before": 8,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s02_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 67,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w00": {
+     "resets": 1,
+     "first_reset_frame": 2184,
+     "proc_before": 233,
+     "proc_after": 400,
+     "acc_before": 41,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w01": {
+     "resets": 1,
+     "first_reset_frame": 1158,
+     "proc_before": 125,
+     "proc_after": 202,
+     "acc_before": 11,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 184,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 265,
+     "proc_after": 0,
+     "acc_before": 11,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w04": {
+     "resets": 1,
+     "first_reset_frame": 402,
+     "proc_before": 33,
+     "proc_after": 188,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 146,
+     "proc_after": 0,
+     "acc_before": 52,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 185,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 81,
+     "proc_after": 0,
+     "acc_before": 5,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 66,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s03_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 71,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s04_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 1102,
+     "proc_after": 0,
+     "acc_before": 140,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s04_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 262,
+     "proc_after": 0,
+     "acc_before": 30,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s04_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 225,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s04_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 175,
+     "proc_after": 0,
+     "acc_before": 40,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s04_w04": {
+     "resets": 1,
+     "first_reset_frame": 378,
+     "proc_before": 63,
+     "proc_after": 87,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s05_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 726,
+     "proc_after": 0,
+     "acc_before": 21,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s05_w01": {
+     "resets": 1,
+     "first_reset_frame": 2538,
+     "proc_before": 257,
+     "proc_after": 186,
+     "acc_before": 69,
+     "acc_after": 14,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s05_w02": {
+     "resets": 2,
+     "first_reset_frame": 1116,
+     "proc_before": 84,
+     "proc_after": 263,
+     "acc_before": 0,
+     "acc_after": 1,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s05_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 540,
+     "proc_after": 0,
+     "acc_before": 69,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s05_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 338,
+     "proc_after": 0,
+     "acc_before": 85,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s05_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 325,
+     "proc_after": 0,
+     "acc_before": 84,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s05_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 173,
+     "proc_after": 0,
+     "acc_before": 4,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s05_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 38,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s06_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 436,
+     "proc_after": 0,
+     "acc_before": 5,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s06_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 447,
+     "proc_after": 0,
+     "acc_before": 20,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s06_w02": {
+     "resets": 1,
+     "first_reset_frame": 1788,
+     "proc_before": 252,
+     "proc_after": 167,
+     "acc_before": 10,
+     "acc_after": 2,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s06_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 368,
+     "proc_after": 0,
+     "acc_before": 51,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s06_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 127,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s06_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 18,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s07_w00": {
+     "resets": 1,
+     "first_reset_frame": 3288,
+     "proc_before": 478,
+     "proc_after": 432,
+     "acc_before": 161,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s07_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 556,
+     "proc_after": 0,
+     "acc_before": 36,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s07_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 417,
+     "proc_after": 0,
+     "acc_before": 150,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s07_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 215,
+     "proc_after": 0,
+     "acc_before": 51,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s07_w04": {
+     "resets": 1,
+     "first_reset_frame": 1026,
+     "proc_before": 131,
+     "proc_after": 14,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s07_w05": {
+     "resets": 1,
+     "first_reset_frame": 480,
+     "proc_before": 18,
+     "proc_after": 65,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s07_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 111,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s08_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 145,
+     "proc_after": 0,
+     "acc_before": 13,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s08_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 17,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s08_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 115,
+     "proc_after": 0,
+     "acc_before": 25,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s08_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 105,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s08_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 97,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s08_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s09_w00": {
+     "resets": 1,
+     "first_reset_frame": 2766,
+     "proc_before": 327,
+     "proc_after": 34,
+     "acc_before": 21,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s09_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 413,
+     "proc_after": 0,
+     "acc_before": 14,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s09_w02": {
+     "resets": 1,
+     "first_reset_frame": 1926,
+     "proc_before": 276,
+     "proc_after": 24,
+     "acc_before": 77,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s09_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 92,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s09_w04": {
+     "resets": 1,
+     "first_reset_frame": 624,
+     "proc_before": 36,
+     "proc_after": 11,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s09_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 30,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s10_w00": {
+     "resets": 1,
+     "first_reset_frame": 894,
+     "proc_before": 115,
+     "proc_after": 6,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s10_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 116,
+     "proc_after": 0,
+     "acc_before": 26,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s10_w02": {
+     "resets": 1,
+     "first_reset_frame": 270,
+     "proc_before": 13,
+     "proc_after": 90,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s10_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 135,
+     "proc_after": 0,
+     "acc_before": 47,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s10_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 135,
+     "proc_after": 0,
+     "acc_before": 7,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s10_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 115,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_bkn_2015_s10_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    }
+   }
+  },
+  "gsw_cha_2016__mps": {
+   "game": "gsw_cha_2016",
+   "truth": "mps",
+   "label_windows": 73,
+   "windows_without_label_build": [],
+   "windows": 73,
+   "windows_with_reset": 14,
+   "windows_reset_located": 14,
+   "windows_reset_not_located": 0,
+   "rate_before_in_reset_windows": 0.07966,
+   "rate_after_in_reset_windows": 0.00467,
+   "ratio_before_over_after": 17.06381,
+   "rate_before_minus_after_window_interval": [
+    0.03164,
+    0.10539
+   ],
+   "rate_no_reset_windows": 0.10172,
+   "share_after_reset_processed": 0.23691,
+   "share_after_reset_accepted": 0.01464,
+   "under_representation": 16.18079,
+   "accepted_not_processed": 0,
+   "per_window": {
+    "gsw_cha_2016_s00_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 435,
+     "proc_after": 0,
+     "acc_before": 103,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s00_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 169,
+     "proc_after": 0,
+     "acc_before": 18,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w00": {
+     "resets": 1,
+     "first_reset_frame": 1494,
+     "proc_before": 246,
+     "proc_after": 396,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w01": {
+     "resets": 1,
+     "first_reset_frame": 3366,
+     "proc_before": 521,
+     "proc_after": 5,
+     "acc_before": 34,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 395,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w03": {
+     "resets": 1,
+     "first_reset_frame": 186,
+     "proc_before": 13,
+     "proc_after": 264,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 265,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 1,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 135,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 72,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 49,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 56,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 456,
+     "proc_after": 0,
+     "acc_before": 79,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 208,
+     "proc_after": 0,
+     "acc_before": 73,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 265,
+     "proc_after": 0,
+     "acc_before": 88,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w03": {
+     "resets": 1,
+     "first_reset_frame": 924,
+     "proc_before": 71,
+     "proc_after": 81,
+     "acc_before": 0,
+     "acc_after": 1,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 195,
+     "proc_after": 0,
+     "acc_before": 50,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 102,
+     "proc_after": 0,
+     "acc_before": 9,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 115,
+     "proc_after": 0,
+     "acc_before": 4,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w00": {
+     "resets": 1,
+     "first_reset_frame": 978,
+     "proc_before": 121,
+     "proc_after": 762,
+     "acc_before": 30,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 461,
+     "proc_after": 0,
+     "acc_before": 46,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 3,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 295,
+     "proc_after": 0,
+     "acc_before": 32,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 295,
+     "proc_after": 0,
+     "acc_before": 38,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 215,
+     "proc_after": 0,
+     "acc_before": 38,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 211,
+     "proc_after": 0,
+     "acc_before": 44,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 59,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 81,
+     "proc_after": 0,
+     "acc_before": 13,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w00": {
+     "resets": 1,
+     "first_reset_frame": 1674,
+     "proc_before": 279,
+     "proc_after": 584,
+     "acc_before": 22,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 205,
+     "proc_after": 0,
+     "acc_before": 23,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 185,
+     "proc_after": 0,
+     "acc_before": 13,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 158,
+     "proc_after": 0,
+     "acc_before": 5,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 126,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 16,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 105,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 33,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w00": {
+     "resets": 1,
+     "first_reset_frame": 312,
+     "proc_before": 13,
+     "proc_after": 1040,
+     "acc_before": 0,
+     "acc_after": 8,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w01": {
+     "resets": 1,
+     "first_reset_frame": 5730,
+     "proc_before": 772,
+     "proc_after": 115,
+     "acc_before": 96,
+     "acc_after": 9,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 202,
+     "proc_after": 0,
+     "acc_before": 10,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w03": {
+     "resets": 1,
+     "first_reset_frame": 354,
+     "proc_before": 30,
+     "proc_after": 176,
+     "acc_before": 0,
+     "acc_after": 2,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 156,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 154,
+     "proc_after": 0,
+     "acc_before": 6,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w00": {
+     "resets": 1,
+     "first_reset_frame": 498,
+     "proc_before": 5,
+     "proc_after": 492,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w01": {
+     "resets": 1,
+     "first_reset_frame": 2340,
+     "proc_before": 291,
+     "proc_after": 64,
+     "acc_before": 20,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 7,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 157,
+     "proc_after": 0,
+     "acc_before": 11,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 114,
+     "proc_after": 0,
+     "acc_before": 11,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w05": {
+     "resets": 1,
+     "first_reset_frame": 576,
+     "proc_before": 62,
+     "proc_after": 59,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 82,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 46,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w10": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w11": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 968,
+     "proc_after": 0,
+     "acc_before": 164,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 621,
+     "proc_after": 0,
+     "acc_before": 35,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 214,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 205,
+     "proc_after": 0,
+     "acc_before": 4,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 157,
+     "proc_after": 0,
+     "acc_before": 31,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 61,
+     "proc_after": 0,
+     "acc_before": 15,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 5,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 696,
+     "proc_after": 0,
+     "acc_before": 18,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w01": {
+     "resets": 1,
+     "first_reset_frame": 1890,
+     "proc_before": 166,
+     "proc_after": 104,
+     "acc_before": 4,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 422,
+     "proc_after": 0,
+     "acc_before": 48,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w03": {
+     "resets": 1,
+     "first_reset_frame": 498,
+     "proc_before": 21,
+     "proc_after": 142,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 205,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 34,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 102,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 13,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 65,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s09_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 225,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s09_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 155,
+     "proc_after": 0,
+     "acc_before": 55,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s09_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    }
+   }
+  },
+  "gsw_sac_2015__mps": {
+   "game": "gsw_sac_2015",
+   "truth": "mps",
+   "label_windows": 82,
+   "windows_without_label_build": [],
+   "windows": 82,
+   "windows_with_reset": 12,
+   "windows_reset_located": 12,
+   "windows_reset_not_located": 0,
+   "rate_before_in_reset_windows": 0.14636,
+   "rate_after_in_reset_windows": 0.01367,
+   "ratio_before_over_after": 10.70501,
+   "rate_before_minus_after_window_interval": [
+    0.01501,
+    0.19983
+   ],
+   "rate_no_reset_windows": 0.12944,
+   "share_after_reset_processed": 0.13683,
+   "share_after_reset_accepted": 0.01627,
+   "under_representation": 8.40889,
+   "accepted_not_processed": 0,
+   "per_window": {
+    "gsw_sac_2015_s01_w00": {
+     "resets": 1,
+     "first_reset_frame": 294,
+     "proc_before": 18,
+     "proc_after": 632,
+     "acc_before": 0,
+     "acc_after": 16,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s01_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 430,
+     "proc_after": 0,
+     "acc_before": 21,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s01_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 450,
+     "proc_after": 0,
+     "acc_before": 75,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s01_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 176,
+     "proc_after": 0,
+     "acc_before": 43,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s01_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 114,
+     "proc_after": 0,
+     "acc_before": 40,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s01_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 80,
+     "proc_after": 0,
+     "acc_before": 5,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s01_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 32,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s01_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 61,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s02_w00": {
+     "resets": 1,
+     "first_reset_frame": 174,
+     "proc_before": 26,
+     "proc_after": 466,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s02_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 495,
+     "proc_after": 0,
+     "acc_before": 48,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s02_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 433,
+     "proc_after": 0,
+     "acc_before": 21,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s02_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 252,
+     "proc_after": 0,
+     "acc_before": 80,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s02_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 275,
+     "proc_after": 0,
+     "acc_before": 49,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s02_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 135,
+     "proc_after": 0,
+     "acc_before": 40,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s02_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 39,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s02_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 92,
+     "proc_after": 0,
+     "acc_before": 7,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s03_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 359,
+     "proc_after": 0,
+     "acc_before": 20,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s03_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 385,
+     "proc_after": 0,
+     "acc_before": 66,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s03_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 235,
+     "proc_after": 0,
+     "acc_before": 22,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s03_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 167,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s03_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 115,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s03_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 67,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s03_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 57,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 609,
+     "proc_after": 0,
+     "acc_before": 186,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 344,
+     "proc_after": 0,
+     "acc_before": 54,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w02": {
+     "resets": 1,
+     "first_reset_frame": 624,
+     "proc_before": 104,
+     "proc_after": 211,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 269,
+     "proc_after": 0,
+     "acc_before": 85,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 250,
+     "proc_after": 0,
+     "acc_before": 61,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 170,
+     "proc_after": 0,
+     "acc_before": 17,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 64,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 105,
+     "proc_after": 0,
+     "acc_before": 17,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w08": {
+     "resets": 1,
+     "first_reset_frame": 612,
+     "proc_before": 3,
+     "proc_after": 1,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s04_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s05_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 569,
+     "proc_after": 0,
+     "acc_before": 87,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s05_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 385,
+     "proc_after": 0,
+     "acc_before": 29,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s05_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 280,
+     "proc_after": 0,
+     "acc_before": 4,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s05_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 183,
+     "proc_after": 0,
+     "acc_before": 80,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s05_w04": {
+     "resets": 1,
+     "first_reset_frame": 282,
+     "proc_before": 47,
+     "proc_after": 98,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s05_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 115,
+     "proc_after": 0,
+     "acc_before": 7,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s05_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 55,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s05_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 42,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s05_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s06_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 375,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s06_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 237,
+     "proc_after": 0,
+     "acc_before": 4,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s06_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 255,
+     "proc_after": 0,
+     "acc_before": 10,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s06_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 235,
+     "proc_after": 0,
+     "acc_before": 42,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s06_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 215,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s06_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 98,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s06_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 145,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s06_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 89,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s06_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 70,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s07_w00": {
+     "resets": 1,
+     "first_reset_frame": 4368,
+     "proc_before": 687,
+     "proc_after": 327,
+     "acc_before": 173,
+     "acc_after": 5,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s07_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 302,
+     "proc_after": 0,
+     "acc_before": 74,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s07_w02": {
+     "resets": 1,
+     "first_reset_frame": 1086,
+     "proc_before": 154,
+     "proc_after": 184,
+     "acc_before": 16,
+     "acc_after": 1,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s07_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 196,
+     "proc_after": 0,
+     "acc_before": 12,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s07_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 136,
+     "proc_after": 0,
+     "acc_before": 27,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s07_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 185,
+     "proc_after": 0,
+     "acc_before": 9,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s07_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 99,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s07_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 91,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s07_w08": {
+     "resets": 1,
+     "first_reset_frame": 444,
+     "proc_before": 74,
+     "proc_after": 21,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s08_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 450,
+     "proc_after": 0,
+     "acc_before": 17,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s08_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 500,
+     "proc_after": 0,
+     "acc_before": 88,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s08_w02": {
+     "resets": 1,
+     "first_reset_frame": 1626,
+     "proc_before": 253,
+     "proc_after": 24,
+     "acc_before": 23,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s08_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 228,
+     "proc_after": 0,
+     "acc_before": 8,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s08_w04": {
+     "resets": 1,
+     "first_reset_frame": 456,
+     "proc_before": 13,
+     "proc_after": 169,
+     "acc_before": 0,
+     "acc_after": 6,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s08_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 107,
+     "proc_after": 0,
+     "acc_before": 6,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s08_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 40,
+     "proc_after": 0,
+     "acc_before": 8,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s08_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s09_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 598,
+     "proc_after": 0,
+     "acc_before": 85,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s09_w01": {
+     "resets": 1,
+     "first_reset_frame": 732,
+     "proc_before": 122,
+     "proc_after": 303,
+     "acc_before": 9,
+     "acc_after": 7,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s09_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 254,
+     "proc_after": 0,
+     "acc_before": 32,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s09_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 190,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s09_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 168,
+     "proc_after": 0,
+     "acc_before": 36,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s09_w05": {
+     "resets": 1,
+     "first_reset_frame": 306,
+     "proc_before": 9,
+     "proc_after": 124,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s09_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s09_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 55,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s10_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 183,
+     "proc_after": 0,
+     "acc_before": 64,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s10_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 225,
+     "proc_after": 0,
+     "acc_before": 5,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s10_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 195,
+     "proc_after": 0,
+     "acc_before": 59,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s10_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s10_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 80,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_sac_2015_s10_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    }
+   }
+  },
+  "hou_cle_2016__mps": {
+   "game": "hou_cle_2016",
+   "truth": "mps",
+   "label_windows": 93,
+   "windows_without_label_build": [],
+   "windows": 93,
+   "windows_with_reset": 21,
+   "windows_reset_located": 21,
+   "windows_reset_not_located": 0,
+   "rate_before_in_reset_windows": 0.22252,
+   "rate_after_in_reset_windows": 0.03691,
+   "ratio_before_over_after": 6.0283,
+   "rate_before_minus_after_window_interval": [
+    0.08181,
+    0.30132
+   ],
+   "rate_no_reset_windows": 0.23943,
+   "share_after_reset_processed": 0.25142,
+   "share_after_reset_accepted": 0.04992,
+   "under_representation": 5.03631,
+   "accepted_not_processed": 0,
+   "per_window": {
+    "hou_cle_2016_s00_w00": {
+     "resets": 1,
+     "first_reset_frame": 1416,
+     "proc_before": 208,
+     "proc_after": 340,
+     "acc_before": 149,
+     "acc_after": 27,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s00_w01": {
+     "resets": 1,
+     "first_reset_frame": 516,
+     "proc_before": 57,
+     "proc_after": 229,
+     "acc_before": 0,
+     "acc_after": 5,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s00_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 288,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s00_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 237,
+     "proc_after": 0,
+     "acc_before": 59,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s00_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 149,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s00_w05": {
+     "resets": 1,
+     "first_reset_frame": 570,
+     "proc_before": 11,
+     "proc_after": 59,
+     "acc_before": 0,
+     "acc_after": 4,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s00_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 135,
+     "proc_after": 0,
+     "acc_before": 23,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 726,
+     "proc_after": 0,
+     "acc_before": 166,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 378,
+     "proc_after": 0,
+     "acc_before": 50,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w02": {
+     "resets": 1,
+     "first_reset_frame": 1314,
+     "proc_before": 183,
+     "proc_after": 206,
+     "acc_before": 87,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w03": {
+     "resets": 1,
+     "first_reset_frame": 312,
+     "proc_before": 30,
+     "proc_after": 193,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w04": {
+     "resets": 1,
+     "first_reset_frame": 636,
+     "proc_before": 78,
+     "proc_after": 89,
+     "acc_before": 16,
+     "acc_after": 9,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 135,
+     "proc_after": 0,
+     "acc_before": 19,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 105,
+     "proc_after": 0,
+     "acc_before": 77,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 99,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 47,
+     "proc_after": 0,
+     "acc_before": 14,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 62,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s01_w10": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 53,
+     "proc_after": 0,
+     "acc_before": 27,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s02_w00": {
+     "resets": 1,
+     "first_reset_frame": 2268,
+     "proc_before": 363,
+     "proc_after": 97,
+     "acc_before": 101,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s02_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 295,
+     "proc_after": 0,
+     "acc_before": 89,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s02_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 260,
+     "proc_after": 0,
+     "acc_before": 16,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s02_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 225,
+     "proc_after": 0,
+     "acc_before": 115,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s02_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 145,
+     "proc_after": 0,
+     "acc_before": 63,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s02_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 80,
+     "proc_after": 0,
+     "acc_before": 52,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s02_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 108,
+     "proc_after": 0,
+     "acc_before": 9,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s02_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 115,
+     "proc_after": 0,
+     "acc_before": 29,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s02_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 105,
+     "proc_after": 0,
+     "acc_before": 51,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w00": {
+     "resets": 1,
+     "first_reset_frame": 558,
+     "proc_before": 93,
+     "proc_after": 518,
+     "acc_before": 14,
+     "acc_after": 2,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w01": {
+     "resets": 1,
+     "first_reset_frame": 630,
+     "proc_before": 54,
+     "proc_after": 339,
+     "acc_before": 19,
+     "acc_after": 4,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w02": {
+     "resets": 1,
+     "first_reset_frame": 276,
+     "proc_before": 13,
+     "proc_after": 359,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w03": {
+     "resets": 1,
+     "first_reset_frame": 1182,
+     "proc_before": 152,
+     "proc_after": 178,
+     "acc_before": 0,
+     "acc_after": 25,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 331,
+     "proc_after": 0,
+     "acc_before": 110,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 320,
+     "proc_after": 0,
+     "acc_before": 50,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 198,
+     "proc_after": 0,
+     "acc_before": 48,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 156,
+     "proc_after": 0,
+     "acc_before": 81,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 153,
+     "proc_after": 0,
+     "acc_before": 48,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 108,
+     "proc_after": 0,
+     "acc_before": 72,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s03_w10": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 101,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s04_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 475,
+     "proc_after": 0,
+     "acc_before": 177,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s04_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 275,
+     "proc_after": 0,
+     "acc_before": 76,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s04_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 221,
+     "proc_after": 0,
+     "acc_before": 70,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s04_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 144,
+     "proc_after": 0,
+     "acc_before": 47,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s04_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 175,
+     "proc_after": 0,
+     "acc_before": 27,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s04_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 75,
+     "proc_after": 0,
+     "acc_before": 39,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s05_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 415,
+     "proc_after": 0,
+     "acc_before": 98,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s05_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 300,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s05_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 209,
+     "proc_after": 0,
+     "acc_before": 125,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s05_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 205,
+     "proc_after": 0,
+     "acc_before": 85,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s05_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 120,
+     "proc_after": 0,
+     "acc_before": 28,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s05_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 90,
+     "proc_after": 0,
+     "acc_before": 4,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s05_w06": {
+     "resets": 1,
+     "first_reset_frame": 438,
+     "proc_before": 48,
+     "proc_after": 32,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s06_w00": {
+     "resets": 1,
+     "first_reset_frame": 1968,
+     "proc_before": 217,
+     "proc_after": 697,
+     "acc_before": 20,
+     "acc_after": 49,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s06_w01": {
+     "resets": 1,
+     "first_reset_frame": 2082,
+     "proc_before": 323,
+     "proc_after": 269,
+     "acc_before": 170,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s06_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 396,
+     "proc_after": 0,
+     "acc_before": 27,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s06_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 375,
+     "proc_after": 0,
+     "acc_before": 55,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s06_w04": {
+     "resets": 1,
+     "first_reset_frame": 396,
+     "proc_before": 38,
+     "proc_after": 189,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s06_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 245,
+     "proc_after": 0,
+     "acc_before": 61,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s06_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 175,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s06_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 74,
+     "proc_after": 0,
+     "acc_before": 16,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s06_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s07_w00": {
+     "resets": 1,
+     "first_reset_frame": 5124,
+     "proc_before": 737,
+     "proc_after": 697,
+     "acc_before": 50,
+     "acc_after": 7,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s07_w01": {
+     "resets": 1,
+     "first_reset_frame": 654,
+     "proc_before": 109,
+     "proc_after": 745,
+     "acc_before": 0,
+     "acc_after": 44,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s07_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 334,
+     "proc_after": 0,
+     "acc_before": 57,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s07_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 173,
+     "proc_after": 0,
+     "acc_before": 44,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s07_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 111,
+     "proc_after": 0,
+     "acc_before": 33,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s07_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 77,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s08_w00": {
+     "resets": 1,
+     "first_reset_frame": 2088,
+     "proc_before": 292,
+     "proc_after": 228,
+     "acc_before": 17,
+     "acc_after": 9,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s08_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 447,
+     "proc_after": 0,
+     "acc_before": 137,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s08_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 136,
+     "proc_after": 0,
+     "acc_before": 61,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s08_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 132,
+     "proc_after": 0,
+     "acc_before": 35,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s08_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 115,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s08_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 74,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s08_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 35,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s08_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s09_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 747,
+     "proc_after": 0,
+     "acc_before": 133,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s09_w01": {
+     "resets": 1,
+     "first_reset_frame": 2016,
+     "proc_before": 264,
+     "proc_after": 309,
+     "acc_before": 53,
+     "acc_after": 16,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s09_w02": {
+     "resets": 1,
+     "first_reset_frame": 2424,
+     "proc_before": 327,
+     "proc_after": 90,
+     "acc_before": 120,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s09_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 307,
+     "proc_after": 0,
+     "acc_before": 79,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s09_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 157,
+     "proc_after": 0,
+     "acc_before": 38,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s09_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 235,
+     "proc_after": 0,
+     "acc_before": 54,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s09_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 165,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s09_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 90,
+     "proc_after": 0,
+     "acc_before": 37,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s09_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 88,
+     "proc_after": 0,
+     "acc_before": 67,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 465,
+     "proc_after": 0,
+     "acc_before": 183,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w01": {
+     "resets": 1,
+     "first_reset_frame": 846,
+     "proc_before": 79,
+     "proc_after": 124,
+     "acc_before": 0,
+     "acc_after": 20,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 137,
+     "proc_after": 0,
+     "acc_before": 10,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 159,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 165,
+     "proc_after": 0,
+     "acc_before": 65,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 39,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 38,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 105,
+     "proc_after": 0,
+     "acc_before": 70,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "hou_cle_2016_s10_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 48,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    }
+   }
+  },
+  "gsw_cha_2016__cpu": {
+   "game": "gsw_cha_2016",
+   "truth": "cpu",
+   "label_windows": 73,
+   "windows_without_label_build": [],
+   "windows": 73,
+   "windows_with_reset": 12,
+   "windows_reset_located": 12,
+   "windows_reset_not_located": 0,
+   "rate_before_in_reset_windows": 0.1536,
+   "rate_after_in_reset_windows": 0.01402,
+   "ratio_before_over_after": 10.95576,
+   "rate_before_minus_after_window_interval": [
+    0.02608,
+    0.24255
+   ],
+   "rate_no_reset_windows": 0.16215,
+   "share_after_reset_processed": 0.16961,
+   "share_after_reset_accepted": 0.01749,
+   "under_representation": 9.69914,
+   "accepted_not_processed": 0,
+   "per_window": {
+    "gsw_cha_2016_s00_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 435,
+     "proc_after": 0,
+     "acc_before": 55,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s00_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 169,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w00": {
+     "resets": 1,
+     "first_reset_frame": 1494,
+     "proc_before": 246,
+     "proc_after": 396,
+     "acc_before": 0,
+     "acc_after": 4,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w01": {
+     "resets": 1,
+     "first_reset_frame": 3366,
+     "proc_before": 521,
+     "proc_after": 5,
+     "acc_before": 76,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w02": {
+     "resets": 1,
+     "first_reset_frame": 1272,
+     "proc_before": 162,
+     "proc_after": 233,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w03": {
+     "resets": 1,
+     "first_reset_frame": 186,
+     "proc_before": 13,
+     "proc_after": 264,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 265,
+     "proc_after": 0,
+     "acc_before": 10,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 1,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 135,
+     "proc_after": 0,
+     "acc_before": 19,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 72,
+     "proc_after": 0,
+     "acc_before": 5,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 49,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s01_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 56,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 456,
+     "proc_after": 0,
+     "acc_before": 109,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 208,
+     "proc_after": 0,
+     "acc_before": 82,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 265,
+     "proc_after": 0,
+     "acc_before": 106,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w03": {
+     "resets": 1,
+     "first_reset_frame": 924,
+     "proc_before": 71,
+     "proc_after": 81,
+     "acc_before": 0,
+     "acc_after": 38,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 195,
+     "proc_after": 0,
+     "acc_before": 77,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 102,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s02_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 115,
+     "proc_after": 0,
+     "acc_before": 28,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 883,
+     "proc_after": 0,
+     "acc_before": 86,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 461,
+     "proc_after": 0,
+     "acc_before": 114,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 3,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 295,
+     "proc_after": 0,
+     "acc_before": 109,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 295,
+     "proc_after": 0,
+     "acc_before": 70,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 215,
+     "proc_after": 0,
+     "acc_before": 46,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 211,
+     "proc_after": 0,
+     "acc_before": 66,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 59,
+     "proc_after": 0,
+     "acc_before": 7,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s03_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 81,
+     "proc_after": 0,
+     "acc_before": 29,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 863,
+     "proc_after": 0,
+     "acc_before": 47,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 205,
+     "proc_after": 0,
+     "acc_before": 7,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 185,
+     "proc_after": 0,
+     "acc_before": 27,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 158,
+     "proc_after": 0,
+     "acc_before": 17,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 126,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 26,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 105,
+     "proc_after": 0,
+     "acc_before": 10,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s04_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 33,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w00": {
+     "resets": 1,
+     "first_reset_frame": 312,
+     "proc_before": 13,
+     "proc_after": 1040,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w01": {
+     "resets": 1,
+     "first_reset_frame": 5730,
+     "proc_before": 772,
+     "proc_after": 115,
+     "acc_before": 124,
+     "acc_after": 1,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 202,
+     "proc_after": 0,
+     "acc_before": 16,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w03": {
+     "resets": 1,
+     "first_reset_frame": 354,
+     "proc_before": 30,
+     "proc_after": 176,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 156,
+     "proc_after": 0,
+     "acc_before": 3,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s05_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 154,
+     "proc_after": 0,
+     "acc_before": 35,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w00": {
+     "resets": 1,
+     "first_reset_frame": 498,
+     "proc_before": 5,
+     "proc_after": 492,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w01": {
+     "resets": 1,
+     "first_reset_frame": 2340,
+     "proc_before": 291,
+     "proc_after": 64,
+     "acc_before": 123,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 7,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 157,
+     "proc_after": 0,
+     "acc_before": 11,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 114,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w05": {
+     "resets": 1,
+     "first_reset_frame": 576,
+     "proc_before": 62,
+     "proc_after": 59,
+     "acc_before": 16,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 82,
+     "proc_after": 0,
+     "acc_before": 1,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w09": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 46,
+     "proc_after": 0,
+     "acc_before": 7,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w10": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s06_w11": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 968,
+     "proc_after": 0,
+     "acc_before": 265,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 621,
+     "proc_after": 0,
+     "acc_before": 58,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 214,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w03": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 205,
+     "proc_after": 0,
+     "acc_before": 8,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 157,
+     "proc_after": 0,
+     "acc_before": 43,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 61,
+     "proc_after": 0,
+     "acc_before": 17,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s07_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 5,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 696,
+     "proc_after": 0,
+     "acc_before": 205,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 270,
+     "proc_after": 0,
+     "acc_before": 50,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 422,
+     "proc_after": 0,
+     "acc_before": 95,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w03": {
+     "resets": 1,
+     "first_reset_frame": 498,
+     "proc_before": 21,
+     "proc_after": 142,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w04": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 205,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w05": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 34,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w06": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 102,
+     "proc_after": 0,
+     "acc_before": 2,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w07": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 95,
+     "proc_after": 0,
+     "acc_before": 19,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s08_w08": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 65,
+     "proc_after": 0,
+     "acc_before": 0,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s09_w00": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 225,
+     "proc_after": 0,
+     "acc_before": 18,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s09_w01": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 155,
+     "proc_after": 0,
+     "acc_before": 56,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    },
+    "gsw_cha_2016_s09_w02": {
+     "resets": 0,
+     "first_reset_frame": null,
+     "proc_before": 125,
+     "proc_after": 0,
+     "acc_before": 4,
+     "acc_after": 0,
+     "acc_not_processed": 0
+    }
+   }
+  }
+ }
+}
