@@ -17,6 +17,12 @@ one more copy. On gsw_cha_2016_s05_w00, as built, all 1,038 steps after the rese
 and the tracker kept 0.303 of the detector's boxes; with the reset fixed in process it ran one update per step (0
 doubled frames) and kept 0.955 (same 8,766 detector boxes in both).
 
+Scope: any build made with detect/tracker.PlayerTracker under ultralytics 8.4.48 that had at least one reset carries
+the bug (a code fact). Whether r23's registered baselines and the recorded held-out numbers had resets, and how much
+the bug moved them, is not tested here or by this arm. Held-out numbers are not rebuilt or re-scored (CLAUDE.md rule
+4); this arm builds and scores the four development games only. Reset timing differs between detectors (the cut rule
+counts each build's own tracked ids), so the bug need not cancel in paired comparisons such as E1 against r23.
+
 Question: built on the reference platform with the fix, does r23 miss fewer in-frame players (missed row, and its
 detection row) without harming ghosts, team, position and bias?
 
