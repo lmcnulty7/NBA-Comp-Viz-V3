@@ -6,6 +6,15 @@ and the user-scope ml-training-rigor standard, after E1 (D171), its post-mortem 
 lead has written its D line. The one measurement made for this design (section 2) reads stored files only: no model
 ran and nothing under DATA_ROOT was read.
 
+Status after review (2026-11-26): training-design-reviewer returned NO-GO on version 1 (moderate confidence). Its
+first finding: the raw to build transfer of E1's gains, measured on the same frames, is lower than section 2 assumed
+(placement about 0.32, presence about 0.54, raw losses carried at about 0.42), so the build-level ceiling of section 2
+is too high. The lead's decision: test that first, before any other fix. Section 2b registers the minimum effect that
+matters and a transfer-adjusted gate, written and committed before its numbers were computed. The reviewer's other
+findings (pilot fold, checkpoint epochs, mask placement, duplicate guard, team margin, oracle gate, learning rate,
+selection metric, classes and referees, checklist) are not fixed in this version; they matter only if section 2b's
+gate passes.
+
 ## 1. Question and mechanism
 
 Question: can a detector fine-tuned from r23 on boxes from the qualified outside teacher lower the missed-players row
@@ -108,6 +117,42 @@ Reading:
 - The bound is above the needed effect (section 6): with presence transferring fully and placement at E1's raw to
   build ratio (0.43), the ceiling is about 0.016 + 0.064 x 0.43 = 0.044 at build level against 0.020 needed. So the
   bound permits E1b, by a factor of about two, not more.
+
+## 2b. Minimum effect that matters, and the transfer-adjusted gate (registered before computing)
+
+Minimum effect that matters. The registered adoption rule (section 5) needs build-level missed at most -0.010 pooled,
+with the window and the game intervals wholly below zero. With 3 games the game interval is about the range of the
+three game effects, so every game must improve at build level, not only the pool. A trained student realistically
+reaches about half of what its labels offer after transfer (E1, the only measured case, kept less than its labels'
+nominal headroom at build level). So the labels' transfer-adjusted build ceiling, for a student that imitated them
+perfectly, must be at least twice the bar: at most -0.020 pooled, and at most -0.010 on every game so that half of it
+still lies below zero on each game.
+
+Transfer-adjusted ceiling (tool: tools/p8_e1b_bound.py transfer; rules in its docstring, committed with this section;
+record: reports/research/p8_e1b_transfer.json):
+
+- Frames: per pool game, the corpus frames that both reference-platform builds processed (r23: builds/e1m6_r23_detcpu
+  and builds/m9_r23_detcpu__<game>; E1 seed 0 of the fold named after the game: builds/e1m6_e1_gsw_bkn_2015_detcpu and
+  builds/e1r_e1_<game>_detcpu). In-frame players with the scorer's 10 px margin.
+- Raw reach: nearest bottom-centre foot within 2.5 ft; r23 and E1 at 0.40 from M4's CPU run on the corpus JPEGs, the
+  teacher at 0.1471 from the corpus preds. Build reach: nearest foot_stab of the sidecar boxes within 2.5 ft.
+- A raw gain is presence when r23 (0.10 floor) has no box foot within 5 ft of the player, else placement.
+- Transfer fractions, measured per game from E1: f_pres and f_plc, the shares of E1's presence and placement raw
+  gains on which, at build level, E1 reaches the player and r23 does not; f_loss, the share of E1's raw losses on
+  which, at build level, E1 misses the player and r23 reaches it.
+- L1's net per game: P presence gains and Q placement gains (r23 raw misses the teacher reaches), and L losses (r23
+  raw finds the teacher does not reach, the displaced and dropped players of section 2).
+- Perfect-imitation build ceiling per game: C = -(P f_pres + Q f_plc - L f_loss) / N. Pooled: the sum of the three
+  numerators over the sum of N, each game with its own fractions.
+- Gate, on the point estimates: C pooled at most -0.020 AND C at most -0.010 on every game. If any game is above
+  -0.010, E1b with this label set stops before any unit is spent.
+- Report only, beside the gate: the optimistic student-free variant C_opt = -(P f_pres + Q f_plc) / N (keeps every
+  r23 find, so no loss term); half of C; E1's own raw and build differences on the same frames beside what the
+  transfer model predicts for E1 (a check of the model); window bootstrap intervals (2,000, seed 0, windows resampled
+  within each game, fractions recomputed in each resample).
+- Caveats fixed now: the fractions come from one arm (E1, seed 0) whose gains were mostly placement; applying them to
+  L1 assumes L1's gains of each kind carry into the build like E1's did. The transfer of a presence gain is estimated
+  from few events on some games.
 
 ## 3. Recipe (fixed)
 

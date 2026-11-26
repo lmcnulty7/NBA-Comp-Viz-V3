@@ -2,6 +2,8 @@
 (docs/research/P8_E1B.md, section 2). A measurement only: no model runs, nothing trains, no window is built.
 
     python3 -m tools.p8_e1b_bound bound      -> <P8 workspace>/e1b/bound.json and reports/research/p8_e1b_bound.json
+    python3 -m tools.p8_e1b_bound transfer   -> <P8 workspace>/e1b/transfer.json and
+                                                reports/research/p8_e1b_transfer.json (the gate of P8_E1B.md section 2b)
 
 Inputs, all in the P8 workspace and none under DATA_ROOT: the E1 corpus (plan.json, preds/chunk_*.json: our detector
 at 0.40 and the YOLOX-X SportsMOT teacher down to its 0.05 floor), M4's raw CPU predictions on the corpus JPEGs
@@ -41,6 +43,31 @@ Rules, fixed before any number (the scorer's, as M3 of the E1 post-mortem, tools
 - Report only, added after the first run: r23's misses by reach class among those where r23 has a box (0.10 floor)
   within 5 ft, which splits the teacher-reachable misses into placement (r23 boxes the player, its foot is off) and
   presence (r23 has no box near the player).
+
+Transfer-adjusted ceiling (`transfer`, registered 2026-11-26 after the design review and before any of its numbers;
+docs/research/P8_E1B.md section 2b). It asks how much of L1's raw headroom a perfect imitator of the labels would keep
+at build level, if its raw gains and losses carried into the build as E1's did on the same game.
+- Frames: per pool game, the corpus frames that both reference-platform builds processed: r23 (builds/e1m6_r23_detcpu
+  for gsw_bkn_2015, builds/m9_r23_detcpu__<game> otherwise) and E1 seed 0 of the fold named after the game
+  (builds/e1m6_e1_gsw_bkn_2015_detcpu, builds/e1r_e1_<game>_detcpu). Players: in-frame with the 10 px margin.
+- Raw reach (bottom-centre foot within 2.5 ft, nearest): r23 and E1 at 0.40 from M4's CPU run on the corpus JPEGs
+  (one run for both, so the transfer fractions compare like with like); the teacher at 0.1471 from the corpus preds.
+  Build reach: the nearest foot_stab of the build's sidecar boxes within 2.5 ft (the scorer's foot).
+- A raw gain is "presence" when r23 (M4, 0.10 floor) has no box foot within 5 ft of the player, else "placement".
+- Transfer fractions, per game, from E1: f_pres = of E1's presence raw gains (r23 raw misses, E1 raw reaches), the
+  share where at build level E1 reaches and r23 misses; f_plc the same for placement gains; f_loss = of E1's raw
+  losses (r23 raw reaches, E1 raw misses), the share where at build level E1 misses and r23 reaches.
+- L1's net, per game: P = r23 raw misses the teacher reaches, presence; Q = the same, placement; L = r23 raw finds the
+  teacher does not reach (L1's displaced and dropped players).
+- Perfect-imitation build ceiling, per game: C = -(P f_pres + Q f_plc - L f_loss) / N, N the in-frame players.
+  Pooled: the three numerators over the three N, each game with its own fractions. Negative means fewer misses.
+- Gate, fixed now, on the point estimates: C pooled at most -0.020 AND C at most -0.010 on every game. If any game is
+  above -0.010, E1b with the L1 label set stops before any unit is spent.
+- Report only: the optimistic student-free variant C_opt = -(P f_pres + Q f_plc) / N (a student that keeps every r23
+  find and adds every teacher find, L = 0); half of C (the realistic student of section 2b); E1's raw and build
+  differences on the same frames beside the transfer model's prediction for E1 (a check of the model, not a gate);
+  window bootstrap intervals (2,000, seed 0, corpus windows resampled whole, fractions recomputed in each resample)
+  for C and C_opt per game and pooled.
 """
 
 from __future__ import annotations
@@ -357,12 +384,190 @@ def cmd_bound(args) -> dict:
     return out
 
 
+# ── transfer-adjusted ceiling (section 2b) ─────────────────────────────────────────────────────────────────────────
+BUILDS = {"gsw_bkn_2015": ("e1m6_r23_detcpu", "e1m6_e1_gsw_bkn_2015_detcpu"),
+          "gsw_cha_2016": ("m9_r23_detcpu__gsw_cha_2016", "e1r_e1_gsw_cha_2016_detcpu"),
+          "gsw_sac_2015": ("m9_r23_detcpu__gsw_sac_2015", "e1r_e1_gsw_sac_2015_detcpu")}
+GATE_POOLED, GATE_GAME = -0.020, -0.010
+TKEYS = ("n", "e1_gain_pres", "e1_gain_pres_kept", "e1_gain_plc", "e1_gain_plc_kept", "e1_loss", "e1_loss_kept",
+         "l1_pres", "l1_plc", "l1_loss", "raw_r23_miss", "raw_e1_miss", "bld_r23_miss", "bld_e1_miss")
+
+
+def transfer_counts(rr, er, tr, r5, rb, eb) -> dict:
+    """Per-player booleans of one frame (in-frame players only): r23 raw reach, E1 raw reach, teacher raw reach, r23
+    box within 5 ft, r23 build reach, E1 build reach -> the counts of TKEYS."""
+    rr, er, tr, r5, rb, eb = (np.asarray(v, bool) for v in (rr, er, tr, r5, rb, eb))
+    gain = ~rr & er
+    loss = rr & ~er
+    kept = eb & ~rb
+    return {"n": int(len(rr)),
+            "e1_gain_pres": int((gain & ~r5).sum()), "e1_gain_pres_kept": int((gain & ~r5 & kept).sum()),
+            "e1_gain_plc": int((gain & r5).sum()), "e1_gain_plc_kept": int((gain & r5 & kept).sum()),
+            "e1_loss": int(loss.sum()), "e1_loss_kept": int((loss & ~eb & rb).sum()),
+            "l1_pres": int((~rr & tr & ~r5).sum()), "l1_plc": int((~rr & tr & r5).sum()), "l1_loss": int((rr & ~tr).sum()),
+            "raw_r23_miss": int((~rr).sum()), "raw_e1_miss": int((~er).sum()),
+            "bld_r23_miss": int((~rb).sum()), "bld_e1_miss": int((~eb).sum())}
+
+
+def fractions(c: dict) -> dict:
+    def fr(a, b):
+        return c[a] / c[b] if c[b] else 0.0
+    return {"f_pres": fr("e1_gain_pres_kept", "e1_gain_pres"), "f_plc": fr("e1_gain_plc_kept", "e1_gain_plc"),
+            "f_loss": fr("e1_loss_kept", "e1_loss")}
+
+
+def ceiling_terms(c: dict) -> dict:
+    """Numerators (counts, negative = fewer misses) of C, C_opt and the model's prediction for E1, for one game."""
+    f = fractions(c)
+    gain = c["l1_pres"] * f["f_pres"] + c["l1_plc"] * f["f_plc"]
+    e1 = (c["e1_gain_pres"] * f["f_pres"] + c["e1_gain_plc"] * f["f_plc"] - c["e1_loss"] * f["f_loss"])
+    return {"C": -(gain - c["l1_loss"] * f["f_loss"]), "C_opt": -gain, "E1_model": -e1,
+            "E1_raw": c["raw_e1_miss"] - c["raw_r23_miss"], "E1_build": c["bld_e1_miss"] - c["bld_r23_miss"]}
+
+
+def pooled_rates(per_game: dict) -> dict:
+    """{game: counts} -> {game: rates, "pooled": rates}; each game uses its own fractions."""
+    out, tot, n = {}, {}, 0
+    for g, c in per_game.items():
+        t = ceiling_terms(c)
+        out[g] = {k: v / c["n"] for k, v in t.items()}
+        for k, v in t.items():
+            tot[k] = tot.get(k, 0.0) + v
+        n += c["n"]
+    out["pooled"] = {k: v / n for k, v in tot.items()}
+    return out
+
+
+def gate(rates: dict, games) -> dict:
+    worst = max(rates[g]["C"] for g in games)
+    ok = rates["pooled"]["C"] <= GATE_POOLED and worst <= GATE_GAME
+    return {"pooled_C": round(rates["pooled"]["C"], 5), "worst_game_C": round(worst, 5),
+            "rule": f"C pooled <= {GATE_POOLED} and C <= {GATE_GAME} on every game", "passes": bool(ok)}
+
+
+def transfer_boot(per_window: dict, n: int = BOOT_N, seed: int = SEED) -> dict:
+    """per_window: {game/window: counts} -> intervals of C and C_opt per game and pooled (fractions recomputed)."""
+    keys = sorted(per_window)
+    games = sorted({k.split("/")[0] for k in keys})
+    arr = np.array([[per_window[k][t] for t in TKEYS] for k in keys], float)
+    gidx = {g: np.array([i for i, k in enumerate(keys) if k.startswith(g + "/")]) for g in games}
+    rng = np.random.default_rng(seed)
+    reps = {g: {"C": [], "C_opt": []} for g in games + ["pooled"]}
+    for _ in range(n):
+        per = {}
+        for g in games:
+            ix = gidx[g][rng.integers(0, len(gidx[g]), len(gidx[g]))]
+            per[g] = dict(zip(TKEYS, arr[ix].sum(0)))
+        r = pooled_rates(per)
+        for g in games + ["pooled"]:
+            for k in ("C", "C_opt"):
+                reps[g][k].append(r[g][k])
+    return {g: {k: [round(float(np.percentile(v, 2.5)), 5), round(float(np.percentile(v, 97.5)), 5)]
+                for k, v in d.items()} for g, d in reps.items()} | {"windows": len(keys),
+                                                                    "resampling": "windows within each game"}
+
+
+def cmd_transfer(args) -> dict:
+    from sportvu.sync import MIRRORS, SportVUIndex, apply_mirror
+    from tools import p8_teachers as T
+    from tools.p8_e1_postmortem import scorer_inside
+    from tools.p8_e1data import corpus_root
+    check_games(POOL)
+    root, wr = corpus_root(), p8_root()
+    plan = json.loads((root / "plan.json").read_text())
+    if sorted(plan["games"]) != sorted(POOL):
+        raise SystemExit(f"{WHO}: the corpus plan names {sorted(plan['games'])}, not the pool games")
+    guard([v for g in plan["games"].values() for v in (g["sportvu"], g["video_id"])], WHO)
+    preds = {}
+    for k in range(len(plan["chunks"])):
+        preds.update(json.loads((root / "preds" / f"chunk_{k:02d}.json").read_text())["preds"])
+    per_game, per_window, skipped = {}, {}, {}
+
+    def sidecar(folder: str, window: str) -> dict:
+        p = wr / "builds" / folder / f"{window}_frames.json"
+        return {int(r["frame"]): r for r in json.loads(p.read_text())["frames"]} if p.exists() else {}
+
+    def bc_ft(boxes, H):
+        return T.feet_ft(boxes, H)
+
+    def stab_ft(rows, H):
+        import cv2
+        if not rows:
+            return np.zeros((0, 2))
+        px = np.array([b["foot_stab"] for b in rows], np.float64).reshape(-1, 1, 2)
+        return cv2.perspectiveTransform(px, np.asarray(H, np.float64).reshape(3, 3)).reshape(-1, 2)
+
+    for tag, g in plan["games"].items():
+        rfold, efold = BUILDS[tag]
+        m4 = json.loads((wr / "e1" / f"m4_preds__{tag}.json").read_text())
+        if m4["game"] != tag or m4["fold"] != tag or m4["device"] != "cpu" or m4["conf_floor"] > R23_FLOOR:
+            raise SystemExit(f"{WHO}: m4_preds__{tag}.json is not the fold's CPU run on its left-out game")
+        index = SportVUIndex(json.loads((wr / "sportvu" / f"{g['sportvu']}_moments.json").read_text())["moments"])
+        fx, fy = MIRRORS[g["mirror"]]
+        tot = {k: 0 for k in TKEYS}
+        cache_w, sr, se = None, {}, {}
+        n_skip = 0
+        for ch in plan["chunks"]:
+            for w in ch:
+                for fr in w["frames"]:
+                    if fr["game"] != tag:
+                        continue
+                    if fr["window"] != cache_w:
+                        cache_w, sr, se = fr["window"], sidecar(rfold, fr["window"]), sidecar(efold, fr["window"])
+                    a, b = sr.get(int(fr["frame"])), se.get(int(fr["frame"]))
+                    if a is None or b is None:
+                        n_skip += 1
+                        continue
+                    stem = f"{fr['window']}_f{int(fr['frame']):06d}"
+                    rec = preds[f"{tag}/{stem}"]
+                    wpx, hpx = rec["size"]
+                    H = fr["H_truth"]
+                    sv = apply_mirror(index.q[fr["q"]]["xy"][fr["moment"]], fx, fy)
+                    inside = scorer_inside(sv, H, wpx, hpx)
+                    svi = np.asarray(sv, np.float64).reshape(-1, 2)[inside]
+                    P = m4["preds"][stem]
+                    d = {"rr": nearest(svi, bc_ft([p for p in P["r23"] if p[4] >= DET_CONF], H)) <= MISS_FT,
+                         "er": nearest(svi, bc_ft([p for p in P["e1"] if p[4] >= DET_CONF], H)) <= MISS_FT,
+                         "tr": nearest(svi, bc_ft([p for p in rec[T.MISS_TEACHER] if p[4] >= TEACHER_CONF], H)) <= MISS_FT,
+                         "r5": nearest(svi, bc_ft([p for p in P["r23"] if p[4] >= R23_FLOOR], H)) <= NEAR_FT,
+                         "rb": nearest(svi, stab_ft(a["boxes"], H)) <= MISS_FT,
+                         "eb": nearest(svi, stab_ft(b["boxes"], H)) <= MISS_FT}
+                    c = transfer_counts(**d)
+                    acc = per_window.setdefault(f"{tag}/{fr['window']}", {k: 0 for k in TKEYS})
+                    for k, v in c.items():
+                        acc[k] += v
+                        tot[k] += v
+        per_game[tag] = tot
+        skipped[tag] = n_skip
+    rates = pooled_rates(per_game)
+    out = {"what": "E1b transfer-adjusted build ceiling of the L1 labels (docs/research/P8_E1B.md section 2b); stored "
+                   "files only: corpus preds, M4 CPU preds and the reference-platform build sidecars",
+           "builds": {g: {"r23": BUILDS[g][0], "e1": BUILDS[g][1]} for g in POOL},
+           "corpus_frames_not_processed_by_both_builds": skipped,
+           "counts": per_game,
+           "fractions": {g: {k: round(v, 4) for k, v in fractions(c).items()} for g, c in per_game.items()},
+           "rates": {g: {k: round(v, 5) for k, v in r.items()} for g, r in rates.items()},
+           "half_of_C": {g: round(r["C"] / 2, 5) for g, r in rates.items()},
+           "gate": gate(rates, POOL),
+           "boot": transfer_boot(per_window),
+           "report_only": ["C_opt", "half_of_C", "E1_model", "E1_raw", "E1_build", "boot"]}
+    d = wr / "e1b"
+    d.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(out, indent=1)
+    atomic_write(d / "transfer.json", text)
+    atomic_write(REPO / "reports" / "research" / "p8_e1b_transfer.json", text)
+    print(json.dumps({k: out[k] for k in ("corpus_frames_not_processed_by_both_builds", "fractions", "rates", "gate",
+                                          "boot")}, indent=1))
+    return out
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_e1b_bound")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("bound")
+    sub.add_parser("transfer")
     a = ap.parse_args(argv)
-    {"bound": cmd_bound}[a.cmd](a)
+    {"bound": cmd_bound, "transfer": cmd_transfer}[a.cmd](a)
 
 
 if __name__ == "__main__":

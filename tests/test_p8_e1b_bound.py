@@ -73,3 +73,21 @@ def test_guard_refuses_other_games():
     import pytest
     with pytest.raises(SystemExit):
         B.check_games(["hou_cle_2016"])
+
+
+def test_transfer_counts_and_ceiling():
+    # players: 0 presence gain kept, 1 placement gain lost in build, 2 loss carried, 3 both find
+    c = B.transfer_counts(rr=[False, False, True, True], er=[True, True, False, True], tr=[True, True, False, True],
+                          r5=[False, True, True, True], rb=[False, False, True, True], eb=[True, False, False, True])
+    assert (c["e1_gain_pres"], c["e1_gain_pres_kept"], c["e1_gain_plc"], c["e1_gain_plc_kept"]) == (1, 1, 1, 0)
+    assert (c["e1_loss"], c["e1_loss_kept"]) == (1, 1)
+    assert (c["l1_pres"], c["l1_plc"], c["l1_loss"]) == (1, 1, 1)
+    f = B.fractions(c)
+    assert f == {"f_pres": 1.0, "f_plc": 0.0, "f_loss": 1.0}
+    t = B.ceiling_terms(c)
+    assert t["C"] == 0.0 and t["C_opt"] == -1.0 and t["E1_build"] == 0
+    r = B.pooled_rates({"g": c})
+    assert r["pooled"]["C"] == 0.0
+    assert B.gate(r, ["g"])["passes"] is False
+    good = dict(c, l1_pres=10)
+    assert B.gate(B.pooled_rates({"g": good}), ["g"])["passes"] is True
