@@ -414,21 +414,27 @@ on gsw_sac_2015.
 ## Version 3 decision: STOP
 
 No candidate passes the pool rule, so the arm stops, as registered. hou_cle_2016 is kept unspent: score-hou has not
-run, no hou_cle_2016 raw file has been read for this arm, and the tool is pinned to STOP, so score-hou refuses.
+scored anything, no hou_cle_2016 raw file has been read for this arm, and the tool is pinned to STOP, so score-hou
+refuses (one invocation at 18f505f5 refused on CHOSEN_FORM_V3 = STOP, before the marker is written).
+
+Note (ml-review, 2026-11-26): "identical (asserted in code)" in the registered rules means identical by
+construction; the shared counts are compared as a sanity check that cannot fail. Scorer fidelity rests on
+check_registered, which matches the pinned matched entries to the registered score file within 1e-4.
 
 What the numbers say (post hoc, not tested):
 
 - K1m does not shift the near third, yet the near-third p90 still rises by about 0.035 ft on every game. The rule's
   near third is the player's SportVU third. The shift's cell comes from the output point's third under B. Players
   whose SportVU position is near but whose output point falls in the middle third receive the middle shift (about
-  -0.87 ft, pushing them out), and they set the near tail. The margin of +0.05 ft is exceeded at the interval's upper
+  -0.87 ft, pushing them out), and they likely set the near tail (not measured: no record breaks the near-third p90
+  down by the output point's third). The margin of +0.05 ft is exceeded at the interval's upper
   end only (+0.070 to +0.089).
 - K1t's near shift, fitted on the scored quantity of the two other games, is -0.33 to -0.48 ft. The scored near bias
   itself varies by game (0.010, 0.367, 0.213 ft before), so any near shift carried across games over-corrects a game
-  whose near bias is small, as on gsw_bkn_2015. The near third's bias does not transfer across games. The middle and
-  far thirds do (scored bias after: 0.012 to 0.191 middle, 0.050 to 0.642 far).
+  whose near bias is small, as on gsw_bkn_2015. The near third's bias did not carry across these three games; the middle and
+  far thirds did better (scored bias after: 0.012 to 0.191 middle, 0.050 to 0.642 far).
 - Forecast check, leave one game out: the K0 calibration predicts the held-out game within 0.003 ft. K1, K1m and K1t
-  miss by up to 0.022, 0.035 and 0.031 ft. The cell forms are less predictable from cell medians than the global
+  miss by up to 0.030, 0.035 and 0.031 ft. The cell forms are less predictable from cell medians than the global
   shift. The bias forecast in depth terms is uncalibrated, as registered: its near third before (0.29, 0.47, 0.41 ft)
   runs above the scored near bias (0.010, 0.367, 0.213 ft).
 

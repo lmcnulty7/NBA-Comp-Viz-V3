@@ -115,6 +115,7 @@ from pathlib import Path
 import numpy as np
 
 from tools.p8_common import REPO, atomic_write, p8_root
+from tools.research_testset import refuse_cv_test
 from tools.p8_footbias import fit, load_frames, offset_rows, score_frame, scorer_court
 from tools.p8_placement import CHECK, POOL, check_games, depth_basis, hbin, rnd
 
@@ -245,7 +246,7 @@ def score_game(game: dict, table: dict) -> dict:
 
 
 def cmd_pool(args) -> dict:
-    check_games(POOL)
+    refuse_cv_test(check_games(POOL), WHO)
     games = {t: load_frames(t) for t in POOL}               # pool only: no hou_cle_2016 file is read here
     offs = {t: offset_rows(games[t])[0] for t in POOL}
     out = {"games": {}}
@@ -287,7 +288,7 @@ def cmd_score_hou(args) -> dict:
         raise SystemExit(f"{WHO}: hou_cle_2016 has been scored already ({HOU_RECORD.name}); it is scored once")
     prov = table_provenance()
     table = table_from_json(json.loads(TABLE.read_text())["table"])
-    check_games(CHECK)
+    refuse_cv_test(check_games(CHECK), WHO)
     game = load_frames(CHECK[0])
     res = score_game(game, table)
     out = rnd({"what": "K1 on output positions, hou_cle_2016 scored once with the frozen pool table "
@@ -486,7 +487,7 @@ def score_forms(game: dict, tables: dict, keep_windows: dict | None = None) -> d
 
 
 def cmd_forms(args) -> dict:
-    check_games(POOL)
+    refuse_cv_test(check_games(POOL), WHO)
     games = {t: load_frames(t) for t in POOL}               # pool only: no hou_cle_2016 file is read here
     offs = {t: offset_rows(games[t])[0] for t in POOL}
     res = {}
@@ -560,7 +561,7 @@ def cmd_score_hou_v2(args) -> dict:
     atomic_write(marker, json.dumps({"head": head, "chosen_form": CHOSEN_FORM}))
     tables = {"K1": table_from_json(json.loads(TABLE.read_text())["table"]),
               "K0": table_from_json(json.loads(TABLE_K0.read_text())["table"])}
-    check_games(CHECK)
+    refuse_cv_test(check_games(CHECK), WHO)
     game = load_frames(CHECK[0])
     res = score_forms(game, tables)
     ch, other = CHOSEN_FORM, ("K1" if CHOSEN_FORM == "K0" else "K0")
@@ -701,7 +702,7 @@ def porcelain_clean(repo=None) -> None:
 
 
 def cmd_forms3(args) -> dict:
-    check_games(POOL)
+    refuse_cv_test(check_games(POOL), WHO)
     games = {t: load_frames(t) for t in POOL}               # pool only: no hou_cle_2016 file is read here
     offs = {t: offset_rows(games[t])[0] for t in POOL}
     near = {t: near_toward_terms(games[t]) for t in POOL}
@@ -800,7 +801,7 @@ def cmd_score_hou_v3(args) -> dict:
     marker.parent.mkdir(parents=True, exist_ok=True)
     atomic_write(marker, json.dumps({"head": head, "chosen_form": CHOSEN_FORM_V3, "version": 3}))
     tables = {f: table_from_json(json.loads(pth.read_text())["table"]) for f, (pth, _) in paths.items()}
-    check_games(CHECK)
+    refuse_cv_test(check_games(CHECK), WHO)
     game = load_frames(CHECK[0])
     res, wins = score_forms_with_windows(game, tables)
     for f, r in res["forms"].items():
