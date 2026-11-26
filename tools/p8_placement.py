@@ -211,6 +211,7 @@ def load_game(tag: str) -> dict:
     wins = list(sf["scored_windows"])
     guard(wins, WHO)
     side = SIDE[tag]
+    # M9 files name their sides; the M6 file (gsw_bkn_2015) has none, and for it the exact count check below is the guard.
     if BUILDS[tag] not in sf.get("sides", {}).get(side, BUILDS[tag]):
         raise SystemExit(f"{WHO}: {SCORES[tag]} side {side} is not {BUILDS[tag]}")
     reg = {"in_frame": sum(sf["windows"][w][side]["in_frame"] for w in wins),

@@ -3,7 +3,8 @@
 Written 2026-11-26 after E1b stopped at its transfer gate (docs/research/P8_E1B.md sections 2b and 2c). Report only:
 no model runs, nothing is built or trained, no sidecar is changed, no Colab unit. Tool: tools/p8_placement.py (rules in
 its docstring, the same as below); record: reports/research/p8_placement.json. This section was committed before the
-tool produced any number.
+tool produced any number. (One run stopped at the count check around the time of that commit; it showed only two
+stored counts, 3,922 against 4,322 on gsw_cha_2016, and no measure.)
 
 ## Why
 
@@ -170,15 +171,16 @@ percent moved in; C2 -0.0078; C3 -0.0205.
 ## Reading by the registered rule
 
 SCATTERED. Condition (c) holds: the placement misses' median depth offset is negative on all three pool games and
-each interval excludes zero. Conditions (a) and (b) do not hold for any correction on every game: C1 and C3 pass on
-gsw_bkn_2015 and gsw_cha_2016 and fail on gsw_sac_2015 (net +0.004 and +0.005, pushing out more hits than they move
-in); C2 fails on two games. TIMING does not hold: the lag chosen in every fold is 0. By the rule fixed in advance, a
+each interval excludes zero. Condition (b) holds for every correction on every game (14.8 to 20.1 percent of placement
+misses moved in); condition (a) fails: C1 and C3 on gsw_sac_2015 (net +0.004 and +0.005, pushing out more hits than
+they move in), C2 on all three games (-0.009, -0.003, -0.000). TIMING does not hold: the lag chosen in every fold is 0. By the rule fixed in advance, a
 correction that passes on two games of three is read as scattered.
 
 What the numbers say beyond the rule (post hoc, tested by nothing here):
 
-- The error is along the camera ray, not across it, and it has a structure: near-camera players' feet land beyond
-  them and far players' feet land short, on every game, for hits as well as misses. That is the shape of a depth
+- The error is along the camera ray, not across it, and it has a structure: depth falls from near to far on every game, for hits
+  and misses; placement misses near the camera land beyond the player (+0.75 to +2.80 ft), hits near the camera sit
+  within -0.17 to +0.35 ft, and far feet land short. That is the shape of a depth
   error that grows with distance (foot point against SportVU's body position, or the camera truth's pose), not
   random scatter.
 - But its size varies by game, mostly in the near third (hits' near median -0.17 to +0.35 ft), so a shift fitted on
@@ -198,9 +200,9 @@ Step 3, proposed for the lead:
    within 5 ft, sportvu.bench.MATCH_FT): 0.052 to 0.091 of in-frame players at build level on the pool, 0.063 on
    hou_cle_2016. That is already near the first draft's 5 percent target, and it is the row a detector change can
    move. The placement row is the miss between 2.5 and 5 ft, 0.15 to 0.22 of in-frame players on the pool (0.13 on
-   hou_cle_2016). It is set by a depth
-   error along the camera ray whose size varies by game, so at the 2.5 ft gate it is a floor that the truth and
-   geometry set as much as the pipeline does.
+   hou_cle_2016). A hypothesis (post hoc,
+   not tested here): it is set by a depth error along the camera ray whose size varies by game, so at the 2.5 ft gate
+   it may be a floor that the truth and geometry set as much as the pipeline does.
 2. The detector question is revisited only against the detection row (presence: about 0.016 of in-frame players at
    raw level, P8_E1B.md section 2). E1b's labels do not reach it by enough (section 2b there).
 3. A per-game depth correction is not proposed as step 2: by this rule it did not pass. If the lead wants to try
