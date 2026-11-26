@@ -1,0 +1,377 @@
+{
+ "what": "What the build's tracker drops on the a3-heavy windows (docs/research/P8_a3drop.md); report only; stored files (a3run replays, truth rows, SportVU)",
+ "windows": {
+  "gsw_bkn_2015_s04_w00": {
+   "dropped": 619,
+   "classes": {
+    "1_duplicate": {
+     "count": 56,
+     "share": 0.09047
+    },
+    "2_displaced_track_box": {
+     "count": 0,
+     "share": 0.0
+    },
+    "3_low_confidence": {
+     "count": 14,
+     "share": 0.02262
+    },
+    "4a_real_player_gap": {
+     "count": 30,
+     "share": 0.04847
+    },
+    "4b_real_player_never_tracked": {
+     "count": 387,
+     "share": 0.6252
+    },
+    "5_near_player": {
+     "count": 43,
+     "share": 0.06947
+    },
+    "6_false_positive": {
+     "count": 89,
+     "share": 0.14378
+    }
+   },
+   "median_conf": 0.88597,
+   "by_third": {
+    "near": 215,
+    "middle": 259,
+    "far": 145
+   },
+   "by_height": {
+    "<150": 176,
+    "150-200": 291,
+    "200-250": 140,
+    ">=250": 12
+   }
+  },
+  "gsw_cha_2016_s05_w00": {
+   "dropped": 70,
+   "classes": {
+    "1_duplicate": {
+     "count": 1,
+     "share": 0.01429
+    },
+    "2_displaced_track_box": {
+     "count": 0,
+     "share": 0.0
+    },
+    "3_low_confidence": {
+     "count": 2,
+     "share": 0.02857
+    },
+    "4a_real_player_gap": {
+     "count": 1,
+     "share": 0.01429
+    },
+    "4b_real_player_never_tracked": {
+     "count": 38,
+     "share": 0.54286
+    },
+    "5_near_player": {
+     "count": 5,
+     "share": 0.07143
+    },
+    "6_false_positive": {
+     "count": 23,
+     "share": 0.32857
+    }
+   },
+   "median_conf": 0.9061,
+   "by_third": {
+    "near": 31,
+    "middle": 31,
+    "far": 8
+   },
+   "by_height": {
+    "<150": 15,
+    "150-200": 44,
+    "200-250": 10,
+    ">=250": 1
+   }
+  },
+  "gsw_cha_2016_s05_w03": {
+   "dropped": 18,
+   "classes": {
+    "1_duplicate": {
+     "count": 0,
+     "share": 0.0
+    },
+    "2_displaced_track_box": {
+     "count": 0,
+     "share": 0.0
+    },
+    "3_low_confidence": {
+     "count": 0,
+     "share": 0.0
+    },
+    "4a_real_player_gap": {
+     "count": 0,
+     "share": 0.0
+    },
+    "4b_real_player_never_tracked": {
+     "count": 10,
+     "share": 0.55556
+    },
+    "5_near_player": {
+     "count": 0,
+     "share": 0.0
+    },
+    "6_false_positive": {
+     "count": 8,
+     "share": 0.44444
+    }
+   },
+   "median_conf": 0.91982,
+   "by_third": {
+    "near": 7,
+    "middle": 9,
+    "far": 2
+   },
+   "by_height": {
+    "<150": 4,
+    "150-200": 14,
+    "200-250": 0,
+    ">=250": 0
+   }
+  },
+  "gsw_sac_2015_s01_w00": {
+   "dropped": 98,
+   "classes": {
+    "1_duplicate": {
+     "count": 7,
+     "share": 0.07143
+    },
+    "2_displaced_track_box": {
+     "count": 0,
+     "share": 0.0
+    },
+    "3_low_confidence": {
+     "count": 0,
+     "share": 0.0
+    },
+    "4a_real_player_gap": {
+     "count": 3,
+     "share": 0.03061
+    },
+    "4b_real_player_never_tracked": {
+     "count": 76,
+     "share": 0.77551
+    },
+    "5_near_player": {
+     "count": 5,
+     "share": 0.05102
+    },
+    "6_false_positive": {
+     "count": 7,
+     "share": 0.07143
+    }
+   },
+   "median_conf": 0.90841,
+   "by_third": {
+    "near": 8,
+    "middle": 51,
+    "far": 39
+   },
+   "by_height": {
+    "<150": 8,
+    "150-200": 83,
+    "200-250": 7,
+    ">=250": 0
+   }
+  },
+  "gsw_sac_2015_s09_w01": {
+   "dropped": 59,
+   "classes": {
+    "1_duplicate": {
+     "count": 1,
+     "share": 0.01695
+    },
+    "2_displaced_track_box": {
+     "count": 0,
+     "share": 0.0
+    },
+    "3_low_confidence": {
+     "count": 0,
+     "share": 0.0
+    },
+    "4a_real_player_gap": {
+     "count": 2,
+     "share": 0.0339
+    },
+    "4b_real_player_never_tracked": {
+     "count": 46,
+     "share": 0.77966
+    },
+    "5_near_player": {
+     "count": 3,
+     "share": 0.05085
+    },
+    "6_false_positive": {
+     "count": 7,
+     "share": 0.11864
+    }
+   },
+   "median_conf": 0.89967,
+   "by_third": {
+    "near": 16,
+    "middle": 26,
+    "far": 17
+   },
+   "by_height": {
+    "<150": 13,
+    "150-200": 42,
+    "200-250": 3,
+    ">=250": 1
+   }
+  },
+  "gsw_sac_2015_s07_w00": {
+   "dropped": 68,
+   "classes": {
+    "1_duplicate": {
+     "count": 13,
+     "share": 0.19118
+    },
+    "2_displaced_track_box": {
+     "count": 0,
+     "share": 0.0
+    },
+    "3_low_confidence": {
+     "count": 6,
+     "share": 0.08824
+    },
+    "4a_real_player_gap": {
+     "count": 7,
+     "share": 0.10294
+    },
+    "4b_real_player_never_tracked": {
+     "count": 24,
+     "share": 0.35294
+    },
+    "5_near_player": {
+     "count": 2,
+     "share": 0.02941
+    },
+    "6_false_positive": {
+     "count": 16,
+     "share": 0.23529
+    }
+   },
+   "median_conf": 0.85825,
+   "by_third": {
+    "near": 16,
+    "middle": 21,
+    "far": 31
+   },
+   "by_height": {
+    "<150": 26,
+    "150-200": 37,
+    "200-250": 5,
+    ">=250": 0
+   }
+  }
+ },
+ "pooled": {
+  "dropped": 932,
+  "classes": {
+   "1_duplicate": {
+    "count": 78,
+    "share": 0.08369
+   },
+   "2_displaced_track_box": {
+    "count": 0,
+    "share": 0.0
+   },
+   "3_low_confidence": {
+    "count": 22,
+    "share": 0.02361
+   },
+   "4a_real_player_gap": {
+    "count": 43,
+    "share": 0.04614
+   },
+   "4b_real_player_never_tracked": {
+    "count": 581,
+    "share": 0.62339
+   },
+   "5_near_player": {
+    "count": 58,
+    "share": 0.06223
+   },
+   "6_false_positive": {
+    "count": 150,
+    "share": 0.16094
+   }
+  },
+  "median_conf": 0.89248,
+  "by_third": {
+   "near": 293,
+   "middle": 397,
+   "far": 242
+  },
+  "by_height": {
+   "<150": 242,
+   "150-200": 511,
+   "200-250": 165,
+   ">=250": 14
+  }
+ },
+ "near_reachable_a3": {
+  "dropped": 578,
+  "classes": {
+   "1_duplicate": {
+    "count": 30,
+    "share": 0.0519
+   },
+   "2_displaced_track_box": {
+    "count": 0,
+    "share": 0.0
+   },
+   "3_low_confidence": {
+    "count": 7,
+    "share": 0.01211
+   },
+   "4a_real_player_gap": {
+    "count": 21,
+    "share": 0.03633
+   },
+   "4b_real_player_never_tracked": {
+    "count": 520,
+    "share": 0.89965
+   },
+   "5_near_player": {
+    "count": 0,
+    "share": 0.0
+   },
+   "6_false_positive": {
+    "count": 0,
+    "share": 0.0
+   }
+  },
+  "median_conf": 0.89831,
+  "by_third": {
+   "near": 152,
+   "middle": 274,
+   "far": 152
+  },
+  "by_height": {
+   "<150": 129,
+   "150-200": 326,
+   "200-250": 112,
+   ">=250": 11
+  }
+ },
+ "arms": [
+  "activation arm"
+ ],
+ "rule": {
+  "keep_iou": 0.5,
+  "near_iou": 0.3,
+  "low_conf": 0.5,
+  "gap_frames": 2,
+  "hit_ft": 2.5,
+  "ghost_ft": 3.0,
+  "arm_share": 0.25
+ }
+}
