@@ -578,3 +578,63 @@ the three pool games and hou_cle_2016 (they need no truth, so they may interleav
 clips and time maps exist), then the truth plan's compose per game; (4) the truth plan's check C and acceptance; (5) pin-truth, cache-copy and scoring of the pool, then the report;
 (6) hou scoring only if the pool passes. The budget of 14.9 is unchanged: hou's builds move earlier, they are not
 added.
+
+## 16. Version 2.2 (2026-11-26; the review of 84440284 with version 2.1: GO WITH FIXES; registered before the rerun)
+
+Fixes A1 to A7 and the lead's decisions. Where this section differs from sections 14 and 15, it rules.
+
+**A1, sidecar identity (blocked the smoke).** build_trajectories.py stores the absolute clip path in frames.json as
+"source", and the baseline (built from the workspace clip) and the arm (built from the reference root's copy) differ
+there by construction. compare_window now compares frames.json as canonical JSON with "source" left out
+(trajectories and identity stay byte for byte; neither holds a path). Separately, every arm window must name the
+reference root's clip as its source, and that clip must hash as the workspace clip (arm_source_problem; in build,
+equiv, the smoke and score). Checked on stored files: gsw_cha_2016_s00_w00's workspace sidecar and the reference
+root's copy with its source swapped compare equal (435 rows), and a one-box change makes them differ.
+
+**A2, the bracket becomes a guard (lead decision).** The fixed label builds and the arm share detector and tracker
+output (only court and gate settings differ), so the new truth selects frames by the arm's own boxes.
+- The pool passes only if, on the frames both truths accepted (the workspace's bug-carrying truth and the fixed
+  truth), the pooled missed point estimate is also below zero.
+- The label "the fix reduces missed players on the pool" also needs the bracket's pooled missed window interval
+  wholly below zero.
+- Report only: per window, the arm's sidecar boxes (bbox and track id) against the fixed label build's on frames both
+  processed (label_build_consistency).
+- Scope: the earlier r23 rows on the CPU truth were also scored on truth selected by r23's own boxes (the shared
+  input noted in P8_truth_arenas.md section 15); this is not new to this arm.
+
+**A3, simulation rerun and adoption rule (lead decision, registered now).**
+- Rerun (stored files, no lock; `simulate --version 2.2`, record reports/research/p8_resetfix_simulate_v22.json):
+  as part 1 (b), except (i) in each window with a reset, every count after the first reset is taken u times, u the
+  game's under-representation factor of part (a) on the MPS truth (14.0, 16.2, 8.4): the baseline gains (u - 1) times
+  its after-reset counts (in-frame, missed, far, ghosts, boxes), and the counts the arm acts on (R, R5, E and the
+  excess ghosts) become u times; (ii) q is drawn per draw and game from Beta(g + 1, E - g + 1), g and E the game's
+  excess ghosts and excess boxes after the first reset (unscaled); the centre uses its mean. 500 draws, seed 0; the
+  centre is checked against the real rows, diffs and boot as before. Reported: the pass probability, the adoption
+  probability under the rule below (the bracket guard taken as passing, since it cannot be simulated), how often each
+  condition fails, and the gsw_cha_2016 ghost forecast.
+- Adoption rule: if the pool passes every condition except one or more per-game ghost margins, the fix is adopted as
+  a correctness fix: it removes a bug and returns real detector boxes, so the rebuilt pipeline is the reference from
+  then on. The claim "no harm on ghosts" is then not made, and the ghost cost is reported per game. The fix is not
+  adopted if pooled missed fails, the bracket guard fails, any pooled margin fails, or any other condition fails.
+  (tools.p8_resetfix.adoption; tested.) hou_cle_2016 scoring stays gated on a full pool pass.
+
+**A4, truth pin.** The pin also covers labels/<game>_offsets.json. It refuses unless the acceptance record, the fit
+result, the offsets and every label file post-date every fixed label build (file modification times), and the
+acceptance record's count of label windows equals the fixed label windows (pin_order_problems).
+
+**A5, clips.** plan records every label window's clip SHA-256; build, equiv and score refuse a window whose clip
+changed.
+
+**A6, check C and budget.** truth-rebuild's supersede step moves the 73 unfixed gsw_cha_2016 copies out of
+builds/r23 before its compose. hou_cle_2016's reset-window builds are now unconditional (about 1.3 lock hours plus 2
+equivalence windows, 0.06), so the arm's builds are about 3.3 to 3.5 lock hours whatever the pool shows; with the
+smoke (0.2), the caches (0.5 to 1.5 for the pool; hou's 0.3 to 0.6 only after a pool pass) and the scoring (0.2),
+about 4.2 to 5.8 lock hours.
+
+**A7.**
+- A no-reset window (the arm resolves to the baseline) is scored once and its result reused for both sides.
+- Stage 0 is gated on the real-ultralytics check passing under the frozen CV interpreter, not skipped:
+  `stage0-check` (imports only, no model, no lock) checks that the fix recognises ultralytics 8.4.48's own tracker
+  callbacks, that the versions are the pinned ones, that PlayerTracker has reset and update, that the weights are
+  r23 and that TRACKER_REID is unset; it writes resetfix/stage0.json, and the smoke refuses to start without it.
+- The tests are rerun on the committed head.

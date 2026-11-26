@@ -7,6 +7,7 @@ tools/p8_device.py's build child and a stored-files estimate for the design. Not
     python3 -m tools.p8_resetfix simulate   -> reports/research/p8_resetfix_simulate.json     (design v2 measurement b)
 
 Design v2 stage 0 (docs/research/P8_resetfix.md section 14), in the reference root (V3_P8_ROOT=<reference root>):
+    <frozen CV python> -m tools.p8_resetfix stage0-check                 the real ultralytics check (no lock, no model)
     python3 -m tools.p8_resetfix baseline-copy --game G                  the unfixed baseline in builds/r23_nofix
     python3 -m tools.p8_resetfix plan --game G                           reset and equivalence windows from the baseline
     <frozen CV python> -m tools.p8_resetfix build --game gsw_cha_2016 --smoke         inside the heavy-job lock
@@ -359,6 +360,43 @@ def pool_verdict(pooled: dict, per_game: dict) -> dict:
                               {f"{g}:{r}" for g, v in per_game.items() for r, x in v["rows"].items() if not x["pass"]})}
 
 
+def adoption(pv: dict, pooled: dict, bracket_ok: bool) -> dict:
+    """Version 2.2 (the lead's decision): the fix is adopted when the pool passes and the bracket guard holds; or, as a
+    correctness fix, when every failing condition is a per-game ghost margin and the pooled verdict and the bracket
+    guard pass (the claim "no harm on ghosts" is then not made, and each game's ghost cost is reported). Not adopted
+    when pooled missed fails, the bracket guard fails, any pooled margin fails, or anything else fails."""
+    fails = set(pv.get("failing", []))
+    ghost_only = bool(fails) and all(f.endswith(":ghost_rate") and not f.startswith("pool:") for f in fails)
+    if pv.get("partial") or not bracket_ok or not pooled["pass"]:
+        return {"adopt": False, "kind": None}
+    if pv["pass"]:
+        return {"adopt": True, "kind": "pass"}
+    if ghost_only:
+        return {"adopt": True, "kind": "correctness fix; per-game ghost margin failed, ghost cost reported",
+                "ghost_failing_games": sorted(f.split(":")[0] for f in fails)}
+    return {"adopt": False, "kind": None}
+
+
+def scale_after(st: dict, after: dict, u: float) -> tuple:
+    """Version 2.2 simulation: undo the truth thinning of part (a). A window's counts after its first reset are taken
+    u times (the game's under-representation factor): the baseline gains (u - 1) times them, and the after-reset
+    counts the arm acts on become u times them (rounded)."""
+    if not after or u is None or u <= 1:
+        return st, after
+    st2 = dict(st)
+    for k in ("in_frame", "missed", "far", "nr_ghosts", "nr_boxes"):
+        st2[k] = st[k] + int(round((u - 1) * after.get(k, 0)))
+    aft2 = {k: int(round(u * v)) if isinstance(v, (int, float)) else v for k, v in after.items()}
+    return st2, aft2
+
+
+def excess_ghost_counts(after: dict) -> tuple:
+    """(ghosts, boxes) of the excess r23 boxes after the first reset, for the Beta draw of q."""
+    e = max(0, after.get("ours_boxes", 0) - after.get("nr_boxes", 0))
+    g = min(e, max(0, after.get("ours_ghosts", 0) - after.get("nr_ghosts", 0)))
+    return g, e
+
+
 def resample_picks(n_keys: int, n: int, seed: int) -> np.ndarray:
     """The resample indices tools.p8_e1_score.boot draws for n_keys non-empty groups (same generator, same order)."""
     rng = np.random.default_rng(seed)
@@ -508,23 +546,33 @@ def cmd_simulate(args) -> dict:
     from tools.research_testset import refuse_cv_test
     refuse_cv_test(check_games(list(POOL)), WHO)
     wr = p8_root()
+    v22 = getattr(args, "version", "2") == "2.2"
     est = json.loads((REPO / "reports" / "research" / "p8_resetfix_estimate.json").read_text())["games"]
+    under = {}
+    if v22:
+        tr = json.loads((REPO / "reports" / "research" / "p8_resetfix_truthreset.json").read_text())["units"]
+        under = {g: tr[f"{g}__mps"]["under_representation"] for g in POOL}
     base, meta = {}, {}
     for g in POOL:
         sf = json.loads((wr / "e1" / SCORES[g]).read_text())
         pw = est[g]["per_window"]
         q = est[g]["rates"]["after_reset_excess_ghost_share"]
-        meta[g] = {"q": q}
+        gc, ec = excess_ghost_counts(est[g]["counts"]["after_first_reset"])
+        meta[g] = {"q": q if not v22 else (gc + 1) / (ec + 2), "beta": (gc + 1, ec - gc + 1), "u": under.get(g)}
         base[g] = []
         for w in sf["scored_windows"]:
             st = dict(sf["windows"][w][SIDE[g]])
             if st["in_frame"] != pw[w]["all"].get("in_frame", 0) or st["missed"] != pw[w]["all"].get("missed", 0):
                 raise SystemExit(f"{WHO}: {w}: estimate and score file disagree")
             st["far"] = pw[w]["all"].get("far", 0)          # a window with no scored frame has no counts
-            base[g].append((w, st, pw[w]["after"], pw[w]["resets"]))
+            aft = pw[w]["after"]
+            if v22 and pw[w]["resets"] > 0:
+                st, aft = scale_after(st, aft, under[g])
+            base[g].append((w, st, aft, pw[w]["resets"]))
 
     def build(f, rng):
-        return {g: [{"r23": st, "new": sim_arm(st, aft, rs, f, meta[g]["q"], rng)} for (_w, st, aft, rs) in base[g]]
+        qs = {g: (meta[g]["q"] if (rng is None or not v22) else float(rng.beta(*meta[g]["beta"]))) for g in POOL}
+        return {g: [{"r23": st, "new": sim_arm(st, aft, rs, f, qs[g], rng)} for (_w, st, aft, rs) in base[g]]
                 for g in POOL}
 
     def unit_rows(wins, picks):
@@ -585,7 +633,8 @@ def cmd_simulate(args) -> dict:
         f = float(rng.uniform(*SIM_F))
         sim = build(f, rng)
         v, po, pg = verdicts(sim)
-        draws.append({"f": f, "pass": v["pass"], "pooled_pass": v["pooled"], "games": v["games"],
+        ad = adoption(v, po, True)
+        draws.append({"f": f, "pass": v["pass"], "adopt": ad["adopt"], "pooled_pass": v["pooled"], "games": v["games"],
                       "failing": v["failing"],
                       "missed": po["rows"]["missed_rate"]["diff"], "missed_iv": po["rows"]["missed_rate"]["window_interval"],
                       "detection": po["rows"]["detection_rate"]["diff"],
@@ -596,8 +645,14 @@ def cmd_simulate(args) -> dict:
                     "p95": float(np.percentile(xs, 95))}
     from collections import Counter
     fails = Counter(x for d in draws for x in d["failing"])
-    res = rnd({"what": "Simulated reset-fix arm under the design v2 rule (docs/research/P8_resetfix.md version 2, "
-                       "measurement b); a forecast on the MPS-truth scored frames, not a result",
+    res = rnd({"what": ("Simulated reset-fix arm under the design v2 rule (docs/research/P8_resetfix.md version 2, "
+                        "measurement b); a forecast on the MPS-truth scored frames, not a result") if not v22 else
+               ("Simulated reset-fix arm, version 2.2 (docs/research/P8_resetfix.md section 16): post-reset counts scaled "
+                "by each game's under-representation factor, q drawn from a Beta on its counts; the v2 rule and the "
+                "v2.2 adoption rule (bracket guard taken as passing); a forecast, not a result"),
+               "version": "2.2" if v22 else "2",
+               "under_representation": under if v22 else None,
+               "adoption_probability": sum(d["adopt"] for d in draws) / len(draws),
                "central": {"f": SIM_CENTRAL_F, "verdict": pv, "pooled": pooled, "per_game": per,
                            "checked_against_real_code": check},
                "draws": len(draws), "boot": args.boot,
@@ -614,8 +669,10 @@ def cmd_simulate(args) -> dict:
                             "ghost_window_hi_by_game": {g: q([d["ghost_hi_games"][g] for d in draws]) for g in POOL},
                             "missed_by_game": {g: q([d["missed_games"][g] for d in draws]) for g in POOL}},
                "excess_ghost_share": {g: meta[g]["q"] for g in POOL}})
-    atomic_write(REPO / "reports" / "research" / "p8_resetfix_simulate.json", json.dumps(res, indent=1))
-    print(json.dumps({k: res[k] for k in ("pass_probability", "pooled_pass_probability", "game_pass_probability",
+    name = "p8_resetfix_simulate_v22.json" if v22 else "p8_resetfix_simulate.json"
+    atomic_write(REPO / "reports" / "research" / name, json.dumps(res, indent=1))
+    print(json.dumps({k: res[k] for k in ("pass_probability", "adoption_probability", "pooled_pass_probability",
+                                          "game_pass_probability",
                                           "missed_interval_below_zero_probability", "failing_conditions", "forecast")},
                      indent=1))
     return res
@@ -784,6 +841,16 @@ def boxes_match(side_boxes: list, ref_boxes: list, tol: float = BOX_TOL_PX) -> b
     return bool(D[ri, ci].max() <= tol)
 
 
+def boxes_consistency(arm_rows: list, label_rows: list) -> dict:
+    """Arm sidecar against the fixed label build of the same window: on frames both processed, are the boxes (bbox
+    and track id) the same? The two share detector and tracker; only court and gate settings differ."""
+    a = {int(r["frame"]): sorted((tuple(b["bbox"]), b.get("tid")) for b in r["boxes"]) for r in arm_rows}
+    b = {int(r["frame"]): sorted((tuple(x["bbox"]), x.get("tid")) for x in r["boxes"]) for r in label_rows}
+    shared = a.keys() & b.keys()
+    return {"frames_shared": len(shared), "frames_equal": sum(a[f] == b[f] for f in shared),
+            "frames_only_arm": len(a.keys() - b.keys()), "frames_only_label": len(b.keys() - a.keys())}
+
+
 def one_to_one_missed(feet, sv, inside, miss_ft: float = 2.5) -> int:
     """In-frame players left unmatched by a one-to-one assignment of box feet to players within miss_ft (a box can
     find at most one player, so duplicate boxes cannot lower it)."""
@@ -825,6 +892,22 @@ def truth_pin_problems(pin: dict | None, now: dict) -> list:
     if pin["files"] != now:
         return ["truth files changed since the pin"]
     return []
+
+
+def pin_order_problems(build_mtimes: list, truth_mtimes: dict, acc_label_windows, fixed_label_windows: int) -> list:
+    """Version 2.2: the acceptance record, the fit result, the offsets and every label file must post-date every fixed
+    label build, and the acceptance record's count of label windows must equal the fixed label windows."""
+    bad = []
+    newest = max(build_mtimes) if build_mtimes else None
+    old = sorted(k for k, t in truth_mtimes.items() if newest is None or t is None or t <= newest)
+    if newest is None:
+        bad.append("no fixed label build")
+    if old:
+        bad.append(f"{len(old)} truth files do not post-date the fixed label builds (first: {old[:3]})")
+    if acc_label_windows != fixed_label_windows:
+        bad.append(f"the acceptance record counts {acc_label_windows} label windows, the fixed label builds "
+                   f"{fixed_label_windows}")
+    return bad
 
 
 def label_fix_problems(device_records: dict) -> list:
@@ -914,6 +997,7 @@ def cmd_plan(args) -> dict:
         ident[w] = int(i["identity"].get("camera_cut_resets") or 0)
     plan = plan_windows(ident, empty)
     plan.update({"game": game, "baseline_resets": ident,
+                 "clip_sha256": {w: sha256_file(r / "label_build" / f"{w}.mp4") for w in labels},
                  "baseline_sha256": {w: {f: sha256_file(base / f"{w}_{f}.json") for f in SIDE_FILES} for w in ident}})
     d = r / "resetfix"
     d.mkdir(exist_ok=True)
@@ -923,9 +1007,18 @@ def cmd_plan(args) -> dict:
     return plan
 
 
+def clip_changed(plan: dict, r: Path, w: str) -> bool:
+    """Version 2.2: a window's clip must still hash as the plan recorded it."""
+    want = (plan.get("clip_sha256") or {}).get(w)
+    return want is None or sha256_file(r / "label_build" / f"{w}.mp4") != want
+
+
 def stage_allowed(stage: str, d: Path) -> list:
     """The gates in force before a stage: smoke before the pool, the pool verdict before hou_cle_2016."""
     why = []
+    st0 = _read(d / "stage0.json")
+    if not st0 or not st0.get("passes"):       # version 2.2: the real ultralytics check under the frozen CV python
+        why.append("stage0-check has not passed")
     if stage in ("pool", "hou", "hou_score"):
         sm = _read(d / "smoke_check.json")
         if not sm or not sm.get("passes"):
@@ -935,6 +1028,40 @@ def stage_allowed(stage: str, d: Path) -> list:
         if not rep or not (rep.get("pool") or {}).get("verdict", {}).get("pass"):
             why.append("the pool rule has not passed")
     return why
+
+
+def stage0_checks(TR, versions: dict, tracker_cls, detector_sha: str) -> dict:
+    """The stage 0 gate's checks on the frozen CV interpreter's real modules (pure on what it is given)."""
+    from functools import partial
+    return {"recognises_on_predict_start": is_tracker_callback(partial(TR.on_predict_start, persist=True)),
+            "recognises_on_predict_postprocess_end": is_tracker_callback(partial(TR.on_predict_postprocess_end,
+                                                                                 persist=True)),
+            "versions_pinned": versions == PINNED_VERSIONS,
+            "player_tracker_has_reset_and_update": all(hasattr(tracker_cls, m) for m in ("reset", "update")),
+            "detector_is_r23": detector_sha == R23_SHA}
+
+
+def cmd_stage0_check(args) -> dict:
+    """Frozen CV python, no lock (imports only, no model loaded): the real-ultralytics test of the fix, passing and
+    not skipped, plus the pinned versions and the r23 weights. Writes resetfix/stage0.json; the smoke needs it."""
+    import os
+    import cv2  # noqa: F401  (loaded so its version is read)
+    import torch  # noqa: F401
+    import ultralytics  # noqa: F401
+    import ultralytics.trackers.track as TR
+    from tools.p8_common import atomic_write, main_checkout
+    r = ref_root()
+    import detect.tracker as DT
+    checks = stage0_checks(TR, library_versions(), DT.PlayerTracker,
+                           sha256_file((main_checkout() / "models" / "player_detector.pt").resolve()))
+    checks["tracker_reid_unset"] = os.environ.get("TRACKER_REID") is None
+    out = {"checks": checks, "versions": library_versions(), "passes": all(checks.values())}
+    (r / "resetfix").mkdir(exist_ok=True)
+    atomic_write(r / "resetfix" / "stage0.json", json.dumps(out, indent=1))
+    print(json.dumps(out, indent=1))
+    if not out["passes"]:
+        raise SystemExit(f"{WHO}: stage 0 fails: {[k for k, v in checks.items() if not v]}")
+    return out
 
 
 def cmd_build(args) -> dict:
@@ -981,6 +1108,8 @@ def cmd_build(args) -> dict:
     for s in todo:
         t0 = time.time()
         clip = P["label_build"] / f"{s}.mp4"
+        if not args.smoke and clip_changed(plan, r, s):
+            raise SystemExit(f"{WHO}: {s}: the clip changed since the plan")
         for attempt in (1, 2, 3):
             rr = F.safe_build(P, wins[s], clip, out, extra_args=gate_args())
             if rr["ok"]:
@@ -989,6 +1118,9 @@ def cmd_build(args) -> dict:
             raise SystemExit(f"{WHO}: build of {s} failed three times: {rr.get('tail')}")
         bad = []
         if not rr.get("empty"):
+            why = arm_source_problem(_read(out / f"{s}_frames.json"), s, r, r.parent / "work")
+            if why:
+                bad.append(why)
             ident = _read(out / f"{s}_identity.json")
             bad = check_arm_records(_read(out / f"{s}_detector.json"), _read(out / f"{s}_device.json"),
                                     _read(out / f"{s}_resetfix.json"),
@@ -1003,9 +1135,30 @@ def cmd_build(args) -> dict:
     return res
 
 
+def canonical_sidecar(side: dict) -> str:
+    """A sidecar as canonical JSON without "source" (build_trajectories.py stores the absolute clip path there, and the
+    baseline and the arm are built from two copies of the same clip in two roots)."""
+    return json.dumps({k: v for k, v in side.items() if k != "source"}, sort_keys=True)
+
+
+def arm_source_problem(side: dict, w: str, r: Path, ws: Path) -> str | None:
+    """The arm's sidecar must name the reference root's clip, byte-identical to the workspace clip."""
+    src = side.get("source")
+    rclip = r / "label_build" / f"{w}.mp4"
+    if not src or Path(src).expanduser().resolve() != rclip.resolve():
+        return "the arm was not built from the reference root's clip"
+    wclip = ws / "label_build" / f"{w}.mp4"
+    if not wclip.exists() or sha256_file(wclip) != sha256_file(rclip):
+        return "the reference root's clip differs from the workspace clip"
+    return None
+
+
 def compare_window(base: Path, arm: Path, w: str) -> dict:
-    """Byte identity of the three outputs, the sidecar prefix check, and both arms' reset counts."""
-    same = {f: sha256_file(base / f"{w}_{f}.json") == sha256_file(arm / f"{w}_{f}.json") for f in SIDE_FILES}
+    """Identity of the three outputs (frames as canonical JSON without "source", trajectories and identity byte for
+    byte), the sidecar prefix check, and both arms' reset counts."""
+    same = {f: sha256_file(base / f"{w}_{f}.json") == sha256_file(arm / f"{w}_{f}.json") for f in SIDE_FILES
+            if f != "frames"}
+    same["frames"] = canonical_sidecar(_read(base / f"{w}_frames.json")) == canonical_sidecar(_read(arm / f"{w}_frames.json"))
     log = _read(arm / f"{w}_resetfix.json") or {"resets": []}
     first = min((r["frame"] for r in log["resets"] if r.get("frame") is not None), default=None)
     pre = prefix_equal(_read(base / f"{w}_frames.json")["frames"], _read(arm / f"{w}_frames.json")["frames"], first)
@@ -1039,7 +1192,12 @@ def cmd_smoke_check(args) -> dict:
                         "boxes_B": sum(len(f["output"]) for f in Bf), "resets_arm": len((log or {}).get("resets", [])),
                         "resets_B": a3["variants"]["B"]["n_resets"], "record_problems": rec,
                         "versions": (log or {}).get("versions")}
-    gates = {"no_reset_byte_identical": all(out["no_reset"]["byte_identical"].values()),
+    src_bad = {w: arm_source_problem(_read(arm / f"{w}_frames.json"), w, r, ws) for w in (SMOKE_NORESET, SMOKE_RESET)}
+    out["source_problems"] = src_bad
+    st0 = _read(r / "resetfix" / "stage0.json")
+    gates = {"stage0_passed": bool(st0 and st0.get("passes")),
+             "arm_sources": not any(src_bad.values()),
+             "no_reset_byte_identical": all(out["no_reset"]["byte_identical"].values()),
              "clip_byte_identical": clip_same,
              "every_frame_matches_B": match == len(Bf) and out["a3input_B"]["frames_equal_sets"],
              "resets_equal_B": out["a3input_B"]["resets_arm"] == out["a3input_B"]["resets_B"],
@@ -1063,10 +1221,16 @@ def cmd_equiv(args) -> dict:
     r = ref_root()
     plan = _read(r / "resetfix" / f"plan__{game}.json")
     base, arm = r / "builds" / BASE_DIR, r / "builds" / arm_dir(game)
+    ws = r.parent / "work"
     out = {"game": game, "equivalence": {w: compare_window(base, arm, w) for w in plan["equivalence_windows"]},
            "reset_windows": {w: compare_window(base, arm, w) for w in plan["reset_windows"]}}
     bad = [w for w, c in out["equivalence"].items() if not all(c["byte_identical"].values())]
     bad += [w for w, c in out["reset_windows"].items() if not c["prefix"]["equal"]]
+    for w in plan["equivalence_windows"] + plan["reset_windows"]:
+        why = arm_source_problem(_read(arm / f"{w}_frames.json"), w, r, ws)
+        if why or clip_changed(plan, r, w):
+            bad.append(w)
+            out.setdefault("source_or_clip_problems", {})[w] = why or "the clip changed since the plan"
     out["passes"] = not bad
     out["failing_windows"] = bad
     atomic_write(r / "resetfix" / f"equiv__{game}.json", json.dumps(out, indent=1))
@@ -1146,7 +1310,8 @@ def cmd_baseline_copy(args) -> dict:
 
 
 def truth_files(r: Path, game: str) -> dict:
-    files = sorted((r / "labels" / game).glob(f"{game}_s*.jsonl")) + [r / "labels" / f"{game}_result.json"]
+    files = sorted((r / "labels" / game).glob(f"{game}_s*.jsonl")) + [r / "labels" / f"{game}_result.json",
+                                                                       r / "labels" / f"{game}_offsets.json"]
     return {p.name: sha256_file(p) for p in files if p.exists()}
 
 
@@ -1161,6 +1326,12 @@ def cmd_pin_truth(args) -> dict:
         raise SystemExit(f"{WHO}: {game} has no final acceptance record; its truth status is not final")
     labels = sorted(p.name[:-len("_frames.json")] for p in (r / "label_build").glob(f"{game}_s*_frames.json"))
     why = label_fix_problems({w: _read(r / "label_build" / f"{w}_device.json") for w in labels})
+    mt = lambda p: p.stat().st_mtime if p.exists() else None
+    builds = [t for w in labels for t in (mt(r / "label_build" / f"{w}_frames.json"),
+                                          mt(r / "label_build" / f"{w}_device.json")) if t is not None]
+    tfiles = {p.name: mt(p) for p in [*(r / "labels" / game).glob(f"{game}_s*.jsonl"), r / "labels" / f"{game}_result.json",
+                                      r / "labels" / f"{game}_offsets.json", r / "truth_accept" / f"{game}.json"]}
+    why += pin_order_problems(builds, tfiles, acc.get("label_windows"), len(labels))
     if why:
         raise SystemExit(f"{WHO}: {game}: {why}")
     pin = {"game": game, "status": acc["use"], "label_windows_with_fix": len(labels),
@@ -1179,9 +1350,13 @@ def score_pair(P: dict, game: str, w: dict, dirs: dict, sides: dict, ctx: dict) 
     from sportvu.sync import apply_mirror
     from tools import p8_scorecard as S
     from tools.p8_e1_score import window_stats
+    import copy
     s = w["window"]
     pair, scored_f = {}, {}
     for k, dd in dirs.items():
+        if k == "new" and dd == dirs["r23"]:          # a no-reset window: the arm is the baseline, scored once
+            pair[k], scored_f[k] = copy.deepcopy(pair["r23"]), scored_f["r23"]
+            continue
         full = S.score_window(P, game, w, dd, "camera", ctx["mom"], ctx["mirror"], ctx["refs"], ctx["events"])
         if "skipped" in full[0]:
             raise SystemExit(f"{WHO}: {s} {k} skipped: {full[0]['skipped']}")
@@ -1277,6 +1452,12 @@ def cmd_score(args) -> dict:
         bad += check_frames(sides["r23"], sides["new"])
         if {f: sha256_file(base / f"{s}_{f}.json") for f in SIDE_FILES} != plan["baseline_sha256"][s]:
             bad.append("baseline files changed since the plan")
+        if clip_changed(plan, r, s):
+            bad.append("the clip changed since the plan")
+        if s in built:
+            why = arm_source_problem(sides["new"], s, r, ws)
+            if why:
+                bad.append(why)
         if bad:
             raise SystemExit(f"{WHO}: {s}: {bad}")
         had_cache = (P["cache"] / "scorecard" / f"{s}.json").exists()
@@ -1285,6 +1466,9 @@ def cmd_score(args) -> dict:
         if not had_cache:
             cache_s[s] = round(time.time() - tc, 1)
         extra[s] = {"built": s in built}
+        lab = _read(P["label_build"] / f"{s}_frames.json")       # report only: the arm against the fixed label build
+        extra[s]["label_build_consistency"] = None if lab is None else \
+            boxes_consistency(sides["new"]["frames"], lab["frames"])
         # the bracket (report only): the same pair on the frames the bug-carrying workspace truth also accepted
         old = ws / "labels" / game / f"{s}.jsonl"
         if old.exists() and sha256_file(ws / "label_build" / f"{s}.mp4") == sha256_file(P["label_build"] / f"{s}.mp4"):
@@ -1380,21 +1564,7 @@ def cmd_report(args) -> dict:
     pv = pool_verdict(pooled, per)
     if unscored:                                   # a partial pool never passes (as E1R)
         pv = {**pv, "pass": False, "partial": True}
-    miv = ev["window_interval"]["missed_rate"]
-    label = None
-    if pv["pass"]:
-        label = "the fix reduces missed players on the pool" if (miv and miv[1] < 0) else \
-            "the fix does not harm and points to fewer misses"
-    out["pool"] = {**ev, "verdict": pv, "pooled_verdict": pooled, "label": label, "report_only": report_only(allw)}
-    if files[APART] is not None and pv["pass"]:        # hou is reported only after a pool pass
-        wins = list(files[APART]["windows"].values())
-        evh = unit_eval(wins, resample_picks(len(wins), 2000, 0))
-        vh = v2_verdict(evh["point"], evh["window_interval"], evh["rows"]["coverage"], None,
-                        improve_rows=("missed_rate",), one_to_one=False)
-        out["hou"] = {**evh, "verdict": vh, "report_only": report_only(wins),
-                      "label": "the fix holds on the new arena" if vh["pass"] else
-                      "the pool result does not carry to the new arena"}
-    # the bracket, report only: the same rows on the frames the bug-carrying workspace truth also accepted
+    # the bracket (version 2.2: a guard): the same rows on the frames the bug-carrying workspace truth also accepted
     br = {}
     for g in have:
         wc = list((files[g].get("windows_common") or {}).values())
@@ -1409,6 +1579,41 @@ def cmd_report(args) -> dict:
         br["pool"] = {**e, "verdict": v2_verdict(e["point"], e["window_interval"], e["rows"]["coverage"],
                                                  e["game_interval"])}
     out["bracket_common_frames"] = br
+    bp = br.get("pool")
+    bracket_ok = bool(bp) and bp["point"]["missed_rate"] is not None and bp["point"]["missed_rate"] < 0
+    biv = (bp or {}).get("window_interval", {}).get("missed_rate")
+    out["bracket_guard"] = {"pooled_missed_point_below_zero": bracket_ok,
+                            "pooled_missed_interval_below_zero": bool(biv and biv[1] < 0)}
+    if not bracket_ok:                              # the guard: the pool passes only if the bracket's missed improves
+        pv = {**pv, "pass": False, "bracket_guard_failed": True}
+    out["adoption"] = adoption(pv, pooled, bracket_ok)
+    miv = ev["window_interval"]["missed_rate"]
+    label = None
+    if pv["pass"]:
+        label = "the fix reduces missed players on the pool" if (miv and miv[1] < 0 and biv and biv[1] < 0) else \
+            "the fix does not harm and points to fewer misses"
+    elif out["adoption"]["adopt"]:
+        label = "adopted as a correctness fix; no claim of no harm on ghosts (ghost cost reported per game)"
+    out["pool"] = {**ev, "verdict": pv, "pooled_verdict": pooled, "label": label, "report_only": report_only(allw),
+                   "ghost_cost_by_game": {g: out["per_game"][g]["point"]["ghost_rate"] for g in have}}
+    if files[APART] is not None and pv["pass"]:        # hou is reported only after a pool pass
+        wins = list(files[APART]["windows"].values())
+        evh = unit_eval(wins, resample_picks(len(wins), 2000, 0))
+        vh = v2_verdict(evh["point"], evh["window_interval"], evh["rows"]["coverage"], None,
+                        improve_rows=("missed_rate",), one_to_one=False)
+        out["hou"] = {**evh, "verdict": vh, "report_only": report_only(wins),
+                      "label": "the fix holds on the new arena" if vh["pass"] else
+                      "the pool result does not carry to the new arena"}
+    cons = {}
+    for g in GAMES:
+        if files[g] is None:
+            continue
+        c = {}
+        for note in (files[g].get("window_notes") or {}).values():
+            if note.get("label_build_consistency"):
+                _add(c, note["label_build_consistency"])
+        cons[g] = c
+    out["label_build_consistency"] = cons
     out["resets"] = {g: {w: {"baseline": _read(d / f"plan__{g}.json")["baseline_resets"][w],
                              "arm": (_read(d / f"equiv__{g}.json") or {}).get("reset_windows", {}).get(w, {})
                              .get("resets_arm")} for w in _read(d / f"plan__{g}.json")["reset_windows"]}
@@ -1430,6 +1635,7 @@ def main(argv=None) -> None:
     m = sub.add_parser("simulate")
     m.add_argument("--draws", type=int, default=SIM_DRAWS)
     m.add_argument("--boot", type=int, default=2000)
+    m.add_argument("--version", choices=("2", "2.2"), default="2")
     for name in ("plan", "build", "equiv", "pin-truth", "score", "cache-copy", "baseline-copy"):
         x = sub.add_parser(name)
         x.add_argument("--game", required=True)
@@ -1437,6 +1643,7 @@ def main(argv=None) -> None:
             x.add_argument("--smoke", action="store_true")
         if name in ("score", "cache-copy", "baseline-copy"):
             x.add_argument("--workspace", default=None, help="the P8 workspace (default: work beside the root)")
+    sub.add_parser("stage0-check")
     sc = sub.add_parser("smoke-check")
     sc.add_argument("--workspace", default=None, help="the P8 workspace holding the a3input record (default: work)")
     sub.add_parser("report")
@@ -1444,7 +1651,7 @@ def main(argv=None) -> None:
     {"estimate": cmd_estimate, "truthreset": cmd_truthreset, "simulate": cmd_simulate, "plan": cmd_plan,
      "build": cmd_build, "equiv": cmd_equiv, "pin-truth": cmd_pin_truth, "score": cmd_score,
      "cache-copy": cmd_cache_copy, "baseline-copy": cmd_baseline_copy,
-     "smoke-check": cmd_smoke_check, "report": cmd_report}[a.cmd](a)
+     "smoke-check": cmd_smoke_check, "report": cmd_report, "stage0-check": cmd_stage0_check}[a.cmd](a)
 
 
 if __name__ == "__main__":

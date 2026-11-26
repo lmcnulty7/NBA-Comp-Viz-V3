@@ -313,6 +313,8 @@ def test_truth_pin_and_label_fix():
 
 def test_stage_allowed(tmp_path):
     import json
+    assert R.stage_allowed("smoke", tmp_path)                              # version 2.2: stage 0 must pass first
+    (tmp_path / "stage0.json").write_text(json.dumps({"passes": True}))
     assert R.stage_allowed("pool", tmp_path) and R.stage_allowed("hou", tmp_path) and R.stage_allowed("smoke", tmp_path) == []
     (tmp_path / "smoke_check.json").write_text(json.dumps({"passes": True}))
     # version 2.1: hou builds need only the smoke; hou scoring needs the pool pass
@@ -459,3 +461,114 @@ def test_baseline_copy(tmp_path, monkeypatch):
     _ws_build(ws, ref, src, f"{g}_s00_w03", json, ref_clip=b"other")       # a refused window: incomplete
     rec = R.cmd_baseline_copy(type("A", (), {"game": g, "workspace": str(ws)})())
     assert not rec["complete"] and f"{g}_s00_w03" in rec["refused"]
+
+
+# ── version 2.2 ───────────────────────────────────────────────────────────────────────────────────────────────────
+def test_compare_window_ignores_only_source(tmp_path):
+    """A1: two sidecars that differ only in "source" compare equal; any other difference does not."""
+    import json
+    base, arm = tmp_path / "base", tmp_path / "arm"
+    for d, src in ((base, "/root_a/label_build/w.mp4"), (arm, "/root_b/label_build/w.mp4")):
+        d.mkdir()
+        (d / "w_frames.json").write_text(json.dumps({"source": src, "fps": 59.94, "frames": [{"frame": 0, "boxes": []}]}))
+        (d / "w_trajectories.json").write_text("{}")
+        (d / "w_identity.json").write_text(json.dumps({"identity": {"camera_cut_resets": 0}}))
+    c = R.compare_window(base, arm, "w")
+    assert all(c["byte_identical"].values())
+    (arm / "w_frames.json").write_text(json.dumps({"source": "/x.mp4", "fps": 59.94, "frames": [{"frame": 0, "boxes": [1]}]}))
+    assert not R.compare_window(base, arm, "w")["byte_identical"]["frames"]
+
+
+def test_arm_source_problem(tmp_path):
+    ws, ref = tmp_path / "work", tmp_path / "work_ref"
+    for r in (ws, ref):
+        (r / "label_build").mkdir(parents=True)
+        (r / "label_build" / "w.mp4").write_bytes(b"clip")
+    assert R.arm_source_problem({"source": str(ref / "label_build" / "w.mp4")}, "w", ref, ws) is None
+    assert R.arm_source_problem({"source": str(ws / "label_build" / "w.mp4")}, "w", ref, ws)
+    assert R.arm_source_problem({}, "w", ref, ws)
+    (ws / "label_build" / "w.mp4").write_bytes(b"other")
+    assert R.arm_source_problem({"source": str(ref / "label_build" / "w.mp4")}, "w", ref, ws)
+
+
+def test_boxes_consistency():
+    a = [{"frame": 0, "boxes": [{"bbox": [1, 2, 3, 4], "tid": 1}]}, {"frame": 6, "boxes": []}, {"frame": 12, "boxes": []}]
+    b = [{"frame": 0, "boxes": [{"bbox": [1, 2, 3, 4], "tid": 1}]}, {"frame": 6, "boxes": [{"bbox": [0, 0, 1, 1], "tid": 2}]}]
+    assert R.boxes_consistency(a, b) == {"frames_shared": 2, "frames_equal": 1, "frames_only_arm": 1, "frames_only_label": 0}
+
+
+def test_pin_order_problems():
+    assert R.pin_order_problems([10.0, 20.0], {"a.jsonl": 30.0, "acc": 31.0}, 2, 2) == []
+    assert R.pin_order_problems([10.0, 20.0], {"a.jsonl": 15.0}, 2, 2)      # a label file older than a build
+    assert R.pin_order_problems([10.0], {"a.jsonl": None}, 1, 1)
+    assert R.pin_order_problems([10.0], {"a.jsonl": 30.0}, 73, 72)          # tally differs
+    assert R.pin_order_problems([], {"a.jsonl": 30.0}, 0, 0)
+
+
+def test_clip_changed(tmp_path):
+    (tmp_path / "label_build").mkdir()
+    (tmp_path / "label_build" / "w.mp4").write_bytes(b"clip")
+    plan = {"clip_sha256": {"w": R.sha256_file(tmp_path / "label_build" / "w.mp4")}}
+    assert not R.clip_changed(plan, tmp_path, "w")
+    (tmp_path / "label_build" / "w.mp4").write_bytes(b"new")
+    assert R.clip_changed(plan, tmp_path, "w") and R.clip_changed({}, tmp_path, "w")
+
+
+def test_adoption():
+    pooled_ok = {"pass": True}
+    assert R.adoption({"pass": True, "failing": []}, pooled_ok, True) == {"adopt": True, "kind": "pass"}
+    a = R.adoption({"pass": False, "failing": ["gsw_cha_2016:ghost_rate"]}, pooled_ok, True)
+    assert a["adopt"] and a["ghost_failing_games"] == ["gsw_cha_2016"]
+    assert not R.adoption({"pass": False, "failing": ["gsw_cha_2016:ghost_rate"]}, pooled_ok, False)["adopt"]
+    assert not R.adoption({"pass": False, "failing": ["pool:ghost_rate"]}, {"pass": False}, True)["adopt"]
+    assert not R.adoption({"pass": False, "failing": ["gsw_cha_2016:ghost_rate", "gsw_bkn_2015:position_p90_ft"]},
+                          pooled_ok, True)["adopt"]
+    assert not R.adoption({"pass": False, "partial": True, "failing": []}, pooled_ok, True)["adopt"]
+
+
+def test_scale_after_and_excess_counts():
+    st = {"in_frame": 100, "missed": 30, "far": 10, "nr_ghosts": 5, "nr_boxes": 80, "cov_acc": 1.0}
+    aft = {"in_frame": 10, "missed": 6, "far": 2, "nr_ghosts": 1, "nr_boxes": 4, "reach": 3, "far_reach": 1,
+           "ours_boxes": 9, "ours_ghosts": 3}
+    st2, aft2 = R.scale_after(st, aft, 3.0)
+    assert st2["in_frame"] == 120 and st2["missed"] == 42 and st2["cov_acc"] == 1.0
+    assert aft2["reach"] == 9 and aft2["ours_boxes"] == 27
+    assert R.scale_after(st, aft, 1.0) == (st, aft)
+    assert R.excess_ghost_counts(aft) == (2, 5)
+
+
+def test_stage0_checks():
+    import types
+    mod = _tracker_module()
+    det = types.SimpleNamespace(reset=1, update=1)
+    ok = R.stage0_checks(mod, dict(R.PINNED_VERSIONS), det, R.R23_SHA)
+    assert all(ok.values())
+    assert not R.stage0_checks(mod, {**R.PINNED_VERSIONS, "torch": "2.15.0"}, det, R.R23_SHA)["versions_pinned"]
+    assert not R.stage0_checks(mod, dict(R.PINNED_VERSIONS), det, "x")["detector_is_r23"]
+
+
+def test_report_bracket_guard(tmp_path, monkeypatch):
+    """A2: when the bracket's pooled missed does not improve, the pool does not pass and nothing is adopted."""
+    import json
+    from tools import p8_common
+    root = tmp_path / "ref"
+    (root / "builds").mkdir(parents=True)
+    (root / "label_build").mkdir()
+    d = root / "resetfix"
+    d.mkdir()
+    rng = np.random.default_rng(2)
+    for g in R.POOL:
+        wins, common = {}, {}
+        for i in range(8):
+            m = {f"{f}:0": [float(rng.random()), 0.1, "near"] for f in range(6)}
+            wins[f"{g}_s00_w{i:02d}"] = {"r23": _win(30, 10, 32, 5, 90, m), "new": _win(27, 8, 28, 5, 91, dict(m))}
+            common[f"{g}_s00_w{i:02d}"] = {"r23": _win(30, 10, 32, 5, 90, m), "new": _win(31, 10, 32, 5, 91, dict(m))}
+        (d / f"score__{g}.json").write_text(json.dumps({"windows": wins, "windows_common": common}))
+        (d / f"plan__{g}.json").write_text(json.dumps({"reset_windows": [], "baseline_resets": {}}))
+        (d / f"truth_pin__{g}.json").write_text(json.dumps({"status": "use", "files": {}}))
+    monkeypatch.setenv("V3_P8_ROOT", str(root))
+    monkeypatch.setattr(p8_common, "atomic_write", lambda path, text: None)
+    res = R.cmd_report(None)
+    assert res["pool"]["verdict"]["pass"] is False
+    assert res["bracket_guard"]["pooled_missed_point_below_zero"] is False
+    assert res["adoption"]["adopt"] is False and res["pool"]["label"] is None and res["hou"] is None
