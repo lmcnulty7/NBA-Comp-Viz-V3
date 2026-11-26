@@ -211,3 +211,19 @@ reports/research/p8_footbias_decompose.json.
   of d_H, c and f (depth along the unit vector from the build camera's ground point to the SportVU position, positive
   away from the camera), the median |d_H|, |c| and |f|, and the share of |d_H|'s squared size carried by c and by f
   (sum of c.d_H over the sum of |d_H|^2, and the same for f; the two shares add to 1). Frames left out are counted.
+
+### Decomposition result (computed 2026-11-26, after its registration was committed)
+
+Stored files only, about 14 seconds, no lock. Every scored player-frame had a label-build H, an r23-court H and a
+camera pose (none left out); 18,586, 12,286, 20,040 and 40,303 player-frames (bkn, cha, sac, hou_cle_2016).
+
+Convention check, median |V(p) - T(p)| over the pool's player-frames: as stored 6.92 ft; x mirrored 56.74 ft; y
+mirrored 19.27 ft; both mirrored 60.97 ft. The best (as stored) is above the 3 ft bar, so by the registered rule no
+convention is trusted and the decomposition into court and fit parts is not reported. Record:
+reports/research/p8_footbias_decompose.json.
+
+What this leaves open: the stored orientation is clearly the closest of the four, so the V3 H is not mirrored against
+the truth. But a 6.9 ft median gap at the feet could be either a real disagreement of the V3 court model with the
+fitted truth (camera.py's docstring puts V3's H 20 to 40 px off, which is several feet at the far side), or a
+convention the check did not list (an origin or scale difference). Telling them apart needs its own registered
+check, for example an affine fit of V(p) to T(p) over the pool, with its residual. It was not run.
