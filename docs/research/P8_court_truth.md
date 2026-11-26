@@ -95,3 +95,10 @@ description, not a platform ranking.
 Output: <P8 root>/court_truth/result.json, holding the alignment checks, per-build and per-pair rows of both frame
 sets, both intervals and the readings, with no local path. Guards: refuse_cv_test and tools.p8_common.guard on both
 games and every window before any file is read. It reads JSON only, so no heavy-job lock is needed.
+
+## 7. Command (after review; not run yet)
+
+    <frozen CV python> -m tools.p8_court_truth run --cuda-result <P8 data folder>/cuda_check/result
+
+The frozen CV Python is used because `sportvu.bench.line_error_px` imports the frozen court code and OpenCV. Every input
+named in section 3 was checked to exist (file existence only, no number read) before this design was sent to review.
