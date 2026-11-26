@@ -146,3 +146,64 @@ named in section 3 was checked to exist (file existence only, no number read) be
 8. The frame size is read from each window's clip header (no frame decoded) and must be 1280x720, or the tool stops.
    All three clips were checked: 1280x720.
 9. The detector-CPU build is named mac_detcpu on every window.
+
+## 9. Result (2026-11-26, run by the lead at 9afeb905; report only)
+
+Record: reports/research/p8_court_truth.json (a copy of the P8 workspace's court_truth/result.json). Frozen CV Python,
+JSON and clip headers only. Every reading below means **closer to this camera truth, not more accurate** (section 4):
+the truth was picked and initialised through one build's homography.
+
+**Alignment.** Both gsw_ind_2016 windows are aligned: the share of R1.3 truth boxes matched in the Mac CPU build is
+0.971 at offset 0 against 0.212 and 0.224 one build step either side (s02_w03), and 0.953 against 0.121 and 0.137
+(s02_w04). The detector-CPU build's court homography equals the MPS build's on every frame of every window (gap 0.0
+px), as expected, so mac_detcpu adds no court output of its own.
+
+**Per window and build, primary frames** (point gap median and p90, frozen line error median, px):
+
+| Window (primary frames; truth frames with 0/1/2/3 court points on the frame; paint edge_px median) | cuda_a | mac_mps | mac_cpu |
+| --- | --- | --- | --- |
+| gsw_bkn_2015_s04_w00 (106; 8/95/3/0; 6.85) | 38.20 (99.55), line 6.68 | 38.13 (92.09), line 6.73 | not built |
+| gsw_ind_2016_s02_w03 (70; 0/70/0/0; 6.26) | 259.55 (318.89), line 18.71 | 265.79 (324.43), line 19.15 | 266.34 (326.78), line 19.88 |
+| gsw_ind_2016_s02_w04 (36; 0/34/2/0; 7.54) | 223.53 (305.99), line 19.14 | 221.75 (315.55), line 20.06 | 222.03 (319.53), line 20.95 |
+
+No build lacked a homography on any primary frame.
+
+**Pairs, primary frames** (median paired point-gap difference A minus B, frame and block intervals, blocks, median
+build-to-build gap on the same frames, paired line-error difference with its frame interval; px):
+
+| Window, A against B | Frames (blocks) | Difference | Frame interval | Block interval | Reading | Build-to-build gap | Line-error difference | D-line ready |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| s04_w00, cuda_a against mac_mps | 106 (11) | -1.13 | [-3.32, 0.16] | [-3.12, 0.16] | no difference resolved | 9.94 | 0.00 [-0.10, 0.06] | no |
+| s02_w03, cuda_a against mac_mps | 70 (7) | -5.39 | [-8.19, -2.01] | [-8.32, -1.92] | cuda_a closer | 9.23 | -0.77 [-1.22, -0.41] | yes |
+| s02_w03, cuda_a against mac_cpu | 70 (7) | -6.35 | [-8.69, -3.21] | [-7.68, -4.38] | cuda_a closer | 7.47 | -0.84 [-1.05, -0.18] | yes |
+| s02_w03, mac_cpu against mac_mps | 70 (7) | +0.52 | [-0.69, 1.86] | [-0.49, 2.07] | no difference resolved | 4.73 | -0.05 [-0.29, 0.00] | no |
+| s02_w04, cuda_a against mac_mps | 36 (4) | +4.65 | [1.20, 6.70] | [3.39, 7.71] | mac_mps closer | 11.15 | -0.12 [-0.92, 0.89] | no (line error opposite sign) |
+| s02_w04, cuda_a against mac_cpu | 36 (4) | +2.79 | [-1.77, 5.18] | [2.22, 4.24] | no difference resolved | 14.94 | -0.23 [-0.92, 0.79] | no |
+| s02_w04, mac_cpu against mac_mps | 36 (4) | +1.06 | [0.53, 2.56] | [0.29, 4.08] | mac_mps closer | 4.89 | +0.05 [0.00, 0.22] | yes (4 blocks, coarse) |
+
+On all truth frames (the sensitivity row: 140, 72 and 62 frames), the readings hold on s04_w00 (no difference) and
+s02_w03 (cuda_a closer than mac_mps by 4.88 and than mac_cpu by 6.35, both D-line ready), and every s02_w04 pair
+becomes "no difference resolved".
+
+**The reading, in the design's terms (section 5).**
+
+- Court device: on s02_w03 no difference is resolved between the CPU and MPS courts; on s02_w04 the MPS court is closer
+  to this truth than the CPU court by 1.06 px (D-line ready, but on 36 frames in 4 blocks, and not on all 62 truth
+  frames). Mixed, so **no change**: D175 stands.
+- CUDA's court: closer to this truth than both Mac courts on s02_w03, not resolved against MPS on s04_w00, and farther
+  than MPS on s02_w04 (not D-line ready). Not closer on every window, so **no change**.
+- A lean toward the selecting build's court: **does not show a lean, does not rule it out** (s04_w00 shows no
+  difference between the MPS and CUDA courts).
+
+The minimum honest claim (section 4): on these frames, no court output is consistently closer to camera truth than
+another across the three windows; the one resolved difference that holds on both frame sets, cuda_a closer on
+gsw_ind_2016_s02_w03 by 5.4 to 6.4 px, is on a window whose truth was picked and initialised through a CUDA build.
+
+**What the measure shows about itself (report only; nothing re-read).** On almost every primary frame only one of the
+three court points lies on the frame (95 of 106, 70 of 70, 34 of 36): the broadcast camera is zoomed in. So the point
+gap, fixed as primary in section 2, mostly measures how the homographies extrapolate beyond the image; its medians
+(38 px on s04_w00, 220 to 266 px on gsw_ind_2016) are far larger than the on-frame line error (6.7 px on s04_w00,
+18.7 to 21.0 px on gsw_ind_2016). Every paired line-error difference is under 1.0 px. Separately, on the gsw_ind_2016
+windows every build's court lines sit about 19 to 21 px from the R1.3 truth, against 6.7 px on s04_w00 from the Mac
+truth, while both truths sit 6.3 to 7.5 px (median) from the painted key. A measure on on-frame court points, or the
+line error as the deciding measure, would be a new registration; none is started here.

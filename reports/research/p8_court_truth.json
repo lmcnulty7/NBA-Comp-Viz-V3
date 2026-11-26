@@ -1,0 +1,1002 @@
+{
+ "what": "court homography against camera truth",
+ "design": "docs/research/P8_court_truth.md",
+ "report_only": true,
+ "bars": {
+  "closer_px": 1.0,
+  "align_iou": 0.9,
+  "align_share": 0.9,
+  "boot_n": 2000,
+  "seed": 0,
+  "block": 10
+ },
+ "cuda_commit": "3a6327f19fba21c9b07a6df32ca77dfd5323e85a",
+ "windows": {
+  "gsw_bkn_2015_s04_w00": {
+   "truth_frames": 140,
+   "paint_kept": 106,
+   "frame_size": [
+    1280,
+    720
+   ],
+   "primary_paint_edge_px_median": 6.845,
+   "measured": true,
+   "primary": {
+    "frames": 106,
+    "truth_on_frame_points": {
+     "0": 8,
+     "1": 95,
+     "2": 3,
+     "3": 0
+    },
+    "builds": {
+     "cuda_a": {
+      "frames": 106,
+      "missing_h": 0,
+      "gap_median_px": 38.20096315272539,
+      "gap_p90_px": 99.54754188721822,
+      "line_error_median_px": 6.684999942779541
+     },
+     "mac_detcpu": {
+      "frames": 106,
+      "missing_h": 0,
+      "gap_median_px": 38.13397837478106,
+      "gap_p90_px": 92.094195877233,
+      "line_error_median_px": 6.725374937057495
+     },
+     "mac_mps": {
+      "frames": 106,
+      "missing_h": 0,
+      "gap_median_px": 38.13397837478106,
+      "gap_p90_px": 92.094195877233,
+      "line_error_median_px": 6.725374937057495
+     }
+    },
+    "pairs": {
+     "cuda_a~mac_detcpu": {
+      "frames": 106,
+      "blocks": 11,
+      "median_diff_px": -1.1268939240062057,
+      "frame_ci": [
+       -3.32092949737266,
+       0.16339269126652667
+      ],
+      "block_ci": [
+       -3.12251001903752,
+       0.16339269126652667
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 9.93721076521475,
+      "line_error": {
+       "frames": 106,
+       "median_diff_px": 0.0,
+       "frame_ci": [
+        -0.10357499122619629,
+        0.06319999694824219
+       ],
+       "block_ci": [
+        -0.063419371843338,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "cuda_a~mac_mps": {
+      "frames": 106,
+      "blocks": 11,
+      "median_diff_px": -1.1268939240062057,
+      "frame_ci": [
+       -3.32092949737266,
+       0.16339269126652667
+      ],
+      "block_ci": [
+       -3.12251001903752,
+       0.16339269126652667
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 9.93721076521475,
+      "line_error": {
+       "frames": 106,
+       "median_diff_px": 0.0,
+       "frame_ci": [
+        -0.10357499122619629,
+        0.06319999694824219
+       ],
+       "block_ci": [
+        -0.063419371843338,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "mac_detcpu~mac_mps": {
+      "frames": 106,
+      "blocks": 11,
+      "median_diff_px": 0.0,
+      "frame_ci": [
+       0.0,
+       0.0
+      ],
+      "block_ci": [
+       0.0,
+       0.0
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 0.0,
+      "line_error": {
+       "frames": 106,
+       "median_diff_px": 0.0,
+       "frame_ci": [
+        0.0,
+        0.0
+       ],
+       "block_ci": [
+        0.0,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     }
+    }
+   },
+   "all_truth_frames": {
+    "frames": 140,
+    "truth_on_frame_points": {
+     "0": 9,
+     "1": 128,
+     "2": 3,
+     "3": 0
+    },
+    "builds": {
+     "cuda_a": {
+      "frames": 140,
+      "missing_h": 0,
+      "gap_median_px": 40.49160078512416,
+      "gap_p90_px": 103.22364403651132,
+      "line_error_median_px": 7.68037486076355
+     },
+     "mac_detcpu": {
+      "frames": 140,
+      "missing_h": 0,
+      "gap_median_px": 40.88004463473466,
+      "gap_p90_px": 108.31197439179044,
+      "line_error_median_px": 7.639999866485596
+     },
+     "mac_mps": {
+      "frames": 140,
+      "missing_h": 0,
+      "gap_median_px": 40.88004463473466,
+      "gap_p90_px": 108.31197439179044,
+      "line_error_median_px": 7.639999866485596
+     }
+    },
+    "pairs": {
+     "cuda_a~mac_detcpu": {
+      "frames": 140,
+      "blocks": 14,
+      "median_diff_px": -0.8985375029679603,
+      "frame_ci": [
+       -2.7212616217813093,
+       0.02841386093377204
+      ],
+      "block_ci": [
+       -2.298935793252328,
+       0.02841386093377204
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 9.796593258385595,
+      "line_error": {
+       "frames": 140,
+       "median_diff_px": 0.0,
+       "frame_ci": [
+        -0.1439499855041504,
+        0.0
+       ],
+       "block_ci": [
+        -0.06319999694824219,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "cuda_a~mac_mps": {
+      "frames": 140,
+      "blocks": 14,
+      "median_diff_px": -0.8985375029679603,
+      "frame_ci": [
+       -2.7212616217813093,
+       0.02841386093377204
+      ],
+      "block_ci": [
+       -2.298935793252328,
+       0.02841386093377204
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 9.796593258385595,
+      "line_error": {
+       "frames": 140,
+       "median_diff_px": 0.0,
+       "frame_ci": [
+        -0.1439499855041504,
+        0.0
+       ],
+       "block_ci": [
+        -0.06319999694824219,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "mac_detcpu~mac_mps": {
+      "frames": 140,
+      "blocks": 14,
+      "median_diff_px": 0.0,
+      "frame_ci": [
+       0.0,
+       0.0
+      ],
+      "block_ci": [
+       0.0,
+       0.0
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 0.0,
+      "line_error": {
+       "frames": 140,
+       "median_diff_px": 0.0,
+       "frame_ci": [
+        0.0,
+        0.0
+       ],
+       "block_ci": [
+        0.0,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     }
+    }
+   }
+  },
+  "gsw_ind_2016_s02_w03": {
+   "truth_frames": 72,
+   "paint_kept": 70,
+   "frame_size": [
+    1280,
+    720
+   ],
+   "primary_paint_edge_px_median": 6.26,
+   "alignment": {
+    "step": 6,
+    "shares": {
+     "-6": 0.21223709369024857,
+     "0": 0.97131931166348,
+     "6": 0.2237093690248566
+    },
+    "aligned": true
+   },
+   "measured": true,
+   "primary": {
+    "frames": 70,
+    "truth_on_frame_points": {
+     "0": 0,
+     "1": 70,
+     "2": 0,
+     "3": 0
+    },
+    "builds": {
+     "cuda_a": {
+      "frames": 70,
+      "missing_h": 0,
+      "gap_median_px": 259.5510893398268,
+      "gap_p90_px": 318.8881173154569,
+      "line_error_median_px": 18.706750869750977
+     },
+     "mac_cpu": {
+      "frames": 70,
+      "missing_h": 0,
+      "gap_median_px": 266.3434452136214,
+      "gap_p90_px": 326.7757894764565,
+      "line_error_median_px": 19.88295078277588
+     },
+     "mac_detcpu": {
+      "frames": 70,
+      "missing_h": 0,
+      "gap_median_px": 265.7905861853878,
+      "gap_p90_px": 324.43290777194994,
+      "line_error_median_px": 19.1526517868042
+     },
+     "mac_mps": {
+      "frames": 70,
+      "missing_h": 0,
+      "gap_median_px": 265.7905861853878,
+      "gap_p90_px": 324.43290777194994,
+      "line_error_median_px": 19.1526517868042
+     }
+    },
+    "pairs": {
+     "cuda_a~mac_cpu": {
+      "frames": 70,
+      "blocks": 7,
+      "median_diff_px": -6.346114211741451,
+      "frame_ci": [
+       -8.686883712241723,
+       -3.210756062921678
+      ],
+      "block_ci": [
+       -7.67515891815151,
+       -4.376357416306988
+      ],
+      "reading": "cuda_a closer",
+      "median_build_to_build_gap_px": 7.468501957061756,
+      "line_error": {
+       "frames": 70,
+       "median_diff_px": -0.8373751640319824,
+       "frame_ci": [
+        -1.0462970733642578,
+        -0.17554950714111328
+       ],
+       "block_ci": [
+        -1.121774673461914,
+        -0.41430091857910156
+       ]
+      },
+      "line_error_sign_agrees": true,
+      "d_line_ready": true
+     },
+     "cuda_a~mac_detcpu": {
+      "frames": 70,
+      "blocks": 7,
+      "median_diff_px": -5.386141674020777,
+      "frame_ci": [
+       -8.191351223858902,
+       -2.0128914488406906
+      ],
+      "block_ci": [
+       -8.321170140768416,
+       -1.9193853031030415
+      ],
+      "reading": "cuda_a closer",
+      "median_build_to_build_gap_px": 9.227338456102734,
+      "line_error": {
+       "frames": 70,
+       "median_diff_px": -0.7671709060668945,
+       "frame_ci": [
+        -1.2201199531555176,
+        -0.41429996490478516
+       ],
+       "block_ci": [
+        -1.1042251586914062,
+        -0.41430091857910156
+       ]
+      },
+      "line_error_sign_agrees": true,
+      "d_line_ready": true
+     },
+     "cuda_a~mac_mps": {
+      "frames": 70,
+      "blocks": 7,
+      "median_diff_px": -5.386141674020777,
+      "frame_ci": [
+       -8.191351223858902,
+       -2.0128914488406906
+      ],
+      "block_ci": [
+       -8.321170140768416,
+       -1.9193853031030415
+      ],
+      "reading": "cuda_a closer",
+      "median_build_to_build_gap_px": 9.227338456102734,
+      "line_error": {
+       "frames": 70,
+       "median_diff_px": -0.7671709060668945,
+       "frame_ci": [
+        -1.2201199531555176,
+        -0.41429996490478516
+       ],
+       "block_ci": [
+        -1.1042251586914062,
+        -0.41430091857910156
+       ]
+      },
+      "line_error_sign_agrees": true,
+      "d_line_ready": true
+     },
+     "mac_cpu~mac_detcpu": {
+      "frames": 70,
+      "blocks": 7,
+      "median_diff_px": 0.5237938412105336,
+      "frame_ci": [
+       -0.6890734993082361,
+       1.8595666552659083
+      ],
+      "block_ci": [
+       -0.48943208127734295,
+       2.071613594702228
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 4.7254245942856725,
+      "line_error": {
+       "frames": 70,
+       "median_diff_px": -0.05265188217163086,
+       "frame_ci": [
+        -0.29140233993530273,
+        0.0
+       ],
+       "block_ci": [
+        -0.3581047058105469,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "mac_cpu~mac_mps": {
+      "frames": 70,
+      "blocks": 7,
+      "median_diff_px": 0.5237938412105336,
+      "frame_ci": [
+       -0.6890734993082361,
+       1.8595666552659083
+      ],
+      "block_ci": [
+       -0.48943208127734295,
+       2.071613594702228
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 4.7254245942856725,
+      "line_error": {
+       "frames": 70,
+       "median_diff_px": -0.05265188217163086,
+       "frame_ci": [
+        -0.29140233993530273,
+        0.0
+       ],
+       "block_ci": [
+        -0.3581047058105469,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "mac_detcpu~mac_mps": {
+      "frames": 70,
+      "blocks": 7,
+      "median_diff_px": 0.0,
+      "frame_ci": [
+       0.0,
+       0.0
+      ],
+      "block_ci": [
+       0.0,
+       0.0
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 0.0,
+      "line_error": {
+       "frames": 70,
+       "median_diff_px": 0.0,
+       "frame_ci": [
+        0.0,
+        0.0
+       ],
+       "block_ci": [
+        0.0,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     }
+    }
+   },
+   "all_truth_frames": {
+    "frames": 72,
+    "truth_on_frame_points": {
+     "0": 0,
+     "1": 72,
+     "2": 0,
+     "3": 0
+    },
+    "builds": {
+     "cuda_a": {
+      "frames": 72,
+      "missing_h": 0,
+      "gap_median_px": 259.5510893398268,
+      "gap_p90_px": 318.607676375163,
+      "line_error_median_px": 18.755901336669922
+     },
+     "mac_cpu": {
+      "frames": 72,
+      "missing_h": 0,
+      "gap_median_px": 266.3434452136214,
+      "gap_p90_px": 326.2600375524558,
+      "line_error_median_px": 20.05500030517578
+     },
+     "mac_detcpu": {
+      "frames": 72,
+      "missing_h": 0,
+      "gap_median_px": 265.7905861853878,
+      "gap_p90_px": 323.62344190498123,
+      "line_error_median_px": 19.34225082397461
+     },
+     "mac_mps": {
+      "frames": 72,
+      "missing_h": 0,
+      "gap_median_px": 265.7905861853878,
+      "gap_p90_px": 323.62344190498123,
+      "line_error_median_px": 19.34225082397461
+     }
+    },
+    "pairs": {
+     "cuda_a~mac_cpu": {
+      "frames": 72,
+      "blocks": 8,
+      "median_diff_px": -6.346114211741451,
+      "frame_ci": [
+       -8.730941727390203,
+       -3.336339261743248
+      ],
+      "block_ci": [
+       -8.742790196697015,
+       -3.885139435295912
+      ],
+      "reading": "cuda_a closer",
+      "median_build_to_build_gap_px": 7.559436739365841,
+      "line_error": {
+       "frames": 72,
+       "median_diff_px": -0.8373751640319824,
+       "frame_ci": [
+        -1.0462970733642578,
+        -0.15449905395507812
+       ],
+       "block_ci": [
+        -1.121774673461914,
+        -0.2822049856186033
+       ]
+      },
+      "line_error_sign_agrees": true,
+      "d_line_ready": true
+     },
+     "cuda_a~mac_detcpu": {
+      "frames": 72,
+      "blocks": 8,
+      "median_diff_px": -4.87501047818445,
+      "frame_ci": [
+       -8.191351223858902,
+       -2.0128914488406906
+      ],
+      "block_ci": [
+       -8.97331397810828,
+       -1.9193853031030415
+      ],
+      "reading": "cuda_a closer",
+      "median_build_to_build_gap_px": 9.227338456102734,
+      "line_error": {
+       "frames": 72,
+       "median_diff_px": -0.7671709060668945,
+       "frame_ci": [
+        -1.2540613412857056,
+        -0.41429996490478516
+       ],
+       "block_ci": [
+        -1.1621513366699219,
+        -0.41429996490478516
+       ]
+      },
+      "line_error_sign_agrees": true,
+      "d_line_ready": true
+     },
+     "cuda_a~mac_mps": {
+      "frames": 72,
+      "blocks": 8,
+      "median_diff_px": -4.87501047818445,
+      "frame_ci": [
+       -8.191351223858902,
+       -2.0128914488406906
+      ],
+      "block_ci": [
+       -8.97331397810828,
+       -1.9193853031030415
+      ],
+      "reading": "cuda_a closer",
+      "median_build_to_build_gap_px": 9.227338456102734,
+      "line_error": {
+       "frames": 72,
+       "median_diff_px": -0.7671709060668945,
+       "frame_ci": [
+        -1.2540613412857056,
+        -0.41429996490478516
+       ],
+       "block_ci": [
+        -1.1621513366699219,
+        -0.41429996490478516
+       ]
+      },
+      "line_error_sign_agrees": true,
+      "d_line_ready": true
+     },
+     "mac_cpu~mac_detcpu": {
+      "frames": 72,
+      "blocks": 8,
+      "median_diff_px": 0.5246136480843688,
+      "frame_ci": [
+       -0.4873979684540757,
+       1.8595666552659083
+      ],
+      "block_ci": [
+       -0.7395522949583153,
+       2.531703897850093
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 4.7254245942856725,
+      "line_error": {
+       "frames": 72,
+       "median_diff_px": -0.028095722198486328,
+       "frame_ci": [
+        -0.2246999740600586,
+        0.0
+       ],
+       "block_ci": [
+        -0.17205047607421875,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "mac_cpu~mac_mps": {
+      "frames": 72,
+      "blocks": 8,
+      "median_diff_px": 0.5246136480843688,
+      "frame_ci": [
+       -0.4873979684540757,
+       1.8595666552659083
+      ],
+      "block_ci": [
+       -0.7395522949583153,
+       2.531703897850093
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 4.7254245942856725,
+      "line_error": {
+       "frames": 72,
+       "median_diff_px": -0.028095722198486328,
+       "frame_ci": [
+        -0.2246999740600586,
+        0.0
+       ],
+       "block_ci": [
+        -0.17205047607421875,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "mac_detcpu~mac_mps": {
+      "frames": 72,
+      "blocks": 8,
+      "median_diff_px": 0.0,
+      "frame_ci": [
+       0.0,
+       0.0
+      ],
+      "block_ci": [
+       0.0,
+       0.0
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 0.0,
+      "line_error": {
+       "frames": 72,
+       "median_diff_px": 0.0,
+       "frame_ci": [
+        0.0,
+        0.0
+       ],
+       "block_ci": [
+        0.0,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     }
+    }
+   }
+  },
+  "gsw_ind_2016_s02_w04": {
+   "truth_frames": 62,
+   "paint_kept": 36,
+   "frame_size": [
+    1280,
+    720
+   ],
+   "primary_paint_edge_px_median": 7.54,
+   "alignment": {
+    "step": 6,
+    "shares": {
+     "-6": 0.12050739957716702,
+     "0": 0.9534883720930233,
+     "6": 0.13742071881606766
+    },
+    "aligned": true
+   },
+   "measured": true,
+   "primary": {
+    "frames": 36,
+    "truth_on_frame_points": {
+     "0": 0,
+     "1": 34,
+     "2": 2,
+     "3": 0
+    },
+    "builds": {
+     "cuda_a": {
+      "frames": 36,
+      "missing_h": 0,
+      "gap_median_px": 223.52595657239934,
+      "gap_p90_px": 305.986819182267,
+      "line_error_median_px": 19.135101318359375
+     },
+     "mac_cpu": {
+      "frames": 36,
+      "missing_h": 0,
+      "gap_median_px": 222.02625713531256,
+      "gap_p90_px": 319.52700268967766,
+      "line_error_median_px": 20.946800231933594
+     },
+     "mac_mps": {
+      "frames": 36,
+      "missing_h": 0,
+      "gap_median_px": 221.74691938182661,
+      "gap_p90_px": 315.54813888885064,
+      "line_error_median_px": 20.05500030517578
+     }
+    },
+    "pairs": {
+     "cuda_a~mac_cpu": {
+      "frames": 36,
+      "blocks": 4,
+      "median_diff_px": 2.7911368247116073,
+      "frame_ci": [
+       -1.7665388903672863,
+       5.179491871024368
+      ],
+      "block_ci": [
+       2.218078036640563,
+       4.244320302029706
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 14.935053961477696,
+      "line_error": {
+       "frames": 36,
+       "median_diff_px": -0.22647428512573242,
+       "frame_ci": [
+        -0.9198999404907227,
+        0.7935009002685547
+       ],
+       "block_ci": [
+        -0.8566989898681641,
+        0.0
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "cuda_a~mac_mps": {
+      "frames": 36,
+      "blocks": 4,
+      "median_diff_px": 4.649861099068588,
+      "frame_ci": [
+       1.2031819093774203,
+       6.704766262132381
+      ],
+      "block_ci": [
+       3.392809109094678,
+       7.712182920042437
+      ],
+      "reading": "mac_mps closer",
+      "median_build_to_build_gap_px": 11.154090544561157,
+      "line_error": {
+       "frames": 36,
+       "median_diff_px": -0.11762428283691406,
+       "frame_ci": [
+        -0.919898509979248,
+        0.8917999267578125
+       ],
+       "block_ci": [
+        -0.8918018341064453,
+        0.44589996337890625
+       ]
+      },
+      "line_error_sign_agrees": false,
+      "d_line_ready": false
+     },
+     "mac_cpu~mac_mps": {
+      "frames": 36,
+      "blocks": 4,
+      "median_diff_px": 1.0573032463264695,
+      "frame_ci": [
+       0.5310848800984047,
+       2.563004245090468
+      ],
+      "block_ci": [
+       0.2927145063310945,
+       4.081986188925203
+      ],
+      "reading": "mac_mps closer",
+      "median_build_to_build_gap_px": 4.893085049921922,
+      "line_error": {
+       "frames": 36,
+       "median_diff_px": 0.050925254821777344,
+       "frame_ci": [
+        0.0,
+        0.21770048141479492
+       ],
+       "block_ci": [
+        0.0,
+        0.15799951553344727
+       ]
+      },
+      "line_error_sign_agrees": true,
+      "d_line_ready": true
+     }
+    }
+   },
+   "all_truth_frames": {
+    "frames": 62,
+    "truth_on_frame_points": {
+     "0": 0,
+     "1": 46,
+     "2": 16,
+     "3": 0
+    },
+    "builds": {
+     "cuda_a": {
+      "frames": 62,
+      "missing_h": 0,
+      "gap_median_px": 220.07730883833608,
+      "gap_p90_px": 310.2053076335232,
+      "line_error_median_px": 23.964526176452637
+     },
+     "mac_cpu": {
+      "frames": 62,
+      "missing_h": 0,
+      "gap_median_px": 221.2992397064896,
+      "gap_p90_px": 317.2727807600425,
+      "line_error_median_px": 23.964526176452637
+     },
+     "mac_mps": {
+      "frames": 62,
+      "missing_h": 0,
+      "gap_median_px": 222.29174608369848,
+      "gap_p90_px": 318.63611800913947,
+      "line_error_median_px": 23.875
+     }
+    },
+    "pairs": {
+     "cuda_a~mac_cpu": {
+      "frames": 62,
+      "blocks": 7,
+      "median_diff_px": 1.8838546005424348,
+      "frame_ci": [
+       -1.7665388903672863,
+       3.684780705482233
+      ],
+      "block_ci": [
+       -3.917427186166748,
+       4.855241977347042
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 8.426167151849352,
+      "line_error": {
+       "frames": 62,
+       "median_diff_px": -0.05619239807128906,
+       "frame_ci": [
+        -0.41429996490478516,
+        0.0
+       ],
+       "block_ci": [
+        -0.41429996490478516,
+        0.063201904296875
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "cuda_a~mac_mps": {
+      "frames": 62,
+      "blocks": 7,
+      "median_diff_px": 2.680195276507021,
+      "frame_ci": [
+       -3.2255956285235925,
+       4.422210047660911
+      ],
+      "block_ci": [
+       -5.643734621916494,
+       5.565331081048171
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 10.095090992545254,
+      "line_error": {
+       "frames": 62,
+       "median_diff_px": -0.11762428283691406,
+       "frame_ci": [
+        -0.7127456665039062,
+        0.20365142822265625
+       ],
+       "block_ci": [
+        -0.7583999633789062,
+        0.40375375747680664
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     },
+     "mac_cpu~mac_mps": {
+      "frames": 62,
+      "blocks": 7,
+      "median_diff_px": 0.7008864398280963,
+      "frame_ci": [
+       -0.28567647232976867,
+       1.564283582500309
+      ],
+      "block_ci": [
+       -0.5039043823600338,
+       1.6430241088294366
+      ],
+      "reading": "no difference resolved",
+      "median_build_to_build_gap_px": 4.519985828567901,
+      "line_error": {
+       "frames": 62,
+       "median_diff_px": 0.0,
+       "frame_ci": [
+        0.0,
+        0.09830093383789062
+       ],
+       "block_ci": [
+        -0.017551422119140625,
+        0.1211252212524414
+       ]
+      },
+      "line_error_sign_agrees": null,
+      "d_line_ready": false
+     }
+    }
+   }
+  }
+ },
+ "summary": {
+  "meaning": "closer to this camera truth, not more accurate (truth was picked and initialised through one build's homography, P8_court_truth.md section 4)",
+  "cpu_vs_mps_readings": {
+   "gsw_ind_2016_s02_w03": "no difference resolved",
+   "gsw_ind_2016_s02_w04": "mac_mps closer"
+  },
+  "court_device": "no change: mixed, no difference resolved, or the block interval or line error disagrees",
+  "cuda": "CUDA not closer on every window: no change",
+  "bias_signal": "does not show a lean, does not rule it out",
+  "cuda_readings": {
+   "gsw_bkn_2015_s04_w00": {
+    "mac_mps": "no difference resolved",
+    "mac_cpu": null
+   },
+   "gsw_ind_2016_s02_w03": {
+    "mac_mps": "cuda_a closer",
+    "mac_cpu": "cuda_a closer"
+   },
+   "gsw_ind_2016_s02_w04": {
+    "mac_mps": "mac_mps closer",
+    "mac_cpu": "no difference resolved"
+   }
+  }
+ }
+}
