@@ -426,8 +426,15 @@ cuda_b; colab_cpu was not built. Inputs and results moved through Google Drive (
 8.4.48 and transformers 4.49.0 as on the Mac (no flag), the same CLIP revision; torch 2.14.1 (CUDA 13.0, cuDNN 9.28),
 OpenCV 4.14.0, NumPy 2.4.6, Python 3.13.16, against the Mac's torch 2.2.2, OpenCV 4.13.0, NumPy 1.26.4, Python 3.12.2.
 Build time per arm: 51.5 and 49.0 s (s02_w03), 44.4 and 43.8 s (s02_w04), 276.3 and 271.7 s (s04_w00, 1,102 frames).
-An earlier runtime was reclaimed after a gap in the lead's polling and its results were lost (about 1.1 units); the
-cost of the rerun is in the lead's runtime log, not here.
+Cost, from the lead's runtime log (all T4 runtimes, at most about 1.15 units a T4-hour; times as the log records
+them):
+
+| Runtime | Time | What happened | Units |
+| --- | --- | --- | --- |
+| p8-cuda-check-1 | 03:44 to 03:45 | no run: the upload from the Mac was blocked by a local web filter | about 0.05 |
+| p8-cuda-check-2 | created 11:57, last successful poll 12:27, found reclaimed at 12:56 | reclaimed after a gap in the lead's polling; results lost | at most about 1.1 |
+| p8-cuda-check-3 | 12:57:22 to 13:15:16 (deleted after the upload) | the run recorded here | about 0.35 |
+| Total for D161 (1) | | | about 1.5 |
 
 **The reading (section 4 rule).** Mac CPU against Mac MPS fails as it must, so the rule separates them. cuda_b equals
 cuda_a exactly on every frame of every window (boxes identical, court gap 0.0 px): CUDA is repeatable. cuda_a matches
