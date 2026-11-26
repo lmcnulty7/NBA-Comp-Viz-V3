@@ -380,6 +380,58 @@ counts, its missed gains, its offsets, its pinned position rows.
 - Tests cover the near-third bootstrap, the rule, the choice (reference forms never chosen; STOP when none passes),
   the default-workspace refusal and the porcelain refusal.
 
-### Version 3 pool results
+### Version 3 pool results (computed 2026-11-26, after cf82a23a; no hou_cle_2016 file read)
 
-Not computed yet.
+Stored files only, no lock, about two minutes. Every check passed on every pool game:
+
+- the registered counts and matched entries reproduce;
+- for every form, the variant's detection rows equal the pinned ones on every window.
+
+Records: reports/research/p8_outpos_forms3.json and the frozen tables reports/research/p8_outpos_table_k1m.json and
+reports/research/p8_outpos_table_k1t.json (K1t's near shift from all three pool games: -0.39 ft; per fold -0.48,
+-0.33 and -0.37 ft for bkn, cha and sac held out).
+
+Leave one game out, variant minus pinned:
+
+| Form | Game | p50 [interval] | p90 upper end | Near-third p90 [interval] | Near-field bias before to after (third) | Rule |
+| --- | --- | --- | --- | --- | --- | --- |
+| K1m | gsw_bkn_2015 | -0.232 [-0.264, -0.203] | -0.148 | +0.036 [+0.012, +0.089] | 1.576 to 0.642 (far, far) | fails near p90 |
+| K1m | gsw_cha_2016 | -0.249 [-0.285, -0.201] | -0.046 | +0.035 [+0.002, +0.073] | 1.150 to 0.367 (far, near) | fails near p90 |
+| K1m | gsw_sac_2015 | -0.238 [-0.277, -0.190] | -0.111 | +0.036 [+0.013, +0.070] | 1.330 to 0.231 (far, far) | fails near p90 |
+| K1t | gsw_bkn_2015 | -0.254 [-0.290, -0.213] | -0.130 | +0.148 [+0.077, +0.281] | 1.576 to 0.642 (far, far) | fails near p90 |
+| K1t | gsw_cha_2016 | -0.284 [-0.321, -0.229] | -0.050 | +0.068 [-0.043, +0.148] | 1.150 to 0.059 (far, near) | fails near p90 |
+| K1t | gsw_sac_2015 | -0.267 [-0.313, -0.214] | -0.098 | +0.138 [+0.041, +0.190] | 1.330 to 0.231 (far, far) | fails near p90 |
+| K1 (reference) | bkn, cha, sac | -0.253, -0.284, -0.269 | below 0 | +0.116, +0.079, +0.133 (upper +0.247, +0.163, +0.194) | as version 2 | fails near p90 |
+| K0 (reference) | bkn, cha, sac | -0.229, -0.267, -0.264 | below 0 | +0.306, +0.205, +0.309 (upper +0.441, +0.308, +0.407) | as version 2 | fails near p90 |
+
+Every form passes the p50, p90 and bias-guard conditions on every pool game. Every form fails the near-third p90
+condition on every pool game.
+
+Scored near-third bias, before to after: K1m leaves it unchanged (0.010, 0.367 and 0.213 ft), since it does not shift
+the near third. K1t moves it from 0.010 to 0.441 on gsw_bkn_2015, 0.367 to 0.059 on gsw_cha_2016 and 0.213 to 0.135
+on gsw_sac_2015.
+
+## Version 3 decision: STOP
+
+No candidate passes the pool rule, so the arm stops, as registered. hou_cle_2016 is kept unspent: score-hou has not
+run, no hou_cle_2016 raw file has been read for this arm, and the tool is pinned to STOP, so score-hou refuses.
+
+What the numbers say (post hoc, not tested):
+
+- K1m does not shift the near third, yet the near-third p90 still rises by about 0.035 ft on every game. The rule's
+  near third is the player's SportVU third. The shift's cell comes from the output point's third under B. Players
+  whose SportVU position is near but whose output point falls in the middle third receive the middle shift (about
+  -0.87 ft, pushing them out), and they set the near tail. The margin of +0.05 ft is exceeded at the interval's upper
+  end only (+0.070 to +0.089).
+- K1t's near shift, fitted on the scored quantity of the two other games, is -0.33 to -0.48 ft. The scored near bias
+  itself varies by game (0.010, 0.367, 0.213 ft before), so any near shift carried across games over-corrects a game
+  whose near bias is small, as on gsw_bkn_2015. The near third's bias does not transfer across games. The middle and
+  far thirds do (scored bias after: 0.012 to 0.191 middle, 0.050 to 0.642 far).
+- Forecast check, leave one game out: the K0 calibration predicts the held-out game within 0.003 ft. K1, K1m and K1t
+  miss by up to 0.022, 0.035 and 0.031 ft. The cell forms are less predictable from cell medians than the global
+  shift. The bias forecast in depth terms is uncalibrated, as registered: its near third before (0.29, 0.47, 0.41 ft)
+  runs above the scored near bias (0.010, 0.367, 0.213 ft).
+
+If the lead wants another form, it must be a fourth look at the pool and needs its own registration. One candidate is
+a shift that hands off smoothly between the near and middle thirds, so that near players whose output point falls just
+inside the middle third do not get the full middle shift. That registration must name everything above.

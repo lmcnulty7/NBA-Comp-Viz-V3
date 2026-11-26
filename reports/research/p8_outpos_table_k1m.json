@@ -1,0 +1,22 @@
+{
+ "what": "K1m table frozen from the 3 pool games (docs/research/P8_outpos.md version 3)",
+ "games": [
+  "gsw_bkn_2015",
+  "gsw_cha_2016",
+  "gsw_sac_2015"
+ ],
+ "table": {
+  "150-200|far": -1.15987,
+  "150-200|middle": -0.8723,
+  "150-200|near": 0.0,
+  "200-250|far": -0.88038,
+  "200-250|middle": -0.87387,
+  "200-250|near": 0.0,
+  "<150|far": -1.09615,
+  "<150|middle": -0.88057,
+  "<150|near": 0.0,
+  ">=250|far": 0.0,
+  ">=250|middle": -0.78729,
+  ">=250|near": 0.0
+ }
+}
