@@ -13,6 +13,7 @@ Design v2 stage 0 (docs/research/P8_resetfix.md section 14), in the reference ro
     <frozen CV python> -m tools.p8_resetfix build --game G               inside the lock; the planned windows
     python3 -m tools.p8_resetfix equiv --game G                          equivalence and prefix checks
     python3 -m tools.p8_resetfix pin-truth --game G                      pin a final truth (sha256 of its files)
+    python3 -m tools.p8_resetfix cache-copy --game G                     scorecard caches from the workspace (same clip)
     <frozen CV python> -m tools.p8_resetfix score --game G               inside the lock; every pool truth pinned
     python3 -m tools.p8_resetfix report                                  the v2 rule -> reports/research/p8_resetfix.json
     (internal) <python> -m tools.p8_resetfix child build_trajectories.py <its arguments>
@@ -1006,6 +1007,7 @@ def cmd_smoke_check(args) -> dict:
              "prefix_equal": out["reset"]["prefix"]["equal"]}
     out["gates"] = gates
     out["passes"] = all(gates.values())
+    (r / "resetfix").mkdir(exist_ok=True)
     atomic_write(r / "resetfix" / "smoke_check.json", json.dumps(out, indent=1))
     print(json.dumps({"gates": gates, "passes": out["passes"], "a3input_B": out["a3input_B"]}, indent=1))
     if not out["passes"]:
@@ -1031,6 +1033,38 @@ def cmd_equiv(args) -> dict:
     print(json.dumps({"game": game, "passes": out["passes"], "failing_windows": bad}))
     if bad:
         raise SystemExit(f"{WHO}: {game}: equivalence or prefix check fails on {bad}")
+    return out
+
+
+def cmd_cache_copy(args) -> dict:
+    """System python, no lock: copy a window's scorecard cache from the P8 workspace into the reference root when the
+    two clips are byte-identical and the reference root has none (the cache depends only on the clip and frozen
+    models); the score step computes whatever is still missing."""
+    import shutil
+    from tools.p8_common import atomic_write
+    game = check_game(args.game)
+    r = ref_root()
+    ws = Path(args.workspace).expanduser() if args.workspace else r.parent / "work"
+    plan = _read(r / "resetfix" / f"plan__{game}.json")
+    if plan is None:
+        raise SystemExit(f"{WHO}: no plan for {game}")
+    dst = r / "cache" / "scorecard"
+    dst.mkdir(parents=True, exist_ok=True)
+    out = {"game": game, "copied": [], "present": [], "refused": {}}
+    for s in sorted(plan["baseline_resets"]):
+        if (dst / f"{s}.json").exists():
+            out["present"].append(s)
+            continue
+        src = ws / "cache" / "scorecard" / f"{s}.json"
+        if not src.exists():
+            out["refused"][s] = "no workspace cache"
+        elif sha256_file(ws / "label_build" / f"{s}.mp4") != sha256_file(r / "label_build" / f"{s}.mp4"):
+            out["refused"][s] = "clips differ"
+        else:
+            shutil.copyfile(src, dst / f"{s}.json")
+            out["copied"].append(s)
+    atomic_write(r / "resetfix" / f"cache_copy__{game}.json", json.dumps(out, indent=1))
+    print(json.dumps({k: (len(v) if isinstance(v, (list, dict)) else v) for k, v in out.items()}))
     return out
 
 
@@ -1060,19 +1094,58 @@ def cmd_pin_truth(args) -> dict:
     return pin
 
 
+def score_pair(P: dict, game: str, w: dict, dirs: dict, sides: dict, ctx: dict) -> dict:
+    """One window, both arms, through the pinned score_window and window_stats, plus the detection, one-to-one and
+    duplicate counts on the same scored frames (frozen CV python)."""
+    import cv2
+    from sportvu.eval import FRAME_MARGIN_PX
+    from sportvu.sync import apply_mirror
+    from tools import p8_scorecard as S
+    from tools.p8_e1_score import window_stats
+    s = w["window"]
+    pair, scored_f = {}, {}
+    for k, dd in dirs.items():
+        full = S.score_window(P, game, w, dd, "camera", ctx["mom"], ctx["mirror"], ctx["refs"], ctx["events"])
+        if "skipped" in full[0]:
+            raise SystemExit(f"{WHO}: {s} {k} skipped: {full[0]['skipped']}")
+        scored_f[k] = {int(o["f"]) for o in full[1]}
+        pair[k] = window_stats(full[0])
+    if pair["r23"]["in_frame"] != pair["new"]["in_frame"]:
+        raise SystemExit(f"{WHO}: {s}: in-frame players differ between arms")
+    truth, _ = S.truth_rows(P, game, w, "camera", ctx["mom"].index, ctx["mirror"])
+    cap = cv2.VideoCapture(str(P["label_build"] / f"{s}.mp4"))
+    wd, hd = int(cap.get(3)), int(cap.get(4))
+    cap.release()
+    for k in dirs:
+        srow = {int(x["frame"]): x for x in sides[k]["frames"]}
+        c = {"far": 0, "missed_1to1": 0, "duplicates": 0}
+        for row in truth:
+            x = srow.get(int(row["frame"]))
+            if x is None or int(row["frame"]) not in scored_f[k]:
+                continue
+            sv = apply_mirror(ctx["mom"].index.q[row["q"]]["xy"][row["moment"]], ctx["fx"], ctx["fy"])
+            Ht = np.asarray(row["H_truth"], np.float64).reshape(3, 3)
+            px = cv2.perspectiveTransform(np.asarray(sv, np.float32).reshape(-1, 1, 2), np.linalg.inv(Ht)).reshape(-1, 2)
+            m = FRAME_MARGIN_PX
+            inside = (px[:, 0] > m) & (px[:, 0] < wd - m) & (px[:, 1] > m) & (px[:, 1] < hd - m)
+            feet = np.array([b["foot_stab"] for b in x["boxes"]], np.float32).reshape(-1, 1, 2)
+            ft = cv2.perspectiveTransform(feet, Ht).reshape(-1, 2).astype(np.float64) if len(feet) else np.zeros((0, 2))
+            _add(c, frame_extra(ft, sv, inside))
+        pair[k].update(c)
+    return pair
+
+
 def cmd_score(args) -> dict:
     """Frozen CV python, inside the lock: baseline against the fixed arm on the game's scored windows, on the pinned
     truth. A no-reset window of the arm resolves to the baseline's files (read only)."""
     import os
+    import shutil
     import time
-    import cv2
     from sportvu import bench as B
-    from sportvu.eval import FRAME_MARGIN_PX
-    from sportvu.sync import MIRRORS, apply_mirror
+    from sportvu.sync import MIRRORS
     from tools import p8_frozen as F
     from tools import p8_scorecard as S
     from tools.p8_common import atomic_write
-    from tools.p8_e1_score import window_stats
     from tools.p8_e1r import check_frames
     game = check_game(args.game)
     if os.environ.get("V3_HEAVY_HELD") is None:
@@ -1099,8 +1172,16 @@ def cmd_score(args) -> dict:
     events = S.pbp_events(g["sportvu"])
     refs = B.References()
     base, arm = P["builds"] / BASE_DIR, P["builds"] / arm_dir(game)
+    ctx = {"mom": mom, "mirror": mirror, "refs": refs, "events": events, "fx": fx, "fy": fy}
+    ws = Path(args.workspace).expanduser() if args.workspace else r.parent / "work"
+    common = r / "tmp" / "resetfix_common_labels"
+    (common / game).mkdir(parents=True, exist_ok=True)
+    for extra_name in (f"{game}_offsets.json", f"{game}_result.json"):
+        if (P["labels"] / extra_name).exists():
+            shutil.copyfile(P["labels"] / extra_name, common / extra_name)
+    Pc = {**P, "labels": common}
     t0 = time.time()
-    wins, extra, cache_s = {}, {}, {}
+    wins, wins_common, extra, cache_s = {}, {}, {}, {}
     for w in F.label_windows(P, game):
         s = w["window"]
         if s in plan["gate_empty_windows"] or s not in plan["baseline_resets"]:
@@ -1119,50 +1200,33 @@ def cmd_score(args) -> dict:
             raise SystemExit(f"{WHO}: {s}: {bad}")
         had_cache = (P["cache"] / "scorecard" / f"{s}.json").exists()
         tc = time.time()
-        pair, scored_f = {}, {}
-        for k, dd in dirs.items():
-            full = S.score_window(P, game, w, dd, "camera", mom, mirror, refs, events)
-            if "skipped" in full[0]:
-                raise SystemExit(f"{WHO}: {s} {k} skipped: {full[0]['skipped']}")
-            scored_f[k] = {int(o["f"]) for o in full[1]}
-            pair[k] = window_stats(full[0])
+        wins[s] = score_pair(P, game, w, dirs, sides, ctx)
         if not had_cache:
             cache_s[s] = round(time.time() - tc, 1)
-        if pair["r23"]["in_frame"] != pair["new"]["in_frame"]:
-            raise SystemExit(f"{WHO}: {s}: in-frame players differ between arms")
-        truth, _ = S.truth_rows(P, game, w, "camera", mom.index, mirror)
-        cap = cv2.VideoCapture(str(P["label_build"] / f"{s}.mp4"))
-        wd, hd = int(cap.get(3)), int(cap.get(4))
-        cap.release()
-        ex = {}
-        for k in dirs:
-            srow = {int(x["frame"]): x for x in sides[k]["frames"]}
-            c = {"far": 0, "missed_1to1": 0, "duplicates": 0}
-            for row in truth:
-                x = srow.get(int(row["frame"]))
-                if x is None or int(row["frame"]) not in scored_f[k]:
-                    continue
-                sv = apply_mirror(mom.index.q[row["q"]]["xy"][row["moment"]], fx, fy)
-                Ht = np.asarray(row["H_truth"], np.float64).reshape(3, 3)
-                px = cv2.perspectiveTransform(np.asarray(sv, np.float32).reshape(-1, 1, 2), np.linalg.inv(Ht)).reshape(-1, 2)
-                m = FRAME_MARGIN_PX
-                inside = (px[:, 0] > m) & (px[:, 0] < wd - m) & (px[:, 1] > m) & (px[:, 1] < hd - m)
-                feet = np.array([b["foot_stab"] for b in x["boxes"]], np.float32).reshape(-1, 1, 2)
-                ft = cv2.perspectiveTransform(feet, Ht).reshape(-1, 2).astype(np.float64) if len(feet) else np.zeros((0, 2))
-                _add(c, frame_extra(ft, sv, inside))
-            pair[k].update(c)
-            ex[k] = c
-        wins[s] = pair
-        extra[s] = {"built": s in built, **ex}
+        extra[s] = {"built": s in built}
+        # the bracket (report only): the same pair on the frames the bug-carrying workspace truth also accepted
+        old = ws / "labels" / game / f"{s}.jsonl"
+        if old.exists() and sha256_file(ws / "label_build" / f"{s}.mp4") == sha256_file(P["label_build"] / f"{s}.mp4"):
+            keep = {int(json.loads(x)["frame"]) for x in old.read_text().splitlines() if x.strip()}
+            new_rows = (P["labels"] / game / f"{s}.jsonl").read_text().splitlines() \
+                if (P["labels"] / game / f"{s}.jsonl").exists() else []
+            (common / game / f"{s}.jsonl").write_text(
+                "".join(x + "\n" for x in new_rows if x.strip() and int(json.loads(x)["frame"]) in keep))
+            wins_common[s] = score_pair(Pc, game, w, dirs, sides, ctx)
+            extra[s]["common_source_sha256"] = sha256_file(old)
+        else:
+            extra[s]["common"] = "left out (no workspace truth or the clips differ)"
     out = {"game": game, "truth": "camera (pinned, reset-fix label builds)", "truth_pin": _read(d / f"truth_pin__{game}.json"),
            "platform": "detector cpu (D175)", "arms": {"r23": BASE_DIR, "new": arm_dir(game)},
            "built_windows": sorted(built), "resolved_to_baseline": sorted(set(wins) - built),
            "expected_windows": sorted(plan["baseline_resets"]), "scored_windows": sorted(wins),
-           "gate_empty_windows": plan["gate_empty_windows"], "windows": wins, "cache_seconds": cache_s,
+           "gate_empty_windows": plan["gate_empty_windows"], "windows": wins, "windows_common": wins_common,
+           "window_notes": extra, "cache_seconds": cache_s,
            "seconds": round(time.time() - t0, 1)}
     atomic_write(d / f"score__{game}.json", json.dumps(out))
-    print(json.dumps({k: v for k, v in out.items() if k not in ("windows", "expected_windows", "scored_windows",
-                                                               "truth_pin")}, indent=1))
+    print(json.dumps({k: v for k, v in out.items() if k not in ("windows", "windows_common", "expected_windows",
+                                                               "scored_windows", "truth_pin", "window_notes")},
+                     indent=1))
     return out
 
 
@@ -1249,6 +1313,21 @@ def cmd_report(args) -> dict:
         out["hou"] = {**evh, "verdict": vh, "report_only": report_only(wins),
                       "label": "the fix holds on the new arena" if vh["pass"] else
                       "the pool result does not carry to the new arena"}
+    # the bracket, report only: the same rows on the frames the bug-carrying workspace truth also accepted
+    br = {}
+    for g in have:
+        wc = list((files[g].get("windows_common") or {}).values())
+        if len(wc) >= 2:
+            e = unit_eval(wc, resample_picks(len(wc), 2000, 0))
+            br[g] = {**e, "verdict": v2_verdict(e["point"], e["window_interval"], e["rows"]["coverage"], None,
+                                                improve_rows=(), one_to_one=False)}
+    gc = [list((files[g].get("windows_common") or {}).values()) for g in have]
+    if all(len(x) >= 1 for x in gc):
+        ac = [w for x in gc for w in x]
+        e = unit_eval(ac, resample_picks(len(ac), 2000, 0), resample_picks(len(gc), 2000, 0), gc)
+        br["pool"] = {**e, "verdict": v2_verdict(e["point"], e["window_interval"], e["rows"]["coverage"],
+                                                 e["game_interval"])}
+    out["bracket_common_frames"] = br
     out["resets"] = {g: {w: {"baseline": _read(d / f"plan__{g}.json")["baseline_resets"][w],
                              "arm": (_read(d / f"equiv__{g}.json") or {}).get("reset_windows", {}).get(w, {})
                              .get("resets_arm")} for w in _read(d / f"plan__{g}.json")["reset_windows"]}
@@ -1270,17 +1349,20 @@ def main(argv=None) -> None:
     m = sub.add_parser("simulate")
     m.add_argument("--draws", type=int, default=SIM_DRAWS)
     m.add_argument("--boot", type=int, default=2000)
-    for name in ("plan", "build", "equiv", "pin-truth", "score"):
+    for name in ("plan", "build", "equiv", "pin-truth", "score", "cache-copy"):
         x = sub.add_parser(name)
         x.add_argument("--game", required=True)
         if name == "build":
             x.add_argument("--smoke", action="store_true")
+        if name in ("score", "cache-copy"):
+            x.add_argument("--workspace", default=None, help="the P8 workspace (default: work beside the root)")
     sc = sub.add_parser("smoke-check")
     sc.add_argument("--workspace", default=None, help="the P8 workspace holding the a3input record (default: work)")
     sub.add_parser("report")
     a = ap.parse_args(argv)
     {"estimate": cmd_estimate, "truthreset": cmd_truthreset, "simulate": cmd_simulate, "plan": cmd_plan,
      "build": cmd_build, "equiv": cmd_equiv, "pin-truth": cmd_pin_truth, "score": cmd_score,
+     "cache-copy": cmd_cache_copy,
      "smoke-check": cmd_smoke_check, "report": cmd_report}[a.cmd](a)
 
 

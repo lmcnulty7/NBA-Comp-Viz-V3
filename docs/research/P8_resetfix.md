@@ -387,3 +387,167 @@ risk is gsw_cha_2016's own ghost margin, because the few boxes the fix returns t
 over the game's scored frames) are mostly ghosts. The forecast leaves out changes to position, bias and team, and the
 truth thinning of part (a): on a truth rebuilt with the fix, more post-reset frames are scored, so both the missed
 change and the ghost change can be larger than forecast.
+
+## 14. Design version 2 (2026-11-26; supersedes sections 2 to 8 where it says so; before any lock time)
+
+Changes from the training-design-reviewer's GO WITH FIXES on e5858f14 and the lead's decisions. Sections 1 to 11 stay
+as registered; where this section differs, it rules. Code: tools/p8_resetfix.py, stage 0 commands (plan, build,
+smoke-check, equiv, pin-truth, score, report), with tests in tests/test_p8_resetfix.py. Stage 0 is reviewed before any
+lock time.
+
+### 14.1 Scope (review findings 3 and 12; replaces the scope paragraph of section 1)
+
+- Any build made with detect/tracker.PlayerTracker under ultralytics 8.4.48 that had at least one reset carries the
+  bug (a code fact). That includes the label builds the camera truth comes from: part (a) shows frames after a label
+  build's first reset are accepted as truth 6 to 22 times less often, so every truth in use today is thinned where the
+  fix acts.
+- Whether r23's registered baselines and the recorded held-out numbers had resets, and how much the bug moved them, is
+  not tested here. Held-out numbers are not rebuilt or re-scored (CLAUDE.md rule 4); no held-out identity file is read.
+  This arm builds and scores the four development games only.
+- The development games' resets are known (their identity files were read for the plan and the estimate), so the arm
+  is not blind on where it acts. Its outcome rows on the rebuilt truth are unseen.
+- Reset timing differs between detectors, so the bug need not cancel in paired comparisons such as E1 against r23.
+
+### 14.2 One root (finding 2; replaces section 3's folders)
+
+Everything is built and scored in one reference root (work_ref of the P8 data folder, `V3_P8_ROOT`), so the clips,
+the truth, the scorecard caches and both arms share one place:
+
+1. Truth: the label builds of all four games are rebuilt there with `P8_TRACKER_RESET_FIX=1` (the truth-rebuild plan,
+   amended by its owner; it starts only after this arm's smoke passes), then the frozen fit and acceptance
+   (tools.p8_truth_accept, check C included). The existing reference-root label builds of gsw_cha_2016 (its accepted
+   CPU truth) and hou_cle_2016 (partial) carry the bug; `tools.p8_device.check_cached` refuses to reuse a window
+   whose record's reset_fix differs, so that plan moves them aside (moved, never deleted).
+2. Baseline: r23 without the fix, as tools.p8_truth_cpu_r23 places it in builds/r23: copies of the P8 workspace's
+   reference-platform r23 builds, only for windows whose clip is byte-identical (SHA-256) to the reference root's,
+   whose device record asks for the reference platform with no fix, and whose detector record is r23
+   (gsw_cha_2016: 73 of 73 already placed). A refused window would need a no-fix r23 build in the reference root; that
+   is not in this design and would need a dated amendment.
+3. Plan: `plan --game G` reads the reference root's baseline identity files and writes the reset windows (built), the
+   equivalence windows (first and last no-reset window by name) and the SHA-256 of every baseline output. The reset
+   windows are recomputed there; section 3's table came from the workspace's builds.
+4. Arm: builds/resetfix_r23_detcpu__<game>, built by `build` through tools.p8_frozen.safe_build with the arm's own
+   child (`P8_DEVICE_DETECTOR=cpu`, `P8_TRACKER_RESET_FIX=1`, r23 weights, r23 court weights as E1R, TRACKER_REID
+   unset and refused if set), each window up to three attempts.
+5. Caches: the scorecard caches are build-independent (gate v2 wide score on live frames, referee detections on truth
+   frames, the cut signal). Before scoring, `cache-copy` copies a window's cache file from the P8 workspace when the
+   two clips are byte-identical and the reference root has none (no lock); the score step computes only the entries still missing (mostly referee detections on truth
+   frames the new truth adds) and records the seconds per window (cache_seconds).
+
+### 14.3 What changes in a fixed build (finding 7; corrects sections 2, 3 and 7)
+
+The fix changes code only inside PlayerTracker.reset. A window with no reset in the baseline makes the same calls in
+the same order, so its outputs are identical (tested by the equivalence windows). In a window with a reset, the
+sidecar rows up to and including the frame of the first reset are identical; after it the tracker differs, and every
+whole-window output (trajectories, identity, team clusters, any step that reads the whole window) can change, also for
+frames before the first reset. Section 2's "only after the first reset" holds for sidecar rows only, and the prefix
+check stays on sidecar rows. The check uses the arm's own first reset frame from its reset log, not a reset-like
+frame read from ids.
+
+### 14.4 The patch's log (finding 10; adds to section 2)
+
+Each reset appends {"frame", "stripped"} to `<window>_resetfix.json`: the frame index of the update call that
+triggered it (a cut or an exception) and the callbacks it removed. The log also records TRACKER_REID (must be unset),
+the tracker config file name and the library versions the build process loaded (opencv, torch, ultralytics; must be
+4.13.0, 2.2.2, 8.4.48, a3input's). Every window of the arm must show: entries equal to the identity file's
+camera_cut_resets, each with a frame and stripped 2; device record reset_fix true on the reference platform; detector
+record r23.
+
+### 14.5 Smoke (finding 9; replaces section 8's smoke row)
+
+`build --game gsw_cha_2016 --smoke` builds gsw_cha_2016_s00_w00 (no reset) and gsw_cha_2016_s05_w00 (the a3input
+window) with the fix; `smoke-check` passes only if all hold:
+- s00_w00's frames, trajectories and identity are byte-identical to the baseline's;
+- s05_w00's clip is byte-identical to the workspace clip a3input read;
+- on every one of a3input variant B's 1,053 frames, the arm's sidecar holds the same boxes as B's output: same count
+  and a one-to-one match with every coordinate within 1 px (B's boxes are rounded to 0.01 px, the sidecar truncates
+  to whole pixels), and the frame sets are equal;
+- the arm's reset count equals B's (2);
+- the records and the log pass 14.4 (versions included);
+- s05_w00's sidecar rows match the baseline's up to the arm's first reset frame.
+The smoke scores nothing (the truth it would need is not rebuilt yet). About 0.2 lock hours. If it fails, nothing more
+is built and truth-rebuild does not start its fixed label builds.
+
+### 14.6 Truth (findings 3 and 11; replaces section 6)
+
+- The decision truth is the camera truth rebuilt with the fix (14.2, step 1). The MPS truth is not scored for this
+  arm: part (a) shows it is thinned after resets, the frames the fix changes, and it lives in another root.
+- `pin-truth --game G` runs before any score: it refuses unless the game's acceptance record has a final "use"
+  ("use", "apart" or "unused" from tools.p8_truth_accept) and every label-build window's device record shows reset_fix
+  true with the detector on cpu; it writes the SHA-256 of every label file and the fit result.
+- Nothing is scored until every pool game's truth is pinned final; every score checks the pins and refuses changed
+  files. Only a game with "use" is scored. A pool game whose truth is "apart" or "unused" leaves the pool partial, and
+  a partial pool never passes; fewer than two pool games in use means no pool.
+- Claim limit from shared inputs: the label builds use the r23 detector and, now, the fixed tracker, the same as the
+  arm. Truth frames after a reset are accepted where the fixed label build has boxes, which are mostly frames where the
+  fixed arm has boxes too; that can favour the arm. The bug-carrying truths favoured the baseline the same way.
+  Bracket, report only: every pair is also scored on the frames that the workspace's bug-carrying truth also accepted
+  (same clip by SHA-256; the new truth's rows for those frames). The arm is judged on all new-truth frames; the
+  bracket shows how much of the result rests on frames the fix itself let into truth.
+
+### 14.7 Rule (findings 1 and 6; replaces section 5)
+
+Implemented by tools.p8_resetfix.v2_verdict and pool_verdict (tested); tools.p8_e1_score's report() and its adopt are
+not used. Rows, point differences and intervals come from tools.p8_e1_score.rows, diffs and boot (2,000 resamples,
+seed 0); the detection and one-to-one rows use the same resample indices.
+
+- Missed and the detection row (far misses: no foot within 5 ft): D158 "worse" when the window or the game interval
+  lies wholly above zero, per game and pooled. Pooled, both must improve (point below zero). Per game they need only
+  not be worse.
+- Ghosts, position p50, p90, near-field bias, team: judged only by their margin, on the bad-side end of the window
+  interval, per game and pooled: ghosts at most +0.010, p50 at most +0.05 ft, p90 at most +0.10 ft, bias at most
+  +0.10 ft, team at least -0.03. D158 "worse" is not applied to them. No interval fails the row.
+- One-to-one missed (a box can find at most one player): must improve pooled (point below zero).
+- Coverage: the arm holds the 0.50 floor (or the baseline's value when the baseline is under it), per game and pooled.
+- The pool passes when the pooled verdict and every pool game's verdict pass and the pool is not partial.
+- Labels: "the fix reduces missed players on the pool" when the pool passes and missed's pooled window interval lies
+  wholly below zero; "the fix does not harm and points to fewer misses" when it passes on the point estimate only.
+- hou_cle_2016 (the non-GSW gate): built and scored only after the pool passes; the same rule on its window interval,
+  with missed required to improve; "the fix holds on the new arena" or "the pool result does not carry to the new
+  arena".
+- Report only, per game and pooled: boxes, duplicates and ghosts per in-frame player for both arms; the one-to-one
+  missed rate; the position error (median, p90, count) of players matched only in the arm, which the paired position
+  rows leave out; players matched only in the baseline; reset counts per window in both arms; the bracket of 14.6.
+
+### 14.8 Expected effect (adds to section 4)
+
+Part (b) forecasts, on the MPS-truth frames: pooled missed -0.007 to -0.012, detection row -0.007 to -0.012, ghosts
++0.001 to +0.002, pool pass probability 0.93, the risk gsw_cha_2016's ghost margin. On the truth rebuilt with the fix,
+more post-reset frames are scored (part a: 5 to 16 times under-represented today), where the baseline misses most, so
+the baseline's missed rate on the new truth is expected to be higher than recorded and the arm's gain larger; the
+ghost change can grow the same way. Position rows: arm-only matches do not enter them; their error is reported.
+
+### 14.9 Ladder, budget and kill rules (findings 2, 11 and 13; replaces section 8)
+
+Lock hours at 0.44 s per processed frame on the CPU detector; the truth figures are the truth-rebuild plan's (section
+0 of P8_truth_arenas.md and its section 15 run, plus 15 percent), listed because scoring waits for them.
+
+| stage | what | lock hours | gate (a failure stops the arm) |
+|---|---|---|---|
+| 0 | stage 0 code and tests; reviewed | 0 | tests pass; find_private clean; the review |
+| 1 smoke | 14.5 | about 0.2 | 14.5 |
+| truth (its own plan) | label builds with the fix for the four games, fit, acceptance | about 11.5 (gsw_cha_2016 2.7, gsw_bkn_2015 2.9, gsw_sac_2015 2.6, hou_cle_2016 3.3) | its own acceptance; final status per game |
+| 2 pool builds | the reset windows of the three pool games (39 by the workspace builds, 14,945 frames; recomputed by plan) and 6 equivalence windows | about 2.0 | builds pass 14.4; equiv passes (byte identity, prefix) |
+| 2 pool caches and score | cache copies (no lock), missing cache entries, both arms on the pinned truth, bracket | about 0.5 to 1.5 (caches; measured on the first game) plus 0.2 | pins; pairing checks (records, frame sets, court H, in-frame counts) |
+| 2 report | the v2 rule | 0 | the rule |
+| 3 hou | its reset windows (23 by the workspace build, 10,076 frames) and 2 equivalence windows, caches, score | about 1.3 plus 0.3 to 0.6 | only after the pool passes; the hou gate |
+
+This arm: about 4.5 to 5.8 lock hours, 0 Colab units, after the truth plan's about 11.5. Stage 2's builds need no
+truth and may run before or between the truth plan's jobs, one heavy job at a time, as the lead orders them.
+
+Caps and kill rules, fixed now:
+- Any stage over 1.5 times its estimate stops before its next job, and the lead decides.
+- Cache time: if the first pool game's cache seconds pass 0.75 lock hours, scoring stops and is re-estimated.
+- Smoke, equivalence or prefix failure: the arm stops (as section 8; the fallback to full rebuilds needs a new
+  version).
+- A build that fails three attempts stops the stage.
+- Pool rule fails: hou_cle_2016 is not built; the report names the failing condition.
+- No seeds: CPU builds repeat byte for byte (E1R smoke gate 1; tested again by the equivalence windows).
+
+### 14.10 What a pass may claim (finding 12)
+
+If the pool and hou pass: "On camera truth rebuilt with the fix for three GSW home games and one HOU game, r23 built
+with the tracker reset fixed misses fewer in-frame players than r23 as built, with ghosts, position, bias and team
+within their margins." It does not claim: anything about held-out games or the D85 test set; how much the bug moved any
+recorded number (they stand as recorded); any detector other than r23; any arena or broadcaster beyond these four
+games; that the gain does not rest on frames the fix let into truth (the bracket shows that part).

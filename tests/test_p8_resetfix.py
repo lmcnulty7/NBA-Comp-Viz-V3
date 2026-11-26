@@ -349,3 +349,41 @@ def test_unit_eval_and_report_only():
     assert abs(ro["new"]["boxes_per_in_frame"] - 0.92) < 1e-12
     v = R.v2_verdict(ev["point"], ev["window_interval"], ev["rows"]["coverage"], None, improve_rows=(), one_to_one=False)
     assert v["rows"]["position_p50_ft"]["pass"] and v["rows"]["missed_rate"]["pass"]
+
+
+def test_cmd_report_on_synthetic_scores(tmp_path, monkeypatch):
+    """The report reads pins, plans and score files and applies the v2 rule; the repository record write is caught."""
+    import json
+    from tools import p8_common
+    root = tmp_path / "ref"
+    (root / "builds").mkdir(parents=True)
+    (root / "builds" / "r23_source_gsw_cha_2016.json").write_text("{}")
+    d = root / "resetfix"
+    d.mkdir()
+    rng = np.random.default_rng(1)
+    for g in R.GAMES:
+        wins, common = {}, {}
+        for i in range(8):
+            m = {f"{f}:0": [float(rng.random()), 0.1, "near"] for f in range(6)}
+            pair = {"r23": _win(30, 10, 32, 5, 90, m), "new": _win(27 + (i % 2), 8, 28, 5, 91, dict(m))}
+            wins[f"{g}_s00_w{i:02d}"] = pair
+            common[f"{g}_s00_w{i:02d}"] = pair
+        (d / f"score__{g}.json").write_text(json.dumps({"windows": wins, "windows_common": common}))
+        (d / f"plan__{g}.json").write_text(json.dumps({"reset_windows": [f"{g}_s00_w00"],
+                                                      "baseline_resets": {f"{g}_s00_w00": 1}}))
+        (d / f"truth_pin__{g}.json").write_text(json.dumps({"status": "use", "files": {}}))
+    monkeypatch.setenv("V3_P8_ROOT", str(root))
+    written = {}
+    monkeypatch.setattr(p8_common, "atomic_write", lambda path, text: written.__setitem__(str(path), text))
+    res = R.cmd_report(None)
+    assert res["pool"]["verdict"]["pass"] is True and res["hou"]["verdict"]["pass"] is True
+    assert res["pool"]["label"] == "the fix reduces missed players on the pool"
+    assert res["bracket_common_frames"]["pool"]["verdict"]["pass"] is True
+    assert any(k.endswith("p8_resetfix.json") for k in written)
+    # a pool game whose truth is in use but not scored stops the report; one whose truth is not in use makes it partial
+    (d / "score__gsw_sac_2015.json").unlink()
+    with pytest.raises(SystemExit):
+        R.cmd_report(None)
+    (d / "truth_pin__gsw_sac_2015.json").write_text(json.dumps({"status": "apart", "files": {}}))
+    res = R.cmd_report(None)
+    assert res["partial"] and res["pool"]["verdict"]["pass"] is False
