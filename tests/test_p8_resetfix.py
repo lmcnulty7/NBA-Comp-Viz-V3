@@ -64,6 +64,9 @@ class FakeTracker:
     def __init__(self, mod):
         self.model = FakeModel(mod)
 
+    def update(self, bgr, frame_idx=0, timestamp_sec=0.0):
+        return self.model.track()
+
     def reset(self):                     # the frozen detect.tracker.PlayerTracker.reset, reduced to what matters
         self.model.predictor = None
 
@@ -119,20 +122,24 @@ def test_apply_reset_fix_patches_player_tracker_and_logs(monkeypatch, tmp_path):
     pkg.tracker = fake_dt
     monkeypatch.setitem(sys.modules, "detect", pkg)
     monkeypatch.setitem(sys.modules, "detect.tracker", fake_dt)
-    monkeypatch.setattr(R, "RESET_LOG", {"path": None, "resets": []})
+    monkeypatch.setattr(R, "RESET_LOG", {"path": None, "resets": [], "last_frame": None})
     monkeypatch.setattr("atexit.register", lambda f: None)
     assert R.apply_reset_fix() == "detect.tracker.PlayerTracker.reset"
     t = fake_dt.PlayerTracker(mod)
-    assert t.model.track() == 1
-    for _ in range(3):
+    assert t.update(None, 0) == 1
+    for i in range(3):
         t.reset()
         assert t.model.predictor is None                                 # the frozen reset still ran
-        assert [t.model.track() for _ in range(2)] == [1, 1]
-    assert R.RESET_LOG["resets"] == [{"stripped": 2}] * 3
+        assert [t.update(None, 10 * (i + 1) + k) for k in range(2)] == [1, 1]
+    assert R.RESET_LOG["resets"] == [{"frame": 0, "stripped": 2}, {"frame": 11, "stripped": 2},
+                                     {"frame": 21, "stripped": 2}]
+    monkeypatch.delenv("TRACKER_REID", raising=False)
     R.start_reset_log(tmp_path / "w_resetfix.json")
     R.write_reset_log()
     import json
-    assert json.loads((tmp_path / "w_resetfix.json").read_text()) == {"reset_fix": True, "resets": [{"stripped": 2}] * 3}
+    log = json.loads((tmp_path / "w_resetfix.json").read_text())
+    assert log["reset_fix"] is True and log["resets"] == R.RESET_LOG["resets"] and log["tracker_reid_env"] is None
+    assert set(log["versions"]) == {"opencv", "torch", "ultralytics"}
 
 
 def test_real_ultralytics_callbacks_are_recognised():
@@ -231,3 +238,114 @@ def test_frame_counts():
     c = R.frame_counts(feet, sv, inside, [False, False], ours)
     assert c["in_frame"] == 3 and c["missed"] == 2 and c["nr_ghosts"] == 1 and c["nr_boxes"] == 2
     assert c["reach"] == 1 and c["far"] == 2 and c["far_reach"] == 2 and c["ours_ghosts"] == 0
+
+
+# ── design v2 stage 0: pure checks ─────────────────────────────────────────────────────────────────────────────────
+def test_plan_windows():
+    plan = R.plan_windows({"g_s00_w00": 0, "g_s00_w01": 1, "g_s01_w00": 0, "g_s02_w00": 2, "g_s03_w00": 0}, {"g_s04_w00"})
+    assert plan["reset_windows"] == ["g_s00_w01", "g_s02_w00"]
+    assert plan["equivalence_windows"] == ["g_s00_w00", "g_s03_w00"]
+    assert R.plan_windows({"a": 0}, set())["equivalence_windows"] == ["a"]
+
+
+def _arm_records():
+    det = {"sha256": R.R23_SHA, "model": "r23"}
+    dev = {"requested": dict(R.REFERENCE), "resolved": {"detector": "cpu"}, "reset_fix": True}
+    log = {"resets": [{"frame": 12, "stripped": 2}], "tracker_reid_env": None, "versions": dict(R.PINNED_VERSIONS)}
+    return det, dev, log
+
+
+def test_check_arm_records():
+    det, dev, log = _arm_records()
+    assert R.check_arm_records(det, dev, log, 1) == []
+    assert R.check_arm_records(det, dev, log, 2)                         # count differs from the identity file
+    for change in ({"reset_fix": None}, {"clip_fix": True}, {"requested": {"detector": "mps"}}):
+        assert R.check_arm_records(det, {**dev, **change}, log, 1)
+    assert R.check_arm_records({**det, "sha256": "x"}, dev, log, 1)
+    assert R.check_arm_records(det, dev, {**log, "tracker_reid_env": "1"}, 1)
+    assert R.check_arm_records(det, dev, {**log, "versions": {**R.PINNED_VERSIONS, "torch": "2.15.0"}}, 1)
+    assert R.check_arm_records(det, dev, {**log, "resets": [{"frame": 12, "stripped": 4}]}, 1)
+    assert R.check_arm_records(det, dev, {**log, "resets": [{"frame": None, "stripped": 2}]}, 1)
+    assert R.check_arm_records(det, dev, None, 1)
+    assert R.check_base_records(det, {"requested": dict(R.REFERENCE), "resolved": {"detector": "cpu"}}) == []
+    assert R.check_base_records(det, dev)                                # a baseline must not carry the fix
+
+
+def test_prefix_equal():
+    base = [{"frame": f, "boxes": [f]} for f in range(0, 30, 3)]
+    arm = [dict(r) for r in base]
+    arm[6] = {"frame": 18, "boxes": ["new"]}
+    assert R.prefix_equal(base, arm, 15)["equal"]
+    v = R.prefix_equal(base, arm, 18)
+    assert not v["equal"] and v["first_differing_frame"] == 18
+    assert not R.prefix_equal(base, arm, None)["equal"]
+
+
+def test_boxes_match():
+    ref = [[486.21, 178.46, 541.55, 328.99], [894.55, 334.1, 999.21, 527.7]]
+    side = [[894, 334, 999, 527], [486, 178, 541, 328]]                 # the sidecar truncates
+    assert R.boxes_match(side, ref)
+    assert not R.boxes_match(side[:1], ref)
+    assert not R.boxes_match([[894, 334, 999, 527], [480, 178, 541, 328]], ref)
+
+
+def test_one_to_one_missed_and_frame_extra():
+    sv = np.array([[0.0, 0.0], [1.0, 0.0], [20.0, 0.0]] + [[100.0, 100.0]] * 7)
+    inside = np.array([True, True, True] + [False] * 7)
+    feet = np.array([[0.5, 0.0]])                    # one box near two players: nearest-foot finds both
+    assert R.one_to_one_missed(feet, sv, inside) == 2
+    assert R.one_to_one_missed(np.zeros((0, 2)), sv, inside) == 3
+    e = R.frame_extra(np.array([[0.5, 0.0], [0.7, 0.0]]), sv, inside)
+    assert e == {"far": 1, "missed_1to1": 1, "duplicates": 2}
+
+
+def test_truth_pin_and_label_fix():
+    files = {"a.jsonl": "1", "g_result.json": "2"}
+    assert R.truth_pin_problems(None, files)
+    assert R.truth_pin_problems({"status": "pending", "files": files}, files)
+    assert R.truth_pin_problems({"status": "use", "files": files}, {**files, "a.jsonl": "3"})
+    assert R.truth_pin_problems({"status": "use", "files": files}, files) == []
+    ok = {"reset_fix": True, "resolved": {"detector": "cpu"}}
+    assert R.label_fix_problems({"w1": ok, "w2": ok}) == []
+    assert R.label_fix_problems({"w1": ok, "w2": {"resolved": {"detector": "cpu"}}})
+    assert R.label_fix_problems({"w1": None})
+
+
+def test_stage_allowed(tmp_path):
+    import json
+    assert R.stage_allowed("pool", tmp_path) and R.stage_allowed("smoke", tmp_path) == []
+    (tmp_path / "smoke_check.json").write_text(json.dumps({"passes": True}))
+    assert R.stage_allowed("pool", tmp_path) == [] and R.stage_allowed("hou", tmp_path)
+    (tmp_path / "report.json").write_text(json.dumps({"pool": {"verdict": {"pass": True}}}))
+    assert R.stage_allowed("hou", tmp_path) == []
+
+
+def test_rewrite_only_the_build_script(monkeypatch):
+    env = {R.ENV: "/w.pt"}
+    assert R.rewrite(["py", "build_trajectories.py", "--x"], env) == ["py", "-m", "tools.p8_resetfix", "child",
+                                                                       "build_trajectories.py", "--x"]
+    assert R.rewrite(["py", "other.py"], env) == ["py", "other.py"]
+    assert R.rewrite(["py", "build_trajectories.py"], {}) == ["py", "build_trajectories.py"]
+
+
+def _win(missed, far, m1, nr_g, nr_b, matched, inf=100):
+    return {"missed": missed, "in_frame": inf, "far": far, "missed_1to1": m1, "duplicates": 1, "nr_ghosts": nr_g,
+            "nr_boxes": nr_b, "cov_acc": 6.0, "cov_live": 8.0, "team": {"n": 10, "majority": 8}, "matched": matched}
+
+
+def test_unit_eval_and_report_only():
+    rng = np.random.default_rng(5)
+    wins = []
+    for i in range(10):
+        m = {f"{f}:0": [float(rng.random()), 0.1, "near"] for f in range(6)}
+        mn = dict(m)
+        mn[f"99{i}:1"] = [2.0, 0.0, "far"]                               # a player matched only in the arm
+        wins.append({"r23": _win(30, 10, 32, 5, 90, m), "new": _win(28, 9, 30, 5, 92, mn)})
+    ev = R.unit_eval(wins, R.resample_picks(10, 200, 0))
+    assert abs(ev["point"]["missed_rate"] + 0.02) < 1e-12 and abs(ev["point"]["detection_rate"] + 0.01) < 1e-12
+    assert abs(ev["point"][R.ONE_TO_ONE_ROW] + 0.02) < 1e-12 and ev["window_interval"]["detection_rate"] is not None
+    ro = R.report_only(wins)
+    assert ro["arm_only_matches"]["n"] == 10 and ro["matched_only_in_baseline"] == 0
+    assert abs(ro["new"]["boxes_per_in_frame"] - 0.92) < 1e-12
+    v = R.v2_verdict(ev["point"], ev["window_interval"], ev["rows"]["coverage"], None, improve_rows=(), one_to_one=False)
+    assert v["rows"]["position_p50_ft"]["pass"] and v["rows"]["missed_rate"]["pass"]

@@ -338,3 +338,52 @@ counts split at the first reset). Records: reports/research/p8_resetfix_truthres
 - Limits fixed now: this is a forecast on the MPS-truth scored frames, which the bug thins after resets (part a); a
   truth rebuilt with the fix holds more post-reset frames, so the scored effect can be larger. hou_cle_2016 is not
   simulated (no corpus boxes). The numbers decide nothing by themselves.
+
+## 13. Results of part 1 (2026-11-26, stored files, no lock)
+
+One code fix after registration and before any number of (b): a scored window with no scored frame has no counts in
+the estimate's per-window record, which stopped the first simulation run with a KeyError; such a window now counts as
+zero (its score-file counts are zero too, checked). The estimate's rerun reproduces every recorded rate of version 1
+exactly (same in-frame, missed, ghost and reset counts) and adds the per-window and after-reset fields.
+
+**(a) Truth acceptance before and after the first reset.** Record: reports/research/p8_resetfix_truthreset.json.
+
+| unit | windows with a reset (located) | acceptance before the first reset | after it | before over after | interval of before minus after | no-reset windows | share of processed frames after a reset | share of accepted frames after a reset | under-representation |
+|---|---|---|---|---|---|---|---|---|---|
+| gsw_bkn_2015, MPS truth | 18 (18) | 0.159 | 0.007 | 22.1 | [0.068, 0.232] | 0.101 | 0.115 | 0.008 | 14.0 |
+| gsw_cha_2016, MPS truth | 14 (14) | 0.080 | 0.005 | 17.1 | [0.032, 0.105] | 0.102 | 0.237 | 0.015 | 16.2 |
+| gsw_sac_2015, MPS truth | 12 (12) | 0.146 | 0.014 | 10.7 | [0.015, 0.200] | 0.129 | 0.137 | 0.016 | 8.4 |
+| hou_cle_2016, MPS truth | 21 (21) | 0.223 | 0.037 | 6.0 | [0.082, 0.301] | 0.239 | 0.251 | 0.050 | 5.0 |
+| gsw_cha_2016, CPU truth | 12 (12) | 0.154 | 0.014 | 11.0 | [0.026, 0.243] | 0.162 | 0.170 | 0.017 | 9.7 |
+
+Reading (report only): in every unit, frames after a label build's first reset are accepted as camera truth 6 to 22
+times less often than frames before it, and the window intervals lie wholly above zero. Frames after a reset are 5 to
+16 times rarer in truth than in the label builds. The rate before a reset is close to the rate in windows with no reset
+(except gsw_cha_2016 on MPS, 0.080 against 0.102). Not separated here: after a camera cut the shot can also change to
+one where truth is harder (a closer or moving view), so part of the gap may be the scene, not the bug. The fix applied
+to the label builds is the test of that.
+
+**(b) Simulation under the v2 rule.** Record: reports/research/p8_resetfix_simulate.json. The centre's fast intervals
+equal tools.p8_e1_score's rows, diffs and boot exactly (missed, ghosts and coverage, point, window and game interval;
+position, bias and team zero).
+
+| | value |
+|---|---|
+| pool pass probability (pooled verdict and every game) | 0.93 |
+| pooled verdict alone | 1.00 |
+| per game: gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 | 1.00, 0.93, 1.00 |
+| missed's pooled window interval wholly below zero | 1.00 |
+| the only failing condition | gsw_cha_2016 ghosts over its +0.010 margin, 0.07 of draws |
+| pooled missed difference (5th, 50th, 95th percentile) | -0.0118, -0.0095, -0.0070 |
+| pooled detection-row difference | -0.0125, -0.0100, -0.0074 |
+| pooled ghost difference | +0.0009, +0.0013, +0.0018 |
+| upper end of the pooled ghost window interval | +0.0019, +0.0029, +0.0039 |
+| upper end of the ghost window interval, gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 (median) | +0.0039, +0.0077, +0.0016 |
+| missed difference by game (median) | -0.0172, -0.0028, -0.0064 |
+| ghost share of the excess r23 boxes after a reset (q) | 0.18, 0.66, 0.19 |
+
+Reading (report only): on the MPS-truth frames, the expected change passes the v2 rule in 93 percent of draws; the
+risk is gsw_cha_2016's own ghost margin, because the few boxes the fix returns there after a reset (99 excess boxes
+over the game's scored frames) are mostly ghosts. The forecast leaves out changes to position, bias and team, and the
+truth thinning of part (a): on a truth rebuilt with the fix, more post-reset frames are scored, so both the missed
+change and the ghost change can be larger than forecast.

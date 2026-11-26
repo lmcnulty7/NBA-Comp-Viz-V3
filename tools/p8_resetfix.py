@@ -6,6 +6,17 @@ tools/p8_device.py's build child and a stored-files estimate for the design. Not
     python3 -m tools.p8_resetfix truthreset -> reports/research/p8_resetfix_truthreset.json   (design v2 measurement a)
     python3 -m tools.p8_resetfix simulate   -> reports/research/p8_resetfix_simulate.json     (design v2 measurement b)
 
+Design v2 stage 0 (docs/research/P8_resetfix.md section 14), in the reference root (V3_P8_ROOT=<reference root>):
+    python3 -m tools.p8_resetfix plan --game G                           reset and equivalence windows from the baseline
+    <frozen CV python> -m tools.p8_resetfix build --game gsw_cha_2016 --smoke         inside the heavy-job lock
+    python3 -m tools.p8_resetfix smoke-check                             the smoke gate
+    <frozen CV python> -m tools.p8_resetfix build --game G               inside the lock; the planned windows
+    python3 -m tools.p8_resetfix equiv --game G                          equivalence and prefix checks
+    python3 -m tools.p8_resetfix pin-truth --game G                      pin a final truth (sha256 of its files)
+    <frozen CV python> -m tools.p8_resetfix score --game G               inside the lock; every pool truth pinned
+    python3 -m tools.p8_resetfix report                                  the v2 rule -> reports/research/p8_resetfix.json
+    (internal) <python> -m tools.p8_resetfix child build_trajectories.py <its arguments>
+
 The bug (docs/research/P8_a3input.md, cause confirmed): detect/tracker.py PlayerTracker.reset sets
 self.model.predictor = None; ultralytics 8.4.48 Model.track then re-registers the tracker callbacks
 (ultralytics.trackers.track.on_predict_start and on_predict_postprocess_end, as functools.partial objects) and
@@ -59,22 +70,38 @@ def strip_tracker_callbacks(callbacks: dict) -> int:
     return n
 
 
-RESET_LOG = {"path": None, "resets": []}
+RESET_LOG = {"path": None, "resets": [], "last_frame": None}
 
 
 def apply_reset_fix() -> str:
     """In the build child, before the build runs: PlayerTracker.reset also strips the tracker callbacks. Each reset
-    appends {"stripped": n} to RESET_LOG (n = 2 when the tracker had registered once: one on_predict_start and one
-    on_predict_postprocess_end); write_reset_log() saves it at exit when start_reset_log() named a file."""
+    appends {"frame": the frame index of the last update call, "stripped": n} to RESET_LOG (n = 2 when the tracker had
+    registered once: one on_predict_start and one on_predict_postprocess_end); write_reset_log() saves it at exit when
+    start_reset_log() named a file. The frame is the frame whose update triggered the reset (a cut, or an exception)."""
     import detect.tracker as DT
     orig = DT.PlayerTracker.reset
 
     def reset(self):
         orig(self)
         cbs = getattr(getattr(self, "model", None), "callbacks", None)
-        RESET_LOG["resets"].append({"stripped": strip_tracker_callbacks(cbs) if isinstance(cbs, dict) else None})
+        RESET_LOG["resets"].append({"frame": RESET_LOG.get("last_frame"),
+                                    "stripped": strip_tracker_callbacks(cbs) if isinstance(cbs, dict) else None})
     DT.PlayerTracker.reset = reset
+    if hasattr(DT.PlayerTracker, "update"):
+        orig_update = DT.PlayerTracker.update
+
+        def update(self, bgr, frame_idx: int = 0, *a, **k):
+            RESET_LOG["last_frame"] = int(frame_idx)
+            return orig_update(self, bgr, frame_idx, *a, **k)
+        DT.PlayerTracker.update = update
     return "detect.tracker.PlayerTracker.reset"
+
+
+def library_versions() -> dict:
+    """Versions of the libraries the build process loaded (None for one it did not load); nothing is imported."""
+    import sys
+    return {name: getattr(sys.modules.get(mod), "__version__", None)
+            for name, mod in (("opencv", "cv2"), ("torch", "torch"), ("ultralytics", "ultralytics"))}
 
 
 def write_reset_log() -> None:
@@ -82,9 +109,16 @@ def write_reset_log() -> None:
     path = RESET_LOG["path"]
     if path is None:
         return
+    try:
+        import config
+        tracker = Path(str(config.TRACKER_CONFIG)).name
+    except Exception:                       # noqa: BLE001
+        tracker = None
     part = f"{path}.part"
     with open(part, "w") as fh:
-        json.dump({"reset_fix": True, "resets": RESET_LOG["resets"]}, fh)
+        json.dump({"reset_fix": True, "resets": [{k: v for k, v in r.items()} for r in RESET_LOG["resets"]],
+                   "tracker_reid_env": os.environ.get("TRACKER_REID"), "tracker_config": tracker,
+                   "versions": library_versions()}, fh)
     os.replace(part, path)
 
 
@@ -482,9 +516,9 @@ def cmd_simulate(args) -> dict:
         base[g] = []
         for w in sf["scored_windows"]:
             st = dict(sf["windows"][w][SIDE[g]])
-            if st["in_frame"] != pw[w]["all"]["in_frame"] or st["missed"] != pw[w]["all"]["missed"]:
+            if st["in_frame"] != pw[w]["all"].get("in_frame", 0) or st["missed"] != pw[w]["all"].get("missed", 0):
                 raise SystemExit(f"{WHO}: {w}: estimate and score file disagree")
-            st["far"] = pw[w]["all"]["far"]
+            st["far"] = pw[w]["all"].get("far", 0)          # a window with no scored frame has no counts
             base[g].append((w, st, pw[w]["after"], pw[w]["resets"]))
 
     def build(f, rng):
@@ -585,6 +619,648 @@ def cmd_simulate(args) -> dict:
     return res
 
 
+# ── design v2 stage 0: build, checks, score and report in the reference root ────────────────────────────────────
+POOL = ("gsw_bkn_2015", "gsw_cha_2016", "gsw_sac_2015")
+APART = "hou_cle_2016"
+GAMES = POOL + (APART,)
+R23_SHA = "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
+REFERENCE = {"detector": "cpu", "court": "auto", "gate": "auto"}       # the reference platform (D175)
+PINNED_VERSIONS = {"opencv": "4.13.0", "torch": "2.2.2", "ultralytics": "8.4.48"}   # a3input's build environment
+BASE_DIR = "r23"                               # the reference root's r23 builds (tools.p8_truth_cpu_r23, no fix)
+SMOKE_GAME = "gsw_cha_2016"
+SMOKE_RESET, SMOKE_NORESET = "gsw_cha_2016_s05_w00", "gsw_cha_2016_s00_w00"
+SIDE_FILES = ("frames", "trajectories", "identity")
+ENV, BUILD_SCRIPT = "P8_RESETFIX_DETECTOR", "build_trajectories.py"
+FINAL_TRUTH = ("use", "apart", "unused")       # tools.p8_truth_accept's "use" values
+BOX_TOL_PX = 1.0                               # a3input's outputs are rounded to 0.01 px; the sidecar truncates
+
+
+def arm_dir(game: str) -> str:
+    return f"resetfix_r23_detcpu__{game}"
+
+
+def check_game(game: str) -> str:
+    if game not in GAMES:
+        raise SystemExit(f"{WHO}: {game} is not a reset-fix game ({GAMES})")
+    from tools.research_testset import refuse_cv_test
+    from tools.p8_common import guard
+    refuse_cv_test([game], WHO)
+    guard([game], WHO)
+    return game
+
+
+def ref_root() -> Path:
+    """The reference root: the P8 root in use must hold the r23 copy record of tools.p8_truth_cpu_r23."""
+    from tools.p8_common import p8_root
+    r = p8_root()
+    if not any((r / "builds").glob("r23_source_*.json")):
+        raise SystemExit(f"{WHO}: {r.name} is not the reference root (no builds/r23_source_<game>.json); set V3_P8_ROOT")
+    return r
+
+
+def sha256_file(path: Path) -> str:
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+# pure checks
+def plan_windows(base_identity: dict, gate_empty: set) -> dict:
+    """base_identity: {window: camera_cut_resets of the baseline build}. -> the windows built (a reset in the
+    baseline), the equivalence sample (first and last no-reset window by name) and the no-reset windows."""
+    ws = sorted(w for w in base_identity if w not in gate_empty)
+    reset = [w for w in ws if base_identity[w] > 0]
+    none = [w for w in ws if base_identity[w] == 0]
+    equiv = sorted({none[0], none[-1]}) if none else []
+    return {"reset_windows": reset, "equivalence_windows": equiv, "no_reset_windows": none,
+            "gate_empty_windows": sorted(gate_empty)}
+
+
+def check_arm_records(det: dict | None, dev: dict | None, log: dict | None, resets: int | None) -> list:
+    """Problems with one fixed-arm window's records -> [] when it passes."""
+    bad = []
+    if dev is None or dev.get("requested") != REFERENCE or (dev.get("resolved") or {}).get("detector") != "cpu":
+        bad.append("device record is not the reference platform with the detector on cpu")
+    if dev is not None and dev.get("clip_fix"):
+        bad.append("built with the MPS clip fix")
+    if dev is None or dev.get("reset_fix") is not True:
+        bad.append("device record does not carry reset_fix")
+    if det is None or det.get("sha256") != R23_SHA or det.get("model") != "r23":
+        bad.append("detector record is not r23")
+    if log is None:
+        bad.append("no reset log")
+        return bad
+    if log.get("tracker_reid_env") not in (None,):
+        bad.append(f"TRACKER_REID was set ({log.get('tracker_reid_env')!r})")
+    if log.get("versions") != PINNED_VERSIONS:
+        bad.append(f"library versions {log.get('versions')} are not {PINNED_VERSIONS}")
+    rs = log.get("resets", [])
+    if any(r.get("stripped") != 2 for r in rs):
+        bad.append(f"a reset did not strip exactly 2 callbacks: {[r.get('stripped') for r in rs]}")
+    if any(r.get("frame") is None for r in rs):
+        bad.append("a reset has no frame index")
+    if resets is not None and len(rs) != resets:
+        bad.append(f"the reset log has {len(rs)} entries, the identity file {resets}")
+    return bad
+
+
+def check_base_records(det: dict | None, dev: dict | None) -> list:
+    bad = []
+    if dev is None or dev.get("requested") != REFERENCE or (dev.get("resolved") or {}).get("detector") != "cpu":
+        bad.append("baseline device record is not the reference platform")
+    if dev is not None and (dev.get("clip_fix") or dev.get("reset_fix")):
+        bad.append("baseline built with a fix")
+    if det is None or det.get("sha256") != R23_SHA:
+        bad.append("baseline detector record is not r23")
+    return bad
+
+
+def prefix_equal(base_rows: list, arm_rows: list, first_reset_frame: int | None) -> dict:
+    """Sidecar rows up to and including the arm's first reset frame must be identical (the two builds run the same
+    calls until the first reset; later rows, and the window's other outputs, may differ)."""
+    b = sorted(base_rows, key=lambda r: int(r["frame"]))
+    a = sorted(arm_rows, key=lambda r: int(r["frame"]))
+    lim = first_reset_frame if first_reset_frame is not None else float("inf")
+    bp = [r for r in b if int(r["frame"]) <= lim]
+    ap = [r for r in a if int(r["frame"]) <= lim]
+    first_diff = next((int(x["frame"]) for x, y in zip(bp, ap) if x != y), None)
+    return {"rows": len(bp), "equal": bp == ap, "first_differing_frame": first_diff}
+
+
+def boxes_match(side_boxes: list, ref_boxes: list, tol: float = BOX_TOL_PX) -> bool:
+    """Same count and a one-to-one match with every coordinate within tol."""
+    if len(side_boxes) != len(ref_boxes):
+        return False
+    if not side_boxes:
+        return True
+    from scipy.optimize import linear_sum_assignment
+    A, B = np.asarray(side_boxes, float)[:, :4], np.asarray(ref_boxes, float)[:, :4]
+    D = np.abs(A[:, None, :] - B[None, :, :]).max(-1)
+    ri, ci = linear_sum_assignment(D)
+    return bool(D[ri, ci].max() <= tol)
+
+
+def one_to_one_missed(feet, sv, inside, miss_ft: float = 2.5) -> int:
+    """In-frame players left unmatched by a one-to-one assignment of box feet to players within miss_ft (a box can
+    find at most one player, so duplicate boxes cannot lower it)."""
+    sv = np.asarray(sv, np.float64).reshape(-1, 2)
+    feet = np.asarray(feet, np.float64).reshape(-1, 2)
+    ins = np.where(np.asarray(inside, bool))[0]
+    if not len(ins):
+        return 0
+    if not len(feet):
+        return len(ins)
+    from scipy.optimize import linear_sum_assignment
+    D = np.sqrt(((sv[ins][:, None, :] - feet[None, :, :]) ** 2).sum(-1))
+    C = np.where(D <= miss_ft, D, 1e6)
+    ri, ci = linear_sum_assignment(C)
+    return int(len(ins) - (C[ri, ci] <= miss_ft).sum())
+
+
+def frame_extra(feet, sv, inside) -> dict:
+    """Report-only and detection counts of one scored frame: far misses (no foot within 5 ft), one-to-one misses,
+    duplicates (in-frame players with two or more feet within 2.5 ft)."""
+    sv = np.asarray(sv, np.float64).reshape(-1, 2)
+    feet = np.asarray(feet, np.float64).reshape(-1, 2)
+    ins = np.asarray(inside, bool)
+    if len(feet):
+        D = np.sqrt(((sv[:, None, :] - feet[None, :, :]) ** 2).sum(-1))
+        far = int((ins & (D.min(1) > 5.0)).sum())
+        dup = int((ins & ((D <= 2.5).sum(1) >= 2)).sum())
+    else:
+        far, dup = int(ins.sum()), 0
+    return {"far": far, "missed_1to1": one_to_one_missed(feet, sv, inside), "duplicates": dup}
+
+
+def truth_pin_problems(pin: dict | None, now: dict) -> list:
+    """pin: the pinned {file: sha256} of a game's truth; now: the same files hashed now."""
+    if pin is None:
+        return ["no truth pin"]
+    if pin.get("status") not in FINAL_TRUTH:
+        return [f"truth status {pin.get('status')!r} is not final"]
+    if pin["files"] != now:
+        return ["truth files changed since the pin"]
+    return []
+
+
+def label_fix_problems(device_records: dict) -> list:
+    """{label window: its label build's device record or None} -> [] when every built label window ran on the
+    reference platform with the reset fix (the truth is rebuilt with the fix, design v2 section 6)."""
+    bad = [w for w, d in device_records.items()
+           if d is None or d.get("reset_fix") is not True or (d.get("resolved") or {}).get("detector") != "cpu"]
+    return [f"{len(bad)} label windows lack the reset fix or the cpu detector (first: {sorted(bad)[:3]})"] if bad else []
+
+
+# child (frozen CV python, inside the build)
+class _Proxy:
+    def __init__(self, real):
+        self._real = real
+
+    def __getattr__(self, name):
+        return getattr(self._real, name)
+
+    def run(self, cmd, *a, **k):
+        return self._real.run(rewrite(cmd), *a, **k)
+
+
+def rewrite(cmd, env=None):
+    import os
+    env = os.environ if env is None else env
+    if env.get(ENV) and isinstance(cmd, (list, tuple)) and len(cmd) > 1 and cmd[1] == BUILD_SCRIPT:
+        return [cmd[0], "-m", "tools.p8_resetfix", "child", *cmd[1:]]
+    return cmd
+
+
+def child(argv: list) -> int:
+    import os
+    import runpy
+    import sys
+    from tools import p8_device as D
+    from tools.p8_common import guard
+    if not argv or argv[0] != BUILD_SCRIPT:
+        raise SystemExit(f"{WHO}: usage: python -m tools.p8_resetfix child {BUILD_SCRIPT} <its arguments>")
+    src = argv[argv.index("--source") + 1] if "--source" in argv else ""
+    guard([src], WHO)
+    req = D.requested()
+    if req != REFERENCE or D.clip_fix_requested() or not D.reset_fix_requested():
+        raise SystemExit(f"{WHO}: the arm is P8_DEVICE_DETECTOR=cpu with P8_TRACKER_RESET_FIX=1 only")
+    if os.environ.get("TRACKER_REID") is not None:
+        raise SystemExit(f"{WHO}: TRACKER_REID must be unset")
+    resolved = D.apply(req)
+    weights = Path(os.environ[ENV])
+    import config
+    config.PLAYER_DETECTOR_WEIGHTS = weights
+    config.TRACKING_DIR.mkdir(parents=True, exist_ok=True)
+    stem = Path(src).stem
+    for suffix, rec in (("device", D.device_record(req, resolved)),
+                        ("detector", {"weights": weights.name, "sha256": sha256_file(weights), "model": "r23",
+                                      "seed": 0})):
+        part = config.TRACKING_DIR / f"{stem}_{suffix}.json.part"
+        part.write_text(json.dumps(rec))
+        os.replace(part, config.TRACKING_DIR / f"{stem}_{suffix}.json")
+    start_reset_log(config.TRACKING_DIR / f"{stem}_resetfix.json")
+    script = Path(config.PROJECT_ROOT) / BUILD_SCRIPT
+    sys.argv = [str(script), *argv[1:]]
+    runpy.run_path(str(script), run_name="__main__")
+    return 0
+
+
+def _read(p: Path):
+    return json.loads(p.read_text()) if p.exists() else None
+
+
+def cmd_plan(args) -> dict:
+    """System python, no lock: the windows built per game, from the reference root's baseline identity files."""
+    from tools.p8_common import atomic_write
+    game = check_game(args.game)
+    r = ref_root()
+    src = _read(r / "builds" / f"r23_source_{game}.json")
+    if not src or not src.get("complete"):
+        raise SystemExit(f"{WHO}: {game}: the baseline r23 builds are not complete in the reference root")
+    base = r / "builds" / BASE_DIR
+    labels = sorted(p.name[:-len("_frames.json")] for p in (r / "label_build").glob(f"{game}_s*_frames.json"))
+    ident, empty = {}, set()
+    for w in labels:
+        if (base / f"{w}_gate_empty.json").exists():
+            empty.add(w)
+            continue
+        i = _read(base / f"{w}_identity.json")
+        if i is None:
+            raise SystemExit(f"{WHO}: {w} has no baseline build")
+        ident[w] = int(i["identity"].get("camera_cut_resets") or 0)
+    plan = plan_windows(ident, empty)
+    plan.update({"game": game, "baseline_resets": ident,
+                 "baseline_sha256": {w: {f: sha256_file(base / f"{w}_{f}.json") for f in SIDE_FILES} for w in ident}})
+    d = r / "resetfix"
+    d.mkdir(exist_ok=True)
+    atomic_write(d / f"plan__{game}.json", json.dumps(plan, indent=1))
+    print(json.dumps({k: (len(v) if isinstance(v, list) else v) for k, v in plan.items()
+                      if k not in ("baseline_resets", "baseline_sha256")}))
+    return plan
+
+
+def stage_allowed(stage: str, d: Path) -> list:
+    """The gates in force before a stage: smoke before the pool, the pool verdict before hou_cle_2016."""
+    why = []
+    if stage in ("pool", "hou"):
+        sm = _read(d / "smoke_check.json")
+        if not sm or not sm.get("passes"):
+            why.append("the smoke check has not passed")
+    if stage == "hou":
+        rep = _read(d / "report.json")
+        if not rep or not (rep.get("pool") or {}).get("verdict", {}).get("pass"):
+            why.append("the pool rule has not passed")
+    return why
+
+
+def cmd_build(args) -> dict:
+    """Frozen CV python, inside the heavy-job lock: the fixed arm on the planned windows (or the two smoke windows)."""
+    import os
+    import time
+    from sportvu import rebuild
+    from sportvu.autolabel import gate_args
+    from tools import p8_frozen as F
+    from tools.p8_common import atomic_write, main_checkout
+    game = check_game(args.game)
+    if os.environ.get("V3_HEAVY_HELD") is None:
+        raise SystemExit(f"{WHO}: run inside the heavy-job lock")
+    r = ref_root()
+    d = r / "resetfix"
+    stage = "smoke" if args.smoke else ("hou" if game == APART else "pool")
+    why = stage_allowed(stage, d)
+    if why:
+        raise SystemExit(f"{WHO}: stage {stage} may not start: {why}")
+    for k in ("P8_DEVICE", "P8_DEVICE_COURT", "P8_DEVICE_GATE", "P8_MPS_CLIP_FIX", "TRACKER_REID"):
+        os.environ.pop(k, None)
+    os.environ["P8_DEVICE_DETECTOR"] = "cpu"
+    os.environ["P8_TRACKER_RESET_FIX"] = "1"
+    weights = (main_checkout() / "models" / "player_detector.pt").resolve()
+    if sha256_file(weights) != R23_SHA:
+        raise SystemExit(f"{WHO}: the production detector is not r23")
+    if args.smoke:
+        if game != SMOKE_GAME:
+            raise SystemExit(f"{WHO}: the smoke builds only {SMOKE_GAME}")
+        todo = [SMOKE_NORESET, SMOKE_RESET]
+    else:
+        plan = _read(d / f"plan__{game}.json")
+        if plan is None:
+            raise SystemExit(f"{WHO}: no plan for {game}; run plan first")
+        todo = plan["reset_windows"] + plan["equivalence_windows"]
+    P = F.install_paths()
+    rebuild.subprocess = _Proxy(rebuild.subprocess)
+    os.environ[ENV] = str(weights)
+    os.environ["COURT_GRID_WEIGHTS"] = str(F.court_weights("r23"))
+    out = P["builds"] / arm_dir(game)
+    out.mkdir(parents=True, exist_ok=True)
+    wins = {w["window"]: w for w in F.label_windows(P, game)}
+    res = {"game": game, "stage": stage, "folder": out.name, "windows": {}}
+    for s in todo:
+        t0 = time.time()
+        clip = P["label_build"] / f"{s}.mp4"
+        for attempt in (1, 2, 3):
+            rr = F.safe_build(P, wins[s], clip, out, extra_args=gate_args())
+            if rr["ok"]:
+                break
+        else:
+            raise SystemExit(f"{WHO}: build of {s} failed three times: {rr.get('tail')}")
+        bad = []
+        if not rr.get("empty"):
+            ident = _read(out / f"{s}_identity.json")
+            bad = check_arm_records(_read(out / f"{s}_detector.json"), _read(out / f"{s}_device.json"),
+                                    _read(out / f"{s}_resetfix.json"),
+                                    None if ident is None else int(ident["identity"].get("camera_cut_resets") or 0))
+        if bad:
+            raise SystemExit(f"{WHO}: {s}: {bad}")
+        res["windows"][s] = {"cached": bool(rr.get("cached")), "empty": bool(rr.get("empty")), "attempts": attempt,
+                             "seconds": None if rr.get("cached") else round(time.time() - t0, 1)}
+    d.mkdir(exist_ok=True)
+    atomic_write(d / f"build__{game}{'__smoke' if args.smoke else ''}.json", json.dumps(res, indent=1))
+    print(json.dumps(res, indent=1))
+    return res
+
+
+def compare_window(base: Path, arm: Path, w: str) -> dict:
+    """Byte identity of the three outputs, the sidecar prefix check, and both arms' reset counts."""
+    same = {f: sha256_file(base / f"{w}_{f}.json") == sha256_file(arm / f"{w}_{f}.json") for f in SIDE_FILES}
+    log = _read(arm / f"{w}_resetfix.json") or {"resets": []}
+    first = min((r["frame"] for r in log["resets"] if r.get("frame") is not None), default=None)
+    pre = prefix_equal(_read(base / f"{w}_frames.json")["frames"], _read(arm / f"{w}_frames.json")["frames"], first)
+    rb = int(_read(base / f"{w}_identity.json")["identity"].get("camera_cut_resets") or 0)
+    ra = int(_read(arm / f"{w}_identity.json")["identity"].get("camera_cut_resets") or 0)
+    return {"byte_identical": same, "first_reset_frame_arm": first, "prefix": pre, "resets_baseline": rb,
+            "resets_arm": ra}
+
+
+def cmd_smoke_check(args) -> dict:
+    """System python: the smoke gate (design v2, section 8)."""
+    from tools.p8_common import atomic_write, p8_root
+    r = ref_root()
+    base, arm = r / "builds" / BASE_DIR, r / "builds" / arm_dir(SMOKE_GAME)
+    out = {"no_reset": compare_window(base, arm, SMOKE_NORESET), "reset": compare_window(base, arm, SMOKE_RESET)}
+    # the reset window against a3input's variant B, frame by frame (the a3input record lives in the P8 workspace)
+    ws = Path(args.workspace).expanduser() if args.workspace else p8_root().parent / "work"
+    a3 = _read(ws / "placement" / "a3input" / f"{SMOKE_RESET}.json")
+    clip_same = sha256_file(ws / "label_build" / f"{SMOKE_RESET}.mp4") == \
+        sha256_file(r / "label_build" / f"{SMOKE_RESET}.mp4")
+    side = {int(x["frame"]): [b["bbox"] for b in x["boxes"]] for x in _read(arm / f"{SMOKE_RESET}_frames.json")["frames"]}
+    Bf = a3["variants"]["B"]["per_frame"]
+    match = sum(boxes_match(side.get(int(f["frame"]), []), f["output"]) for f in Bf)
+    log = _read(arm / f"{SMOKE_RESET}_resetfix.json")
+    ident = _read(arm / f"{SMOKE_RESET}_identity.json")["identity"]
+    rec = check_arm_records(_read(arm / f"{SMOKE_RESET}_detector.json"), _read(arm / f"{SMOKE_RESET}_device.json"), log,
+                            int(ident.get("camera_cut_resets") or 0))
+    out["a3input_B"] = {"clip_byte_identical": clip_same, "frames": len(Bf), "frames_matching": match,
+                        "frames_equal_sets": set(side) == {int(f["frame"]) for f in Bf},
+                        "boxes_arm": sum(len(v) for v in side.values()),
+                        "boxes_B": sum(len(f["output"]) for f in Bf), "resets_arm": len((log or {}).get("resets", [])),
+                        "resets_B": a3["variants"]["B"]["n_resets"], "record_problems": rec,
+                        "versions": (log or {}).get("versions")}
+    gates = {"no_reset_byte_identical": all(out["no_reset"]["byte_identical"].values()),
+             "clip_byte_identical": clip_same,
+             "every_frame_matches_B": match == len(Bf) and out["a3input_B"]["frames_equal_sets"],
+             "resets_equal_B": out["a3input_B"]["resets_arm"] == out["a3input_B"]["resets_B"],
+             "records_pass": not rec,
+             "prefix_equal": out["reset"]["prefix"]["equal"]}
+    out["gates"] = gates
+    out["passes"] = all(gates.values())
+    atomic_write(r / "resetfix" / "smoke_check.json", json.dumps(out, indent=1))
+    print(json.dumps({"gates": gates, "passes": out["passes"], "a3input_B": out["a3input_B"]}, indent=1))
+    if not out["passes"]:
+        raise SystemExit(f"{WHO}: the smoke check fails: {[k for k, v in gates.items() if not v]}")
+    return out
+
+
+def cmd_equiv(args) -> dict:
+    """System python: after a game's builds, the equivalence windows must be byte-identical to the baseline, and every
+    built reset window must pass the prefix check."""
+    from tools.p8_common import atomic_write
+    game = check_game(args.game)
+    r = ref_root()
+    plan = _read(r / "resetfix" / f"plan__{game}.json")
+    base, arm = r / "builds" / BASE_DIR, r / "builds" / arm_dir(game)
+    out = {"game": game, "equivalence": {w: compare_window(base, arm, w) for w in plan["equivalence_windows"]},
+           "reset_windows": {w: compare_window(base, arm, w) for w in plan["reset_windows"]}}
+    bad = [w for w, c in out["equivalence"].items() if not all(c["byte_identical"].values())]
+    bad += [w for w, c in out["reset_windows"].items() if not c["prefix"]["equal"]]
+    out["passes"] = not bad
+    out["failing_windows"] = bad
+    atomic_write(r / "resetfix" / f"equiv__{game}.json", json.dumps(out, indent=1))
+    print(json.dumps({"game": game, "passes": out["passes"], "failing_windows": bad}))
+    if bad:
+        raise SystemExit(f"{WHO}: {game}: equivalence or prefix check fails on {bad}")
+    return out
+
+
+def truth_files(r: Path, game: str) -> dict:
+    files = sorted((r / "labels" / game).glob(f"{game}_s*.jsonl")) + [r / "labels" / f"{game}_result.json"]
+    return {p.name: sha256_file(p) for p in files if p.exists()}
+
+
+def cmd_pin_truth(args) -> dict:
+    """System python: pin a game's truth (sha256 of every label file and the fit result) with its final status, read
+    from the reference root's acceptance record. Run before any score; a score refuses truth that changed."""
+    from tools.p8_common import atomic_write
+    game = check_game(args.game)
+    r = ref_root()
+    acc = _read(r / "truth_accept" / f"{game}.json")
+    if acc is None or acc.get("use") not in FINAL_TRUTH:
+        raise SystemExit(f"{WHO}: {game} has no final acceptance record; its truth status is not final")
+    labels = sorted(p.name[:-len("_frames.json")] for p in (r / "label_build").glob(f"{game}_s*_frames.json"))
+    why = label_fix_problems({w: _read(r / "label_build" / f"{w}_device.json") for w in labels})
+    if why:
+        raise SystemExit(f"{WHO}: {game}: {why}")
+    pin = {"game": game, "status": acc["use"], "label_windows_with_fix": len(labels),
+           "acceptance_checks": {k: (v or {}).get("pass") for k, v in (acc.get("checks") or {}).items()},
+           "files": truth_files(r, game)}
+    atomic_write(r / "resetfix" / f"truth_pin__{game}.json", json.dumps(pin, indent=1))
+    print(json.dumps({k: v for k, v in pin.items() if k != "files"} | {"files": len(pin["files"])}))
+    return pin
+
+
+def cmd_score(args) -> dict:
+    """Frozen CV python, inside the lock: baseline against the fixed arm on the game's scored windows, on the pinned
+    truth. A no-reset window of the arm resolves to the baseline's files (read only)."""
+    import os
+    import time
+    import cv2
+    from sportvu import bench as B
+    from sportvu.eval import FRAME_MARGIN_PX
+    from sportvu.sync import MIRRORS, apply_mirror
+    from tools import p8_frozen as F
+    from tools import p8_scorecard as S
+    from tools.p8_common import atomic_write
+    from tools.p8_e1_score import window_stats
+    from tools.p8_e1r import check_frames
+    game = check_game(args.game)
+    if os.environ.get("V3_HEAVY_HELD") is None:
+        raise SystemExit(f"{WHO}: run inside the heavy-job lock")
+    r = ref_root()
+    d = r / "resetfix"
+    for g in POOL + ((APART,) if game == APART else ()):      # nothing is scored until every pool truth is final
+        why = truth_pin_problems(_read(d / f"truth_pin__{g}.json"), truth_files(r, g))
+        if why:
+            raise SystemExit(f"{WHO}: truth of {g}: {why}")
+    if _read(d / f"truth_pin__{game}.json")["status"] != "use":
+        raise SystemExit(f"{WHO}: {game}'s truth is not in use (tools.p8_truth_accept); it is not scored")
+    plan = _read(d / f"plan__{game}.json")
+    eq = _read(d / f"equiv__{game}.json")
+    if not eq or not eq.get("passes"):
+        raise SystemExit(f"{WHO}: {game}: the equivalence and prefix checks have not passed")
+    built = set(plan["reset_windows"])
+    g = F.game_of(game)
+    P = F.install_paths()
+    S.load_fixed_constants()
+    mirror = F.mirror_of(P, game)
+    fx, fy = MIRRORS[mirror]
+    mom = S.Moments(json.loads((P["sportvu"] / f"{g['sportvu']}_moments.json").read_text())["moments"])
+    events = S.pbp_events(g["sportvu"])
+    refs = B.References()
+    base, arm = P["builds"] / BASE_DIR, P["builds"] / arm_dir(game)
+    t0 = time.time()
+    wins, extra, cache_s = {}, {}, {}
+    for w in F.label_windows(P, game):
+        s = w["window"]
+        if s in plan["gate_empty_windows"] or s not in plan["baseline_resets"]:
+            continue
+        dirs = {"r23": base, "new": arm if s in built else base}
+        bad = check_base_records(_read(base / f"{s}_detector.json"), _read(base / f"{s}_device.json"))
+        if s in built:
+            ident = _read(arm / f"{s}_identity.json")["identity"]
+            bad += check_arm_records(_read(arm / f"{s}_detector.json"), _read(arm / f"{s}_device.json"),
+                                     _read(arm / f"{s}_resetfix.json"), int(ident.get("camera_cut_resets") or 0))
+        sides = {k: _read(dd / f"{s}_frames.json") for k, dd in dirs.items()}
+        bad += check_frames(sides["r23"], sides["new"])
+        if {f: sha256_file(base / f"{s}_{f}.json") for f in SIDE_FILES} != plan["baseline_sha256"][s]:
+            bad.append("baseline files changed since the plan")
+        if bad:
+            raise SystemExit(f"{WHO}: {s}: {bad}")
+        had_cache = (P["cache"] / "scorecard" / f"{s}.json").exists()
+        tc = time.time()
+        pair, scored_f = {}, {}
+        for k, dd in dirs.items():
+            full = S.score_window(P, game, w, dd, "camera", mom, mirror, refs, events)
+            if "skipped" in full[0]:
+                raise SystemExit(f"{WHO}: {s} {k} skipped: {full[0]['skipped']}")
+            scored_f[k] = {int(o["f"]) for o in full[1]}
+            pair[k] = window_stats(full[0])
+        if not had_cache:
+            cache_s[s] = round(time.time() - tc, 1)
+        if pair["r23"]["in_frame"] != pair["new"]["in_frame"]:
+            raise SystemExit(f"{WHO}: {s}: in-frame players differ between arms")
+        truth, _ = S.truth_rows(P, game, w, "camera", mom.index, mirror)
+        cap = cv2.VideoCapture(str(P["label_build"] / f"{s}.mp4"))
+        wd, hd = int(cap.get(3)), int(cap.get(4))
+        cap.release()
+        ex = {}
+        for k in dirs:
+            srow = {int(x["frame"]): x for x in sides[k]["frames"]}
+            c = {"far": 0, "missed_1to1": 0, "duplicates": 0}
+            for row in truth:
+                x = srow.get(int(row["frame"]))
+                if x is None or int(row["frame"]) not in scored_f[k]:
+                    continue
+                sv = apply_mirror(mom.index.q[row["q"]]["xy"][row["moment"]], fx, fy)
+                Ht = np.asarray(row["H_truth"], np.float64).reshape(3, 3)
+                px = cv2.perspectiveTransform(np.asarray(sv, np.float32).reshape(-1, 1, 2), np.linalg.inv(Ht)).reshape(-1, 2)
+                m = FRAME_MARGIN_PX
+                inside = (px[:, 0] > m) & (px[:, 0] < wd - m) & (px[:, 1] > m) & (px[:, 1] < hd - m)
+                feet = np.array([b["foot_stab"] for b in x["boxes"]], np.float32).reshape(-1, 1, 2)
+                ft = cv2.perspectiveTransform(feet, Ht).reshape(-1, 2).astype(np.float64) if len(feet) else np.zeros((0, 2))
+                _add(c, frame_extra(ft, sv, inside))
+            pair[k].update(c)
+            ex[k] = c
+        wins[s] = pair
+        extra[s] = {"built": s in built, **ex}
+    out = {"game": game, "truth": "camera (pinned, reset-fix label builds)", "truth_pin": _read(d / f"truth_pin__{game}.json"),
+           "platform": "detector cpu (D175)", "arms": {"r23": BASE_DIR, "new": arm_dir(game)},
+           "built_windows": sorted(built), "resolved_to_baseline": sorted(set(wins) - built),
+           "expected_windows": sorted(plan["baseline_resets"]), "scored_windows": sorted(wins),
+           "gate_empty_windows": plan["gate_empty_windows"], "windows": wins, "cache_seconds": cache_s,
+           "seconds": round(time.time() - t0, 1)}
+    atomic_write(d / f"score__{game}.json", json.dumps(out))
+    print(json.dumps({k: v for k, v in out.items() if k not in ("windows", "expected_windows", "scored_windows",
+                                                               "truth_pin")}, indent=1))
+    return out
+
+
+# report (system python)
+def unit_eval(wins: list, picks_w: np.ndarray, picks_g: np.ndarray | None = None, groups: list | None = None) -> dict:
+    """Point differences and intervals of every row for one unit: the registered rows through tools.p8_e1_score's
+    rows, diffs and boot (window interval; game interval when groups are given), and the detection and one-to-one
+    rows through ratio_interval with the same resample indices."""
+    from tools.p8_e1_score import boot, diffs, rows
+    r = rows(wins)
+    point = diffs(wins)
+    wiv = boot({i: [w] for i, w in enumerate(wins)})
+    giv = boot({i: g for i, g in enumerate(groups)}) if groups else None
+    for row, num in (("detection_rate", "far"), (ONE_TO_ONE_ROW, "missed_1to1")):
+        bn = [w["r23"][num] for w in wins]; nn = [w["new"][num] for w in wins]
+        bd = [w["r23"]["in_frame"] for w in wins]; nd = [w["new"]["in_frame"] for w in wins]
+        point[row] = sum(nn) / sum(nd) - sum(bn) / sum(bd)
+        r[row] = (sum(bn) / sum(bd), sum(nn) / sum(nd))
+        wiv[row] = ratio_interval(picks_w, bn, bd, nn, nd)
+        if groups:
+            G = [[sum(w[s][k] for w in grp) for s in ("r23", "new") for k in (num, "in_frame")] for grp in groups]
+            giv[row] = ratio_interval(picks_g, [x[0] for x in G], [x[1] for x in G], [x[2] for x in G], [x[3] for x in G])
+    return {"rows": r, "point": point, "window_interval": wiv, "game_interval": giv}
+
+
+def report_only(wins: list) -> dict:
+    """Boxes, duplicates and ghosts per in-frame player, and the position error of players matched only in the arm."""
+    out = {}
+    for side in ("r23", "new"):
+        n = sum(w[side]["in_frame"] for w in wins) or None
+        out[side] = None if n is None else {"boxes_per_in_frame": sum(w[side]["nr_boxes"] for w in wins) / n,
+                                            "duplicates_per_in_frame": sum(w[side]["duplicates"] for w in wins) / n,
+                                            "ghosts_per_in_frame": sum(w[side]["nr_ghosts"] for w in wins) / n}
+    only = [w["new"]["matched"][k][0] for w in wins for k in w["new"]["matched"].keys() - w["r23"]["matched"].keys()]
+    both = [w["r23"]["matched"][k][0] for w in wins for k in w["new"]["matched"].keys() & w["r23"]["matched"].keys()]
+    q = lambda a: None if not a else {"n": len(a), "p50": float(np.percentile(a, 50)), "p90": float(np.percentile(a, 90))}
+    out["arm_only_matches"] = q(only)
+    out["matched_in_both_baseline_error"] = q(both)
+    out["matched_only_in_baseline"] = sum(len(w["r23"]["matched"].keys() - w["new"]["matched"].keys()) for w in wins)
+    return out
+
+
+def cmd_report(args) -> dict:
+    from tools.p8_common import REPO, atomic_write
+    from tools.p8_placement import rnd
+    r = ref_root()
+    d = r / "resetfix"
+    files = {g: _read(d / f"score__{g}.json") for g in GAMES}
+    pins = {g: _read(d / f"truth_pin__{g}.json") for g in POOL}
+    if any(p is None for p in pins.values()):
+        raise SystemExit(f"{WHO}: not every pool game's truth is pinned; nothing is reported")
+    have = [g for g in POOL if files[g] is not None]
+    unscored = [g for g in POOL if files[g] is None]
+    if any(pins[g]["status"] == "use" for g in unscored):
+        raise SystemExit(f"{WHO}: pool games with truth in use are not scored yet: {unscored}")
+    if len(have) < 2:
+        raise SystemExit(f"{WHO}: fewer than two pool games have truth in use ({have}); no pool")
+    out = {"per_game": {}, "pool": None, "hou": None, "partial": bool(unscored), "not_scored": unscored}
+    per = {}
+    for g in have:
+        wins = list(files[g]["windows"].values())
+        ev = unit_eval(wins, resample_picks(len(wins), 2000, 0))
+        cov = ev["rows"]["coverage"]
+        per[g] = v2_verdict(ev["point"], ev["window_interval"], cov, None, improve_rows=(), one_to_one=False)
+        out["per_game"][g] = {**ev, "verdict": per[g], "report_only": report_only(wins)}
+    groups = [list(files[g]["windows"].values()) for g in have]
+    allw = [w for grp in groups for w in grp]
+    ev = unit_eval(allw, resample_picks(len(allw), 2000, 0), resample_picks(len(groups), 2000, 0), groups)
+    pooled = v2_verdict(ev["point"], ev["window_interval"], ev["rows"]["coverage"], ev["game_interval"])
+    pv = pool_verdict(pooled, per)
+    if unscored:                                   # a partial pool never passes (as E1R)
+        pv = {**pv, "pass": False, "partial": True}
+    miv = ev["window_interval"]["missed_rate"]
+    label = None
+    if pv["pass"]:
+        label = "the fix reduces missed players on the pool" if (miv and miv[1] < 0) else \
+            "the fix does not harm and points to fewer misses"
+    out["pool"] = {**ev, "verdict": pv, "pooled_verdict": pooled, "label": label, "report_only": report_only(allw)}
+    if files[APART] is not None:
+        wins = list(files[APART]["windows"].values())
+        evh = unit_eval(wins, resample_picks(len(wins), 2000, 0))
+        vh = v2_verdict(evh["point"], evh["window_interval"], evh["rows"]["coverage"], None,
+                        improve_rows=("missed_rate",), one_to_one=False)
+        out["hou"] = {**evh, "verdict": vh, "report_only": report_only(wins),
+                      "label": "the fix holds on the new arena" if vh["pass"] else
+                      "the pool result does not carry to the new arena"}
+    out["resets"] = {g: {w: {"baseline": _read(d / f"plan__{g}.json")["baseline_resets"][w],
+                             "arm": (_read(d / f"equiv__{g}.json") or {}).get("reset_windows", {}).get(w, {})
+                             .get("resets_arm")} for w in _read(d / f"plan__{g}.json")["reset_windows"]}
+                     for g in GAMES if files[g] is not None}
+    res = rnd(out)
+    atomic_write(d / "report.json", json.dumps(res, indent=1))
+    atomic_write(REPO / "reports" / "research" / "p8_resetfix.json", json.dumps(res, indent=1))
+    print(json.dumps({"pool": {"pass": pv["pass"], "failing": pv["failing"], "label": label},
+                      "hou": None if out["hou"] is None else out["hou"]["verdict"]["pass"]}, indent=1))
+    return res
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_resetfix")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -594,9 +1270,22 @@ def main(argv=None) -> None:
     m = sub.add_parser("simulate")
     m.add_argument("--draws", type=int, default=SIM_DRAWS)
     m.add_argument("--boot", type=int, default=2000)
+    for name in ("plan", "build", "equiv", "pin-truth", "score"):
+        x = sub.add_parser(name)
+        x.add_argument("--game", required=True)
+        if name == "build":
+            x.add_argument("--smoke", action="store_true")
+    sc = sub.add_parser("smoke-check")
+    sc.add_argument("--workspace", default=None, help="the P8 workspace holding the a3input record (default: work)")
+    sub.add_parser("report")
     a = ap.parse_args(argv)
-    {"estimate": cmd_estimate, "truthreset": cmd_truthreset, "simulate": cmd_simulate}[a.cmd](a)
+    {"estimate": cmd_estimate, "truthreset": cmd_truthreset, "simulate": cmd_simulate, "plan": cmd_plan,
+     "build": cmd_build, "equiv": cmd_equiv, "pin-truth": cmd_pin_truth, "score": cmd_score,
+     "smoke-check": cmd_smoke_check, "report": cmd_report}[a.cmd](a)
 
 
 if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "child":
+        sys.exit(child(sys.argv[2:]))
     main()
