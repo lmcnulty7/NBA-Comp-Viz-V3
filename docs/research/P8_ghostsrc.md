@@ -48,3 +48,40 @@ them too); the thresholds used (camera_f top decile, wide bottom decile).
 A class holding at least 0.30 of the after-reset ghosts on gsw_cha_2016, or pooled, is named as the next arm with
 what it leads to (the table above), together with its collateral. No class is acted on here; any arm is its own
 registered design. If no class reaches 0.30, the study says the ghosts are spread and names the largest class.
+
+## Result (2026-11-26, stored files, no lock, 11 s)
+
+Thresholds: camera_f top decile 3,013, 3,326 and 3,616 (gsw_cha_2016, gsw_bkn_2015, gsw_sac_2015); wide score bottom
+decile 0.947, 0.932, 0.928. SportVU x runs -4.1 to 94.2 ft and y 0.5 to 51.4 ft on gsw_cha_2016's scored frames, so
+the court rule's frame is right. No after-reset ghost needed H_truth for class B (every such row had an accepted H).
+
+After-reset r23 ghosts (the forecasts' population), by class:
+
+| game | ghosts | A, not a standard live view | B, off court | C, referee-like | D near (3 to 6 ft) | D far (over 6 ft) |
+|---|---|---|---|---|---|---|
+| gsw_cha_2016 | 73 | 28 (0.38; all a3, within 1 s after a cut) | 0 | 7 (0.10) | 29 (0.40) | 9 (0.12) |
+| gsw_bkn_2015 | 162 | 20 (0.12; a1 18, a2 19 by flag) | 0 | 11 (0.07) | 109 (0.67) | 22 (0.14) |
+| gsw_sac_2015 | 62 | 21 (0.34; all a2, marginal wide) | 0 | 4 (0.06) | 34 (0.55) | 3 (0.05) |
+| pooled | 297 | 69 (0.23) | 0 | 22 (0.07) | 172 (0.58) | 34 (0.11) |
+
+Comparison (report only): the same r23 ghosts before the first reset (9,111 pooled) split A 0.23, B under 0.01, C
+0.09, D near 0.55, D far 0.13; the sidecar's non-referee ghosts after a reset (80 pooled) split A 0.14, D near 0.78,
+D far 0.09. Collateral after a reset (r23 boxes within 3 ft of a player that carry the flag): A 10 of 81 on
+gsw_cha_2016, 133 of 975 on gsw_bkn_2015, 85 of 361 on gsw_sac_2015; B none; C 0, 17, 6.
+
+**Reading by the registered rule.** Two classes reach 0.30: A on gsw_cha_2016 (0.38) and D (0.52 on gsw_cha_2016,
+0.69 pooled).
+- A leads to a frame filter arm. On gsw_cha_2016 it is entirely a3: boxes in the first second after a camera cut. A
+  filter on a3 would have dropped 28 of its 73 after-reset ghosts and 10 of its 81 good boxes there. On the other two
+  games A is zoom (gsw_bkn_2015) and marginal wide (gsw_sac_2015), not cuts, so one frame rule does not cover all three.
+- D leads to no filter arm without a further check. Most of it is D near: boxes 3 to 6 ft from the nearest player.
+  Those are likely real players whose box foot lies 3 to 6 ft off: the scorer then counts the player as missed (no foot
+  within 2.5 ft) and the box as a ghost, so the net-error row counts one placement error twice. The further check is
+  to measure that pairing directly.
+- B is empty: none of these ghosts stands off court, so a court-region filter would not help. C is small (0.07).
+
+**Limits.** The after-reset populations are small (73, 162 and 62 boxes, a handful of windows per game), so the
+shares are rough. The corpus boxes use the raw bottom centre, not the build's stabilised foot, which can push a real
+player's box past 3 ft more often than the build would. After-reset ghosts look much like ordinary r23 ghosts (the
+before-reset split is close), apart from gsw_cha_2016's cut-adjacent share. Post hoc and unregistered: the D near
+reading (a placement error counted twice) is an explanation, not a measurement.

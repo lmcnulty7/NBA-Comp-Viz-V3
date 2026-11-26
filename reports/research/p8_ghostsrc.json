@@ -1,0 +1,421 @@
+{
+ "what": "Ghost source of r23 boxes after a reset (docs/research/P8_ghostsrc.md); report only",
+ "games": {
+  "gsw_cha_2016": {
+   "ours_after": {
+    "n": 73,
+    "labels": {
+     "D_far": 9,
+     "D_near": 29,
+     "C": 7,
+     "A": 28
+    },
+    "classes": {
+     "A": 28,
+     "B": 0,
+     "C": 7,
+     "D": 38
+    },
+    "shares": {
+     "A": 0.38356,
+     "B": 0.0,
+     "C": 0.09589,
+     "D": 0.52055
+    },
+    "flags": {
+     "a1": 0,
+     "a2": 0,
+     "a3": 28,
+     "c": 8,
+     "b": 0
+    }
+   },
+   "ours_before": {
+    "n": 3304,
+    "labels": {
+     "A": 715,
+     "D_near": 1871,
+     "C": 229,
+     "D_far": 474,
+     "B_far": 2,
+     "B_near": 13
+    },
+    "classes": {
+     "A": 715,
+     "B": 15,
+     "C": 229,
+     "D": 2345
+    },
+    "shares": {
+     "A": 0.2164,
+     "B": 0.00454,
+     "C": 0.06931,
+     "D": 0.70975
+    },
+    "flags": {
+     "a1": 340,
+     "a2": 329,
+     "a3": 179,
+     "c": 291,
+     "b": 25
+    }
+   },
+   "sidecar_after": {
+    "n": 11,
+    "labels": {
+     "D_near": 7,
+     "D_far": 1,
+     "A": 3
+    },
+    "classes": {
+     "A": 3,
+     "B": 0,
+     "C": 0,
+     "D": 8
+    },
+    "shares": {
+     "A": 0.27273,
+     "B": 0.0,
+     "C": 0.0,
+     "D": 0.72727
+    },
+    "flags": {
+     "a1": 0,
+     "a2": 0,
+     "a3": 3,
+     "c": 0,
+     "b": 0
+    }
+   },
+   "ours_after_not_ghost": {
+    "n": 81,
+    "with_flag": {
+     "A": 10,
+     "B": 0,
+     "C": 0
+    }
+   },
+   "meta": {
+    "zoom_threshold_camera_f": 3013.13931,
+    "wide_threshold_bottom_decile": 0.94672,
+    "frames": 1353,
+    "after_reset_ghosts_on_truth_h": 0
+   }
+  },
+  "gsw_bkn_2015": {
+   "ours_after": {
+    "n": 162,
+    "labels": {
+     "D_near": 109,
+     "C": 11,
+     "D_far": 22,
+     "A": 20
+    },
+    "classes": {
+     "A": 20,
+     "B": 0,
+     "C": 11,
+     "D": 131
+    },
+    "shares": {
+     "A": 0.12346,
+     "B": 0.0,
+     "C": 0.0679,
+     "D": 0.80864
+    },
+    "flags": {
+     "a1": 18,
+     "a2": 19,
+     "a3": 0,
+     "c": 11,
+     "b": 2
+    }
+   },
+   "ours_before": {
+    "n": 2713,
+    "labels": {
+     "D_near": 1505,
+     "C": 236,
+     "A": 660,
+     "D_far": 309,
+     "B_near": 3
+    },
+    "classes": {
+     "A": 660,
+     "B": 3,
+     "C": 236,
+     "D": 1814
+    },
+    "shares": {
+     "A": 0.24327,
+     "B": 0.00111,
+     "C": 0.08699,
+     "D": 0.66863
+    },
+    "flags": {
+     "a1": 400,
+     "a2": 264,
+     "a3": 103,
+     "c": 307,
+     "b": 8
+    }
+   },
+   "sidecar_after": {
+    "n": 53,
+    "labels": {
+     "D_far": 5,
+     "D_near": 46,
+     "A": 2
+    },
+    "classes": {
+     "A": 2,
+     "B": 0,
+     "C": 0,
+     "D": 51
+    },
+    "shares": {
+     "A": 0.03774,
+     "B": 0.0,
+     "C": 0.0,
+     "D": 0.96226
+    },
+    "flags": {
+     "a1": 0,
+     "a2": 2,
+     "a3": 0,
+     "c": 0,
+     "b": 1
+    }
+   },
+   "ours_after_not_ghost": {
+    "n": 975,
+    "with_flag": {
+     "A": 133,
+     "B": 0,
+     "C": 17
+    }
+   },
+   "meta": {
+    "zoom_threshold_camera_f": 3326.2434,
+    "wide_threshold_bottom_decile": 0.93202,
+    "frames": 2073,
+    "after_reset_ghosts_on_truth_h": 0
+   }
+  },
+  "gsw_sac_2015": {
+   "ours_after": {
+    "n": 62,
+    "labels": {
+     "D_near": 34,
+     "D_far": 3,
+     "A": 21,
+     "C": 4
+    },
+    "classes": {
+     "A": 21,
+     "B": 0,
+     "C": 4,
+     "D": 37
+    },
+    "shares": {
+     "A": 0.33871,
+     "B": 0.0,
+     "C": 0.06452,
+     "D": 0.59677
+    },
+    "flags": {
+     "a1": 0,
+     "a2": 21,
+     "a3": 0,
+     "c": 6,
+     "b": 0
+    }
+   },
+   "ours_before": {
+    "n": 3094,
+    "labels": {
+     "D_near": 1604,
+     "D_far": 399,
+     "C": 341,
+     "A": 737,
+     "B_near": 13
+    },
+    "classes": {
+     "A": 737,
+     "B": 13,
+     "C": 341,
+     "D": 2003
+    },
+    "shares": {
+     "A": 0.2382,
+     "B": 0.0042,
+     "C": 0.11021,
+     "D": 0.64738
+    },
+    "flags": {
+     "a1": 375,
+     "a2": 308,
+     "a3": 179,
+     "c": 473,
+     "b": 17
+    }
+   },
+   "sidecar_after": {
+    "n": 16,
+    "labels": {
+     "A": 6,
+     "D_near": 9,
+     "D_far": 1
+    },
+    "classes": {
+     "A": 6,
+     "B": 0,
+     "C": 0,
+     "D": 10
+    },
+    "shares": {
+     "A": 0.375,
+     "B": 0.0,
+     "C": 0.0,
+     "D": 0.625
+    },
+    "flags": {
+     "a1": 0,
+     "a2": 6,
+     "a3": 0,
+     "c": 0,
+     "b": 0
+    }
+   },
+   "ours_after_not_ghost": {
+    "n": 361,
+    "with_flag": {
+     "A": 85,
+     "B": 0,
+     "C": 6
+    }
+   },
+   "meta": {
+    "zoom_threshold_camera_f": 3616.08848,
+    "wide_threshold_bottom_decile": 0.928,
+    "frames": 2151,
+    "after_reset_ghosts_on_truth_h": 0
+   }
+  }
+ },
+ "pooled": {
+  "ours_after": {
+   "n": 297,
+   "labels": {
+    "D_far": 34,
+    "D_near": 172,
+    "C": 22,
+    "A": 69
+   },
+   "classes": {
+    "A": 69,
+    "B": 0,
+    "C": 22,
+    "D": 206
+   },
+   "shares": {
+    "A": 0.23232,
+    "B": 0.0,
+    "C": 0.07407,
+    "D": 0.6936
+   },
+   "flags": {
+    "a1": 18,
+    "a2": 40,
+    "a3": 28,
+    "c": 25,
+    "b": 2
+   }
+  },
+  "ours_before": {
+   "n": 9111,
+   "labels": {
+    "A": 2112,
+    "D_near": 4980,
+    "C": 806,
+    "D_far": 1182,
+    "B_far": 2,
+    "B_near": 29
+   },
+   "classes": {
+    "A": 2112,
+    "B": 31,
+    "C": 806,
+    "D": 6162
+   },
+   "shares": {
+    "A": 0.23181,
+    "B": 0.0034,
+    "C": 0.08846,
+    "D": 0.67633
+   },
+   "flags": {
+    "a1": 1115,
+    "a2": 901,
+    "a3": 461,
+    "c": 1071,
+    "b": 50
+   }
+  },
+  "sidecar_after": {
+   "n": 80,
+   "labels": {
+    "D_near": 62,
+    "D_far": 7,
+    "A": 11
+   },
+   "classes": {
+    "A": 11,
+    "B": 0,
+    "C": 0,
+    "D": 69
+   },
+   "shares": {
+    "A": 0.1375,
+    "B": 0.0,
+    "C": 0.0,
+    "D": 0.8625
+   },
+   "flags": {
+    "a1": 0,
+    "a2": 8,
+    "a3": 3,
+    "c": 0,
+    "b": 1
+   }
+  },
+  "ours_after_not_ghost": {
+   "n": 1417,
+   "with_flag": {
+    "A": 228,
+    "B": 0,
+    "C": 23
+   }
+  }
+ },
+ "named_next": [
+  {
+   "class": "A",
+   "gsw_cha_2016": 0.38356,
+   "pooled": 0.23232,
+   "leads_to": "a frame filter arm (zoom, marginal wide score or time since a cut), its own registered arm"
+  },
+  {
+   "class": "D",
+   "gsw_cha_2016": 0.52055,
+   "pooled": 0.6936,
+   "leads_to": "no filter arm without a further check: near ones bear on foot placement, far ones on detector false positives on court or truth and sync error"
+  }
+ ],
+ "leads_to": {
+  "A": "a frame filter arm (zoom, marginal wide score or time since a cut), its own registered arm",
+  "B": "a court-region filter arm (drop boxes whose foot lies off court under the build's H), its own registered arm, possibly combined with the reset fix",
+  "C": "a referee-handling arm (the referee class or the scorer's IoU rule), its own registered arm",
+  "D": "no filter arm without a further check: near ones bear on foot placement, far ones on detector false positives on court or truth and sync error"
+ }
+}
