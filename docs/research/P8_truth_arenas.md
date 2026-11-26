@@ -311,7 +311,8 @@ no fallback. Report only, not a resolution: the leading mirror, identity, is the
 Lucien's decision of 2026-11-25), Mac development camera truth covers two non-sealed arenas, as before P8's arena
 item: GSW (gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015 in use; gsw_ind_2016 apart under D98) and HOU (hou_cle_2016).
 All of it comes from MPS label builds; the platform-mix test of section 0 (gsw_cha_2016 rebuilt on the CPU detector)
-is the next item. (Update after section 15: that test read MOVED; see there.) Cross-arena work at Level 1 step 7 has one non-GSW arena, HOU, until another arena gets truth by
+is the next item.
+(Update after section 15: that test read MOVED; see there.) Cross-arena work at Level 1 step 7 has one non-GSW arena, HOU, until another arena gets truth by
 the registered route.
 
 ## 15. Result (2026-11-26): the gsw_cha_2016 platform-mix test of section 0, MOVED
@@ -340,10 +341,12 @@ gsw_sac_2015 and hou_cle_2016 on the CPU detector (about 2.5, 2.3 and 2.9 lock h
 rates; this run suggests adding about 15 percent) before any cross-arena tuning. gsw_ind_2016 stays apart (D98).
 Nothing registered is rescored.
 
-**What this means for earlier results.** Every analysis below scored on the MPS camera truth of the pool games
-(gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015; hou_cle_2016 as a check), all from MPS label builds: E1R's scores
-(P8_E1R.md), P8_placement.md steps 1 and 1b, P8_footbias.md, P8_footpos.md, P8_outpos.md, P8_detrow.md,
-P8_buildloss.md, P8_trackreset.md and P8_a3align.md. Their numbers stand as recorded and nothing is rescored. Any
+**What this means for earlier results.** Every analysis scored on the Mac MPS camera truth of the pool games
+(gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015; hou_cle_2016 as a check where used), all from MPS label builds,
+among them: the registered r23 baseline rows (P8_baseline.md), P8_E1.md, P8_E1B.md, E1R's scores (P8_E1R.md),
+P8_E7a.md, P8_truth_v2.md, P8_court_truth.md, P8_teachers.md source 2, P8_step0_trackB.md, P8_placement.md steps 1
+and 1b, P8_footbias.md, P8_footpos.md, P8_outpos.md, P8_detrow.md, P8_buildloss.md, P8_trackreset.md and
+P8_a3align.md. Their numbers stand as recorded and nothing is rescored. Any
 conclusion that depends on the GSW or HOU camera truth is provisional until those games have CPU-detector truth; a
 rescore needs its own registration. The gsw_cha_2016 truth in use stays the MPS truth for now: the CPU truth has
 not passed section 5's acceptance (check C needs an r23 rebuild in the reference root, not yet run).
