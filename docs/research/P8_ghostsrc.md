@@ -111,3 +111,33 @@ unscaled); the part of it from added pairs, 2 (pairs(r23) - pairs(sidecar)) / in
 (that part over dE, when dE is above zero). Reading (fixed now): on gsw_cha_2016, if the explained share is at least
 0.5 under both r23 sets, the forecast's net-error rise is mostly placement counted twice; if under 0.5 under both, it
 is mostly not; otherwise the two foot choices disagree and both are reported.
+
+### Pairing check result (2026-11-26, stored files, no lock, 9 s)
+
+Record: reports/research/p8_ghostsrc_pairs.json. After the r23 build's first reset:
+
+| game | in-frame players | set | missed | ghosts | pairs (6.0 ft) | pairs (4.5 ft) | E |
+|---|---|---|---|---|---|---|---|
+| gsw_cha_2016 | 149 | sidecar | 107 | 8 | 7 | 5 | 0.772 |
+| | | r23 raw | 79 | 73 | 31 | 17 | 1.020 |
+| | | r23 stab | 79 | 70 | 29 | 18 | 1.000 |
+| gsw_bkn_2015 | 1,188 | sidecar | 707 | 49 | 42 | 30 | 0.636 |
+| | | r23 raw | 269 | 162 | 93 | 76 | 0.363 |
+| | | r23 stab | 251 | 162 | 93 | 71 | 0.348 |
+| gsw_sac_2015 | 447 | sidecar | 296 | 14 | 13 | 4 | 0.694 |
+| | | r23 raw | 118 | 62 | 45 | 30 | 0.403 |
+| | | r23 stab | 109 | 59 | 40 | 22 | 0.376 |
+
+On gsw_cha_2016 the full fix (f = 1, unscaled) raises E by +0.248 (raw) or +0.228 (stab); the added pairs alone account
+for +0.322 and +0.295, explained shares 1.30 and 1.29. **Reading by the registered rule: mostly placement counted
+twice.** Without the added double counts, the r23 boxes would lower gsw_cha_2016's net error after a reset (by about
+0.07 under both foot choices). On gsw_bkn_2015 and gsw_sac_2015 E falls with the fix (-0.27 to -0.32), so no share is
+computed.
+
+Context, report only: before the first reset, pairs are common in every set (sidecar 1,670 of 2,336 ghosts on
+gsw_cha_2016, 1,547 of 2,239 on gsw_bkn_2015, 1,571 of 2,250 on gsw_sac_2015, about 0.7 of all ghosts), so the
+net-error row counts many placement errors twice throughout, not only after a reset.
+
+Limits: gsw_cha_2016's after-reset population is 149 in-frame players in a few windows; the shares rest on 24 added
+pairs. The pairing is one-to-one by distance within 6 ft and does not prove that a paired box is that player's box.
+This explains the version 2.3 forecast; it changes no rule (P8_resetfix.md section 18 stands).
