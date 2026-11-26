@@ -670,3 +670,46 @@ the label build's, players against frames). After scaling, the share of in-frame
 a first reset in the r23 builds. So the scaling overshoots on gsw_bkn_2015 by about 3.5 times and is close on the
 other two; gsw_cha_2016's ghost failure does not depend on the overshoot. A scaling to the processed-frame share is a
 possible sensitivity check; it is not run, since it was not registered.
+
+## 18. Version 2.3 (2026-11-26; the lead's decision, registered before any build or score and before the reruns)
+
+The lead weighed three options after section 17: keep the rule (the fix would be rejected for returning real
+detector boxes, some of them ghosts), widen the ghost margin (arbitrary), or judge a bug fix by net error (chosen).
+Reason: the fix restores what the pipeline was designed to do; the bug suppressed boxes by accident. For Level 2 a
+missed player and a ghost box are two errors that count the same. This is a design change made before any outcome on
+truth, not a fork on outcomes. It replaces sections 14.7 and 16 (A3) where they differ; everything else stands.
+
+**Rule (tools.p8_resetfix.v23_verdict and v23_pool; tested).**
+- Net error E = (missed players + non-referee ghost boxes) / in-frame players: two counts over one denominator
+  (missed as the scorer counts it, ghosts as the ghost row's numerator). Window and game intervals use the same
+  resample indices as tools.p8_e1_score.boot.
+- Pooled: E improves with its window interval wholly below zero; missed improves with its window interval wholly below
+  zero; one-to-one missed improves (point below zero).
+- Bracket guard: on frames both truths accepted, the pooled missed and the pooled E point estimates are below zero.
+- Position p50, p90, near-field bias and team keep their margins (+0.05 ft, +0.10 ft, +0.10 ft, -0.03; bad-side end of
+  the window interval), per game and pooled. Coverage keeps its floor, per game and pooled.
+- Per game (my reading, stated so the re-review can check it): E and missed must not be worse (window interval not
+  wholly above zero); no improvement is required of a single game.
+- Ghosts (the ghost row, per game and pooled) and the detection row are reported with their intervals as a known
+  cost and are not gated. Any claim of "no ghost harm" is withdrawn.
+- Adoption is the pool pass; section 16's correctness-fix branch is superseded.
+- hou_cle_2016 is scored only after a pool pass (as version 2.2), and then judged on its window interval: E and missed
+  improve on the point estimate and are not worse; position, bias and team within their margins; coverage floor.
+- Labels: a pass reads "the fix lowers net error and missed players on the pool; ghosts are reported as a cost",
+  with a note when the bracket's missed interval does not lie wholly below zero.
+
+**Simulation reruns under version 2.3 (stored files, no lock), both registered now.** As section 16 (A3) in every
+other respect (500 draws, seed 0, f uniform on 0.5 to 0.9, q per draw from the game's Beta, the bracket guard taken as
+passing, the centre checked against the real rows, diffs and boot):
+1. Registered scaling: the after-reset counts taken u times, u the under-representation factor of part (a)
+   (`simulate --version 2.3 --scaling under`, record reports/research/p8_resetfix_simulate_v23_under.json).
+2. Sensitivity: u chosen per game so that the after-reset share of in-frame players equals the share of processed
+   frames after a first reset in the r23 builds, u = p (1 - a) / (a (1 - p)) with a the after-reset share of in-frame
+   players and p the after-reset share of processed frames (`--scaling processed`, record
+   p8_resetfix_simulate_v23_processed.json).
+Reported for each: the pass probability, the forecast of the pooled E difference and of its window interval's upper
+end, E by game, missed, and the ghost cost. Neither run decides anything by itself.
+
+**Next work item, named and not run.** After a reset, many of r23's extra boxes are more than 3 ft from every
+SportVU player (about two thirds on gsw_cha_2016, a fifth on the other two). Are they non-court shots that gate v2
+lets through, the bench, or fans? That becomes its own stored-files study, registered after this arm.

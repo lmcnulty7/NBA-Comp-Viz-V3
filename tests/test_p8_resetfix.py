@@ -383,7 +383,8 @@ def test_cmd_report_on_synthetic_scores(tmp_path, monkeypatch):
     monkeypatch.setattr(p8_common, "atomic_write", lambda path, text: written.__setitem__(str(path), text))
     res = R.cmd_report(None)
     assert res["pool"]["verdict"]["pass"] is True and res["hou"]["verdict"]["pass"] is True
-    assert res["pool"]["label"] == "the fix reduces missed players on the pool"
+    assert res["pool"]["label"] == "the fix lowers net error and missed players on the pool; ghosts are reported as a cost"
+    assert res["adoption"]["adopt"] is True and "ghost_cost_pooled" in res["pool"]
     assert res["bracket_common_frames"]["pool"]["verdict"]["pass"] is True
     assert any(k.endswith("p8_resetfix.json") for k in written)
     # a pool game whose truth is in use but not scored stops the report; one whose truth is not in use makes it partial
@@ -572,3 +573,59 @@ def test_report_bracket_guard(tmp_path, monkeypatch):
     assert res["pool"]["verdict"]["pass"] is False
     assert res["bracket_guard"]["pooled_missed_point_below_zero"] is False
     assert res["adoption"]["adopt"] is False and res["pool"]["label"] is None and res["hou"] is None
+
+
+# ── version 2.3: the net-error rule ───────────────────────────────────────────────────────────────────────────────
+def _v23_good():
+    point = {"net_error_rate": -0.02, "missed_rate": -0.03, "missed_1to1_rate": -0.02, "ghost_rate": 0.02,
+             "detection_rate": -0.01, "position_p50_ft": 0.0, "position_p90_ft": 0.02, "nearfield_bias_ft": 0.0,
+             "team_accuracy": 0.0}
+    wiv = {"net_error_rate": [-0.04, -0.001], "missed_rate": [-0.05, -0.01], "ghost_rate": [0.01, 0.05],
+           "detection_rate": [-0.02, 0.0], "position_p50_ft": [-0.03, 0.04], "position_p90_ft": [-0.05, 0.09],
+           "nearfield_bias_ft": [-0.05, 0.05], "team_accuracy": [-0.02, 0.02]}
+    return point, wiv
+
+
+def test_v23_verdict_ghosts_reported_not_gated():
+    point, wiv = _v23_good()
+    v = R.v23_verdict(point, wiv, (0.8, 0.8), "pool")
+    assert v["pass"] and v["rows"]["ghost_rate"]["gated"] is False         # a ghost rise far over +0.010 passes
+    for row, iv in (("net_error_rate", [-0.04, 0.001]), ("missed_rate", [-0.05, 0.0])):
+        w = dict(wiv); w[row] = iv
+        assert not R.v23_verdict(point, w, (0.8, 0.8), "pool")["pass"]       # pooled: interval wholly below zero
+        assert R.v23_verdict(point, w, (0.8, 0.8), "game")["pass"]           # a game: only not worse
+    w = dict(wiv); w["net_error_rate"] = [0.001, 0.02]
+    assert not R.v23_verdict(point, w, (0.8, 0.8), "game")["pass"]
+    p = dict(point); p["missed_1to1_rate"] = 0.0
+    assert not R.v23_verdict(p, wiv, (0.8, 0.8), "pool")["pass"] and R.v23_verdict(p, wiv, (0.8, 0.8), "game")["pass"]
+    for row, iv in (("position_p90_ft", [0.0, 0.11]), ("team_accuracy", [-0.031, 0.0])):
+        w = dict(wiv); w[row] = iv
+        assert not R.v23_verdict(point, w, (0.8, 0.8), "game")["pass"]
+    p = dict(point); p["missed_rate"] = 0.001
+    w = dict(wiv); w["missed_rate"] = [-0.01, 0.01]
+    assert not R.v23_verdict(p, w, (0.8, 0.8), "hou")["pass"]                # hou: missed must improve
+
+
+def test_v23_pool_and_bracket_guard():
+    point, wiv = _v23_good()
+    ok = R.v23_verdict(point, wiv, (0.8, 0.8), "pool")
+    game = R.v23_verdict(point, wiv, (0.8, 0.8), "game")
+    good = {"missed_rate": -0.01, "net_error_rate": -0.005}
+    assert R.v23_pool(ok, {"a": game}, good)["pass"]
+    assert not R.v23_pool(ok, {"a": game}, {"missed_rate": -0.01, "net_error_rate": 0.001})["pass"]
+    assert not R.v23_pool(ok, {"a": game}, None)["pass"]
+    assert not R.v23_pool(ok, {"a": game}, good, partial=True)["pass"]
+    w = dict(wiv); w["position_p50_ft"] = [0.0, 0.2]
+    v = R.v23_pool(ok, {"a": R.v23_verdict(point, w, (0.8, 0.8), "game")}, good)
+    assert not v["pass"] and "a:position_p50_ft" in v["failing"]
+
+
+def test_net_error_rows_in_unit_eval():
+    rng = np.random.default_rng(7)
+    wins = []
+    for _ in range(6):
+        m = {"0:0": [float(rng.random()), 0.1, "near"]}
+        wins.append({"r23": _win(30, 10, 32, 5, 90, m), "new": _win(26, 8, 28, 7, 95, dict(m))})
+    ev = R.unit_eval(wins, R.resample_picks(6, 100, 0), R.resample_picks(2, 100, 0), [wins[:3], wins[3:]])
+    assert abs(ev["point"]["net_error_rate"] - ((26 + 7) - (30 + 5)) / 100) < 1e-12
+    assert ev["game_interval"]["net_error_rate"] is not None

@@ -377,6 +377,64 @@ def adoption(pv: dict, pooled: dict, bracket_ok: bool) -> dict:
     return {"adopt": False, "kind": None}
 
 
+# ── version 2.3: the net-error rule (the lead's decision, registered before any build or score) ──────────────────
+NET_ROW = "net_error_rate"           # (missed players + non-referee ghost boxes) / in-frame players
+MARGINS_V23 = {k: v for k, v in MARGINS.items() if k != "ghost_rate"}
+REPORTED_V23 = ("ghost_rate", "detection_rate")
+
+
+def v23_verdict(point: dict, window_iv: dict, coverage: tuple, mode: str) -> dict:
+    """mode "pool": net error and missed improve with the window interval wholly below zero, one-to-one missed improves;
+    mode "game": net error and missed not worse (window interval not wholly above zero); mode "hou": net error and
+    missed improve on the point estimate and are not worse. Every mode: position p50, p90, bias and team within their
+    margins (bad-side end of the window interval); coverage floor. Ghosts and the detection row are reported, never
+    gated."""
+    rows, ok = {}, True
+    for r in (NET_ROW, "missed_rate"):
+        d, iv = point.get(r), window_iv.get(r)
+        worse = bool(iv) and iv[0] > 0
+        below = bool(iv) and iv[1] < 0
+        improves = d is not None and d < 0
+        p = {"pool": improves and below, "game": d is not None and not worse,
+             "hou": improves and not worse}[mode]
+        rows[r] = {"diff": d, "window_interval": iv, "improves": improves, "interval_below_zero": below,
+                   "worse": worse, "pass": bool(p)}
+        ok &= bool(p)
+    if mode == "pool":
+        d = point.get(ONE_TO_ONE_ROW)
+        p = d is not None and d < 0
+        rows[ONE_TO_ONE_ROW] = {"diff": d, "improves": p, "pass": p}
+        ok &= p
+    for r, (side, m) in MARGINS_V23.items():
+        iv = window_iv.get(r)
+        end = None if not iv else (iv[1] if side == "hi" else iv[0])
+        p = end is not None and (end <= m if side == "hi" else end >= m)
+        rows[r] = {"diff": point.get(r), "window_interval": iv, "bad_end": end, "margin": m, "pass": p}
+        ok &= p
+    for r in REPORTED_V23:
+        rows[r] = {"diff": point.get(r), "window_interval": window_iv.get(r), "gated": False, "pass": True}
+    base, new = coverage
+    cov = new is not None and (new >= COVERAGE_FLOOR if (base or 0) >= COVERAGE_FLOOR else new >= base)
+    rows["coverage"] = {"baseline": base, "arm": new, "floor_holds": cov, "pass": cov}
+    ok &= cov
+    return {"pass": bool(ok), "rows": rows}
+
+
+def v23_pool(pooled: dict, per_game: dict, bracket: dict | None, partial: bool = False) -> dict:
+    """The pool (and adoption, version 2.3) passes when the pooled verdict and every game's pass, the pool is not
+    partial, and the bracket guard holds: on frames both truths accepted, the pooled missed and net-error point
+    estimates are below zero. bracket: {"missed_rate": d, NET_ROW: d} or None (fails)."""
+    guard = bool(bracket) and all(bracket.get(r) is not None and bracket[r] < 0 for r in ("missed_rate", NET_ROW))
+    fails = sorted({f"pool:{r}" for r, x in pooled["rows"].items() if not x["pass"]} |
+                   {f"{g}:{r}" for g, v in per_game.items() for r, x in v["rows"].items() if not x["pass"]})
+    if not guard:
+        fails.append("bracket_guard")
+    if partial:
+        fails.append("partial")
+    ok = pooled["pass"] and all(v["pass"] for v in per_game.values()) and guard and not partial
+    return {"pass": bool(ok), "adopt": bool(ok), "bracket_guard": guard, "failing": fails}
+
+
 def scale_after(st: dict, after: dict, u: float) -> tuple:
     """Version 2.2 simulation: undo the truth thinning of part (a). A window's counts after its first reset are taken
     u times (the game's under-representation factor): the baseline gains (u - 1) times them, and the after-reset
@@ -528,12 +586,13 @@ def sim_arm(base: dict, after: dict, resets: int, f: float, q: float | None, rng
 
 def sim_count_rows(wins: list, picks_w: np.ndarray) -> tuple:
     """Point differences and window intervals of the count rows (missed, detection, ghosts, coverage)."""
-    spec = {"missed_rate": ("missed", "in_frame"), "detection_rate": ("far", "in_frame"),
-            "ghost_rate": ("nr_ghosts", "nr_boxes"), "coverage": ("cov_acc", "cov_live")}
+    spec = {"missed_rate": (("missed",), "in_frame"), "detection_rate": (("far",), "in_frame"),
+            "ghost_rate": (("nr_ghosts",), "nr_boxes"), "coverage": (("cov_acc",), "cov_live"),
+            NET_ROW: (("missed", "nr_ghosts"), "in_frame")}
     point, iv = {}, {}
     for r, (num, den) in spec.items():
-        bn = [w["r23"][num] for w in wins]; bd = [w["r23"][den] for w in wins]
-        nn = [w["new"][num] for w in wins]; nd = [w["new"][den] for w in wins]
+        bn = [sum(w["r23"][k] for k in num) for w in wins]; bd = [w["r23"][den] for w in wins]
+        nn = [sum(w["new"][k] for k in num) for w in wins]; nd = [w["new"][den] for w in wins]
         point[r] = sum(nn) / sum(nd) - sum(bn) / sum(bd)
         iv[r] = ratio_interval(picks_w, bn, bd, nn, nd)
     return point, iv
@@ -546,12 +605,23 @@ def cmd_simulate(args) -> dict:
     from tools.research_testset import refuse_cv_test
     refuse_cv_test(check_games(list(POOL)), WHO)
     wr = p8_root()
-    v22 = getattr(args, "version", "2") == "2.2"
+    ver = getattr(args, "version", "2")
+    v22 = ver in ("2.2", "2.3")                    # 2.3 keeps 2.2's scaled counts and Beta q
+    v23 = ver == "2.3"
+    scaling = getattr(args, "scaling", "under")
     est = json.loads((REPO / "reports" / "research" / "p8_resetfix_estimate.json").read_text())["games"]
     under = {}
     if v22:
         tr = json.loads((REPO / "reports" / "research" / "p8_resetfix_truthreset.json").read_text())["units"]
         under = {g: tr[f"{g}__mps"]["under_representation"] for g in POOL}
+        if v23 and scaling == "processed":
+            # sensitivity: the factor that brings the after-reset share of in-frame players to the share of processed
+            # frames after a first reset in the r23 builds, u = p (1 - a) / (a (1 - p))
+            under = {}
+            for g in POOL:
+                a = est[g]["rates"]["in_frame_after_reset_share"]
+                pr = est[g]["frames_after_first_reset"] / est[g]["processed_frames"]
+                under[g] = pr * (1 - a) / (a * (1 - pr))
     base, meta = {}, {}
     for g in POOL:
         sf = json.loads((wr / "e1" / SCORES[g]).read_text())
@@ -597,13 +667,17 @@ def cmd_simulate(args) -> dict:
         _, giv = sim_count_rows(gtot, picks_games)
         cov = (sum(w["r23"]["cov_acc"] for w in allw) / sum(w["r23"]["cov_live"] for w in allw),
                sum(w["new"]["cov_acc"] for w in allw) / sum(w["new"]["cov_live"] for w in allw))
-        pooled = v2_verdict(pp, piv, cov, giv)
+        pooled = v23_verdict(pp, piv, cov, "pool") if v23 else v2_verdict(pp, piv, cov, giv)
         per = {}
         for g in POOL:
             gp, giv_ = unit_rows(sim[g], picks_g[g])
             c = (sum(w["r23"]["cov_acc"] for w in sim[g]) / sum(w["r23"]["cov_live"] for w in sim[g]),
                  sum(w["new"]["cov_acc"] for w in sim[g]) / sum(w["new"]["cov_live"] for w in sim[g]))
-            per[g] = v2_verdict(gp, giv_, c, None, improve_rows=(), one_to_one=False)
+            per[g] = v23_verdict(gp, giv_, c, "game") if v23 else \
+                v2_verdict(gp, giv_, c, None, improve_rows=(), one_to_one=False)
+        if v23:                                      # the bracket guard is taken as passing (it cannot be simulated)
+            v = v23_pool(pooled, per, {"missed_rate": -1.0, NET_ROW: -1.0})
+            return {**v, "pooled": pooled["pass"], "games": {g: x["pass"] for g, x in per.items()}}, pooled, per
         return pool_verdict(pooled, per), pooled, per
 
     # central run, checked against the real rows, diffs and boot
@@ -633,13 +707,20 @@ def cmd_simulate(args) -> dict:
         f = float(rng.uniform(*SIM_F))
         sim = build(f, rng)
         v, po, pg = verdicts(sim)
-        ad = adoption(v, po, True)
+        ad = {"adopt": v["adopt"]} if v23 else adoption(v, po, True)
         draws.append({"f": f, "pass": v["pass"], "adopt": ad["adopt"], "pooled_pass": v["pooled"], "games": v["games"],
                       "failing": v["failing"],
                       "missed": po["rows"]["missed_rate"]["diff"], "missed_iv": po["rows"]["missed_rate"]["window_interval"],
                       "detection": po["rows"]["detection_rate"]["diff"],
-                      "ghost": po["rows"]["ghost_rate"]["diff"], "ghost_hi": po["rows"]["ghost_rate"]["bad_end"],
-                      "ghost_hi_games": {g: pg[g]["rows"]["ghost_rate"]["bad_end"] for g in POOL},
+                      "ghost": po["rows"]["ghost_rate"]["diff"],
+                      "ghost_hi": (po["rows"]["ghost_rate"].get("bad_end") if not v23 else
+                                   (po["rows"]["ghost_rate"]["window_interval"] or [None, None])[1]),
+                      "ghost_hi_games": {g: (pg[g]["rows"]["ghost_rate"].get("bad_end") if not v23 else
+                                             (pg[g]["rows"]["ghost_rate"]["window_interval"] or [None, None])[1])
+                                         for g in POOL},
+                      "net": po["rows"].get(NET_ROW, {}).get("diff") if v23 else None,
+                      "net_iv": po["rows"].get(NET_ROW, {}).get("window_interval") if v23 else None,
+                      "net_games": {g: pg[g]["rows"].get(NET_ROW, {}).get("diff") for g in POOL} if v23 else None,
                       "missed_games": {g: pg[g]["rows"]["missed_rate"]["diff"] for g in POOL}})
     q = lambda xs: {"p05": float(np.percentile(xs, 5)), "p50": float(np.percentile(xs, 50)),
                     "p95": float(np.percentile(xs, 95))}
@@ -667,9 +748,20 @@ def cmd_simulate(args) -> dict:
                             "ghost_pooled": q([d["ghost"] for d in draws]),
                             "ghost_window_hi_pooled": q([d["ghost_hi"] for d in draws]),
                             "ghost_window_hi_by_game": {g: q([d["ghost_hi_games"][g] for d in draws]) for g in POOL},
-                            "missed_by_game": {g: q([d["missed_games"][g] for d in draws]) for g in POOL}},
+                            "missed_by_game": {g: q([d["missed_games"][g] for d in draws]) for g in POOL},
+                            **({"net_error_pooled": q([d["net"] for d in draws]),
+                                "net_error_window_hi_pooled": q([d["net_iv"][1] for d in draws if d["net_iv"]]),
+                                "net_error_by_game": {g: q([d["net_games"][g] for d in draws]) for g in POOL}}
+                               if v23 else {})},
                "excess_ghost_share": {g: meta[g]["q"] for g in POOL}})
-    name = "p8_resetfix_simulate_v22.json" if v22 else "p8_resetfix_simulate.json"
+    if v23:
+        res["version"], res["scaling"] = "2.3", scaling
+        res["what"] = ("Simulated reset-fix arm, version 2.3 (docs/research/P8_resetfix.md section 18): the net-error "
+                       "rule; post-reset counts scaled " + ("by each game's under-representation factor (registered)"
+                       if scaling == "under" else "to the processed-frame share after a first reset (sensitivity)") +
+                       "; q from a Beta on its counts; the bracket guard taken as passing; a forecast, not a result")
+    name = (f"p8_resetfix_simulate_v23_{scaling}.json" if v23 else
+            "p8_resetfix_simulate_v22.json" if v22 else "p8_resetfix_simulate.json")
     atomic_write(REPO / "reports" / "research" / name, json.dumps(res, indent=1))
     print(json.dumps({k: res[k] for k in ("pass_probability", "adoption_probability", "pooled_pass_probability",
                                           "game_pass_probability",
@@ -1505,14 +1597,16 @@ def unit_eval(wins: list, picks_w: np.ndarray, picks_g: np.ndarray | None = None
     point = diffs(wins)
     wiv = boot({i: [w] for i, w in enumerate(wins)})
     giv = boot({i: g for i, g in enumerate(groups)}) if groups else None
-    for row, num in (("detection_rate", "far"), (ONE_TO_ONE_ROW, "missed_1to1")):
-        bn = [w["r23"][num] for w in wins]; nn = [w["new"][num] for w in wins]
+    for row, num in (("detection_rate", ("far",)), (ONE_TO_ONE_ROW, ("missed_1to1",)),
+                     (NET_ROW, ("missed", "nr_ghosts"))):
+        bn = [sum(w["r23"][k] for k in num) for w in wins]; nn = [sum(w["new"][k] for k in num) for w in wins]
         bd = [w["r23"]["in_frame"] for w in wins]; nd = [w["new"]["in_frame"] for w in wins]
         point[row] = sum(nn) / sum(nd) - sum(bn) / sum(bd)
         r[row] = (sum(bn) / sum(bd), sum(nn) / sum(nd))
         wiv[row] = ratio_interval(picks_w, bn, bd, nn, nd)
         if groups:
-            G = [[sum(w[s][k] for w in grp) for s in ("r23", "new") for k in (num, "in_frame")] for grp in groups]
+            G = [[sum(sum(w[s][k] for k in num) for w in grp) if kk == "num" else sum(w[s]["in_frame"] for w in grp)
+                  for s in ("r23", "new") for kk in ("num", "den")] for grp in groups]
             giv[row] = ratio_interval(picks_g, [x[0] for x in G], [x[1] for x in G], [x[2] for x in G], [x[3] for x in G])
     return {"rows": r, "point": point, "window_interval": wiv, "game_interval": giv}
 
@@ -1555,52 +1649,50 @@ def cmd_report(args) -> dict:
         wins = list(files[g]["windows"].values())
         ev = unit_eval(wins, resample_picks(len(wins), 2000, 0))
         cov = ev["rows"]["coverage"]
-        per[g] = v2_verdict(ev["point"], ev["window_interval"], cov, None, improve_rows=(), one_to_one=False)
+        per[g] = v23_verdict(ev["point"], ev["window_interval"], cov, "game")
         out["per_game"][g] = {**ev, "verdict": per[g], "report_only": report_only(wins)}
     groups = [list(files[g]["windows"].values()) for g in have]
     allw = [w for grp in groups for w in grp]
     ev = unit_eval(allw, resample_picks(len(allw), 2000, 0), resample_picks(len(groups), 2000, 0), groups)
-    pooled = v2_verdict(ev["point"], ev["window_interval"], ev["rows"]["coverage"], ev["game_interval"])
-    pv = pool_verdict(pooled, per)
-    if unscored:                                   # a partial pool never passes (as E1R)
-        pv = {**pv, "pass": False, "partial": True}
+    pooled = v23_verdict(ev["point"], ev["window_interval"], ev["rows"]["coverage"], "pool")
     # the bracket (version 2.2: a guard): the same rows on the frames the bug-carrying workspace truth also accepted
     br = {}
     for g in have:
         wc = list((files[g].get("windows_common") or {}).values())
         if len(wc) >= 2:
             e = unit_eval(wc, resample_picks(len(wc), 2000, 0))
-            br[g] = {**e, "verdict": v2_verdict(e["point"], e["window_interval"], e["rows"]["coverage"], None,
-                                                improve_rows=(), one_to_one=False)}
+            br[g] = {**e, "verdict": v23_verdict(e["point"], e["window_interval"], e["rows"]["coverage"], "game")}
     gc = [list((files[g].get("windows_common") or {}).values()) for g in have]
     if all(len(x) >= 1 for x in gc):
         ac = [w for x in gc for w in x]
         e = unit_eval(ac, resample_picks(len(ac), 2000, 0), resample_picks(len(gc), 2000, 0), gc)
-        br["pool"] = {**e, "verdict": v2_verdict(e["point"], e["window_interval"], e["rows"]["coverage"],
-                                                 e["game_interval"])}
+        br["pool"] = {**e, "verdict": v23_verdict(e["point"], e["window_interval"], e["rows"]["coverage"], "pool")}
     out["bracket_common_frames"] = br
     bp = br.get("pool")
-    bracket_ok = bool(bp) and bp["point"]["missed_rate"] is not None and bp["point"]["missed_rate"] < 0
+    bracket = None if not bp else {"missed_rate": bp["point"]["missed_rate"], NET_ROW: bp["point"][NET_ROW]}
+    pv = v23_pool(pooled, per, bracket, partial=bool(unscored))
+    if unscored:
+        pv["partial"] = True
     biv = (bp or {}).get("window_interval", {}).get("missed_rate")
-    out["bracket_guard"] = {"pooled_missed_point_below_zero": bracket_ok,
+    out["bracket_guard"] = {"pooled_missed_point_below_zero": bool(bracket) and (bracket["missed_rate"] or 0) < 0,
+                            "pooled_net_error_point_below_zero": bool(bracket) and (bracket[NET_ROW] or 0) < 0,
+                            "holds": pv["bracket_guard"],
                             "pooled_missed_interval_below_zero": bool(biv and biv[1] < 0)}
-    if not bracket_ok:                              # the guard: the pool passes only if the bracket's missed improves
-        pv = {**pv, "pass": False, "bracket_guard_failed": True}
-    out["adoption"] = adoption(pv, pooled, bracket_ok)
-    miv = ev["window_interval"]["missed_rate"]
+    out["adoption"] = {"adopt": pv["adopt"], "rule": "version 2.3: adoption is the pool pass"}
     label = None
     if pv["pass"]:
-        label = "the fix reduces missed players on the pool" if (miv and miv[1] < 0 and biv and biv[1] < 0) else \
-            "the fix does not harm and points to fewer misses"
-    elif out["adoption"]["adopt"]:
-        label = "adopted as a correctness fix; no claim of no harm on ghosts (ghost cost reported per game)"
+        label = "the fix lowers net error and missed players on the pool; ghosts are reported as a cost" + \
+            ("" if (biv and biv[1] < 0) else " (the bracket's missed interval does not lie wholly below zero)")
     out["pool"] = {**ev, "verdict": pv, "pooled_verdict": pooled, "label": label, "report_only": report_only(allw),
-                   "ghost_cost_by_game": {g: out["per_game"][g]["point"]["ghost_rate"] for g in have}}
+                   "ghost_cost_by_game": {g: {"diff": out["per_game"][g]["point"]["ghost_rate"],
+                                              "window_interval": out["per_game"][g]["window_interval"]["ghost_rate"]}
+                                          for g in have},
+                   "ghost_cost_pooled": {"diff": ev["point"]["ghost_rate"],
+                                         "window_interval": ev["window_interval"]["ghost_rate"]}}
     if files[APART] is not None and pv["pass"]:        # hou is reported only after a pool pass
         wins = list(files[APART]["windows"].values())
         evh = unit_eval(wins, resample_picks(len(wins), 2000, 0))
-        vh = v2_verdict(evh["point"], evh["window_interval"], evh["rows"]["coverage"], None,
-                        improve_rows=("missed_rate",), one_to_one=False)
+        vh = v23_verdict(evh["point"], evh["window_interval"], evh["rows"]["coverage"], "hou")
         out["hou"] = {**evh, "verdict": vh, "report_only": report_only(wins),
                       "label": "the fix holds on the new arena" if vh["pass"] else
                       "the pool result does not carry to the new arena"}
@@ -1635,7 +1727,9 @@ def main(argv=None) -> None:
     m = sub.add_parser("simulate")
     m.add_argument("--draws", type=int, default=SIM_DRAWS)
     m.add_argument("--boot", type=int, default=2000)
-    m.add_argument("--version", choices=("2", "2.2"), default="2")
+    m.add_argument("--version", choices=("2", "2.2", "2.3"), default="2")
+    m.add_argument("--scaling", choices=("under", "processed"), default="under",
+                   help="version 2.3: under-representation factor (registered) or processed-frame share (sensitivity)")
     for name in ("plan", "build", "equiv", "pin-truth", "score", "cache-copy", "baseline-copy"):
         x = sub.add_parser(name)
         x.add_argument("--game", required=True)
