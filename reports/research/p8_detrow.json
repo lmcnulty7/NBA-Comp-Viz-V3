@@ -1,0 +1,855 @@
+{
+ "what": "Causes of the detection row (far misses, no foot within 5 ft under the truth camera; docs/research/P8_detrow.md); report only; stored files",
+ "games": {
+  "gsw_bkn_2015": {
+   "in_frame": 20457,
+   "far_misses": 1871,
+   "far_miss_rate": 0.09146,
+   "classes": {
+    "edge": {
+     "count": 11,
+     "share_of_far_misses": 0.00588,
+     "rate_in_frame": 0.00054
+    },
+    "occluded": {
+     "count": 521,
+     "share_of_far_misses": 0.27846,
+     "rate_in_frame": 0.02547
+    },
+    "small": {
+     "count": 637,
+     "share_of_far_misses": 0.34046,
+     "rate_in_frame": 0.03114
+    },
+    "raw_had_box": {
+     "count": 349,
+     "share_of_far_misses": 0.18653,
+     "rate_in_frame": 0.01706
+    },
+    "teacher_only": {
+     "count": 188,
+     "share_of_far_misses": 0.10048,
+     "rate_in_frame": 0.00919
+    },
+    "none": {
+     "count": 165,
+     "share_of_far_misses": 0.08819,
+     "rate_in_frame": 0.00807
+    },
+    "not_measured": {
+     "count": 0,
+     "share_of_far_misses": 0.0,
+     "rate_in_frame": 0.0
+    }
+   },
+   "report_only_prevalence": {
+    "edge": {
+     "measured": 1871,
+     "count": 11,
+     "share": 0.00588
+    },
+    "occluded": {
+     "measured": 1871,
+     "count": 521,
+     "share": 0.27846
+    },
+    "small": {
+     "measured": 1871,
+     "count": 996,
+     "share": 0.53234
+    },
+    "raw_had_box": {
+     "measured": 1871,
+     "count": 786,
+     "share": 0.4201
+    },
+    "teacher_reaches": {
+     "measured": 1871,
+     "count": 1466,
+     "share": 0.78354
+    },
+    "r23_raw_0_10_to_0_40": {
+     "measured": 1871,
+     "count": 82,
+     "share": 0.04383
+    }
+   },
+   "report_only_threshold_reachable": {
+    "teacher_only": 12,
+    "none": 1
+   },
+   "intervals": {
+    "edge": {
+     "share": [
+      0.00279,
+      0.01004
+     ],
+     "rate": [
+      0.0002,
+      0.0009
+     ]
+    },
+    "occluded": {
+     "share": [
+      0.23382,
+      0.35703
+     ],
+     "rate": [
+      0.01777,
+      0.03449
+     ]
+    },
+    "small": {
+     "share": [
+      0.29807,
+      0.41198
+     ],
+     "rate": [
+      0.01976,
+      0.04459
+     ]
+    },
+    "raw_had_box": {
+     "share": [
+      0.05106,
+      0.31188
+     ],
+     "rate": [
+      0.00374,
+      0.04199
+     ]
+    },
+    "teacher_only": {
+     "share": [
+      0.05753,
+      0.16171
+     ],
+     "rate": [
+      0.00657,
+      0.01274
+     ]
+    },
+    "none": {
+     "share": [
+      0.0551,
+      0.14971
+     ],
+     "rate": [
+      0.00586,
+      0.01101
+     ]
+    },
+    "not_measured": {
+     "share": [
+      0.0,
+      0.0
+     ],
+     "rate": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "registered": {
+    "in_frame": 20457,
+    "missed": 5166,
+    "nr_ghosts": 2288,
+    "nr_boxes": 18229
+   },
+   "windows": 83
+  },
+  "gsw_cha_2016": {
+   "in_frame": 13284,
+   "far_misses": 998,
+   "far_miss_rate": 0.07513,
+   "classes": {
+    "edge": {
+     "count": 6,
+     "share_of_far_misses": 0.00601,
+     "rate_in_frame": 0.00045
+    },
+    "occluded": {
+     "count": 275,
+     "share_of_far_misses": 0.27555,
+     "rate_in_frame": 0.0207
+    },
+    "small": {
+     "count": 368,
+     "share_of_far_misses": 0.36874,
+     "rate_in_frame": 0.0277
+    },
+    "raw_had_box": {
+     "count": 95,
+     "share_of_far_misses": 0.09519,
+     "rate_in_frame": 0.00715
+    },
+    "teacher_only": {
+     "count": 82,
+     "share_of_far_misses": 0.08216,
+     "rate_in_frame": 0.00617
+    },
+    "none": {
+     "count": 172,
+     "share_of_far_misses": 0.17234,
+     "rate_in_frame": 0.01295
+    },
+    "not_measured": {
+     "count": 0,
+     "share_of_far_misses": 0.0,
+     "rate_in_frame": 0.0
+    }
+   },
+   "report_only_prevalence": {
+    "edge": {
+     "measured": 998,
+     "count": 6,
+     "share": 0.00601
+    },
+    "occluded": {
+     "measured": 998,
+     "count": 275,
+     "share": 0.27555
+    },
+    "small": {
+     "measured": 998,
+     "count": 561,
+     "share": 0.56212
+    },
+    "raw_had_box": {
+     "measured": 998,
+     "count": 261,
+     "share": 0.26152
+    },
+    "teacher_reaches": {
+     "measured": 998,
+     "count": 562,
+     "share": 0.56313
+    },
+    "r23_raw_0_10_to_0_40": {
+     "measured": 998,
+     "count": 54,
+     "share": 0.05411
+    }
+   },
+   "report_only_threshold_reachable": {
+    "teacher_only": 4,
+    "none": 0
+   },
+   "intervals": {
+    "edge": {
+     "share": [
+      0.00193,
+      0.01186
+     ],
+     "rate": [
+      0.00015,
+      0.00089
+     ]
+    },
+    "occluded": {
+     "share": [
+      0.23374,
+      0.32416
+     ],
+     "rate": [
+      0.01612,
+      0.0272
+     ]
+    },
+    "small": {
+     "share": [
+      0.32099,
+      0.41523
+     ],
+     "rate": [
+      0.02261,
+      0.03381
+     ]
+    },
+    "raw_had_box": {
+     "share": [
+      0.04895,
+      0.15404
+     ],
+     "rate": [
+      0.00344,
+      0.01361
+     ]
+    },
+    "teacher_only": {
+     "share": [
+      0.05638,
+      0.1093
+     ],
+     "rate": [
+      0.00422,
+      0.00845
+     ]
+    },
+    "none": {
+     "share": [
+      0.13142,
+      0.21519
+     ],
+     "rate": [
+      0.00978,
+      0.01692
+     ]
+    },
+    "not_measured": {
+     "share": [
+      0.0,
+      0.0
+     ],
+     "rate": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "registered": {
+    "in_frame": 13284,
+    "missed": 3922,
+    "nr_ghosts": 2344,
+    "nr_boxes": 12496
+   },
+   "windows": 73
+  },
+  "gsw_sac_2015": {
+   "in_frame": 21144,
+   "far_misses": 1104,
+   "far_miss_rate": 0.05221,
+   "classes": {
+    "edge": {
+     "count": 21,
+     "share_of_far_misses": 0.01902,
+     "rate_in_frame": 0.00099
+    },
+    "occluded": {
+     "count": 331,
+     "share_of_far_misses": 0.29982,
+     "rate_in_frame": 0.01565
+    },
+    "small": {
+     "count": 382,
+     "share_of_far_misses": 0.34601,
+     "rate_in_frame": 0.01807
+    },
+    "raw_had_box": {
+     "count": 153,
+     "share_of_far_misses": 0.13859,
+     "rate_in_frame": 0.00724
+    },
+    "teacher_only": {
+     "count": 103,
+     "share_of_far_misses": 0.0933,
+     "rate_in_frame": 0.00487
+    },
+    "none": {
+     "count": 114,
+     "share_of_far_misses": 0.10326,
+     "rate_in_frame": 0.00539
+    },
+    "not_measured": {
+     "count": 0,
+     "share_of_far_misses": 0.0,
+     "rate_in_frame": 0.0
+    }
+   },
+   "report_only_prevalence": {
+    "edge": {
+     "measured": 1104,
+     "count": 21,
+     "share": 0.01902
+    },
+    "occluded": {
+     "measured": 1104,
+     "count": 331,
+     "share": 0.29982
+    },
+    "small": {
+     "measured": 1104,
+     "count": 577,
+     "share": 0.52264
+    },
+    "raw_had_box": {
+     "measured": 1104,
+     "count": 431,
+     "share": 0.3904
+    },
+    "teacher_reaches": {
+     "measured": 1104,
+     "count": 779,
+     "share": 0.70562
+    },
+    "r23_raw_0_10_to_0_40": {
+     "measured": 1104,
+     "count": 75,
+     "share": 0.06793
+    }
+   },
+   "report_only_threshold_reachable": {
+    "teacher_only": 13,
+    "none": 1
+   },
+   "intervals": {
+    "edge": {
+     "share": [
+      0.00965,
+      0.02902
+     ],
+     "rate": [
+      0.00048,
+      0.00165
+     ]
+    },
+    "occluded": {
+     "share": [
+      0.24572,
+      0.35935
+     ],
+     "rate": [
+      0.01242,
+      0.02012
+     ]
+    },
+    "small": {
+     "share": [
+      0.28386,
+      0.40569
+     ],
+     "rate": [
+      0.01318,
+      0.02443
+     ]
+    },
+    "raw_had_box": {
+     "share": [
+      0.07414,
+      0.20842
+     ],
+     "rate": [
+      0.00336,
+      0.01331
+     ]
+    },
+    "teacher_only": {
+     "share": [
+      0.04078,
+      0.17503
+     ],
+     "rate": [
+      0.00206,
+      0.00995
+     ]
+    },
+    "none": {
+     "share": [
+      0.06559,
+      0.14782
+     ],
+     "rate": [
+      0.00341,
+      0.00804
+     ]
+    },
+    "not_measured": {
+     "share": [
+      0.0,
+      0.0
+     ],
+     "rate": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "registered": {
+    "in_frame": 21144,
+    "missed": 4355,
+    "nr_ghosts": 2264,
+    "nr_boxes": 19786
+   },
+   "windows": 82
+  },
+  "hou_cle_2016": {
+   "in_frame": 43030,
+   "far_misses": 2727,
+   "far_miss_rate": 0.06337,
+   "classes": {
+    "edge": {
+     "count": 76,
+     "share_of_far_misses": 0.02787,
+     "rate_in_frame": 0.00177
+    },
+    "occluded": {
+     "count": 650,
+     "share_of_far_misses": 0.23836,
+     "rate_in_frame": 0.01511
+    },
+    "small": {
+     "count": 997,
+     "share_of_far_misses": 0.3656,
+     "rate_in_frame": 0.02317
+    },
+    "raw_had_box": {
+     "count": 0,
+     "share_of_far_misses": 0.0,
+     "rate_in_frame": 0.0
+    },
+    "teacher_only": {
+     "count": 0,
+     "share_of_far_misses": 0.0,
+     "rate_in_frame": 0.0
+    },
+    "none": {
+     "count": 0,
+     "share_of_far_misses": 0.0,
+     "rate_in_frame": 0.0
+    },
+    "not_measured": {
+     "count": 1004,
+     "share_of_far_misses": 0.36817,
+     "rate_in_frame": 0.02333
+    }
+   },
+   "report_only_prevalence": {
+    "edge": {
+     "measured": 2727,
+     "count": 76,
+     "share": 0.02787
+    },
+    "occluded": {
+     "measured": 2727,
+     "count": 654,
+     "share": 0.23982
+    },
+    "small": {
+     "measured": 2727,
+     "count": 1374,
+     "share": 0.50385
+    },
+    "raw_had_box": {
+     "measured": 0,
+     "count": 0,
+     "share": null
+    },
+    "teacher_reaches": {
+     "measured": 0,
+     "count": 0,
+     "share": null
+    },
+    "r23_raw_0_10_to_0_40": {
+     "measured": 0,
+     "count": 0,
+     "share": null
+    }
+   },
+   "report_only_threshold_reachable": {
+    "teacher_only": 0,
+    "none": 0
+   },
+   "intervals": {
+    "edge": {
+     "share": [
+      0.01611,
+      0.04443
+     ],
+     "rate": [
+      0.00105,
+      0.00257
+     ]
+    },
+    "occluded": {
+     "share": [
+      0.20556,
+      0.27901
+     ],
+     "rate": [
+      0.01117,
+      0.02084
+     ]
+    },
+    "small": {
+     "share": [
+      0.32567,
+      0.4189
+     ],
+     "rate": [
+      0.01727,
+      0.03093
+     ]
+    },
+    "raw_had_box": {
+     "share": [
+      0.0,
+      0.0
+     ],
+     "rate": [
+      0.0,
+      0.0
+     ]
+    },
+    "teacher_only": {
+     "share": [
+      0.0,
+      0.0
+     ],
+     "rate": [
+      0.0,
+      0.0
+     ]
+    },
+    "none": {
+     "share": [
+      0.0,
+      0.0
+     ],
+     "rate": [
+      0.0,
+      0.0
+     ]
+    },
+    "not_measured": {
+     "share": [
+      0.29932,
+      0.42114
+     ],
+     "rate": [
+      0.01413,
+      0.03665
+     ]
+    }
+   },
+   "registered": {
+    "in_frame": 43030,
+    "missed": 8439,
+    "nr_ghosts": 3351,
+    "nr_boxes": 38998
+   },
+   "windows": 93
+  }
+ },
+ "pooled": {
+  "in_frame": 54885,
+  "far_misses": 3973,
+  "far_miss_rate": 0.07239,
+  "classes": {
+   "edge": {
+    "count": 38,
+    "share_of_far_misses": 0.00956,
+    "rate_in_frame": 0.00069
+   },
+   "occluded": {
+    "count": 1127,
+    "share_of_far_misses": 0.28366,
+    "rate_in_frame": 0.02053
+   },
+   "small": {
+    "count": 1387,
+    "share_of_far_misses": 0.34911,
+    "rate_in_frame": 0.02527
+   },
+   "raw_had_box": {
+    "count": 597,
+    "share_of_far_misses": 0.15026,
+    "rate_in_frame": 0.01088
+   },
+   "teacher_only": {
+    "count": 373,
+    "share_of_far_misses": 0.09388,
+    "rate_in_frame": 0.0068
+   },
+   "none": {
+    "count": 451,
+    "share_of_far_misses": 0.11352,
+    "rate_in_frame": 0.00822
+   },
+   "not_measured": {
+    "count": 0,
+    "share_of_far_misses": 0.0,
+    "rate_in_frame": 0.0
+   }
+  },
+  "report_only_prevalence": {
+   "edge": {
+    "measured": 3973,
+    "count": 38,
+    "share": 0.00956
+   },
+   "occluded": {
+    "measured": 3973,
+    "count": 1127,
+    "share": 0.28366
+   },
+   "small": {
+    "measured": 3973,
+    "count": 2134,
+    "share": 0.53713
+   },
+   "raw_had_box": {
+    "measured": 3973,
+    "count": 1478,
+    "share": 0.37201
+   },
+   "teacher_reaches": {
+    "measured": 3973,
+    "count": 2807,
+    "share": 0.70652
+   },
+   "r23_raw_0_10_to_0_40": {
+    "measured": 3973,
+    "count": 211,
+    "share": 0.05311
+   }
+  },
+  "report_only_threshold_reachable": {
+   "teacher_only": 29,
+   "none": 2
+  },
+  "intervals": {
+   "edge": {
+    "share": [
+     0.00618,
+     0.01385
+    ],
+    "rate": [
+     0.00044,
+     0.00098
+    ]
+   },
+   "occluded": {
+    "share": [
+     0.25315,
+     0.32241
+    ],
+    "rate": [
+     0.01694,
+     0.02477
+    ]
+   },
+   "small": {
+    "share": [
+     0.31913,
+     0.38448
+    ],
+    "rate": [
+     0.02045,
+     0.03126
+    ]
+   },
+   "raw_had_box": {
+    "share": [
+     0.07725,
+     0.23099
+    ],
+    "rate": [
+     0.00467,
+     0.02081
+    ]
+   },
+   "teacher_only": {
+    "share": [
+     0.06539,
+     0.12945
+    ],
+    "rate": [
+     0.00496,
+     0.00908
+    ]
+   },
+   "none": {
+    "share": [
+     0.08525,
+     0.14744
+    ],
+    "rate": [
+     0.00667,
+     0.00997
+    ]
+   },
+   "not_measured": {
+    "share": [
+     0.0,
+     0.0
+    ],
+    "rate": [
+     0.0,
+     0.0
+    ]
+   }
+  }
+ },
+ "reading": {
+  "edge": {
+   "rates": {
+    "gsw_bkn_2015": 0.00054,
+    "gsw_cha_2016": 0.00045,
+    "gsw_sac_2015": 0.00099
+   },
+   "matters": false
+  },
+  "occluded": {
+   "rates": {
+    "gsw_bkn_2015": 0.02547,
+    "gsw_cha_2016": 0.0207,
+    "gsw_sac_2015": 0.01565
+   },
+   "matters": true
+  },
+  "small": {
+   "rates": {
+    "gsw_bkn_2015": 0.03114,
+    "gsw_cha_2016": 0.0277,
+    "gsw_sac_2015": 0.01807
+   },
+   "matters": true
+  },
+  "raw_had_box": {
+   "rates": {
+    "gsw_bkn_2015": 0.01706,
+    "gsw_cha_2016": 0.00715,
+    "gsw_sac_2015": 0.00724
+   },
+   "matters": false
+  },
+  "teacher_only": {
+   "rates": {
+    "gsw_bkn_2015": 0.00919,
+    "gsw_cha_2016": 0.00617,
+    "gsw_sac_2015": 0.00487
+   },
+   "matters": false
+  },
+  "none": {
+   "rates": {
+    "gsw_bkn_2015": 0.00807,
+    "gsw_cha_2016": 0.01295,
+    "gsw_sac_2015": 0.00539
+   },
+   "matters": false
+  },
+  "not_measured": {
+   "rates": {
+    "gsw_bkn_2015": 0.0,
+    "gsw_cha_2016": 0.0,
+    "gsw_sac_2015": 0.0
+   },
+   "matters": false
+  }
+ },
+ "rule": {
+  "edge_inside": 0.9,
+  "occluded_iou": 0.3,
+  "small_px": 150.0,
+  "near_ft": 5.0,
+  "teacher_conf": 0.1471,
+  "det_conf": 0.4,
+  "bar": 0.01,
+  "boot": {
+   "n": 2000,
+   "seed": 0,
+   "unit": "window within game"
+  }
+ }
+}

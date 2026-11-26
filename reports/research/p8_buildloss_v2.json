@@ -1,0 +1,402 @@
+{
+ "what": "Build loss version 2 (docs/research/P8_buildloss.md): per-player distances, decode measured per player against the corpus preds on the decoded clip frame, reading on the reachable share (raw foot within 2.5 ft); report only; stored files; pool games only",
+ "games": {
+  "gsw_bkn_2015": {
+   "in_frame": 20457,
+   "population": 786,
+   "reachable": 519,
+   "classes": {
+    "d_decode": {
+     "count": 8,
+     "share": 0.01018,
+     "rate_in_frame": 0.00039,
+     "reachable": 3,
+     "reachable_rate_in_frame": 0.00015
+    },
+    "a1_activation_lag": {
+     "count": 25,
+     "share": 0.03181,
+     "rate_in_frame": 0.00122,
+     "reachable": 13,
+     "reachable_rate_in_frame": 0.00064
+    },
+    "a2_track_gap": {
+     "count": 116,
+     "share": 0.14758,
+     "rate_in_frame": 0.00567,
+     "reachable": 77,
+     "reachable_rate_in_frame": 0.00376
+    },
+    "a3_never_tracked_nearby": {
+     "count": 470,
+     "share": 0.59796,
+     "rate_in_frame": 0.02298,
+     "reachable": 374,
+     "reachable_rate_in_frame": 0.01828
+    },
+    "b_tracked_box_differs": {
+     "count": 49,
+     "share": 0.06234,
+     "rate_in_frame": 0.0024,
+     "reachable": 7,
+     "reachable_rate_in_frame": 0.00034
+    },
+    "c_occlusion": {
+     "count": 62,
+     "share": 0.07888,
+     "rate_in_frame": 0.00303,
+     "reachable": 40,
+     "reachable_rate_in_frame": 0.00196
+    },
+    "c_ema": {
+     "count": 56,
+     "share": 0.07125,
+     "rate_in_frame": 0.00274,
+     "reachable": 5,
+     "reachable_rate_in_frame": 0.00024
+    },
+    "e_other": {
+     "count": 0,
+     "share": 0.0,
+     "rate_in_frame": 0.0,
+     "reachable": 0,
+     "reachable_rate_in_frame": 0.0
+    }
+   },
+   "c_shift_ft": {
+    "median_foot_raw": 3.62835,
+    "median_foot_stab": 5.52843
+   },
+   "d_raw_quartiles": [
+    1.1874,
+    1.91823,
+    3.02007
+   ],
+   "reachable_rate_intervals": {
+    "d_decode": [
+     0.0,
+     0.00029
+    ],
+    "a1_activation_lag": [
+     0.00031,
+     0.00105
+    ],
+    "a2_track_gap": [
+     0.00169,
+     0.00664
+    ],
+    "a3_never_tracked_nearby": [
+     0.00019,
+     0.05376
+    ],
+    "b_tracked_box_differs": [
+     0.00013,
+     0.00055
+    ],
+    "c_occlusion": [
+     0.00109,
+     0.00294
+    ],
+    "c_ema": [
+     6e-05,
+     0.00047
+    ],
+    "e_other": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "gsw_cha_2016": {
+   "in_frame": 13284,
+   "population": 261,
+   "reachable": 101,
+   "classes": {
+    "d_decode": {
+     "count": 3,
+     "share": 0.01149,
+     "rate_in_frame": 0.00023,
+     "reachable": 1,
+     "reachable_rate_in_frame": 8e-05
+    },
+    "a1_activation_lag": {
+     "count": 17,
+     "share": 0.06513,
+     "rate_in_frame": 0.00128,
+     "reachable": 4,
+     "reachable_rate_in_frame": 0.0003
+    },
+    "a2_track_gap": {
+     "count": 56,
+     "share": 0.21456,
+     "rate_in_frame": 0.00422,
+     "reachable": 24,
+     "reachable_rate_in_frame": 0.00181
+    },
+    "a3_never_tracked_nearby": {
+     "count": 79,
+     "share": 0.30268,
+     "rate_in_frame": 0.00595,
+     "reachable": 51,
+     "reachable_rate_in_frame": 0.00384
+    },
+    "b_tracked_box_differs": {
+     "count": 28,
+     "share": 0.10728,
+     "rate_in_frame": 0.00211,
+     "reachable": 3,
+     "reachable_rate_in_frame": 0.00023
+    },
+    "c_occlusion": {
+     "count": 38,
+     "share": 0.14559,
+     "rate_in_frame": 0.00286,
+     "reachable": 16,
+     "reachable_rate_in_frame": 0.0012
+    },
+    "c_ema": {
+     "count": 40,
+     "share": 0.15326,
+     "rate_in_frame": 0.00301,
+     "reachable": 2,
+     "reachable_rate_in_frame": 0.00015
+    },
+    "e_other": {
+     "count": 0,
+     "share": 0.0,
+     "rate_in_frame": 0.0,
+     "reachable": 0,
+     "reachable_rate_in_frame": 0.0
+    }
+   },
+   "c_shift_ft": {
+    "median_foot_raw": 3.97425,
+    "median_foot_stab": 5.6016
+   },
+   "d_raw_quartiles": [
+    1.8186,
+    3.26275,
+    4.36865
+   ],
+   "reachable_rate_intervals": {
+    "d_decode": [
+     0.0,
+     0.00023
+    ],
+    "a1_activation_lag": [
+     0.0,
+     0.00063
+    ],
+    "a2_track_gap": [
+     0.00075,
+     0.00293
+    ],
+    "a3_never_tracked_nearby": [
+     0.00015,
+     0.01122
+    ],
+    "b_tracked_box_differs": [
+     0.0,
+     0.00058
+    ],
+    "c_occlusion": [
+     0.00037,
+     0.00218
+    ],
+    "c_ema": [
+     0.0,
+     0.00053
+    ],
+    "e_other": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "gsw_sac_2015": {
+   "in_frame": 21144,
+   "population": 431,
+   "reachable": 239,
+   "classes": {
+    "d_decode": {
+     "count": 5,
+     "share": 0.0116,
+     "rate_in_frame": 0.00024,
+     "reachable": 1,
+     "reachable_rate_in_frame": 5e-05
+    },
+    "a1_activation_lag": {
+     "count": 24,
+     "share": 0.05568,
+     "rate_in_frame": 0.00114,
+     "reachable": 16,
+     "reachable_rate_in_frame": 0.00076
+    },
+    "a2_track_gap": {
+     "count": 58,
+     "share": 0.13457,
+     "rate_in_frame": 0.00274,
+     "reachable": 28,
+     "reachable_rate_in_frame": 0.00132
+    },
+    "a3_never_tracked_nearby": {
+     "count": 202,
+     "share": 0.46868,
+     "rate_in_frame": 0.00955,
+     "reachable": 161,
+     "reachable_rate_in_frame": 0.00761
+    },
+    "b_tracked_box_differs": {
+     "count": 46,
+     "share": 0.10673,
+     "rate_in_frame": 0.00218,
+     "reachable": 3,
+     "reachable_rate_in_frame": 0.00014
+    },
+    "c_occlusion": {
+     "count": 42,
+     "share": 0.09745,
+     "rate_in_frame": 0.00199,
+     "reachable": 25,
+     "reachable_rate_in_frame": 0.00118
+    },
+    "c_ema": {
+     "count": 54,
+     "share": 0.12529,
+     "rate_in_frame": 0.00255,
+     "reachable": 5,
+     "reachable_rate_in_frame": 0.00024
+    },
+    "e_other": {
+     "count": 0,
+     "share": 0.0,
+     "rate_in_frame": 0.0,
+     "reachable": 0,
+     "reachable_rate_in_frame": 0.0
+    }
+   },
+   "c_shift_ft": {
+    "median_foot_raw": 4.14475,
+    "median_foot_stab": 5.41122
+   },
+   "d_raw_quartiles": [
+    1.13746,
+    2.23869,
+    3.88236
+   ],
+   "reachable_rate_intervals": {
+    "d_decode": [
+     0.0,
+     0.00016
+    ],
+    "a1_activation_lag": [
+     0.0004,
+     0.00115
+    ],
+    "a2_track_gap": [
+     0.00076,
+     0.00209
+    ],
+    "a3_never_tracked_nearby": [
+     0.00104,
+     0.01796
+    ],
+    "b_tracked_box_differs": [
+     0.0,
+     0.00031
+    ],
+    "c_occlusion": [
+     0.00059,
+     0.00202
+    ],
+    "c_ema": [
+     5e-05,
+     0.00046
+    ],
+    "e_other": [
+     0.0,
+     0.0
+    ]
+   }
+  }
+ },
+ "reading": {
+  "d_decode": {
+   "reachable_rates": {
+    "gsw_bkn_2015": 0.00015,
+    "gsw_cha_2016": 8e-05,
+    "gsw_sac_2015": 5e-05
+   },
+   "matters": false
+  },
+  "a1_activation_lag": {
+   "reachable_rates": {
+    "gsw_bkn_2015": 0.00064,
+    "gsw_cha_2016": 0.0003,
+    "gsw_sac_2015": 0.00076
+   },
+   "matters": false
+  },
+  "a2_track_gap": {
+   "reachable_rates": {
+    "gsw_bkn_2015": 0.00376,
+    "gsw_cha_2016": 0.00181,
+    "gsw_sac_2015": 0.00132
+   },
+   "matters": false
+  },
+  "a3_never_tracked_nearby": {
+   "reachable_rates": {
+    "gsw_bkn_2015": 0.01828,
+    "gsw_cha_2016": 0.00384,
+    "gsw_sac_2015": 0.00761
+   },
+   "matters": false
+  },
+  "b_tracked_box_differs": {
+   "reachable_rates": {
+    "gsw_bkn_2015": 0.00034,
+    "gsw_cha_2016": 0.00023,
+    "gsw_sac_2015": 0.00014
+   },
+   "matters": false
+  },
+  "c_occlusion": {
+   "reachable_rates": {
+    "gsw_bkn_2015": 0.00196,
+    "gsw_cha_2016": 0.0012,
+    "gsw_sac_2015": 0.00118
+   },
+   "matters": false
+  },
+  "c_ema": {
+   "reachable_rates": {
+    "gsw_bkn_2015": 0.00024,
+    "gsw_cha_2016": 0.00015,
+    "gsw_sac_2015": 0.00024
+   },
+   "matters": false
+  },
+  "e_other": {
+   "reachable_rates": {
+    "gsw_bkn_2015": 0.0,
+    "gsw_cha_2016": 0.0,
+    "gsw_sac_2015": 0.0
+   },
+   "matters": false
+  }
+ },
+ "rule": {
+  "near_ft": 5.0,
+  "reach_ft": 2.5,
+  "det_conf": 0.4,
+  "iou_same": 0.5,
+  "iou_neighbour": 0.3,
+  "bar": 0.01,
+  "boot": {
+   "n": 2000,
+   "seed": 0,
+   "unit": "window"
+  }
+ }
+}
