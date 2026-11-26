@@ -26,7 +26,7 @@ held-out games); for each training game, images, labels and the corpus manifest'
 label check (verify_image_label, the function its dataset loader uses) on the train and validation lists finds every
 label and drops no image as corrupt. Its found, missing, empty and corrupt counts go into run_record.json.
 
-Colab (`colab`): Drive mounted at /content/drive; the corpus tars written by tools/p8_e1_pack.py in DRIVE_CORPUS are
+Colab (`colab`): Drive mounted on the runtime (its folder named by P8_E1_DRIVE_DIR); the corpus tars written by tools/p8_e1_pack.py in DRIVE_CORPUS are
 checked against their pack manifest (members and bytes) and extracted straight from the Drive mount to local disk (no
 separate copy step); the fold trains on the GPU; complete.json (the sha256 of best.pt and last.pt) is written into the
 run folder after training; the run folder goes to DRIVE_RUNS as one tar per run, with <run>.complete.json beside it. A
@@ -43,6 +43,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import random
 import shutil
 import tarfile
@@ -56,8 +57,10 @@ WHO = "tools.p8_e1_colab"
 GAMES = ("gsw_bkn_2015", "gsw_cha_2016", "gsw_sac_2015")
 BASE, EPOCHS, IMGSZ, BATCH, PATIENCE = "yolov8m.pt", 100, 640, 16, 20
 VAL_SHARE = 0.1
-DRIVE_CORPUS = Path("/content/drive/MyDrive/nba_harvest/p8_e1/corpus")
-DRIVE_RUNS = Path("/content/drive/MyDrive/nba_harvest/p8_e1/runs")
+# The mounted Drive folder for E1 comes from the runtime's environment, so no cloud mount path is written here.
+_DRIVE_DIR = os.environ.get("P8_E1_DRIVE_DIR")
+DRIVE_CORPUS = Path(_DRIVE_DIR) / "corpus" if _DRIVE_DIR else None
+DRIVE_RUNS = Path(_DRIVE_DIR) / "runs" if _DRIVE_DIR else None
 LOCAL = Path("/content/p8_e1")
 
 
@@ -199,6 +202,8 @@ def colab(fold: str, seed: int, corpus_dir: Path | None = None, runs_dir: Path |
     from tools.p8_e1_pack import unpack_checked
     corpus_dir = corpus_dir or DRIVE_CORPUS
     runs_dir = runs_dir or DRIVE_RUNS
+    if corpus_dir is None or runs_dir is None:
+        raise SystemExit("colab: pass --corpus-dir and --runs-dir, or set P8_E1_DRIVE_DIR to the mounted Drive folder")
     games = fold_games(fold)
     guard(list(GAMES), WHO)
     name = run_name(fold, seed)
