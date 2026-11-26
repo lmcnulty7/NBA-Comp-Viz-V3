@@ -54,12 +54,12 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Placement route (D183, D184), 0 units: step 1 read SCATTERED (the offset runs along the camera ray, size varies
-   by game, no timing signature, no correction passes on every game). Now step 1b: does the build homography against
-   the truth camera at the foot pixel explain the depth offset (reading rule fixed first)? Then either the truth
-   rebuild test (item 2) or a foot-pixel question. The missed row is reported as detection (no foot within 5 ft,
-   0.052 to 0.091) and placement (2.5 to 5 ft, 0.15 to 0.22); whether Level 2's 5 percent target should be restated
-   against the split is Lucien's call.
+1. Placement route (D183 to D186), 0 units: the missed row's placement part has no correction that passes on
+   every game (step 1 SCATTERED; step 1b MIXED, gsw_cha_2016's truth suspect; the short-foot bias under the r23
+   court's H is consistent but correcting it raises missed and ghosts on gsw_sac_2015). Now: the same bias correction
+   on the position rows (Level 1's target), registered first. The missed row is reported as detection (no foot
+   within 5 ft, 0.052 to 0.091) and placement (2.5 to 5 ft, 0.15 to 0.22); whether Level 2's 5 percent target should
+   be restated against the split is Lucien's call.
 2. Camera truth for okc_sac_2015 on the reference platform (D178, running): bars A, B, C fixed before the build.
    nyk_bos_2016 and por_okc_2016 stay out (hand-measured layouts). Then the gsw_cha_2016 CPU truth rebuild to test
    whether the existing MPS truth moved; if it moved, rebuild the other in-use truth before any cross-arena tuning.
