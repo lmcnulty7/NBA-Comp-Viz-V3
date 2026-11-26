@@ -1,0 +1,237 @@
+{
+ "what": "Tracker resets, empty frames and box yield on the a3-heavy windows (docs/research/P8_trackreset.md); report only; stored files; pool games",
+ "games": {
+  "gsw_bkn_2015": {
+   "reachable_a3": 374,
+   "a3_by_window": {
+    "gsw_bkn_2015_s00_w04": 1,
+    "gsw_bkn_2015_s01_w05": 1,
+    "gsw_bkn_2015_s04_w00": 363,
+    "gsw_bkn_2015_s05_w01": 5,
+    "gsw_bkn_2015_s05_w04": 2,
+    "gsw_bkn_2015_s05_w05": 1,
+    "gsw_bkn_2015_s07_w02": 1
+   },
+   "heavy_windows": [
+    "gsw_bkn_2015_s04_w00"
+   ],
+   "heavy_share": 0.97059,
+   "a3_on": {
+    "empty": 0,
+    "reset": 0,
+    "neither": 374
+   },
+   "heavy": {
+    "gsw_bkn_2015_s04_w00": {
+     "processed_frames": 1102,
+     "empty_share": 0.0,
+     "corpus_frames_detector_fired": 140,
+     "empty_share_where_detector_fired": 0.0,
+     "empty_runs": 0,
+     "longest_empty_run": 0,
+     "turnover_mean": 0.0284,
+     "reset_like_frames": 1,
+     "camera_cut_resets": 1,
+     "median_players_per_frame": 3,
+     "median_box_yield_where_detector_fired": 0.52273
+    }
+   },
+   "heavy_summary": {
+    "windows": 1,
+    "processed_frames": 1102,
+    "empty_share_mean": 0.0,
+    "empty_share_where_detector_fired_mean": 0.0,
+    "longest_empty_run_max": 0,
+    "turnover_mean": 0.0284,
+    "reset_like_frames": 1,
+    "camera_cut_resets": 1,
+    "median_players_per_frame_median": 3.0,
+    "box_yield_median": 0.52273
+   },
+   "others_summary": {
+    "windows": 82,
+    "processed_frames": 19542,
+    "empty_share_mean": 0.00105,
+    "empty_share_where_detector_fired_mean": 0.0,
+    "longest_empty_run_max": 1,
+    "turnover_mean": 0.05535,
+    "reset_like_frames": 21,
+    "camera_cut_resets": 18,
+    "median_players_per_frame_median": 8.0,
+    "box_yield_median": 1.0
+   }
+  },
+  "gsw_cha_2016": {
+   "reachable_a3": 51,
+   "a3_by_window": {
+    "gsw_cha_2016_s01_w02": 2,
+    "gsw_cha_2016_s05_w00": 36,
+    "gsw_cha_2016_s05_w03": 10,
+    "gsw_cha_2016_s07_w00": 3
+   },
+   "heavy_windows": [
+    "gsw_cha_2016_s05_w00",
+    "gsw_cha_2016_s05_w03"
+   ],
+   "heavy_share": 0.90196,
+   "a3_on": {
+    "empty": 0,
+    "reset": 0,
+    "neither": 51
+   },
+   "heavy": {
+    "gsw_cha_2016_s05_w00": {
+     "processed_frames": 1053,
+     "empty_share": 0.0,
+     "corpus_frames_detector_fired": 8,
+     "empty_share_where_detector_fired": 0.0,
+     "empty_runs": 0,
+     "longest_empty_run": 0,
+     "turnover_mean": 0.01023,
+     "reset_like_frames": 1,
+     "camera_cut_resets": 1,
+     "median_players_per_frame": 2,
+     "median_box_yield_where_detector_fired": 0.18182
+    },
+    "gsw_cha_2016_s05_w03": {
+     "processed_frames": 206,
+     "empty_share": 0.00485,
+     "corpus_frames_detector_fired": 2,
+     "empty_share_where_detector_fired": 0.0,
+     "empty_runs": 1,
+     "longest_empty_run": 1,
+     "turnover_mean": 0.0062,
+     "reset_like_frames": 1,
+     "camera_cut_resets": 1,
+     "median_players_per_frame": 1,
+     "median_box_yield_where_detector_fired": 0.1
+    }
+   },
+   "heavy_summary": {
+    "windows": 2,
+    "processed_frames": 1259,
+    "empty_share_mean": 0.00243,
+    "empty_share_where_detector_fired_mean": 0.0,
+    "longest_empty_run_max": 1,
+    "turnover_mean": 0.00822,
+    "reset_like_frames": 2,
+    "camera_cut_resets": 2,
+    "median_players_per_frame_median": 1.5,
+    "box_yield_median": 0.14091
+   },
+   "others_summary": {
+    "windows": 71,
+    "processed_frames": 16824,
+    "empty_share_mean": 0.00135,
+    "empty_share_where_detector_fired_mean": 0.0,
+    "longest_empty_run_max": 2,
+    "turnover_mean": 0.04873,
+    "reset_like_frames": 11,
+    "camera_cut_resets": 10,
+    "median_players_per_frame_median": 8.0,
+    "box_yield_median": 1.0
+   }
+  },
+  "gsw_sac_2015": {
+   "reachable_a3": 161,
+   "a3_by_window": {
+    "gsw_sac_2015_s01_w00": 69,
+    "gsw_sac_2015_s02_w02": 1,
+    "gsw_sac_2015_s04_w00": 1,
+    "gsw_sac_2015_s06_w02": 19,
+    "gsw_sac_2015_s07_w00": 23,
+    "gsw_sac_2015_s07_w02": 1,
+    "gsw_sac_2015_s09_w01": 47
+   },
+   "heavy_windows": [
+    "gsw_sac_2015_s01_w00",
+    "gsw_sac_2015_s09_w01",
+    "gsw_sac_2015_s07_w00"
+   ],
+   "heavy_share": 0.86335,
+   "a3_on": {
+    "empty": 0,
+    "reset": 0,
+    "neither": 161
+   },
+   "heavy": {
+    "gsw_sac_2015_s01_w00": {
+     "processed_frames": 650,
+     "empty_share": 0.00154,
+     "corpus_frames_detector_fired": 16,
+     "empty_share_where_detector_fired": 0.0,
+     "empty_runs": 1,
+     "longest_empty_run": 1,
+     "turnover_mean": 0.01463,
+     "reset_like_frames": 1,
+     "camera_cut_resets": 1,
+     "median_players_per_frame": 2,
+     "median_box_yield_where_detector_fired": 0.22222
+    },
+    "gsw_sac_2015_s09_w01": {
+     "processed_frames": 425,
+     "empty_share": 0.0,
+     "corpus_frames_detector_fired": 16,
+     "empty_share_where_detector_fired": 0.0,
+     "empty_runs": 0,
+     "longest_empty_run": 0,
+     "turnover_mean": 0.02624,
+     "reset_like_frames": 2,
+     "camera_cut_resets": 1,
+     "median_players_per_frame": 2,
+     "median_box_yield_where_detector_fired": 0.90909
+    },
+    "gsw_sac_2015_s07_w00": {
+     "processed_frames": 1014,
+     "empty_share": 0.00099,
+     "corpus_frames_detector_fired": 178,
+     "empty_share_where_detector_fired": 0.0,
+     "empty_runs": 1,
+     "longest_empty_run": 1,
+     "turnover_mean": 0.02576,
+     "reset_like_frames": 1,
+     "camera_cut_resets": 1,
+     "median_players_per_frame": 8,
+     "median_box_yield_where_detector_fired": 1.0
+    }
+   },
+   "heavy_summary": {
+    "windows": 3,
+    "processed_frames": 2089,
+    "empty_share_mean": 0.00084,
+    "empty_share_where_detector_fired_mean": 0.0,
+    "longest_empty_run_max": 1,
+    "turnover_mean": 0.02221,
+    "reset_like_frames": 4,
+    "camera_cut_resets": 3,
+    "median_players_per_frame_median": 2.0,
+    "box_yield_median": 0.90909
+   },
+   "others_summary": {
+    "windows": 79,
+    "processed_frames": 16621,
+    "empty_share_mean": 8e-05,
+    "empty_share_where_detector_fired_mean": 0.0,
+    "longest_empty_run_max": 1,
+    "turnover_mean": 0.0462,
+    "reset_like_frames": 7,
+    "camera_cut_resets": 7,
+    "median_players_per_frame_median": 9.0,
+    "box_yield_median": 1.0
+   }
+  }
+ },
+ "reading": {
+  "share_on_empty_or_reset": 0.0,
+  "arm_share": 0.5,
+  "tracker_robustness_arm": false
+ },
+ "rule": {
+  "reach_ft": 2.5,
+  "heavy_share": 0.8,
+  "arm_share": 0.5,
+  "reset_frac": 0.8,
+  "reset_min": 4,
+  "det_conf": 0.4
+ }
+}

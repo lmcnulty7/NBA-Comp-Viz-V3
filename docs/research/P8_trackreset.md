@@ -77,6 +77,60 @@ The heavy windows are chosen after a3 was seen: build loss version 2 already nam
 gsw_cha_2016_s05_w00, and gsw_sac_2015's s01_w00, s09_w01 and s07_w00. The rule above defines them mechanically, but
 the hypothesis came from looking at them.
 
-## Results
+## Results (computed 2026-11-26, after the definitions above were committed in 344f8728)
 
-Not computed yet.
+Stored files only, no lock, about a second. Record: reports/research/p8_trackreset.json.
+
+Heavy windows by the rule:
+
+- gsw_bkn_2015: s04_w00, holding 363 of 374 reachable a3 (97 percent).
+- gsw_cha_2016: s05_w00 and s05_w03, holding 46 of 51 (90 percent).
+- gsw_sac_2015: s01_w00, s09_w01 and s07_w00, holding 139 of 161 (86 percent).
+
+Reachable a3 on empty or reset frames: 0 of 374, 0 of 51 and 0 of 161. Every reachable a3 player-frame lies on a frame
+that has sidecar boxes and no reset nearby.
+
+Heavy windows against all other pool windows of the same game:
+
+| Window set | Empty frames | Empty where detector fired | Longest empty run | Turnover | Resets | Median players a frame | Box yield where detector fired |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| gsw_bkn_2015 heavy (1) | 0.0% | 0.0% | 0 | 0.028 | 1 | 3 | 0.52 |
+| gsw_bkn_2015 others (82) | 0.1% | 0.0% | 1 | 0.055 | 18 | 8 | 1.00 |
+| gsw_cha_2016 heavy (2) | 0.2% | 0.0% | 1 | 0.008 | 2 | 1.5 | 0.14 |
+| gsw_cha_2016 others (71) | 0.1% | 0.0% | 2 | 0.049 | 10 | 8 | 1.00 |
+| gsw_sac_2015 heavy (3) | 0.1% | 0.0% | 1 | 0.022 | 3 | 2 | 0.91 |
+| gsw_sac_2015 others (79) | 0.0% | 0.0% | 1 | 0.046 | 7 | 9 | 1.00 |
+
+Per heavy window, box yield where the detector fired (corpus frames where it fired): bkn s04_w00 0.52 (140 frames);
+cha s05_w00 0.18 (8 frames) and s05_w03 0.10 (2); sac s01_w00 0.22 (16), s09_w01 0.91 (16) and s07_w00 1.00 (178).
+
+## Reading by the registered rule
+
+No tracker robustness arm. None of the reachable a3 lies on an empty or reset frame, against a bar of 50 percent.
+Exceptions and resets do not explain a3: the heavy windows have almost no empty frames, one reset each, and lower
+track-id turnover than the other windows.
+
+What the numbers say beyond the rule (post hoc, descriptive):
+
+- In four of the six heavy windows (bkn s04_w00, cha s05_w00 and s05_w03, sac s01_w00) the tracker steadily outputs
+  a few long-lived tracks and leaves most of the detector's boxes out. The box yield is 0.10 to 0.52, the median
+  players a frame 1.5 to 3, and turnover is low. That pattern fits new tracks that are never confirmed, which a fresh
+  tracker after a reset would not show. It is not tested here.
+- In sac s09_w01 and s07_w00 the yield is 0.91 to 1.00: the build has about as many boxes as the detector, yet none
+  overlaps the raw box near the a3 player at IoU 0.3 in this or the adjacent frames. That fits boxes that are there
+  but elsewhere, as a frame offset between the corpus decode and the build's decode would give.
+
+A correction to P8_buildloss.md version 2. Its decode class compared the JPEG with the corpus's own decoded frame:
+both came from the corpus decode path (tools/p8_e1data.py, sequential grab from frame 0). It therefore ruled out JPEG
+compression, not a difference between the corpus decode and the build's decode (build_trajectories.py, SeqReader with
+the pre-gate jumps, in the frozen environment). "Decode is negligible" holds only in that narrower sense. The lead's
+alignment check, dropped on that basis, is still relevant, at least for the two high-yield sac windows.
+
+Proposal for the lead:
+
+1. Register the alignment check (stored files, minutes, no lock). For every pool window, the share of M4 raw boxes at
+   0.40 with a sidecar box at IoU 0.5 or more in the same frame, and the best match at offsets of plus or minus one
+   and two processed frames, with a misalignment margin fixed in advance. Then report the share of a3 in misaligned
+   windows.
+2. If a3 is mostly in aligned, low-yield windows, the model run of P8_buildloss.md is justified: model.track on those
+   windows' decoded frames under the lock, to see whether new tracks are created and never confirmed.
