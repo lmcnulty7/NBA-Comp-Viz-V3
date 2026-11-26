@@ -56,8 +56,9 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 
 1. Placement route (D183 to D186), 0 units: the missed row's placement part has no correction that passes on
    every game (step 1 SCATTERED; step 1b MIXED, gsw_cha_2016's truth suspect; the short-foot bias under the r23
-   court's H is consistent but correcting it raises missed and ghosts on gsw_sac_2015). Now: the same bias correction
-   on the position rows (Level 1's target), registered first. The missed row is reported as detection (no foot
+   court's H is consistent but correcting it raises missed and ghosts on gsw_sac_2015). On the position rows the
+   same shift lowers p50 by 0.25 to 0.28 ft and near-field bias by about 1 ft on every pool game (D187). Now: the
+   shift on output positions only (detection unchanged), design reviewed before hou_cle_2016 is scored once. The missed row is reported as detection (no foot
    within 5 ft, 0.052 to 0.091) and placement (2.5 to 5 ft, 0.15 to 0.22); whether Level 2's 5 percent target should
    be restated against the split is Lucien's call.
 2. Camera truth for okc_sac_2015 on the reference platform (D178, running): bars A, B, C fixed before the build.
