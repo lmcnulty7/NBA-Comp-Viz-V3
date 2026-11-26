@@ -198,3 +198,52 @@ No rule changes. Code and notes only:
      gain on CPU. Neither is a mechanism claim.
 6. Ledger: E1R's line goes into docs/research/TRAINING_PROTOCOL.md's ledger when it finishes (stage, lock hours,
    outcome against its gate, lesson).
+
+## Stage 1 results (2026-11-25)
+
+Smoke, in the amended order, every gate passed: gate 4 (E1R's score of M6's gsw_bkn_2015 folders reproduces
+p8_e1_m6.json exactly, 83 windows, missed 0.252530 and 0.237816, every per-window check passing); gate 1 (r23 on
+gsw_cha_2016_s00_w00 through the E1R path is byte-identical to M9's build: CPU builds repeat); gate 2 (fold
+gsw_cha_2016, sha256 0579a034..., passes every record check); gate 3 (the pair passes every score check).
+
+Stage 1: E1 built on gsw_cha_2016 (73 windows, 8,429 s) and gsw_sac_2015 (82 windows, 8,423 s), one game per lock
+acquisition, 4.7 lock hours. Every window of every game passed every check (records, frame sets, court H, in-frame
+counts); no gate-empty, mismatched or missing window. Record: reports/research/p8_e1r.json.
+
+Primary pool (registered report, unchanged; 238 windows; E1 minus r23):
+
+| Row | r23 | E1 seed 0 | Difference | Window interval | Game interval | Rule |
+| --- | --- | --- | --- | --- | --- | --- |
+| Position p50 (ft) | 1.5094 | 1.4169 | -0.0925 | [-0.1031, -0.0816] | [-0.1217, -0.0808] | improves |
+| Position p90 (ft) | 3.2015 | 3.0485 | -0.1530 | [-0.1713, -0.1257] | [-0.1735, -0.1270] | improves |
+| Near-field bias (ft) | 1.3785 | 1.2197 | -0.1589 | [-0.1797, -0.1370] | [-0.2084, -0.1275] | improves |
+| Missed players | 0.2449 | 0.2383 | -0.0067 | [-0.0120, -0.0016] | [-0.0147, 0.0069] | improves |
+| Ghost boxes | 0.1365 | 0.1206 | -0.0160 | [-0.0195, -0.0127] | [-0.0195, -0.0123] | improves |
+| Team labels | 0.8292 | 0.8535 | +0.0243 | [0.0097, 0.0395] | [0.0149, 0.0339] | improves |
+| Coverage | 0.9950 | 0.9950 | 0.0000 | [0.0000, 0.0000] | [0.0000, 0.0000] | floor holds |
+
+The seed 0 pool passes; the registered verdict reads "1 of 3 seeds", adopt false, as it must.
+
+Blind pool (gsw_cha_2016 and gsw_sac_2015, 155 windows, d5_verdict with the window interval): every row passes.
+Missed -0.0019 [-0.0095, 0.0049], ghosts -0.0154 [-0.0197, -0.0113], position p50 -0.0986, p90 -0.1391, near-field
+bias -0.1723, team +0.0267 [0.0086, 0.0428], coverage equal.
+
+Per game (missed r23, E1, window interval): gsw_bkn_2015 0.2525, 0.2378, [-0.0197, -0.0088]; gsw_cha_2016 0.2952,
+0.3021, [0.0016, 0.0130]; gsw_sac_2015 0.2060, 0.1986, [-0.0189, 0.0028]. Ghosts and position improve on all three;
+team is positive on all three.
+
+Counts (r23, E1): gsw_cha_2016 in-frame 13,284 on both, boxes 12,496 and 12,042, duplicates 732 and 672, team rows
+11,226 and 10,861, paired matched players 11,012; gsw_sac_2015 in-frame 21,144 on both, boxes 19,786 and 19,519,
+duplicates 1,360 and 1,298, team rows 18,153 and 18,103, paired matched players 18,169.
+
+### Stage 1 reading
+
+- By the readings fixed in advance, primary and blind both pass: "seed 0 passes on the reference platform". Stage 2
+  runs, as the code's gate allows.
+- Plainly: on missed, the pass is narrow and does not meet the expected 0.010 to 0.016. Pooled, missed improves by
+  0.0067 and its game interval crosses zero. On the blind games it improves by 0.0019 with a window interval across
+  zero, and on gsw_cha_2016 alone E1 misses more than r23 (+0.0069, window interval above zero). The rule counts
+  per-game rows only through the pool, so this is not a fail, but missed is where the pass is weakest. The clear
+  gains are ghosts, position, near-field bias and team, on every game.
+- This is seed 0 only. A pass alone does not justify about 30 units for seeds 1 and 2; that choice is weighed against
+  E1b (design, "What E1R can and cannot decide").
