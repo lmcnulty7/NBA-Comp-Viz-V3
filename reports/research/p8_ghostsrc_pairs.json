@@ -1,0 +1,246 @@
+{
+ "what": "Double-count pairs (one player missed and its box a ghost) after a reset (docs/research/P8_ghostsrc.md, pairing check); report only",
+ "games": {
+  "gsw_cha_2016": {
+   "after": {
+    "counts": {
+     "sidecar": {
+      "in_frame": 149,
+      "missed": 107,
+      "ghosts": 8,
+      "pairs": 7,
+      "pairs_tight": 5
+     },
+     "r23_raw": {
+      "in_frame": 149,
+      "missed": 79,
+      "ghosts": 73,
+      "pairs": 31,
+      "pairs_tight": 17
+     },
+     "r23_stab": {
+      "in_frame": 149,
+      "missed": 79,
+      "ghosts": 70,
+      "pairs": 29,
+      "pairs_tight": 18
+     }
+    },
+    "r23_raw": {
+     "E_r23": 1.02013,
+     "E_sidecar": 0.77181,
+     "dE": 0.24832,
+     "dE_from_pairs": 0.32215,
+     "explained_share": 1.2973
+    },
+    "r23_stab": {
+     "E_r23": 1.0,
+     "E_sidecar": 0.77181,
+     "dE": 0.22819,
+     "dE_from_pairs": 0.2953,
+     "explained_share": 1.29412
+    }
+   },
+   "before": {
+    "counts": {
+     "sidecar": {
+      "in_frame": 13135,
+      "missed": 3843,
+      "ghosts": 2336,
+      "pairs": 1670,
+      "pairs_tight": 1229
+     },
+     "r23_raw": {
+      "in_frame": 13135,
+      "missed": 4539,
+      "ghosts": 3304,
+      "pairs": 2047,
+      "pairs_tight": 1432
+     },
+     "r23_stab": {
+      "in_frame": 13135,
+      "missed": 4178,
+      "ghosts": 3069,
+      "pairs": 1854,
+      "pairs_tight": 1298
+     }
+    },
+    "r23_raw": {
+     "E_r23": 0.59711,
+     "E_sidecar": 0.47042,
+     "dE": 0.12668,
+     "dE_from_pairs": 0.0574,
+     "explained_share": 0.45312
+    },
+    "r23_stab": {
+     "E_r23": 0.55173,
+     "E_sidecar": 0.47042,
+     "dE": 0.08131,
+     "dE_from_pairs": 0.02802,
+     "explained_share": 0.34457
+    }
+   }
+  },
+  "gsw_bkn_2015": {
+   "after": {
+    "counts": {
+     "sidecar": {
+      "in_frame": 1188,
+      "missed": 707,
+      "ghosts": 49,
+      "pairs": 42,
+      "pairs_tight": 30
+     },
+     "r23_raw": {
+      "in_frame": 1188,
+      "missed": 269,
+      "ghosts": 162,
+      "pairs": 93,
+      "pairs_tight": 76
+     },
+     "r23_stab": {
+      "in_frame": 1188,
+      "missed": 251,
+      "ghosts": 162,
+      "pairs": 93,
+      "pairs_tight": 71
+     }
+    },
+    "r23_raw": {
+     "E_r23": 0.36279,
+     "E_sidecar": 0.63636,
+     "dE": -0.27357,
+     "dE_from_pairs": 0.08586,
+     "explained_share": null
+    },
+    "r23_stab": {
+     "E_r23": 0.34764,
+     "E_sidecar": 0.63636,
+     "dE": -0.28872,
+     "dE_from_pairs": 0.08586,
+     "explained_share": null
+    }
+   },
+   "before": {
+    "counts": {
+     "sidecar": {
+      "in_frame": 19269,
+      "missed": 4603,
+      "ghosts": 2239,
+      "pairs": 1547,
+      "pairs_tight": 1100
+     },
+     "r23_raw": {
+      "in_frame": 19269,
+      "missed": 4557,
+      "ghosts": 2713,
+      "pairs": 1636,
+      "pairs_tight": 1179
+     },
+     "r23_stab": {
+      "in_frame": 19269,
+      "missed": 4413,
+      "ghosts": 2615,
+      "pairs": 1578,
+      "pairs_tight": 1130
+     }
+    },
+    "r23_raw": {
+     "E_r23": 0.37729,
+     "E_sidecar": 0.35508,
+     "dE": 0.02221,
+     "dE_from_pairs": 0.00924,
+     "explained_share": 0.41589
+    },
+    "r23_stab": {
+     "E_r23": 0.36473,
+     "E_sidecar": 0.35508,
+     "dE": 0.00965,
+     "dE_from_pairs": 0.00322,
+     "explained_share": 0.33333
+    }
+   }
+  },
+  "gsw_sac_2015": {
+   "after": {
+    "counts": {
+     "sidecar": {
+      "in_frame": 447,
+      "missed": 296,
+      "ghosts": 14,
+      "pairs": 13,
+      "pairs_tight": 4
+     },
+     "r23_raw": {
+      "in_frame": 447,
+      "missed": 118,
+      "ghosts": 62,
+      "pairs": 45,
+      "pairs_tight": 30
+     },
+     "r23_stab": {
+      "in_frame": 447,
+      "missed": 109,
+      "ghosts": 59,
+      "pairs": 40,
+      "pairs_tight": 22
+     }
+    },
+    "r23_raw": {
+     "E_r23": 0.40268,
+     "E_sidecar": 0.69351,
+     "dE": -0.29083,
+     "dE_from_pairs": 0.14318,
+     "explained_share": null
+    },
+    "r23_stab": {
+     "E_r23": 0.37584,
+     "E_sidecar": 0.69351,
+     "dE": -0.31767,
+     "dE_from_pairs": 0.12081,
+     "explained_share": null
+    }
+   },
+   "before": {
+    "counts": {
+     "sidecar": {
+      "in_frame": 20697,
+      "missed": 4099,
+      "ghosts": 2250,
+      "pairs": 1571,
+      "pairs_tight": 1185
+     },
+     "r23_raw": {
+      "in_frame": 20697,
+      "missed": 4355,
+      "ghosts": 3094,
+      "pairs": 1753,
+      "pairs_tight": 1334
+     },
+     "r23_stab": {
+      "in_frame": 20697,
+      "missed": 4004,
+      "ghosts": 2863,
+      "pairs": 1602,
+      "pairs_tight": 1201
+     }
+    },
+    "r23_raw": {
+     "E_r23": 0.35991,
+     "E_sidecar": 0.30676,
+     "dE": 0.05315,
+     "dE_from_pairs": 0.01759,
+     "explained_share": 0.33091
+    },
+    "r23_stab": {
+     "E_r23": 0.33179,
+     "E_sidecar": 0.30676,
+     "dE": 0.02503,
+     "dE_from_pairs": 0.003,
+     "explained_share": 0.11969
+    }
+   }
+  }
+ },
+ "reading_gsw_cha_2016": "mostly placement counted twice"
+}
