@@ -43,6 +43,18 @@ gsw_cha_2016_s07_w00, gsw_sac_2015_s04_w00).
   registration, a rebuild under the lock, scored by the registered scorer); runtime differs and tracker does not: a3
   is mainly a runtime difference between the corpus and the builds, so the corpus-based raw and teacher analyses
   carry it and no build arm follows; both: both reported with their shares; neither: unexplained.
+
+Amendment 1 (2026-11-26, after gsw_cha_2016_s05_w00 failed three times with "frame 6888 unreadable"; registered
+before rerunning; only gsw_bkn_2015_s04_w00 had completed and its result had not been read):
+- Read order: before each processed frame, if the decoder would jump more than videoseq.SEEK_MIN_GAP frames (a seek),
+  every stride frame since the previous processed frame is read first, so no seek happens inside the window. The
+  build reads every stride frame inside its pre-gate intervals, gate-rejected ones included, so a long gap between
+  processed frames is most likely read sequentially by the build too. Only gsw_cha_2016_s05_w00 (gap 6090 to 6534)
+  and gsw_cha_2016_s07_w00 (4044 to 4452) have such gaps; for the other seven windows the order is unchanged, so
+  gsw_bkn_2015_s04_w00's run stands. The reproduction check decides, as registered, whether a window's replay matches
+  the build.
+- A window that still fails after its retries is recorded as missing in the report, and the pooled tests use the
+  windows that ran.
 """
 
 from __future__ import annotations
@@ -166,8 +178,17 @@ def cmd_run(args) -> dict:
             break
     det = YOLO(str(weights))
     tracker = PlayerTracker(device="cpu")
-    out = []
+    from videoseq import SEEK_MIN_GAP
+    stride = int(side.get("stride") or 1)
+    out, prev, filled = [], None, 0
     for f in frames:
+        if prev is not None and f - reader.next > SEEK_MIN_GAP:     # amendment 1: no seek inside the window
+            for i in range(prev + stride, f, stride):
+                ok, _ = reader.read(i)
+                filled += 1
+                if not ok:
+                    raise SystemExit(f"{WHO}: {w} gap frame {i} unreadable")
+        prev = f
         ok, img = reader.read(f)
         if not ok:
             raise SystemExit(f"{WHO}: {w} frame {f} unreadable")
@@ -190,7 +211,7 @@ def cmd_run(args) -> dict:
     rec = {"window": w, "frames": len(out), "smoke": bool(args.frames), "weights_sha256": sha, "device": "cpu",
            "versions": {"opencv": cv2.__version__, "torch": torch.__version__, "ultralytics": ultralytics.__version__},
            "tracker_config": str(config.TRACKER_CONFIG), "seconds": round(time.time() - t0, 1),
-           "n_resets": tracker.n_resets, "per_frame": out}
+           "n_resets": tracker.n_resets, "read_order": "gapfill", "gap_frames_read": filled, "per_frame": out}
     d = p8_root() / "placement" / "a3run"
     d.mkdir(parents=True, exist_ok=True)
     name = f"{w}__smoke.json" if args.frames else f"{w}.json"
@@ -241,16 +262,20 @@ def cmd_report(args) -> dict:
             stem = key.split("/", 1)[1]
             w, f = stem.rsplit("_f", 1)
             ours.setdefault(w, {})[int(f)] = [p[:4] for p in rec[T.OURS] if p[5] == "player" and p[4] >= CONF]
-    per = {}
+    per, missing = {}, []
     for w in HEAVY + CONTROL:
-        rec = json.loads(need(wr / "placement" / "a3run" / f"{w}.json").read_text())
+        path = wr / "placement" / "a3run" / f"{w}.json"
+        if not path.exists():                                # amendment 1: a window that failed its retries
+            missing.append(w)
+            continue
+        rec = json.loads(path.read_text())
         if rec.get("smoke"):
             raise SystemExit(f"{WHO}: {w} holds a smoke run only")
         side = json.loads(need(P["builds"] / BUILDS[game_of_window(w)] / f"{w}_frames.json").read_text())
         per[w] = window_report(rec, side, ours.get(w, {}))
 
     def pool(ws, need_repro):
-        ws = [w for w in ws if (not need_repro) or (per[w]["reproduced_share"] or 0) >= REPRO_SHARE]
+        ws = [w for w in ws if w in per and ((not need_repro) or (per[w]["reproduced_share"] or 0) >= REPRO_SHARE)]
         s = {k: sum(per[w][k] for w in ws) for k in ("pred_boxes", "track_boxes", "dropped",
                                                     "dropped_under_unconfirmed", "ours_boxes",
                                                     "pred_boxes_on_corpus_frames", "ours_matched")}
@@ -269,7 +294,7 @@ def cmd_report(args) -> dict:
     out = rnd({"what": "r23 in the build runtime (predict and the build's tracker) on the a3-heavy and control windows "
                        "(docs/research/P8_a3run.md); report only", "windows": per,
                "heavy_tracker": heavy_t, "control_tracker": ctrl_t, "heavy_runtime": heavy_r,
-               "control_runtime": pool(CONTROL, False), **res, "reading": read_v(res),
+               "control_runtime": pool(CONTROL, False), **res, "reading": read_v(res), "missing_windows": missing,
                "rule": {"repro_px": REPRO_PX, "repro_share": REPRO_SHARE, "runtime_ratio": RUNTIME_RATIO,
                         "runtime_match": RUNTIME_MATCH, "runtime_iou": RUNTIME_IOU, "drop_iou": DROP_IOU,
                         "yield_heavy": YIELD_HEAVY, "yield_control": YIELD_CONTROL}})

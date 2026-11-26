@@ -92,6 +92,25 @@ builds use, as in tools/p8_frozen.py:
   differ.
 - The controls were picked by a rule from the alignment record, not by outcome.
 
+## Amendment 1 (2026-11-26, registered before rerunning)
+
+The smoke passed its gate, with 20 of 20 frames reproduced. The 9-window chain then completed gsw_bkn_2015_s04_w00
+(662 s). gsw_cha_2016_s05_w00 failed all three attempts with "frame 6888 unreadable", at about 11 minutes each, and
+the chain stopped there as designed. That window has a 444-frame gap between processed frames (6090 to 6534). The
+registered read order turned the gap into a seek, and in this clip the seek does not land where the build's reads
+did.
+
+The fix:
+
+- Before each processed frame, if the decoder would jump more than SEEK_MIN_GAP (300) frames, every stride frame since
+  the previous processed frame is read first. No seek then happens inside a window.
+- The build reads every stride frame inside its pre-gate intervals, gate-rejected frames included. A long gap between
+  processed frames is therefore most likely read sequentially by the build as well.
+- Only gsw_cha_2016_s05_w00 and gsw_cha_2016_s07_w00 (gap 4044 to 4452) have such gaps. For the other seven windows
+  the order is unchanged, so gsw_bkn_2015_s04_w00's completed run stands. Its result has not been read.
+- The registered reproduction check decides whether each replay matches the build.
+- A window that still fails after its retries is recorded as missing, and the pooled tests use the windows that ran.
+
 ## Results
 
-Not run yet. The job waits for the heavy-job lock, which the gsw_cha_2016 truth rebuild holds.
+Not computed yet.
