@@ -165,6 +165,31 @@ Their first outputs are kept in the P8 workspace as <window>__amend1.json, and t
 reports/research/p8_a3run_amend1.json. The six heavy windows are unchanged, because they start at 0, where both orders
 agree. The reproduction check and every rule stay as registered.
 
-## Results after amendment 2
+## Results after amendment 2 (computed 2026-11-26)
 
-Not computed yet. The controls queue behind the truth-cpu driver's lock.
+The three controls ran again with the sequential start from frame 0, first attempt each, in 602, 628 and 393 s of
+lock. gsw_sac_2015_s04_w00 now ran (it had failed before). The report was rewritten. Record:
+reports/research/p8_a3run.json; the first report stays as p8_a3run_amend1.json.
+
+| Control | Reproduced | (1) predict | (2) track | Yield | (1) against "ours" (matched) |
+| --- | --- | --- | --- | --- | --- |
+| gsw_bkn_2015_s07_w00 | 0.1% | 7,773 | 5,094 | 0.66 | 1,555 of 1,562 |
+| gsw_cha_2016_s07_w00 | 0.0% | 8,532 | 6,945 | 0.81 | 1,519 of 1,523 |
+| gsw_sac_2015_s04_w00 | 2.3% | 5,232 | 4,989 | 0.95 | 1,869 of 1,879 |
+
+The heavy windows are unchanged: reproduced 100 percent, yield 0.495, and runtime matched 0.995.
+
+### Reading by the registered rule (final)
+
+- Runtime: it does not differ, on the heavy windows (matched 0.995) or now on the controls (0.996).
+- Tracker: still not readable. No control reproduces the sidecar.
+- So the rule reads "neither".
+
+What changed with amendment 2: the controls' predict now matches the corpus "ours" boxes (0.996, up from 0.87), so the
+replay now decodes the frames the corpus decoded. The sidecars still differ from both. In these three windows the
+build's own decode therefore differs from a sequential decode of the clip. The likely cause is the build's seek to its
+pre-gate interval start, which lands off by a few frames; this is not tested. It fits the 14-window decode offset of
+P8_a3align.md, now seen on the build side.
+
+The heavy-window result stands on its own: those replays reproduce the build exactly, and the tracker outputs about
+half of the detector's boxes there. P8_a3trace.md locates where.

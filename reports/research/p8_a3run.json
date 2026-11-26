@@ -76,26 +76,38 @@
   "gsw_bkn_2015_s07_w00": {
    "frames": 910,
    "reproduced_share": 0.0011,
-   "pred_boxes": 7757,
-   "track_boxes": 5117,
-   "dropped": 2636,
-   "dropped_under_unconfirmed": 133,
+   "pred_boxes": 7773,
+   "track_boxes": 5094,
+   "dropped": 2676,
+   "dropped_under_unconfirmed": 161,
    "corpus_frames": 161,
    "ours_boxes": 1562,
-   "pred_boxes_on_corpus_frames": 1560,
-   "ours_matched": 1351
+   "pred_boxes_on_corpus_frames": 1563,
+   "ours_matched": 1555
   },
   "gsw_cha_2016_s07_w00": {
    "frames": 968,
    "reproduced_share": 0.0,
-   "pred_boxes": 8557,
-   "track_boxes": 8211,
-   "dropped": 345,
-   "dropped_under_unconfirmed": 345,
+   "pred_boxes": 8532,
+   "track_boxes": 6945,
+   "dropped": 1582,
+   "dropped_under_unconfirmed": 224,
    "corpus_frames": 164,
    "ours_boxes": 1523,
-   "pred_boxes_on_corpus_frames": 1535,
-   "ours_matched": 1345
+   "pred_boxes_on_corpus_frames": 1521,
+   "ours_matched": 1519
+  },
+  "gsw_sac_2015_s04_w00": {
+   "frames": 609,
+   "reproduced_share": 0.02299,
+   "pred_boxes": 5232,
+   "track_boxes": 4989,
+   "dropped": 241,
+   "dropped_under_unconfirmed": 241,
+   "corpus_frames": 186,
+   "ours_boxes": 1879,
+   "pred_boxes_on_corpus_frames": 1878,
+   "ours_matched": 1869
   }
  },
  "heavy_tracker": {
@@ -157,26 +169,25 @@
  "control_runtime": {
   "windows": [
    "gsw_bkn_2015_s07_w00",
-   "gsw_cha_2016_s07_w00"
+   "gsw_cha_2016_s07_w00",
+   "gsw_sac_2015_s04_w00"
   ],
-  "pred_boxes": 16314,
-  "track_boxes": 13328,
-  "dropped": 2981,
-  "dropped_under_unconfirmed": 478,
-  "ours_boxes": 3085,
-  "pred_boxes_on_corpus_frames": 3095,
-  "ours_matched": 2696,
-  "yield": 0.81697,
-  "unconfirmed_share_of_dropped": 0.16035,
-  "pred_over_ours": 1.00324,
-  "ours_matched_share": 0.87391
+  "pred_boxes": 21537,
+  "track_boxes": 17028,
+  "dropped": 4499,
+  "dropped_under_unconfirmed": 626,
+  "ours_boxes": 4964,
+  "pred_boxes_on_corpus_frames": 4962,
+  "ours_matched": 4943,
+  "yield": 0.79064,
+  "unconfirmed_share_of_dropped": 0.13914,
+  "pred_over_ours": 0.9996,
+  "ours_matched_share": 0.99577
  },
  "tracker_explains": false,
  "runtime_differs": false,
  "reading": "neither",
- "missing_windows": [
-  "gsw_sac_2015_s04_w00"
- ],
+ "missing_windows": [],
  "rule": {
   "repro_px": 2.0,
   "repro_share": 0.95,
