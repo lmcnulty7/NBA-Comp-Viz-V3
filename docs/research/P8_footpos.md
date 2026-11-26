@@ -119,8 +119,9 @@ Rows on the matched players both arms score (baseline, corrected; difference [wi
 
 Matched players (baseline, corrected, both): 17,414, 17,364, 17,110 on gsw_bkn_2015; 11,593, 11,534, 11,348 on
 gsw_cha_2016; 18,883, 18,803, 18,512 on gsw_sac_2015. The position rows are on the "both" set, 98 percent of the
-baseline's. That is why the baseline values here differ slightly from the registered single-arm rows (for example
-gsw_bkn_2015's p50 1.539 here against 1.535 in M6).
+baseline's. That is why the baseline values here differ slightly from the M6 rows, which are paired with the M6 model
+(gsw_bkn_2015's p50 1.539 here against 1.535 there); r23's p50 over all its 17,414 matched players is 1.546. The 2
+percent left out cannot move a median by more than a few hundredths of a foot, against gains of 0.25 ft and more.
 
 ## Reading by the registered rule
 
@@ -129,10 +130,12 @@ near-field bias by 0.94 to 1.09 ft, every window interval wholly below zero. p90
 reported, not ruled. NON-INFERIOR does not hold, as stated before computing: gsw_sac_2015's missed upper end is
 +0.0165 and its ghost upper end +0.0134, both above +0.010. PASS: no.
 
-So the short-foot bias is a real, transferable position error. Fitted on two games, the correction moves the third
+So the short-foot bias is a real, transferable position error. Post hoc, not ruled: fitted on two games, the correction moves the third
 game's near-field bias from 1.16 to 1.59 ft down to 0.06 to 0.65 ft. The first draft's Level 2 aim is "near-camera bias
-within 0.5 ft", and two of three games reach it. The same shift applied to the foot pixel costs detection on one game,
-because matching and missed are scored through the truth camera, where the bias is partly absorbed already.
+within 0.5 ft", and two of three games reach it on these leave-one-game-out pool readings; that is a development
+reading of an arm that fails NON-INFERIOR, not a Level 2 score. The same shift applied to the foot pixel costs detection on one game,
+because matching and missed are scored through the truth camera, where the bias is likely partly absorbed already
+(P8_footbias.md, step 1b; not measured here).
 
 ## Next step (as registered for POSITION GAIN without NON-INFERIOR)
 
