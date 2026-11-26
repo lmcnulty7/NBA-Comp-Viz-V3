@@ -110,3 +110,71 @@ def test_refusal_on_dirty_table_and_dirty_code(tmp_path):
         M.tracked_clean(f, repo=tmp_path)
     with pytest.raises(SystemExit):
         M.check_clean(("tools/x.py",), repo=tmp_path)
+
+
+# ── version 3 ──────────────────────────────────────────────────────────────────────────────────────────────────────
+def test_k1m_and_k1t_tables():
+    k1 = {("150-200", "near"): -0.4, ("150-200", "far"): -1.1, ("<150", "middle"): -0.9}
+    m = M.k1m_table(k1)
+    assert m[("150-200", "near")] == 0.0 and m[("150-200", "far")] == -1.1
+    t = M.k1t_table(k1, -0.2)
+    assert all(t[c] == -0.2 for c in M.CELLS if c[1] == "near")
+    assert t[("150-200", "far")] == -1.1 and t[("<150", "middle")] == -0.9
+
+
+def test_fit_near_shift():
+    b = np.ones(5)
+    a = np.array([0.1, 0.3, 0.3, 0.5, 0.9])          # median 0.3: s = 0.3 brings it to zero
+    assert M.fit_near_shift(a, b) == 0.3
+    assert M.fit_near_shift([], []) == 0.0
+    assert M.fit_near_shift(np.full(3, 5.0), np.ones(3)) == 0.5       # clipped to the grid's top
+
+
+def test_near_p90_boot():
+    ws = {}
+    for i in range(4):
+        m = {f"{i}:{j}": [1.0 + 0.1 * j, 0.0, "near"] for j in range(10)}
+        n = {k: [v[0] + 0.2, 0.0, "near"] for k, v in m.items()}
+        m["x"] = [9.0, 0.0, "far"]; n["x"] = [9.0, 0.0, "far"]
+        ws[f"w{i}"] = {"r23": {"matched": m}, "new": {"matched": n}}
+    out = M.near_p90_boot(ws, n=50)
+    assert abs(out["diff"] - 0.2) < 1e-9 and abs(out["iv"][0] - 0.2) < 1e-9
+
+
+def test_rule_and_choice_v3():
+    def res(p50, p50iv, p90iv, np90iv, before, after):
+        return {"diff": {"position_p50_ft": p50}, "iv": {"position_p50_ft": p50iv, "position_p90_ft": p90iv},
+                "near_p90": {"iv": np90iv}, "bias_reads": {"before": before, "after": after}}
+    good = res(-0.2, [-0.3, -0.1], [-0.2, 0.05], [-0.1, 0.04], 1.2, 0.3)
+    assert M.rule_v3(good)["pass"]
+    assert not M.rule_v3(res(-0.2, [-0.3, -0.1], [-0.2, 0.05], [-0.1, 0.06], 1.2, 0.3))["pass"]
+    assert not M.rule_v3(res(-0.09, [-0.3, -0.01], [-0.2, 0.05], [-0.1, 0.04], 1.2, 0.3))["pass"]
+    assert not M.rule_v3(res(-0.2, [-0.3, -0.1], [-0.2, 0.05], [-0.1, 0.04], 0.3, 0.4))["pass"]
+    mk = lambda p50, ok: {"diff": {"position_p50_ft": p50}, "rule": {"pass": ok}}
+    by = {"K1m": {g: mk(-0.20, True) for g in M.POOL}, "K1t": {g: mk(-0.25, True) for g in M.POOL},
+          "K1": {g: mk(-0.30, True) for g in M.POOL}}
+    assert M.choose_v3(by) == "K1t"                  # K1 is reference only, never chosen
+    by["K1t"][M.POOL[0]] = mk(-0.25, False)
+    assert M.choose_v3(by) == "K1m"
+    by["K1m"][M.POOL[1]] = mk(-0.20, False)
+    assert M.choose_v3(by) == "STOP"
+
+
+def test_v3_guards(tmp_path, monkeypatch):
+    import subprocess
+    import pytest
+    monkeypatch.setenv("V3_P8_ROOT", str(tmp_path / "elsewhere"))
+    with pytest.raises(SystemExit):
+        M.default_root_check()
+    monkeypatch.delenv("V3_P8_ROOT")
+    run = lambda *a: subprocess.run(list(a), cwd=tmp_path, check=True, capture_output=True)
+    run("git", "init", "-q")
+    run("git", "config", "user.email", "tester")
+    run("git", "config", "user.name", "t")
+    (tmp_path / "tools").mkdir()
+    (tmp_path / "tools" / "a.py").write_text("x = 1\n")
+    run("git", "add", "-A"); run("git", "commit", "-qm", "init")
+    M.porcelain_clean(repo=tmp_path)
+    (tmp_path / "tools" / "new.py").write_text("y = 1\n")            # untracked
+    with pytest.raises(SystemExit):
+        M.porcelain_clean(repo=tmp_path)

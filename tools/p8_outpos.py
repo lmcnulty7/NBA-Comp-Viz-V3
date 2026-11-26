@@ -7,8 +7,13 @@ rows are unchanged and adopt nothing.
     python3 -m tools.p8_outpos forms       (v2) pool only: K0 against K1 leave one game out, the form decision, the
                                            frozen K0 table and the hou_cle_2016 forecast from committed numbers:
                                            reports/research/p8_outpos_forms.json, reports/research/p8_outpos_table_k0.json
-    python3 -m tools.p8_outpos score-hou   (v2) hou_cle_2016 scored once, K0 and K1 in the same run, with the frozen,
-                                           committed, sha-pinned tables: reports/research/p8_outpos_hou.json
+    python3 -m tools.p8_outpos forms3      (v3) pool only: K1, K0 (reference), K1m and K1t leave one game out under
+                                           the v3 pool rule, the chosen form or the stop, frozen K1m and K1t tables and
+                                           the forecast: reports/research/p8_outpos_forms3.json,
+                                           reports/research/p8_outpos_table_k1m.json, reports/research/p8_outpos_table_k1t.json
+    python3 -m tools.p8_outpos score-hou   (v3) hou_cle_2016 scored once, every form in the same run, with the frozen,
+                                           committed, sha-pinned tables: reports/research/p8_outpos_hou.json, then the
+                                           post-run diagnosis in reports/research/p8_outpos_hou_diagnosis.json
 
 The arm: the pipeline's output court position of a box is B(foot_stab), B the r23 court model's per-frame H. The arm
 moves that output point by K1 (P8_footbias.md, fit rule unchanged: the median depth offset of the box's cell, box
@@ -74,6 +79,29 @@ Version 2 (docs/research/P8_outpos.md, "Design version 2"), registered before it
 - Report only: position p90 by third and by box-height bin; per game, the frames where near_side(B) differs from
   near_side(truth); after the decision, K1 fitted on hou_cle_2016 in sample as an upper bound and the transfer ratio
   (post-run diagnosis).
+  (Version 2's hou_cle_2016 run was never made: the lead counted near-third p90 growth as harm. Its score-hou refuses.)
+
+Version 3 (docs/research/P8_outpos.md, "Design version 3"), registered before its numbers:
+- Forms, named now. Reference only, not eligible: K1 (version 1) and K0 (version 2). Candidates: K1m, K1 with the
+  near third unshifted (middle and far cells as K1); K1t, K1's middle and far cells plus one near shift s fitted on the
+  scored row's own quantity: on the fit games' matched players (truth pairs, error through B) whose output point lies
+  in the near third under B, s is the value on the grid -1.50 to +0.50 ft by 0.01 that brings their median
+  toward_camera, after the shift along the ray, closest to zero (ties to the smaller |s|).
+- Pool rule, every pool game held out, for each candidate: position p50 difference at most -0.10 ft with its window
+  interval wholly below zero; position p90 (whole game) window upper end at most +0.10 ft; near-third p90 difference
+  (players whose SportVU third is near, paired) window upper end at most +0.05 ft (window bootstrap, 2,000, seed 0);
+  near-field bias after at most before; detection identical (asserted). Among the candidates that pass, the arm is
+  the one with the lowest mean p50 difference over the pool games; if none passes, the arm stops and hou_cle_2016 is
+  kept unspent. K1 and K0 are scored under the same rule for reference.
+- Forecast: k_p50 and k_p90 per form calibrated leave one game out on the pool (prediction errors reported); the
+  hou_cle_2016 forecast uses k from all three pool games. The forecast holds if the chosen form's hou_cle_2016 p50
+  difference lies within plus or minus 0.05 ft of it. The near-field bias forecast in depth terms is uncalibrated and
+  is reported beside the pool's scored near bias.
+- hou_cle_2016 rule for the chosen form: the pool rule applied to hou_cle_2016 alone.
+- Guards: score-hou writes the decision record before computing the in-sample diagnosis, which goes to its own file;
+  it refuses unless `git status --porcelain -- tools sportvu` is empty; it records the P8 workspace as "default" and
+  refuses unless p8_root() is the default workspace (V3_P8_ROOT unset or equal to it); the forms3 tables and the
+  chosen form are pinned in this file after the pool stage.
 """
 
 from __future__ import annotations
@@ -106,6 +134,18 @@ P50_BAR_FT = -0.10
 GUARDED_FILES = ("tools/p8_outpos.py", "tools/p8_footbias.py", "tools/p8_placement.py", "tools/p8_scorecard.py",
                  "tools/p8_e1_score.py")
 CELLS = tuple((h, t) for h in ("<150", "150-200", "200-250", ">=250") for t in ("near", "middle", "far"))
+TABLE_K1M = REPO / "reports" / "research" / "p8_outpos_table_k1m.json"
+TABLE_K1T = REPO / "reports" / "research" / "p8_outpos_table_k1t.json"
+FORMS3_RECORD = REPO / "reports" / "research" / "p8_outpos_forms3.json"
+HOU_DIAG = REPO / "reports" / "research" / "p8_outpos_hou_diagnosis.json"
+CANDIDATES = ("K1m", "K1t")
+REFERENCE = ("K1", "K0")
+NEAR_P90_MARGIN_FT = 0.05
+FORECAST_TOL_FT = 0.05
+S_GRID = tuple(round(-1.50 + 0.01 * i, 2) for i in range(201))
+K1M_SHA = None            # v3: pinned after forms3
+K1T_SHA = None            # v3: pinned after forms3
+CHOSEN_FORM_V3 = None     # v3: pinned after forms3 ("STOP" if no candidate passes)
 
 
 # ── pure ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -384,8 +424,9 @@ def frame_matched_forms(fr: dict, tables: dict) -> tuple:
     return pinned, variants, hb
 
 
-def score_forms(game: dict, tables: dict) -> dict:
-    """Both forms against the pinned rows on one game, with the report-only breakdowns."""
+def score_forms(game: dict, tables: dict, keep_windows: dict | None = None) -> dict:
+    """Every form against the pinned rows on one game, with the report-only breakdowns. keep_windows, when given,
+    receives each form's window records."""
     from sportvu.eval import near_side
     from tools.p8_e1_score import boot, diffs, rows
     wins, hbs, ns_diff, ns_frames = {}, {}, 0, 0
@@ -406,6 +447,8 @@ def score_forms(game: dict, tables: dict) -> dict:
                     w[side][k] += c[k]
                 w[side]["matched"].update(m)
     out = {"near_side_differs": {"frames_with_build_H": ns_frames, "differs": ns_diff}, "forms": {}}
+    if keep_windows is not None:
+        keep_windows.update(wins)
     keep = POSITION_ROWS + ("missed_rate", "ghost_rate")
     for f, ws in wins.items():
         for name, w in ws.items():
@@ -500,6 +543,8 @@ def cmd_forms(args) -> dict:
 
 
 def cmd_score_hou_v2(args) -> dict:
+    """Version 2, never run: the lead counted near-third p90 growth as harm (version 3). It refuses to run."""
+    raise SystemExit(f"{WHO}: version 2 score-hou is replaced by version 3")
     check_once(HOU_RECORD, marker_path())
     head = check_clean()
     prov = {"K1": {"sha256": check_frozen(TABLE, K1_SHA), "commit": tracked_clean(TABLE)},
@@ -544,14 +589,259 @@ def cmd_score_hou_v2(args) -> dict:
     return out
 
 
+# ── version 3 ──────────────────────────────────────────────────────────────────────────────────────────────────────
+def k1m_table(k1: dict) -> dict:
+    """K1 with the near third unshifted."""
+    return {c: (0.0 if c[1] == "near" else v) for c, v in k1.items()}
+
+
+def k1t_table(k1: dict, s_near: float) -> dict:
+    """K1's middle and far cells plus one near shift for every near cell."""
+    out = {c: v for c, v in k1.items() if c[1] != "near"}
+    out.update({c: s_near for c in CELLS if c[1] == "near"})
+    return out
+
+
+def fit_near_shift(a, b) -> float:
+    """The grid value s whose shifted toward_camera a - s * b has the median closest to zero (ties to smaller |s|)."""
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    if not len(a):
+        return 0.0
+    return min(S_GRID, key=lambda s: (round(abs(float(np.median(a - s * b))), 9), abs(s), s))
+
+
+def near_toward_terms(game: dict) -> tuple:
+    """(a, b) over matched players whose output point lies in the near third under B: toward_camera now (a), and its
+    change per foot of shift along the ray (b), so that toward after a shift s is a - s * b."""
+    import cv2
+    from sportvu.bench import MATCH_FT
+    from sportvu.eval import near_side
+    from sportvu.truth import _match
+    from tools.p8_scorecard import third_of
+    A, Bv = [], []
+    for fr in game["frames"]:
+        feet = np.asarray(fr["px"], np.float32).reshape(-1, 2)
+        if not len(feet) or fr["Hb"] is None or fr["Gb"] is None:
+            continue
+        ct = cv2.perspectiveTransform(feet.reshape(-1, 1, 2), fr["Ht"]).reshape(-1, 2)
+        pairs = _match(ct, fr["sv"], MATCH_FT)
+        cp_ = cv2.perspectiveTransform(feet.reshape(-1, 1, 2), fr["Hb"]).reshape(-1, 2).astype(np.float64)
+        nh = near_side(fr["Ht"])
+        for bi, j, _ in pairs:
+            if third_of(cp_[bi][1], fr["nhb"]) != "near":
+                continue
+            e = cp_[bi] - fr["sv"][j]
+            u, _ = depth_basis(fr["Gb"], cp_[bi])
+            A.append(float(e[1] if nh else -e[1]))
+            Bv.append(float(u[1] if nh else -u[1]))
+    return np.array(A), np.array(Bv)
+
+
+def near_p90_boot(ws: dict, n: int = 2000, seed: int = 0) -> dict:
+    """Paired near-third (SportVU third) p90 difference, variant minus pinned, with its window bootstrap interval."""
+    per = {}
+    for name, v in ws.items():
+        ks = v["r23"]["matched"].keys() & v["new"]["matched"].keys()
+        a = [v["r23"]["matched"][k][0] for k in ks if v["r23"]["matched"][k][2] == "near"]
+        b = [v["new"]["matched"][k][0] for k in ks if v["r23"]["matched"][k][2] == "near"]
+        if a:
+            per[name] = (np.array(a), np.array(b))
+    keys = sorted(per)
+    if not keys:
+        return {"diff": None, "iv": None}
+
+    def stat(ix):
+        a = np.concatenate([per[keys[i]][0] for i in ix]); b = np.concatenate([per[keys[i]][1] for i in ix])
+        return float(np.percentile(b, 90) - np.percentile(a, 90))
+
+    d = stat(range(len(keys)))
+    rng = np.random.default_rng(seed)
+    reps = [stat(rng.integers(0, len(keys), len(keys))) for _ in range(n)]
+    return {"diff": d, "iv": [float(np.percentile(reps, 2.5)), float(np.percentile(reps, 97.5))]}
+
+
+def rule_v3(res: dict) -> dict:
+    """One game's result of one form -> the pool rule's checks."""
+    d, iv = res["diff"], res["iv"]
+    c1 = d.get("position_p50_ft") is not None and iv.get("position_p50_ft") is not None and \
+        d["position_p50_ft"] <= P50_BAR_FT and iv["position_p50_ft"][1] < 0
+    c2 = iv.get("position_p90_ft") is not None and iv["position_p90_ft"][1] <= P90_MARGIN_FT
+    np90 = res.get("near_p90") or {}
+    c3 = np90.get("iv") is not None and np90["iv"][1] <= NEAR_P90_MARGIN_FT
+    br = res.get("bias_reads") or {}
+    c4 = br.get("after") is not None and br.get("before") is not None and br["after"] <= br["before"]
+    return {"p50": bool(c1), "p90": bool(c2), "near_p90": bool(c3), "bias_guard": bool(c4),
+            "detection_identical": True, "pass": bool(c1 and c2 and c3 and c4)}
+
+
+def choose_v3(by_form: dict) -> str:
+    """by_form: {form: {game: result with "rule" and "diff"}} -> the passing candidate with the lowest mean p50
+    difference, or "STOP"."""
+    ok = [f for f in CANDIDATES if f in by_form and all(r["rule"]["pass"] for r in by_form[f].values())]
+    if not ok:
+        return "STOP"
+    return min(ok, key=lambda f: (np.mean([r["diff"]["position_p50_ft"] for r in by_form[f].values()]), f))
+
+
+def default_root_check() -> str:
+    import os
+    from pathlib import Path as _P
+    default = (_P.home() / "Developer" / "nba-v3-worktrees" / "_p8-data" / "work").resolve()
+    env = os.environ.get("V3_P8_ROOT")
+    if (env and _P(env).expanduser().resolve() != default) or p8_root().resolve() != default:
+        raise SystemExit(f"{WHO}: the P8 workspace is not the default one; refusing")
+    return "default (<home>/Developer/nba-v3-worktrees/_p8-data/work)"
+
+
+def porcelain_clean(repo=None) -> None:
+    out = subprocess.run(["git", "status", "--porcelain", "--", "tools", "sportvu"], cwd=repo or REPO,
+                         capture_output=True, text=True).stdout.strip()
+    if out:
+        raise SystemExit(f"{WHO}: tools/ or sportvu/ has uncommitted or untracked changes")
+
+
+def cmd_forms3(args) -> dict:
+    check_games(POOL)
+    games = {t: load_frames(t) for t in POOL}               # pool only: no hou_cle_2016 file is read here
+    offs = {t: offset_rows(games[t])[0] for t in POOL}
+    near = {t: near_toward_terms(games[t]) for t in POOL}
+    by_form = {f: {} for f in REFERENCE + CANDIDATES}
+    extra = {}
+    for held in POOL:
+        fit_rows = [r for g in POOL if g != held for r in offs[g]]
+        k1 = fit(fit_rows)["K1"]
+        a = np.concatenate([near[g][0] for g in POOL if g != held])
+        b = np.concatenate([near[g][1] for g in POOL if g != held])
+        s_near = fit_near_shift(a, b)
+        tables = {"K1": k1, "K0": k0_table(fit_rows), "K1m": k1m_table(k1), "K1t": k1t_table(k1, s_near)}
+        res, wins = score_forms_with_windows(games[held], tables)
+        extra[held] = {"near_side_differs": res["near_side_differs"], "s_near": s_near,
+                       "tables": {f: table_to_json(t) for f, t in tables.items()}}
+        for f, r in res["forms"].items():
+            r["near_p90"] = near_p90_boot(wins[f])
+            r["rule"] = rule_v3(r)
+            by_form[f][held] = r
+        print(held, json.dumps(rnd({f: {"p50": by_form[f][held]["diff"]["position_p50_ft"],
+                                         "near_p90": by_form[f][held]["near_p90"], "rule": by_form[f][held]["rule"]["pass"]}
+                                    for f in by_form})))
+    chosen = choose_v3(by_form)
+    # frozen tables from all three pool games
+    k1_frozen = table_from_json(json.loads(TABLE.read_text())["table"])
+    a = np.concatenate([near[g][0] for g in POOL]); b = np.concatenate([near[g][1] for g in POOL])
+    s_all = fit_near_shift(a, b)
+    frozen = {"K1": k1_frozen, "K0": table_from_json(json.loads(TABLE_K0.read_text())["table"]),
+              "K1m": k1m_table(k1_frozen), "K1t": k1t_table(k1_frozen, s_all)}
+    for f, path in (("K1m", TABLE_K1M), ("K1t", TABLE_K1T)):
+        atomic_write(path, json.dumps(rnd({"what": f"{f} table frozen from the 3 pool games (docs/research/P8_outpos.md "
+                                                   f"version 3)", "games": list(POOL),
+                                           **({"s_near": s_all} if f == "K1t" else {}),
+                                           "table": table_to_json(frozen[f])}), indent=1))
+    # forecast with leave-one-game-out calibration of k
+    fb = json.loads(FOOTBIAS_RECORD.read_text())["cells"]
+    cnt = lambda g: {c: v.get(g) for c, v in fb["count"].items()}
+    med = lambda g: {c: v.get(g) for c, v in fb["median_depth"].items()}
+    fc = {}
+    for f in REFERENCE + CANDIDATES:
+        Rg = {g: removed_bias(cnt(g), med(g), table_from_json(extra[g]["tables"][f])) for g in POOL}
+        dp50 = {g: by_form[f][g]["diff"]["position_p50_ft"] for g in POOL}
+        dp90 = {g: by_form[f][g]["diff"]["position_p90_ft"] for g in POOL}
+        loo = {}
+        for g in POOL:
+            o = [h for h in POOL if h != g]
+            k = sum(dp50[h] for h in o) / sum(Rg[h] for h in o)
+            loo[g] = {"k_p50_without_g": k, "predicted": k * Rg[g], "observed": dp50[g], "error": k * Rg[g] - dp50[g]}
+        k50 = sum(dp50.values()) / sum(Rg.values())
+        k90 = sum(dp90.values()) / sum(Rg.values())
+        Rh = removed_bias(cnt("hou_cle_2016"), med("hou_cle_2016"), frozen[f])
+        bias_pool = {g: {"depth_terms_forecast": bias_forecast(cnt(g), med(g), table_from_json(extra[g]["tables"][f])),
+                         "scored_bias_by_third": by_form[f][g].get("bias_by_third")} for g in POOL}
+        fc[f] = {"R_pool": Rg, "loo": loo, "k_p50": k50, "k_p90": k90, "R_hou": Rh,
+                 "forecast_p50_diff": k50 * Rh, "forecast_p90_diff": k90 * Rh,
+                 "forecast_tolerance_ft": FORECAST_TOL_FT,
+                 "bias_forecast_depth_terms_uncalibrated": bias_forecast(cnt("hou_cle_2016"), med("hou_cle_2016"),
+                                                                         frozen[f]),
+                 "bias_pool_check": bias_pool}
+    out = rnd({"what": "Outpos version 3, pool only (third pool look): K1 and K0 for reference, candidates K1m and K1t, "
+                       "leave one game out under the v3 pool rule; frozen K1m and K1t tables; forecast "
+                       "(docs/research/P8_outpos.md); no hou_cle_2016 file read",
+               "games": {g: extra[g] for g in POOL}, "results": by_form, "chosen_form": chosen,
+               "candidates": list(CANDIDATES), "reference": list(REFERENCE), "s_near_all_pool": s_all,
+               "table_sha256": {"K1": sha256_of(TABLE), "K0": sha256_of(TABLE_K0), "K1m": sha256_of(TABLE_K1M),
+                                "K1t": sha256_of(TABLE_K1T)},
+               "forecast": fc})
+    atomic_write(FORMS3_RECORD, json.dumps(out, indent=1))
+    print(json.dumps({"chosen": chosen, "s_near_all_pool": out["s_near_all_pool"],
+                      "forecast": {f: {k: v[k] for k in ("forecast_p50_diff", "forecast_p90_diff")}
+                                   for f, v in out["forecast"].items()}}, indent=1))
+    return out
+
+
+def score_forms_with_windows(game: dict, tables: dict) -> tuple:
+    """score_forms, also returning each form's window records (for the near-third p90 bootstrap)."""
+    captured = {}
+    res = score_forms(game, tables, keep_windows=captured)
+    return res, captured
+
+
+def cmd_score_hou_v3(args) -> dict:
+    check_once(HOU_RECORD, marker_path())
+    porcelain_clean()
+    head = check_clean()
+    root = default_root_check()
+    if CHOSEN_FORM_V3 not in CANDIDATES:
+        raise SystemExit(f"{WHO}: no v3 form is pinned (CHOSEN_FORM_V3 = {CHOSEN_FORM_V3}); hou_cle_2016 stays unspent")
+    paths = {"K1": (TABLE, K1_SHA), "K0": (TABLE_K0, K0_SHA), "K1m": (TABLE_K1M, K1M_SHA), "K1t": (TABLE_K1T, K1T_SHA)}
+    prov = {f: {"sha256": check_frozen(pth, sha), "commit": tracked_clean(pth)} for f, (pth, sha) in paths.items()}
+    rec3 = json.loads(FORMS3_RECORD.read_text())
+    tracked_clean(FORMS3_RECORD)
+    if rec3["chosen_form"] != CHOSEN_FORM_V3:
+        raise SystemExit(f"{WHO}: the pinned form differs from the forms3 record")
+    marker = marker_path()
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    atomic_write(marker, json.dumps({"head": head, "chosen_form": CHOSEN_FORM_V3, "version": 3}))
+    tables = {f: table_from_json(json.loads(pth.read_text())["table"]) for f, (pth, _) in paths.items()}
+    check_games(CHECK)
+    game = load_frames(CHECK[0])
+    res, wins = score_forms_with_windows(game, tables)
+    for f, r in res["forms"].items():
+        r["near_p90"] = near_p90_boot(wins[f])
+        r["rule"] = rule_v3(r)
+    ch = CHOSEN_FORM_V3
+    fcast = rec3["forecast"][ch]["forecast_p50_diff"]
+    got = res["forms"][ch]["diff"]["position_p50_ft"]
+    out = rnd({"what": "Outpos version 3: hou_cle_2016 scored once, every form in the same run, frozen sha-pinned "
+                       "tables (docs/research/P8_outpos.md); report-only scorer variant beside the pinned rows",
+               "head": head, "p8_root": root, "tables": prov, "chosen_form": ch, **res,
+               "decision": {"chosen": ch, **res["forms"][ch]["rule"], "verdict": "PASS" if res["forms"][ch]["rule"]["pass"]
+                            else "FAIL"},
+               "forecast_check": {"forecast_p50_diff": fcast, "observed_p50_diff": got,
+                                  "holds": bool(abs(got - fcast) <= FORECAST_TOL_FT), "tolerance_ft": FORECAST_TOL_FT},
+               "cells_matter": {"chosen_p50_diff": got, "K0_p50_diff": res["forms"]["K0"]["diff"]["position_p50_ft"],
+                                "chosen_beats_K0": bool(got < res["forms"]["K0"]["diff"]["position_p50_ft"]),
+                                "label": "development evidence"}})
+    atomic_write(HOU_RECORD, json.dumps(out, indent=1))          # the decision is written before the diagnosis
+    print(json.dumps({k: out[k] for k in ("decision", "forecast_check", "cells_matter")}, indent=1))
+    ins = fit(offset_rows(game)[0])["K1"]
+    ins_res = score_forms(game, {"K1_in_sample": ins})["forms"]["K1_in_sample"]
+    diag = rnd({"label": "post-run diagnosis, computed after the decision record was written; in sample, an upper bound",
+                "in_sample_p50_diff": ins_res["diff"]["position_p50_ft"],
+                "in_sample_nearfield_bias_diff": ins_res["diff"]["nearfield_bias_ft"],
+                "transfer_ratio_p50_K1": (res["forms"]["K1"]["diff"]["position_p50_ft"] /
+                                          ins_res["diff"]["position_p50_ft"] if ins_res["diff"]["position_p50_ft"] else None),
+                "in_sample_table": table_to_json(ins)})
+    atomic_write(HOU_DIAG, json.dumps(diag, indent=1))
+    return out
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_outpos")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("pool")
     sub.add_parser("forms")
+    sub.add_parser("forms3")
     sub.add_parser("score-hou")
     a = ap.parse_args(argv)
-    {"pool": cmd_pool, "forms": cmd_forms, "score-hou": cmd_score_hou_v2}[a.cmd](a)
+    {"pool": cmd_pool, "forms": cmd_forms, "forms3": cmd_forms3, "score-hou": cmd_score_hou_v3}[a.cmd](a)
 
 
 if __name__ == "__main__":

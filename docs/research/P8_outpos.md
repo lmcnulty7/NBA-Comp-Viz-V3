@@ -299,3 +299,87 @@ What the forecast says, before any hou_cle_2016 file is read:
 Next: a commit pinning the K0 table's sha256 and the chosen form (K1) in tools/p8_outpos.py. Then stop for the lead's
 re-review. score-hou has not run.
 
+
+## Design version 3 (2026-11-26, after the re-review of version 2; registered before any of its numbers)
+
+The re-review of version 2 came back GO WITH FIXES and left one decision to the lead. The lead decided that growth
+of the near-third p90 counts as harm: the near third is where the Level 2 near-camera aim lives. On the pool, K1
+raises near-third p90 on every game (3.11 to 3.23, 3.05 to 3.12, 3.13 to 3.26 ft). It also over-corrects the near
+bias: on gsw_bkn_2015 the near third's scored bias goes from 0.01 to 0.40 ft. The build-frame near medians (0.29 to
+0.48 ft) overstate the scored row's near bias (0.01 to 0.37 ft). hou_cle_2016 was therefore not spent on version 2:
+its score-hou was never run and now refuses. Version 3 starts with a pool-only stage. No hou_cle_2016 raw file has
+been read for this arm.
+
+### Forms, named before computing
+
+- Reference only, not eligible: K1 (version 1's cells) and K0 (version 2's global shift). Both are scored under the
+  same rule so the reader can compare.
+- Candidate K1m: K1 with the near third unshifted. The middle and far cells shift as in K1.
+- Candidate K1t: K1's middle and far cells, plus one near shift s fitted on the scored row's own quantity, leave one
+  game out.
+  - The fit uses the fit games' matched players (truth pairs, error through B) whose output point lies in the near
+    third under B.
+  - s is the value on a grid from -1.50 to +0.50 ft, by 0.01, that brings their median toward_camera closest to zero
+    after the shift along the ray. Ties go to the smaller |s|.
+  - Why this second variant is justified: the over-correction comes from fitting the near shift on the build-frame
+    depth offset while the scored row reads toward_camera on matched players. K1t fits the near third on the scored
+    quantity itself.
+- No other form will be tried in version 3.
+
+### Pool rule (every pool game held out, each candidate)
+
+1. Position p50 difference at most -0.10 ft, with its window interval wholly below zero.
+2. Position p90 (the whole game) window interval upper end at most +0.10 ft.
+3. Near-third p90 difference, paired on matched players whose SportVU third is near, with a window bootstrap
+   (2,000 resamples, seed 0): upper end at most +0.05 ft. This is half the pooled margin, because a subgroup tail
+   should not grow by more than noise. It was set from that reason, not from the data.
+4. Near-field bias guard: the row after at most the row before.
+5. Detection identical (asserted in code).
+
+Among the candidates that pass on every pool game, the arm is the one with the lowest mean p50 difference over the
+pool games. If no candidate passes, the arm stops and hou_cle_2016 is kept unspent. The hou_cle_2016 rule for the
+chosen form is the same pool rule applied to hou_cle_2016 alone.
+
+### Forking paths
+
+This is the third look at the pool for this arm. Version 1's pool rows (18df8e7f) and version 2's K0 against K1 rows
+(73a27713) are seen, including the near-third p90 and the near-field bias by third. The candidate forms were chosen
+after seeing them. Everything listed under versions 1 and 2 about hou_cle_2016 is still seen: its per-cell medians and
+counts, its missed gains, its offsets, its pinned position rows.
+
+### Forecast (fixes review finding 2)
+
+- k_p50 and k_p90 per form are calibrated leave one game out on the pool. Each pool game is predicted from the other
+  two, and the prediction errors are reported. The hou_cle_2016 forecast uses k from all three pool games.
+- Registered tolerance: the forecast holds if the chosen form's hou_cle_2016 p50 difference lies within plus or minus
+  0.05 ft of it.
+- The near-field bias forecast is in depth terms and is uncalibrated. On the pool, its near third runs low against the
+  scored near bias, as shown by the build-frame medians against the scored near bias above. The run reports the
+  pool's depth-term forecast beside its scored bias by third.
+
+### Claim limits (fixes review finding 3)
+
+- K1's order over K0 on the pool was below noise. The margin on gsw_sac_2015 was 0.005 ft, against window intervals
+  about 0.1 ft wide.
+- A claim that the cells matter rests only on the hou_cle_2016 comparison of the chosen form against K0, and that is
+  development evidence.
+- Every claim limit of version 2 still holds: detection is identical by construction of the scorer only; the rows are
+  per box, not trajectories; the evidence is one game; the directions were predictable; nothing is adopted without a D
+  line.
+
+### Guards (fixes review finding 4)
+
+- score-hou writes the decision record (reports/research/p8_outpos_hou.json) before it computes the in-sample
+  diagnosis. The diagnosis goes to its own file, reports/research/p8_outpos_hou_diagnosis.json.
+- It refuses unless `git status --porcelain -- tools sportvu` is empty, which covers untracked files too.
+- It records the P8 workspace as "default". It refuses unless p8_root() is the default workspace, meaning
+  V3_P8_ROOT is unset or equal to it.
+- The once-only marker, the pinned shas of every form's table, the clean-code check and HEAD stay as in version 2.
+- After the pool stage, the tool is pinned again with the frozen K1m and K1t tables' sha256 and the chosen form (or
+  STOP). score-hou refuses unless a candidate is pinned.
+- Tests cover the near-third bootstrap, the rule, the choice (reference forms never chosen; STOP when none passes),
+  the default-workspace refusal and the porcelain refusal.
+
+### Version 3 pool results
+
+Not computed yet.
