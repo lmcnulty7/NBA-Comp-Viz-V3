@@ -503,6 +503,12 @@ def sign_rule(offsets: dict) -> bool:
 
 
 def rnd(x):
+    if isinstance(x, np.bool_):
+        return bool(x)
+    if isinstance(x, np.integer):
+        return int(x)
+    if isinstance(x, np.floating):
+        x = float(x)
     if isinstance(x, float):
         return round(x, 5)
     if isinstance(x, dict):
