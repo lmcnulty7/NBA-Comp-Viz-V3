@@ -638,3 +638,35 @@ about 4.2 to 5.8 lock hours.
   callbacks, that the versions are the pinned ones, that PlayerTracker has reset and update, that the weights are
   r23 and that TRACKER_REID is unset; it writes resetfix/stage0.json, and the smoke refuses to start without it.
 - The tests are rerun on the committed head.
+
+## 17. Result of the version 2.2 simulation (2026-11-26, stored files, no lock)
+
+Record: reports/research/p8_resetfix_simulate_v22.json. The centre's fast intervals equal the real rows, diffs and
+boot (checked). As registered in section 16 (A3):
+
+| | value |
+|---|---|
+| pool pass probability | 0.00 |
+| adoption probability (bracket guard taken as passing) | 0.00 |
+| per game pass: gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 | 0.004, 0.00, 0.43 |
+| failing conditions (share of draws) | pooled ghost margin 1.00; gsw_cha_2016 ghost 1.00; gsw_bkn_2015 ghost 1.00; gsw_sac_2015 ghost 0.57 |
+| pooled missed difference (5th, 50th, 95th) | -0.108, -0.087, -0.064 |
+| pooled ghost difference | +0.010, +0.014, +0.019 |
+| upper end of the pooled ghost window interval | +0.023, +0.030, +0.038 (margin +0.010) |
+| gsw_cha_2016 ghost window upper end | +0.068, +0.091, +0.117 |
+| gsw_cha_2016 ghost difference at the centre | +0.036, interval [+0.001, +0.090] |
+| q (Beta mean): gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015 | 0.18, 0.65, 0.19 |
+
+Reading, as registered: if the truth rebuilt with the fix lets post-reset frames in at the rates part (a) implies, the
+arm's missed gain is large (pooled about -0.09) but its ghost cost breaks the pooled ghost margin in every draw, so
+under section 16's rule the fix would not be adopted. The ghost cost comes from the r23 boxes the bug now drops after
+a reset: a fifth of the excess on gsw_bkn_2015 and gsw_sac_2015, two thirds on gsw_cha_2016, are more than 3 ft from
+every SportVU player.
+
+Post hoc, not ruled (labelled as such): the registered scaling multiplies the scorer universe's after-reset counts by
+the label builds' under-representation factor, and the two measure different things (the r23 build's resets against
+the label build's, players against frames). After scaling, the share of in-frame players after a first reset becomes
+0.46, 0.16 and 0.15 (gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015), against 0.13, 0.17 and 0.11 of processed frames after
+a first reset in the r23 builds. So the scaling overshoots on gsw_bkn_2015 by about 3.5 times and is close on the
+other two; gsw_cha_2016's ghost failure does not depend on the overshoot. A scaling to the processed-frame share is a
+possible sensitivity check; it is not run, since it was not registered.
