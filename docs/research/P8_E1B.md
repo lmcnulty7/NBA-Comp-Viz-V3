@@ -15,6 +15,10 @@ findings (pilot fold, checkpoint epochs, mask placement, duplicate guard, team m
 selection metric, classes and referees, checklist) are not fixed in this version; they matter only if section 2b's
 gate passes.
 
+Status after section 2b (2026-11-26): its gate fails (perfect-imitation build ceiling -0.0199 pooled, -0.0079 on
+gsw_cha_2016). E1b with the L1 label set stops before any unit is spent. Section 2c proposes the placement route as
+the next step.
+
 ## 1. Question and mechanism
 
 Question: can a detector fine-tuned from r23 on boxes from the qualified outside teacher lower the missed-players row
@@ -114,7 +118,8 @@ Reading:
 - Even at the label ceiling about 0.17 of in-frame players stay missed on raw boxes. A detector recipe alone cannot
   reach Level 2's 5% target; the placement problem (foot point, near-field geometry, or truth and timing error, not
   separated here) is the larger lever and needs its own measurement (section 11).
-- The bound is above the needed effect (section 6): with presence transferring fully and placement at E1's raw to
+- Superseded by section 2b, which measures the transfer instead of assuming it. As version 1 wrote it: the bound is
+  above the needed effect (section 6): with presence transferring fully and placement at E1's raw to
   build ratio (0.43), the ceiling is about 0.016 + 0.064 x 0.43 = 0.044 at build level against 0.020 needed. So the
   bound permits E1b, by a factor of about two, not more.
 
@@ -153,6 +158,81 @@ record: reports/research/p8_e1b_transfer.json):
 - Caveats fixed now: the fractions come from one arm (E1, seed 0) whose gains were mostly placement; applying them to
   L1 assumes L1's gains of each kind carry into the build like E1's did. The transfer of a presence gain is estimated
   from few events on some games.
+
+### 2b results (computed 2026-11-26, after the section above was committed in 43af4ded)
+
+Stored files only (corpus preds, M4's CPU preds, the reference-platform sidecars); no model ran, nothing under
+DATA_ROOT was read, about 7 seconds. Every corpus frame of the 3 games was processed by both builds (none skipped).
+
+| | gsw_bkn_2015 | gsw_cha_2016 | gsw_sac_2015 | Pooled |
+| --- | --- | --- | --- | --- |
+| In-frame players | 20,477 | 13,414 | 21,144 | 55,035 |
+| E1 presence gains, share kept at build (f_pres) | 172, 0.616 | 33, 0.364 | 102, 0.461 | |
+| E1 placement gains, share kept (f_plc) | 796, 0.378 | 446, 0.240 | 833, 0.298 | |
+| E1 raw losses, share carried (f_loss) | 564, 0.433 | 364, 0.396 | 593, 0.433 | |
+| L1 presence P, placement Q, losses L | 473, 1,361, 374 | 114, 789, 315 | 304, 1,344, 449 | 891, 3,494, 1,138 |
+| C, perfect imitation (gate) [window interval] | -0.0315 [-0.0382, -0.0249] | -0.0079 [-0.0117, -0.0033] | -0.0164 [-0.0212, -0.0116] | -0.0199 [-0.0236, -0.0163] |
+| Half of C (report only) | -0.0157 | -0.0040 | -0.0082 | -0.0100 |
+| C_opt, no loss term (report only) [window interval] | -0.0394 [-0.0462, -0.0324] | -0.0172 [-0.0207, -0.0139] | -0.0256 [-0.0299, -0.0212] | -0.0287 [-0.0324, -0.0251] |
+| E1 raw difference on these frames | -0.0197 | -0.0086 | -0.0162 | -0.0156 |
+| E1 build difference on these frames | -0.0147 | +0.0067 | -0.0074 | -0.0067 |
+| Transfer model's prediction for E1 (check) | -0.0080 | +0.0019 | -0.0018 | -0.0032 |
+
+Gate: fails on both clauses. C pooled is -0.0199 (needed at most -0.020) and gsw_cha_2016 is -0.0079 (needed at most
+-0.010). By the rule fixed in advance, E1b with the L1 label set stops here, before any unit is spent. The reviewer's
+independent estimate (about -0.020 pooled, -0.008 on gsw_cha_2016) agrees.
+
+Reading:
+
+- Even a student that reproduced the teacher's boxes exactly would, on E1's transfer, lower build-level misses by
+  about 0.008 on gsw_cha_2016; a realistic half is about 0.004, inside that game's window noise (half-width about
+  0.006). The pool rule needs every game below zero, so the arm would most likely fail on gsw_cha_2016.
+- The optimistic variant (a student that also keeps every r23 find) reaches -0.0172 on gsw_cha_2016 and -0.0287
+  pooled; at half that is about -0.009 and -0.014, still short of a reliable pass on every game. It is report only.
+- The check: the transfer model predicts -0.0032 pooled for E1 against E1's measured -0.0067 on the same frames. The
+  rest (-0.0035 pooled) comes from players whose raw status is the same in both arms but whose build status differs
+  (tracking), and it has no fixed sign: -0.0067 on gsw_bkn_2015, +0.0048 on gsw_cha_2016, -0.0056 on gsw_sac_2015.
+  The model is therefore uncertain by about that much per game, in both directions; on gsw_cha_2016 the residual
+  would make the ceiling worse, not better.
+- Placement gains keep only 0.24 to 0.38 of their raw size at build level, presence gains 0.36 to 0.62. Three
+  quarters of L1's reachable headroom is placement, which the build's foot stabilisation already partly corrects.
+  This is why a better detector label set buys little at build level here.
+
+### 2c. What this implies for the placement route: the proposed next step
+
+The measured numbers point at the foot, not the detector. 57 percent of r23's raw misses are boxes whose foot lands
+2.5 to 5 ft from SportVU with no model doing better (section 2); a further 25 percent are placement misses the teacher
+places closer; and gains made by moving raw box bottoms survive the build at only about 0.3, because the build's foot
+stabilisation acts on the same error. A fix should act where the scorer reads the position, on the build's
+stabilised foot, and be measured there.
+
+Proposed next step, in order, each with its own registration:
+
+1. Measurement (report only; stored files: corpus frames, the reference-platform r23 sidecars and the SportVU
+   moments; minutes, no units, no lock if it reads only the P8 workspace as sections 2 and 2b did). For r23's
+   build-level misses whose nearest foot_stab lies 2.5 to 5 ft away: the offset from the SportVU position to that foot,
+   split into the camera-depth direction (along the ground ray from the camera) and across it, by camera third and
+   expected height; and its alignment with the player's SportVU velocity (a timing offset shows as error along the
+   direction of motion). Reading rule to fix before it runs: a systematic offset (for example a median depth offset
+   in a third beyond a preset size, or error aligned with velocity) is correctable; a scattered one means these misses
+   are truth or timing noise at the 2.5 ft gate, and the missed row's floor is set by the truth, not the detector.
+2. If systematic: a foot correction fitted on training folds only (leave one game out, as E1), for example a depth-
+   and third-dependent shift of foot_stab (Level 2 step 5, near-camera bias), or a timing correction if the error
+   follows velocity. It is scored by rescoring the existing reference-platform sidecars with corrected feet, as M5
+   rescored bottom centres: about 2 lock minutes a game, so the pool plus hou_cle_2016 costs well under one lock hour
+   and no units. The adoption rule of section 5 applies unchanged (missed targeted, the other rows non-inferior), and
+   position and near-field bias are rows it is expected to move too.
+3. If scattered: the Level 2 missed target is restated against the truth's own floor, and the detector is revisited
+   only for the presence share (0.016 of in-frame players at raw level), which no current label set reaches at
+   build level by enough to matter.
+
+Cost against E1b: the first two steps need no Colab unit and about one lock hour in all, against about 17 to 22 units
+and 34 lock hours for the E1b ladder.
+
+## Sections 3 to 15: version 1, not run
+
+The gate of section 2b failed, so nothing below runs. Sections 3 to 15 are kept as version 1 wrote them, for the
+record; the reviewer's findings 2 to 12 on them were not addressed.
 
 ## 3. Recipe (fixed)
 
@@ -459,3 +539,4 @@ queue item 6) is not assumed: it failed its parity rule (D174 (5)) and registere
 | Date | Run | Stage | Compute | Outcome against its gate | Lesson |
 | --- | --- | --- | --- | --- | --- |
 | 2026-11-26 | E1b design | design and upper bound | none (stored files, seconds) | teacher-label ceiling -0.080 raw, 31 percent of misses, mostly placement | the reachable part of misses is mostly foot placement, which the build partly corrects already |
+| 2026-11-26 | E1b transfer gate | design gate (section 2b) | none (stored files, seconds) | fails: perfect-imitation build ceiling -0.0199 pooled, -0.0079 on gsw_cha_2016 (needed -0.020 and -0.010 on every game); E1b stops before any unit | measure transfer to the scored row before sizing a label set; placement gains keep about 0.3 at build level |
