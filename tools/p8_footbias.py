@@ -2,6 +2,8 @@
 no model runs, nothing is built, trained or changed.
 
     python3 -m tools.p8_footbias measure  -> <P8 workspace>/placement/footbias.json and reports/research/p8_footbias.json
+    python3 -m tools.p8_footbias decompose -> <P8 workspace>/placement/footbias_decompose.json and
+                                              reports/research/p8_footbias_decompose.json (report only)
 
 Question: is r23's foot offset, measured under the build's own court H (which needs no truth to apply), consistent
 enough across games to correct, and would a correction fitted leave one game out lower the registered missed row on
@@ -47,6 +49,13 @@ Rules, fixed before any number:
   pool game held out: net change in missed (all in-frame players, scored through the truth camera) at most -0.010, and
   a non-referee ghost rate change of at most 0 (point estimates).
 - Intervals: window bootstrap, 2,000 resamples, seed 0, windows resampled whole, for the net missed and ghost changes.
+- B is the r23 court model's per-frame H (shared by the CPU and MPS r23 builds). The camera truth was initialised from
+  and fitted to the V3 label build's H, not B.
+- decompose (registered after measure's result, before its own numbers): d_H = B(p) - T(p) at the truth-nearest foot
+  pixel (within 5 ft) split into c = B(p) - V(p) and f = V(p) - T(p), V the V3 label build's H of the same frame.
+  Convention check: V(p) as stored, x mirrored (94 - x), y mirrored (50 - y), both; the one with the smallest median
+  |V(p) - T(p)| over the pool is used, and only if that median is under 3 ft. Per game and third, for hits and
+  placement misses: median depth of d_H, c, f; median sizes; the shares of |d_H|^2 carried by c and f.
 - Scoring path, explicit: every foot pixel (corrected or not) goes to the truth court frame as the scorer maps foot_stab
   (float32 pixels through the float64 truth H, scorer_court); no correction changes the truth.
 """
@@ -370,12 +379,123 @@ def cmd_measure(args) -> dict:
     return out
 
 
+# ── decompose (report only) ────────────────────────────────────────────────────────────────────────────────────────
+CONVENTIONS = {"as stored": (False, False), "x mirrored": (True, False), "y mirrored": (False, True),
+               "both mirrored": (True, True)}
+CONV_MAX_FT = 3.0
+
+
+def apply_convention(q, conv: str) -> np.ndarray:
+    mx, my = CONVENTIONS[conv]
+    q = np.asarray(q, float).reshape(-1, 2).copy()
+    if mx:
+        q[:, 0] = 94.0 - q[:, 0]
+    if my:
+        q[:, 1] = 50.0 - q[:, 1]
+    return q
+
+
+def share_of(part, total) -> float | None:
+    """Sum of part . total over the sum of |total|^2."""
+    part, total = np.asarray(part, float).reshape(-1, 2), np.asarray(total, float).reshape(-1, 2)
+    den = float((total * total).sum())
+    return float((part * total).sum() / den) if den > 0 else None
+
+
+def decompose_rows(game: dict) -> tuple:
+    from tools.p8_frozen import layout
+    from tools.p8_placement import klass
+    P = layout(p8_root())
+    rows, left, cache = [], {"no_build_H_or_pose": 0, "no_label_H": 0}, {}
+    for fr in game["frames"]:
+        n_in = int(fr["inside"].sum())
+        if fr["Hb"] is None or fr["Gb"] is None or not len(fr["px"]):
+            left["no_build_H_or_pose"] += n_in
+            continue
+        if fr["w"] not in cache:
+            lp = P["label_build"] / f"{fr['w']}_frames.json"
+            cache = {fr["w"]: {int(r["frame"]): r for r in json.loads(lp.read_text())["frames"]} if lp.exists() else {}}
+        lr = cache[fr["w"]].get(fr["f"])
+        if lr is None or lr.get("H") is None:
+            left["no_label_H"] += n_in
+            continue
+        t = scorer_court(fr["Ht"], fr["px"])
+        b = to_court(fr["Hb"], fr["px"])
+        v = to_court(lr["H"], fr["px"])
+        for j in np.where(fr["inside"])[0]:
+            sv = fr["sv"][j]
+            dist = np.hypot(*(t - sv).T)
+            k = int(dist.argmin())
+            if dist[k] > NEAR_FT:
+                continue
+            u, _ = depth_basis(fr["Gb"], sv)
+            rows.append({"w": fr["w"], "cls": klass(float(dist[k])), "u": u, "t": t[k], "b": b[k], "v": v[k],
+                         "third": third_of_sv(sv, fr)})
+    return rows, left
+
+
+def third_of_sv(sv, fr) -> str:
+    from tools.p8_scorecard import third_of
+    from sportvu.eval import near_side
+    return third_of(sv[1], near_side(fr["Ht"]))
+
+
+def decompose_summary(rows: list, conv: str) -> dict:
+    out = {}
+    for cls in ("hit", "placement"):
+        for third in THIRDS + ("all",):
+            sub = [r for r in rows if r["cls"] == cls and (third == "all" or r["third"] == third)]
+            if not sub:
+                out[f"{cls}|{third}"] = {"n": 0}
+                continue
+            v = apply_convention([r["v"] for r in sub], conv)
+            b = np.array([r["b"] for r in sub]); t = np.array([r["t"] for r in sub]); u = np.array([r["u"] for r in sub])
+            dH, c, f = b - t, b - v, v - t
+            dep = lambda x: (x * u).sum(1)
+            out[f"{cls}|{third}"] = {"n": len(sub), "median_depth_d_H": float(np.median(dep(dH))),
+                                     "median_depth_court": float(np.median(dep(c))),
+                                     "median_depth_fit": float(np.median(dep(f))),
+                                     "median_abs_d_H": float(np.median(np.hypot(*dH.T))),
+                                     "median_abs_court": float(np.median(np.hypot(*c.T))),
+                                     "median_abs_fit": float(np.median(np.hypot(*f.T))),
+                                     "share_court": share_of(c, dH), "share_fit": share_of(f, dH)}
+    return out
+
+
+def cmd_decompose(args) -> dict:
+    check_games(POOL + CHECK)
+    rows, left = {}, {}
+    for t in POOL + CHECK:
+        rows[t], left[t] = decompose_rows(load_frames(t))
+    pool = [r for g in POOL for r in rows[g]]
+    conv_med = {c: float(np.median(np.hypot(*(apply_convention([r["v"] for r in pool], c)
+                                              - np.array([r["t"] for r in pool])).T))) for c in CONVENTIONS}
+    best = min(conv_med, key=conv_med.get)
+    trusted = conv_med[best] < CONV_MAX_FT
+    out = {"what": "Decomposition of d_H into r23 court against V3 label build (court) and V3 against fitted truth (fit); "
+                   "report only; stored files (docs/research/P8_footbias.md)",
+           "convention_median_abs_V_minus_T_ft": conv_med, "convention_used": best if trusted else None,
+           "trusted": trusted, "left_out_player_frames": left, "rows": {t: len(rows[t]) for t in rows}}
+    if trusted:
+        out["games"] = {t: decompose_summary(rows[t], best) for t in rows}
+    out = rnd(out)
+    d = p8_root() / "placement"
+    d.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(out, indent=1)
+    atomic_write(d / "footbias_decompose.json", text)
+    atomic_write(REPO / "reports" / "research" / "p8_footbias_decompose.json", text)
+    print(json.dumps({k: out[k] for k in ("convention_median_abs_V_minus_T_ft", "convention_used", "trusted",
+                                          "left_out_player_frames", "rows")}, indent=1))
+    return out
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_footbias")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("measure")
+    sub.add_parser("decompose")
     a = ap.parse_args(argv)
-    {"measure": cmd_measure}[a.cmd](a)
+    {"measure": cmd_measure, "decompose": cmd_decompose}[a.cmd](a)
 
 
 if __name__ == "__main__":

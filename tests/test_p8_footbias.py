@@ -52,3 +52,15 @@ def test_corrected_px_k2_moves_feet_down_by_ratio():
     out = M.corrected_px(fr, "K2", {"150-200": 0.05})
     assert np.allclose(out, [[100.0, 309.0]])
     assert np.allclose(M.corrected_px(fr, "K1", {}), fr["px"])
+
+
+def test_conventions_and_shares():
+    q = np.array([[10.0, 5.0]])
+    assert np.allclose(M.apply_convention(q, "as stored"), q)
+    assert np.allclose(M.apply_convention(q, "x mirrored"), [[84.0, 5.0]])
+    assert np.allclose(M.apply_convention(q, "both mirrored"), [[84.0, 45.0]])
+    c = np.array([[1.0, 0.0], [0.0, 2.0]])
+    f = np.array([[1.0, 0.0], [0.0, 0.0]])
+    total = c + f
+    assert abs(M.share_of(c, total) + M.share_of(f, total) - 1.0) < 1e-12
+    assert M.share_of(c, np.zeros((2, 2))) is None

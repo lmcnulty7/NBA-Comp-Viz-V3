@@ -38,6 +38,9 @@ Scoring, made explicit:
   inverse of the build's H, p' = B^-1(q'), and p' is scored through the truth camera by the same path. A correction
   in pixel space gives p' directly, which is scored the same way. No correction changes the truth.
 
+The measurement under the build's H. Here B is the r23 court model's per-frame H, which the CPU and MPS r23 builds
+share; it is not the H the camera truth started from (see the correction below).
+
 The measurement under the build's H:
 
 - On frames whose sidecar row is accepted with an H, every box foot pixel p goes to q = B(p). The build's camera comes
@@ -155,9 +158,10 @@ population in consistent cells). Conditions 2 and 3 fail for both corrections: n
 gets worse on missed (+0.008) and on ghosts (+0.008, interval above zero), and gsw_bkn_2015's ghosts rise for both.
 
 Why a consistent bias does not lower the missed row (post hoc, consistent with step 1b, not tested here): the bias is
-measured in the build's frame, but missed is scored through the truth camera, and the truth camera was fitted to these
-feet and already absorbs part of the same bias (step 1b: hits' median depth -0.2 to -0.9 ft under the truth against
--0.8 to -1.4 ft under the build's H). Removing the build-frame bias therefore over-corrects in the truth frame, by about
+measured in the r23 court's frame, but missed is scored through the truth camera. The truth camera was initialised
+from, and fitted to, the V3 label build (same detector and foot pixels, V3 court model; sportvu/camera.py line 169,
+tools/p8_frozen.py line 495), so it already absorbs part of the same short-foot bias (step 1b: hits' median depth
+-0.2 to -0.9 ft under the truth against -0.8 to -1.4 ft under the r23 court's H). Removing the build-frame bias therefore over-corrects in the truth frame, by about
 the depth of -d_H (step 1b: +0.3 to +0.8 ft for hits' median). On gsw_sac_2015 it pushes found players out. The
 size of -d_H alone does not explain which game loses: gsw_cha_2016 has the largest -d_H and still gains a little, so
 the per-player spread of -d_H, not only its median, likely decides it (not measured).
@@ -176,3 +180,34 @@ the placement row stays the measured floor of step 3's row split.
   untested.
 - Forking paths for such an arm: this document's numbers, steps 1 and 1b, and hou_cle_2016's gains (-0.021 in step
   1, -0.009 here) are all seen.
+
+## Correction (2026-11-26, from the ml-review of step 1b)
+
+Step 1b and the first draft of this document called B "the selecting build's H", the one the camera truth started
+from. That was wrong. The camera truth was initialised from, and fitted to, the V3 label build's H
+(sportvu/camera.py line 169, pose_from_h(fr["H_v3"]); tools/p8_frozen.py line 495 reads P["label_build"]): the V3
+court model. B here is the r23 court model's H, shared by the CPU and MPS r23 builds; on gsw_cha_2016 s00_w00 and
+s00_w01 the label build's H matches builds/r23's H on no frame. So d_H = B(p) - T(p) is the sum of a court-model
+part (r23 court against V3 court) and a fit part (V3 start against the fitted truth). The measurements and the
+reading above are unchanged; only the description of B is.
+
+## Decomposition of d_H (registered before any of its numbers)
+
+Stored files only (the label build sidecars, label_build/<window>_frames.json, read beside step 1's inputs). Report
+only: it changes no rule and no reading. Tool: python3 -m tools.p8_footbias decompose; record:
+reports/research/p8_footbias_decompose.json.
+
+- Player-frames: step 1b's population on frames where the r23 sidecar row is accepted with an H, the label build row
+  has an H, and the build's camera has a pose. p is the foot_stab pixel of the player's nearest box under the truth
+  camera; the player enters when that box lies within 5 ft (hits and placement misses).
+- Three maps of the same pixel: B(p) (r23 court), V(p) (V3 label build), T(p) (truth). d_H = B(p) - T(p) = c + f, with
+  the court-model part c = B(p) - V(p) and the fit part f = V(p) - T(p).
+- Convention check first, because the stored V3 H may use another court convention: V(p) is taken in each of four
+  conventions (as stored; x mirrored to 94 - x; y mirrored to 50 - y; both), and the convention with the smallest
+  median |V(p) - T(p)| over all pool player-frames is used. If that median is 3 ft or more, no convention is trusted and
+  only the medians of each convention are reported, not the decomposition. The chosen convention and every
+  convention's median are recorded.
+- Reported per game (pool, and hou_cle_2016 apart) and camera third, for hits and placement misses: the median depth
+  of d_H, c and f (depth along the unit vector from the build camera's ground point to the SportVU position, positive
+  away from the camera), the median |d_H|, |c| and |f|, and the share of |d_H|'s squared size carried by c and by f
+  (sum of c.d_H over the sum of |d_H|^2, and the same for f; the two shares add to 1). Frames left out are counted.
