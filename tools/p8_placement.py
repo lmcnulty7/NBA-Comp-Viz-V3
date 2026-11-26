@@ -80,6 +80,9 @@ BUILDS = {"gsw_bkn_2015": "e1m6_r23_detcpu", "gsw_cha_2016": "m9_r23_detcpu__gsw
           "gsw_sac_2015": "m9_r23_detcpu__gsw_sac_2015", "hou_cle_2016": "m9_r23_detcpu__hou_cle_2016"}
 SCORES = {"gsw_bkn_2015": "m6__e1__gsw_bkn_2015.json", "gsw_cha_2016": "m9__r23_detcpu__gsw_cha_2016.json",
           "gsw_sac_2015": "m9__r23_detcpu__gsw_sac_2015.json", "hou_cle_2016": "m9__r23_detcpu__hou_cle_2016.json"}
+# the score file side that holds the reference-platform r23 build: "r23" in M6's file (both arms on CPU), "new" in
+# M9's files (there "r23" is the registered MPS build)
+SIDE = {"gsw_bkn_2015": "r23", "gsw_cha_2016": "new", "gsw_sac_2015": "new", "hou_cle_2016": "new"}
 W_PX, H_PX, MARGIN = 1280, 720, 10
 MISS_FT, NEAR_FT = 2.5, 5.0
 VEL_K, MIN_SPEED = 5, 3.0
@@ -207,8 +210,11 @@ def load_game(tag: str) -> dict:
     sf = json.loads((wr / "e1" / SCORES[tag]).read_text())
     wins = list(sf["scored_windows"])
     guard(wins, WHO)
-    reg = {"in_frame": sum(sf["windows"][w]["r23"]["in_frame"] for w in wins),
-           "missed": sum(sf["windows"][w]["r23"]["missed"] for w in wins)}
+    side = SIDE[tag]
+    if BUILDS[tag] not in sf.get("sides", {}).get(side, BUILDS[tag]):
+        raise SystemExit(f"{WHO}: {SCORES[tag]} side {side} is not {BUILDS[tag]}")
+    reg = {"in_frame": sum(sf["windows"][w][side]["in_frame"] for w in wins),
+           "missed": sum(sf["windows"][w][side]["missed"] for w in wins)}
     bd = P["builds"] / BUILDS[tag]
     frames = []
     for stem in wins:
