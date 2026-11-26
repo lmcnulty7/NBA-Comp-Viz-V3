@@ -10,10 +10,10 @@
 # time maps stay); link; label one job a section (V3 court, gate v2, detector on CPU, P8_TRACKER_RESET_FIX=1); check
 # that every label window carries the fix (tools.p8_truth_fixprep label-check); fit; the report-only comparisons with
 # the MPS truth (tools.p8_truth_moved, tools.p8_truth_moved_dh).
-# accept, per game, after the reset-fix arm's builds and passing equivalence for that game: builds/r23 composed fixed
-# with fixed (tools.p8_truth_cpu_r23 compose: the arm's builds on reset windows, the workspace baseline elsewhere),
-# then, only if every label window has one, check C (tools.p8_truth_v2 measure-dev) and the acceptance checks
-# (tools.p8_truth_accept), both unchanged. A game not ready is reported and skipped; rerun accept later.
+# accept, per game, after the reset-fix arm has composed builds/r23 fixed with fixed (tools.p8_resetfix compose-checkc,
+# the only composer; its builds/r23_checkc_<game>.json must show "complete": true): check C (tools.p8_truth_v2
+# measure-dev) and the acceptance checks (tools.p8_truth_accept), both unchanged. This driver never writes builds/r23.
+# A game not ready is reported and skipped; rerun accept later.
 #
 # One heavy-job lock per model step (label, fit, measure-dev); the file-only steps take none. Resumable: a step with a
 # done marker (or a measure-dev record) is skipped and built windows are cached (a cached window built without the fix
@@ -112,15 +112,12 @@ for TAG in $GAMES; do
   else
     [ -f "$(mk "fit__${TAG}")" ] && "$SYS" -m tools.p8_truth_fixprep label-check "$TAG" --ref-root "$R" >/dev/null \
       || { say "CHECK C NOT RUN for $TAG: no fixed truth yet"; continue; }
-    if ! "$SYS" -m tools.p8_truth_cpu_r23 compose "$TAG" --mps-root "$MPS" --ref-root "$R" 2>&1 | tee -a "$LOG"; then
-      say "CHECK C NOT RUN for $TAG: the reset-fix arm's plan or passing equivalence is not there yet, or the composition stopped"
-      continue
-    fi
-    if "$SYS" -c "import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))['complete'] else 1)" "$R/builds/r23_checkc_${TAG}.json"; then
+    CC="$R/builds/r23_checkc_${TAG}.json"         # written by tools.p8_resetfix compose-checkc (the arm), never here
+    if [ -f "$CC" ] && "$SYS" -c "import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get('complete') is True else 1)" "$CC"; then
       step "$TAG" "measure-dev" "$R/truth_v2/dev/${TAG}.json" tools.p8_truth_v2 measure-dev "$TAG" || { say "FAIL measure-dev $TAG"; exit 14; }
       env V3_P8_ROOT="$R" "$SYS" -m tools.p8_truth_accept "$TAG" 2>&1 | tee -a "$LOG" | tail -4 || say "truth_accept $TAG failed"
     else
-      say "CHECK C NOT RUN for $TAG: some V3 label windows have no verified r23 build (builds/r23_checkc_${TAG}.json); acceptance pending"
+      say "CHECK C NOT RUN for $TAG: builds/r23_checkc_${TAG}.json from the arm's compose-checkc is missing or not complete; acceptance pending"
     fi
   fi
   say "=== $TAG phase $PHASE done; lock held: $(held "$TAG") s"

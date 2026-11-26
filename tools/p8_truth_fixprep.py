@@ -14,7 +14,7 @@ the same relative path (nothing is deleted, CLAUDE.md rule 10):
   truth_moved/<game>_dh_posthoc.json;
 - the label and fit done markers (meta/done/label__<game>__*.json, fit__<game>.json);
 - version 3's unfixed r23 copies for check C (builds/r23/<window>_*, builds/r23_source_<game>.json): under version 4,
-  builds/r23 is the fixed-with-fixed composite of tools.p8_truth_cpu_r23 compose.
+  builds/r23 is the fixed-with-fixed composite of tools.p8_resetfix compose-checkc (version 4.1).
 The link markers and every other builds/ folder are not touched. It runs once per game: it writes superseded_nofix/<game>.json and
 is a no-op when that record exists. It refuses to overwrite a file already in superseded_nofix/.
 

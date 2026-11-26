@@ -582,3 +582,20 @@ a second tracker update per frame after a reset). Accept: measure-dev, 130 s on 
 reading carries both the platform and the fix; section 15 isolates the platform part on gsw_cha_2016. The bars of
 section 0 and section 5 are unchanged. Records: reports/research/p8_truth_moved_<game>.json and
 reports/research/p8_truth_accept_<game>.json, committed with a dated result section.
+
+**Version 4.1 (2026-11-26, the lead's decision; before any fixed build). One check C composer.** Decision 4 of
+version 4 had two composers for builds/r23, this plan's tools/p8_truth_cpu_r23.py compose and the reset-fix arm's
+`tools.p8_resetfix compose-checkc`. Only the arm's is kept, because the arm owns the reset-window list and the
+equivalence gate. Its rules are those of decision 4: the arm's fixed build on the plan's reset windows, the verified
+unfixed baseline (builds/r23_nofix, the arm's) elsewhere, per game only after the arm's equivalence passes; it writes
+builds/r23_checkc_<game>.json. In this plan:
+
+- tools/p8_truth_cpu_r23.py keeps only `detector-check` (the driver's start guard); its copy and compose commands are
+  removed, and nothing in this plan writes builds/r23.
+- The accept phase composes nothing. Per game it requires builds/r23_checkc_<game>.json with "complete": true, then
+  runs tools/p8_truth_v2.py measure-dev and tools/p8_truth_accept.py, both unchanged; otherwise it writes "CHECK C NOT
+  RUN" and the game's acceptance waits.
+- The truth phase's supersede still moves version 3's unfixed gsw_cha_2016 copies out of builds/r23 (into
+  superseded_nofix/builds/r23/), so the arm's composer finds builds/r23 without them; it runs after the truth phase.
+
+Nothing else changes: order, estimates, caps and bars as in version 4.
