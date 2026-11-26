@@ -99,7 +99,17 @@
     "zoom_threshold_camera_f": 3013.13931,
     "wide_threshold_bottom_decile": 0.94672,
     "frames": 1353,
-    "after_reset_ghosts_on_truth_h": 0
+    "after_reset_ghosts_on_truth_h": 0,
+    "sportvu_range_ft": {
+     "x": [
+      -4.1,
+      94.19
+     ],
+     "y": [
+      0.49,
+      51.39
+     ]
+    }
    }
   },
   "gsw_bkn_2015": {
@@ -199,7 +209,17 @@
     "zoom_threshold_camera_f": 3326.2434,
     "wide_threshold_bottom_decile": 0.93202,
     "frames": 2073,
-    "after_reset_ghosts_on_truth_h": 0
+    "after_reset_ghosts_on_truth_h": 0,
+    "sportvu_range_ft": {
+     "x": [
+      -0.87,
+      99.34
+     ],
+     "y": [
+      -2.12,
+      51.56
+     ]
+    }
    }
   },
   "gsw_sac_2015": {
@@ -299,7 +319,17 @@
     "zoom_threshold_camera_f": 3616.08848,
     "wide_threshold_bottom_decile": 0.928,
     "frames": 2151,
-    "after_reset_ghosts_on_truth_h": 0
+    "after_reset_ghosts_on_truth_h": 0,
+    "sportvu_range_ft": {
+     "x": [
+      -2.43,
+      97.05
+     ],
+     "y": [
+      1.1,
+      50.1
+     ]
+    }
    }
   }
  },

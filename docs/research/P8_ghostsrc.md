@@ -52,8 +52,10 @@ registered design. If no class reaches 0.30, the study says the ghosts are sprea
 ## Result (2026-11-26, stored files, no lock, 11 s)
 
 Thresholds: camera_f top decile 3,013, 3,326 and 3,616 (gsw_cha_2016, gsw_bkn_2015, gsw_sac_2015); wide score bottom
-decile 0.947, 0.932, 0.928. SportVU x runs -4.1 to 94.2 ft and y 0.5 to 51.4 ft on gsw_cha_2016's scored frames, so
-the court rule's frame is right. No after-reset ghost needed H_truth for class B (every such row had an accepted H).
+decile 0.947, 0.932, 0.928. SportVU positions on the scored frames (in the record's meta since the rerun of
+2026-11-26, report only; every other number unchanged): x -4.1 to 94.2 ft and y 0.5 to 51.4 ft (gsw_cha_2016), x -0.9
+to 99.3 and y -2.1 to 51.6 (gsw_bkn_2015), x -2.4 to 97.1 and y 1.1 to 50.1 (gsw_sac_2015), so the court rule's
+frame (0 to 94 by 0 to 50 ft) is right. No after-reset ghost needed H_truth for class B (every such row had an accepted H).
 
 After-reset r23 ghosts (the forecasts' population), by class:
 
@@ -66,7 +68,8 @@ After-reset r23 ghosts (the forecasts' population), by class:
 
 Comparison (report only): the same r23 ghosts before the first reset (9,111 pooled) split A 0.23, B under 0.01, C
 0.09, D near 0.55, D far 0.13; the sidecar's non-referee ghosts after a reset (80 pooled) split A 0.14, D near 0.78,
-D far 0.09. Collateral after a reset (r23 boxes within 3 ft of a player that carry the flag): A 10 of 81 on
+D far 0.09. This comparison takes the sidecar boxes' raw bbox bottom centre, like the r23 boxes, not the build's
+foot_stab, which is why it counts 80 sidecar ghosts where the scorer (foot_stab; the pairing check's table) counts 71. Collateral after a reset (r23 boxes within 3 ft of a player that carry the flag): A 10 of 81 on
 gsw_cha_2016, 133 of 975 on gsw_bkn_2015, 85 of 361 on gsw_sac_2015; B none; C 0, 17, 6.
 
 **Reading by the registered rule.** Two classes reach 0.30: A on gsw_cha_2016 (0.38) and D (0.52 on gsw_cha_2016,
@@ -75,9 +78,10 @@ gsw_cha_2016, 133 of 975 on gsw_bkn_2015, 85 of 361 on gsw_sac_2015; B none; C 0
   filter on a3 would have dropped 28 of its 73 after-reset ghosts and 10 of its 81 good boxes there. On the other two
   games A is zoom (gsw_bkn_2015) and marginal wide (gsw_sac_2015), not cuts, so one frame rule does not cover all three.
 - D leads to no filter arm without a further check. Most of it is D near: boxes 3 to 6 ft from the nearest player.
-  Those are likely real players whose box foot lies 3 to 6 ft off: the scorer then counts the player as missed (no foot
-  within 2.5 ft) and the box as a ghost, so the net-error row counts one placement error twice. The further check is
-  to measure that pairing directly.
+  Post hoc, not registered: those are likely real players whose box foot lies 3 to 6 ft off: the scorer then counts the
+  player as missed (no foot within 2.5 ft) and the box as a ghost, so the net-error row counts one placement error
+  twice. The further check is to measure that pairing directly; it adds two conditions to the D-near count, a missed
+  player and a one-to-one assignment within 6 ft (the pairing check below).
 - B is empty: none of these ghosts stands off court, so a court-region filter would not help. C is small (0.07).
 
 **Limits.** The after-reset populations are small (73, 162 and 62 boxes, a handful of windows per game), so the
@@ -128,16 +132,27 @@ Record: reports/research/p8_ghostsrc_pairs.json. After the r23 build's first res
 | | | r23 raw | 118 | 62 | 45 | 30 | 0.403 |
 | | | r23 stab | 109 | 59 | 40 | 22 | 0.376 |
 
-On gsw_cha_2016 the full fix (f = 1, unscaled) raises E by +0.248 (raw) or +0.228 (stab); the added pairs alone account
-for +0.322 and +0.295, explained shares 1.30 and 1.29. **Reading by the registered rule: mostly placement counted
-twice.** Without the added double counts, the r23 boxes would lower gsw_cha_2016's net error after a reset (by about
-0.07 under both foot choices). On gsw_bkn_2015 and gsw_sac_2015 E falls with the fix (-0.27 to -0.32), so no share is
+On gsw_cha_2016 the full fix (f = 1, unscaled) raises E by +0.248 (raw) or +0.228 (stab); resolving the added pairs
+would lower E by 0.322 and 0.295, explained shares 1.30 and 1.29. **Reading by the registered rule: mostly placement
+counted twice.** A share above 1 means the measure is not an additive split of dE: resolving a pair removes a missed
+player and a ghost box at once, and the fix also changes other counts. Post hoc, not registered: if the added pairs
+were placed within 2.5 ft, E would be about 0.07 below the sidecar; if those boxes were dropped instead, E would stay
+about 0.08 to 0.09 above it. On gsw_bkn_2015 and gsw_sac_2015 E falls with the fix (-0.27 to -0.32), so no share is
 computed.
 
-Context, report only: before the first reset, pairs are common in every set (sidecar 1,670 of 2,336 ghosts on
-gsw_cha_2016, 1,547 of 2,239 on gsw_bkn_2015, 1,571 of 2,250 on gsw_sac_2015, about 0.7 of all ghosts), so the
-net-error row counts many placement errors twice throughout, not only after a reset.
+Context, report only: before the first reset, pairs are common in every set. Pairs per ghost: sidecar about 0.70
+(1,670 of 2,336 on gsw_cha_2016, 1,547 of 2,239 on gsw_bkn_2015, 1,571 of 2,250 on gsw_sac_2015); r23 raw 0.57 to 0.62
+and r23 stab 0.56 to 0.60. So the net-error row may count many placement errors twice throughout, not only after a
+reset. Before the first reset the explained shares are raw 0.45, 0.42 and 0.33, stab 0.34, 0.33 and 0.12
+(gsw_cha_2016, gsw_bkn_2015, gsw_sac_2015).
 
-Limits: gsw_cha_2016's after-reset population is 149 in-frame players in a few windows; the shares rest on 24 added
-pairs. The pairing is one-to-one by distance within 6 ft and does not prove that a paired box is that player's box.
+Limits: gsw_cha_2016's after-reset population is 149 in-frame players in a few windows; the shares rest on 24 (raw) and 22
+(stab) added pairs. The pairing is one-to-one by distance within 6 ft and does not prove that a paired box is that player's box.
 This explains the version 2.3 forecast; it changes no rule (P8_resetfix.md section 18 stands).
+
+Review notes (2026-11-26, the ml-review of 014b4d06, PASS; wording outside the registered text): "account for"
+became "resolving them would lower E by" with the post hoc placed and dropped readings and the note that a share above 1
+is not an additive split; the D-near reading is labelled post hoc; "may count" with the separate sidecar and r23
+ratios and the before-reset shares; the SportVU range now comes from the record (meta, rerun with every other number
+unchanged); the comparison's raw-foot count (80) against the scorer's (71) is explained; the pairing check's extra
+conditions and the 24 and 22 added pairs are stated.

@@ -189,8 +189,11 @@ def game_rows(game: str) -> tuple:
             flags = {"A": bool(a1 or a2 or a3), "B": off_court(fb), "C": c, "dist": dist}
             rows.append({"src": src, "after": after, "ghost": dist > GHOST_FT, "cls": classify(flags),
                          "a1": bool(a1), "a2": bool(a2), "a3": bool(a3), "b": flags["B"], "c": c})
+    sv_all = np.concatenate([np.asarray(f["sv"], np.float64).reshape(-1, 2) for f in frames])
     meta = {"zoom_threshold_camera_f": z_hi, "wide_threshold_bottom_decile": w_lo, "frames": len(frames),
-            "after_reset_ghosts_on_truth_h": truth_h_used}
+            "after_reset_ghosts_on_truth_h": truth_h_used,
+            "sportvu_range_ft": {"x": [float(sv_all[:, 0].min()), float(sv_all[:, 0].max())],
+                                 "y": [float(sv_all[:, 1].min()), float(sv_all[:, 1].max())]}}
     return rows, meta
 
 
