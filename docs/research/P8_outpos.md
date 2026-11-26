@@ -143,3 +143,109 @@ Frozen table: the median depth offset per cell, from all three pool games (ft; n
 
 The fit rows per cell are in the table file. hou_cle_2016 has not been read for this arm. `score-hou` waits for the
 lead's independent review.
+
+## Design version 2 (2026-11-26, after the independent review; registered before any of its numbers)
+
+The independent review returned GO WITH FIXES. It found the variant scorer faithful and found no leakage, but the
+version 1 hou_cle_2016 test was nearly a sure pass. Its per-cell build-frame medians were already committed and predict
+the result, and the rule had no naive comparator. Version 2 replaces the version 1 decision rule and score-hou. The
+version 1 design (3b777b99) and pool rows (18df8e7f) stay as committed. No hou_cle_2016 file has been read for this
+arm, and score-hou has not run. tools/p8_outpos.py carries the same rules in its docstring; its version 1 score-hou now
+refuses to run.
+
+### 1. What is already seen about hou_cle_2016, and a forecast written before scoring
+
+Seen, in reports/research/p8_footbias.json "cells" (median depth offset in ft under the r23 court's H; count):
+
+| Box height | Near | Middle | Far |
+| --- | --- | --- | --- |
+| under 150 px | -0.50 (499) | -0.95 (1,847) | -0.72 (4,688) |
+| 150 to 200 px | -0.67 (7,327) | -0.99 (13,126) | -0.97 (5,047) |
+| 200 to 250 px | -0.78 (4,917) | -0.81 (2,160) | -0.42 (119) |
+| 250 px and over | -0.69 (169) | +0.48 (35) | none (0) |
+
+Also seen: hou_cle_2016's missed gains (-0.021, -0.0087), its step 1 and 1b offsets, its by-third, by-height and
+by-distance medians in P8_footbias.md, and its pinned position rows in M9 of P8_E1.md.
+
+Forecast, computed by `forms` from these committed numbers only (plus the frozen tables and the pool rows) and
+committed before score-hou runs. The hou_cle_2016 result then tests the forecast. For a game g and a form F with table
+t:
+
+- R_g(F) is the count-weighted mean over cells of (|m| - |m - t|), with m the cell's median depth. It is the mean
+  absolute cell bias the shift removes.
+- Calibration per form, from the pool's leave-one-game-out rows: k_p50 = (sum of the pool games' p50 differences) /
+  (sum of their R_g), and k_p90 likewise.
+- Forecast for hou_cle_2016: p50 difference k_p50 x R_hou and p90 difference k_p90 x R_hou.
+- Near-field bias, forecast in depth terms. Per third (near, far), before is the absolute count-weighted mean cell
+  median, and after is the same once the shift is removed. The forecast reads the larger third.
+- The pool's own predicted against observed p50 differences are reported as a calibration check.
+
+### 2. Naive comparator K0 and the form decision
+
+- K0 is one global depth shift: the median depth offset of the fit games' whole offset population, with no cells,
+  removed along the same ray. It is frozen from the 3 pool games into reports/research/p8_outpos_table_k0.json.
+- Form rule, on the pool only, leave one game out, through the same variant scorer: K1's cells are kept only if K1's
+  position p50 difference is below K0's on every pool game. Otherwise the arm is K0.
+- The chosen form and the K0 table's sha256 are then pinned in tools/p8_outpos.py by a commit before hou_cle_2016 is
+  read.
+- On hou_cle_2016, K0 and K1 are both scored in the single run and both are reported. A claim that the cells matter
+  needs the chosen form to beat the other on hou_cle_2016 p50. That is development evidence.
+
+### 3. Decision rule for hou_cle_2016 (replaces version 1's)
+
+For the chosen form, variant minus pinned, window intervals over hou_cle_2016's windows, PASS when all hold:
+
+1. The position p50 difference is at most -0.10 ft, with its window interval wholly below zero.
+2. The position p90 difference has a window interval upper end of at most +0.10 ft. This is non-inferiority on the
+   tail at about 3 percent of p90.
+3. Near-field bias is a guard only: its value after must not exceed its value before. The third it reads (near or far)
+   is reported before and after.
+4. Missed and ghosts are identical (asserted in code).
+
+Why 0.10 ft is the practical effect. It is about 7 percent of r23's p50 on these games (about 1.5 ft). It is also
+about the smallest gain that would show at the 1.92 ft held-out median the README reports. A smaller gain would leave
+that headline number nearly unchanged.
+
+### 4. Claim limits
+
+- Detection is identical by construction of this scorer variant, not of the pipeline. Anything downstream that uses
+  the court positions is untested by this arm: tracks, team labels, the analytics features.
+- The rows are per box, B(foot_stab) shifted, not the pipeline's smoothed trajectories.
+- The intervals are window intervals within one game: one arena, one broadcaster, development data.
+- The direction of every row was predictable from seen numbers (above). A pass would confirm a forecast, not discover
+  an effect.
+- Nothing is adopted into the pipeline or the site without a further D line. Level 1's sealed scoring stays at the
+  end of P8 (D129).
+
+### 5. Guards (in code, with tests)
+
+- Once-only marker. score-hou writes placement/outpos_hou.started under the P8 workspace before it reads any
+  hou_cle_2016 file, and refuses if that marker or the record (reports/research/p8_outpos_hou.json) exists. A crash
+  after the marker is written therefore needs the lead's decision to retry.
+- Pinned tables. The K1 table's sha256 is pinned in the tool (c420b0a642851104894aec03189cce3404c407703347b3fff29dfc96b7cb80ce,
+  at 18df8e7f), and so will the K0 table's be. score-hou refuses on a mismatch, on an unpinned sha, or on a table that
+  is untracked or carries an uncommitted change.
+- Clean code. git HEAD is recorded. score-hou refuses if tools/p8_outpos.py, tools/p8_footbias.py,
+  tools/p8_placement.py, tools/p8_scorecard.py or tools/p8_e1_score.py has an uncommitted change.
+- Tests cover the refusals on an existing record or marker, on a mismatched or unpinned sha, and on a dirty table or
+  dirty code.
+
+### 6. Report only
+
+- Position p90 by camera third and by box-height bin, pinned against variant.
+- Per game, the count of frames where near_side(B) differs from near_side(truth).
+- After the hou_cle_2016 decision, as post-run diagnosis: K1 fitted on hou_cle_2016 in sample (an upper bound) and the
+  transfer ratio (the frozen K1's p50 difference over the in-sample one).
+
+### Order of work (version 2)
+
+1. This version 2, committed with the tool and tests, before any of its numbers.
+2. `forms` (pool only): K0 against K1, the form decision, the frozen K0 table and the forecast, committed.
+3. A commit pinning the K0 table's sha256 and the chosen form in the tool.
+4. Stop for the lead's short re-review.
+5. score-hou, once, only after the lead's go.
+
+### Version 2 results
+
+Not computed yet.
+
