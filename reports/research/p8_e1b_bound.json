@@ -1,0 +1,986 @@
+{
+ "what": "E1b upper bound: r23's raw misses by cause on the E1 corpus frames (docs/research/P8_E1B.md section 2); raw boxes, bottom-centre feet, sportvu.eval rules; not the registered build rows",
+ "rules": {
+  "miss_ft": 2.5,
+  "near_ft": 5.0,
+  "teacher_conf": 0.1471,
+  "teacher_floor": 0.05,
+  "r23_floor": 0.1,
+  "det_conf": 0.4,
+  "box_w_of_h": 0.4,
+  "overlap_edges": [
+   0.1,
+   0.4
+  ],
+  "edge_px": 40.0,
+  "boot": {
+   "n": 2000,
+   "seed": 0,
+   "unit": "corpus window"
+  }
+ },
+ "check": "per-game in-frame, r23 missed and teacher missed counts equal e1/postmortem_m3.json",
+ "games": {
+  "gsw_bkn_2015": {
+   "in_frame": 20477,
+   "r23_missed": 4845,
+   "r23_missed_rate": 0.23661,
+   "misses_by_reach": {
+    "teacher": 1845,
+    "teacher_low": 20,
+    "r23_low": 9,
+    "placement": 2534,
+    "none": 437
+   },
+   "reach_share_of_misses": {
+    "teacher": 0.3808,
+    "teacher_low": 0.0041,
+    "r23_low": 0.0019,
+    "placement": 0.523,
+    "none": 0.0902
+   },
+   "placement_or_none_with_an_r23_box_within_5ft": 2202,
+   "report_only_misses_by_reach_with_an_r23_box_within_5ft": {
+    "teacher": 1374,
+    "teacher_low": 9,
+    "r23_low": 9,
+    "placement": 2202,
+    "none": 0
+   },
+   "ceilings": {
+    "in_frame": 20477,
+    "r23": 0.23661,
+    "r23_or_teacher": 0.14651,
+    "plus_teacher_low": 0.14553,
+    "plus_r23_low": 0.14509
+   },
+   "r23_finds_under_teacher_labels": {
+    "kept": 15253,
+    "displaced": 353,
+    "dropped": 26
+   },
+   "by_third": {
+    "near": {
+     "in_frame": 5678,
+     "r23_missed": 1266,
+     "misses_by_reach": {
+      "teacher": 511,
+      "teacher_low": 1,
+      "r23_low": 4,
+      "placement": 652,
+      "none": 98
+     },
+     "r23_finds_dropped_by_teacher_labels": 12
+    },
+    "middle": {
+     "in_frame": 8716,
+     "r23_missed": 1615,
+     "misses_by_reach": {
+      "teacher": 554,
+      "teacher_low": 2,
+      "r23_low": 2,
+      "placement": 902,
+      "none": 155
+     },
+     "r23_finds_dropped_by_teacher_labels": 6
+    },
+    "far": {
+     "in_frame": 6083,
+     "r23_missed": 1964,
+     "misses_by_reach": {
+      "teacher": 780,
+      "teacher_low": 17,
+      "r23_low": 3,
+      "placement": 980,
+      "none": 184
+     },
+     "r23_finds_dropped_by_teacher_labels": 8
+    }
+   },
+   "by_height": {
+    "<150": {
+     "in_frame": 3900,
+     "r23_missed": 1309,
+     "misses_by_reach": {
+      "teacher": 504,
+      "teacher_low": 11,
+      "r23_low": 5,
+      "placement": 647,
+      "none": 142
+     },
+     "r23_finds_dropped_by_teacher_labels": 2
+    },
+    "150-200": {
+     "in_frame": 13885,
+     "r23_missed": 2851,
+     "misses_by_reach": {
+      "teacher": 1087,
+      "teacher_low": 8,
+      "r23_low": 3,
+      "placement": 1532,
+      "none": 221
+     },
+     "r23_finds_dropped_by_teacher_labels": 18
+    },
+    "200-250": {
+     "in_frame": 2638,
+     "r23_missed": 666,
+     "misses_by_reach": {
+      "teacher": 252,
+      "teacher_low": 1,
+      "r23_low": 0,
+      "placement": 340,
+      "none": 73
+     },
+     "r23_finds_dropped_by_teacher_labels": 5
+    },
+    ">=250": {
+     "in_frame": 54,
+     "r23_missed": 19,
+     "misses_by_reach": {
+      "teacher": 2,
+      "teacher_low": 0,
+      "r23_low": 1,
+      "placement": 15,
+      "none": 1
+     },
+     "r23_finds_dropped_by_teacher_labels": 1
+    },
+    "no pose": {
+     "in_frame": 0,
+     "r23_missed": 0,
+     "misses_by_reach": {
+      "teacher": 0,
+      "teacher_low": 0,
+      "r23_low": 0,
+      "placement": 0,
+      "none": 0
+     },
+     "r23_finds_dropped_by_teacher_labels": 0
+    }
+   },
+   "by_edge": {
+    "True": {
+     "in_frame": 235,
+     "r23_missed": 92,
+     "misses_by_reach": {
+      "teacher": 28,
+      "teacher_low": 0,
+      "r23_low": 1,
+      "placement": 45,
+      "none": 18
+     },
+     "r23_finds_dropped_by_teacher_labels": 10
+    },
+    "False": {
+     "in_frame": 20242,
+     "r23_missed": 4753,
+     "misses_by_reach": {
+      "teacher": 1817,
+      "teacher_low": 20,
+      "r23_low": 8,
+      "placement": 2489,
+      "none": 419
+     },
+     "r23_finds_dropped_by_teacher_labels": 16
+    }
+   },
+   "by_overlap": {
+    "none": {
+     "in_frame": 10093,
+     "r23_missed": 2152,
+     "misses_by_reach": {
+      "teacher": 619,
+      "teacher_low": 2,
+      "r23_low": 2,
+      "placement": 1280,
+      "none": 249
+     },
+     "r23_finds_dropped_by_teacher_labels": 22
+    },
+    "partial": {
+     "in_frame": 7351,
+     "r23_missed": 1748,
+     "misses_by_reach": {
+      "teacher": 732,
+      "teacher_low": 11,
+      "r23_low": 5,
+      "placement": 874,
+      "none": 126
+     },
+     "r23_finds_dropped_by_teacher_labels": 1
+    },
+    "heavy": {
+     "in_frame": 3033,
+     "r23_missed": 945,
+     "misses_by_reach": {
+      "teacher": 494,
+      "teacher_low": 7,
+      "r23_low": 2,
+      "placement": 380,
+      "none": 62
+     },
+     "r23_finds_dropped_by_teacher_labels": 3
+    },
+    "no pose": {
+     "in_frame": 0,
+     "r23_missed": 0,
+     "misses_by_reach": {
+      "teacher": 0,
+      "teacher_low": 0,
+      "r23_low": 0,
+      "placement": 0,
+      "none": 0
+     },
+     "r23_finds_dropped_by_teacher_labels": 0
+    }
+   },
+   "report_only_e1_raw": {
+    "rows": 20477,
+    "r23_miss_e1_finds": 971,
+    "of_which_placement": 799,
+    "of_which_presence": 172,
+    "r23_find_e1_loses": 561
+   }
+  },
+  "gsw_cha_2016": {
+   "in_frame": 13414,
+   "r23_missed": 4747,
+   "r23_missed_rate": 0.35388,
+   "misses_by_reach": {
+    "teacher": 911,
+    "teacher_low": 6,
+    "r23_low": 13,
+    "placement": 2970,
+    "none": 847
+   },
+   "reach_share_of_misses": {
+    "teacher": 0.1919,
+    "teacher_low": 0.0013,
+    "r23_low": 0.0027,
+    "placement": 0.6257,
+    "none": 0.1784
+   },
+   "placement_or_none_with_an_r23_box_within_5ft": 2658,
+   "report_only_misses_by_reach_with_an_r23_box_within_5ft": {
+    "teacher": 798,
+    "teacher_low": 4,
+    "r23_low": 13,
+    "placement": 2658,
+    "none": 0
+   },
+   "ceilings": {
+    "in_frame": 13414,
+    "r23": 0.35388,
+    "r23_or_teacher": 0.28597,
+    "plus_teacher_low": 0.28552,
+    "plus_r23_low": 0.28455
+   },
+   "r23_finds_under_teacher_labels": {
+    "kept": 8352,
+    "displaced": 300,
+    "dropped": 15
+   },
+   "by_third": {
+    "near": {
+     "in_frame": 3826,
+     "r23_missed": 1384,
+     "misses_by_reach": {
+      "teacher": 276,
+      "teacher_low": 1,
+      "r23_low": 1,
+      "placement": 836,
+      "none": 270
+     },
+     "r23_finds_dropped_by_teacher_labels": 6
+    },
+    "middle": {
+     "in_frame": 5843,
+     "r23_missed": 1541,
+     "misses_by_reach": {
+      "teacher": 263,
+      "teacher_low": 1,
+      "r23_low": 5,
+      "placement": 998,
+      "none": 274
+     },
+     "r23_finds_dropped_by_teacher_labels": 4
+    },
+    "far": {
+     "in_frame": 3745,
+     "r23_missed": 1822,
+     "misses_by_reach": {
+      "teacher": 372,
+      "teacher_low": 4,
+      "r23_low": 7,
+      "placement": 1136,
+      "none": 303
+     },
+     "r23_finds_dropped_by_teacher_labels": 5
+    }
+   },
+   "by_height": {
+    "<150": {
+     "in_frame": 4125,
+     "r23_missed": 1919,
+     "misses_by_reach": {
+      "teacher": 324,
+      "teacher_low": 1,
+      "r23_low": 4,
+      "placement": 1219,
+      "none": 371
+     },
+     "r23_finds_dropped_by_teacher_labels": 7
+    },
+    "150-200": {
+     "in_frame": 8465,
+     "r23_missed": 2449,
+     "misses_by_reach": {
+      "teacher": 533,
+      "teacher_low": 5,
+      "r23_low": 9,
+      "placement": 1515,
+      "none": 387
+     },
+     "r23_finds_dropped_by_teacher_labels": 7
+    },
+    "200-250": {
+     "in_frame": 819,
+     "r23_missed": 377,
+     "misses_by_reach": {
+      "teacher": 54,
+      "teacher_low": 0,
+      "r23_low": 0,
+      "placement": 235,
+      "none": 88
+     },
+     "r23_finds_dropped_by_teacher_labels": 1
+    },
+    ">=250": {
+     "in_frame": 5,
+     "r23_missed": 2,
+     "misses_by_reach": {
+      "teacher": 0,
+      "teacher_low": 0,
+      "r23_low": 0,
+      "placement": 1,
+      "none": 1
+     },
+     "r23_finds_dropped_by_teacher_labels": 0
+    },
+    "no pose": {
+     "in_frame": 0,
+     "r23_missed": 0,
+     "misses_by_reach": {
+      "teacher": 0,
+      "teacher_low": 0,
+      "r23_low": 0,
+      "placement": 0,
+      "none": 0
+     },
+     "r23_finds_dropped_by_teacher_labels": 0
+    }
+   },
+   "by_edge": {
+    "True": {
+     "in_frame": 153,
+     "r23_missed": 91,
+     "misses_by_reach": {
+      "teacher": 6,
+      "teacher_low": 1,
+      "r23_low": 0,
+      "placement": 36,
+      "none": 48
+     },
+     "r23_finds_dropped_by_teacher_labels": 6
+    },
+    "False": {
+     "in_frame": 13261,
+     "r23_missed": 4656,
+     "misses_by_reach": {
+      "teacher": 905,
+      "teacher_low": 5,
+      "r23_low": 13,
+      "placement": 2934,
+      "none": 799
+     },
+     "r23_finds_dropped_by_teacher_labels": 9
+    }
+   },
+   "by_overlap": {
+    "none": {
+     "in_frame": 7242,
+     "r23_missed": 2476,
+     "misses_by_reach": {
+      "teacher": 343,
+      "teacher_low": 2,
+      "r23_low": 3,
+      "placement": 1619,
+      "none": 509
+     },
+     "r23_finds_dropped_by_teacher_labels": 11
+    },
+    "partial": {
+     "in_frame": 4482,
+     "r23_missed": 1575,
+     "misses_by_reach": {
+      "teacher": 368,
+      "teacher_low": 2,
+      "r23_low": 9,
+      "placement": 961,
+      "none": 235
+     },
+     "r23_finds_dropped_by_teacher_labels": 2
+    },
+    "heavy": {
+     "in_frame": 1690,
+     "r23_missed": 696,
+     "misses_by_reach": {
+      "teacher": 200,
+      "teacher_low": 2,
+      "r23_low": 1,
+      "placement": 390,
+      "none": 103
+     },
+     "r23_finds_dropped_by_teacher_labels": 2
+    },
+    "no pose": {
+     "in_frame": 0,
+     "r23_missed": 0,
+     "misses_by_reach": {
+      "teacher": 0,
+      "teacher_low": 0,
+      "r23_low": 0,
+      "placement": 0,
+      "none": 0
+     },
+     "r23_finds_dropped_by_teacher_labels": 0
+    }
+   },
+   "report_only_e1_raw": {
+    "rows": 13414,
+    "r23_miss_e1_finds": 486,
+    "of_which_placement": 454,
+    "of_which_presence": 32,
+    "r23_find_e1_loses": 363
+   }
+  },
+  "gsw_sac_2015": {
+   "in_frame": 21144,
+   "r23_missed": 4473,
+   "r23_missed_rate": 0.21155,
+   "misses_by_reach": {
+    "teacher": 1632,
+    "teacher_low": 3,
+    "r23_low": 11,
+    "placement": 2488,
+    "none": 339
+   },
+   "reach_share_of_misses": {
+    "teacher": 0.3649,
+    "teacher_low": 0.0007,
+    "r23_low": 0.0025,
+    "placement": 0.5562,
+    "none": 0.0758
+   },
+   "placement_or_none_with_an_r23_box_within_5ft": 2302,
+   "report_only_misses_by_reach_with_an_r23_box_within_5ft": {
+    "teacher": 1337,
+    "teacher_low": 2,
+    "r23_low": 11,
+    "placement": 2302,
+    "none": 0
+   },
+   "ceilings": {
+    "in_frame": 21144,
+    "r23": 0.21155,
+    "r23_or_teacher": 0.13436,
+    "plus_teacher_low": 0.13422,
+    "plus_r23_low": 0.1337
+   },
+   "r23_finds_under_teacher_labels": {
+    "kept": 16222,
+    "displaced": 436,
+    "dropped": 13
+   },
+   "by_third": {
+    "near": {
+     "in_frame": 5722,
+     "r23_missed": 1168,
+     "misses_by_reach": {
+      "teacher": 472,
+      "teacher_low": 0,
+      "r23_low": 4,
+      "placement": 602,
+      "none": 90
+     },
+     "r23_finds_dropped_by_teacher_labels": 2
+    },
+    "middle": {
+     "in_frame": 9824,
+     "r23_missed": 1778,
+     "misses_by_reach": {
+      "teacher": 573,
+      "teacher_low": 1,
+      "r23_low": 4,
+      "placement": 1082,
+      "none": 118
+     },
+     "r23_finds_dropped_by_teacher_labels": 5
+    },
+    "far": {
+     "in_frame": 5598,
+     "r23_missed": 1527,
+     "misses_by_reach": {
+      "teacher": 587,
+      "teacher_low": 2,
+      "r23_low": 3,
+      "placement": 804,
+      "none": 131
+     },
+     "r23_finds_dropped_by_teacher_labels": 6
+    }
+   },
+   "by_height": {
+    "<150": {
+     "in_frame": 2905,
+     "r23_missed": 818,
+     "misses_by_reach": {
+      "teacher": 280,
+      "teacher_low": 2,
+      "r23_low": 3,
+      "placement": 430,
+      "none": 103
+     },
+     "r23_finds_dropped_by_teacher_labels": 2
+    },
+    "150-200": {
+     "in_frame": 15139,
+     "r23_missed": 2971,
+     "misses_by_reach": {
+      "teacher": 1053,
+      "teacher_low": 1,
+      "r23_low": 4,
+      "placement": 1725,
+      "none": 188
+     },
+     "r23_finds_dropped_by_teacher_labels": 9
+    },
+    "200-250": {
+     "in_frame": 2987,
+     "r23_missed": 662,
+     "misses_by_reach": {
+      "teacher": 287,
+      "teacher_low": 0,
+      "r23_low": 4,
+      "placement": 327,
+      "none": 44
+     },
+     "r23_finds_dropped_by_teacher_labels": 0
+    },
+    ">=250": {
+     "in_frame": 113,
+     "r23_missed": 22,
+     "misses_by_reach": {
+      "teacher": 12,
+      "teacher_low": 0,
+      "r23_low": 0,
+      "placement": 6,
+      "none": 4
+     },
+     "r23_finds_dropped_by_teacher_labels": 2
+    },
+    "no pose": {
+     "in_frame": 0,
+     "r23_missed": 0,
+     "misses_by_reach": {
+      "teacher": 0,
+      "teacher_low": 0,
+      "r23_low": 0,
+      "placement": 0,
+      "none": 0
+     },
+     "r23_finds_dropped_by_teacher_labels": 0
+    }
+   },
+   "by_edge": {
+    "True": {
+     "in_frame": 317,
+     "r23_missed": 90,
+     "misses_by_reach": {
+      "teacher": 27,
+      "teacher_low": 0,
+      "r23_low": 3,
+      "placement": 38,
+      "none": 22
+     },
+     "r23_finds_dropped_by_teacher_labels": 7
+    },
+    "False": {
+     "in_frame": 20827,
+     "r23_missed": 4383,
+     "misses_by_reach": {
+      "teacher": 1605,
+      "teacher_low": 3,
+      "r23_low": 8,
+      "placement": 2450,
+      "none": 317
+     },
+     "r23_finds_dropped_by_teacher_labels": 6
+    }
+   },
+   "by_overlap": {
+    "none": {
+     "in_frame": 10352,
+     "r23_missed": 2016,
+     "misses_by_reach": {
+      "teacher": 532,
+      "teacher_low": 0,
+      "r23_low": 7,
+      "placement": 1262,
+      "none": 215
+     },
+     "r23_finds_dropped_by_teacher_labels": 8
+    },
+    "partial": {
+     "in_frame": 7571,
+     "r23_missed": 1557,
+     "misses_by_reach": {
+      "teacher": 606,
+      "teacher_low": 2,
+      "r23_low": 1,
+      "placement": 854,
+      "none": 94
+     },
+     "r23_finds_dropped_by_teacher_labels": 2
+    },
+    "heavy": {
+     "in_frame": 3221,
+     "r23_missed": 900,
+     "misses_by_reach": {
+      "teacher": 494,
+      "teacher_low": 1,
+      "r23_low": 3,
+      "placement": 372,
+      "none": 30
+     },
+     "r23_finds_dropped_by_teacher_labels": 3
+    },
+    "no pose": {
+     "in_frame": 0,
+     "r23_missed": 0,
+     "misses_by_reach": {
+      "teacher": 0,
+      "teacher_low": 0,
+      "r23_low": 0,
+      "placement": 0,
+      "none": 0
+     },
+     "r23_finds_dropped_by_teacher_labels": 0
+    }
+   },
+   "report_only_e1_raw": {
+    "rows": 21144,
+    "r23_miss_e1_finds": 925,
+    "of_which_placement": 827,
+    "of_which_presence": 98,
+    "r23_find_e1_loses": 599
+   }
+  }
+ },
+ "pooled": {
+  "in_frame": 55035,
+  "r23_missed": 14065,
+  "r23_missed_rate": 0.25556,
+  "misses_by_reach": {
+   "teacher": 4388,
+   "teacher_low": 29,
+   "r23_low": 33,
+   "placement": 7992,
+   "none": 1623
+  },
+  "reach_share_of_misses": {
+   "teacher": 0.312,
+   "teacher_low": 0.0021,
+   "r23_low": 0.0023,
+   "placement": 0.5682,
+   "none": 0.1154
+  },
+  "placement_or_none_with_an_r23_box_within_5ft": 7162,
+  "report_only_misses_by_reach_with_an_r23_box_within_5ft": {
+   "teacher": 3509,
+   "teacher_low": 15,
+   "r23_low": 33,
+   "placement": 7162,
+   "none": 0
+  },
+  "ceilings": {
+   "in_frame": 55035,
+   "r23": 0.25556,
+   "r23_or_teacher": 0.17583,
+   "plus_teacher_low": 0.17531,
+   "plus_r23_low": 0.17471
+  },
+  "r23_finds_under_teacher_labels": {
+   "kept": 39827,
+   "displaced": 1089,
+   "dropped": 54
+  },
+  "by_third": {
+   "near": {
+    "in_frame": 15226,
+    "r23_missed": 3818,
+    "misses_by_reach": {
+     "teacher": 1259,
+     "teacher_low": 2,
+     "r23_low": 9,
+     "placement": 2090,
+     "none": 458
+    },
+    "r23_finds_dropped_by_teacher_labels": 20
+   },
+   "middle": {
+    "in_frame": 24383,
+    "r23_missed": 4934,
+    "misses_by_reach": {
+     "teacher": 1390,
+     "teacher_low": 4,
+     "r23_low": 11,
+     "placement": 2982,
+     "none": 547
+    },
+    "r23_finds_dropped_by_teacher_labels": 15
+   },
+   "far": {
+    "in_frame": 15426,
+    "r23_missed": 5313,
+    "misses_by_reach": {
+     "teacher": 1739,
+     "teacher_low": 23,
+     "r23_low": 13,
+     "placement": 2920,
+     "none": 618
+    },
+    "r23_finds_dropped_by_teacher_labels": 19
+   }
+  },
+  "by_height": {
+   "<150": {
+    "in_frame": 10930,
+    "r23_missed": 4046,
+    "misses_by_reach": {
+     "teacher": 1108,
+     "teacher_low": 14,
+     "r23_low": 12,
+     "placement": 2296,
+     "none": 616
+    },
+    "r23_finds_dropped_by_teacher_labels": 11
+   },
+   "150-200": {
+    "in_frame": 37489,
+    "r23_missed": 8271,
+    "misses_by_reach": {
+     "teacher": 2673,
+     "teacher_low": 14,
+     "r23_low": 16,
+     "placement": 4772,
+     "none": 796
+    },
+    "r23_finds_dropped_by_teacher_labels": 34
+   },
+   "200-250": {
+    "in_frame": 6444,
+    "r23_missed": 1705,
+    "misses_by_reach": {
+     "teacher": 593,
+     "teacher_low": 1,
+     "r23_low": 4,
+     "placement": 902,
+     "none": 205
+    },
+    "r23_finds_dropped_by_teacher_labels": 6
+   },
+   ">=250": {
+    "in_frame": 172,
+    "r23_missed": 43,
+    "misses_by_reach": {
+     "teacher": 14,
+     "teacher_low": 0,
+     "r23_low": 1,
+     "placement": 22,
+     "none": 6
+    },
+    "r23_finds_dropped_by_teacher_labels": 3
+   },
+   "no pose": {
+    "in_frame": 0,
+    "r23_missed": 0,
+    "misses_by_reach": {
+     "teacher": 0,
+     "teacher_low": 0,
+     "r23_low": 0,
+     "placement": 0,
+     "none": 0
+    },
+    "r23_finds_dropped_by_teacher_labels": 0
+   }
+  },
+  "by_edge": {
+   "True": {
+    "in_frame": 705,
+    "r23_missed": 273,
+    "misses_by_reach": {
+     "teacher": 61,
+     "teacher_low": 1,
+     "r23_low": 4,
+     "placement": 119,
+     "none": 88
+    },
+    "r23_finds_dropped_by_teacher_labels": 23
+   },
+   "False": {
+    "in_frame": 54330,
+    "r23_missed": 13792,
+    "misses_by_reach": {
+     "teacher": 4327,
+     "teacher_low": 28,
+     "r23_low": 29,
+     "placement": 7873,
+     "none": 1535
+    },
+    "r23_finds_dropped_by_teacher_labels": 31
+   }
+  },
+  "by_overlap": {
+   "none": {
+    "in_frame": 27687,
+    "r23_missed": 6644,
+    "misses_by_reach": {
+     "teacher": 1494,
+     "teacher_low": 4,
+     "r23_low": 12,
+     "placement": 4161,
+     "none": 973
+    },
+    "r23_finds_dropped_by_teacher_labels": 41
+   },
+   "partial": {
+    "in_frame": 19404,
+    "r23_missed": 4880,
+    "misses_by_reach": {
+     "teacher": 1706,
+     "teacher_low": 15,
+     "r23_low": 15,
+     "placement": 2689,
+     "none": 455
+    },
+    "r23_finds_dropped_by_teacher_labels": 5
+   },
+   "heavy": {
+    "in_frame": 7944,
+    "r23_missed": 2541,
+    "misses_by_reach": {
+     "teacher": 1188,
+     "teacher_low": 10,
+     "r23_low": 6,
+     "placement": 1142,
+     "none": 195
+    },
+    "r23_finds_dropped_by_teacher_labels": 8
+   },
+   "no pose": {
+    "in_frame": 0,
+    "r23_missed": 0,
+    "misses_by_reach": {
+     "teacher": 0,
+     "teacher_low": 0,
+     "r23_low": 0,
+     "placement": 0,
+     "none": 0
+    },
+    "r23_finds_dropped_by_teacher_labels": 0
+   }
+  },
+  "report_only_e1_raw": {
+   "rows": 55035,
+   "r23_miss_e1_finds": 2382,
+   "of_which_placement": 2080,
+   "of_which_presence": 302,
+   "r23_find_e1_loses": 1523
+  }
+ },
+ "pooled_boot": {
+  "r23": {
+   "point": 0.25556,
+   "window_interval": [
+    0.23637,
+    0.27943
+   ]
+  },
+  "r23_or_teacher": {
+   "point": 0.17583,
+   "window_interval": [
+    0.15455,
+    0.20137
+   ]
+  },
+  "plus_teacher_low": {
+   "point": 0.17531,
+   "window_interval": [
+    0.15409,
+    0.20093
+   ]
+  },
+  "plus_r23_low": {
+   "point": 0.17471,
+   "window_interval": [
+    0.15359,
+    0.20021
+   ]
+  },
+  "teacher_gain": {
+   "point": -0.07973,
+   "window_interval": [
+    -0.08398,
+    -0.07555
+   ]
+  },
+  "share_teacher": {
+   "point": 0.31198,
+   "window_interval": [
+    0.27702,
+    0.34727
+   ]
+  },
+  "share_teacher_low": {
+   "point": 0.00206,
+   "window_interval": [
+    0.00121,
+    0.00297
+   ]
+  },
+  "share_r23_low": {
+   "point": 0.00235,
+   "window_interval": [
+    0.00163,
+    0.00321
+   ]
+  },
+  "share_placement": {
+   "point": 0.56822,
+   "window_interval": [
+    0.54735,
+    0.58883
+   ]
+  },
+  "share_none": {
+   "point": 0.11539,
+   "window_interval": [
+    0.08661,
+    0.15164
+   ]
+  },
+  "windows": 175
+ }
+}
