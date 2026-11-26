@@ -1,7 +1,8 @@
 # P8: the CUDA check of D161 (1), design fixed before any run
 
 Written 2026-11-25 (UTC; the evening of 2026-11-24 local time), before any CUDA build, amended before the run (section 11), under PLAN.md D161 (1) (and D98, D99, D100, D164, D169). The code is
-`tools/p8_cuda_check.py`. Nothing here is a result. The game is gsw_ind_2016, an R1.3 training game (development
+`tools/p8_cuda_check.py`. Sections 1 to 12 hold no result and are unchanged since the run; section 13, added after
+the run, holds the result. The game is gsw_ind_2016, an R1.3 training game (development
 data, D98); no held-out game is read and no held-out metric is computed (CLAUDE.md rule 4).
 
 ## 1. The question
@@ -422,22 +423,25 @@ reports/research/p8_cuda_check.json (a copy of the P8 workspace's cuda_check/cud
 `tools.p8_cuda_check compare` under the reading rule of section 4, unchanged since before the run).
 
 **The run.** Runtime p8-cuda-check-3, a Tesla T4 (2 vCPUs), pinned at 3a6327f1 (no pin mismatch); arms cuda_a and
-cuda_b; colab_cpu was not built. Inputs and results moved through Google Drive (section 12). Libraries: ultralytics
+cuda_b; colab_cpu was not built: the lead started the run with `--arms cuda_a,cuda_b` (run_record arms_planned), to
+finish within about 20 minutes after p8-cuda-check-2 was lost, decided before any CUDA output existed or was compared.
+Inputs and results moved through Google Drive (section 12). Libraries: ultralytics
 8.4.48 and transformers 4.49.0 as on the Mac (no flag), the same CLIP revision; torch 2.14.1 (CUDA 13.0, cuDNN 9.28),
 OpenCV 4.14.0, NumPy 2.4.6, Python 3.13.16, against the Mac's torch 2.2.2, OpenCV 4.13.0, NumPy 1.26.4, Python 3.12.2.
 Build time per arm: 51.5 and 49.0 s (s02_w03), 44.4 and 43.8 s (s02_w04), 276.3 and 271.7 s (s04_w00, 1,102 frames).
 Cost, from the lead's runtime log (all T4 runtimes, at most about 1.15 units a T4-hour; times as the log records
-them):
+them, local time, UTC-8):
 
 | Runtime | Time | What happened | Units |
 | --- | --- | --- | --- |
-| p8-cuda-check-1 | 03:44 to 03:45 | no run: the upload from the Mac was blocked by a local web filter | about 0.05 |
+| p8-cuda-check-1 | 03:44 to 03:45 | no run: the upload from the Mac was blocked by a local web filter | about 0.02 to 0.04 |
 | p8-cuda-check-2 | created 11:57, last successful poll 12:27, found reclaimed at 12:56 | reclaimed after a gap in the lead's polling; results lost | at most about 1.1 |
 | p8-cuda-check-3 | 12:57:22 to 13:15:16 (deleted after the upload) | the run recorded here | about 0.35 |
 | Total for D161 (1) | | | about 1.5 |
 
 **The reading (section 4 rule).** Mac CPU against Mac MPS fails as it must, so the rule separates them. cuda_b equals
-cuda_a exactly on every frame of every window (boxes identical, court gap 0.0 px): CUDA is repeatable. cuda_a matches
+cuda_a exactly on every frame of every window (boxes identical, court gap 0.0 px; frames.json, identity.json and trajectories.json
+are byte-identical between the two arms): CUDA is repeatable. cuda_a matches
 neither Mac build, so the verdict is "matches neither". The recorded Mac offsets were recomputed with no mismatch.
 
 | s02_w03 / s02_w04, cuda_a against | Mac CPU | Mac MPS |
@@ -462,7 +466,7 @@ A100: 89) and 56 on s02_w04 (R1.3: 73).
 
 **What matched and what did not.** The detector part matches the Mac CPU detector within the section 4 tolerances on
 both D99 windows and on the report-only window (boxes, counts and frame sets). The court mapping does not: CUDA's court
-homographies sit 8 to 10 px (median) from every Mac build, about twice the Mac CPU against MPS gap.
+homographies sit 8.0 to 10.6 px (median) from every Mac build, about twice the Mac CPU against MPS gap.
 
 **Attribution caveat.** colab_cpu was not built, so the court difference cannot be traced to the device (CUDA) or to
 the libraries (torch, OpenCV and NumPy all differ from the Mac's; the court tracker's line snapping runs in OpenCV).
@@ -470,13 +474,14 @@ The result says so (its attribution note); nothing here separates the two.
 
 **Implications (report only, scoped to these builds).**
 
-1. Under D161 (1), Colab cannot be the reference platform for full builds: on the fixed rule, CUDA matches neither Mac
-   build. The reference platform stays the Mac with the detector on CPU (D175). Section 5's "matches neither" reading
-   asked for one platform to be fixed as the reference; D175 has since fixed it.
+1. Section 5's consequence for "matches neither" named Colab CUDA as the single reference. D175, made before this
+   run, fixed the Mac with the detector on CPU instead. With "matches neither", Colab CUDA builds cannot stand in for
+   or be mixed with D175 reference builds; moving the reference to Colab would need a new D line.
 2. The detector part agrees with the Mac CPU detector, so a split route (detector on CUDA, court on the reference
    device) is possible in principle. It is untested: the pipeline runs both models in one pass, a split needs code and
    its own check, and nothing here measures it.
-3. The court model's output moves by several pixels on every device pair measured: Mac CPU against MPS 3.8 and 4.7 px,
+3. The court model's output moves by several pixels on every platform or device pair measured (the CUDA pairs mix
+   device and libraries; see the attribution caveat): Mac CPU against MPS 3.8 and 4.7 px,
    CUDA against Mac CPU 8.8 and 8.0 px, CUDA against Mac MPS 9.4, 10.6 and (r23 court, s04_w00) 10.1 px. Which court
    output is closest to camera truth is a new open question. D175 kept the court on MPS; nothing here says that
    output is the most accurate one.
@@ -487,9 +492,10 @@ measure (median px distance between the two homographies' images of court points
 build; paired differences between builds with a frame bootstrap). Every input exists, so it costs no model run and no
 lock time (it reads JSON only):
 
-- gsw_bkn_2015_s04_w00: 140 frames of Mac camera truth (the gsw_bkn_2015 fit, 6.52 px), on the same clip every build
+- gsw_bkn_2015_s04_w00: 140 frames of Mac camera truth, 106 of them kept by the paint check (labels/gsw_bkn_2015_paint.jsonl;
+  the design must say which set it uses; the gsw_bkn_2015 fit, 6.52 px, P8_baseline.md), on the same clip every build
   read; builds: Mac MPS (registered r23), Mac detector-CPU (M6), cuda_a. The cleanest case.
-- gsw_ind_2016 s02_w03 and s02_w04: 72 and 62 frames of the Colab R1.3 camera truth (A100 fit, 6.53 px); builds: Mac
+- gsw_ind_2016 s02_w03 and s02_w04: 72 and 62 frames of the Colab R1.3 camera truth (A100 fit, 6.53 px, P8_PLATFORM.md; the frame counts and f_start are to be sourced in that design); builds: Mac
   MPS, Mac CPU, Mac detector-CPU (s02_w03 only), cuda_a. The R1.3 clips were cut on Colab, so a frame-alignment check
   comes first (the window plans agree, f_start 510 on s02_w03, but the cuts were made by another ffmpeg). The Mac's own
   gsw_ind_2016 truth (the broken fit, D98) is not used.
