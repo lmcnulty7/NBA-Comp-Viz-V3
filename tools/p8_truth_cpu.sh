@@ -2,15 +2,14 @@
 # tools/p8_truth_cpu.sh: CPU-detector camera truth and its acceptance (docs/research/P8_truth_arenas.md section 16).
 # Order: gsw_cha_2016 (truth built in section 15; only check C's r23 side and acceptance), then hou_cle_2016,
 # gsw_bkn_2015, gsw_sac_2015 (link; label one job a section with V3 court, gate v2 and the detector on CPU; fit).
-# Then, per game: the r23 builds of the same windows (R23_SOURCE=link: the workspace's reference-platform r23 builds
-# copied for verified windows by tools.p8_truth_cpu_r23, the rest built; R23_SOURCE=rebuild: all built), the rebuild
-# step one job a section, check C's measures (tools.p8_truth_v2 measure-dev), the acceptance checks
-# (tools.p8_truth_accept), and the report-only comparisons with the MPS truth (tools.p8_truth_moved,
-# tools.p8_truth_moved_dh).
+# Then, per game, report steps after the fit: check C's r23 side, copied from the workspace's reference-platform r23
+# builds for verified windows (tools.p8_truth_cpu_r23; no r23 is built), and only when every V3 label window has one,
+# check C's measures (tools.p8_truth_v2 measure-dev) and the acceptance checks (tools.p8_truth_accept); then the
+# report-only comparisons with the MPS truth (tools.p8_truth_moved, tools.p8_truth_moved_dh).
 #
-#     V3_CV_PYTHON=<anaconda python> [R23_SOURCE=link|rebuild] bash tools/p8_truth_cpu.sh [GAME ...]
+#     V3_CV_PYTHON=<anaconda python> bash tools/p8_truth_cpu.sh [GAME ...]
 #
-# One heavy-job lock per model step (label, fit, rebuild, measure-dev); the file-only steps take none. Resumable: a step
+# One heavy-job lock per model step (label, fit, measure-dev); the file-only steps take none. Resumable: a step
 # with a done marker (or a measure-dev record) is skipped and built windows are cached. A failed step is retried at
 # most twice, then the driver stops. A game whose lock time passes its cap (1.5 times its estimate, section 16) stops
 # the driver before its next step. A file named STOP in the reference root stops it before the next step. Nothing is
@@ -19,18 +18,13 @@ set -u -o pipefail
 MPS="${V3_P8_MPS_ROOT:-$HOME/Developer/nba-v3-worktrees/_p8-data/work}"
 R="${V3_P8_REF_ROOT:-$HOME/Developer/nba-v3-worktrees/_p8-data/work_ref}"
 CV="${V3_CV_PYTHON:?set V3_CV_PYTHON to the interpreter that has ultralytics and easyocr (CLAUDE.md: the anaconda one)}"
-R23_SOURCE="${R23_SOURCE:-link}"
 SYS=/usr/local/bin/python3
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 LOG="$R/logs/truth_cpu.log"
 ORDER="gsw_cha_2016 hou_cle_2016 gsw_bkn_2015 gsw_sac_2015"
-cap_of() {   # lock seconds: 1.5 times the section 16 estimate, for the r23 source in use
-  case "$R23_SOURCE:$1" in
-    link:gsw_cha_2016) echo 900;;      rebuild:gsw_cha_2016) echo 12300;;
-    link:hou_cle_2016) echo 19790;;    rebuild:hou_cle_2016) echo 35150;;
-    link:gsw_bkn_2015) echo 17070;;    rebuild:gsw_bkn_2015) echo 30430;;
-    link:gsw_sac_2015) echo 15900;;    rebuild:gsw_sac_2015) echo 28270;;
-    *) echo 0;;
+cap_of() {   # lock seconds in this driver: 1.5 times the section 16 version 3 estimate
+  case "$1" in
+    gsw_cha_2016) echo 450;; hou_cle_2016) echo 19570;; gsw_bkn_2015) echo 16850;; gsw_sac_2015) echo 15680;; *) echo 0;;
   esac
 }
 GAMES="${*:-$ORDER}"
@@ -73,8 +67,7 @@ link_from_mps() {   # a channel game (not R1.3): its sections, moments, time map
 }
 sections_of() { ls "$R/video" | sed -n "s/^\(${1}_s[0-9][0-9]\)\.mp4$/\1/p" | sort; }
 
-case "$R23_SOURCE" in link|rebuild) ;; *) echo "R23_SOURCE must be link or rebuild" >&2; exit 2;; esac
-say "=== CPU truth driver start: $GAMES (r23 source: $R23_SOURCE)"
+say "=== CPU truth driver start: $GAMES"
 for TAG in $GAMES; do
   [ "$(cap_of "$TAG")" -gt 0 ] || { say "FAIL: $TAG is not in this plan"; exit 2; }
   # truth: link, label, fit (gsw_cha_2016's were built in section 15; their done markers make these skip)
@@ -95,18 +88,14 @@ for TAG in $GAMES; do
   done
   step "$TAG" "fit" "$(mk "fit__${TAG}")" tools.p8_frozen fit "$TAG" || { say "FAIL fit $TAG"; exit 11; }
   say "=== $TAG truth built; lock held so far: $(held "$TAG") s"
-  # check C's r23 side, then its measures
-  if [ "$R23_SOURCE" = link ]; then
-    "$SYS" -m tools.p8_truth_cpu_r23 link "$TAG" --mps-root "$MPS" --ref-root "$R" 2>&1 | tee -a "$LOG" || { say "FAIL r23 link $TAG"; exit 12; }
+  # report steps: check C's r23 side (copied, no build), then check C and acceptance only when it is complete
+  "$SYS" -m tools.p8_truth_cpu_r23 link "$TAG" --mps-root "$MPS" --ref-root "$R" 2>&1 | tee -a "$LOG" || { say "FAIL r23 copy $TAG"; exit 12; }
+  if "$SYS" -c "import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))['complete'] else 1)" "$R/builds/r23_source_${TAG}.json"; then
+    step "$TAG" "measure-dev" "$R/truth_v2/dev/${TAG}.json" tools.p8_truth_v2 measure-dev "$TAG" || { say "FAIL measure-dev $TAG"; exit 14; }
+    env V3_P8_ROOT="$R" "$SYS" -m tools.p8_truth_accept "$TAG" 2>&1 | tee -a "$LOG" | tail -4 || say "truth_accept $TAG failed"
+  else
+    say "CHECK C NOT RUN for $TAG: some V3 label windows have no verified r23 build (see builds/r23_source_${TAG}.json); acceptance pending"
   fi
-  for s in $SECTIONS; do
-    [ -e "$(mk "label__${TAG}__${s}")" ] || continue
-    step "$TAG" "rebuild r23 $s" "$(mk "rebuild__${TAG}__${s}__r23")" tools.p8_frozen rebuild "$TAG" --section "$s" --build r23 \
-      || { say "KILL: rebuild $s failed three times; stop and diagnose"; exit 13; }
-  done
-  step "$TAG" "measure-dev" "$R/truth_v2/dev/${TAG}.json" tools.p8_truth_v2 measure-dev "$TAG" || { say "FAIL measure-dev $TAG"; exit 14; }
-  # file-only reports, no lock
-  env V3_P8_ROOT="$R" "$SYS" -m tools.p8_truth_accept "$TAG" 2>&1 | tee -a "$LOG" | tail -4 || say "truth_accept $TAG failed"
   "$SYS" -m tools.p8_truth_moved "$TAG" --mps-root "$MPS" --cpu-root "$R" 2>&1 | tee -a "$LOG" || say "truth_moved $TAG failed"
   "$SYS" -m tools.p8_truth_moved_dh "$TAG" --mps-root "$MPS" --cpu-root "$R" 2>&1 | tail -25 | tee -a "$LOG" || say "truth_moved_dh $TAG failed"
   say "=== $TAG done; lock held: $(held "$TAG") s"

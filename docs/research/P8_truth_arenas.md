@@ -460,3 +460,40 @@ reference root stops it before the next step. One heavy job at a time.
 **What this plan does not decide.** Which truth is used afterwards (a CPU truth that reads "use" in place of the MPS
 truth, or both with the platform recorded) is the lead's decision once all four acceptances are in. Nothing registered
 is rescored and no bar changes after a game is seen.
+
+**Version 3 (2026-11-26, the lead's decisions; before any run). Where it differs from version 2 above, version 3
+holds.**
+
+1. hou_cle_2016's mirror: the recorded vote is reused (status ok, identity, vote share 1.0) and not voted again (the
+   lead's decision). A unanimous vote is not a close call, and the GSW games reuse their recorded mirrors too.
+2. Check C needs no new r23 build, and the driver builds none. An r23 build does not depend on the truth: it is a
+   build of the label clip with the r23 court. tools.p8_truth_v2's measure-dev reads the r23 builds from builds/r23 of
+   its own root (V3_P8_ROOT), and tools.p8_truth_accept reads their device records there, so the workspace's
+   reference-platform r23 builds (builds/m9_r23_detcpu__<game>, and e1m6_r23_detcpu for gsw_bkn_2015) serve once
+   they are in work_ref/builds/r23. They are copied, not linked, by tools/p8_truth_cpu_r23.py, for each window whose
+   build records the workspace's label clip as its source, whose clip is byte-identical in both roots, and whose
+   device request is the reference one. Checked before any run, without writing: every build on record names the
+   workspace clip and the reference request (gsw_bkn_2015 83 windows, gsw_cha_2016 73, gsw_sac_2015 82,
+   hou_cle_2016 93), and gsw_cha_2016's 73 clips are byte-identical in both roots; the other three games' clips are
+   compared when their label step has cut them. Copying keeps the workspace untouchable and leaves nothing in the reference root pointing into it.
+   The rebuild step and R23_SOURCE=rebuild are removed from the driver.
+3. Coverage: measure-dev measures only windows with both builds, so a window without an r23 build would drop out
+   unseen. Check C and the acceptance therefore run only when every V3 label window of the game has a verified r23
+   build (the copy record's "complete"). Otherwise the driver writes "CHECK C NOT RUN", the game's acceptance stays
+   pending, and the missing windows are reported: building them would be a fresh r23 build in this root, about 0.44 s
+   a processed frame (a whole game is 7,905 to 10,339 s, M9 and M6), left out of this driver.
+4. Check C runs per game as a report step after the fit: the copy (no lock), measure-dev (under the lock, about 2 to 3
+   minutes), then tools.p8_truth_accept (no lock), with section 5's bars and the platform rule unchanged. Then
+   p8_truth_moved and the d_H report as above.
+5. Base: the branch holds v4-research at 136b742c (D191), which includes the reviewed sections 14 and 15.
+
+Lock estimates and caps under version 3 (truth as in version 2's table, plus about 250 s a game for measure-dev; for
+gsw_cha_2016 only measure-dev):
+
+| Game | Estimate | Cap (1.5 times) |
+| --- | --- | --- |
+| gsw_cha_2016 | 300 s | 450 s |
+| hou_cle_2016 | 13,045 s (3.62 h) | 19,570 s |
+| gsw_bkn_2015 | 11,230 s (3.12 h) | 16,850 s |
+| gsw_sac_2015 | 10,450 s (2.90 h) | 15,680 s |
+| All four | about 9.7 h | |

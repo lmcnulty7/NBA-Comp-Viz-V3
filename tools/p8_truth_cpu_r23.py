@@ -7,11 +7,14 @@ Check C compares, per label window, the V3 label build with an r23 build of the 
 builds of the four in-use games already exist in the P8 workspace (tools.p8_placement.BUILDS: M9's for gsw_cha_2016,
 gsw_sac_2015 and hou_cle_2016, M6's r23 arm for gsw_bkn_2015), built from the workspace's label clips with the
 detector on CPU. A window's build is copied into <ref root>/builds/r23 only when:
+- the build records the workspace's label clip as its source (the sidecar's "source"),
 - its clip in the workspace (label_build/<window>.mp4) and the reference root's clip are byte-identical (SHA-256), and
 - its device record asked for exactly the reference setting (detector cpu, court and gate auto) with no clip fix.
-Any other window is left for the frozen rebuild step (tools.p8_frozen rebuild --build r23, under the heavy-job lock),
-which builds only windows without an r23 build and refuses a cached build made on other devices. Files are copied, not
-linked, so nothing in the workspace can change. Writes <ref root>/builds/r23_source_<game>.json.
+No r23 build is made here or by the driver (section 16 version 3). The record says whether every V3 label window of
+the reference root (label_build/<window>_frames.json) now has an r23 build ("complete"); check C runs only then,
+because tools.p8_truth_v2 measures only windows with both builds and a missing one would drop out unseen. Files are
+copied, not linked, so nothing in the workspace can change and nothing in the reference root points into it.
+Writes <ref root>/builds/r23_source_<game>.json.
 """
 
 from __future__ import annotations
@@ -76,8 +79,11 @@ def link(game: str, mps_root: Path, ref_root: Path) -> dict:
             present.append(s)
             continue
         rp = src / f"{s}_device.json"
-        why = verify(mps_root / "label_build" / f"{s}.mp4", ref_root / "label_build" / f"{s}.mp4",
-                     json.loads(rp.read_text()) if rp.exists() else None)
+        mclip = mps_root / "label_build" / f"{s}.mp4"
+        built_from = json.loads((src / f"{s}_frames.json").read_text()).get("source")
+        why = None if built_from and Path(built_from).expanduser().resolve() == mclip.resolve() \
+            else f"built from {Path(built_from).name if built_from else 'an unrecorded clip'}, not the workspace clip"
+        why = why or verify(mclip, ref_root / "label_build" / f"{s}.mp4", json.loads(rp.read_text()) if rp.exists() else None)
         if why:
             refused[s] = why
             continue
@@ -86,11 +92,16 @@ def link(game: str, mps_root: Path, ref_root: Path) -> dict:
             shutil.copy2(p, dst / p.name)
         shutil.copy2(src / f"{s}_frames.json", dst / f"{s}_frames.json")   # last: its presence marks the window built
         copied.append(s)
+    v3 = sorted(p.name[:-len("_frames.json")] for p in (ref_root / "label_build").glob(f"{game}_s[0-9][0-9]_w[0-9][0-9]_frames.json"))
+    gap = [s for s in v3 if not (dst / f"{s}_frames.json").exists()]
     out = {"game": game, "source": f"builds/{BUILDS[game]} of the P8 workspace", "reference_devices": REFERENCE,
            "windows_on_record": len(stems), "copied": len(copied), "already_present": len(present),
-           "refused": refused, "note": "windows not copied are built by tools.p8_frozen rebuild under the lock"}
+           "refused": refused, "v3_label_windows": len(v3), "v3_windows_without_r23": gap,
+           "complete": not gap,
+           "note": "check C runs only when every V3 label window has an r23 build here (complete); no r23 is built"}
     atomic_write(ref_root / "builds" / f"r23_source_{game}.json", json.dumps(out, indent=1))
-    print(json.dumps({k: out[k] for k in ("game", "windows_on_record", "copied", "already_present", "refused")}))
+    print(json.dumps({k: out[k] for k in ("game", "windows_on_record", "copied", "already_present", "refused",
+                                          "v3_label_windows", "complete")}))
     return out
 
 

@@ -37,7 +37,7 @@ def make_roots(tmp_path, game="gsw_cha_2016"):
     for s in stems:
         clip(mps / "label_build" / f"{s}.mp4", s.encode())
         clip(ref / "label_build" / f"{s}.mp4", s.encode())
-        (src / f"{s}_frames.json").write_text(json.dumps({"frames": []}))
+        (src / f"{s}_frames.json").write_text(json.dumps({"source": str(mps / "label_build" / f"{s}.mp4"), "frames": []}))
         (src / f"{s}_device.json").write_text(json.dumps(REC))
         (src / f"{s}_trajectories.json").write_text("{}")
     return mps, ref, src, stems
@@ -53,7 +53,8 @@ def test_link_copies_verified_windows_and_leaves_the_rest_for_the_rebuild(tmp_pa
     assert (dst / f"{stems[0]}_frames.json").exists() and (dst / f"{stems[0]}_device.json").exists()
     assert (dst / f"{stems[0]}_trajectories.json").exists()
     assert not (dst / f"{stems[1]}_frames.json").exists() and not (dst / f"{stems[2]}_frames.json").exists()
-    assert json.loads((ref / "builds" / "r23_source_gsw_cha_2016.json").read_text())["copied"] == 1
+    rec = json.loads((ref / "builds" / "r23_source_gsw_cha_2016.json").read_text())
+    assert rec["copied"] == 1 and rec["complete"] is True and rec["v3_label_windows"] == 0
     assert (src / f"{stems[0]}_frames.json").exists()                                  # the workspace is untouched
     again = L.link("gsw_cha_2016", mps, ref)
     assert again["copied"] == 0 and again["already_present"] == 1
@@ -66,3 +67,23 @@ def test_link_refuses_the_apart_game_a_cv_test_game_and_one_root(tmp_path):
         L.link("tor_gsw_2016", tmp_path / "a", tmp_path / "b")
     with pytest.raises(SystemExit, match="same folder"):
         L.link("gsw_cha_2016", tmp_path, tmp_path)
+
+
+def test_complete_only_when_every_v3_label_window_has_an_r23_build(tmp_path):
+    mps, ref, src, stems = make_roots(tmp_path)
+    for s in stems:
+        (ref / "label_build" / f"{s}_frames.json").write_text("{}")
+    (src / f"{stems[2]}_device.json").write_text(json.dumps({**REC, "clip_fix": True}))
+    out = L.link("gsw_cha_2016", mps, ref)
+    assert out["v3_label_windows"] == 3 and out["v3_windows_without_r23"] == [stems[2]] and out["complete"] is False
+    (src / f"{stems[2]}_device.json").write_text(json.dumps(REC))
+    assert L.link("gsw_cha_2016", mps, ref)["complete"] is True
+
+
+def test_a_build_from_another_clip_is_refused(tmp_path):
+    mps, ref, src, stems = make_roots(tmp_path)
+    (src / f"{stems[0]}_frames.json").write_text(json.dumps({"source": str(tmp_path / "elsewhere.mp4"), "frames": []}))
+    (src / f"{stems[1]}_frames.json").write_text(json.dumps({"frames": []}))
+    out = L.link("gsw_cha_2016", mps, ref)
+    assert set(out["refused"]) == {stems[0], stems[1]} and out["copied"] == 1
+    assert out["refused"][stems[0]].startswith("built from elsewhere.mp4")
