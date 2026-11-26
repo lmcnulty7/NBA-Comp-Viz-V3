@@ -790,3 +790,11 @@ in-frame players plus unmatched non-referee boxes, divided by in-frame players (
 frame margin is matched, not a false box). Reported pooled and per game with window intervals (and the game interval
 pooled), beside E; it does not gate. It gives the double-count-free view for the write-up and is the candidate primary
 metric for future arms, to be registered in their own designs. Section 18's gate stands as registered.
+
+**Smoke retry 1 (2026-11-26, 601 lock seconds, peak 1.0 GB): passes.** Every gate of 14.5 holds: stage0_passed,
+arm_sources, no_reset_byte_identical (gsw_cha_2016_s00_w00 equals the r23_nofix baseline), clip_byte_identical,
+every_frame_matches_B (1,053 of 1,053 frames, 8,371 boxes in both), resets_equal_B (2 and 2), records_pass and
+prefix_equal. gsw_cha_2016_s05_w00's reset log holds 2 resets (frames 312 and 6,534, each stripped 2; the first is
+the reset a3input found at frame 312); s00_w00's holds none. This confirms the cause of the first smoke's failure (the
+empty log of the second module copy). Record: <reference root>/resetfix/smoke_check.json.
+
