@@ -262,12 +262,21 @@ how far the truth fit moved away from the H it started from, not the error of ei
 invisible. And because the truth is fitted to inlier feet, the feet that fit it are hits almost by construction:
 placement misses are the feet the fit did not follow.
 
+Correction, 2026-11-26 (ml-review of step 1b; the registered text above is kept as written): the truth camera
+was not initialised from the scored build's H. It was initialised from, and fitted to, the V3 label build
+(sportvu/camera.py line 169, pose_from_h of H_v3; tools/p8_frozen.py reads the truth's sidecars from label_build),
+whose court model is V3, not the r23 court of the scored builds. So d_H is (r23 court minus V3 court) plus (V3
+start minus the fitted truth), not the truth fit's own movement; an error invisible here is one shared by the V3
+court, the r23 court and the truth; and the feet the truth was fitted to are the V3 label build's feet, not the
+scored r23 feet. The reading (MIXED) does not depend on this.
+
 ### Step 1b results (computed 2026-11-26, after the section above was committed in 89fb82cf)
 
 Stored files only, no lock, about 22 seconds. Step 1's count check passed again on every game. Every scored
 player-frame had an accepted build H (none skipped). The CPU build's per-frame H equals the registered MPS build's
 (builds/r23) on every scored frame (2,073, 1,353, 2,151 and 4,425 frames). The court does not depend on the detector,
-so B is the selecting build's H, the one the truth camera started from.
+so B is the r23 court's H, shared by the CPU and MPS r23 builds. The truth camera did not start from it: it was
+initialised from and fitted to the V3 label build (see the correction above).
 
 The rule's numbers (placement misses; window intervals):
 
@@ -302,15 +311,17 @@ Report only, the missed rate of all in-frame players with the same feet under th
 ### Step 1b reading by the registered rule
 
 MIXED. No game reaches GEOMETRY (excess at least 0.25): gsw_cha_2016 comes closest (moved in 0.567, excess 0.242).
-No game is FOOT PIXEL on every count: gsw_bkn_2015's excess is 0.106, just above 0.10, and gsw_sac_2015's is 0.166.
+No game is FOOT PIXEL on every count: gsw_bkn_2015's excess is 0.106, just above 0.10, and its interval [0.098, 0.145] crosses 0.10; the reading does
+not depend on it, because gsw_sac_2015's excess (0.166) has its interval [0.131, 0.179] between 0.10 and 0.25.
 
 The split, by third and game (descriptive):
 
 - Middle and far thirds, every game: the foot lands short of the player under both geometries. The placement misses'
   median depth is -1.3 to -2.5 ft under the build's H (r) against -0.7 to -2.9 ft under the truth (e_T), and the
-  hits' is -0.8 to -1.4 ft under the build's H against -0.2 to -0.9 ft under the truth. The two geometries agree on
-  this bias, so the disagreement does not explain it: it sits in the foot pixel, or in a geometry error both share
-  (the truth starts from the build's H, so a shared error is invisible here). The truth fit removes part of it for
+  hits' is -0.8 to -1.4 ft under the build's H against -0.2 to -0.9 ft under the truth. The disagreement explains little
+  of this bias: none on the middle thirds or on the far third of gsw_bkn_2015 and gsw_sac_2015, about a quarter to
+  a third on the far third of gsw_cha_2016 (-0.85 of -2.69) and hou_cle_2016 (-0.66 of -2.94). The rest sits in the
+  foot pixel, or in a geometry error shared by the V3 court, the r23 court and the truth. The truth fit removes part of it for
   the feet it fitted (hits), not for the rest.
 - Near third, gsw_cha_2016 and hou_cle_2016: the placement misses' positive depth (+2.6 and +2.8 ft) is mostly
   disagreement (-d_H +1.7 and +1.5; r +0.45 and +0.76; 0.64 and 0.59 moved in). On gsw_bkn_2015 and gsw_sac_2015
@@ -319,7 +330,9 @@ The split, by third and game (descriptive):
   games), the highest correlation (0.62), and the only game whose missed rate is lower under the build's H (0.272)
   than under the truth (0.295). Post hoc: its truth camera is the first suspect, which is what queue item 2 tests.
 - For hits, the build's H is worse than the truth on every game (13 to 17 percent of hits pushed out), as expected
-  for a truth fitted to those feet.
+  for a truth fitted to the V3 label build's inlier feet, which overlap the scored ones only in part. Post hoc, an
+  untested alternative for gsw_cha_2016: its truth may carry a V3 court error that the r23 court lacks; either way
+  the truth is the suspect, so queue item 2 stays.
 
 ## Next step after step 1b (proposed; the reading is MIXED, so the lead chooses)
 
