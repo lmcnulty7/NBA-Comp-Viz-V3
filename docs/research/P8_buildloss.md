@@ -129,3 +129,48 @@ discriminating step is a model run on the windows that carry most of a3. It woul
 the build used, the same frames as the corpus JPEGs, on CPU, both raw and through model.track. That separates "the
 detector did not fire on the video" from "the tracker did not output it". It needs the heavy-job lock (model code)
 for minutes per window, and no units.
+
+## Version 2 (2026-11-26; registered after version 1's numbers were seen, before version 2's)
+
+The ml-review of P8_detrow.md raised three points that change this design. Version 1's result (3e90ac33) had already
+been computed and read when they arrived, so version 2 is registered with version 1's numbers seen, and that is its
+forking path. Version 1 stays as committed. Tool: python3 -m tools.p8_buildloss measure2; record:
+reports/research/p8_buildloss_v2.json; per-player rows stay in the P8 workspace (placement/buildloss_v2.json).
+
+1. Distances, recorded per player. The far-miss argument only shows that every kept foot_stab lies beyond 5 ft. A
+   foot_stab shift just over 5 ft minus the raw distance is enough to make a miss, so classes are read with the
+   numbers:
+   - d_raw: the nearest M4 raw bottom-centre at 0.40;
+   - d_video: below;
+   - d_build: the nearest foot_stab;
+   - for the box matched at IoU 0.5 or more, its foot_raw and foot_stab distances.
+   Class c (foot stabilisation) is still defined by the matched box's foot_raw within 5 ft and its foot_stab beyond.
+   The doc reports their medians.
+2. Reachable share. The order-free rates are upper bounds on any missed gain. Only a recovered foot within 2.5 ft can
+   lower the missed row; a box recovered 2.5 to 5 ft away becomes a placement miss. The reading rule therefore counts,
+   for each class, only the players with d_raw at most 2.5 ft. A class matters when that reachable rate among in-frame
+   players is at least 0.010 on every pool game. The rule reads the point estimate, and window intervals (2,000
+   resamples, seed 0) of the reachable rates are reported beside it.
+3. Decode, sized per player. M6's 6.9 percent was every raw-only box on one game, per box, including real build drops,
+   so it does not size decode on this population. The data can size it.
+   - The E1 corpus preds ("ours") are r23 at 0.40 on CPU, run on each decoded clip frame before that frame was written
+     as the JPEG. The clip is the same window clip the build read (tools/p8_e1data.py run).
+   - So class d, decode, is: no sidecar box at IoU 0.5 or more, and no "ours" box within 5 ft on the decoded frame.
+     The box then exists only on the JPEG, which differs from the video frame by the JPEG compression and the corpus
+     environment's library versions.
+   - Order: a matched box gives b or c as in version 1; otherwise d when the decoded-frame detector has no box within
+     5 ft; otherwise a1, a2 or a3. A player in a1 to a3 now had a box from the detector on the decoded frame, so the
+     loss is the tracker's.
+
+What each class leads to is unchanged from version 1. d leads to no build-side arm: the detector input differs, not
+the build. The tool fails loudly if a record or corpus file it needs is missing, and it calls refuse_cv_test at the
+game load.
+
+Repository note: test_every_p8_tool_runs_the_cv_guard needs a literal refuse_cv_test( call in every tools/p8_*.py.
+tools/p8_buildloss.py has one. On this branch the test still lists tools/p8_detrow.py, p8_footbias.py, p8_footpos.py
+and p8_placement_h.py, which the lead fixes on v4-research (30c30de3 and the P8_detrow.md merge). This branch does not
+touch them.
+
+### Version 2 results
+
+Not computed yet.

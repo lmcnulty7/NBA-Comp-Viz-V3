@@ -31,3 +31,25 @@ def test_reset_and_matters():
     assert M.looks_reset({1, 2, 3, 4, 5}, {9, 10, 11, 12, 5})
     assert not M.looks_reset({1, 2, 3}, set())
     assert M.matters({g: 0.01 for g in M.POOL}) and not M.matters({g: 0.009 for g in M.POOL})
+
+
+def test_classify_v2_decode_first_and_need():
+    import pytest
+    nb = box(9, [0, 0, 1, 1])
+    assert M.classify_v2(None, False, nb, None, {9}, set(), None, None) == "d_decode"
+    assert M.classify_v2(None, True, nb, None, {9}, set(), None, None) == "a2_track_gap"
+    assert M.classify_v2(nb, False, None, None, set(), {9}, True, False) == "c_ema"      # a matched box: not decode
+    with pytest.raises(SystemExit):
+        M.need("/nonexistent/file.json")
+
+
+def test_summarise_v2_reachable():
+    rows = [{"w": "w0", "cls": "a3_never_tracked_nearby", "d_raw": 1.0},
+            {"w": "w0", "cls": "a3_never_tracked_nearby", "d_raw": 3.0},
+            {"w": "w1", "cls": "d_decode", "d_raw": 2.0}]
+    s = M.summarise_v2(rows, {"w0": 50, "w1": 50})
+    assert s["reachable"] == 2
+    assert s["classes"]["a3_never_tracked_nearby"]["reachable"] == 1
+    assert s["classes"]["a3_never_tracked_nearby"]["reachable_rate_in_frame"] == 0.01
+    b = M.boot_v2(rows, {"w0": 50, "w1": 50}, n=50)
+    assert b["d_decode"][0] <= b["d_decode"][1]
