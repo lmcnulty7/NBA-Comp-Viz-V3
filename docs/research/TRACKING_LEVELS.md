@@ -102,6 +102,9 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 - A test on numbers already seen is a forecast check, not a discovery: the outpos v1 hou_cle_2016 rule was a
   near-sure pass from committed per-cell medians (D188). Write the forecast and a naive comparator before scoring,
   and count subgroup tails as harm before the first look, not after.
+- Record the runtime of every stored prediction: the E1 corpus detector ran in the teacher environment, not the
+  build's, so raw-against-build comparisons mixed tracker loss with a runtime difference until a review caught it
+  (D190). Two environments are two platforms (see the MPS lesson).
 - A validation metric computed on the training labels (E1: mAP50 0.99) says nothing about accuracy against SportVU.
 - E1's design had a ceiling near its noise floor: only 1,102 of 55,147 in-frame players (0.020) were new positives,
   while the mean-box rule threw away most of the 4,081 foot-placement corrections. A blind design review on
