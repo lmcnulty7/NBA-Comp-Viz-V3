@@ -551,3 +551,30 @@ with the tracker reset fixed misses fewer in-frame players than r23 as built, wi
 within their margins." It does not claim: anything about held-out games or the D85 test set; how much the bug moved any
 recorded number (they stand as recorded); any detector other than r23; any arena or broadcaster beyond these four
 games; that the gain does not rest on frames the fix let into truth (the bracket shows that part).
+
+## 15. Version 2.1 (2026-11-26; the lead's decisions with truth-rebuild, folded into the review fixes)
+
+Two changes, both approved by the lead, to fit the truth plan's check C (P8_truth_arenas.md section 16 version 4):
+
+1. **The unfixed baseline moves to builds/r23_nofix** (replaces 14.2 step 2). `baseline-copy --game G` copies the P8
+   workspace's reference-platform r23 builds (tools.p8_placement.BUILDS) into the reference root's builds/r23_nofix
+   for every label window (one per time map) that passes the rules of tools.p8_truth_cpu_r23: built from the
+   workspace clip, that clip byte-identical to the reference root's, device record on the reference platform with no
+   clip fix and no reset fix, detector record r23 (gate-empty windows: clips byte-identical). It writes
+   builds/r23_nofix_source_<game>.json; `plan` refuses a game whose baseline is not complete. Nothing is built for the
+   baseline. builds/r23 becomes check C's folder, composed by the truth plan's own step (tools.p8_truth_cpu_r23
+   compose, P8_truth_arenas.md section 16 version 4, r-p8-truth-cpu cf840892), per game and only after this arm's
+   resetfix/equiv__<game>.json passes: the arm's build for each window in resetfix/plan__<game>.json "reset_windows"
+   (a list of window stems), the workspace's reference-platform r23 build for every other window. Nothing in this arm
+   writes builds/r23. The acceptance code (tools.p8_truth_v2 measure-dev,
+   tools.p8_truth_accept) stays unchanged and reads builds/r23 as before.
+2. **hou_cle_2016's builds run before the pool verdict** (changes 14.9's stage 3). Check C on hou_cle_2016 needs its
+   fixed reset-window builds. Building them reads no outcome; hou scoring (and so any hou row) stays gated on a pool
+   pass, enforced in `score`. `stage_allowed` now gates hou builds on the smoke only and hou scoring on the pool.
+
+Order (one heavy job at a time, each under its own lock): (1) baseline-copy gsw_cha_2016, then the smoke (14.5);
+(2) the truth plan's label builds with the fix and fits, four games; (3) baseline-copy, plan, arm builds and equiv for
+the three pool games and hou_cle_2016 (they need no truth, so they may interleave with step 2 once a game's label
+clips and time maps exist), then the truth plan's compose per game; (4) the truth plan's check C and acceptance; (5) pin-truth, cache-copy and scoring of the pool, then the report;
+(6) hou scoring only if the pool passes. The budget of 14.9 is unchanged: hou's builds move earlier, they are not
+added.

@@ -7,6 +7,7 @@ tools/p8_device.py's build child and a stored-files estimate for the design. Not
     python3 -m tools.p8_resetfix simulate   -> reports/research/p8_resetfix_simulate.json     (design v2 measurement b)
 
 Design v2 stage 0 (docs/research/P8_resetfix.md section 14), in the reference root (V3_P8_ROOT=<reference root>):
+    python3 -m tools.p8_resetfix baseline-copy --game G                  the unfixed baseline in builds/r23_nofix
     python3 -m tools.p8_resetfix plan --game G                           reset and equivalence windows from the baseline
     <frozen CV python> -m tools.p8_resetfix build --game gsw_cha_2016 --smoke         inside the heavy-job lock
     python3 -m tools.p8_resetfix smoke-check                             the smoke gate
@@ -627,7 +628,8 @@ GAMES = POOL + (APART,)
 R23_SHA = "4c886d5f1e603f9f0aa9748f5b4ed0b4dcc406053935ab5ca397c53c8151795d"
 REFERENCE = {"detector": "cpu", "court": "auto", "gate": "auto"}       # the reference platform (D175)
 PINNED_VERSIONS = {"opencv": "4.13.0", "torch": "2.2.2", "ultralytics": "8.4.48"}   # a3input's build environment
-BASE_DIR = "r23"                               # the reference root's r23 builds (tools.p8_truth_cpu_r23, no fix)
+BASE_DIR = "r23_nofix"                         # the unfixed baseline: verified copies of the workspace's r23 builds
+# builds/r23 is check C's folder, composed by tools.p8_truth_cpu_r23 compose (r-p8-truth-cpu); nothing here writes it
 SMOKE_GAME = "gsw_cha_2016"
 SMOKE_RESET, SMOKE_NORESET = "gsw_cha_2016_s05_w00", "gsw_cha_2016_s00_w00"
 SIDE_FILES = ("frames", "trajectories", "identity")
@@ -651,12 +653,50 @@ def check_game(game: str) -> str:
 
 
 def ref_root() -> Path:
-    """The reference root: the P8 root in use must hold the r23 copy record of tools.p8_truth_cpu_r23."""
+    """The reference root: V3_P8_ROOT names it, it is not the P8 workspace beside it, and it holds label_build/."""
+    import os
     from tools.p8_common import p8_root
     r = p8_root()
-    if not any((r / "builds").glob("r23_source_*.json")):
-        raise SystemExit(f"{WHO}: {r.name} is not the reference root (no builds/r23_source_<game>.json); set V3_P8_ROOT")
+    if not os.environ.get("V3_P8_ROOT") or r.resolve() == (r.parent / "work").resolve() or \
+            not (r / "label_build").is_dir():
+        raise SystemExit(f"{WHO}: set V3_P8_ROOT to the reference root (not the P8 workspace)")
     return r
+
+
+def label_stems(r: Path, game: str) -> list:
+    """The game's label windows in a root: one time map each (time maps and clips stay when label builds move)."""
+    return sorted(p.name[:-len("_timemap.json")] for p in (r / "label_build").glob(f"{game}_s*_timemap.json"))
+
+
+def baseline_problems(stem: str, folder: Path, ws: Path, r: Path) -> str | None:
+    """None when a workspace r23 build (or a copy of it) may stand for the reference root's unfixed baseline of this
+    window, else the reason. The rules of tools.p8_truth_cpu_r23 (verify and check): built from the workspace clip; that
+    clip byte-identical to the reference root's; device record on the reference platform with no clip fix (and here
+    no reset fix); detector record r23."""
+    if (folder / f"{stem}_gate_empty.json").exists() and not (folder / f"{stem}_frames.json").exists():
+        same = (ws / "label_build" / f"{stem}.mp4").exists() and (r / "label_build" / f"{stem}.mp4").exists() and \
+            sha256_file(ws / "label_build" / f"{stem}.mp4") == sha256_file(r / "label_build" / f"{stem}.mp4")
+        return None if same else "gate-empty window whose clips differ or are missing"
+    side = _read(folder / f"{stem}_frames.json")
+    if side is None:
+        return "no build"
+    built_from = side.get("source")
+    mclip = ws / "label_build" / f"{stem}.mp4"
+    if not built_from or Path(built_from).expanduser().resolve() != mclip.resolve():
+        return "not built from the workspace clip"
+    det, dev = _read(folder / f"{stem}_detector.json"), _read(folder / f"{stem}_device.json")
+    if not det or det.get("sha256") != R23_SHA or det.get("model") != "r23":
+        return "detector record is not r23"
+    if not dev or dev.get("requested") != REFERENCE:
+        return "device record is not the reference platform"
+    if dev.get("clip_fix") or dev.get("reset_fix"):
+        return "built with a fix"
+    rclip = r / "label_build" / f"{stem}.mp4"
+    if not mclip.exists() or not rclip.exists():
+        return "clip missing"
+    if sha256_file(mclip) != sha256_file(rclip):
+        return "clips differ"
+    return None
 
 
 def sha256_file(path: Path) -> str:
@@ -858,11 +898,11 @@ def cmd_plan(args) -> dict:
     from tools.p8_common import atomic_write
     game = check_game(args.game)
     r = ref_root()
-    src = _read(r / "builds" / f"r23_source_{game}.json")
+    src = _read(r / "builds" / f"{BASE_DIR}_source_{game}.json")
     if not src or not src.get("complete"):
-        raise SystemExit(f"{WHO}: {game}: the baseline r23 builds are not complete in the reference root")
+        raise SystemExit(f"{WHO}: {game}: the unfixed baseline is not complete in the reference root (baseline-copy)")
     base = r / "builds" / BASE_DIR
-    labels = sorted(p.name[:-len("_frames.json")] for p in (r / "label_build").glob(f"{game}_s*_frames.json"))
+    labels = label_stems(r, game)
     ident, empty = {}, set()
     for w in labels:
         if (base / f"{w}_gate_empty.json").exists():
@@ -886,11 +926,11 @@ def cmd_plan(args) -> dict:
 def stage_allowed(stage: str, d: Path) -> list:
     """The gates in force before a stage: smoke before the pool, the pool verdict before hou_cle_2016."""
     why = []
-    if stage in ("pool", "hou"):
+    if stage in ("pool", "hou", "hou_score"):
         sm = _read(d / "smoke_check.json")
         if not sm or not sm.get("passes"):
             why.append("the smoke check has not passed")
-    if stage == "hou":
+    if stage == "hou_score":                 # hou builds need only the smoke; hou scoring needs the pool pass
         rep = _read(d / "report.json")
         if not rep or not (rep.get("pool") or {}).get("verdict", {}).get("pass"):
             why.append("the pool rule has not passed")
@@ -1068,6 +1108,43 @@ def cmd_cache_copy(args) -> dict:
     return out
 
 
+def cmd_baseline_copy(args) -> dict:
+    """System python, no lock: the unfixed baseline in builds/r23_nofix, copied from the workspace's reference-platform
+    r23 builds (tools.p8_placement.BUILDS) for windows that pass baseline_problems. Never builds anything."""
+    import shutil
+    from tools.p8_common import atomic_write
+    from tools.p8_placement import BUILDS
+    game = check_game(args.game)
+    r = ref_root()
+    ws = Path(args.workspace).expanduser() if args.workspace else r.parent / "work"
+    src, dst = ws / "builds" / BUILDS[game], r / "builds" / BASE_DIR
+    dst.mkdir(parents=True, exist_ok=True)
+    out = {"game": game, "source": f"builds/{BUILDS[game]} of the P8 workspace", "copied": [], "present": [],
+           "refused": {}}
+    for s in label_stems(r, game):
+        if (dst / f"{s}_frames.json").exists() or (dst / f"{s}_gate_empty.json").exists():
+            why = baseline_problems(s, dst, ws, r)
+            if why:
+                raise SystemExit(f"{WHO}: {s} is in {dst.name} but fails the checks ({why})")
+            out["present"].append(s)
+            continue
+        why = baseline_problems(s, src, ws, r)
+        if why:
+            out["refused"][s] = why
+            continue
+        files = sorted(p for p in src.glob(f"{s}_*") if p.name != f"{s}_frames.json")
+        for p in files:
+            shutil.copy2(p, dst / p.name)
+        if (src / f"{s}_frames.json").exists():
+            shutil.copy2(src / f"{s}_frames.json", dst / f"{s}_frames.json")    # last: its presence marks the window
+        out["copied"].append(s)
+    out["label_windows"] = len(label_stems(r, game))
+    out["complete"] = not out["refused"] and len(out["copied"]) + len(out["present"]) == out["label_windows"]
+    atomic_write(r / "builds" / f"{BASE_DIR}_source_{game}.json", json.dumps(out, indent=1))
+    print(json.dumps({k: (len(v) if isinstance(v, (list, dict)) else v) for k, v in out.items()}))
+    return out
+
+
 def truth_files(r: Path, game: str) -> dict:
     files = sorted((r / "labels" / game).glob(f"{game}_s*.jsonl")) + [r / "labels" / f"{game}_result.json"]
     return {p.name: sha256_file(p) for p in files if p.exists()}
@@ -1156,6 +1233,10 @@ def cmd_score(args) -> dict:
         why = truth_pin_problems(_read(d / f"truth_pin__{g}.json"), truth_files(r, g))
         if why:
             raise SystemExit(f"{WHO}: truth of {g}: {why}")
+    if game == APART:
+        why = stage_allowed("hou_score", d)
+        if why:
+            raise SystemExit(f"{WHO}: {game} is scored only after the pool passes: {why}")
     if _read(d / f"truth_pin__{game}.json")["status"] != "use":
         raise SystemExit(f"{WHO}: {game}'s truth is not in use (tools.p8_truth_accept); it is not scored")
     plan = _read(d / f"plan__{game}.json")
@@ -1305,7 +1386,7 @@ def cmd_report(args) -> dict:
         label = "the fix reduces missed players on the pool" if (miv and miv[1] < 0) else \
             "the fix does not harm and points to fewer misses"
     out["pool"] = {**ev, "verdict": pv, "pooled_verdict": pooled, "label": label, "report_only": report_only(allw)}
-    if files[APART] is not None:
+    if files[APART] is not None and pv["pass"]:        # hou is reported only after a pool pass
         wins = list(files[APART]["windows"].values())
         evh = unit_eval(wins, resample_picks(len(wins), 2000, 0))
         vh = v2_verdict(evh["point"], evh["window_interval"], evh["rows"]["coverage"], None,
@@ -1349,12 +1430,12 @@ def main(argv=None) -> None:
     m = sub.add_parser("simulate")
     m.add_argument("--draws", type=int, default=SIM_DRAWS)
     m.add_argument("--boot", type=int, default=2000)
-    for name in ("plan", "build", "equiv", "pin-truth", "score", "cache-copy"):
+    for name in ("plan", "build", "equiv", "pin-truth", "score", "cache-copy", "baseline-copy"):
         x = sub.add_parser(name)
         x.add_argument("--game", required=True)
         if name == "build":
             x.add_argument("--smoke", action="store_true")
-        if name in ("score", "cache-copy"):
+        if name in ("score", "cache-copy", "baseline-copy"):
             x.add_argument("--workspace", default=None, help="the P8 workspace (default: work beside the root)")
     sc = sub.add_parser("smoke-check")
     sc.add_argument("--workspace", default=None, help="the P8 workspace holding the a3input record (default: work)")
@@ -1362,7 +1443,7 @@ def main(argv=None) -> None:
     a = ap.parse_args(argv)
     {"estimate": cmd_estimate, "truthreset": cmd_truthreset, "simulate": cmd_simulate, "plan": cmd_plan,
      "build": cmd_build, "equiv": cmd_equiv, "pin-truth": cmd_pin_truth, "score": cmd_score,
-     "cache-copy": cmd_cache_copy,
+     "cache-copy": cmd_cache_copy, "baseline-copy": cmd_baseline_copy,
      "smoke-check": cmd_smoke_check, "report": cmd_report}[a.cmd](a)
 
 

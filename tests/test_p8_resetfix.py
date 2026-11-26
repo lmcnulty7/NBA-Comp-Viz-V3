@@ -313,11 +313,15 @@ def test_truth_pin_and_label_fix():
 
 def test_stage_allowed(tmp_path):
     import json
-    assert R.stage_allowed("pool", tmp_path) and R.stage_allowed("smoke", tmp_path) == []
+    assert R.stage_allowed("pool", tmp_path) and R.stage_allowed("hou", tmp_path) and R.stage_allowed("smoke", tmp_path) == []
     (tmp_path / "smoke_check.json").write_text(json.dumps({"passes": True}))
-    assert R.stage_allowed("pool", tmp_path) == [] and R.stage_allowed("hou", tmp_path)
+    # version 2.1: hou builds need only the smoke; hou scoring needs the pool pass
+    assert R.stage_allowed("pool", tmp_path) == [] and R.stage_allowed("hou", tmp_path) == []
+    assert R.stage_allowed("hou_score", tmp_path)
+    (tmp_path / "report.json").write_text(json.dumps({"pool": {"verdict": {"pass": False}}}))
+    assert R.stage_allowed("hou_score", tmp_path)
     (tmp_path / "report.json").write_text(json.dumps({"pool": {"verdict": {"pass": True}}}))
-    assert R.stage_allowed("hou", tmp_path) == []
+    assert R.stage_allowed("hou_score", tmp_path) == []
 
 
 def test_rewrite_only_the_build_script(monkeypatch):
@@ -357,7 +361,7 @@ def test_cmd_report_on_synthetic_scores(tmp_path, monkeypatch):
     from tools import p8_common
     root = tmp_path / "ref"
     (root / "builds").mkdir(parents=True)
-    (root / "builds" / "r23_source_gsw_cha_2016.json").write_text("{}")
+    (root / "label_build").mkdir()
     d = root / "resetfix"
     d.mkdir()
     rng = np.random.default_rng(1)
@@ -387,3 +391,71 @@ def test_cmd_report_on_synthetic_scores(tmp_path, monkeypatch):
     (d / "truth_pin__gsw_sac_2015.json").write_text(json.dumps({"status": "apart", "files": {}}))
     res = R.cmd_report(None)
     assert res["partial"] and res["pool"]["verdict"]["pass"] is False
+    assert res["hou"] is None                                            # no hou row without a pool pass
+
+
+# ── version 2.1: the unfixed baseline in builds/r23_nofix and check C's builds/r23 ─────────────────────────────────
+def _roots(tmp_path, monkeypatch):
+    import json
+    ws, ref = tmp_path / "work", tmp_path / "work_ref"
+    for r in (ws, ref):
+        (r / "label_build").mkdir(parents=True)
+        (r / "builds").mkdir()
+    monkeypatch.setenv("V3_P8_ROOT", str(ref))
+    return ws, ref, json
+
+
+def _ws_build(ws, ref, folder, stem, json, clip=b"clip", ref_clip=None, **dev):
+    (ws / "label_build" / f"{stem}.mp4").write_bytes(clip)
+    (ref / "label_build" / f"{stem}.mp4").write_bytes(clip if ref_clip is None else ref_clip)
+    (ref / "label_build" / f"{stem}_timemap.json").write_text("{}")
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / f"{stem}_frames.json").write_text(json.dumps({"source": str(ws / "label_build" / f"{stem}.mp4"),
+                                                            "frames": []}))
+    (folder / f"{stem}_detector.json").write_text(json.dumps({"sha256": R.R23_SHA, "model": "r23"}))
+    (folder / f"{stem}_device.json").write_text(json.dumps({"requested": dict(R.REFERENCE), **dev}))
+    (folder / f"{stem}_identity.json").write_text(json.dumps({"identity": {"camera_cut_resets": 0}}))
+
+
+def test_ref_root_refuses_the_workspace(tmp_path, monkeypatch):
+    ws, ref, _ = _roots(tmp_path, monkeypatch)
+    assert R.ref_root() == ref
+    monkeypatch.setenv("V3_P8_ROOT", str(ws))
+    with pytest.raises(SystemExit):
+        R.ref_root()
+    monkeypatch.delenv("V3_P8_ROOT")
+    with pytest.raises(SystemExit):
+        R.ref_root()
+
+
+def test_baseline_problems(tmp_path, monkeypatch):
+    ws, ref, json = _roots(tmp_path, monkeypatch)
+    src = ws / "builds" / "m9"
+    _ws_build(ws, ref, src, "g_s00_w00", json)
+    assert R.baseline_problems("g_s00_w00", src, ws, ref) is None
+    _ws_build(ws, ref, src, "g_s00_w01", json, ref_clip=b"other")
+    assert R.baseline_problems("g_s00_w01", src, ws, ref) == "clips differ"
+    _ws_build(ws, ref, src, "g_s00_w02", json, reset_fix=True)
+    assert R.baseline_problems("g_s00_w02", src, ws, ref) == "built with a fix"
+    _ws_build(ws, ref, src, "g_s00_w03", json, clip_fix=True)
+    assert R.baseline_problems("g_s00_w03", src, ws, ref) == "built with a fix"
+    (src / "g_s00_w00_detector.json").write_text(json.dumps({"sha256": "x", "model": "r23"}))
+    assert R.baseline_problems("g_s00_w00", src, ws, ref) == "detector record is not r23"
+    assert R.baseline_problems("g_s09_w09", src, ws, ref) == "no build"
+
+
+def test_baseline_copy(tmp_path, monkeypatch):
+    ws, ref, json = _roots(tmp_path, monkeypatch)
+    from tools.p8_placement import BUILDS
+    g = "gsw_cha_2016"
+    src = ws / "builds" / BUILDS[g]
+    for i in range(3):
+        _ws_build(ws, ref, src, f"{g}_s00_w{i:02d}", json)
+    rec = R.cmd_baseline_copy(type("A", (), {"game": g, "workspace": str(ws)})())
+    assert rec["complete"] and len(rec["copied"]) == 3
+    assert (ref / "builds" / "r23_nofix" / f"{g}_s00_w01_frames.json").exists()
+    assert not (ref / "builds" / "r23").exists()                           # check C's folder is not written here
+    assert R.cmd_baseline_copy(type("A", (), {"game": g, "workspace": str(ws)})())["present"] == rec["copied"]
+    _ws_build(ws, ref, src, f"{g}_s00_w03", json, ref_clip=b"other")       # a refused window: incomplete
+    rec = R.cmd_baseline_copy(type("A", (), {"game": g, "workspace": str(ws)})())
+    assert not rec["complete"] and f"{g}_s00_w03" in rec["refused"]
