@@ -271,3 +271,45 @@ sync kill; nothing scored depends on it yet.
 3. If this layout also maps under 1,500 s, okc_sac_2015 is unused and the matter is closed: no third layout.
 
 Lock cost of the second sync: about 0.65 h (the first took 2,294 s).
+
+## 14. Result (2026-11-26): okc_sac_2015 closed at the mirror vote
+
+**What ran.** The D180 retry of section 13: registry layout auto_okc_sac_2015, the fresh reference root, the detector
+on CPU, one heavy-job lock per step, kill criteria checked between steps by the driver. Log: the reference root's
+logs/okc_truth.log; mirror record: the reference root's reports/sportvu_direction_okc_sac_2015.json.
+
+**Sync passed check B's clock bar.** 12 sections, 6,589 clock reads, 3,860 ok (0.586), 105 running spans, 1,792 s of
+running clock mapped (1,791.6 unrounded) against the 1,500 s bar. Per section: s00 and s01 map 0 s (6 and 9 good
+reads of about 580), s02 to s10 map 55.0 to 280.0 s, s11 (a short tail) 3.0 s. The fso15_720 attempt of section 13
+had mapped 445 s.
+
+**Direction did not resolve, so the game stops (section 8).** 13 direction windows built in s02 to s10 (40 s of running
+clock a section, the frozen budget); 12 could vote. The frozen vote (sportvu/direction.py, VOTE_SHARE 0.8, on the far
+statistic) returned status "ambiguous", leading mirror identity, vote share 0.67 (8 of 12 windows: identity 8, flip_y
+3, flip_xy 1, flip_x 0). Median distance by mirror: identity 6.42 ft, flip_y 6.94, flip_xy 22.68, flip_x 22.91; far
+statistic: identity 8.93 ft, flip_y 11.49, flip_x 32.41, flip_xy 35.44; offsets from -0.26 to 1.50 s. As at the R1.2
+games, the y-flip is the weak axis: identity and flip_y sit within about 0.5 ft on the median. Section 8 fixed in
+advance: "After direction: the frozen mirror vote does not resolve (status not ok): stop the game." No label build,
+fit or rebuild ran. Nothing is retuned and there is no third try: no new layout, no second direction budget, no
+change to VOTE_SHARE, and the leading identity vote is not adopted by hand.
+
+**Lock time.** This retry held the lock 4,306 s (1.20 h): sync 2,584 s in 12 jobs, direction 1,700 s in 12 jobs, mirror
+22 s. The first sync on fso15_720 (section 13) held 2,294 s, so okc_sac_2015 used 6,600 s (1.83 h) of lock time in
+all, inside the section 6 estimate for its sync and direction (1.1 to 2.0 h). The driver waited for the lock behind
+another job before its first step; waiting time is not counted.
+
+**The arena fallback (ok_by_arena) was not possible.** The rule in sportvu/prepare.py (do_report, near line 158) turns
+"ambiguous" into "ok_by_arena" only when at least one other game with the same home team resolved "ok" on its own
+windows, all such games agree on one mirror, and the ambiguous game's leading vote is that mirror. cle_gsw_2016 took
+it from cle_nyk_2015. okc_sac_2015 has no peer: it is the only game with home OKC in reports/research/p8_registry.json
+and in the R1.2 direction reports, and the one other OKC home video in data/harvest/games.json (gsw_okc_2016wcf_g6, a
+2016 playoff game) has no SportVU game, so it has no direction result. The fallback is also a step of the R1.2 report,
+not of tools/p8_frozen.py's mirror step, so using it here would have been a new rule after the result; section 8 names
+no fallback. Report only, not a resolution: the leading mirror, identity, is the one every other resolved game took.
+
+**What this leaves for development truth.** okc_sac_2015 is unused. With nyk_bos_2016 and por_okc_2016 out (section 0,
+Lucien's decision of 2026-11-25), Mac development camera truth covers two non-sealed arenas, as before P8's arena
+item: GSW (gsw_bkn_2015, gsw_cha_2016 and gsw_sac_2015 in use; gsw_ind_2016 apart under D98) and HOU (hou_cle_2016).
+All of it comes from MPS label builds; the platform-mix test of section 0 (gsw_cha_2016 rebuilt on the CPU detector)
+is the next item. Cross-arena work at Level 1 step 7 has one non-GSW arena, HOU, until another arena gets truth by
+the registered route.
