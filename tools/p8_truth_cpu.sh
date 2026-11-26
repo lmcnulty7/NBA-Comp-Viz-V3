@@ -29,6 +29,9 @@ cap_of() {   # lock seconds in this driver: 1.5 times the section 16 version 3 e
 }
 GAMES="${*:-$ORDER}"
 cd "$REPO" || exit 2
+same=$("$SYS" -c "import os,sys; print(int(os.path.realpath(sys.argv[1]) == os.path.realpath(sys.argv[2])))" "$MPS" "$R")
+[ "$same" = 0 ] || { echo "the reference root and the P8 workspace are the same folder" >&2; exit 2; }
+"$SYS" -m tools.p8_truth_cpu_r23 detector-check || { echo "models/player_detector.pt is not the r23 detector" >&2; exit 2; }
 mkdir -p "$R/logs"
 say() { echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $*" | tee -a "$LOG"; }
 held() { grep -h "^\[heavy\] 'p8 cpu truth $1 .*done in" "$LOG" 2>/dev/null | sed -E 's/.*done in ([0-9]+) s.*/\1/' | awk '{s+=$1} END {print s+0}'; }

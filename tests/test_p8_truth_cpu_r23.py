@@ -10,6 +10,7 @@ from tools.p8_placement import BUILDS
 
 REC = {"requested": {"detector": "cpu", "court": "auto", "gate": "auto"},
        "resolved": {"detector": "cpu", "court": "mps", "gate": "mps"}}
+DET = {"weights": "player_detector.pt", "sha256": L.R23_DETECTOR_SHA256, "model": "r23", "seed": 0}
 
 
 def clip(path, data=b"clip"):
@@ -20,13 +21,27 @@ def clip(path, data=b"clip"):
 
 def test_verify_accepts_only_the_reference_setting_on_identical_clips(tmp_path):
     a, b = clip(tmp_path / "a.mp4"), clip(tmp_path / "b.mp4")
-    assert L.verify(a, b, REC) is None
-    assert L.verify(a, b, None) == "no device record"
-    assert L.verify(a, b, {**REC, "requested": {**REC["requested"], "detector": "mps"}}).startswith("devices")
-    assert L.verify(a, b, {**REC, "requested": {"detector": "auto", "court": "auto", "gate": "auto"}}).startswith("devices")
-    assert L.verify(a, b, {**REC, "clip_fix": True}) == "clip fix"
-    assert L.verify(a, clip(tmp_path / "c.mp4", b"other"), REC) == "clips differ"
-    assert L.verify(a, tmp_path / "missing.mp4", REC) == "clip missing"
+    assert L.verify(a, b, REC, DET) is None
+    assert L.verify(a, b, None, DET) == "no device record"
+    assert L.verify(a, b, {**REC, "requested": {**REC["requested"], "detector": "mps"}}, DET).startswith("devices")
+    assert L.verify(a, b, {**REC, "requested": {"detector": "auto", "court": "auto", "gate": "auto"}}, DET).startswith("devices")
+    assert L.verify(a, b, {**REC, "clip_fix": True}, DET) == "clip fix"
+    assert L.verify(a, clip(tmp_path / "c.mp4", b"other"), REC, DET) == "clips differ"
+    assert L.verify(a, tmp_path / "missing.mp4", REC, DET) == "clip missing"
+
+
+def test_verify_requires_the_r23_detector_record(tmp_path):
+    a, b = clip(tmp_path / "a.mp4"), clip(tmp_path / "b.mp4")
+    assert L.verify(a, b, REC) == "no detector record"
+    assert L.verify(a, b, REC, {**DET, "sha256": "0" * 64}).startswith("detector")
+    assert L.verify(a, b, REC, {**DET, "model": "e1"}).startswith("detector")
+    assert L.R23_DETECTOR_SHA256.startswith("4c886d5f")
+
+
+def test_the_repository_detector_is_r23(tmp_path):
+    assert L.detector_sha_ok()
+    assert not L.detector_sha_ok(clip(tmp_path / "player_detector.pt", b"not the weights"))
+    assert not L.detector_sha_ok(tmp_path / "missing.pt")
 
 
 def make_roots(tmp_path, game="gsw_cha_2016"):
@@ -39,11 +54,12 @@ def make_roots(tmp_path, game="gsw_cha_2016"):
         clip(ref / "label_build" / f"{s}.mp4", s.encode())
         (src / f"{s}_frames.json").write_text(json.dumps({"source": str(mps / "label_build" / f"{s}.mp4"), "frames": []}))
         (src / f"{s}_device.json").write_text(json.dumps(REC))
+        (src / f"{s}_detector.json").write_text(json.dumps(DET))
         (src / f"{s}_trajectories.json").write_text("{}")
     return mps, ref, src, stems
 
 
-def test_link_copies_verified_windows_and_leaves_the_rest_for_the_rebuild(tmp_path):
+def test_link_copies_verified_windows_and_refuses_the_rest(tmp_path):
     mps, ref, src, stems = make_roots(tmp_path)
     clip(ref / "label_build" / f"{stems[1]}.mp4", b"a different cut")                  # clip differs
     (src / f"{stems[2]}_device.json").write_text(json.dumps({**REC, "clip_fix": True}))  # other setting
@@ -51,7 +67,7 @@ def test_link_copies_verified_windows_and_leaves_the_rest_for_the_rebuild(tmp_pa
     dst = ref / "builds" / "r23"
     assert out["copied"] == 1 and set(out["refused"]) == {stems[1], stems[2]}
     assert (dst / f"{stems[0]}_frames.json").exists() and (dst / f"{stems[0]}_device.json").exists()
-    assert (dst / f"{stems[0]}_trajectories.json").exists()
+    assert (dst / f"{stems[0]}_trajectories.json").exists() and (dst / f"{stems[0]}_detector.json").exists()
     assert not (dst / f"{stems[1]}_frames.json").exists() and not (dst / f"{stems[2]}_frames.json").exists()
     rec = json.loads((ref / "builds" / "r23_source_gsw_cha_2016.json").read_text())
     assert rec["copied"] == 1 and rec["complete"] is True and rec["v3_label_windows"] == 0
@@ -87,3 +103,23 @@ def test_a_build_from_another_clip_is_refused(tmp_path):
     out = L.link("gsw_cha_2016", mps, ref)
     assert set(out["refused"]) == {stems[0], stems[1]} and out["copied"] == 1
     assert out["refused"][stems[0]].startswith("built from elsewhere.mp4")
+
+
+def test_a_copy_already_present_is_checked_again(tmp_path):
+    mps, ref, src, stems = make_roots(tmp_path)
+    L.link("gsw_cha_2016", mps, ref)
+    dst = ref / "builds" / "r23"
+    (dst / f"{stems[0]}_detector.json").write_text(json.dumps({**DET, "model": "e1"}))
+    with pytest.raises(SystemExit, match="already in"):
+        L.link("gsw_cha_2016", mps, ref)
+    (dst / f"{stems[0]}_detector.json").write_text(json.dumps(DET))
+    assert L.link("gsw_cha_2016", mps, ref)["already_present"] == 3
+
+
+def test_a_build_present_without_one_on_record_stops_the_copy(tmp_path):
+    mps, ref, src, stems = make_roots(tmp_path)
+    dst = ref / "builds" / "r23"
+    dst.mkdir(parents=True)
+    (dst / "gsw_cha_2016_s09_w09_frames.json").write_text("{}")
+    with pytest.raises(SystemExit, match="no build on record"):
+        L.link("gsw_cha_2016", mps, ref)

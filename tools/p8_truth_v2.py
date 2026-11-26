@@ -223,7 +223,9 @@ def dev_path(tag: str) -> Path:
     return p8_root() / "truth_v2" / "dev" / f"{tag}.json"
 
 
-REGISTERED_ROOT = Path.home() / "Developer" / "nba-v3-worktrees" / "_p8-data" / "work"   # p8_common's default root
+# the registered workspace: p8_common.p8_root's default (written out because p8_common is under the scorer's pin; a
+# test checks that the two agree)
+REGISTERED_ROOT = Path.home() / "Developer" / "nba-v3-worktrees" / "_p8-data" / "work"
 
 
 def refuse_dev(tag: str, root: Path, registered: Path = REGISTERED_ROOT) -> None:

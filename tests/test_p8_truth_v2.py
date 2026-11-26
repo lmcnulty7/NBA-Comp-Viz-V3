@@ -74,3 +74,9 @@ def test_measure_dev_refuses_registered_games_only_in_the_registered_workspace(t
             V.refuse_dev("gsw_ind_2016", root, reg)
     V.refuse_dev("hou_cle_2016", reg, reg)
     assert V.REGISTERED_ROOT.name == "work"
+
+
+def test_registered_root_is_p8_commons_default(monkeypatch):
+    from tools import p8_common
+    monkeypatch.delenv("V3_P8_ROOT", raising=False)
+    assert p8_common.p8_root() == V.REGISTERED_ROOT

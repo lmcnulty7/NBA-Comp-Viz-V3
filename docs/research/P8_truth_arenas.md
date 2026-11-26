@@ -497,3 +497,11 @@ gsw_cha_2016 only measure-dev):
 | gsw_bkn_2015 | 11,230 s (3.12 h) | 16,850 s |
 | gsw_sac_2015 | 10,450 s (2.90 h) | 15,680 s |
 | All four | about 9.7 h | |
+
+Review fixes (ml-review of 5c1bafd3, GO; applied before any run). A copied r23 build must also carry a detector record
+naming the r23 player detector (model "r23", weights sha256 4c886d5f..., the repository's models/player_detector.pt;
+every build on record does). A build already in work_ref/builds/r23 passes the same checks on its own files or stops
+the copy, and one there with no build on record stops it too. The driver exits at start unless the reference root and
+the P8 workspace are different folders (real paths) and the repository's models/player_detector.pt has the r23
+sha256. The registered workspace path of measure-dev's guard stays written out in tools/p8_truth_v2.py (moving it into
+tools/p8_common.py would change a file under the scorer's pin); a test checks it equals p8_common's default root.
