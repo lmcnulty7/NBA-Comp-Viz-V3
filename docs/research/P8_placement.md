@@ -213,3 +213,140 @@ Step 3, proposed for the lead:
 Cost of step 3: no compute; a D line and a rewrite of the Level 2 rows in TRACKING_LEVELS.md. Splitting the scorecard's
 missed row into the two rows would be a reporting change to tools/p8_scorecard.py's breakdowns (report only, the pinned
 rows unchanged), about an hour of code and tests, and minutes of rescoring per game under the lock.
+
+## Step 1b: the build's H against the truth camera at the same foot pixel (registered before any number)
+
+Asked by the lead on 2026-11-26 after step 1. Report only, stored files, no model, no units. Tool:
+tools/p8_placement_h.py (rules in its docstring, the same as here); record: reports/research/p8_placement_h.json.
+
+Why: step 1's offset runs along the camera ray, grows with distance and varies by game. That is the shape of a
+disagreement between two court geometries. Whether the offset comes from geometry or from the foot pixel decides which
+fix is possible.
+
+Definitions:
+
+- Universe and population: step 1's, on frames whose sidecar row is accepted with an H (the frames of the scorer's
+  position rows). Pool games gsw_bkn_2015, gsw_cha_2016, gsw_sac_2015; hou_cle_2016 reported apart and used for
+  nothing.
+- p is the foot_stab pixel of the player's nearest box under the truth camera (the box the missed rule scores). T(p)
+  maps it through the truth H; B(p) maps it through the build's per-frame H, as the scorer's position rows do.
+- e_T = T(p) - SportVU is step 1's offset. d_H = B(p) - T(p) is the disagreement of the two geometries at that pixel.
+  If the build's H were right, the truth would have moved the foot by -d_H, so -d_H is the disagreement's share of
+  the scored offset. The residual after removing it is r = e_T + d_H = B(p) - SportVU, the same pixel's offset under
+  the build's H. (Sign: "offset minus the disagreement's contribution" is e_T - (-d_H).)
+- Reported by game and camera third, for placement misses and for hits: the median depth of e_T, of -d_H and of r;
+  the share with |r| at most 2.5 ft (for placement misses "moved in", for hits "kept"); the correlation of the depth of
+  e_T with the depth of -d_H and the slope of the first on the second (a slope of 1 means one for one); the median
+  |d_H|.
+- Null: d_H shuffled among the same game's placement misses of the same third (seed 0). The excess is the moved-in
+  share minus the null's: what the pairing of a foot with its own disagreement explains, beyond adding any vector of
+  that size, which can also push a 2.5 to 5 ft miss inside the gate by chance.
+- Window bootstrap (2,000, seed 0) of the moved-in share and the excess per game. Report only: the share of placement
+  misses with any box within 2.5 ft under the build's H, and the missed rate under the build's H; and whether the
+  CPU build's per-frame H equals the registered MPS build's (builds/r23), which would make B the selecting build's H.
+
+Reading rule, fixed now (on each of the three pool games):
+
+- (i) GEOMETRY if the moved-in share is at least 0.50 and the excess at least 0.25 on every pool game. "Most" is read
+  as a majority, and the excess bar asks that at least a quarter of the placement misses be explained by their own
+  disagreement, not by chance. Next step: the gsw_cha_2016 CPU truth rebuild test (queue item 2), plus a look at which
+  side moved, the build's H or the truth fit.
+- (ii) FOOT PIXEL if the excess is at most 0.10 on every pool game: the pairing explains at most one placement miss in
+  ten beyond chance. The error then sits in the foot pixel (the box bottom against the true contact point). Next step:
+  a foot-pixel model question for the detector or foot_stab, by box height and third.
+- (iii) MIXED otherwise: an excess between 0.10 and 0.25 on some game, games on different sides, or a moved-in share
+  of 0.50 or more without an excess of 0.25. The split is then reported per game and third, and the lead chooses.
+
+What it cannot tell. It cannot separate build error from truth error. The truth camera is initialised from the
+selecting build's H (sportvu/camera.py lines 169 to 174 for the game's camera position, 206 to 208 per frame) and is
+fitted to that build's foot_stab pixels paired with SportVU positions (lines 120 to 160, inlier pairs only). So d_H is
+how far the truth fit moved away from the H it started from, not the error of either. An error both share is
+invisible. And because the truth is fitted to inlier feet, the feet that fit it are hits almost by construction:
+placement misses are the feet the fit did not follow.
+
+Correction, 2026-11-26 (ml-review of step 1b; the registered text above is kept as written): the truth camera
+was not initialised from the scored build's H. It was initialised from, and fitted to, the V3 label build
+(sportvu/camera.py line 169, pose_from_h of H_v3; tools/p8_frozen.py reads the truth's sidecars from label_build),
+whose court model is V3, not the r23 court of the scored builds. So d_H is (r23 court minus V3 court) plus (V3
+start minus the fitted truth), not the truth fit's own movement; an error the r23 court and the truth share is
+invisible here (since the truth starts from V3, the likely case is an error V3 and r23 share that the fit did not
+remove); and the feet the truth was fitted to are the V3 label build's feet, not the scored r23 feet. The reading (MIXED) does not depend on this.
+
+### Step 1b results (computed 2026-11-26, after the section above was committed in 89fb82cf)
+
+Stored files only, no lock, about 22 seconds. Step 1's count check passed again on every game. Every scored
+player-frame had an accepted build H (none skipped). The CPU build's per-frame H equals the registered MPS build's
+(builds/r23) on every scored frame (2,073, 1,353, 2,151 and 4,425 frames). The court does not depend on the detector,
+so B is the r23 court's H, shared by the CPU and MPS r23 builds. The truth camera did not start from it: it was
+initialised from and fitted to the V3 label build (see the correction above).
+
+The rule's numbers (placement misses; window intervals):
+
+| Game | Moved in after removing d_H [interval] | Null (d_H shuffled within third) | Excess [interval] | Median abs d_H (ft) |
+| --- | --- | --- | --- | --- |
+| gsw_bkn_2015 | 0.311 [0.286, 0.341] | 0.205 | 0.106 [0.098, 0.145] | 1.18 |
+| gsw_cha_2016 | 0.567 [0.514, 0.612] | 0.325 | 0.242 [0.208, 0.276] | 2.09 |
+| gsw_sac_2015 | 0.334 [0.307, 0.359] | 0.168 | 0.166 [0.131, 0.179] | 1.25 |
+| hou_cle_2016 (check) | 0.461 [0.429, 0.493] | 0.315 | 0.145 [0.131, 0.173] | 1.64 |
+
+Depth (ft, positive beyond the player; e_T the scored offset, -d_H the disagreement's share, r the offset under the
+build's H) and the slope of e_T's depth on -d_H's depth:
+
+| Game, class | Near: e_T, -d_H, r; moved in or kept | Middle | Far | Slope (all) |
+| --- | --- | --- | --- | --- |
+| gsw_bkn_2015, placement | +2.43, +0.40, +1.28; 0.34 | -1.84, +0.18, -1.54; 0.30 | -2.62, +0.25, -2.52; 0.30 | 0.63 |
+| gsw_cha_2016, placement | +2.64, +1.72, +0.45; 0.64 | -0.72, +0.61, -1.30; 0.45 | -2.69, -0.85, -1.56; 0.61 | 0.82 |
+| gsw_sac_2015, placement | +0.75, -0.07, +0.45; 0.38 | -2.23, +0.29, -1.77; 0.32 | -2.47, +0.48, -2.20; 0.32 | 0.67 |
+| hou_cle_2016, placement | +2.80, +1.48, +0.76; 0.59 | -2.10, +0.57, -1.80; 0.33 | -2.94, -0.66, -2.10; 0.47 | 0.72 |
+| gsw_bkn_2015, hits | -0.07, +0.13, -0.24; 0.90 | -0.48, +0.28, -0.81; 0.87 | -0.77, +0.59, -1.44; 0.77 | 0.21 |
+| gsw_cha_2016, hits | +0.35, +0.99, -0.65; 0.85 | -0.24, +0.70, -0.96; 0.84 | -0.81, +0.02, -0.92; 0.81 | 0.28 |
+| gsw_sac_2015, hits | -0.17, +0.06, -0.27; 0.89 | -0.44, +0.30, -0.82; 0.88 | -0.65, +0.58, -1.28; 0.81 | 0.25 |
+| hou_cle_2016, hits | +0.33, +1.08, -0.76; 0.87 | -0.17, +0.81, -0.99; 0.83 | -0.92, +0.09, -1.00; 0.78 | 0.25 |
+
+Correlation of the depth of e_T with the depth of -d_H for placement misses: 0.36, 0.62 and 0.41 (bkn, cha, sac),
+0.47 on hou_cle_2016; for hits 0.22 to 0.36.
+
+Report only, the missed rate of all in-frame players with the same feet under the build's H instead of the truth's
+(same box; any box): gsw_bkn_2015 0.309, 0.293 against 0.253; gsw_cha_2016 0.272, 0.243 against 0.295; gsw_sac_2015
+0.257, 0.240 against 0.206; hou_cle_2016 0.271, 0.255 against 0.196.
+
+### Step 1b reading by the registered rule
+
+MIXED. No game reaches GEOMETRY (excess at least 0.25): gsw_cha_2016 comes closest (moved in 0.567, excess 0.242).
+No game is FOOT PIXEL on every count: gsw_bkn_2015's excess is 0.106, just above 0.10, and its interval
+[0.098, 0.145] crosses 0.10; the reading does not depend on it, because gsw_sac_2015's excess (0.166) has its interval [0.131, 0.179] between 0.10 and 0.25.
+
+The split, by third and game (descriptive):
+
+- Middle and far thirds, every game: the foot lands short of the player under both geometries. The placement misses'
+  median depth is -1.3 to -2.5 ft under the build's H (r) against -0.7 to -2.9 ft under the truth (e_T), and the
+  hits' is -0.8 to -1.4 ft under the build's H against -0.2 to -0.9 ft under the truth. Measured by
+  the median of -d_H, the disagreement explains none of this bias on the middle thirds or on the far third of
+  gsw_bkn_2015 and gsw_sac_2015 (its median points the other way there), and about a quarter to a third on the far
+  third of gsw_cha_2016 (-0.85 of -2.69) and hou_cle_2016 (-0.66 of -2.94). Medians do not add: the median of r is
+  0.1 to 1.1 ft less short than that of e_T in these cells. The rest sits in the foot pixel, or in a geometry error
+  the r23 court and the truth share. The truth fit removes part of it for the scored feet that fall inside the gate
+  (hits), which partly overlap the V3 label build's feet it was fitted to; not for the rest.
+- Near third, gsw_cha_2016 and hou_cle_2016: the placement misses' positive depth (+2.6 and +2.8 ft) is mostly
+  disagreement (-d_H +1.7 and +1.5; r +0.45 and +0.76; 0.64 and 0.59 moved in). On gsw_bkn_2015 and gsw_sac_2015
+  the near third is not (-d_H +0.40 and -0.07).
+- gsw_cha_2016 stands apart: the largest disagreement (median |d_H| 2.09 ft against 1.18 to 1.25 on the other pool
+  games), the highest correlation (0.62), and the only game whose missed rate is lower under the build's H (0.272)
+  than under the truth (0.295). Post hoc: its truth camera is the first suspect, which is what queue item 2 tests.
+- For hits, the build's H is worse than the truth on every game (13 to 17 percent of hits pushed out), as expected
+  for a truth fitted to the V3 label build's inlier feet, which overlap the scored ones only in part. Post hoc, an
+  untested alternative for gsw_cha_2016: its truth may carry a V3 court error that the r23 court lacks; either way
+  the truth is the suspect, so queue item 2 stays.
+
+## Next step after step 1b (proposed; the reading is MIXED, so the lead chooses)
+
+1. Geometry part: the gsw_cha_2016 CPU truth rebuild test (queue item 2), now with a reason specific to that game. It
+   should report which side moved: the rebuilt truth against the current truth and against the build's H, at the
+   same foot pixels, with this tool's measures. Cost: a camera-truth rebuild reads the clips (line ridges), so it
+   needs the heavy-job lock; its lock hours are as queue item 2 estimates them.
+2. Foot-pixel part: the middle and far short-foot bias that both geometries agree on. First a measurement from stored
+   files (minutes, no lock, no units): the depth offset under the build's H (deployable, no truth at apply time) by
+   box pixel height and third, with its game-to-game spread. The question is whether it is stable enough across
+   games to correct, which step 1's truth-based fit was not (it failed on gsw_sac_2015). A correction arm only follows
+   if that measurement shows a spread across games smaller than the bias, under a rule registered then.
+3. Neither step changes a registered number; both are report only until a rule says otherwise.
