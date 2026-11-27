@@ -1,7 +1,10 @@
 """tools/p8_sac_checkc.py: why gsw_sac_2015's fixed CPU truth fails check C (docs/research/P8_sac_checkc.md, version
 2.1). Stage 1 only: stored files, system python, no model, no lock. Report only.
 
-    python3 -m tools.p8_sac_checkc stage1     -> reports/research/p8_sac_checkc.json (the only file it writes)
+    python3 -m tools.p8_sac_checkc stage1        -> reports/research/p8_sac_checkc.json
+    python3 -m tools.p8_sac_checkc stage1-side   -> reports/research/p8_sac_checkc_v22.json  (version 2.2: the side
+                                                    reading with the clock tested on time-map content; nothing else)
+Each command writes only its own record.
 
 Inputs, all opened read-only: the check C records (the P8 workspace's truth_v2/<game>.json, MPS; the reference root's
 truth_v2/dev/<game>.json, fixed, and superseded_nofix/truth_v2/dev/gsw_cha_2016.json, CPU unfixed); the identity files,
@@ -34,6 +37,11 @@ DATA = Path.home() / "Developer" / "nba-v3-worktrees" / "_p8-data"
 def out_path() -> Path:
     from tools.p8_common import REPO
     return REPO / "reports" / "research" / "p8_sac_checkc.json"
+
+
+def out_path_v22() -> Path:
+    from tools.p8_common import REPO
+    return REPO / "reports" / "research" / "p8_sac_checkc_v22.json"
 
 
 # facts the design quotes (sections 6.1, 6.2 and 7.1); stage 1 re-derives them and stops on a difference
@@ -150,6 +158,29 @@ def side_reading(mv_v3: bool, mv_r23: bool) -> str:
 
 def combine_side(median_reading: str, share_reading: str) -> str:
     return median_reading if median_reading == share_reading else "not separated"
+
+
+def side_by_cross(rec_fixed: dict, rec_mps: dict, common: list, sm: dict, sf: dict) -> dict:
+    """Section 6.5 with 7.3's rule: the V3 swap (fixed V3, MPS r23) and the r23 swap (MPS V3, fixed r23)."""
+    def cross(v3_rec, r23_rec):
+        dd = {}
+        for s in common:
+            a, b = v3_rec["windows"][s]["frozen"]["v3"], r23_rec["windows"][s]["frozen"]["r23"]
+            if a is not None and b is not None:
+                dd[s] = abs(a - b)
+        return stats(dd)
+    sv3, sr23 = cross(rec_fixed, rec_mps), cross(rec_mps, rec_fixed)
+    per = {stat: side_reading(moves(sv3[stat], sm[stat], sf[stat]), moves(sr23[stat], sm[stat], sf[stat]))
+           for stat in ("share_over_0_2_s", "median_abs_s")}
+    return {"v3_swap": sv3, "r23_swap": sr23, "per_statistic": per,
+            "reading": combine_side(per["median_abs_s"], per["share_over_0_2_s"]),
+            "note": "the r23 side changes platform too (the workspace r23 rebuild is MPS)"}
+
+
+def timemap_content_equal(a: dict, b: dict) -> bool:
+    """Version 2.2's clock test: the frames (frame, period, clock) and the spans are equal; ocr_seconds and every
+    other run field are ignored."""
+    return a.get("frames") == b.get("frames") and a.get("spans") == b.get("spans")
 
 
 def within_controls(sac_abs: float, control_abs: list) -> str:
@@ -291,23 +322,8 @@ def run_stage1(ws: Path, ref: Path, expect: dict | None = KNOWN, clock=clock_inp
     out["decomposition"] = dec
 
     # 6.5 and 7.3: side, by cross pairs (only with identical time maps)
-    if tm_diff:
-        out["side"] = {"reading": "invalid (time maps differ)"}
-    else:
-        def cross(v3_rec, r23_rec):
-            dd = {}
-            for s in common:
-                a, b = rec[v3_rec]["windows"][s]["frozen"]["v3"], rec[r23_rec]["windows"][s]["frozen"]["r23"]
-                if a is not None and b is not None:
-                    dd[s] = abs(a - b)
-            return stats(dd)
-        sv3, sr23 = cross("sac_fixed", "sac_mps"), cross("sac_mps", "sac_fixed")
-        per = {}
-        for stat in ("share_over_0_2_s", "median_abs_s"):
-            per[stat] = side_reading(moves(sv3[stat], sm[stat], sf[stat]), moves(sr23[stat], sm[stat], sf[stat]))
-        out["side"] = {"v3_swap": sv3, "r23_swap": sr23, "per_statistic": per,
-                       "reading": combine_side(per["median_abs_s"], per["share_over_0_2_s"]),
-                       "note": "the r23 side changes platform too (the workspace r23 rebuild is MPS)"}
+    out["side"] = {"reading": "invalid (time maps differ)"} if tm_diff else \
+        side_by_cross(rec["sac_fixed"], rec["sac_mps"], common, sm, sf)
 
     # 6.6 and 7.1: controls
     pairs = {"sac MPS to fixed": ("sac_mps", "sac_fixed"), "bkn MPS to fixed": ("bkn_mps", "bkn_fixed"),
@@ -398,13 +414,46 @@ def run_stage1(ws: Path, ref: Path, expect: dict | None = KNOWN, clock=clock_inp
     return res
 
 
+def run_stage1_side(ws: Path, ref: Path, clock=clock_inputs) -> dict:
+    """Version 2.2 (docs/research/P8_sac_checkc.md section 10): the clock tested on time-map content, the moments file
+    and the mirror; if they hold, the side reading by cross pairs under 7.3's rule. Nothing else is re-read."""
+    from tools.p8_common import atomic_write, guard
+    from tools.research_testset import refuse_cv_test
+    refuse_cv_test([SAC], WHO)
+    guard([SAC], WHO)
+    rec_m = read_json(ws / "truth_v2" / f"{SAC}.json")
+    rec_f = read_json(ref / "truth_v2" / "dev" / f"{SAC}.json")
+    dm, df = checkc_d(rec_m), checkc_d(rec_f)
+    common = sorted(dm.keys() & df.keys())
+    sm, sf = stats({s: dm[s] for s in common}), stats({s: df[s] for s in common})
+    differ = [s for s in sorted(rec_f["windows"])
+              if not timemap_content_equal(read_json(ws / "label_build" / f"{s}_timemap.json"),
+                                           read_json(ref / "label_build" / f"{s}_timemap.json"))]
+    ck = clock(ws, ref, SAC)
+    ok = not differ and ck["workspace"] == ck["reference"]
+    out = {"what": "Version 2.2: the side reading with the clock tested on time-map content "
+                   "(docs/research/P8_sac_checkc.md section 10); report only",
+           "clock_content": {"windows": len(rec_f["windows"]), "time_map_content_differs": differ, "inputs": ck,
+                             "holds": ok},
+           "n_common": len(common), "mps": sm, "fixed": sf,
+           "side": side_by_cross(rec_f, rec_m, common, sm, sf) if ok else {"reading": "invalid (clock differs)"}}
+    res = rnd(out)
+    atomic_write(out_path_v22(), json.dumps(res, indent=1))
+    print(json.dumps({"clock_holds": ok, "side": res["side"].get("reading"),
+                      "per_statistic": res["side"].get("per_statistic")}, indent=1))
+    return res
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_sac_checkc")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("stage1")
+    sub.add_parser("stage1-side")
     a = ap.parse_args(argv)
     if a.cmd == "stage1":
         run_stage1(DATA / "work", DATA / "work_ref")
+    elif a.cmd == "stage1-side":
+        run_stage1_side(DATA / "work", DATA / "work_ref")
 
 
 if __name__ == "__main__":

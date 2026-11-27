@@ -274,6 +274,11 @@ function is imported from tools.p8_truth_v2.
 | controls, absolute, common windows | share within, median outside |
 | clock inputs | 80 of 82 window time maps differ by SHA-256; moments file and mirror ("identity") identical |
 
+Note (2026-11-27, the lead's decision): the Clock reading above stands in the record as registered, but it is a false
+alarm of the instrument. The SHA-256 rule reacted to the "ocr_seconds" run metadata; every frame set, span and clock is
+identical between the roots (largest difference 0.0 s; section 9). Post hoc, not registered: the table's non-Clock
+reading is Platform for both the share and the median (hybrid (i) moves all the way and hybrid (ii) not at all).
+
 Descriptions (no reading): hybrid (i) (the fixed record's d in the none class only) gives share 0.8219 and median 0.64,
 the fixed values; hybrid (ii) gives 0.7945 and 0.52, the MPS values. Gross crossings of 0.2 s from MPS to fixed: none 5
 up and 3 down (net +2; up s01_w04, s04_w07, s07_w01, s07_w04, s10_w00; down s03_w05, s04_w05, s06_w01), both 2 up and
@@ -323,3 +328,20 @@ gsw_sac_2015 is not unusual: every game's time maps differ by bytes in the read 
 Post hoc: the registered SHA-256 rule of 6.4 would have read Clock on any of these games; the clock inputs of check C
 (time maps, moments file, mirror) are the same in both roots for gsw_sac_2015 by content. Whether to register a
 content rule and rerun stage 1 is the lead's decision; stage 2 stays unrun.
+
+
+## 10. Version 2.2 (2026-11-27; registered after stage 1's numbers, before any side number)
+
+The lead's decision, narrow by design:
+- **Clock test on content.** Two time maps hold the same clock when their frames (frame, period, clock) and their
+  spans are equal; "ocr_seconds" and every other run field are ignored. The moments file and the mirror are compared
+  as before (6.4).
+- **One new output only:** the side reading by cross pairs (6.5), under the unchanged rule of 7.3, computed only if the
+  content clock test holds for every gsw_sac_2015 window. The decomposition is not re-read: section 8's registered
+  reading (Clock) and its post hoc note stand.
+- Code: tools/p8_sac_checkc.py stage1-side (run_stage1_side; tests in tests/test_p8_sac_checkc.py); record
+  reports/research/p8_sac_checkc_v22.json, its own output path (the v2.1 record is not rewritten). Run once, under the
+  lock ("sac checkc stage 1 v2.2 side"), stored files only.
+- Stage 2 does not run: its trigger (Fix, Joint or Neither) is met on neither the registered reading (Clock) nor the
+  post hoc one (Platform).
+

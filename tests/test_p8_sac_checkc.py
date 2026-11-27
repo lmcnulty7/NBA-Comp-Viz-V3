@@ -157,5 +157,43 @@ def test_no_cmd_import_and_one_output_path():
         if isinstance(node, ast.ImportFrom) and node.module == "tools.p8_truth_v2":
             assert not any(a.name.startswith("cmd_") for a in node.names)
     src = inspect.getsource(C)
-    assert src.count("atomic_write(out_path()") == 2 and '"truth_accept"' not in src     # no path is built there
+    assert src.count("atomic_write(out_path()") == 2 and src.count("atomic_write(out_path_v22()") == 1
+    assert '"truth_accept"' not in src                                    # no path is built there
     assert C.out_path().name == "p8_sac_checkc.json" and C.out_path().parent.name == "research"
+
+
+
+# ── version 2.2: the clock on time-map content, the side reading ──────────────────────────────────────────────────
+def test_timemap_content_equal_ignores_run_fields():
+    a = {"frames": [[0, 1, 700.0]], "spans": [{"f0": 0}], "ocr_seconds": 24.6, "reads": 10}
+    assert C.timemap_content_equal(a, {**a, "ocr_seconds": 21.7, "reads": 11})
+    assert not C.timemap_content_equal(a, {**a, "frames": [[0, 1, 700.04]]})
+    assert not C.timemap_content_equal(a, {**a, "spans": []})
+
+
+def test_stage1_side_writes_only_its_record(tmp_path, monkeypatch):
+    from tools import p8_common
+    ws, ref = _roots(tmp_path)
+    tm2 = json.loads((ref / "label_build" / "gsw_sac_2015_s00_w00_timemap.json").read_text())
+    tm2["ocr_seconds"] = 3.0                                             # metadata only: the clock holds
+    (ref / "label_build" / "gsw_sac_2015_s00_w00_timemap.json").write_text(json.dumps(tm2))
+    out = tmp_path / "v22.json"
+    monkeypatch.setattr(C, "out_path_v22", lambda: out)
+    written = {}
+    monkeypatch.setattr(p8_common, "atomic_write", lambda p, text: written.__setitem__(str(p), text))
+    real_open = builtins.open
+
+    def guarded_open(file, mode="r", *a, **k):
+        if any(m in mode for m in ("w", "a", "x", "+")):
+            raise AssertionError(f"write attempted: {file} ({mode})")
+        return real_open(file, mode, *a, **k)
+    monkeypatch.setattr(builtins, "open", guarded_open)
+    same = lambda w, r, g: {"workspace": {"m": 1}, "reference": {"m": 1}}
+    res = C.run_stage1_side(ws, ref, clock=same)
+    assert list(written) == [str(out)] and res["clock_content"]["holds"] and "per_statistic" in res["side"]
+    monkeypatch.setattr(builtins, "open", real_open)
+    tm2["frames"] = [[0, 1, 701.0]]                                       # a real clock difference
+    (ref / "label_build" / "gsw_sac_2015_s00_w00_timemap.json").write_text(json.dumps(tm2))
+    monkeypatch.setattr(builtins, "open", guarded_open)
+    res = C.run_stage1_side(ws, ref, clock=same)
+    assert res["side"]["reading"] == "invalid (clock differs)"
