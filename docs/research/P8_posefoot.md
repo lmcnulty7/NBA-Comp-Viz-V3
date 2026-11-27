@@ -486,24 +486,29 @@ the manifests were unchanged.
   - the cross-frame null (12.4, report only): 0.118 and 0.136, against R 0.149 and 0.140 on its boxes.
 
   The pose hybrid's rule 1 must beat its own same-run null by 0.10 on top of this.
-- (b) **The EMA lag.** R_raw on own P-ii boxes by SportVU speed (under 5, 5 to 10, 10 ft/s and over):
-  - gsw_cha_2016: 0.167, 0.128, 0.132;
-  - gsw_bkn_2015: 0.130, 0.148, 0.159;
+- (b) **The EMA lag.** foot_raw is the bottom of the tracker's Kalman-state box, so the tracker's own lag is in both
+  feet. This split tests only foot_stab's EMA and occlusion step. R_raw on own P-ii boxes by SportVU speed (under 5,
+  5 to 10, 10 ft/s and over; n in brackets):
+  - gsw_cha_2016: 0.167 (980), 0.128 (632), 0.132 (219);
+  - gsw_bkn_2015: 0.130 (1,015), 0.148 (546), 0.159 (176);
   - the intervals overlap.
 
   R_raw does not rise with speed on gsw_cha_2016, and the rise on gsw_bkn_2015 is inside its intervals. So the
   stabiliser's lag is not visible as a cause of P-ii, as far as player motion shows it (12.2: pan lag is common to the
-  frame and not in this split).
-- (c) **No finding about the stabiliser.** foot_raw does not clear rules 1, 2, 3 and 5. Its median distance is
-  slightly larger than foot_stab's under both T and B, and est is positive: replacing foot_stab by the tracked box's
-  bottom would raise missed.
+  frame and not in this split). "Not visible" has low power: the 10 ft/s and over bins hold about 200 boxes each, and
+  their intervals are wide (0.079 to 0.188 and 0.086 to 0.235).
+- (c) **No finding about the stabiliser.** foot_raw does not clear rules 1, 2, 3 and 5.
+  - Its median distance is slightly larger than foot_stab's under both T and B. That holds for the point estimates;
+    only gsw_cha_2016 under B has an interval that excludes 0.
+  - est, an estimate and not the scorer's row, is positive (+0.025 pooled).
 - (d) **The pose arm reads on the hybrid only.** foot_raw fails rule 4 on gsw_cha_2016 (share lost 0.0597).
 
 **A registered risk for the pose hybrid (stated after stage 0a; it changes no bar).**
 - The chance floor (about 0.10 to 0.15 of own P-ii boxes within 2.5 ft) and foot_raw's hit loss on gsw_cha_2016
   (0.0597) both came from a perturbation of foot_raw's size: |foot_raw - foot_stab| over every box of the two games'
-  builds/r23 sidecars has a median of 7.0 px (quartiles 3.4 and 13.1 px; 308,128 boxes; computed read-only from the
-  sidecars after the run).
+  builds/r23 sidecars has a median of 7.03 px (quartiles 3.39 and 13.10 px; 308,128 boxes in 156 sidecars). The figure
+  is computed by report0a's offset_sizes and recorded in reports/research/p8_posefoot_0a.json
+  (foot_raw_minus_foot_stab_px).
 - An ankle error of 5 to 10 px on top of any real signal would move the hybrid's feet by a similar amount, and so puts
   its rule 4 at the same risk.
 - The rules stay as registered in version 1.1 (self-decided by the lead): loosening a bar after seeing stage 0a would be
@@ -571,3 +576,9 @@ Stage A's own result may therefore differ. The 0.25 stop bar leaves room for abo
 The margins in section 14's dry-run table were computed read-only before section 14 was committed, and section 14 was
 committed with its dry run in one commit (127beebe). The registered margin, 0.05, is a3align's own threshold, chosen
 for that reason and not from the table. The other margins are labelled sensitivities. No stage A number exists yet.
+
+### 13.1 Note (2026-11-27, ml-review of stage 0a, PASS)
+
+Readings (b) and (c) above were reworded per the review. The n per speed bin and the offset-size block were added to
+the stage 0a record by report0a, regenerated from the stored stage 0a files. No row was rescored: every other field of
+the record is identical to 26a7c761's.

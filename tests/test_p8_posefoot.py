@@ -256,3 +256,12 @@ def test_align_refuses_hou_before_any_read(monkeypatch):
 def test_stage_a_constants_match_section_14():
     assert (M.ALIGN_SEGMENTS, M.ALIGN_MIN_ELIGIBLE, M.ALIGN_MIN_BOXES) == (15, 10, 4)
     assert (M.ALIGN_MARGIN, M.ALIGN_LEVEL, M.PAIR_FLOOR, M.LEVEL_PAIR, M.STOP_SHARE) == (0.05, 0.75, 0.1, 0.3, 0.25)
+
+
+def test_offset_sizes(tmp_path):
+    import json as js
+    p = tmp_path / "w_frames.json"
+    p.write_text(js.dumps({"frames": [{"boxes": [{"foot_raw": [3.0, 4.0], "foot_stab": [0.0, 0.0]},
+                                                  {"foot_raw": [1.0, 1.0], "foot_stab": [1.0, 1.0]}]}]}))
+    o = M.offset_sizes([p])
+    assert o["boxes"] == 2 and o["median_px"] == pytest.approx(2.5) and o["sidecars"] == 1

@@ -650,9 +650,23 @@ def unit_rows(per_game: dict, gs: list, cand: str = "raw", hit_all: dict | None 
     sp = {}
     for b in ("under 5", "5 to 10", "10 and over"):
         sp[b] = share(own, within(cand), lambda x, b=b: speed_bin(x["speed"]) == b and x["dT"][cand] is not None)
+        sp[b]["n"] = sum(speed_bin(x["speed"]) == b and x["dT"][cand] is not None for rs in own for x in rs)
     out["R_by_speed"] = sp
     out["no_speed_rows"] = sum(x["speed"] is None for rs in own for x in rs)
     return out
+
+
+def offset_sizes(sidecar_paths: list) -> dict:
+    """|foot_raw - foot_stab| in px over every box of the given sidecars (the risk note of section 13)."""
+    v = []
+    for p in sidecar_paths:
+        for row in json.loads(Path(p).read_text())["frames"]:
+            for b in row["boxes"]:
+                v.append(float(np.hypot(b["foot_raw"][0] - b["foot_stab"][0], b["foot_raw"][1] - b["foot_stab"][1])))
+    v = np.asarray(v)
+    return {"boxes": int(len(v)), "sidecars": len(sidecar_paths),
+            "median_px": float(np.median(v)) if len(v) else None,
+            "quartiles_px": [float(np.percentile(v, 25)), float(np.percentile(v, 75))] if len(v) else None}
 
 
 def report0a() -> dict:
@@ -671,6 +685,11 @@ def report0a() -> dict:
            "counters": {g: per[g]["counters"] for g in POOL}, "seconds": {g: per[g]["seconds"] for g in POOL},
            "N_hits_all (D205 hit class)": hit_all, "rows": res, "rules_foot_raw": rules,
            "readings": readings_0a(rules)}
+    comp = r["ref"] / "builds" / "r23"
+    paths = sorted(p for g in POOL for p in comp.glob(f"{g}_s*_frames.json"))
+    out["foot_raw_minus_foot_stab_px"] = {
+        "what": "|foot_raw - foot_stab| over every box of the two games' builds/r23 sidecars (section 13's risk note)",
+        **offset_sizes(paths)}
     out = clean(out)
     text = json.dumps(out, indent=1)
     if find_private(text):
