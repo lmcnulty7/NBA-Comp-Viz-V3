@@ -159,3 +159,12 @@ cache entries are counted for every window before scoring, and stage B stops if 
 new). The manifests cover labels/, label_build/, truth_accept/ and cache/scorecard in every root read. A clean
 `git status -- tools sportvu` is required and HEAD recorded. At the cap the run stops, reports nothing and is not
 retried without a new go. Stage B now covers 156 windows (73 and 83): about 3 minutes, cap 20.
+
+**8.8 Tool (2026-11-27, written, not run).** tools/p8_teamcause.py: `stored` (stage A, system python, no lock; refuses
+unless both D202 records hash as pinned and carry run 20261127T171848Z) and `rows` (stage B, frozen CV python inside
+the lock; needs stage A's record for its worst windows). The D202 records' SHA-256 values are constants in the tool.
+Tests (tests/test_p8_teamcause.py): the tie rule, the fixed mapping against tools.p8_e3.window_team, worst windows
+(ceiling, windows without rows left out), bins and identity switches, colour distances, the carry rule with its
+bootstrap bound on synthetic rows, ranking and overlap, and stage A on synthetic records writing only its own record
+(writers patched), plus a refusal of an unpinned record. Stage B's row recomputation is tested by its own gate at run
+time (tuples equal to score_window's team_rows, counts equal to D202).
