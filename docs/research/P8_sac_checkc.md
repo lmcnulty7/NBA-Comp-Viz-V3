@@ -256,3 +256,37 @@ single-window cases of 7.4, the controls' reading), a synthetic two-root run tha
 builtins.open and fails on any write but its one record, a stop on a differing fact, and an AST check that no cmd_*
 function is imported from tools.p8_truth_v2.
 
+
+## 8. Stage 1 result (2026-11-27; 2 s under the lock "sac checkc stage 1"; record reports/research/p8_sac_checkc.json)
+
+**Re-derivation passes.** Every quoted fact matched (the stop list is empty): the 12 MPS reset windows, the MPS-only
+(s02_w00, s04_w08, s05_w04) and CPU-only (s06_w02) windows, the sac summaries (fixed n 73, 0.64, 0.8219; MPS 0.52,
+0.7945), the share at 58 and 60 windows, and the five controls' own-window changes. The two sac check C sets are equal
+(73 windows). Classes: both 9, MPS only 3, CPU only 1, none 69.
+
+**Readings as registered.**
+
+| reading | result |
+|---|---|
+| decomposition, share | Clock |
+| decomposition, median | Clock |
+| side | invalid (time maps differ) |
+| controls, absolute, common windows | share within, median outside |
+| clock inputs | 80 of 82 window time maps differ by SHA-256; moments file and mirror ("identity") identical |
+
+Descriptions (no reading): hybrid (i) (the fixed record's d in the none class only) gives share 0.8219 and median 0.64,
+the fixed values; hybrid (ii) gives 0.7945 and 0.52, the MPS values. Gross crossings of 0.2 s from MPS to fixed: none 5
+up and 3 down (net +2; up s01_w04, s04_w07, s07_w01, s07_w04, s10_w00; down s03_w05, s04_w05, s06_w01), both 2 up and
+2 down (net 0; up s01_w00, s09_w01; down s07_w02, s08_w04), MPS only and CPU only 0. Controls on common windows: bkn
+MPS to fixed share -0.0390, median +0.04 s; cha MPS to unfixed -0.0159, -0.04; MPS to fixed -0.0624, -0.04; unfixed to
+fixed -0.0476, 0.00; sac +0.0274, +0.12. The fits' stored offsets differ by a median 0.16 s (share over 0.2 s 0.41, 82
+windows); grid-edge hits MPS V3 5 and r23 2, fixed V3 6 and r23 1. gsw_cha_2016's no-reset CPU V3 label builds equal
+their unfixed builds in all 61 windows. The equivalence evidence holds for all three games.
+
+**Post hoc, not registered.** After the reading, the differing time maps were opened: the only key that differs is
+"ocr_seconds", the OCR run's duration (for example 24.6 against 21.7 s); in all 82 windows the frame sets, the spans
+and every frame's clock are identical (largest clock difference 0.0 s). So the two roots' time maps carry the same
+clock, and the Clock reading comes from the identity rule of 6.4 (SHA-256 of the whole file), not from a clock
+difference; that rule was too strict. Without it, the decomposition table would read Platform for both statistics
+(hybrid (i) carries the whole change), but that reading is not registered here. Whether to register a content test of
+the time maps (frames, spans and clocks) and rerun stage 1 is the lead's decision; stage 2 waits.
