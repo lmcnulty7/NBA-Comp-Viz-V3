@@ -673,3 +673,34 @@ The full pass waits for the lead's read of this smoke and a code check of the re
   s06_w02 and s07_w06, and gsw_bkn_2015_s00_w05. These count toward the 0.25 stop share.
 - **The smoke mainly confirmed the read path.** Five of its six windows were the windows the 0.82 and 0.85 thresholds
   were calibrated on, so the smoke is not a test of those thresholds. The full pass is.
+
+### 14.5 Stage A full pass result (2026-11-27, from 105d8f92; record reports/research/p8_posefoot_align.json)
+
+**Run.** One lock per game, from work_ref/logs/posefoot.log's heavy-job lines: 579 s for gsw_cha_2016 and 657 s for
+gsw_bkn_2015 (the collects' own 572.3 and 651.0 s). The report took 1 s. The manifests were unchanged, HF_HUB_OFFLINE
+and the MPS fallback were set, and the gate was trained_head_v2 (coefficients SHA-256 b95a30fd...1fcc2c) at the v2
+threshold 0.33 with openai/clip-vit-base-patch32 on mps.
+
+| | gsw_cha_2016 | gsw_bkn_2015 |
+|---|---|---|
+| windows | 73 | 83 |
+| aligned | 69 | 82 |
+| misaligned | 0 | 0 |
+| undetermined, fewer than 10 eligible frames | 4 (s01_w05, s03_w02, s06_w02, s07_w06) | 1 (s00_w05) |
+| share not aligned (stop above 0.25) | 0.055 | 0.012 |
+| read validation (every sidecar frame read) | 69 of 69 | 82 of 82 |
+| lowest M_0; median M_0 | 0.866; 0.892 | 0.841; 0.892 |
+| lowest L_0 | 0.873 | 0.853 |
+| largest neighbour minus M_0 | -0.093 | -0.056 |
+
+**Reading by the registered rule: no stop.** The pose stages may use the 151 aligned windows. The five undetermined
+windows are left out by their cause.
+
+The 0.82 and 0.85 thresholds were not near binding: the lowest M_0 is 0.841 and the lowest L_0 0.853, both on
+gsw_bkn_2015, and no neighbour came within 0.05 of f.
+
+**Post hoc, not tested by a registered rule.** All 12 windows that P8_a3align.md called misaligned (4 of gsw_cha_2016,
+8 of gsw_bkn_2015) read aligned here, under the build's own read path. So a3align's misalignment was a property of the
+corpus's sequential read, not of the build. This fits P8_a3run.md's controls, where a sequential read matched the corpus
+and not the sidecars. It bears on the analyses a3align listed (the E1 labels, the E1b bound, M1 to M4, detrow), which
+scored the corpus JPEGs. Those may carry the offset; the build-side rows do not.

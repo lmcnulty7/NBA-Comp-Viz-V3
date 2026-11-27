@@ -1,0 +1,3039 @@
+{
+ "what": "docs/research/P8_posefoot.md section 14 with 14.2 (v1.3), stage A: decode alignment of the pool windows; report only",
+ "smoke": false,
+ "git": {
+  "gsw_cha_2016": {
+   "head": "105d8f921ee680e0a650096a8766bd2e0c6d4618",
+   "tools_and_sportvu_clean": true
+  },
+  "gsw_bkn_2015": {
+   "head": "105d8f921ee680e0a650096a8766bd2e0c6d4618",
+   "tools_and_sportvu_clean": true
+  }
+ },
+ "seconds": {
+  "gsw_cha_2016": 572.3,
+  "gsw_bkn_2015": 651.0
+ },
+ "versions": {
+  "gsw_cha_2016": {
+   "opencv": "4.13.0",
+   "torch": "2.2.2",
+   "ultralytics": "8.4.48"
+  },
+  "gsw_bkn_2015": {
+   "opencv": "4.13.0",
+   "torch": "2.2.2",
+   "ultralytics": "8.4.48"
+  }
+ },
+ "per_game": {
+  "gsw_cha_2016": {
+   "summary": {
+    "windows": 73,
+    "aligned": 69,
+    "misaligned": 0,
+    "undetermined": 4,
+    "share_not_aligned": 0.0547945205479452,
+    "stop": false
+   },
+   "cross_table_a3align": {
+    "aligned|a3align_aligned": 49,
+    "aligned|a3align_misaligned": 4
+   },
+   "not_aligned": [
+    "gsw_cha_2016_s01_w05",
+    "gsw_cha_2016_s03_w02",
+    "gsw_cha_2016_s06_w02",
+    "gsw_cha_2016_s07_w06"
+   ],
+   "not_aligned_by_cause": {
+    "undetermined: fewer than 10 eligible frames": {
+     "n": 4,
+     "windows": [
+      "gsw_cha_2016_s01_w05",
+      "gsw_cha_2016_s03_w02",
+      "gsw_cha_2016_s06_w02",
+      "gsw_cha_2016_s07_w06"
+     ]
+    }
+   },
+   "gate": {
+    "head": "trained_head_v2.joblib",
+    "head_sha256": "8be9bb8414fbd171efd9123fb7fdf23b2a03746096d087da2732e543119042c6",
+    "coefs": "trained_head_v2_coefs.npz",
+    "coefs_sha256": "b95a30fdd5a3fab89b01ca70bea0d938767ea93a054397d28aea15057f1fcc2c",
+    "threshold_v2": 0.33,
+    "clip_backbone": "openai/clip-vit-base-patch32",
+    "env": {
+     "HF_HUB_OFFLINE": "1",
+     "PYTORCH_ENABLE_MPS_FALLBACK": "1"
+    }
+   },
+   "M_and_L0": {
+    "gsw_cha_2016_s00_w00": {
+     "M": {
+      "-1": 0.611911334629774,
+      "0": 0.889311882772115,
+      "+1": 0.645639045808559
+     },
+     "L0": 0.8989446015758038,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 435,
+      "sidecar_frames": 435,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s00_w01": {
+     "M": {
+      "-1": 0.5533417326709045,
+      "0": 0.8924048374835849,
+      "+1": 0.6315164319215592
+     },
+     "L0": 0.895627382173675,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 169,
+      "sidecar_frames": 169,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s01_w00": {
+     "M": {
+      "-1": 0.5209661209256983,
+      "0": 0.8804742661826144,
+      "+1": 0.5616617707046955
+     },
+     "L0": 0.8978018609880406,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 642,
+      "sidecar_frames": 642,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s01_w01": {
+     "M": {
+      "-1": 0.5357777527888039,
+      "0": 0.8866667996666137,
+      "+1": 0.6170656971339632
+     },
+     "L0": 0.9007492606054438,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 526,
+      "sidecar_frames": 526,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s01_w02": {
+     "M": {
+      "-1": 0.5385395070579705,
+      "0": 0.887661711029276,
+      "+1": 0.5469199539645063
+     },
+     "L0": 0.8932051389253183,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 395,
+      "sidecar_frames": 395,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s01_w03": {
+     "M": {
+      "-1": 0.5412528878581323,
+      "0": 0.8798495820984293,
+      "+1": 0.5863966338792177
+     },
+     "L0": 0.8900723299766607,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 277,
+      "sidecar_frames": 277,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s01_w04": {
+     "M": {
+      "-1": 0.6112997403698303,
+      "0": 0.8887485452427359,
+      "+1": 0.6475363029300327
+     },
+     "L0": 0.8929638944111408,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 265,
+      "sidecar_frames": 265,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s01_w05": {
+     "M": null,
+     "L0": null,
+     "verdict": "undetermined",
+     "why": "fewer than 10 eligible frames",
+     "read_validation": null,
+     "seeks_main": null,
+     "backend": null
+    },
+    "gsw_cha_2016_s01_w06": {
+     "M": {
+      "-1": 0.628240631257997,
+      "0": 0.8789494828977259,
+      "+1": 0.7012799094606105
+     },
+     "L0": 0.8885331897299233,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 135,
+      "sidecar_frames": 135,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s01_w07": {
+     "M": {
+      "-1": 0.7114759368346171,
+      "0": 0.9108840050228961,
+      "+1": 0.7890401200776713
+     },
+     "L0": 0.9253192452977792,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 72,
+      "sidecar_frames": 72,
+      "passes": true
+     },
+     "seeks_main": [
+      180
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s01_w08": {
+     "M": {
+      "-1": 0.583441400105128,
+      "0": 0.8962343991972544,
+      "+1": 0.6349672628532006
+     },
+     "L0": 0.9119591214015847,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 49,
+      "sidecar_frames": 49,
+      "passes": true
+     },
+     "seeks_main": [
+      210
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s01_w09": {
+     "M": {
+      "-1": 0.7194820067250453,
+      "0": 0.9146500816505777,
+      "+1": 0.8212990446570613
+     },
+     "L0": 0.9256508960758855,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 56,
+      "sidecar_frames": 56,
+      "passes": true
+     },
+     "seeks_main": [
+      150
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s02_w00": {
+     "M": {
+      "-1": 0.5606470394917453,
+      "0": 0.8775318944532318,
+      "+1": 0.6290018866558762
+     },
+     "L0": 0.8897518018562268,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 456,
+      "sidecar_frames": 456,
+      "passes": true
+     },
+     "seeks_main": [
+      210
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s02_w01": {
+     "M": {
+      "-1": 0.615468925290252,
+      "0": 0.8905172831745646,
+      "+1": 0.6707213413315595
+     },
+     "L0": 0.905606054439692,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 208,
+      "sidecar_frames": 208,
+      "passes": true
+     },
+     "seeks_main": [
+      210
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s02_w02": {
+     "M": {
+      "-1": 0.6110975863301469,
+      "0": 0.8789243631918011,
+      "+1": 0.6765207062022788
+     },
+     "L0": 0.8904176112406328,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 265,
+      "sidecar_frames": 265,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s02_w03": {
+     "M": {
+      "-1": 0.6555047962303736,
+      "0": 0.9068290220409866,
+      "+1": 0.7721790285000582
+     },
+     "L0": 0.9232473519582073,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 152,
+      "sidecar_frames": 152,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s02_w04": {
+     "M": {
+      "-1": 0.623324294129568,
+      "0": 0.8946573680242967,
+      "+1": 0.6866496368458878
+     },
+     "L0": 0.9095692112304623,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 195,
+      "sidecar_frames": 195,
+      "passes": true
+     },
+     "seeks_main": [
+      30
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s02_w05": {
+     "M": {
+      "-1": 0.6344331403707,
+      "0": 0.9002336206602994,
+      "+1": 0.7023109989938062
+     },
+     "L0": 0.9116304336231578,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 102,
+      "sidecar_frames": 102,
+      "passes": true
+     },
+     "seeks_main": [
+      240
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s02_w06": {
+     "M": {
+      "-1": 0.5532510913659391,
+      "0": 0.8812282035437654,
+      "+1": 0.6659556619818587
+     },
+     "L0": 0.8952536446055644,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 125,
+      "sidecar_frames": 125,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s02_w07": {
+     "M": {
+      "-1": 0.598304825374127,
+      "0": 0.8818952418626367,
+      "+1": 0.7287360284087521
+     },
+     "L0": 0.8951170308763983,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 115,
+      "sidecar_frames": 115,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s03_w00": {
+     "M": {
+      "-1": 0.498509204318114,
+      "0": 0.8795531844579146,
+      "+1": 0.5628952198468311
+     },
+     "L0": 0.8946934627539805,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 883,
+      "sidecar_frames": 883,
+      "passes": true
+     },
+     "seeks_main": [
+      180
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s03_w01": {
+     "M": {
+      "-1": 0.5582382901321526,
+      "0": 0.8926447909376068,
+      "+1": 0.580394817039616
+     },
+     "L0": 0.9006527548823717,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 461,
+      "sidecar_frames": 461,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s03_w02": {
+     "M": null,
+     "L0": null,
+     "verdict": "undetermined",
+     "why": "fewer than 10 eligible frames",
+     "read_validation": null,
+     "seeks_main": null,
+     "backend": null
+    },
+    "gsw_cha_2016_s03_w03": {
+     "M": {
+      "-1": 0.6195109175030197,
+      "0": 0.8802295546508253,
+      "+1": 0.6456552399218299
+     },
+     "L0": 0.8913473582784472,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 295,
+      "sidecar_frames": 295,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s03_w04": {
+     "M": {
+      "-1": 0.6445515921894004,
+      "0": 0.8938087353130917,
+      "+1": 0.7126187694074729
+     },
+     "L0": 0.9203766465377011,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 295,
+      "sidecar_frames": 295,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s03_w05": {
+     "M": {
+      "-1": 0.6413949972345897,
+      "0": 0.9068145554779709,
+      "+1": 0.7057756378116206
+     },
+     "L0": 0.9194106764691647,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 215,
+      "sidecar_frames": 215,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s03_w06": {
+     "M": {
+      "-1": 0.5860981047585241,
+      "0": 0.8938163521547305,
+      "+1": 0.6914266336859123
+     },
+     "L0": 0.9054748378352462,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 211,
+      "sidecar_frames": 211,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s03_w07": {
+     "M": {
+      "-1": 0.5843435433798534,
+      "0": 0.8842906512992836,
+      "+1": 0.6960772433214429
+     },
+     "L0": 0.9025268872946056,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 59,
+      "sidecar_frames": 59,
+      "passes": true
+     },
+     "seeks_main": [
+      870
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s03_w08": {
+     "M": {
+      "-1": 0.6808876719463381,
+      "0": 0.9074785070269873,
+      "+1": 0.7573765071604507
+     },
+     "L0": 0.922186919617107,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 81,
+      "sidecar_frames": 81,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s04_w00": {
+     "M": {
+      "-1": 0.50894079428871,
+      "0": 0.8757392269172424,
+      "+1": 0.5345694783176025
+     },
+     "L0": 0.8907151652853176,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 863,
+      "sidecar_frames": 863,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s04_w01": {
+     "M": {
+      "-1": 0.6165265940861211,
+      "0": 0.8809538500661299,
+      "+1": 0.645874120389684
+     },
+     "L0": 0.8956817942543464,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 205,
+      "sidecar_frames": 205,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s04_w02": {
+     "M": {
+      "-1": 0.5901814097382808,
+      "0": 0.8821097052524661,
+      "+1": 0.6526588800200084
+     },
+     "L0": 0.8925457008359979,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 185,
+      "sidecar_frames": 185,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s04_w03": {
+     "M": {
+      "-1": 0.6719856096762896,
+      "0": 0.9186137751502976,
+      "+1": 0.7152571977582953
+     },
+     "L0": 0.9323746636463319,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 158,
+      "sidecar_frames": 158,
+      "passes": true
+     },
+     "seeks_main": [
+      30
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s04_w04": {
+     "M": {
+      "-1": 0.6146662614257362,
+      "0": 0.894624164363972,
+      "+1": 0.6849620513175744
+     },
+     "L0": 0.905731399566978,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 126,
+      "sidecar_frames": 126,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s04_w05": {
+     "M": {
+      "-1": 0.6252444286651195,
+      "0": 0.9031737673062775,
+      "+1": 0.6683347827261046
+     },
+     "L0": 0.9184979986184916,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 125,
+      "sidecar_frames": 125,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s04_w06": {
+     "M": {
+      "-1": 0.658044602902376,
+      "0": 0.8967193220597602,
+      "+1": 0.7461243436543525
+     },
+     "L0": 0.9048514278524434,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 105,
+      "sidecar_frames": 105,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s04_w07": {
+     "M": {
+      "-1": 0.6388181744898712,
+      "0": 0.9158604296424897,
+      "+1": 0.6720704155725854
+     },
+     "L0": 0.9229090059597014,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 33,
+      "sidecar_frames": 33,
+      "passes": true
+     },
+     "seeks_main": [
+      300
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s05_w00": {
+     "M": {
+      "-1": 0.4927893622716159,
+      "0": 0.8853365912935193,
+      "+1": 0.5154688596962825
+     },
+     "L0": 0.9044197396681772,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 1053,
+      "sidecar_frames": 1053,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s05_w01": {
+     "M": {
+      "-1": 0.5054454327358683,
+      "0": 0.8814754646392674,
+      "+1": 0.5201476736399783
+     },
+     "L0": 0.8950273308894312,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 887,
+      "sidecar_frames": 887,
+      "passes": true
+     },
+     "seeks_main": [
+      480,
+      5730
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s05_w02": {
+     "M": {
+      "-1": 0.5271318893349519,
+      "0": 0.8781430159724158,
+      "+1": 0.6045035395352177
+     },
+     "L0": 0.881209646206213,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 202,
+      "sidecar_frames": 202,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s05_w03": {
+     "M": {
+      "-1": 0.6041473894791947,
+      "0": 0.8864077533701785,
+      "+1": 0.6464426858841223
+     },
+     "L0": 0.9043375242930661,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 206,
+      "sidecar_frames": 206,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s05_w04": {
+     "M": {
+      "-1": 0.6093903340251893,
+      "0": 0.8881994328909452,
+      "+1": 0.679213525044648
+     },
+     "L0": 0.896323048836589,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 156,
+      "sidecar_frames": 156,
+      "passes": true
+     },
+     "seeks_main": [
+      270
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s05_w05": {
+     "M": {
+      "-1": 0.591946905235042,
+      "0": 0.8739377704517486,
+      "+1": 0.7282636372605175
+     },
+     "L0": 0.8884630807489258,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 154,
+      "sidecar_frames": 154,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w00": {
+     "M": {
+      "-1": 0.5861185809161439,
+      "0": 0.8930615124661394,
+      "+1": 0.6262048060745111
+     },
+     "L0": 0.9120956314200498,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 497,
+      "sidecar_frames": 497,
+      "passes": true
+     },
+     "seeks_main": [
+      150
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w01": {
+     "M": {
+      "-1": 0.5617640331511734,
+      "0": 0.8739141851284853,
+      "+1": 0.6987782413899639
+     },
+     "L0": 0.8868934521017755,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 355,
+      "sidecar_frames": 355,
+      "passes": true
+     },
+     "seeks_main": [
+      330
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w02": {
+     "M": null,
+     "L0": null,
+     "verdict": "undetermined",
+     "why": "fewer than 10 eligible frames",
+     "read_validation": null,
+     "seeks_main": null,
+     "backend": null
+    },
+    "gsw_cha_2016_s06_w03": {
+     "M": {
+      "-1": 0.6189215812755199,
+      "0": 0.8942175275501963,
+      "+1": 0.6922034102487382
+     },
+     "L0": 0.9018433781098159,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 157,
+      "sidecar_frames": 157,
+      "passes": true
+     },
+     "seeks_main": [
+      270
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w04": {
+     "M": {
+      "-1": 0.6131073377769278,
+      "0": 0.8896411427763091,
+      "+1": 0.7029552328402353
+     },
+     "L0": 0.905871741684469,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 114,
+      "sidecar_frames": 114,
+      "passes": true
+     },
+     "seeks_main": [
+      60
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w05": {
+     "M": {
+      "-1": 0.618168914767192,
+      "0": 0.8934698977871373,
+      "+1": 0.701565834389992
+     },
+     "L0": 0.8998410522415667,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 121,
+      "sidecar_frames": 121,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w06": {
+     "M": {
+      "-1": 0.7226231429698192,
+      "0": 0.9194517043246823,
+      "+1": 0.8010736292944026
+     },
+     "L0": 0.9278069288162335,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 82,
+      "sidecar_frames": 82,
+      "passes": true
+     },
+     "seeks_main": [
+      240
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w08": {
+     "M": {
+      "-1": 0.6135580009373244,
+      "0": 0.8933769770588096,
+      "+1": 0.6569978461458039
+     },
+     "L0": 0.9055662936730962,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 125,
+      "sidecar_frames": 125,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w09": {
+     "M": {
+      "-1": 0.8064311091584829,
+      "0": 0.9371671801186288,
+      "+1": 0.8437069992236025
+     },
+     "L0": 0.9465398120511034,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 46,
+      "sidecar_frames": 46,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w10": {
+     "M": {
+      "-1": 0.6330522030591491,
+      "0": 0.9019685146486175,
+      "+1": 0.6774914963757414
+     },
+     "L0": 0.9082196679777483,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 95,
+      "sidecar_frames": 95,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s06_w11": {
+     "M": {
+      "-1": 0.6436751798295927,
+      "0": 0.8983079379933482,
+      "+1": 0.7043640985529351
+     },
+     "L0": 0.9028912677346426,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 95,
+      "sidecar_frames": 95,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s07_w00": {
+     "M": {
+      "-1": 0.5902331119536468,
+      "0": 0.8866181170441649,
+      "+1": 0.6048644302465692
+     },
+     "L0": 0.8945613698492121,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 968,
+      "sidecar_frames": 968,
+      "passes": true
+     },
+     "seeks_main": [
+      150,
+      4440
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s07_w01": {
+     "M": {
+      "-1": 0.5688545646363146,
+      "0": 0.8656396270198745,
+      "+1": 0.5863645506097633
+     },
+     "L0": 0.8732950483936407,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 621,
+      "sidecar_frames": 621,
+      "passes": true
+     },
+     "seeks_main": [
+      180
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s07_w02": {
+     "M": {
+      "-1": 0.695815973304717,
+      "0": 0.9184921566714551,
+      "+1": 0.729194676137439
+     },
+     "L0": 0.9305595222918684,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 214,
+      "sidecar_frames": 214,
+      "passes": true
+     },
+     "seeks_main": [
+      60
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s07_w03": {
+     "M": {
+      "-1": 0.6216346538083254,
+      "0": 0.8864771861213564,
+      "+1": 0.6829666860243943
+     },
+     "L0": 0.9051435674001554,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 205,
+      "sidecar_frames": 205,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s07_w04": {
+     "M": {
+      "-1": 0.6080472523104367,
+      "0": 0.8883008732771336,
+      "+1": 0.7189496725834666
+     },
+     "L0": 0.9131986121184532,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 157,
+      "sidecar_frames": 157,
+      "passes": true
+     },
+     "seeks_main": [
+      150
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s07_w05": {
+     "M": {
+      "-1": 0.5703854824196632,
+      "0": 0.9071510641954653,
+      "+1": 0.5948675297087552
+     },
+     "L0": 0.9263505590226288,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 61,
+      "sidecar_frames": 61,
+      "passes": true
+     },
+     "seeks_main": [
+      180
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s07_w06": {
+     "M": null,
+     "L0": null,
+     "verdict": "undetermined",
+     "why": "fewer than 10 eligible frames",
+     "read_validation": null,
+     "seeks_main": null,
+     "backend": null
+    },
+    "gsw_cha_2016_s08_w00": {
+     "M": {
+      "-1": 0.5121141207256055,
+      "0": 0.8821737003709109,
+      "+1": 0.5634003727491924
+     },
+     "L0": 0.8913894000719788,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 696,
+      "sidecar_frames": 696,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s08_w01": {
+     "M": {
+      "-1": 0.6006517317759642,
+      "0": 0.8943231926506104,
+      "+1": 0.6880175182646641
+     },
+     "L0": 0.9040054597975369,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 270,
+      "sidecar_frames": 270,
+      "passes": true
+     },
+     "seeks_main": [
+      0,
+      600
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s08_w02": {
+     "M": {
+      "-1": 0.5793331315684426,
+      "0": 0.878348353153052,
+      "+1": 0.663616585464074
+     },
+     "L0": 0.8832044816790638,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 422,
+      "sidecar_frames": 422,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s08_w03": {
+     "M": {
+      "-1": 0.6771438150298613,
+      "0": 0.9061501524481301,
+      "+1": 0.7349996539178993
+     },
+     "L0": 0.915471357215973,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 163,
+      "sidecar_frames": 163,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s08_w04": {
+     "M": {
+      "-1": 0.6328778558220094,
+      "0": 0.9060074629106517,
+      "+1": 0.683562228659404
+     },
+     "L0": 0.9240115029086208,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 205,
+      "sidecar_frames": 205,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s08_w05": {
+     "M": {
+      "-1": 0.5621791691393724,
+      "0": 0.9087219812716268,
+      "+1": 0.5567914386136906
+     },
+     "L0": 0.9188341215122247,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 34,
+      "sidecar_frames": 34,
+      "passes": true
+     },
+     "seeks_main": [
+      330
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s08_w06": {
+     "M": {
+      "-1": 0.6386135295634456,
+      "0": 0.8934994659351847,
+      "+1": 0.6825332178155444
+     },
+     "L0": 0.9095168857507689,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 102,
+      "sidecar_frames": 102,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s08_w07": {
+     "M": {
+      "-1": 0.6817398189597713,
+      "0": 0.8878921031699903,
+      "+1": 0.7548092178654314
+     },
+     "L0": 0.8984580985701214,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 95,
+      "sidecar_frames": 95,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s08_w08": {
+     "M": {
+      "-1": 0.6365098149201027,
+      "0": 0.8726599397113616,
+      "+1": 0.7482423762233031
+     },
+     "L0": 0.885459773497059,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 65,
+      "sidecar_frames": 65,
+      "passes": true
+     },
+     "seeks_main": [
+      90
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s09_w00": {
+     "M": {
+      "-1": 0.6594549884494656,
+      "0": 0.8970824762074405,
+      "+1": 0.705516147224448
+     },
+     "L0": 0.9147960897355417,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 225,
+      "sidecar_frames": 225,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s09_w01": {
+     "M": {
+      "-1": 0.6848495114104591,
+      "0": 0.9087070638528886,
+      "+1": 0.7545629448745668
+     },
+     "L0": 0.9249356500376682,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 155,
+      "sidecar_frames": 155,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s09_w02": {
+     "M": {
+      "-1": 0.5790702680700713,
+      "0": 0.9172987122412087,
+      "+1": 0.6420555883575055
+     },
+     "L0": 0.9257667708270566,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 125,
+      "sidecar_frames": 125,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    }
+   },
+   "manifest_unchanged": true
+  },
+  "gsw_bkn_2015": {
+   "summary": {
+    "windows": 83,
+    "aligned": 82,
+    "misaligned": 0,
+    "undetermined": 1,
+    "share_not_aligned": 0.012048192771084338,
+    "stop": false
+   },
+   "cross_table_a3align": {
+    "aligned|a3align_aligned": 54,
+    "aligned|a3align_misaligned": 8
+   },
+   "not_aligned": [
+    "gsw_bkn_2015_s00_w05"
+   ],
+   "not_aligned_by_cause": {
+    "undetermined: fewer than 10 eligible frames": {
+     "n": 1,
+     "windows": [
+      "gsw_bkn_2015_s00_w05"
+     ]
+    }
+   },
+   "gate": {
+    "head": "trained_head_v2.joblib",
+    "head_sha256": "8be9bb8414fbd171efd9123fb7fdf23b2a03746096d087da2732e543119042c6",
+    "coefs": "trained_head_v2_coefs.npz",
+    "coefs_sha256": "b95a30fdd5a3fab89b01ca70bea0d938767ea93a054397d28aea15057f1fcc2c",
+    "threshold_v2": 0.33,
+    "clip_backbone": "openai/clip-vit-base-patch32",
+    "env": {
+     "HF_HUB_OFFLINE": "1",
+     "PYTORCH_ENABLE_MPS_FALLBACK": "1"
+    }
+   },
+   "M_and_L0": {
+    "gsw_bkn_2015_s00_w00": {
+     "M": {
+      "-1": 0.6632889847343217,
+      "0": 0.8978603752981255,
+      "+1": 0.7040950778789304
+     },
+     "L0": 0.9085119758743665,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 272,
+      "sidecar_frames": 272,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s00_w01": {
+     "M": {
+      "-1": 0.6058628547831889,
+      "0": 0.8953794638701266,
+      "+1": 0.6327298559456362
+     },
+     "L0": 0.9023138545864441,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 282,
+      "sidecar_frames": 282,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s00_w02": {
+     "M": {
+      "-1": 0.5460222837070815,
+      "0": 0.891197055525115,
+      "+1": 0.6024286545199345
+     },
+     "L0": 0.9035307922419316,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 305,
+      "sidecar_frames": 305,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s00_w03": {
+     "M": {
+      "-1": 0.6021962737637059,
+      "0": 0.8905302237208408,
+      "+1": 0.630336889790782
+     },
+     "L0": 0.8984627582516452,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 235,
+      "sidecar_frames": 235,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s00_w04": {
+     "M": {
+      "-1": 0.5972921654968557,
+      "0": 0.8831832826822983,
+      "+1": 0.6439275893706171
+     },
+     "L0": 0.8891205973254765,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 185,
+      "sidecar_frames": 185,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s00_w05": {
+     "M": null,
+     "L0": null,
+     "verdict": "undetermined",
+     "why": "fewer than 10 eligible frames",
+     "read_validation": null,
+     "seeks_main": null,
+     "backend": null
+    },
+    "gsw_bkn_2015_s00_w06": {
+     "M": {
+      "-1": 0.6028844057977666,
+      "0": 0.8806903826076231,
+      "+1": 0.673849884679535
+     },
+     "L0": 0.8898084813832319,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 161,
+      "sidecar_frames": 161,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s00_w07": {
+     "M": {
+      "-1": 0.637387529130166,
+      "0": 0.9028772152785184,
+      "+1": 0.7415542676344922
+     },
+     "L0": 0.9154617758243044,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 114,
+      "sidecar_frames": 114,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s00_w08": {
+     "M": {
+      "-1": 0.5479925145643139,
+      "0": 0.8695068152841071,
+      "+1": 0.5914386058811711
+     },
+     "L0": 0.8786261514732426,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 95,
+      "sidecar_frames": 95,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w00": {
+     "M": {
+      "-1": 0.5695753604272273,
+      "0": 0.8963467293773378,
+      "+1": 0.6098847638396039
+     },
+     "L0": 0.9090525776920397,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 646,
+      "sidecar_frames": 646,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w01": {
+     "M": {
+      "-1": 0.6042318602069756,
+      "0": 0.8869313917351089,
+      "+1": 0.6702433222828117
+     },
+     "L0": 0.9036275124162426,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 495,
+      "sidecar_frames": 495,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w02": {
+     "M": {
+      "-1": 0.5749298278795132,
+      "0": 0.8800702789609454,
+      "+1": 0.644657263993353
+     },
+     "L0": 0.8952314139993746,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 355,
+      "sidecar_frames": 355,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w03": {
+     "M": {
+      "-1": 0.570181166385934,
+      "0": 0.8716536093864661,
+      "+1": 0.5987497172153592
+     },
+     "L0": 0.880895459162988,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 131,
+      "sidecar_frames": 131,
+      "passes": true
+     },
+     "seeks_main": [
+      480
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w04": {
+     "M": {
+      "-1": 0.6269072109236324,
+      "0": 0.8899924369026837,
+      "+1": 0.6870955659332784
+     },
+     "L0": 0.9047289044263982,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 195,
+      "sidecar_frames": 195,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w05": {
+     "M": {
+      "-1": 0.6457024266187942,
+      "0": 0.8963392060439518,
+      "+1": 0.6765090921090867
+     },
+     "L0": 0.9088718364335255,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 175,
+      "sidecar_frames": 175,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w06": {
+     "M": {
+      "-1": 0.5277378137537502,
+      "0": 0.8982994459375392,
+      "+1": 0.5752315036442898
+     },
+     "L0": 0.9068504287142494,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 165,
+      "sidecar_frames": 165,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w07": {
+     "M": {
+      "-1": 0.613402510542707,
+      "0": 0.8979802251399357,
+      "+1": 0.7051228291255567
+     },
+     "L0": 0.9159966039774834,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 118,
+      "sidecar_frames": 118,
+      "passes": true
+     },
+     "seeks_main": [
+      150
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w08": {
+     "M": {
+      "-1": 0.5786115427049756,
+      "0": 0.8628819005195043,
+      "+1": 0.6335139393976899
+     },
+     "L0": 0.8820152800861393,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 115,
+      "sidecar_frames": 115,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w09": {
+     "M": {
+      "-1": 0.6108705830414821,
+      "0": 0.8955618393920358,
+      "+1": 0.6733714962083682
+     },
+     "L0": 0.9073783140223315,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 105,
+      "sidecar_frames": 105,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w10": {
+     "M": {
+      "-1": 0.6182572054961933,
+      "0": 0.8982005374019295,
+      "+1": 0.6859331681826415
+     },
+     "L0": 0.9147713361959556,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 46,
+      "sidecar_frames": 46,
+      "passes": true
+     },
+     "seeks_main": [
+      210
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s01_w11": {
+     "M": {
+      "-1": 0.6509655108468931,
+      "0": 0.8998142484562544,
+      "+1": 0.7243892065349063
+     },
+     "L0": 0.9143742874475134,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 95,
+      "sidecar_frames": 95,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s02_w00": {
+     "M": {
+      "-1": 0.5477259484965747,
+      "0": 0.8993737474657524,
+      "+1": 0.6307607406638756
+     },
+     "L0": 0.9100167656866128,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 534,
+      "sidecar_frames": 534,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s02_w01": {
+     "M": {
+      "-1": 0.568316922999232,
+      "0": 0.8865308483262316,
+      "+1": 0.6185523672599509
+     },
+     "L0": 0.9096823972911319,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 491,
+      "sidecar_frames": 491,
+      "passes": true
+     },
+     "seeks_main": [
+      300
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s02_w02": {
+     "M": {
+      "-1": 0.5737149014424299,
+      "0": 0.8914630229513345,
+      "+1": 0.6603771235197144
+     },
+     "L0": 0.9008818571142135,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 389,
+      "sidecar_frames": 389,
+      "passes": true
+     },
+     "seeks_main": [
+      150
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s02_w03": {
+     "M": {
+      "-1": 0.5684076037868526,
+      "0": 0.8775315417866792,
+      "+1": 0.6611731715391137
+     },
+     "L0": 0.8912436918763432,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 349,
+      "sidecar_frames": 349,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s02_w04": {
+     "M": {
+      "-1": 0.6013795714163954,
+      "0": 0.887735979125958,
+      "+1": 0.6961637070047483
+     },
+     "L0": 0.8948260122118757,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 295,
+      "sidecar_frames": 295,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s02_w05": {
+     "M": {
+      "-1": 0.649920522872111,
+      "0": 0.9040711886160001,
+      "+1": 0.7073173836027636
+     },
+     "L0": 0.905084120736659,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 51,
+      "sidecar_frames": 51,
+      "passes": true
+     },
+     "seeks_main": [
+      540
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s02_w06": {
+     "M": {
+      "-1": 0.8514729925362896,
+      "0": 0.949212182546533,
+      "+1": 0.8937004504551056
+     },
+     "L0": 0.9618946883254148,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 67,
+      "sidecar_frames": 67,
+      "passes": true
+     },
+     "seeks_main": [
+      150
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w00": {
+     "M": {
+      "-1": 0.5667642951033394,
+      "0": 0.8615084058907178,
+      "+1": 0.6301973523713694
+     },
+     "L0": 0.8776039251388535,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 633,
+      "sidecar_frames": 633,
+      "passes": true
+     },
+     "seeks_main": [
+      510
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w01": {
+     "M": {
+      "-1": 0.5579466982020939,
+      "0": 0.8899241443599208,
+      "+1": 0.5870833156905388
+     },
+     "L0": 0.9010498464907364,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 327,
+      "sidecar_frames": 327,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w02": {
+     "M": {
+      "-1": 0.5334677082803303,
+      "0": 0.8747080156410922,
+      "+1": 0.5775114310447143
+     },
+     "L0": 0.88194508480798,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 184,
+      "sidecar_frames": 184,
+      "passes": true
+     },
+     "seeks_main": [
+      0,
+      1140
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w03": {
+     "M": {
+      "-1": 0.5604148583744739,
+      "0": 0.8553778825913325,
+      "+1": 0.5757722565899519
+     },
+     "L0": 0.8695516062883594,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 265,
+      "sidecar_frames": 265,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w04": {
+     "M": {
+      "-1": 0.5963454958726746,
+      "0": 0.8811992448521675,
+      "+1": 0.6624725108244672
+     },
+     "L0": 0.8931185276421237,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 221,
+      "sidecar_frames": 221,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w05": {
+     "M": {
+      "-1": 0.6758205169722811,
+      "0": 0.910041222454795,
+      "+1": 0.7684117650738309
+     },
+     "L0": 0.9214643527192722,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 146,
+      "sidecar_frames": 146,
+      "passes": true
+     },
+     "seeks_main": [
+      510
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w06": {
+     "M": {
+      "-1": 0.6143344538629305,
+      "0": 0.9006102210519755,
+      "+1": 0.6520464133732358
+     },
+     "L0": 0.9103613798294581,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 185,
+      "sidecar_frames": 185,
+      "passes": true
+     },
+     "seeks_main": [
+      30
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w07": {
+     "M": {
+      "-1": 0.7047743939775021,
+      "0": 0.9269968486948109,
+      "+1": 0.7760972440684003
+     },
+     "L0": 0.9398863562834323,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 81,
+      "sidecar_frames": 81,
+      "passes": true
+     },
+     "seeks_main": [
+      240
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w08": {
+     "M": {
+      "-1": 0.7278599462214773,
+      "0": 0.9226699281756905,
+      "+1": 0.8033849508927942
+     },
+     "L0": 0.9409351088715259,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 66,
+      "sidecar_frames": 66,
+      "passes": true
+     },
+     "seeks_main": [
+      270
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s03_w09": {
+     "M": {
+      "-1": 0.720456586525997,
+      "0": 0.915895724323149,
+      "+1": 0.7829135208813974
+     },
+     "L0": 0.9150728367283656,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 71,
+      "sidecar_frames": 71,
+      "passes": true
+     },
+     "seeks_main": [
+      60
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s04_w00": {
+     "M": {
+      "-1": 0.5736772221920073,
+      "0": 0.8944496502709718,
+      "+1": 0.5888021784807971
+     },
+     "L0": 0.9082172841009951,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 1102,
+      "sidecar_frames": 1102,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s04_w01": {
+     "M": {
+      "-1": 0.5934875493907809,
+      "0": 0.8836804468975329,
+      "+1": 0.6479271271490248
+     },
+     "L0": 0.8979391648486589,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 262,
+      "sidecar_frames": 262,
+      "passes": true
+     },
+     "seeks_main": [
+      420
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s04_w02": {
+     "M": {
+      "-1": 0.6853889578116605,
+      "0": 0.9262301507067847,
+      "+1": 0.7600834332554657
+     },
+     "L0": 0.9356724215578333,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 225,
+      "sidecar_frames": 225,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s04_w03": {
+     "M": {
+      "-1": 0.6543340119212043,
+      "0": 0.9096450295802376,
+      "+1": 0.7286531387431924
+     },
+     "L0": 0.9252664130706041,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 175,
+      "sidecar_frames": 175,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s04_w04": {
+     "M": {
+      "-1": 0.5321884679181647,
+      "0": 0.8411207568842508,
+      "+1": 0.6123107326770195
+     },
+     "L0": 0.8530455353023775,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 150,
+      "sidecar_frames": 150,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s05_w00": {
+     "M": {
+      "-1": 0.5682426829595089,
+      "0": 0.8730738176627876,
+      "+1": 0.5836333879839759
+     },
+     "L0": 0.8942117154088506,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 726,
+      "sidecar_frames": 726,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s05_w01": {
+     "M": {
+      "-1": 0.6030903351980847,
+      "0": 0.8823347407556689,
+      "+1": 0.6406611582728025
+     },
+     "L0": 0.899553225590964,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 443,
+      "sidecar_frames": 443,
+      "passes": true
+     },
+     "seeks_main": [
+      420,
+      2490
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s05_w02": {
+     "M": {
+      "-1": 0.6806629415054644,
+      "0": 0.9004645471965077,
+      "+1": 0.7350378213609059
+     },
+     "L0": 0.9190017242768603,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 347,
+      "sidecar_frames": 347,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s05_w03": {
+     "M": {
+      "-1": 0.5580732466804065,
+      "0": 0.8874307199605742,
+      "+1": 0.6023424676475666
+     },
+     "L0": 0.9038106887564399,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 540,
+      "sidecar_frames": 540,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s05_w04": {
+     "M": {
+      "-1": 0.6057963688473563,
+      "0": 0.8857662152914941,
+      "+1": 0.6696499993270957
+     },
+     "L0": 0.9015798611647505,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 338,
+      "sidecar_frames": 338,
+      "passes": true
+     },
+     "seeks_main": [
+      330
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s05_w05": {
+     "M": {
+      "-1": 0.567653164895132,
+      "0": 0.8945173477509192,
+      "+1": 0.5672966151552039
+     },
+     "L0": 0.921413247857948,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 325,
+      "sidecar_frames": 325,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s05_w06": {
+     "M": {
+      "-1": 0.6067492318083832,
+      "0": 0.8896180918298545,
+      "+1": 0.6657214354281386
+     },
+     "L0": 0.8950642653419958,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 173,
+      "sidecar_frames": 173,
+      "passes": true
+     },
+     "seeks_main": [
+      0,
+      570
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s05_w07": {
+     "M": {
+      "-1": 0.6917487450382078,
+      "0": 0.9021709054494425,
+      "+1": 0.7236825423609421
+     },
+     "L0": 0.9098614258148233,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 38,
+      "sidecar_frames": 38,
+      "passes": true
+     },
+     "seeks_main": [
+      210
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s06_w00": {
+     "M": {
+      "-1": 0.5638564275550714,
+      "0": 0.903909768855773,
+      "+1": 0.6236514910314764
+     },
+     "L0": 0.9165245540590186,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 436,
+      "sidecar_frames": 436,
+      "passes": true
+     },
+     "seeks_main": [
+      450
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s06_w01": {
+     "M": {
+      "-1": 0.622090753105168,
+      "0": 0.8926426386560139,
+      "+1": 0.6668407918029454
+     },
+     "L0": 0.8984669912826708,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 447,
+      "sidecar_frames": 447,
+      "passes": true
+     },
+     "seeks_main": [
+      210
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s06_w02": {
+     "M": {
+      "-1": 0.5656385447783384,
+      "0": 0.8732416267670098,
+      "+1": 0.6384928270827296
+     },
+     "L0": 0.8904379818960038,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 419,
+      "sidecar_frames": 419,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s06_w03": {
+     "M": {
+      "-1": 0.5496974657491114,
+      "0": 0.8846007967580379,
+      "+1": 0.6512752828719771
+     },
+     "L0": 0.8992469274962018,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 368,
+      "sidecar_frames": 368,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s06_w04": {
+     "M": {
+      "-1": 0.5675023457632377,
+      "0": 0.8942545525671096,
+      "+1": 0.6115066924640057
+     },
+     "L0": 0.9091775446090619,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 127,
+      "sidecar_frames": 127,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s06_w05": {
+     "M": {
+      "-1": 0.6659566828609267,
+      "0": 0.8881474224976231,
+      "+1": 0.7429336634382397
+     },
+     "L0": 0.8974109515139497,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 95,
+      "sidecar_frames": 95,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s07_w00": {
+     "M": {
+      "-1": 0.5760052126378798,
+      "0": 0.8902080979110659,
+      "+1": 0.6053748557694268
+     },
+     "L0": 0.9055031939862443,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 910,
+      "sidecar_frames": 910,
+      "passes": true
+     },
+     "seeks_main": [
+      240
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s07_w01": {
+     "M": {
+      "-1": 0.5388696958281022,
+      "0": 0.8892992316610661,
+      "+1": 0.6312405129625995
+     },
+     "L0": 0.897893093690445,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 556,
+      "sidecar_frames": 556,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s07_w02": {
+     "M": {
+      "-1": 0.5617034718952018,
+      "0": 0.8898642993420824,
+      "+1": 0.5912868343718627
+     },
+     "L0": 0.9047621763410892,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 417,
+      "sidecar_frames": 417,
+      "passes": true
+     },
+     "seeks_main": [
+      150
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s07_w03": {
+     "M": {
+      "-1": 0.5860921839083912,
+      "0": 0.8925492231115615,
+      "+1": 0.6375164736183844
+     },
+     "L0": 0.9111333806486475,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 215,
+      "sidecar_frames": 215,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s07_w04": {
+     "M": {
+      "-1": 0.6062183491725981,
+      "0": 0.8914856941868093,
+      "+1": 0.7105546753983737
+     },
+     "L0": 0.9038703128424822,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 145,
+      "sidecar_frames": 145,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s07_w05": {
+     "M": {
+      "-1": 0.6341203296713126,
+      "0": 0.8911336267714218,
+      "+1": 0.7239394820863407
+     },
+     "L0": 0.9086073970526282,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 83,
+      "sidecar_frames": 83,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s07_w06": {
+     "M": {
+      "-1": 0.7360780700551243,
+      "0": 0.9216521662825095,
+      "+1": 0.8091057697839347
+     },
+     "L0": 0.9390808078648586,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 111,
+      "sidecar_frames": 111,
+      "passes": true
+     },
+     "seeks_main": [
+      120
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s08_w00": {
+     "M": {
+      "-1": 0.6831784607541863,
+      "0": 0.8962126961907433,
+      "+1": 0.7337473479174824
+     },
+     "L0": 0.9071518813180862,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 145,
+      "sidecar_frames": 145,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s08_w01": {
+     "M": {
+      "-1": 0.6236043444752033,
+      "0": 0.8747563526654011,
+      "+1": 0.7031238847963466
+     },
+     "L0": 0.8869641422905372,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 125,
+      "sidecar_frames": 125,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s08_w02": {
+     "M": {
+      "-1": 0.7210914603798072,
+      "0": 0.9221782081349432,
+      "+1": 0.755097876285909
+     },
+     "L0": 0.9365561038827085,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 115,
+      "sidecar_frames": 115,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s08_w03": {
+     "M": {
+      "-1": 0.6022390452000864,
+      "0": 0.8858276692624668,
+      "+1": 0.7018406538742147
+     },
+     "L0": 0.8975657895289488,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 105,
+      "sidecar_frames": 105,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s08_w04": {
+     "M": {
+      "-1": 0.6572168907719435,
+      "0": 0.8931650623937091,
+      "+1": 0.6880716524844156
+     },
+     "L0": 0.9053166464651152,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 97,
+      "sidecar_frames": 97,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s08_w05": {
+     "M": {
+      "-1": 0.6706759423033823,
+      "0": 0.9060361562471635,
+      "+1": 0.7682449655177818
+     },
+     "L0": 0.9226384726506338,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 95,
+      "sidecar_frames": 95,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s09_w00": {
+     "M": {
+      "-1": 0.5865130227238602,
+      "0": 0.9102637269404321,
+      "+1": 0.5918385497894608
+     },
+     "L0": 0.9188650255754391,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 361,
+      "sidecar_frames": 361,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s09_w01": {
+     "M": {
+      "-1": 0.6023037229037996,
+      "0": 0.8954670535052439,
+      "+1": 0.6369357903527824
+     },
+     "L0": 0.9147020016885924,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 413,
+      "sidecar_frames": 413,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s09_w02": {
+     "M": {
+      "-1": 0.5593309900858839,
+      "0": 0.8919364387619099,
+      "+1": 0.6211009238277604
+     },
+     "L0": 0.908891642080284,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 300,
+      "sidecar_frames": 300,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s09_w03": {
+     "M": {
+      "-1": 0.6458197217070455,
+      "0": 0.8861156558651507,
+      "+1": 0.7116114566546958
+     },
+     "L0": 0.8980014300502179,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 92,
+      "sidecar_frames": 92,
+      "passes": true
+     },
+     "seeks_main": [
+      330
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s09_w04": {
+     "M": {
+      "-1": 0.6738791205555035,
+      "0": 0.8861784355314963,
+      "+1": 0.7299125059410324
+     },
+     "L0": 0.887768295081986,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 47,
+      "sidecar_frames": 47,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s09_w05": {
+     "M": {
+      "-1": 0.7043743921307902,
+      "0": 0.9121529811784922,
+      "+1": 0.7661108924367876
+     },
+     "L0": 0.9167583959496903,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 95,
+      "sidecar_frames": 95,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s10_w00": {
+     "M": {
+      "-1": 0.6714123781845347,
+      "0": 0.9110522599639694,
+      "+1": 0.7439845909372869
+     },
+     "L0": 0.9227924005699689,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 121,
+      "sidecar_frames": 121,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s10_w01": {
+     "M": {
+      "-1": 0.6789090033847787,
+      "0": 0.8975480737660536,
+      "+1": 0.7708926371947635
+     },
+     "L0": 0.9071350861298471,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 116,
+      "sidecar_frames": 116,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s10_w02": {
+     "M": {
+      "-1": 0.6202314172294651,
+      "0": 0.8901887098199159,
+      "+1": 0.6627641097611174
+     },
+     "L0": 0.9005632229247318,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 103,
+      "sidecar_frames": 103,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s10_w03": {
+     "M": {
+      "-1": 0.7419118370657227,
+      "0": 0.9357224900539503,
+      "+1": 0.8125817552145639
+     },
+     "L0": 0.9452216496180147,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 135,
+      "sidecar_frames": 135,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s10_w04": {
+     "M": {
+      "-1": 0.5893080270266415,
+      "0": 0.8810348462176837,
+      "+1": 0.6134555272314267
+     },
+     "L0": 0.8921939992846429,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 135,
+      "sidecar_frames": 135,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s10_w05": {
+     "M": {
+      "-1": 0.6298998624143523,
+      "0": 0.8974877817795628,
+      "+1": 0.7097441843765567
+     },
+     "L0": 0.9199530097478463,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 115,
+      "sidecar_frames": 115,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s10_w06": {
+     "M": {
+      "-1": 0.6613189093099513,
+      "0": 0.8950545938500827,
+      "+1": 0.7084725975999395
+     },
+     "L0": 0.8957200009188167,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 95,
+      "sidecar_frames": 95,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    }
+   },
+   "manifest_unchanged": true
+  }
+ },
+ "stop": false
+}
