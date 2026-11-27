@@ -247,3 +247,171 @@ units are used.
 - Alignment is checked on four frames per window, not every frame.
 - The net estimate (F4) is not the scorer's row. Only the next stage would give the paired D202 rows.
 - Two games, one arena, one broadcaster.
+
+## 11. Version 1.1 (2026-11-27, after the design review of 2f19de21, GO WITH CHANGES; before any download, code or number)
+
+The independent review found three blockers and six should-fix items. Its cheapest step changes the order
+(self-decided by the lead): a foot_raw stage runs first, before any pose download. Sections 1 to 10 stand except where
+this section replaces them; where they differ, this section rules.
+
+### 11.1 Correction to section 1
+
+Section 1 said ankle keypoints "locate the feet inside the box whatever the box bottom does". That is the hypothesis,
+not a fact. The sentence now reads: ankle keypoints may locate the feet where the box bottom does not (a stride, a
+raised foot, a box edge on a shadow or the floor), and this item tests whether they do.
+
+### 11.2 The new order of stages
+
+| stage | what | inputs | lock |
+|---|---|---|---|
+| 0a | foot_raw against foot_stab on the same boxes (11.3) | stored sidecars, truths, D207's selection | about 2 minutes a game |
+| A | decode alignment of all 156 pool windows (11.6) | clips, r23's detector; no download | 11.9 |
+| 0 | licence closed at the source, revision pinned, the one download (11.8) | after A and its review | none |
+| 1 | pose smoke on two aligned windows | | 11.9 |
+| 2 | the pose falsifier (11.4, 11.5) | aligned windows only | 11.9 |
+
+### 11.3 Stage 0a: foot_raw, registered now
+
+**What foot_raw is.** Each sidecar box stores foot_raw, the tracked box's bottom centre on that frame
+(detect/types.py Track.foot_point). foot_stab is detect/footpoint.py's per-track EMA of it, with alpha 0.6 and an
+occlusion correction when the box is short. At stride 6 (59.94 fps) the EMA lags by (1 - alpha) / alpha = 0.67 steps,
+about 0.067 s, which is about 1 ft at 15 ft/s.
+
+**Selection and gate.**
+- The boxes are D207's, recomputed with tools.p8_piibox's functions (the same two-stage assignment, tracks, classes
+  and select_items): every P-ii box (all classes), and every classified hit box (stage A boxes of hits, all classes).
+- Per window, the recomputed class counts for each kind (P-ii, hit) must equal D207's record
+  (work_ref/piibox/<game>.json). D202's six count fields must equal its record. Else the run stops.
+- hou_cle_2016 is refused in code before any file is read.
+
+**Distances.** On each box:
+- under T: d = |T(p) - SportVU_j|, with p mapped as the scorer maps foot_stab (float32 pixels through H_truth);
+- under B: the same through the sidecar's accepted H (frames without one have no B distance);
+- for p = foot_stab, p = foot_raw, and p = the null (11.5);
+- the scorer-ghost flag under T for each foot (more than 3.0 ft from all ten players).
+
+**Rules for foot_raw**, the same five as for the pose hybrid (11.4), with foot_raw as the candidate and coverage 1:
+1. R_raw - R_null at least 0.10 on own (all four) P-ii boxes. R is the share within 2.5 ft under T.
+2. The median of d_raw,T - d_stab,T on own P-ii boxes at most -0.5 ft, with the upper end of its window interval
+   below 0.
+3. The same median under B at most 0 (point estimate).
+4. On hits: the median of d_raw,T - d_stab,T at most +0.10 ft, and the share beyond 2.5 ft at most 0.05.
+5. est at most -0.010. est is defined in 11.4 (F4), with its window interval and the ghost change beside it.
+
+**Readings of stage 0a, registered now.**
+- (a) **The regression-to-the-mean baseline.** P-ii boxes are selected because foot_stab lies 2.5 to 5 ft off, so any
+  other foot, even a noisy one, lands nearer on average. R_raw, R_null and the medians of rules 1 and 2 are that
+  baseline. The pose hybrid's rules 1 and 2 are read beside it.
+- (b) **The EMA lag.** R_raw on own P-ii boxes is reported by SportVU player speed (under 5, 5 to 10, 10 ft/s and
+  over; S.Moments.speed). If the lag is a cause, R_raw rises with speed. This is reported, not ruled.
+- (c) If foot_raw itself clears rules 1, 2, 3 and 5 on own P-ii boxes on both games, that is a finding about the
+  stabiliser. It is reported and not adopted, and it needs its own D line.
+- (d) If foot_raw fails rule 4 on either game, the pose arm is read on the hybrid only (11.4).
+
+Stage 0a stops nothing about the pose line.
+
+### 11.4 The two pose arms (blocker 1)
+
+From the same pose outputs:
+- **Pose-raw:** the lifted ankle ground point itself. It replaces the box bottom on that frame, so it is compared with
+  **foot_raw**. Its rule 4 is stated against foot_raw (median d_pose - d_raw on hits at most +0.10 ft, share lost at
+  most 0.05), not against foot_stab. It is report only.
+- **Hybrid:** foot_stab plus the pose ground point's pixel offset from foot_raw on that frame,
+  p_hyb = foot_stab + (p_pose - foot_raw). It keeps the stabiliser's smoothing and adds the per-frame pose correction.
+  **Rules 1 to 5 are read on the hybrid against foot_stab, and only the hybrid's failure stops the line.**
+
+F4, the net estimate, made explicit:
+
+est = (-n_rescued,P-ii / c_P-ii + s_hit x n_lost,hit / c_hit) / in-frame players, where:
+- n_rescued,P-ii counts P-ii boxes (all classes) with a candidate foot that comes within 2.5 ft under T;
+- n_lost,hit counts measured hit boxes with a candidate foot that leaves 2.5 ft;
+- c_P-ii and c_hit are the two coverages, kept separate (the share of each kind with a candidate foot; 1 for foot_raw);
+- s_hit = N_hits / measured hits. N_hits is D205's hit class count of in-frame players (all hits by the nearest-foot
+  rule, including D207's unclassified ones), so the measured hits' loss share is applied to every hit.
+
+The bootstrap interval of est resamples windows (the numerator and the in-frame players per window). Beside it, the
+ghost change per box is (sum over measured P-ii boxes of ghost_new - ghost_stab, plus s_hit times the same sum over
+measured hits) / non-referee boxes. It ignores players rescued through another player's box, shared boxes and boxes of
+other kinds, so it is an estimate, not the scorer's row.
+
+### 11.5 The same-run null (blocker 2)
+
+For each box b, its null foot is b's foot_stab plus another box k's offset from the same frame, scaled by box height:
+- k is the non-referee box on the same frame, other than b and with a candidate foot, whose height is nearest b's
+  (ties: lower index);
+- the offset is k's candidate offset (p_pose - foot_raw for the hybrid; foot_raw - foot_stab for stage 0a), times
+  h_b / h_k;
+- with no such k, there is no null for b, and this is counted.
+
+R_null is the share of own P-ii boxes whose null foot lies within 2.5 ft under T. **Rule 1 becomes R_own - R_null at
+least 0.10** (it was R_own at least 0.20). The null takes in regression to the mean and the size of a generic
+per-frame offset. Only a per-box signal beats it.
+
+### 11.6 Stage A, decode alignment (blocker 3)
+
+- **All 156 pool windows (73 and 83), detector only, no download.** Each window is read in tools/p8_a3run.py's order:
+  the pre-gate pass, then frame 0 and every stride frame to the first processed frame, then the processed frames with
+  gaps filled, with no seek inside the window.
+- **The form** is P8_recallcause.md 8.10 B2's (branch r-p8-recallcause, not merged; its functions are copied with
+  credit, not imported):
+  - r23's detector (models/player_detector.pt, SHA-256 checked; CPU, confidence 0.40, NMS 0.45) predicts at f only;
+  - the prediction is compared with the sidecar's boxes at f - stride, f and f + stride;
+  - the statistic is the share of each sidecar frame's boxes matched one to one at IoU 0.5 (Hungarian on IoU);
+  - unmatched sidecar boxes and unmatched detections are counted per frame.
+- **Rule:** a window is aligned when the mean share at f is higher than at both neighbours and at least 0.9.
+- **Edge cases, fixed now:**
+  - Alignment frames are the window's first five processed frames that have both neighbours in the sidecar and at
+    least 4 boxes at f.
+  - A window with fewer than three such frames is "undetermined", left out and counted.
+  - A tie between f and a neighbour reads not aligned.
+  - A frame the reader cannot decode makes the window undetermined.
+  - Neighbour frames with no boxes cannot occur, since a neighbour needs a sidecar row, and an empty row is excluded.
+- **Agreement with P8_a3align.md:** on the windows both cover, a cross table of this verdict against a3align's
+  "misaligned". a3align compared the corpus decode with the build's, so the two questions differ, and the table is
+  reported, not ruled. A window a3align marked misaligned is expected to fail here, because this read order matched
+  the corpus decode in P8_a3run.md.
+- **Per-game stop bar:** a3align found 8 of 62 bkn windows (0.13) and 4 of 53 cha windows (0.08) misaligned. Stage A
+  is expected to exclude a share near those. The run stops and reports, and no pose stage follows, if more than 0.25 of
+  a game's windows are not aligned (undetermined included).
+- **Writes:** work_ref/posefoot/alignment/<game>.json and the alignment block of the record. The pose stages read
+  aligned windows only.
+
+### 11.7 Should-fix items
+
+4. **Lift.**
+   - A unit test checks the sign: for a camera above the floor looking down, the lifted ankle's ground point lies
+     nearer the camera than the unlifted one.
+   - 0.35 ft is reported beside 0.25 ft and the unlifted point. The rule reads 0.25 ft.
+   - Section 1's sentence is corrected in 11.1.
+5. **Colour.** The decoder returns BGR. The frame is converted to RGB before the image processor, and a test checks the
+   channel order on a synthetic frame.
+6. **Hits and est.**
+   - The pose control samples up to 2 hit boxes per scored frame, from all scored frames (not only P-ii frames), with
+     numpy default_rng(0) in frame order. Stage 0a uses every classified hit.
+   - est keeps the two coverages apart and names N_hits (11.4).
+   - est has a window bootstrap interval, and the ghost change is reported beside it.
+7. **Ankles.** Rules 1 to 5 read boxes where both ankles are confident. Boxes with one confident ankle are reported
+   apart, with the same rows.
+8. **Licence and pinning, before any download.**
+   - The upstream repository's licence file (github.com/ViTAE-Transformer/ViTPose, LICENSE) and the COCO dataset's
+     terms of use (cocodataset.org) are read at the source and recorded in docs/DATA_SOURCES.md. Any "to check" left
+     there blocks the download.
+   - The Hugging Face revision is pinned as a commit hash in the tool (from_pretrained(revision=...)).
+   - After the one download, every load runs with HF_HUB_OFFLINE=1.
+9. **Decode cost, corrected.** Section 8's "about 1 to 3 minutes per game" was wrong. a3run's read order decodes the
+   whole clip (the pre-gate pass plus every stride frame), about 5 to 20 s a window by the earlier P8 runs' order of
+   magnitude, so about 13 to 52 minutes for 156 windows, per pass. Stage A makes one pass, and stage 2 another. Stage
+   1's smoke measures the rate, and stage 2's estimate becomes about 60 to 130 lock minutes. Its cap of 120 minutes
+   holds: if the smoke projects above it, stage 2 does not run, and the lead decides.
+10. **hou_cle_2016** is refused by every stage before any file is read, and a test checks it.
+
+### 11.8 Licence and download (stage 0)
+
+Unchanged from section 8, except that it now follows stage A and needs 11.7 (8) closed first.
+
+### 11.9 Locks and caps
+
+- Stage 0a: one lock per game ("p8 posefoot 0a <game>"), cap 15 minutes each.
+- Stage A: one lock per game ("p8 posefoot align <game>"), cap 60 minutes each.
+- Stages 1 and 2: as section 8, with 11.7 (9)'s estimate.
+- Each stage runs as one background chain and is reported the moment it ends.
