@@ -635,3 +635,29 @@ moved.
 
 **Cost.** The pre-gate pass adds one CLIP embedding per pg_stride frame (about 1 in 30), on the build's gate device.
 The decode is one pass per window, as before.
+
+### 14.3 Stage A smoke result (2026-11-27, from 7584a109; record reports/research/p8_posefoot_align_smoke.json)
+
+**Run.** One lock per game: 60 s for gsw_cha_2016 and 59 s for gsw_bkn_2015. The report took 1 s. The manifests were
+unchanged. The backend was AVFOUNDATION in every window: this cv2 4.13.0 has no FFMPEG backend, so the build's
+CAP_FFMPEG open falls back the same way in this runtime. The gate ran on mps, as each window's build record resolved.
+
+| window | role | M_-1 | M_0 | M_+1 | L_0 | verdict | sidecar frames read | extra reads | main seeks |
+|---|---|---|---|---|---|---|---|---|---|
+| gsw_cha_2016_s05_w00 | good | 0.493 | 0.885 | 0.515 | 0.904 | aligned | 1,053 of 1,053 | 54 | [0] |
+| gsw_cha_2016_s05_w03 | good | 0.604 | 0.886 | 0.646 | 0.904 | aligned | 206 of 206 | 25 | [0] |
+| gsw_cha_2016_s07_w00 | bad under the old read | 0.590 | 0.887 | 0.605 | 0.895 | aligned | 968 of 968 | 27 | [150, 4440] |
+| gsw_bkn_2015_s00_w07 | first frame 54 | 0.637 | 0.903 | 0.742 | 0.915 | aligned | 114 of 114 | 22 | [0] |
+| gsw_bkn_2015_s04_w00 | good | 0.574 | 0.894 | 0.589 | 0.908 | aligned | 1,102 of 1,102 | 24 | [0] |
+| gsw_bkn_2015_s07_w00 | bad under the old read | 0.576 | 0.890 | 0.605 | 0.906 | aligned | 910 of 910 | 65 | [240] |
+
+**Gate: passes.** The three good windows read aligned, and the two formerly bad windows now read aligned too.
+
+- Extra reads are frames the build's gate rejected inside its intervals. The build reads them too, but this cannot be
+  confirmed per frame without the per-frame gate.
+- The build records no seeks. The replay's seeks agree with what the sidecar shows: each sidecar gap over 300 frames
+  lies either inside a replayed interval or at a replayed seek.
+- Post hoc, not tested: the two formerly bad windows are the ones whose first interval starts after frame 0 (at 150
+  and 240), which the old sequential read did not seek to.
+
+The full pass waits for the lead's read of this smoke and a code check of the read-path code.
