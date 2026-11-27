@@ -145,3 +145,46 @@ Reading against section 5, stage 1 only:
   H2), with the new post-reset inits (S3) changing the pool through the seed-0 draw. Stage 1 cannot tell H1 from H2, or
   whether the new frames' pairs (H3, H5) are what held the fit at its start; stage 2's F1 to F4 can.
 - Nothing is retuned; gsw_cha_2016's section 5 verdict (A and B fail, unused) stands.
+
+## 8. Stage 2 reading rules (registered 2026-11-27, after stage 1, before any stage 2 number)
+
+Approved by the lead to run after the accept phase, under the heavy-job lock with its own name (`p8 cha fit stage2`),
+through tools/p8_cha_fit.py only (CLAUDE.md rule 5), with every output in work_ref/diag/cha_fit/ and nothing written
+over a truth, a build or a frozen output. Diagnosis only: no stage 2 fit becomes a truth, and a seed, start or subset
+that would make gsw_cha_2016 pass is a forking path this item does not adopt; any change to the fit is a new
+registered design for a later decision.
+
+Inputs, rebuilt exactly as tools.p8_frozen.step_fit builds them (same windows in the same order, sportvu.truth
+window_truth, sportvu.camera.frames_from_rows), from the fixed label build (work_ref/label_build) and the unfixed one
+(work_ref/superseded_nofix/label_build), with the same SportVU moments and mirror. Definitions: a run "leaves its start"
+when its final C is at least 5 ft from its C0; a run is "good" when its pooled reprojection (fit_game's
+reproj_px_median_after, before any line refinement, so a proxy for check A) is at most 10 px; C_old is the unfixed
+CPU fit's C (46.9, 127.8, -31.4).
+
+- F0 Reproduction, first. fit_game with seed 0 on each build's rebuilt inputs must reproduce its recorded fit (C within
+  0.01 ft, the same inits and pooled frames, reprojection within 0.01 px). If either fails, stage 2 stops and reports
+  F0 only. Also recorded for both: the optimizer's evaluation count and termination status (fit_game caps at 200
+  evaluations), from a tools-side copy of fit_game's least-squares call on the same pool and start, which must give the
+  same C as the frozen call.
+- F1 Seeds. fit_game with seeds 1 to 10 on each build. Reading: if at least 1 of the 10 fixed-build runs leaves its
+  start and is good, while the unfixed-build runs leave theirs, the outcome depends on which 400 frames are pooled (H1).
+  If none of the 10 fixed-build runs leaves its start while the unfixed ones do, the fixed init set itself holds the
+  fit at its start; F2 and F3 decide why. If unfixed runs also stay at their start, the fit is fragile on both and the
+  fix only exposed it.
+- F2 Two starts, one pool. On the fixed build's seed-0 pool, the same least-squares problem started from C_old (the
+  per-frame rotations and focal lengths initialised from each frame's V3 court H, as the frozen fit does) against the
+  frozen start C0. Reading: if the run from C_old ends within 5 ft of C_old with a lower final cost than the run from C0,
+  the pool has a better minimum the frozen start did not reach (H2). If it ends with a higher cost, or drifts back
+  towards C0, the pool prefers the near position (points to H3 or H5, by F3 and F4). Report only, not ruled: the run
+  from C0 with 2,000 evaluations instead of 200, to show whether the cap stopped it.
+- F3 Subsets, seed 0. (a) The fixed build's inits restricted to the frames that were inits in the unfixed build (by
+  window and frame). (b) The fixed build's inits without frames at or after their window's first reset. Reading: if (a)
+  and (b) both leave their start and are good, while F1 shows the fixed build's full init set held at its start, the
+  frames added after resets cause it (H3). If they also stay at their start, the added frames are not the cause (H5 or
+  H2, by F2 and F4).
+- F4 Pairs on shared frames. For frames that are inits in both builds: the share whose inlier pairs (foot pixels and
+  SportVU positions) are identical. Reading: if more than 10 percent of the shared init frames have different pairs,
+  the old frames' inputs changed too (H5).
+
+Several readings may hold; the result section states each measurement and the causes it supports or rules out. The
+accept phase, the truth verdicts and every bar are unaffected.
