@@ -1,0 +1,456 @@
+{
+ "games": {
+  "gsw_cha_2016": {
+   "windows_with_misses": 56,
+   "dropped": 10,
+   "dropped_misses": 346,
+   "kept_misses": 1791,
+   "dropped_share_of_misses": 0.16190921853065043,
+   "dropped_in_a3align": 9,
+   "dropped_a3align_aligned": 6,
+   "kept": 46,
+   "kept_in_a3align": 42,
+   "kept_a3align_misaligned": 1,
+   "own_shares_proposed": {
+    "dropped_now_kept": 6,
+    "their_misses": 165,
+    "kept_now_dropped": 0
+   },
+   "dropped_windows": {
+    "gsw_cha_2016_s01_w01": {
+     "misses": 46,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.9414,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_cha_2016_s02_w01": {
+     "misses": 77,
+     "fails_on": "neighbour_above",
+     "alignment_frames": 5,
+     "mean_shares": [
+      1.0,
+      0.9778,
+      0.9578
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_cha_2016_s03_w07": {
+     "misses": 2,
+     "fails_on": "at_under_bar",
+     "alignment_frames": 1,
+     "mean_shares": [
+      0.375,
+      0.2857,
+      0.4286
+     ],
+     "a3align": "misaligned"
+    },
+    "gsw_cha_2016_s03_w08": {
+     "misses": 23,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.8417,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_cha_2016_s05_w01": {
+     "misses": 122,
+     "fails_on": "at_under_bar",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.98,
+      0.72,
+      0.5933
+     ],
+     "a3align": "misaligned"
+    },
+    "gsw_cha_2016_s05_w04": {
+     "misses": 3,
+     "fails_on": "tie",
+     "alignment_frames": 1,
+     "mean_shares": [
+      1.0,
+      1.0,
+      0.9091
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_cha_2016_s06_w03": {
+     "misses": 14,
+     "fails_on": "neighbour_above",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.98,
+      0.9578,
+      0.785
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_cha_2016_s06_w06": {
+     "misses": 2,
+     "fails_on": "neighbour_above",
+     "alignment_frames": 2,
+     "mean_shares": [
+      0.8182,
+      0.9045,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_cha_2016_s07_w02": {
+     "misses": 2,
+     "fails_on": "tie",
+     "alignment_frames": 2,
+     "mean_shares": [
+      0.8389,
+      1.0,
+      1.0
+     ],
+     "a3align": null
+    },
+    "gsw_cha_2016_s08_w01": {
+     "misses": 55,
+     "fails_on": "at_under_bar",
+     "alignment_frames": 5,
+     "mean_shares": [
+      1.0,
+      0.8444,
+      0.685
+     ],
+     "a3align": "misaligned"
+    }
+   }
+  },
+  "gsw_bkn_2015": {
+   "windows_with_misses": 64,
+   "dropped": 22,
+   "dropped_misses": 945,
+   "kept_misses": 1800,
+   "dropped_share_of_misses": 0.3442622950819672,
+   "dropped_in_a3align": 20,
+   "dropped_a3align_aligned": 14,
+   "kept": 42,
+   "kept_in_a3align": 36,
+   "kept_a3align_misaligned": 0,
+   "own_shares_proposed": {
+    "dropped_now_kept": 17,
+    "their_misses": 726,
+    "kept_now_dropped": 0
+   },
+   "dropped_windows": {
+    "gsw_bkn_2015_s00_w07": {
+     "misses": 13,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.9556,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s01_w01": {
+     "misses": 74,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.9528,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s01_w02": {
+     "misses": 1,
+     "fails_on": "tie",
+     "alignment_frames": 1,
+     "mean_shares": [
+      1.0,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s01_w03": {
+     "misses": 28,
+     "fails_on": "at_under_bar",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.9778,
+      0.8361,
+      0.48
+     ],
+     "a3align": "misaligned"
+    },
+    "gsw_bkn_2015_s01_w07": {
+     "misses": 1,
+     "fails_on": "tie",
+     "alignment_frames": 1,
+     "mean_shares": [
+      0.8889,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s02_w00": {
+     "misses": 197,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.9156,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s03_w00": {
+     "misses": 63,
+     "fails_on": "neighbour_above",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.98,
+      0.9156,
+      0.6206
+     ],
+     "a3align": "misaligned"
+    },
+    "gsw_bkn_2015_s03_w02": {
+     "misses": 9,
+     "fails_on": "at_under_bar",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.729,
+      0.7333,
+      0.6511
+     ],
+     "a3align": "misaligned"
+    },
+    "gsw_bkn_2015_s03_w05": {
+     "misses": 32,
+     "fails_on": "neighbour_above",
+     "alignment_frames": 5,
+     "mean_shares": [
+      1.0,
+      0.9778,
+      0.8444
+     ],
+     "a3align": "misaligned"
+    },
+    "gsw_bkn_2015_s03_w07": {
+     "misses": 3,
+     "fails_on": "tie",
+     "alignment_frames": 3,
+     "mean_shares": [
+      1.0,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s04_w01": {
+     "misses": 23,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      1.0,
+      1.0,
+      0.93
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s05_w01": {
+     "misses": 83,
+     "fails_on": "at_under_bar",
+     "alignment_frames": 5,
+     "mean_shares": [
+      1.0,
+      0.8111,
+      0.2697
+     ],
+     "a3align": "misaligned"
+    },
+    "gsw_bkn_2015_s05_w04": {
+     "misses": 52,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      1.0,
+      1.0,
+      0.9378
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s05_w05": {
+     "misses": 35,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.9596,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s06_w00": {
+     "misses": 36,
+     "fails_on": "at_under_bar",
+     "alignment_frames": 5,
+     "mean_shares": [
+      1.0,
+      0.7556,
+      0.5089
+     ],
+     "a3align": "misaligned"
+    },
+    "gsw_bkn_2015_s06_w01": {
+     "misses": 54,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.96,
+      0.98,
+      0.98
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s06_w03": {
+     "misses": 41,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.94,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s07_w00": {
+     "misses": 150,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.9818,
+      0.9818,
+      0.96
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s08_w02": {
+     "misses": 25,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.8918,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s09_w00": {
+     "misses": 21,
+     "fails_on": "tie",
+     "alignment_frames": 5,
+     "mean_shares": [
+      0.9556,
+      1.0,
+      1.0
+     ],
+     "a3align": "aligned"
+    },
+    "gsw_bkn_2015_s09_w03": {
+     "misses": 1,
+     "fails_on": "tie",
+     "alignment_frames": 1,
+     "mean_shares": [
+      1.0,
+      1.0,
+      1.0
+     ],
+     "a3align": null
+    },
+    "gsw_bkn_2015_s10_w00": {
+     "misses": 3,
+     "fails_on": "tie",
+     "alignment_frames": 1,
+     "mean_shares": [
+      1.0,
+      1.0,
+      1.0
+     ],
+     "a3align": null
+    }
+   }
+  }
+ },
+ "a3align_dry_run": {
+  "gsw_cha_2016": {
+   "aligned_windows": 49,
+   "misaligned_windows": 4,
+   "strict_fails_on_aligned": 12,
+   "ties_on_aligned": 7,
+   "proposed_fails_on_aligned": 3,
+   "strict_flags_misaligned": 4,
+   "proposed_flags_misaligned": 4
+  },
+  "gsw_bkn_2015": {
+   "aligned_windows": 54,
+   "misaligned_windows": 8,
+   "strict_fails_on_aligned": 8,
+   "ties_on_aligned": 4,
+   "proposed_fails_on_aligned": 1,
+   "strict_flags_misaligned": 8,
+   "proposed_flags_misaligned": 6
+  }
+ },
+ "dropped_by_reason": {
+  "tie": {
+   "windows": 20,
+   "misses": 768,
+   "share_of_dropped_misses": 0.5948876839659178
+  },
+  "at_under_bar": {
+   "windows": 7,
+   "misses": 335,
+   "share_of_dropped_misses": 0.2594887683965918
+  },
+  "neighbour_above": {
+   "windows": 5,
+   "misses": 188,
+   "share_of_dropped_misses": 0.14562354763749033
+  }
+ },
+ "dropped_alignment_frames": {
+  "1": 6,
+  "2": 2,
+  "3": 1,
+  "5": 23
+ },
+ "c1_worst_case_both": {
+  "kept_misses": 3591,
+  "all_misses": 4882,
+  "kept_c1": 2421,
+  "c1_if_no_dropped_miss_is_c1": 0.49590331831216716
+ },
+ "rule": {
+  "registered": {
+   "bar": 0.9,
+   "ties": "not aligned"
+  },
+  "proposed": {
+   "margin": 0.05,
+   "floor": 0.75,
+   "ties": "aligned"
+  },
+  "levels": "shares of boxes matched at IoU 0.5 (both records); not the proposal's mean IoU"
+ },
+ "what": "Post hoc: the recall-cause run's dropped windows against a3align's verdicts, and a dry run of a proposed alignment rule on stored records (docs/research/P8_recallcause.md section 9); report only"
+}
