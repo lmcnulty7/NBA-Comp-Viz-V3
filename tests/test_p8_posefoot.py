@@ -131,6 +131,128 @@ def test_the_only_writes_are_the_records():
     tree = ast.parse(inspect.getsource(M))
     calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
     names = [getattr(c.func, "id", getattr(c.func, "attr", None)) for c in calls]
-    assert names.count("atomic_write") == 2
+    assert names.count("atomic_write") == 4                  # the 0a and alignment records, per game and reported
     assert not any(n in ("write_text", "write_bytes", "unlink", "rmtree", "remove", "rename") for n in names)
     assert "open" not in names
+
+
+
+# ── stage A (section 14) ───────────────────────────────────────────────────────────────────────────────────────────
+def box(x, y, tid, w=40, h=100):
+    return {"bbox": [x, y, x + w, y + h], "tid": tid, "foot_raw": [x + w / 2, y + h], "foot_stab": [x + w / 2, y + h]}
+
+
+def side_of(n_frames, n_boxes=5, stride=6, speed=None):
+    speed = speed or (lambda f: 2.0)
+    frames = []
+    for i in range(n_frames):
+        f = i * stride
+        frames.append({"frame": f, "boxes": [box(100 * t + speed(f) * i, 300, t) for t in range(n_boxes)]})
+    return {"stride": stride, "frames": frames}
+
+
+def test_motion_and_pick_frames():
+    a, b = {"boxes": [box(0, 0, 1), box(50, 0, 2)]}, {"boxes": [box(3, 4, 1), box(50, 0, 3)]}
+    assert M.motion(a, b) == pytest.approx(5.0)
+    assert M.motion(a, {"boxes": [box(0, 0, 9)]}) is None
+    picks, n = M.pick_frames(side_of(11))                      # 9 eligible (the two ends lack a neighbour)
+    assert picks == [] and n == 9
+    picks, n = M.pick_frames(side_of(32))
+    assert n == 30 and len(picks) == 15 and picks == sorted(picks)
+    s = side_of(32)
+    s["frames"][7]["boxes"] = s["frames"][7]["boxes"][:3]      # fewer than 4 boxes: not eligible
+    assert M.pick_frames(s)[1] == 29
+    fast = side_of(32, speed=lambda f: 9.0 if f == 6 * 5 else 1.0)
+    assert 6 * 4 in M.pick_frames(fast)[0] or 6 * 6 in M.pick_frames(fast)[0]   # neighbours of the fast frame move most
+
+
+def test_frame_ious():
+    side = [[0, 0, 10, 10], [100, 100, 110, 110], [500, 500, 510, 510]]
+    pred = [[0, 0, 10, 10], [101, 100, 111, 110], [505, 505, 515, 515]]
+    v = M.frame_ious(side, pred)
+    assert v[0] == pytest.approx(1.0) and v[1] == pytest.approx(90 / 110)
+    assert v[2] == pytest.approx(25 / 175)                     # above the 0.1 floor
+    assert M.frame_ious(side, [[900, 900, 910, 910]]) == [0.0, 0.0, 0.0]
+    assert M.frame_ious(side, []) == [0.0, 0.0, 0.0] and M.frame_ious([], pred) == []
+    assert M.frame_ious([[0, 0, 10, 10]], [[8, 8, 18, 18]]) == [0.0]   # IoU 4/196 is below the floor
+
+
+def test_align_rule():
+    st = lambda m1, m0, p1, l0: {"M": {"-1": m1, "0": m0, "+1": p1}, "L0": l0}
+    assert M.align_verdict(st(0.80, 0.85, 0.80, 0.90)) == "aligned"
+    assert M.align_verdict(st(0.90, 0.85, 0.80, 0.90)) == "misaligned"     # a neighbour beats f by 0.05
+    assert M.align_verdict(st(0.899, 0.85, 0.80, 0.90)) == "aligned"
+    assert M.align_verdict(st(0.85, 0.85, 0.85, 0.90)) == "aligned"         # ties read aligned
+    assert M.align_verdict(st(0.70, 0.85, 0.70, 0.74)) == "misaligned"     # level under 0.75
+    assert M.align_verdict(st(None, None, None, None)) == "undetermined"
+    s = M.align_stats([{"-1": [0.5, 0.0], "0": [0.9, 0.2], "+1": [0.6, 0.6]}, {"-1": [0.5], "0": [0.8], "+1": [0.4]}])
+    assert s["M"]["0"] == pytest.approx((0.9 + 0.2 + 0.8) / 3) and s["L0"] == pytest.approx(0.85)
+
+
+def test_game_stop_bar_and_cross_table():
+    v = {f"w{i}": "aligned" for i in range(15)} | {"w15": "misaligned", "w16": "undetermined", "w17": "misaligned",
+                                                     "w18": "misaligned", "w19": "misaligned"}
+    g = M.game_alignment(v)
+    assert g["windows"] == 20 and g["share_not_aligned"] == pytest.approx(0.25) and not g["stop"]
+    v["w0"] = "misaligned"
+    assert M.game_alignment(v)["stop"]
+    assert M.cross_table({"a": "aligned", "b": "misaligned", "c": "aligned"}, {"a": False, "b": True, "z": True}) == \
+        {"aligned|a3align_aligned": 1, "misaligned|a3align_misaligned": 1}
+
+
+class FakeCap:
+    def __init__(self, path, fps=59.94, n=200):
+        self.fps, self.n = fps, n
+    def get(self, prop):
+        import cv2
+        return {cv2.CAP_PROP_FPS: self.fps, cv2.CAP_PROP_FRAME_COUNT: self.n}.get(prop, 0)
+    def release(self):
+        pass
+
+
+class FakeReader:
+    log = []
+    bad = set()
+    def __init__(self, cap):
+        self.next = 0
+        FakeReader.log = []
+    def read(self, i):
+        FakeReader.log.append(i)
+        self.next = i + 1
+        return (i not in FakeReader.bad), np.full((2, 2, 3), i, np.uint8)
+
+
+def test_read_order_is_a3runs(monkeypatch):
+    import cv2
+    import config
+    import videoseq
+    monkeypatch.setattr(cv2, "VideoCapture", FakeCap)
+    monkeypatch.setattr(videoseq, "SeqReader", FakeReader)
+    FakeReader.bad = set()
+    pg, _ = config.pregate_params(59.94)
+    seen = []
+    out = M.read_and_predict("clip.mp4", [24, 30, 36], 6, {30}, lambda img: seen.append(int(img[0, 0, 0])) or "p")
+    assert FakeReader.log[:len(range(0, 200, pg))] == list(range(0, 200, pg))          # the pre-gate pass first
+    assert FakeReader.log[len(range(0, 200, pg)):] == [0, 6, 12, 18, 24, 30, 36]       # then sequential to the frames
+    assert out == {30: "p"} and seen == [30 % 256]
+    FakeReader.bad = {30}
+    with pytest.raises(ValueError):
+        M.read_and_predict("clip.mp4", [24, 30, 36], 6, {30}, lambda img: "p")
+
+
+def test_align_refuses_hou_before_any_read(monkeypatch):
+    original = M.collect_align
+    called = []
+    monkeypatch.setattr(M, "collect_align", lambda g: called.append(g))
+    with pytest.raises(SystemExit):
+        M.main(["align", "hou_cle_2016"])
+    assert called == []
+    import tools.p8_rebaseline as RB
+    monkeypatch.setattr(RB, "read_json", lambda p: (_ for _ in ()).throw(AssertionError("a file was read")))
+    with pytest.raises(SystemExit):
+        original("hou_cle_2016")
+
+
+def test_stage_a_constants_match_section_14():
+    assert (M.ALIGN_SEGMENTS, M.ALIGN_MIN_ELIGIBLE, M.ALIGN_MIN_BOXES) == (15, 10, 4)
+    assert (M.ALIGN_MARGIN, M.ALIGN_LEVEL, M.PAIR_FLOOR, M.LEVEL_PAIR, M.STOP_SHARE) == (0.05, 0.75, 0.1, 0.3, 0.25)

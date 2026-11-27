@@ -1,9 +1,17 @@
 """tools/p8_posefoot.py: a per-box foot from pose keypoints (docs/research/P8_posefoot.md, version 1.1). Report only.
 
-Stage 0a only in this version (no download, no decode, stored files):
+Stages 0a and A in this version (no download):
 
     <frozen CV python> -m tools.p8_posefoot stage0a GAME   inside the lock ("p8 posefoot 0a GAME"), V3_P8_ROOT = work_ref
     python3 -m tools.p8_posefoot report0a                   -> reports/research/p8_posefoot_0a.json
+    <frozen CV python> -m tools.p8_posefoot align GAME      inside the lock ("p8 posefoot align GAME")
+    python3 -m tools.p8_posefoot report_align               -> reports/research/p8_posefoot_align.json
+
+align (section 14): per window, 15 sidecar frames ranked by the sidecar's own box motion; the clip read in
+tools/p8_a3run.py's order; r23's detector at f only (CPU, player class, confidence 0.40, NMS 0.45), matched one to one
+(Hungarian on IoU) to the sidecar at f - stride, f and f + stride; M_k the mean IoU over sidecar boxes (unmatched and
+pairs below 0.1 count 0), L_0 the median matched IoU at f of pairs at 0.3 or more; misaligned if M_+-1 >= M_0 + 0.05 or
+L_0 < 0.75, ties aligned; undetermined with fewer than 10 eligible frames or an unreadable frame.
 
 stage0a: D207's boxes recomputed with tools.p8_piibox's functions (every P-ii box and every classified hit box), gated
 per window on D207's ordered (kind, class, height) rows and on D202's counts; on each box, the distance to its player
@@ -41,6 +49,13 @@ MED_BAR_FT = -0.5                         # rule 2
 HIT_MED_FT, HIT_LOST = 0.10, 0.05         # rule 4
 EST_BAR = -0.010                          # rule 5
 RECORD_0A = REPO / "reports" / "research" / "p8_posefoot_0a.json"
+RECORD_ALIGN = REPO / "reports" / "research" / "p8_posefoot_align.json"
+# stage A (section 14)
+ALIGN_SEGMENTS, ALIGN_MIN_ELIGIBLE, ALIGN_MIN_BOXES = 15, 10, 4
+ALIGN_MARGIN, ALIGN_LEVEL = 0.05, 0.75
+PAIR_FLOOR, LEVEL_PAIR = 0.1, 0.3
+STOP_SHARE = 0.25
+ALIGN_CAP_S = 60 * 60
 D207_RUN_FILES = {CHA: "gsw_cha_2016.json", BKN: "gsw_bkn_2015.json"}
 
 
@@ -114,6 +129,97 @@ def readings_0a(rules: dict) -> dict:
                for v in rules.values())
     hybrid_only = any(not v["rule4_hits"] for v in rules.values())
     return {"c_stabiliser_finding": stab, "d_pose_reads_hybrid_only": hybrid_only}
+
+
+# ── pure: stage A ──────────────────────────────────────────────────────────────────────────────────────────────────
+def box_iou(a, b) -> float:
+    x1, y1, x2, y2 = max(a[0], b[0]), max(a[1], b[1]), min(a[2], b[2]), min(a[3], b[3])
+    inter = max(0.0, x2 - x1) * max(0.0, y2 - y1)
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union > 0 else 0.0
+
+
+def motion(row_prev: dict, row_next: dict) -> float | None:
+    """Median, over tids present in both rows, of the box centre's displacement in px."""
+    cen = lambda b: ((b["bbox"][0] + b["bbox"][2]) / 2.0, (b["bbox"][1] + b["bbox"][3]) / 2.0)
+    a = {b["tid"]: cen(b) for b in row_prev["boxes"]}
+    d = [float(np.hypot(c[0] - a[t][0], c[1] - a[t][1])) for t, c in ((b["tid"], cen(b)) for b in row_next["boxes"])
+         if t in a]
+    return float(np.median(d)) if d else None
+
+
+def pick_frames(side: dict) -> tuple:
+    """Section 14's frames: eligible frames (both neighbours present, at least 4 boxes at f), cut into 15 equal time
+    segments, the frame of largest motion in each (ties: earlier). -> (picked frames, eligible count)."""
+    stride = int(side.get("stride") or 1)
+    srow = {int(r["frame"]): r for r in side["frames"]}
+    elig = []
+    for f in sorted(srow):
+        if f - stride in srow and f + stride in srow and len(srow[f]["boxes"]) >= ALIGN_MIN_BOXES:
+            m = motion(srow[f - stride], srow[f + stride])
+            elig.append((f, -1.0 if m is None else m))
+    if len(elig) < ALIGN_MIN_ELIGIBLE:
+        return [], len(elig)
+    picks = []
+    for seg in np.array_split(np.arange(len(elig)), ALIGN_SEGMENTS):
+        if len(seg):
+            best = max(seg, key=lambda i: (elig[i][1], -elig[i][0]))
+            picks.append(elig[int(best)][0])
+    return picks, len(elig)
+
+
+def frame_ious(side_boxes: list, pred: list) -> list:
+    """Per sidecar box, the IoU of its Hungarian pair with a prediction (0 if unmatched or below PAIR_FLOOR)."""
+    if not side_boxes:
+        return []
+    if not pred:
+        return [0.0] * len(side_boxes)
+    from scipy.optimize import linear_sum_assignment
+    M = np.array([[box_iou(a, b) for b in pred] for a in side_boxes])
+    ri, ci = linear_sum_assignment(-M)
+    out = [0.0] * len(side_boxes)
+    for i, j in zip(ri, ci):
+        if M[i, j] >= PAIR_FLOOR:
+            out[int(i)] = float(M[i, j])
+    return out
+
+
+def align_stats(per_frame: list) -> dict:
+    """per_frame: [{"-1": ious, "0": ious, "+1": ious}] -> M_k pooled over frames and L_0."""
+    M = {}
+    for k in ("-1", "0", "+1"):
+        v = [x for fr in per_frame for x in fr[k]]
+        M[k] = float(np.mean(v)) if v else None
+    lv = [x for fr in per_frame for x in fr["0"] if x >= LEVEL_PAIR]
+    return {"M": M, "L0": float(np.median(lv)) if lv else None}
+
+
+def align_verdict(st: dict) -> str:
+    M, L0 = st["M"], st["L0"]
+    if M["0"] is None or L0 is None:
+        return "undetermined"
+    for k in ("-1", "+1"):
+        if M[k] is not None and M[k] >= M["0"] + ALIGN_MARGIN:
+            return "misaligned"
+    if L0 < ALIGN_LEVEL:
+        return "misaligned"
+    return "aligned"
+
+
+def game_alignment(verdicts: dict) -> dict:
+    n = len(verdicts)
+    c = {v: sum(x == v for x in verdicts.values()) for v in ("aligned", "misaligned", "undetermined")}
+    bad = (c["misaligned"] + c["undetermined"]) / n if n else None
+    return {"windows": n, **c, "share_not_aligned": bad, "stop": bool(bad is not None and bad > STOP_SHARE)}
+
+
+def cross_table(verdicts: dict, a3: dict) -> dict:
+    """Against a3align's 'misaligned' on the windows both cover (report only)."""
+    out = {}
+    for w in sorted(set(verdicts) & set(a3)):
+        key = f"{verdicts[w]}|a3align_{'misaligned' if a3[w] else 'aligned'}"
+        out[key] = out.get(key, 0) + 1
+    return out
 
 
 # ── data (frozen CV python, under the lock) ────────────────────────────────────────────────────────────────────────
@@ -321,6 +427,178 @@ def collect0a(game: str) -> dict:
     return out
 
 
+def read_and_predict(clip: Path, frames: list, stride: int, need: set, predict) -> dict:
+    """tools/p8_a3run.py's read order, as P8_recallcause.md 8.2 copies it (branch r-p8-recallcause, read_window): the
+    pre-gate pass, then frame 0 and every stride frame to the first processed frame, then the processed frames with gaps
+    filled, no seek inside the window; predict(img) only on frames in need. -> {frame: prediction}; an unreadable
+    frame raises ValueError."""
+    import cv2
+    import config
+    from videoseq import SEEK_MIN_GAP, SeqReader
+    cap = cv2.VideoCapture(str(clip))
+    try:
+        fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        reader = SeqReader(cap)
+        pg_stride, _ = config.pregate_params(fps)
+        for i in range(0, total, pg_stride):
+            ok, _ = reader.read(i)
+            if not ok:
+                break
+        out, prev = {}, None
+        if frames and frames[0] > 0:
+            ok, _ = reader.read(0)
+            if not ok:
+                raise ValueError("frame 0 unreadable")
+            for i in range(stride, frames[0], stride):
+                ok, img = reader.read(i)
+                if not ok:
+                    raise ValueError(f"start frame {i} unreadable")
+                if i in need:
+                    out[i] = predict(img)
+        for f in frames:
+            if prev is not None and f - reader.next > SEEK_MIN_GAP:
+                for i in range(prev + stride, f, stride):
+                    ok, img = reader.read(i)
+                    if not ok:
+                        raise ValueError(f"gap frame {i} unreadable")
+                    if i in need:
+                        out[i] = predict(img)
+            prev = f
+            ok, img = reader.read(f)
+            if not ok:
+                raise ValueError(f"frame {f} unreadable")
+            if f in need:
+                out[f] = predict(img)
+        return out
+    finally:
+        cap.release()
+
+
+def collect_align(game: str) -> dict:
+    refuse_game(game)
+    import hashlib
+    import config
+    from tools import p8_frozen as F
+    from tools import p8_piibox as PB
+    from tools import p8_rebaseline as RB
+    from tools.p8_a3run import CONF, NMS_IOU, R23_SHA
+    from tools.p8_common import main_checkout
+    if os.environ.get("V3_HEAVY_HELD") is None:
+        raise SystemExit(f"{WHO}: run inside the heavy-job lock")
+    r = RB.roots()
+    if Path(os.environ.get("V3_P8_ROOT", "")).expanduser().resolve() != r["ref"].resolve():
+        raise SystemExit(f"{WHO}: V3_P8_ROOT must be the reference root")
+    head = PB.git_head()
+    if not head["tools_and_sportvu_clean"]:
+        raise SystemExit(f"{WHO}: tools/ or sportvu/ has uncommitted changes")
+    g = F.game_of(game)
+    tags = [game, g["sportvu"], g["video_id"]]
+    refuse_cv_test(tags, WHO)
+    guard(tags, WHO)
+    weights = (main_checkout() / "models" / "player_detector.pt").resolve()
+    sha = hashlib.sha256(weights.read_bytes()).hexdigest()
+    if sha != R23_SHA:
+        raise SystemExit(f"{WHO}: weights sha256 {sha} is not r23's")
+    config.PLAYER_DETECTOR_WEIGHTS = weights
+    score = RB.read_json(r["ref"] / "rebaseline" / f"score__{game}__current.json")
+    watched = {k: RB.manifest(r[k], ("labels", "builds", "cache")) for k in ("ref", "ms")}
+    t0 = time.time()
+    P = F.install_paths()
+    comp = P["builds"] / "r23"
+    wins = sorted((w for w in F.label_windows(P, game) if (comp / f"{w['window']}_frames.json").exists()),
+                  key=lambda w: w["window"])
+    stems = [w["window"] for w in wins]
+    refuse_cv_test(stems, WHO)
+    guard(stems, WHO)
+    if sorted(score["windows"]) != stems:
+        raise SystemExit(f"{WHO}: {game}: the windows differ from D202's score record")
+    from ultralytics import YOLO
+    det = YOLO(str(weights))
+
+    def predict(img):
+        res = det.predict(img, classes=[config.PLAYER_CLASS_ID], conf=CONF, iou=NMS_IOU, device="cpu", verbose=False)[0]
+        return [[float(v) for v in b] for b in res.boxes.xyxy.cpu().numpy()]
+
+    out_w = {}
+    for w in wins:
+        s = w["window"]
+        if time.time() - t0 > ALIGN_CAP_S:
+            raise SystemExit(f"{WHO}: the 60-minute cap was reached; nothing is reported")
+        side_p = comp / f"{s}_frames.json"
+        if RB.sha256(side_p) != score["hashes"][s]["sidecar"]:
+            raise SystemExit(f"{WHO}: {s} sidecar differs from D202's record")
+        side = json.loads(side_p.read_text())
+        stride = int(side.get("stride") or 1)
+        srow = {int(x["frame"]): x for x in side["frames"]}
+        picks, n_elig = pick_frames(side)
+        rec = {"eligible": n_elig, "picks": picks}
+        if not picks:
+            out_w[s] = {**rec, "verdict": "undetermined", "why": "fewer than 10 eligible frames"}
+            continue
+        tw = time.time()
+        try:
+            pred = read_and_predict(P["label_build"] / f"{s}.mp4", sorted(srow), stride, set(picks), predict)
+        except ValueError as e:
+            out_w[s] = {**rec, "verdict": "undetermined", "why": str(e)}
+            continue
+        per = []
+        for f in picks:
+            pf = pred[f]
+            fr = {k: frame_ious([b["bbox"] for b in srow[f + o * stride]["boxes"]], pf)
+                  for k, o in (("-1", -1), ("0", 0), ("+1", 1))}
+            fr["frame"] = f
+            fr["unmatched_detections"] = max(0, len(pf) - sum(x > 0 for x in fr["0"]))
+            fr["unmatched_sidecar_at_f"] = sum(x == 0 for x in fr["0"])
+            per.append(fr)
+        st = align_stats(per)
+        out_w[s] = {**rec, **st, "verdict": align_verdict(st), "per_frame": per,
+                    "seconds": round(time.time() - tw, 1)}
+    after = {k: RB.manifest(r[k], ("labels", "builds", "cache")) for k in ("ref", "ms")}
+    import cv2
+    import torch
+    import ultralytics
+    out = {"game": game, "design": "docs/research/P8_posefoot.md section 14 (stage A)", "git": head,
+           "weights_sha256": sha, "versions": {"opencv": cv2.__version__, "torch": torch.__version__,
+                                              "ultralytics": ultralytics.__version__},
+           "windows": out_w, "summary": game_alignment({k: v["verdict"] for k, v in out_w.items()}),
+           "manifest_unchanged": after == watched, "seconds": round(time.time() - t0, 1)}
+    dd = r["ref"] / "posefoot" / "alignment"
+    dd.mkdir(parents=True, exist_ok=True)
+    atomic_write(dd / f"{game}.json", json.dumps(out))
+    print(json.dumps({k: out[k] for k in ("game", "summary", "manifest_unchanged", "seconds")}))
+    if after != watched:
+        raise SystemExit(f"{WHO}: protected files changed")
+    return out
+
+
+def report_align() -> dict:
+    from tools import p8_rebaseline as RB
+    from tools.p8_placecause import clean
+    from export.schemas import find_private
+    r = RB.roots()
+    recs = {g: RB.read_json(r["ref"] / "posefoot" / "alignment" / f"{g}.json") for g in POOL}
+    a3 = RB.read_json(REPO / "reports" / "research" / "p8_a3align.json")["games"]
+    out = {"what": "docs/research/P8_posefoot.md section 14, stage A: decode alignment of the pool windows; report only",
+           "git": {g: recs[g]["git"] for g in POOL}, "seconds": {g: recs[g]["seconds"] for g in POOL},
+           "versions": {g: recs[g]["versions"] for g in POOL}, "per_game": {}}
+    for g in POOL:
+        v = {w: x["verdict"] for w, x in recs[g]["windows"].items()}
+        a3g = {w: x["misaligned"] for w, x in a3.get(g, {}).get("windows", {}).items()}
+        out["per_game"][g] = {"summary": game_alignment(v), "cross_table_a3align": cross_table(v, a3g),
+                              "not_aligned": sorted(w for w, x in v.items() if x != "aligned"),
+                              "M_and_L0": {w: {"M": x.get("M"), "L0": x.get("L0")} for w, x in recs[g]["windows"].items()},
+                              "manifest_unchanged": recs[g]["manifest_unchanged"]}
+    out["stop"] = any(out["per_game"][g]["summary"]["stop"] for g in POOL)
+    out = clean(out)
+    text = json.dumps(out, indent=1)
+    if find_private(text):
+        raise SystemExit(f"{WHO}: the record holds private data")
+    atomic_write(RECORD_ALIGN, text)
+    print(json.dumps({g: out["per_game"][g]["summary"] for g in POOL} | {"stop": out["stop"]}, indent=1))
+    return out
+
+
 # ── report (system python) ─────────────────────────────────────────────────────────────────────────────────────────
 def unit_rows(per_game: dict, gs: list, cand: str = "raw", hit_all: dict | None = None) -> dict:
     """The rows of section 11.3 for a unit (one game or both), with window intervals."""
@@ -408,12 +686,17 @@ def main(argv=None) -> None:
     c = sub.add_parser("stage0a")
     c.add_argument("game")
     sub.add_parser("report0a")
+    c2 = sub.add_parser("align")
+    c2.add_argument("game")
+    sub.add_parser("report_align")
     a = ap.parse_args(argv)
-    if a.cmd == "stage0a":
+    if a.cmd in ("stage0a", "align"):
         refuse_game(a.game)
-        collect0a(a.game)
-    else:
+        (collect0a if a.cmd == "stage0a" else collect_align)(a.game)
+    elif a.cmd == "report0a":
         report0a()
+    else:
+        report_align()
 
 
 if __name__ == "__main__":
