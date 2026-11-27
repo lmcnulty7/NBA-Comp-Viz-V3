@@ -162,6 +162,8 @@ def test_motion_and_pick_frames():
     s = side_of(32)
     s["frames"][7]["boxes"] = s["frames"][7]["boxes"][:3]      # fewer than 4 boxes: not eligible
     assert M.pick_frames(s)[1] == 29
+    s["frames"][7]["boxes"] = []                                # v1.3: frames 6 and 8 lose a neighbour with boxes
+    assert M.pick_frames(s)[1] == 27
     fast = side_of(32, speed=lambda f: 9.0 if f == 6 * 5 else 1.0)
     assert 6 * 4 in M.pick_frames(fast)[0] or 6 * 6 in M.pick_frames(fast)[0]   # neighbours of the fast frame move most
 
@@ -183,7 +185,10 @@ def test_align_rule():
     assert M.align_verdict(st(0.90, 0.85, 0.80, 0.90)) == "misaligned"     # a neighbour beats f by 0.05
     assert M.align_verdict(st(0.899, 0.85, 0.80, 0.90)) == "aligned"
     assert M.align_verdict(st(0.85, 0.85, 0.85, 0.90)) == "aligned"         # ties read aligned
-    assert M.align_verdict(st(0.70, 0.85, 0.70, 0.74)) == "misaligned"     # level under 0.75
+    assert M.align_verdict(st(0.70, 0.85, 0.70, 0.84)) == "misaligned"     # v1.3: level under 0.85
+    assert M.align_verdict(st(0.70, 0.85, 0.70, 0.85)) == "aligned"
+    assert M.align_verdict(st(0.70, 0.81, 0.70, 0.90)) == "misaligned"     # v1.3: M_0 under 0.82
+    assert M.align_verdict(st(0.70, 0.82, 0.70, 0.90)) == "aligned"
     assert M.align_verdict(st(None, None, None, None)) == "undetermined"
     s = M.align_stats([{"-1": [0.5, 0.0], "0": [0.9, 0.2], "+1": [0.6, 0.6]}, {"-1": [0.5], "0": [0.8], "+1": [0.4]}])
     assert s["M"]["0"] == pytest.approx((0.9 + 0.2 + 0.8) / 3) and s["L0"] == pytest.approx(0.85)
@@ -201,43 +206,89 @@ def test_game_stop_bar_and_cross_table():
 
 
 class FakeCap:
-    def __init__(self, path, fps=59.94, n=200):
-        self.fps, self.n = fps, n
+    """A capture whose frames carry their own index; set() is a seek and is logged."""
+    def __init__(self, path=None, api=None, n=1200, fps=59.94, opened=True):
+        self.n, self.fps, self.pos, self.sets, self.opened = n, fps, 0, [], opened
+    def isOpened(self):
+        return self.opened
     def get(self, prop):
         import cv2
         return {cv2.CAP_PROP_FPS: self.fps, cv2.CAP_PROP_FRAME_COUNT: self.n}.get(prop, 0)
+    def set(self, prop, v):
+        self.sets.append(int(v)); self.pos = int(v)
+    def grab(self):
+        if self.pos >= self.n:
+            return False
+        self.pos += 1
+        return True
+    def read(self):
+        if self.pos >= self.n:
+            return False, None
+        f = np.full((2, 2, 3), self.pos % 256, np.uint8); f[0, 1, 0] = self.pos // 256
+        self.pos += 1
+        return True, f
+    def getBackendName(self):
+        return "FAKE"
     def release(self):
         pass
 
 
-class FakeReader:
-    log = []
-    bad = set()
-    def __init__(self, cap):
-        self.next = 0
-        FakeReader.log = []
-    def read(self, i):
-        FakeReader.log.append(i)
-        self.next = i + 1
-        return (i not in FakeReader.bad), np.full((2, 2, 3), i, np.uint8)
+def idx_of(img):
+    return int(img[0, 0, 0]) + 256 * int(img[0, 1, 0])
 
 
-def test_read_order_is_a3runs(monkeypatch):
+def test_pregate_intervals_are_the_builds():
+    from videoseq import SeqReader
+    cap = FakeCap(n=600)
+    live = {60, 90, 300}
+    iv = M.pregate_intervals(SeqReader(cap), 600, 30, 90, lambda img: idx_of(img) in live)
+    assert iv == [[-30, 180], [210, 390]]                     # 60 and 90 merge; 300 apart
+    assert cap.sets == []                                     # 30-frame steps never seek
+
+
+def test_main_reads_jump_and_seek_like_the_build():
+    from videoseq import SeqReader
+    cap = FakeCap(n=1200)
+    reader = M.SeekCount(SeqReader(cap))
+    M.pregate_intervals(reader, 1200, 30, 90, lambda img: False)          # the decoder ends at the clip's end
+    seeks_pre = len(reader.seeks)
+    accepted = set(range(0, 97, 6)) | set(range(702, 900, 6))
+    got = {}
+    preds, reads = M.main_reads(reader, 1200, [[0, 100], [700, 900]], 6, accepted, 10_000, {48, 706},
+                                lambda img: got.setdefault(idx_of(img), True))
+    assert reads[0] == 0 and 102 not in reads and reads[reads.index(96) + 1] == 700     # jump to the interval start
+    assert reader.seeks[seeks_pre:] == [0, 700]               # back to 0 after the pre-gate pass, then the long jump
+    assert cap.sets[-2:] == [0, 700]
+    assert 48 in preds and 706 in preds and got == {48: True, 706: True}   # the decoded frame is the frame asked for
+    preds, reads = M.main_reads(M.SeekCount(SeqReader(FakeCap(n=1200))), 1200, [[0, 100], [700, 900]], 6, accepted,
+                                5, set(), lambda img: None)
+    assert reads == [0, 6, 12, 18, 24]                        # stops at max_frames accepted frames
+
+
+def test_open_like_build_tries_ffmpeg_first(monkeypatch):
+    import cv2
+    calls = []
+
+    def fake(path, *api):
+        calls.append(api)
+        return FakeCap(opened=bool(not api))                  # the FFMPEG open fails, the default one works
+    monkeypatch.setattr(cv2, "VideoCapture", fake)
+    cap = M.open_like_build("clip.mp4")
+    assert calls == [(cv2.CAP_FFMPEG,), ()] and cap.isOpened()
+
+
+def test_build_read_validates_the_sidecar_frames(monkeypatch):
     import cv2
     import config
-    import videoseq
-    monkeypatch.setattr(cv2, "VideoCapture", FakeCap)
-    monkeypatch.setattr(videoseq, "SeqReader", FakeReader)
-    FakeReader.bad = set()
-    pg, _ = config.pregate_params(59.94)
-    seen = []
-    out = M.read_and_predict("clip.mp4", [24, 30, 36], 6, {30}, lambda img: seen.append(int(img[0, 0, 0])) or "p")
-    assert FakeReader.log[:len(range(0, 200, pg))] == list(range(0, 200, pg))          # the pre-gate pass first
-    assert FakeReader.log[len(range(0, 200, pg)):] == [0, 6, 12, 18, 24, 30, 36]       # then sequential to the frames
-    assert out == {30: "p"} and seen == [30 % 256]
-    FakeReader.bad = {30}
-    with pytest.raises(ValueError):
-        M.read_and_predict("clip.mp4", [24, 30, 36], 6, {30}, lambda img: "p")
+    monkeypatch.setattr(cv2, "VideoCapture", lambda path, *api: FakeCap(n=1200))
+    pg, pad = config.pregate_params(59.94)
+    side = {"stride": 6, "frames": [{"frame": f, "boxes": []} for f in range(0, 120, 6)]}
+    out = M.build_read("clip.mp4", side, 10_000, lambda img: idx_of(img) in (0, 30, 60), {12},
+                       lambda img: idx_of(img))
+    assert out["validation"]["passes"] and out["preds"] == {12: 12} and out["backend"] == "FAKE"
+    side["frames"].append({"frame": 600, "boxes": []})       # a frame the replay never reads
+    assert not M.build_read("clip.mp4", side, 10_000, lambda img: idx_of(img) in (0, 30, 60), set(),
+                            lambda img: None)["validation"]["passes"]
 
 
 def test_align_refuses_hou_before_any_read(monkeypatch):
@@ -255,7 +306,9 @@ def test_align_refuses_hou_before_any_read(monkeypatch):
 
 def test_stage_a_constants_match_section_14():
     assert (M.ALIGN_SEGMENTS, M.ALIGN_MIN_ELIGIBLE, M.ALIGN_MIN_BOXES) == (15, 10, 4)
-    assert (M.ALIGN_MARGIN, M.ALIGN_LEVEL, M.PAIR_FLOOR, M.LEVEL_PAIR, M.STOP_SHARE) == (0.05, 0.75, 0.1, 0.3, 0.25)
+    assert (M.ALIGN_MARGIN, M.ALIGN_LEVEL, M.ALIGN_M0, M.PAIR_FLOOR, M.LEVEL_PAIR, M.STOP_SHARE) == \
+        (0.05, 0.85, 0.82, 0.1, 0.3, 0.25)
+    assert len(M.SMOKE_WINDOWS) == 6
 
 
 def test_offset_sizes(tmp_path):

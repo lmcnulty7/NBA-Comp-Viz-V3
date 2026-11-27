@@ -7,11 +7,12 @@ Stages 0a and A in this version (no download):
     <frozen CV python> -m tools.p8_posefoot align GAME      inside the lock ("p8 posefoot align GAME")
     python3 -m tools.p8_posefoot report_align               -> reports/research/p8_posefoot_align.json
 
-align (section 14): per window, 15 sidecar frames ranked by the sidecar's own box motion; the clip read in
-tools/p8_a3run.py's order; r23's detector at f only (CPU, player class, confidence 0.40, NMS 0.45), matched one to one
+align (section 14 with 14.2, v1.3): per window, 15 sidecar frames ranked by the sidecar's own box motion; the clip read
+by the build's own read path (CAP_FFMPEG first, the pre-gate pass with the build's gate v2 on the build's gate device,
+its intervals, the tracking loop's jumps through one SeqReader); r23's detector at f only (CPU, player class, confidence 0.40, NMS 0.45), matched one to one
 (Hungarian on IoU) to the sidecar at f - stride, f and f + stride; M_k the mean IoU over sidecar boxes (unmatched and
-pairs below 0.1 count 0), L_0 the median matched IoU at f of pairs at 0.3 or more; misaligned if M_+-1 >= M_0 + 0.05 or
-L_0 < 0.75, ties aligned; undetermined with fewer than 10 eligible frames or an unreadable frame.
+pairs below 0.1 count 0), L_0 the median matched IoU at f of pairs at 0.3 or more; misaligned if M_0 < 0.82, L_0 < 0.85
+or M_+-1 >= M_0 + 0.05, ties aligned; undetermined with fewer than 10 eligible frames or a read path not reproduced.
 
 stage0a: D207's boxes recomputed with tools.p8_piibox's functions (every P-ii box and every classified hit box), gated
 per window on D207's ordered (kind, class, height) rows and on D202's counts; on each box, the distance to its player
@@ -52,7 +53,8 @@ RECORD_0A = REPO / "reports" / "research" / "p8_posefoot_0a.json"
 RECORD_ALIGN = REPO / "reports" / "research" / "p8_posefoot_align.json"
 # stage A (section 14)
 ALIGN_SEGMENTS, ALIGN_MIN_ELIGIBLE, ALIGN_MIN_BOXES = 15, 10, 4
-ALIGN_MARGIN, ALIGN_LEVEL = 0.05, 0.75
+ALIGN_MARGIN, ALIGN_LEVEL = 0.05, 0.85     # v1.3: L_0 under 0.85 reads misaligned
+ALIGN_M0 = 0.82                            # v1.3: M_0 under 0.82 reads misaligned
 PAIR_FLOOR, LEVEL_PAIR = 0.1, 0.3
 STOP_SHARE = 0.25
 ALIGN_CAP_S = 60 * 60
@@ -155,7 +157,8 @@ def pick_frames(side: dict) -> tuple:
     srow = {int(r["frame"]): r for r in side["frames"]}
     elig = []
     for f in sorted(srow):
-        if f - stride in srow and f + stride in srow and len(srow[f]["boxes"]) >= ALIGN_MIN_BOXES:
+        if f - stride in srow and f + stride in srow and len(srow[f]["boxes"]) >= ALIGN_MIN_BOXES and \
+                srow[f - stride]["boxes"] and srow[f + stride]["boxes"]:             # v1.3: boxes at both neighbours
             m = motion(srow[f - stride], srow[f + stride])
             elig.append((f, -1.0 if m is None else m))
     if len(elig) < ALIGN_MIN_ELIGIBLE:
@@ -201,7 +204,7 @@ def align_verdict(st: dict) -> str:
     for k in ("-1", "+1"):
         if M[k] is not None and M[k] >= M["0"] + ALIGN_MARGIN:
             return "misaligned"
-    if L0 < ALIGN_LEVEL:
+    if L0 < ALIGN_LEVEL or M["0"] < ALIGN_M0:
         return "misaligned"
     return "aligned"
 
@@ -427,55 +430,111 @@ def collect0a(game: str) -> dict:
     return out
 
 
-def read_and_predict(clip: Path, frames: list, stride: int, need: set, predict) -> dict:
-    """tools/p8_a3run.py's read order, as P8_recallcause.md 8.2 copies it (branch r-p8-recallcause, read_window): the
-    pre-gate pass, then frame 0 and every stride frame to the first processed frame, then the processed frames with gaps
-    filled, no seek inside the window; predict(img) only on frames in need. -> {frame: prediction}; an unreadable
-    frame raises ValueError."""
+class SeekCount:
+    """videoseq.SeqReader's seek rule, counted: a read seeks when the index is behind the decoder or more than
+    SEEK_MIN_GAP ahead (videoseq.py)."""
+    def __init__(self, reader):
+        from videoseq import SEEK_MIN_GAP
+        self.reader, self.gap, self.seeks = reader, SEEK_MIN_GAP, []
+
+    def read(self, idx: int):
+        if idx < self.reader.next or idx - self.reader.next > self.gap:
+            self.seeks.append(int(idx))
+        return self.reader.read(idx)
+
+
+def pregate_intervals(reader, total: int, pg_stride: int, pg_pad: int, is_live, start: int = 0) -> list:
+    """build_trajectories.py's pre-gate pass and interval merge, copied (lines 180-197): every pg_stride frame from
+    start through reader.read, a live hit when is_live(frame), each hit padded by pg_pad and merged."""
+    hits, i = [], start
+    while i < total:
+        ret, frame = reader.read(i)
+        if not ret:
+            break
+        if is_live(frame):
+            hits.append(i)
+        i += pg_stride
+    intervals = []
+    for h in hits:
+        a, b = h - pg_pad, h + pg_pad
+        if intervals and a <= intervals[-1][1]:
+            intervals[-1][1] = b
+        else:
+            intervals.append([a, b])
+    return intervals
+
+
+def main_reads(reader, total: int, intervals: list, stride: int, accepted: set, max_frames: int, need: set, predict,
+               start: int = 0) -> tuple:
+    """build_trajectories.py's tracking loop read path, copied (lines 210-224 and the idx steps): jump to each
+    interval's start, read with the same reader, step by stride; a frame counts towards max_frames when the build
+    accepted it (it has a sidecar row), which stands in for the gate's per-frame decision. predict(img) on frames in
+    need. -> ({frame: prediction}, [frames read])."""
+    idx, n, seg_i, out, reads = start, 0, 0, {}, []
+    while idx < total and n < max_frames:
+        if intervals is not None:
+            while seg_i < len(intervals) and idx > intervals[seg_i][1]:
+                seg_i += 1
+            if seg_i >= len(intervals):
+                break
+            if idx < intervals[seg_i][0]:
+                idx = intervals[seg_i][0]
+        ret, frame = reader.read(idx)
+        if not ret:
+            break
+        reads.append(int(idx))
+        if idx in need:
+            out[idx] = predict(frame)
+        if idx in accepted:
+            n += 1
+        idx += stride
+    return out, reads
+
+
+def open_like_build(clip):
+    """build_trajectories.py line 172: cv2.CAP_FFMPEG first, then the default backend."""
     import cv2
+    cap = cv2.VideoCapture(str(clip), cv2.CAP_FFMPEG)
+    if not cap.isOpened():
+        cap = cv2.VideoCapture(str(clip))
+    return cap
+
+
+def build_read(clip, side: dict, max_frames: int, is_live, need: set, predict) -> dict:
+    """The build's own read path (v1.3, 14.2): open as the build opens, the pre-gate pass with the build's gate, the
+    intervals, then the tracking loop's reads through one videoseq.SeqReader. Validation: every sidecar frame is read,
+    and the frames the loop counts as accepted equal the sidecar's. -> preds, reads, seeks, backend, validation."""
     import config
-    from videoseq import SEEK_MIN_GAP, SeqReader
-    cap = cv2.VideoCapture(str(clip))
+    from videoseq import SeqReader
+    cap = open_like_build(clip)
     try:
+        import cv2
+        backend = cap.getBackendName() if hasattr(cap, "getBackendName") else None
         fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
         total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        reader = SeqReader(cap)
-        pg_stride, _ = config.pregate_params(fps)
-        for i in range(0, total, pg_stride):
-            ok, _ = reader.read(i)
-            if not ok:
-                break
-        out, prev = {}, None
-        if frames and frames[0] > 0:
-            ok, _ = reader.read(0)
-            if not ok:
-                raise ValueError("frame 0 unreadable")
-            for i in range(stride, frames[0], stride):
-                ok, img = reader.read(i)
-                if not ok:
-                    raise ValueError(f"start frame {i} unreadable")
-                if i in need:
-                    out[i] = predict(img)
-        for f in frames:
-            if prev is not None and f - reader.next > SEEK_MIN_GAP:
-                for i in range(prev + stride, f, stride):
-                    ok, img = reader.read(i)
-                    if not ok:
-                        raise ValueError(f"gap frame {i} unreadable")
-                    if i in need:
-                        out[i] = predict(img)
-            prev = f
-            ok, img = reader.read(f)
-            if not ok:
-                raise ValueError(f"frame {f} unreadable")
-            if f in need:
-                out[f] = predict(img)
-        return out
+        reader = SeekCount(SeqReader(cap))
+        pg_stride, pg_pad = config.pregate_params(fps)
+        intervals = pregate_intervals(reader, total, pg_stride, pg_pad, is_live)
+        pre_seeks = list(reader.seeks)
+        stride = int(side.get("stride") or 1)
+        accepted = {int(r["frame"]) for r in side["frames"]}
+        preds, reads = main_reads(reader, total, intervals, stride, accepted, max_frames, need, predict)
+        rs = set(reads)
+        valid = accepted <= rs and len(rs & accepted) == len(accepted)
+        return {"preds": preds, "n_reads": len(reads), "intervals": intervals, "backend": backend,
+                "seeks_pregate": pre_seeks, "seeks_main": reader.seeks[len(pre_seeks):],
+                "validation": {"sidecar_frames_read": len(rs & accepted), "sidecar_frames": len(accepted),
+                               "passes": bool(valid)}}
     finally:
         cap.release()
 
 
-def collect_align(game: str) -> dict:
+SMOKE_WINDOWS = ("gsw_bkn_2015_s04_w00", "gsw_cha_2016_s05_w00", "gsw_cha_2016_s05_w03",     # good (a3run reproduced)
+                 "gsw_bkn_2015_s07_w00", "gsw_cha_2016_s07_w00",                              # bad under the old read
+                 "gsw_bkn_2015_s00_w07")       # first frame 54, no gap over 300 frames (the first such window by name)
+
+
+def collect_align(game: str, only: tuple | None = None) -> dict:
     refuse_game(game)
     import hashlib
     import config
@@ -515,6 +574,17 @@ def collect_align(game: str) -> dict:
         raise SystemExit(f"{WHO}: {game}: the windows differ from D202's score record")
     from ultralytics import YOLO
     det = YOLO(str(weights))
+    from gate.backbones import get_backbone
+    from gate.trained_head import TrainedHeadGate
+    from sportvu.rebuild import build_stride
+    mc = main_checkout() / "models"
+    head_p, thr = mc / config.HEAD_V2_PATH.name, json.loads((mc / config.THRESHOLDS_PATH.name).read_text())["v2"]
+    gates = {}
+
+    def gate_for(dev: str):
+        if dev not in gates:
+            gates[dev] = TrainedHeadGate.load(head_p, backbone=get_backbone("clip", dev), threshold=thr)
+        return gates[dev]
 
     def predict(img):
         res = det.predict(img, classes=[config.PLAYER_CLASS_ID], conf=CONF, iou=NMS_IOU, device="cpu", verbose=False)[0]
@@ -523,6 +593,8 @@ def collect_align(game: str) -> dict:
     out_w = {}
     for w in wins:
         s = w["window"]
+        if only is not None and s not in only:
+            continue
         if time.time() - t0 > ALIGN_CAP_S:
             raise SystemExit(f"{WHO}: the 60-minute cap was reached; nothing is reported")
         side_p = comp / f"{s}_frames.json"
@@ -537,11 +609,20 @@ def collect_align(game: str) -> dict:
             out_w[s] = {**rec, "verdict": "undetermined", "why": "fewer than 10 eligible frames"}
             continue
         tw = time.time()
-        try:
-            pred = read_and_predict(P["label_build"] / f"{s}.mp4", sorted(srow), stride, set(picks), predict)
-        except ValueError as e:
-            out_w[s] = {**rec, "verdict": "undetermined", "why": str(e)}
+        dev_rec = RB.read_json(comp / f"{s}_device.json") if (comp / f"{s}_device.json").exists() else {}
+        gdev = (dev_rec.get("resolved") or {}).get("gate") or "cpu"
+        max_frames = (w["f_end"] - w["f_start"]) // build_stride(w["fps"]) + 2
+        if build_stride(w["fps"]) != stride:
+            raise SystemExit(f"{WHO}: {s}: the sidecar stride is not the build's")
+        br = build_read(P["label_build"] / f"{s}.mp4", side, max_frames, gate_for(gdev).is_court_visible, set(picks),
+                        predict)
+        rec.update({"gate_device": gdev, "backend": br["backend"], "n_reads": br["n_reads"],
+                    "intervals": br["intervals"], "seeks_pregate": len(br["seeks_pregate"]),
+                    "seeks_main": br["seeks_main"], "read_validation": br["validation"]})
+        if not br["validation"]["passes"] or set(picks) - set(br["preds"]):
+            out_w[s] = {**rec, "verdict": "undetermined", "why": "the build's read path is not reproduced"}
             continue
+        pred = br["preds"]
         per = []
         for f in picks:
             pf = pred[f]
@@ -563,8 +644,9 @@ def collect_align(game: str) -> dict:
                                               "ultralytics": ultralytics.__version__},
            "windows": out_w, "summary": game_alignment({k: v["verdict"] for k, v in out_w.items()}),
            "manifest_unchanged": after == watched, "seconds": round(time.time() - t0, 1)}
-    dd = r["ref"] / "posefoot" / "alignment"
+    dd = r["ref"] / "posefoot" / ("alignment_smoke" if only is not None else "alignment")
     dd.mkdir(parents=True, exist_ok=True)
+    out["smoke"] = only is not None
     atomic_write(dd / f"{game}.json", json.dumps(out))
     print(json.dumps({k: out[k] for k in ("game", "summary", "manifest_unchanged", "seconds")}))
     if after != watched:
@@ -572,14 +654,16 @@ def collect_align(game: str) -> dict:
     return out
 
 
-def report_align() -> dict:
+def report_align(smoke: bool = False) -> dict:
     from tools import p8_rebaseline as RB
     from tools.p8_placecause import clean
     from export.schemas import find_private
     r = RB.roots()
-    recs = {g: RB.read_json(r["ref"] / "posefoot" / "alignment" / f"{g}.json") for g in POOL}
+    sub = "alignment_smoke" if smoke else "alignment"
+    recs = {g: RB.read_json(r["ref"] / "posefoot" / sub / f"{g}.json") for g in POOL}
     a3 = RB.read_json(REPO / "reports" / "research" / "p8_a3align.json")["games"]
-    out = {"what": "docs/research/P8_posefoot.md section 14, stage A: decode alignment of the pool windows; report only",
+    out = {"what": "docs/research/P8_posefoot.md section 14 with 14.2 (v1.3), stage A: decode alignment of the pool "
+                   "windows" + (" (the six-window smoke)" if smoke else "") + "; report only", "smoke": smoke,
            "git": {g: recs[g]["git"] for g in POOL}, "seconds": {g: recs[g]["seconds"] for g in POOL},
            "versions": {g: recs[g]["versions"] for g in POOL}, "per_game": {}}
     for g in POOL:
@@ -587,14 +671,17 @@ def report_align() -> dict:
         a3g = {w: x["misaligned"] for w, x in a3.get(g, {}).get("windows", {}).items()}
         out["per_game"][g] = {"summary": game_alignment(v), "cross_table_a3align": cross_table(v, a3g),
                               "not_aligned": sorted(w for w, x in v.items() if x != "aligned"),
-                              "M_and_L0": {w: {"M": x.get("M"), "L0": x.get("L0")} for w, x in recs[g]["windows"].items()},
+                              "M_and_L0": {w: {"M": x.get("M"), "L0": x.get("L0"), "verdict": x["verdict"],
+                                               "why": x.get("why"), "read_validation": x.get("read_validation"),
+                                               "seeks_main": x.get("seeks_main"), "backend": x.get("backend")}
+                                           for w, x in recs[g]["windows"].items()},
                               "manifest_unchanged": recs[g]["manifest_unchanged"]}
     out["stop"] = any(out["per_game"][g]["summary"]["stop"] for g in POOL)
     out = clean(out)
     text = json.dumps(out, indent=1)
     if find_private(text):
         raise SystemExit(f"{WHO}: the record holds private data")
-    atomic_write(RECORD_ALIGN, text)
+    atomic_write(RECORD_ALIGN.with_name("p8_posefoot_align_smoke.json") if smoke else RECORD_ALIGN, text)
     print(json.dumps({g: out["per_game"][g]["summary"] for g in POOL} | {"stop": out["stop"]}, indent=1))
     return out
 
@@ -707,15 +794,20 @@ def main(argv=None) -> None:
     sub.add_parser("report0a")
     c2 = sub.add_parser("align")
     c2.add_argument("game")
-    sub.add_parser("report_align")
+    c2.add_argument("--smoke", action="store_true", help="the six smoke windows of 14.2 only")
+    ra = sub.add_parser("report_align")
+    ra.add_argument("--smoke", action="store_true")
     a = ap.parse_args(argv)
-    if a.cmd in ("stage0a", "align"):
+    if a.cmd == "stage0a":
         refuse_game(a.game)
-        (collect0a if a.cmd == "stage0a" else collect_align)(a.game)
+        collect0a(a.game)
+    elif a.cmd == "align":
+        refuse_game(a.game)
+        collect_align(a.game, SMOKE_WINDOWS if a.smoke else None)
     elif a.cmd == "report0a":
         report0a()
     else:
-        report_align()
+        report_align(a.smoke)
 
 
 if __name__ == "__main__":

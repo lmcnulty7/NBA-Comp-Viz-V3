@@ -582,3 +582,56 @@ for that reason and not from the table. The other margins are labelled sensitivi
 Readings (b) and (c) above were reworded per the review. The n per speed bin and the offset-size block were added to
 the stage 0a record by report0a, regenerated from the stored stage 0a files. No row was rescored: every other field of
 the record is identical to 26a7c761's.
+
+### 14.2 Version 1.3 (2026-11-27, after the stage A code check of 062e5e76, GO WITH CHANGES; before any lock)
+
+The code check ran stored a3run detections through 062e5e76's functions, with no lock. It found two problems:
+- The 14 rule passed windows the decode does not reproduce: M_0 0.60 and 0.75, L_0 0.79 and 0.83, on
+  gsw_bkn_2015_s07_w00 and gsw_cha_2016_s07_w00.
+- The cause: stage A filled the build's long jumps sequentially, where the build seeks. build_trajectories.py jumps to
+  each pre-gate interval's start (lines 217 to 224). videoseq.SeqReader seeks when a jump is backwards or longer than
+  300 frames (videoseq.py lines 28 to 35). The build also opens the clip with cv2.CAP_FFMPEG first (line 172).
+
+Self-decided by the lead: fix the decode, not only the detection. Where this differs from section 14, it rules.
+
+**The read path (replaces 11.6's read order).** Stage A reproduces the build's own reads (tools/p8_posefoot.py
+build_read, with pregate_intervals and main_reads copied from build_trajectories.py with credit):
+1. Open with cv2.CAP_FFMPEG, else the default backend. cap.getBackendName() is recorded.
+2. Run the pre-gate pass with the build's gate, at its pg_stride and pg_pad, and merge the intervals. The gate is gate
+   v2, as sportvu.autolabel.gate_args gives the label builds: the main checkout's trained_head_v2 at thresholds.json
+   "v2". It runs on the device the window's build record resolved for its gate (mps on these builds).
+3. Run the tracking loop's reads through one videoseq.SeqReader: jump to each interval's start, step by the stride,
+   and stop at the build's max_frames ((f_end - f_start) // stride + 2). A frame counts towards max_frames when it has
+   a sidecar row, which stands in for the gate's per-frame decision.
+4. Record every seek (pre-gate and main) per window.
+5. **Read validation:** every sidecar frame must be among the replayed reads. If not, the window is undetermined
+   ("the build's read path is not reproduced").
+
+Limit: the gate is rerun now on the same device type. A borderline gate score that differs from the build's would
+move an interval edge. The validation catches a lost sidecar frame, but not an extra read in a dead gap. The detector
+check below is the final arbiter.
+
+**The rule (replaces section 14's thresholds):**
+- A window is **misaligned** when M_0 is under 0.82, or L_0 is under 0.85, or a neighbour beats f by 0.05
+  (M_-1 or M_+1 at least M_0 + 0.05). Otherwise it is aligned, and ties read aligned.
+- An eligible frame now also needs boxes at both neighbours.
+- **Forking path, named:** 0.82 and 0.85 were calibrated on 5 windows labelled good or bad by a3run's reproduction
+  check (P8_a3run.md), not by any stage A output. The 13 and 8 percent dry run of section 14 does not apply to these
+  thresholds.
+
+**What a stop means (registered now).** If more than 0.25 of a game's windows are not aligned (misaligned or
+undetermined), the pose line pauses for a decode fix. It does not run on the aligned subset, and no threshold is
+moved.
+
+**A 6-window smoke under the lock, before the full pass** (align GAME --smoke, then report_align --smoke):
+- gsw_bkn_2015_s04_w00, gsw_cha_2016_s05_w00 and gsw_cha_2016_s05_w03: known good (a3run reproduced them);
+- gsw_bkn_2015_s07_w00 and gsw_cha_2016_s07_w00: known bad under the old read;
+- gsw_bkn_2015_s00_w07: the first window by name whose first processed frame lies between 1 and 300, with no gap over
+  300 frames (first frame 54, 114 frames).
+- **Gate:** the three good windows read aligned. With the build's read path, the two formerly bad windows should now
+  read aligned. If they still read misaligned, the new rule must flag them, which it does by construction.
+- M_0, L_0, the read validation, the backend and the seeks of all six are reported before the full pass. If the gate
+  fails, the full pass does not run, and the lead decides.
+
+**Cost.** The pre-gate pass adds one CLIP embedding per pg_stride frame (about 1 in 30), on the build's gate device.
+The decode is one pass per window, as before.
