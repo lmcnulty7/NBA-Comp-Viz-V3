@@ -54,16 +54,14 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Tracker reset fix (D192): after any tracker reset the build's tracker updated twice per frame and dropped new
-   players (tracker yield 0.30 against 0.955 with the fix on one window). The fix is a tools-side switch; its build
-   arm (P8_resetfix.md: reset windows rebuilt on the reference platform, missed must improve pooled and be worse
-   nowhere, non-inferiority on the other rows, hou_cle_2016 gate) is under design review and runs after the CPU
-   truth rebuilds. Expected missed change about -0.009 to -0.013 pooled. The placement and output-position lines are
-   closed (D184 to D188).
-2. Truth on the reference platform (D191): gsw_cha_2016's truth MOVED when rebuilt with the detector on CPU (accepted
-   frames +80 percent), so hou_cle_2016, gsw_bkn_2015 and gsw_sac_2015 are rebuilt next (about 9.4 lock hours, after
-   the a3 model run), with check C per game. Every earlier result on the MPS truth is provisional where it depends on
-   it. okc_sac_2015 is closed (mirror vote 0.67).
+1. Development truth set (D199): three usable games now, gsw_cha_2016 and gsw_bkn_2015 on the multi-pool truth and
+   hou_cle_2016 on its fixed CPU truth; gsw_sac_2015 apart on check C; gsw_ind_2016 apart (D98) but showing the same
+   fit fragility. Next: a registered CPU rebuild of gsw_ind_2016 with the reset fix and the multi-pool fit (about 3 to
+   4 lock hours, 0 units), which could add a usable game from a fourth arena; and a design for why gsw_sac_2015 fails
+   check C (timing), report only first.
+2. With two or three usable pool games, re-ask the tracker-fix question on a real pool as a new registration (the
+   reset-fix arm stays closed, D198); under D193 every development arm already builds on the fixed tracker, so this
+   decides only the reported baseline and ranks below item 1.
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
 4. Colab as a build helper: only through a tested split route (detector on CUDA, court on the reference device),
    since CUDA matches neither Mac build (D179). Transfers go through Google Drive (D177).
