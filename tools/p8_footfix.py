@@ -262,26 +262,36 @@ def g0_game(ch: dict) -> dict:
 
 
 def copying_t(split: dict) -> bool:
-    """13.1 (b): for missed or p50, the inlier players' change below 0 and the non-inlier players' 0 or above."""
+    """13.1 (b): for missed or p50, the inlier players' change below 0 and the non-inlier players' 0 or above; and
+    (v1.2, 14.1) the non-inlier players' missed change below 0 while their p50 change under B is above 0."""
     for row in ("missed", "position_p50_ft"):
         a, b = split["inlier"][row]["change"], split["non_inlier"][row]["change"]
         if a is not None and b is not None and a < 0 and b >= 0:
             return True
-    return False
+    m, p = split["non_inlier"]["missed"]["change"], split["non_inlier"]["position_p50_ft"]["change"]
+    return m is not None and p is not None and m < 0 and p > 0
 
 
-def reading(per_game: dict) -> dict:
-    """13.1 (a): per_game {game: {"rule": game_rule, "p50": change, "split": inlier split}} -> the stage 1 verdict."""
+def reading(per_game: dict, descriptive_split: tuple = ()) -> dict:
+    """13.1 (a) with 14.3: per_game {game: {"rule": game_rule, "p50": change, "split": inlier split}} -> the stage 1
+    verdict, with explicit fields for rule 1 and rule 7 failures and inconclusive rows. descriptive_split: games whose
+    inlier split is descriptive only (reading F), which then reads nothing."""
     passes = all(v["rule"]["passes"] for v in per_game.values())
+    fields = {"rule1_failed": sorted(g for g, v in per_game.items() if not v["rule"].get("rule1_missed", True)),
+              "rule7_failed": sorted(g for g, v in per_game.items() if not v["rule"].get("rule7_one2one", True)),
+              "harm_rows": {g: v["rule"].get("harm", []) for g, v in per_game.items() if v["rule"].get("harm")},
+              "inconclusive_rows": {g: v["rule"].get("inconclusive", []) for g, v in per_game.items()
+                                    if v["rule"].get("inconclusive")}}
     if not passes:
-        harm = sorted({h for v in per_game.values() for h in v["rule"]["harm"]})
+        harm = any(fields["harm_rows"].values())
         return {"verdict": "FAIL", "reading": "harm" if harm else "not shown non-inferior or missed bar not met",
-                "harm_rows": harm, "stage_2": False}
+                **fields, "stage_2": False}
     p50_ok = all(v["p50"] is not None and v["p50"] <= 0 for v in per_game.values())
-    copy_t = any(copying_t(v["split"]) for v in per_game.values())
+    copy_t = any(copying_t(v["split"]) for g, v in per_game.items() if g not in descriptive_split)
     nearer = p50_ok and not copy_t
-    return {"verdict": "PASS", "reading": "feet nearer" if nearer else "agreement with T only",
-            "p50_under_B_not_rising": p50_ok, "copying_T": copy_t, "stage_2": nearer}
+    return {"verdict": "PASS", "reading": "feet nearer" if nearer else "agreement with T only", **fields,
+            "p50_under_B_not_rising": p50_ok, "copying_T": copy_t, "split_descriptive_only": sorted(descriptive_split),
+            "stage_2": nearer}
 
 
 def fold_rows(rows_by_game: dict, held: str) -> tuple:
@@ -615,6 +625,9 @@ def audit(rows_by_game: dict) -> dict:
         edges = np.arange(2.5, 5.01, 0.5)
         out[g] = {"fit_rows": len(rows), "stage_b_share": float(np.mean([r["stage"] == "B" for r in rows])) if rows else None,
                   "inlier_share": float(np.mean([r["inlier"] for r in rows])) if rows else None,
+                  "stage_by_inlier": {f"{st}|{'inlier' if il else 'non_inlier'}":
+                                      sum(r["stage"] == st and bool(r["inlier"]) == il for r in rows)
+                                      for st in ("A", "B") for il in (True, False)},
                   "tables": {"all": fit_tables(rows), "inlier_only": fit_tables([r for r in rows if r["inlier"]]),
                              "non_inlier_only": fit_tables([r for r in rows if not r["inlier"]])},
                   "f2_null_in_sample": f2_null(fit_tables(rows)["F2"]),
@@ -622,6 +635,50 @@ def audit(rows_by_game: dict) -> dict:
                   "p_ii_distance_ft": {f"{a:.1f}-{b:.1f}": int(((np.asarray(p_ii) > a) & (np.asarray(p_ii) <= b)).sum())
                                        for a, b in zip(edges[:-1], edges[1:])}}
     return out
+
+
+A_FT, A_SHARE = 0.3, 0.8          # 14.8 reading A
+E_EDGE_RATE = 0.02                 # 14.8 reading E
+F_BOX_SHARE = 0.9                  # 14.8 reading F
+
+
+def audit_readings(aud: dict, in_frame: dict, label_boxes: dict) -> dict:
+    """The audit readings A to F of 14.8, registered before the run, per game and overall."""
+    per = {}
+    for g, a in aud.items():
+        allt = a["tables"]["all"]
+        n1, t1 = allt["counts"]["F1"], allt["F1"]
+        tot = sum(n1.values())
+        small = sum(n for c, n in n1.items() if abs(t1.get(c, 0.0)) <= A_FT)
+        sr = a["same_row"]
+        pii = sum(v["p_ii_rows"] for v in sr.values())
+        conflict = [c for c, v in sr.items() if np.sign(v["median_d1_toward_T"]) != np.sign(v["median_dB_toward_sportvu_under_B"])
+                    or v["opposite_sign_share"] > 0.5]
+        pii_conflict = sum(sr[c]["p_ii_rows"] for c in conflict)
+        ti, tn = a["tables"]["inlier_only"]["F1"], a["tables"]["non_inlier_only"]["F1"]
+        opp = [c for c in ti if c in tn and np.sign(ti[c]) != np.sign(tn[c]) and ti[c] != 0 and tn[c] != 0]
+        opp_rows = sum(n1.get(c, 0) for c in opp)
+        edge = a["p_ii_distance_ft"].get("2.5-3.0", 0)
+        lb = label_boxes[g]
+        per[g] = {"A_share_within_0.3ft": small / tot if tot else None, "A": bool(tot and small / tot >= A_SHARE),
+                  "B_conflict_cells": sorted(conflict), "B_p_ii_share": pii_conflict / pii if pii else None,
+                  "B": bool(pii and pii_conflict / pii >= 0.5),
+                  "C_opposite_cells": sorted(opp), "C_row_share": opp_rows / tot if tot else None,
+                  "C": bool(tot and opp_rows / tot > 0.5),
+                  "D": f2_null(allt["F2"])["holds"],
+                  "E_edge_rate": edge / in_frame[g] if in_frame[g] else None,
+                  "E": bool(in_frame[g] and edge / in_frame[g] < E_EDGE_RATE),
+                  "F_box_share": lb["label_boxes_equal"] / lb["frames"] if lb["frames"] else None,
+                  "F": bool(not lb["frames"] or lb["label_boxes_equal"] / lb["frames"] < F_BOX_SHARE)}
+    gs = list(per)
+    return {"per_game": per,
+            "A_absorbed": all(per[g]["A"] for g in gs),
+            "B_frame_conflict_on": [g for g in gs if per[g]["B"]],
+            "C_T_residual_dominates_on": [g for g in gs if per[g]["C"]],
+            "D_f2_null_holds": all(per[g]["D"] for g in gs),
+            "E_bar_out_of_reach_on": [g for g in gs if per[g]["E"]],
+            "F_split_descriptive_on": [g for g in gs if per[g]["F"]],
+            "closes_toward_T_line": all(per[g]["A"] for g in gs)}
 
 
 # ── score (frozen CV python, inside the lock) ──────────────────────────────────────────────────────────────────────
@@ -652,6 +709,11 @@ def preflight(stage: str) -> dict:
     return gs
 
 
+def versions() -> dict:
+    import cv2
+    return {"cv2": cv2.__version__, "numpy": np.__version__, "python": sys.version.split()[0]}
+
+
 def save(path: Path, obj) -> str:
     from tools import p8_rebaseline as RB
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -667,7 +729,7 @@ def cmd_score_s0() -> dict:
     d = footfix_dir() / "s0"
     before = watched_manifest()
     S.load_fixed_constants()
-    out = {"stage": "s0", "run_id": run_id, "git": gs, "games": {}, "files": {}}
+    out = {"stage": "s0", "run_id": run_id, "git": gs, "versions": versions(), "games": {}, "files": {}}
     gcs = {g: game_context(g, "s0") for g in POOL}
     for g, gc in gcs.items():
         check_inputs(gc)
@@ -745,6 +807,8 @@ def cmd_score_s1() -> dict:
     run0 = RB.read_json(footfix_dir() / "s0" / "run.json")
     if s0.get("run_id") != run0["run_id"] or s0.get("g0", {}).get("verdict") != "PASS":
         raise SystemExit(f"{WHO}: stage 1 runs only after stage 0's record reads G0 PASS for the current s0 run")
+    if s0.get("audit_readings", {}).get("closes_toward_T_line", True):
+        raise SystemExit(f"{WHO}: reading A (absorbed) closes the toward-T line; stage 1 does not run")
     t0, cap = time.time(), CAPS_S["s1"]
     run_id = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime(t0))
     d = footfix_dir() / "s1"
@@ -756,7 +820,8 @@ def cmd_score_s1() -> dict:
         if RB.sha256(p) != run0["files"][f"fitrows__{g}"]:
             raise SystemExit(f"{WHO}: {g}'s fit rows differ from stage 0's record")
         rows[g] = RB.read_json(p)
-    out = {"stage": "s1", "run_id": run_id, "s0_run_id": run0["run_id"], "git": gs, "files": {}, "tables": {}}
+    out = {"stage": "s1", "run_id": run_id, "s0_run_id": run0["run_id"], "git": gs, "versions": versions(),
+           "files": {}, "tables": {}}
     for g in POOL:
         gc = game_context(g, "s1")
         check_inputs(gc)
@@ -814,7 +879,8 @@ def cmd_score_hou(go: str) -> dict:
     S.load_fixed_constants()
     gc = game_context(HOU, "hou")
     check_inputs(gc)
-    out = {"stage": "hou", "run_id": run_id, "git": gs, "go": go, "table_sha256": RB.sha256(TABLE_FILE), "files": {}}
+    out = {"stage": "hou", "run_id": run_id, "git": gs, "versions": versions(), "go": go,
+           "table_sha256": RB.sha256(TABLE_FILE), "files": {}}
     idn = write_arm(gc, f"hou_identity__{HOU}", None, None)
     recs0, obs0 = score_arm(gc, idn, t0, cap)
     bad = RB.gate_problems(recs0, {s: {"new": v} for s, v in gc["rec"]["windows"].items()})
@@ -903,13 +969,19 @@ def cmd_report_s0() -> dict:
         for form in FORMS:
             games[g][form]["g0"] = g0_game(games[g][form]["changes"])
     passes = all(games[g][CANDIDATE]["g0"]["passes"] for g in POOL)
+    in_frame = {g: sum(v["in_frame"] for v in RB.read_json(d / f"score__identity__{g}.json")["recs"].values())
+                for g in POOL}
+    readings = audit_readings(run["audit"], in_frame, {g: run["games"][g]["label_boxes"] for g in POOL})
     out = {"what": "docs/research/P8_footfix.md version 1.1, stage 0 (smoke, reproduction, 0c audit, F1 and F2 in "
                    "sample); G0 reads F1 only; F2 is the predicted-null control", "run_id": run["run_id"],
            "git": run["git"], "seconds": run["seconds"],
            "smoke_and_reproduction": {g: run["games"][g] for g in POOL}, "audit": run["audit"], "in_sample": games,
            "g0": {"verdict": "PASS" if passes else "FAIL", "action": "stage 1 may be asked for" if passes else "KILL",
                   "per_game": {g: games[g][CANDIDATE]["g0"] for g in POOL}},
-           "f2_null_in_sample": {g: f2_null(games[g][CONTROL]["table"]) for g in POOL}}
+           "f2_null_in_sample": {g: f2_null(games[g][CONTROL]["table"]) for g in POOL},
+           "audit_readings": readings}
+    if passes and readings["closes_toward_T_line"]:
+        out["g0"]["action"] = "closed by reading A (absorbed), whatever G0 says"
     res = write_record("s0", out)
     print(json.dumps(res["g0"], indent=1))
     return res
@@ -922,6 +994,9 @@ def cmd_report_s1() -> dict:
     for k, sha in run["files"].items():
         if RB.sha256(d / f"score__{k}.json") != sha:
             raise SystemExit(f"{WHO}: score__{k}.json differs from the run's record")
+    s0_rec = RB.read_json(RECORDS["s0"])
+    if s0_rec.get("run_id") != run["s0_run_id"]:
+        raise SystemExit(f"{WHO}: stage 0's record is not the run stage 1 started from")
     games, per = {}, {}
     for g in POOL:
         inl = RB.read_json(footfix_dir() / "s0" / f"inliers__{g}.json")
@@ -934,7 +1009,7 @@ def cmd_report_s1() -> dict:
     out = {"what": "docs/research/P8_footfix.md version 1.1, stage 1 (leave one game out); the rule and readings read "
                    "F1 only; F2 is the predicted-null control", "run_id": run["run_id"], "s0_run_id": run["s0_run_id"],
            "git": run["git"], "seconds": run["seconds"], "tables": run["tables"], "per_game": games,
-           "verdict": reading(per),
+           "verdict": reading(per, tuple(s0_rec["audit_readings"]["F_split_descriptive_on"])),
            "f2_null_fold_tables": {g: f2_null(games[g][CONTROL]["table"]) for g in POOL}}
     res = write_record("s1", out)
     print(json.dumps(res["verdict"], indent=1))

@@ -423,3 +423,58 @@ players and boxes stay equal by construction (a difference stops the run). Net e
   - A pass reads "feet nearer" or "agreement with T only" (13.1).
   - Only "feet nearer" requests stage 2.
 - **Stage 2:** as 13.4 (5).
+
+## 14. Version 1.2 (2026-11-27, after the code check of 3f3c6ee2, GO WITH CHANGES; before `score s0`)
+
+No code bug blocked the run. These are registered before any pool number; where they differ from sections 1 to 13,
+this section rules.
+
+14.1 **Copying T, second clause.** "Copying T" (13.1 (b)) also reads when, on either game, the non-inlier players'
+missed change is below 0 while their position p50 change under B is above 0 (point estimates). The audit adds a cross
+table of fit rows by stage (A or B) and inlier status, per game.
+
+14.2 **Rule 7, stated plainly.** Under rule 1 (missed change at most -0.010), 0.75 times the missed change is at most
+-0.0075. So the fraction clause never binds, and rule 7 reduces to "one-to-one missed change at most -0.0075 on each
+game". It is kept as registered.
+
+14.3 **The reading record** names, per game:
+- a rule 1 failure;
+- a rule 7 failure;
+- the harm rows;
+- the inconclusive rows (an interval end beyond the bar, or a row that could not be computed).
+
+These are reported beside the verdict, its reading and the stage 2 flag.
+
+14.4 **Cost.** Each score step hashes the watched folders before and after it: about 17 GB, most of it the
+label_build clips of the workspace and the reference root. That time counts inside the cap. The estimates become about
+18 minutes for stage 0, 13 for stage 1 and 8 for stage 2. The caps (40, 30, 20 minutes) are unchanged.
+
+14.5 **Versions.** Every run.json records the cv2, numpy and Python versions.
+
+14.6 **Wording of 13.6, corrected.** The audit is written to the stage 0 folder (audit.json) before the in-sample
+scoring starts. Its SHA-256 lands in run.json at the end of the run, and `report s0` checks it. Its content enters
+reports/research/p8_footfix_s0.json only through the report step. 13.6 said it is "written to the stage 0 record"
+before the in-sample scoring; the record meant is audit.json, not p8_footfix_s0.json.
+
+14.7 **A test** checks that cmd_score_hou writes the marker before its first hou_cle_2016 read, refuses a second
+start, and refuses an empty go.
+
+14.8 **The audit readings, registered before the run** (report s0, per game, from 0c's tables):
+
+- **A, absorbed.** The all-rows F1 cell medians are within 0.3 ft of zero (either sign) in cells that together hold
+  at least 80 percent of the game's F1 fit rows. A cell with fewer than 50 rows has no entry and counts as within,
+  since its shift is 0. If A holds on both games, the reading is "a median shift toward T is too small to reach the
+  bar". This closes the toward-T line whatever G0 says: `report s0` says so, and `score s1` refuses.
+- **B, frame conflict.** A cell conflicts when the medians of d1 and dB have opposite signs, or when more than half its
+  rows have opposite signs. If the conflicting cells hold at least half of the game's P-ii fit rows (rows with a B
+  pose), the reading is "no single foot shift serves both frames".
+- **C, T's residual dominates.** A cell qualifies when it is populated in both the inlier-only and the
+  non-inlier-only F1 tables and the two medians have opposite signs. If the qualifying cells hold more than half of the
+  game's F1 fit rows, C holds.
+- **D, F2 null.** Every populated bin of the game's in-sample F2 table has |r| at most 0.01.
+- **E, edge ceiling.** P-ii fit rows (stage B) whose box lies 2.5 to 3.0 ft away under T, over the game's in-frame
+  players. Under 0.02 puts the -0.010 bar out of reach on that game for shifts of 0.5 ft or less.
+- **F, box match.** If the share of scored frames whose label-build boxes equal builds/r23's (bbox and foot_stab) is
+  under 0.9, that game's inlier split is descriptive only: it is reported, but the copying-T reading does not read it.
+
+Readings B to E change no gate. They are reported with G0.

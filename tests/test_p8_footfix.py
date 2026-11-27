@@ -209,8 +209,9 @@ def split(inl_m, non_m, inl_p=-0.01, non_p=-0.01):
 def test_readings():
     ok = {"passes": True, "harm": []}
     per = {g: {"rule": ok, "p50": -0.01, "split": split(-0.01, -0.02)} for g in M.POOL}
-    assert M.reading(per) == {"verdict": "PASS", "reading": "feet nearer", "p50_under_B_not_rising": True,
-                              "copying_T": False, "stage_2": True}
+    r = M.reading(per)
+    assert (r["verdict"], r["reading"], r["p50_under_B_not_rising"], r["copying_T"], r["stage_2"]) == \
+        ("PASS", "feet nearer", True, False, True)
     per[M.CHA]["p50"] = 0.001
     assert M.reading(per)["reading"] == "agreement with T only" and not M.reading(per)["stage_2"]
     per[M.CHA]["p50"] = 0.0
@@ -219,7 +220,9 @@ def test_readings():
     per[M.BKN]["split"] = split(0.002, -0.02, inl_p=-0.03, non_p=0.01)
     assert M.reading(per)["copying_T"]
     per[M.BKN]["rule"] = {"passes": False, "harm": ["near_p90_ft"]}
-    assert M.reading(per) == {"verdict": "FAIL", "reading": "harm", "harm_rows": ["near_p90_ft"], "stage_2": False}
+    r = M.reading(per)
+    assert (r["verdict"], r["reading"], r["harm_rows"], r["stage_2"]) == \
+        ("FAIL", "harm", {M.BKN: ["near_p90_ft"]}, False)
 
 
 def test_f2_null():
@@ -282,3 +285,82 @@ def test_constants_match_the_design():
                          "near_p90_ft": 0.05}
     assert M.TEAM_MARGIN == -0.010 and M.MISSED_BAR == -0.010 and (M.ONE2ONE_BAR, M.ONE2ONE_FRAC) == (-0.0075, 0.75)
     assert M.STAGE_GAMES["s0"] == M.STAGE_GAMES["s1"] == (M.CHA, M.BKN)
+
+
+# ── version 1.2 ────────────────────────────────────────────────────────────────────────────────────────────────────
+def test_copying_t_reads_non_inlier_missed_gain_with_p50_rising():
+    assert M.copying_t(split(0.001, -0.02, inl_p=0.0, non_p=0.01))
+    assert not M.copying_t(split(0.001, -0.02, inl_p=0.0, non_p=0.0))
+
+
+def test_reading_record_names_rule_failures_and_inconclusive_rows():
+    per = {M.CHA: {"rule": {"passes": False, "rule1_missed": False, "rule7_one2one": True, "harm": [],
+                            "inconclusive": ["position_p90_ft"]}, "p50": 0.0, "split": split(0, 0)},
+           M.BKN: {"rule": {"passes": False, "rule1_missed": True, "rule7_one2one": False, "harm": [],
+                            "inconclusive": []}, "p50": 0.0, "split": split(0, 0)}}
+    r = M.reading(per)
+    assert r["verdict"] == "FAIL" and r["rule1_failed"] == [M.CHA] and r["rule7_failed"] == [M.BKN]
+    assert r["inconclusive_rows"] == {M.CHA: ["position_p90_ft"]} and r["reading"].startswith("not shown")
+    ok = {"passes": True, "rule1_missed": True, "rule7_one2one": True, "harm": [], "inconclusive": []}
+    per = {g: {"rule": ok, "p50": -0.01, "split": split(-0.01, 0.0)} for g in M.POOL}
+    assert M.reading(per)["copying_T"]
+    assert not M.reading(per, descriptive_split=M.POOL)["copying_T"]
+
+
+def audit_for(t1, n1, ti, tn, same_row, edge, f2=None):
+    tab = lambda f1, n: {"F1": f1, "F2": f2 or {"<150": 0.0}, "counts": {"F1": n, "F2": {}}}
+    return {"tables": {"all": tab(t1, n1), "inlier_only": tab(ti, {}), "non_inlier_only": tab(tn, {})},
+            "same_row": same_row, "p_ii_distance_ft": {"2.5-3.0": edge}}
+
+
+def test_audit_readings():
+    sr = {"a": {"p_ii_rows": 60, "median_d1_toward_T": 1.0, "median_dB_toward_sportvu_under_B": -0.5,
+                "opposite_sign_share": 0.6},
+          "b": {"p_ii_rows": 40, "median_d1_toward_T": -1.0, "median_dB_toward_sportvu_under_B": -0.5,
+                "opposite_sign_share": 0.1}}
+    aud = {M.CHA: audit_for({"a": 0.2, "b": -0.25}, {"a": 900, "b": 100, "c": 30}, {"a": 0.1, "b": 0.2},
+                            {"a": -0.3, "b": 0.4}, sr, 100),
+           M.BKN: audit_for({"a": 0.5, "b": 0.1}, {"a": 500, "b": 500}, {"a": 0.1}, {"a": 0.2}, sr, 1000,
+                            f2={"<150": 0.02})}
+    r = M.audit_readings(aud, {M.CHA: 10000, M.BKN: 10000},
+                         {M.CHA: {"frames": 100, "label_boxes_equal": 95}, M.BKN: {"frames": 100, "label_boxes_equal": 80}})
+    pc, pb = r["per_game"][M.CHA], r["per_game"][M.BKN]
+    assert pc["A"] and not pb["A"] and not r["A_absorbed"] and not r["closes_toward_T_line"]
+    assert pc["B"] and pc["B_p_ii_share"] == pytest.approx(0.6)
+    assert pc["C"] and not pb["C"]
+    assert pc["D"] and not pb["D"] and not r["D_f2_null_holds"]
+    assert r["E_bar_out_of_reach_on"] == [M.CHA] and r["F_split_descriptive_on"] == [M.BKN]
+    aud[M.BKN] = audit_for({"a": 0.2}, {"a": 1000}, {}, {}, sr, 1000)
+    assert M.audit_readings(aud, {M.CHA: 10000, M.BKN: 10000},
+                            {g: {"frames": 1, "label_boxes_equal": 1} for g in M.POOL})["closes_toward_T_line"]
+
+
+def test_hou_marker_is_written_before_any_hou_read(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from tools import p8_scorecard as S
+    s1 = tmp_path / "s1.json"
+    s1.write_text(json.dumps({"verdict": {"verdict": "PASS", "stage_2": True}}))
+    table = tmp_path / "table.json"
+    table.write_text(json.dumps({"table": {}}))
+    monkeypatch.setattr(M, "RECORDS", {**M.RECORDS, "s1": s1})
+    monkeypatch.setattr(M, "TABLE_FILE", table)
+    monkeypatch.setattr(M, "preflight", lambda stage: {"head": "x"})
+    monkeypatch.setattr(M, "footfix_dir", lambda: tmp_path / "ff")
+    monkeypatch.setattr(M, "watched_manifest", lambda: {})
+    monkeypatch.setattr(M.subprocess, "run", lambda *a, **k: SimpleNamespace(returncode=0, stdout=""))
+    monkeypatch.setattr(S, "load_fixed_constants", lambda: None)
+    seen = []
+
+    def first_read(game, stage):
+        seen.append(M.marker_path().exists())
+        raise RuntimeError("hou read")
+
+    monkeypatch.setattr(M, "game_context", first_read)
+    with pytest.raises(RuntimeError):
+        M.cmd_score_hou("go from the lead")
+    assert seen == [True]
+    with pytest.raises(SystemExit):
+        M.cmd_score_hou("go from the lead")
+    assert seen == [True]
+    with pytest.raises(SystemExit):
+        M.cmd_score_hou("")
