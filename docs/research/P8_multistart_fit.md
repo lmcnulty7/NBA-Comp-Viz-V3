@@ -370,3 +370,11 @@ tools/p8_multistart.py, which stage 1 ran from, is not changed. Its steps:
   counts (section 14's caution applies).
 
 Estimate and cap as section 15: 15,090 s, cap 22,635 s. It runs only after its review and the lead's word.
+
+Dated line (2026-11-27, the lead's decision, self-decided and logged at the item's close): stage 2 is narrowed to
+gsw_ind_2016's multipool, report only, after the gsw_bkn_2015 chain and the reviewer's go on that path. hou_cle_2016's
+and gsw_sac_2015's multipool runs and hou_cle_2016's truth step are deferred, because neither status can change now:
+gsw_sac_2015 is apart on check C, which does not depend on the fit, and hou_cle_2016's status is pending until its check
+C composite exists. Saving: about 10,450 s of section 15's 15,090 s estimate (hou_cle_2016 about 5,700 s, gsw_sac_2015
+about 4,750 s); stage 2 is now about 4,640 s, with its cap 1.5 times that, 6,960 s. The deferred code stays as written
+and reviewed for a later decision.
