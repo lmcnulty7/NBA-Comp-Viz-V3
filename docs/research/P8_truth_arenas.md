@@ -697,3 +697,12 @@ Report only, post hoc, not ruled: gsw_sac_2015's check C was not measured on the
 exists for it), so whether the fix or the platform moved its offset stability over the bar is not known from these
 records; gsw_cha_2016's C on the unfixed CPU truth was 0.48 s and 0.7619 (reports/research/p8_truth_accept_
 gsw_cha_2016_nofix.json) against 0.50 s and 0.7188 with the fix.
+
+Dated line (2026-11-27, hou_cle_2016's accept phase, run from r-p8-multistart fce0ed23 with the accept code of section
+16 version 4.3, unchanged since 50108e3c): after the reset-fix arm's hou_cle_2016 equivalence passed (23 reset
+windows), compose filled builds/r23 for it (23 windows from the arm, 70 from the baseline, 93 of 93 label windows
+covered, nothing refused), and measure-dev and p8_truth_accept ran with section 5's bars unchanged. hou_cle_2016's
+CPU truth with the reset fix reads "use": A 5.54 px; B 7,447 frames and 2,635 s; C 88 of 93 windows, median 0.08 s,
+share over 0.2 s 0.1477 (pass); every label and r23 window resolves the detector to cpu. Lock 181 s (measure-dev, from
+logs/truth_fix.log in the reference root). Record reports/research/p8_truth_accept_hou_cle_2016_fix.json. Its status
+is no longer pending.

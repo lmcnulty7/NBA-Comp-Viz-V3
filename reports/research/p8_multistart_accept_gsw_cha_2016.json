@@ -1,0 +1,55 @@
+{
+ "game": "gsw_cha_2016",
+ "truth_version": "multipool v1",
+ "acceptance": {
+  "tag": "gsw_cha_2016",
+  "design": "docs/research/P8_truth_arenas.md sections 0 and 5",
+  "checks": {
+   "A": {
+    "pass": true,
+    "partial": false,
+    "reproj_px_median_after": 5.88,
+    "bar": 10.0
+   },
+   "B": {
+    "pass": true,
+    "partial": false,
+    "accepted": 2924,
+    "mapped_s": 2308.0,
+    "bars": {
+     "accepted_min": 1000,
+     "mapped_s_min": 1500.0
+    }
+   },
+   "C": {
+    "pass": true,
+    "n": 64,
+    "windows_measured": 73,
+    "median_abs_s": 0.5,
+    "share_over_0_2_s": 0.7188,
+    "bars": {
+     "offset_median_s_max": 0.54,
+     "offset_share_max": 0.7945,
+     "offset_n_share_min": 0.8
+    }
+   }
+  },
+  "platform_ok": true,
+  "use": "use",
+  "truth_platform": {
+   "label": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 73
+   },
+   "r23_rebuild": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 73
+   }
+  },
+  "label_windows": 73,
+  "rebuild_windows": 73
+ },
+ "guard_manifest": {
+  "files": 1905,
+  "unchanged": true
+ },
+ "seconds": 153.4
+}

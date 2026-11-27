@@ -1,0 +1,55 @@
+{
+ "game": "gsw_bkn_2015",
+ "truth_version": "multipool v1",
+ "acceptance": {
+  "tag": "gsw_bkn_2015",
+  "design": "docs/research/P8_truth_arenas.md sections 0 and 5",
+  "checks": {
+   "A": {
+    "pass": true,
+    "partial": false,
+    "reproj_px_median_after": 5.37,
+    "bar": 10.0
+   },
+   "B": {
+    "pass": true,
+    "partial": false,
+    "accepted": 2984,
+    "mapped_s": 2529.2,
+    "bars": {
+     "accepted_min": 1000,
+     "mapped_s_min": 1500.0
+    }
+   },
+   "C": {
+    "pass": true,
+    "n": 77,
+    "windows_measured": 83,
+    "median_abs_s": 0.48,
+    "share_over_0_2_s": 0.6883,
+    "bars": {
+     "offset_median_s_max": 0.54,
+     "offset_share_max": 0.7945,
+     "offset_n_share_min": 0.8
+    }
+   }
+  },
+  "platform_ok": true,
+  "use": "use",
+  "truth_platform": {
+   "label": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 83
+   },
+   "r23_rebuild": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 83
+   }
+  },
+  "label_windows": 83,
+  "rebuild_windows": 83
+ },
+ "guard_manifest": {
+  "files": 1905,
+  "unchanged": true
+ },
+ "seconds": 165.2
+}
