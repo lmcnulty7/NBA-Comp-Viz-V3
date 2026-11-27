@@ -1,0 +1,118 @@
+{
+ "game": "hou_cle_2016",
+ "design": "docs/research/P8_truth_arenas.md section 16 version 4.3 (reset fix, PLAN.md D192)",
+ "truth": "CPU-detector camera truth built with P8_TRACKER_RESET_FIX=1 in the reference root",
+ "fit": {
+  "windows": 93,
+  "accepted": 7447,
+  "partial": false,
+  "camera": {
+   "status": "ok",
+   "C": [
+    44.74619957718975,
+    135.474537543796,
+    -37.49158212776427
+   ],
+   "pooled_frames": 400,
+   "inits": 10804,
+   "reproj_px_median_before": 134.7,
+   "reproj_px_median_after": 5.54
+  },
+  "rejections": {
+   "gate_v2_skipped": 1231,
+   "untestable_noH": 15,
+   "untestable_inliers": 5032,
+   "untestable_match": 593,
+   "untestable_boxes": 1482,
+   "unmapped": 3499,
+   "no_moment": 2384,
+   "line_matches_low": 2591,
+   "support_low": 484,
+   "feet_resid_high": 285,
+   "zoom_at_bound": 1
+  }
+ },
+ "section5": {
+  "A": {
+   "pass": true,
+   "partial": false,
+   "reproj_px_median_after": 5.54,
+   "bar": 10.0
+  },
+  "B": {
+   "pass": true,
+   "partial": false,
+   "accepted": 7447,
+   "mapped_s": 2635.2,
+   "bars": {
+    "accepted_min": 1000,
+    "mapped_s_min": 1500.0
+   }
+  },
+  "C": "pending: the accept phase (builds/r23 composed after the arm's equivalence)"
+ },
+ "moved_vs_mps_truth": {
+  "bars": {
+   "reproj_px_abs_min": 1.0,
+   "accepted_rel_min": 0.1,
+   "offset_median_s_min": 0.2
+  },
+  "measures": {
+   "reprojection": {
+    "mps_px": 6.4,
+    "cpu_px": 5.54,
+    "abs_diff_px": 0.8600000000000003,
+    "moved": false
+   },
+   "accepted": {
+    "mps": 4427,
+    "cpu": 7447,
+    "rel_diff": 0.6821775468714705,
+    "moved": true
+   },
+   "offsets": {
+    "windows_both": 93,
+    "windows_mps": 93,
+    "windows_cpu": 93,
+    "median_abs_diff_s": 0.04000000000000001,
+    "share_over_0_2_s": 0.12903225806451613,
+    "max_abs_diff_s": 1.68,
+    "moved": false
+   }
+  },
+  "moved": true,
+  "reading": "moved: rebuild the other in-use games' truth on the CPU detector before any cross-arena tuning",
+  "cpu_platform": {
+   "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 93
+  },
+  "cpu_label_windows": 93
+ },
+ "report_only_post_hoc_not_ruled": {
+  "tool": "tools/p8_truth_moved_dh.py",
+  "what": "report only, post hoc, not ruled: median |B(p) - T(p)| in ft at every r23 box foot_stab pixel; B the r23 sidecar H, T each truth's H",
+  "sidecar": "m9_r23_detcpu__hou_cle_2016",
+  "score_file": "m9__r23_detcpu__hou_cle_2016.json",
+  "scored_windows": 93,
+  "label_window_timemaps_identical": {
+   "windows": 93,
+   "same_frames": 93
+  },
+  "frames": {
+   "mps": 4427,
+   "cpu": 7447,
+   "common": 3589
+  },
+  "median_abs_d_H_ft_mps_all": 1.36,
+  "median_abs_d_H_ft_cpu_all": 1.136,
+  "median_abs_d_H_ft_mps_common": 1.315,
+  "median_abs_d_H_ft_cpu_common": 1.078,
+  "median_abs_truth_shift_ft_common": 0.655,
+  "boxes": {
+   "mps_all": 39222,
+   "cpu_all": 58699,
+   "mps_common": 31899,
+   "cpu_common": 31899,
+   "truth_shift_common": 31899
+  }
+ }
+}

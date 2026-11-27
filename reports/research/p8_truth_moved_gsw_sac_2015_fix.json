@@ -1,0 +1,119 @@
+{
+ "game": "gsw_sac_2015",
+ "design": "docs/research/P8_truth_arenas.md section 16 version 4.3 (reset fix, PLAN.md D192)",
+ "truth": "CPU-detector camera truth built with P8_TRACKER_RESET_FIX=1 in the reference root",
+ "fit": {
+  "windows": 83,
+  "accepted": 2949,
+  "partial": false,
+  "camera": {
+   "status": "ok",
+   "C": [
+    45.413309793864954,
+    126.52411624045938,
+    -29.847740334285923
+   ],
+   "pooled_frames": 400,
+   "inits": 4721,
+   "reproj_px_median_before": 117.32,
+   "reproj_px_median_after": 6.65
+  },
+  "rejections": {
+   "gate_v2_skipped": 932,
+   "unmapped": 2970,
+   "untestable_boxes": 1150,
+   "untestable_noH": 374,
+   "untestable_inliers": 6951,
+   "untestable_match": 2523,
+   "gate_v2_empty_window": 1,
+   "no_moment": 18,
+   "line_matches_low": 940,
+   "feet_resid_high": 632,
+   "support_low": 202,
+   "camera_no_init": 1
+  }
+ },
+ "section5": {
+  "A": {
+   "pass": true,
+   "partial": false,
+   "reproj_px_median_after": 6.65,
+   "bar": 10.0
+  },
+  "B": {
+   "pass": true,
+   "partial": false,
+   "accepted": 2949,
+   "mapped_s": 2316.9,
+   "bars": {
+    "accepted_min": 1000,
+    "mapped_s_min": 1500.0
+   }
+  },
+  "C": "pending: the accept phase (builds/r23 composed after the arm's equivalence)"
+ },
+ "moved_vs_mps_truth": {
+  "bars": {
+   "reproj_px_abs_min": 1.0,
+   "accepted_rel_min": 0.1,
+   "offset_median_s_min": 0.2
+  },
+  "measures": {
+   "reprojection": {
+    "mps_px": 5.47,
+    "cpu_px": 6.65,
+    "abs_diff_px": 1.1800000000000006,
+    "moved": true
+   },
+   "accepted": {
+    "mps": 2151,
+    "cpu": 2949,
+    "rel_diff": 0.37099023709902373,
+    "moved": true
+   },
+   "offsets": {
+    "windows_both": 82,
+    "windows_mps": 82,
+    "windows_cpu": 82,
+    "median_abs_diff_s": 0.15999999999999995,
+    "share_over_0_2_s": 0.4146341463414634,
+    "max_abs_diff_s": 2.96,
+    "moved": false
+   }
+  },
+  "moved": true,
+  "reading": "moved: rebuild the other in-use games' truth on the CPU detector before any cross-arena tuning",
+  "cpu_platform": {
+   "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 82
+  },
+  "cpu_label_windows": 82
+ },
+ "report_only_post_hoc_not_ruled": {
+  "tool": "tools/p8_truth_moved_dh.py",
+  "what": "report only, post hoc, not ruled: median |B(p) - T(p)| in ft at every r23 box foot_stab pixel; B the r23 sidecar H, T each truth's H",
+  "sidecar": "m9_r23_detcpu__gsw_sac_2015",
+  "score_file": "m9__r23_detcpu__gsw_sac_2015.json",
+  "scored_windows": 82,
+  "label_window_timemaps_identical": {
+   "windows": 82,
+   "same_frames": 82
+  },
+  "frames": {
+   "mps": 2151,
+   "cpu": 2949,
+   "common": 1345
+  },
+  "median_abs_d_H_ft_mps_all": 0.893,
+  "median_abs_d_H_ft_cpu_all": 0.91,
+  "median_abs_d_H_ft_mps_common": 0.799,
+  "median_abs_d_H_ft_cpu_common": 0.818,
+  "median_abs_truth_shift_ft_common": 0.853,
+  "boxes": {
+   "mps_all": 20195,
+   "cpu_all": 25759,
+   "mps_common": 12697,
+   "cpu_common": 12697,
+   "truth_shift_common": 12697
+  }
+ }
+}
