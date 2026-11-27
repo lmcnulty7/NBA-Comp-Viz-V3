@@ -57,6 +57,31 @@ def test_frame_counts_see_duplicates():
     assert (none["u1"], none["missed"], none["boxes"]) == (2, 2, 0)
 
 
+def test_referee_flags_change_the_rows_as_the_scorer():
+    from sportvu import bench as B
+    boxes = [[0, 0, 10, 20, 0.9, 0], [100, 0, 110, 20, 0.8, 0]]
+    refs = [[0, 0, 10, 19, 0.7]]
+    flags = N.ref_flags(boxes, refs)
+    assert flags.tolist() == [True, False] and N.ref_flags(boxes, []).tolist() == [False, False]
+    assert B._iou(boxes[0][:4], refs[0][:4]) >= B.REF_IOU
+    sv = np.array([[0.0, 0.0], [10.0, 0.0]] + [[60.0, 60.0]] * 8)
+    inside = np.array([True, True] + [False] * 8)
+    feet = np.array([[0.2, 0.0], [10.1, 0.0], [30.0, 30.0]])
+    a = N.frame_counts(feet, sv, inside, np.array([False, False, True]))     # the far box is a referee's
+    assert (a["u1"], a["ghosts"], a["ref_boxes"]) == (0, 0, 1)
+    b = N.frame_counts(feet, sv, inside, np.array([True, False, False]))     # a referee box is not a player's match
+    assert (b["u1"], b["missed"]) == (2, 0)
+
+
+def test_differing_boxes_and_edge():
+    pre = [[0, 5, 10, 25, 0.9, 0], [3, 5, 13, 25, 0.8, 0], [100, 5, 110, 25, 0.7, 0], [500, 5, 510, 25, 0.6, 0]]
+    d = N.differing_boxes(pre, [0, 1, 2, 3], [pre[0], pre[2], pre[3]])
+    assert tuple(pre[1]) in d and tuple(pre[0]) in [tuple(x) for x in d] and tuple(pre[2]) not in d
+    assert N.touches_edge(d, 1280, 720)                       # pre[0] overlaps the differing box and touches x = 0
+    assert not N.touches_edge([pre[3]], 1280, 720)
+    assert not N.touches_edge(N.differing_boxes(pre, [0, 2, 3], [pre[0], pre[2]]), 1280, 720)
+
+
 def test_c2_candidates_and_added_split():
     sv = np.array([[0.0, 0.0], [3.0, 0.0]] + [[50.0, 50.0]] * 8)
     inside = np.array([True, True] + [False] * 8)

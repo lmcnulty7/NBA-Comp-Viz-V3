@@ -221,7 +221,8 @@ equal to D205's stored rows per window, as in D208. Gates, per arm:
 - K1: an arm whose pooled one-to-one net change is not below 0 is killed;
 - K2: 0.70 is kept only if its one-to-one net change is below 0.55's (its marginal change over 0.55 is negative);
 - G0 (section 7, unchanged): R(t) at least 0.25 of the 421 C2 misses;
-- the C2 recount must equal D208's 421 and the row gate must pass on every window, else stage 0b stops.
+- the C2 recount must equal D208's 421, and the D205 row gate must pass on each of the 120 windows with universe
+  misses (the windows with stored candidates), else stage 0b stops.
 At most one arm goes on: 0.70 if it passes K1, K2 and G0, else 0.55 if it passes K1 and G0, else none and the item
 ends. Reported beside, not gating: the same rows on the 32 dropped windows, a window-bootstrap interval for each
 pooled change, and R(t) and A(t) as in section 7.
@@ -276,3 +277,17 @@ nor the direction of that effect is measured. Stage 0b's feet also use H_truth.
 as in D208; no detector). If an arm survives and stage 1 is amended: 1a about 25 minutes (four identity windows,
 2,798 frames, and the positive control, 1,053 frames); pilot of one arm about 85 minutes (10,923 frames); confirmation
 about 190 minutes (24,403 frames). At most about 5.0 lock hours, 0 Colab units.
+
+**12.11 The code check of ec68f896 (2026-11-27; GO WITH CHANGES; before any run).** Changes, none of which moves K1,
+K2, G0 or the recount:
+- raw boxes get the scorer's referee rule (a box overlapping a scorecard-cache referee detection at IoU at least
+  sportvu.bench.REF_IOU, as d205_rows does when the sidecar has no class; a sidecar with classes stops the run), so the
+  one-to-one and ghost rows equal the scorer's; the flagged boxes are counted per threshold;
+- recallcause/ is in the watched manifests, and its digest is written into both records; the screen stops if it changed
+  since the replay;
+- C2 is counted on every frame; a frame that stage 0a found differing only at the frame edge (the differing boxes and
+  the candidates overlapping them touch the edge) is left out of the arm rows, R(t) and A(t) only;
+- the screen requires the replay record's head to equal the current HEAD, at IoU 0.45 and max_det 300; both stages
+  assert torch 2.2.2 and record torchvision;
+- both stages run tests/test_p8_nmsarm.py under the interpreter that runs them (the frozen CV python, so the NMS test
+  runs), require it to pass with nothing skipped, and record the result.

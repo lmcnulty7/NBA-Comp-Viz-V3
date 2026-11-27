@@ -33,7 +33,9 @@ C2_KEPT = 421                          # D208's C2 misses on its 88 kept windows
 G0_SHARE = 0.25
 RC_SHA = "794f808ab905252e569a67285aec06528e69a6fd10bbb0228eb2b81de2637a9b"   # reports/research/p8_recallcause.json
 BOOT_N, BOOT_SEED = 2000, 0
-ROWS = ("u1", "mg", "dup", "missed", "ghosts", "in_frame", "boxes")
+ROWS = ("u1", "mg", "dup", "missed", "ghosts", "in_frame", "boxes", "ref_boxes")
+TORCH = "2.2.2"
+TEST_FILE = "tests/test_p8_nmsarm.py"
 
 
 def allowed(names, who: str = WHO) -> list:
@@ -90,23 +92,41 @@ def touches_edge(boxes: list, W: int, H: int) -> bool:
     return any(b[0] <= 0 or b[1] <= 0 or b[2] >= W or b[3] >= H for b in boxes)
 
 
-def frame_counts(feet, sv, inside) -> dict:
-    """One frame's rows from raw feet (12.2): the one-to-one net, missed plus ghosts, duplicates, with the scorer's
-    functions and constants. Raw boxes are r23's player class, so none is a referee box."""
+def differing_boxes(pre: list, keep: list, post: list) -> list:
+    """The boxes where re-NMS and R_post differ (in one and not the other) plus every candidate overlapping one of
+    them: the boxes an edge clip could have decided (code check item 3)."""
+    from tools.p8_recallcause import iou
+    a = [tuple(pre[k]) for k in keep]
+    b = [tuple(x) for x in post]
+    diff = [x for x in a if a.count(x) > b.count(x)] + [x for x in b if b.count(x) > a.count(x)]
+    return diff + [c for c in pre if tuple(c) not in diff and any(iou(c, d) > 0 for d in diff)]
+
+
+def ref_flags(boxes: list, refs: list) -> np.ndarray:
+    """The scorer's referee rule for a frame whose sidecar has no class: a box is a referee box when it overlaps one of
+    the scorecard cache's referee detections at IoU >= sportvu.bench.REF_IOU (as tools.p8_recallcause.d205_rows)."""
+    from sportvu import bench as B
+    return np.array([any(B._iou(b[:4], d[:4]) >= B.REF_IOU for d in refs) for b in boxes], bool)
+
+
+def frame_counts(feet, sv, inside, is_ref=None) -> dict:
+    """One frame's rows from raw feet (12.2): the one-to-one net, missed plus non-referee ghosts, duplicates, with the
+    scorer's functions and constants; is_ref from ref_flags (the scorer's referee rule)."""
     from sportvu.eval import GHOST_FT, MISS_FT
     from tools.p8_resetfix import frame_extra
     sv = np.asarray(sv, np.float64).reshape(-1, 2)
     feet = np.asarray(feet, np.float64).reshape(-1, 2)
     ins = np.asarray(inside, bool)
-    ex = frame_extra(feet, sv, ins, np.zeros(len(feet), bool))
+    is_ref = np.zeros(len(feet), bool) if is_ref is None else np.asarray(is_ref, bool).reshape(-1)
+    ex = frame_extra(feet, sv, ins, is_ref)
     if len(feet):
         D = np.sqrt(((sv[:, None, :] - feet[None, :, :]) ** 2).sum(-1))
         missed = int((ins & (D.min(1) > MISS_FT)).sum())
-        ghosts = int((D.min(0) > GHOST_FT).sum())
+        ghosts = int(((D.min(0) > GHOST_FT) & ~is_ref).sum())
     else:
         missed, ghosts = int(ins.sum()), 0
     return {"u1": ex["unmatched_1to1"], "mg": missed + ghosts, "dup": ex["duplicates"], "missed": missed,
-            "ghosts": ghosts, "in_frame": int(ins.sum()), "boxes": len(feet)}
+            "ghosts": ghosts, "in_frame": int(ins.sum()), "boxes": len(feet), "ref_boxes": int(is_ref.sum())}
 
 
 def c2_candidates(j: int, sv, pre_feet, post_feet, supp: dict) -> list:
@@ -195,7 +215,40 @@ def _checks(args_stage: str) -> dict:
     from tools.p8_recallcause import sha256
     if sha256(REPO / "reports" / "research" / "p8_recallcause.json") != RC_SHA:
         raise SystemExit(f"{WHO}: reports/research/p8_recallcause.json is not D208's record")
-    return {"r": r, "head": head, "stage": args_stage}
+    import torch
+    import torchvision
+    if torch.__version__ != TORCH:
+        raise SystemExit(f"{WHO}: torch {torch.__version__} is not {TORCH}")
+    return {"r": r, "head": head, "stage": args_stage,
+            "versions": {"torch": torch.__version__, "torchvision": torchvision.__version__}}
+
+
+def watched(r: dict) -> dict:
+    """The manifests that must not change during a stage, recallcause/ (the stored candidates) included."""
+    from tools import p8_rebaseline as RB
+    return {k: RB.manifest(r[k], ("labels", "label_build", "truth_accept", "cache")) for k in ("ref", "ms")} | \
+        {"builds_r23": RB.manifest(r["ref"], ("builds/r23",)), "recallcause": RB.manifest(r["ref"], ("recallcause",))}
+
+
+def digest(man: dict) -> str:
+    import hashlib
+    return hashlib.sha256(json.dumps(man, sort_keys=True).encode()).hexdigest()
+
+
+def run_unit_tests() -> dict:
+    """Code check item 5: this item's tests under the interpreter that runs the stage (the frozen CV python, so the
+    NMS test runs), recorded in the stage's record; a failure stops the stage."""
+    import subprocess
+    import sys
+    from tools.p8_common import REPO
+    p = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "--import-mode=importlib",
+                        "-rs", TEST_FILE], cwd=REPO, capture_output=True, text=True)
+    lines = [x for x in p.stdout.strip().splitlines() if x.strip()]
+    out = {"file": TEST_FILE, "returncode": p.returncode, "summary": lines[-1] if lines else "",
+           "skipped": [x for x in lines if x.startswith("SKIPPED")]}
+    if p.returncode != 0 or out["skipped"]:
+        raise SystemExit(f"{WHO}: {TEST_FILE} did not pass in full under this python: {out['summary']}")
+    return out
 
 
 def _write(stage: str, out: dict) -> None:
@@ -209,12 +262,12 @@ def _write(stage: str, out: dict) -> None:
 
 def cmd_replay(args) -> dict:
     import cv2
-    import torch
-    import torchvision
     from tools import p8_frozen as F
     from tools.p8_recallcause import raw_dir, read_json
     c = _checks("replay")
     allowed(CHECK_WINDOWS)
+    tests = run_unit_tests()
+    before = watched(c["r"])
     t0 = time.time()
     P = F.install_paths()
     res = {}
@@ -224,13 +277,17 @@ def cmd_replay(args) -> dict:
         bad, edge = [], []
         for f in sorted(raw, key=int):
             v = raw[f]
-            if not keep_equals_post(v["pre"], nms_keep(v["pre"], BASE_IOU), v["post"]):
-                (edge if touches_edge(v["pre"], W, H) else bad).append(int(f))
+            kk = nms_keep(v["pre"], BASE_IOU)
+            if not keep_equals_post(v["pre"], kk, v["post"]):
+                (edge if touches_edge(differing_boxes(v["pre"], kk, v["post"]), W, H) else bad).append(int(f))
         res[s] = {"frames": len(raw), "differing": len(bad) + len(edge), "differing_edge": edge, "differing_other": bad}
     passed = all(v["differing"] == 0 for v in res.values())
+    after = watched(c["r"])
+    if after != before:
+        raise SystemExit(f"{WHO}: a watched folder changed; nothing is reported")
     out = {"what": "P8 NMS arm stage 0a: re-NMS on stored candidates against the stored R_post "
                    "(docs/research/P8_nmsarm.md, version 1.1); report only", "head": c["head"],
-           "versions": {"torch": torch.__version__, "torchvision": torchvision.__version__},
+           "versions": c["versions"], "unit_tests": tests, "recallcause_digest": digest(after["recallcause"]),
            "iou": BASE_IOU, "max_det": MAX_DET, "windows": res, "passed": passed,
            "edge_only": (not passed) and all(not v["differing_other"] for v in res.values()),
            "seconds": round(time.time() - t0, 1)}
@@ -256,6 +313,8 @@ def cmd_screen(args) -> dict:
     rep = RC.read_json(out_path("replay")) if out_path("replay").exists() else None
     if not (rep or {}).get("passed") and not (rep or {}).get("edge_only"):
         raise SystemExit(f"{WHO}: stage 0a has not passed")
+    if (rep["head"], rep["iou"], rep["max_det"]) != (c["head"], BASE_IOU, MAX_DET):
+        raise SystemExit(f"{WHO}: the replay record is not from this head at IoU {BASE_IOU} and max_det {MAX_DET}")
     edge_skip = {s: set(v["differing_edge"]) for s, v in rep["windows"].items()}
     pinned, now = RC.read_json(p8_pin.PIN_FILE), p8_pin.current()
     if [k for k in now if now[k] != pinned.get(k)]:
@@ -271,9 +330,10 @@ def cmd_screen(args) -> dict:
     dropped = set(rc["windows_dropped"])
     kept = sorted(s for s in rc["alignment"] if s not in dropped)
     allowed(kept + sorted(dropped))
-    watch = lambda: {k: RB.manifest(r[k], ("labels", "label_build", "truth_accept", "cache")) for k in ("ref", "ms")} | \
-        {"builds_r23": RB.manifest(r["ref"], ("builds/r23",))}
-    before = watch()
+    tests = run_unit_tests()
+    before = watched(r)
+    if digest(before["recallcause"]) != rep.get("recallcause_digest"):
+        raise SystemExit(f"{WHO}: recallcause/ changed since the replay")
     t0 = time.time()
     P = F.install_paths()
     S.load_fixed_constants()
@@ -310,6 +370,10 @@ def cmd_screen(args) -> dict:
             if mine != want:
                 raise SystemExit(f"{WHO}: the D205 row gate fails on {s}")
             raw = RC.read_json(raw_d / f"{s}.json")
+            cache = RC.read_json(P_t["cache"] / "scorecard" / f"{s}.json")
+            refd = {int(k): vv for k, vv in cache.get("referees", {}).items()}
+            if any("cls" in b for x in RC.read_json(comp / f"{s}_frames.json")["frames"] for b in x["boxes"]):
+                raise SystemExit(f"{WHO}: {s}'s sidecar carries classes; the cache referee rule would not be the scorer's")
             cap = cv2.VideoCapture(str(P["label_build"] / f"{s}.mp4")); W, H = int(cap.get(3)), int(cap.get(4)); cap.release()
             uni = [x for x in rows if x["rec"]["class"] in RC.UNIVERSE]
             byf = {}
@@ -319,9 +383,8 @@ def cmd_screen(args) -> dict:
             acc = {str(t): {k: 0 for k in ROWS} for t in (BASE_IOU,) + ARMS}
             agree[s] = 0
             for f in sorted(byf):
-                if f in edge_skip.get(s, set()):
-                    skipped[s] = skipped.get(s, 0) + 1
-                    continue
+                edge_f = f in edge_skip.get(s, set())          # arm rows skip it; C2 is counted on every frame
+                skipped[s] = skipped.get(s, 0) + edge_f
                 v = raw[str(f)]
                 x0 = byf[f][0]
                 sv, Ht, px = x0["sv"], x0["Ht"], x0["px"]
@@ -331,8 +394,11 @@ def cmd_screen(args) -> dict:
                 pre_feet, post_feet = RC.feet_of(pre, Ht), RC.feet_of(post, Ht)
                 keep = {str(t): nms_keep(pre, t) for t in (BASE_IOU,) + ARMS}
                 agree[s] += keep_equals_post(pre, keep[str(BASE_IOU)], post)
+                flags = ref_flags(pre, refd.get(f, []))
                 for t, kk in keep.items():
-                    fc = frame_counts(pre_feet[kk] if kk else np.zeros((0, 2)), sv, inside)
+                    if edge_f:
+                        continue
+                    fc = frame_counts(pre_feet[kk] if kk else np.zeros((0, 2)), sv, inside, flags[kk])
                     for k in ROWS:
                         acc[t][k] += fc[k]
                 post_ids = post_ids_of(pre, post)
@@ -347,13 +413,15 @@ def cmd_screen(args) -> dict:
                     if not cands:
                         continue
                     c2_total[part] += 1
+                    if edge_f:
+                        continue
                     for t in ARMS:
                         hit = [cc for cc in cands if cc in set(keep[str(t)])]
                         if hit:
                             c2_rec[part][str(t)] += 1
                             rec_c[str(t)].update(hit)
                 base_set = set(keep[str(BASE_IOU)])
-                for t in ARMS:
+                for t in ([] if edge_f else ARMS):
                     add = [k for k in keep[str(t)] if k not in base_set and k not in rec_c[str(t)]]
                     sp = added_split(add, pre_feet, pre_feet[sorted(base_set)] if base_set else np.zeros((0, 2)),
                                      sv, inside)
@@ -361,7 +429,8 @@ def cmd_screen(args) -> dict:
                         added[part][str(t)][k2] += n2
             frames_n[s] = len(byf)
             per_window[s] = acc
-    if watch() != before:
+    after = watched(r)
+    if after != before:
         raise SystemExit(f"{WHO}: a watched folder changed; nothing is reported")
     if c2_total["kept"] != C2_KEPT:
         raise SystemExit(f"{WHO}: the C2 recount on the kept windows is {c2_total['kept']}, not D208's {C2_KEPT}")
@@ -380,8 +449,11 @@ def cmd_screen(args) -> dict:
            "dropped_beside": {"windows": len(dw), "frames": sum(frames_n[s] for s in dw), "change": dl_d,
                               "c2": {"misses": c2_total["dropped"], "recoverable": c2_rec["dropped"]},
                               "added": added["dropped"]},
-           "replay_agreement": {"frames": sum(frames_n.values()) - sum(skipped.values()),
+           "replay_agreement": {"frames": sum(frames_n.values()),
                                 "equal_at_0.45": int(sum(agree.values())), "edge_frames_skipped": skipped},
+           "referee_boxes_flagged": {str(t): int(sum(per_window[s][str(t)]["ref_boxes"] for s in per_window))
+                                     for t in (BASE_IOU,) + ARMS},
+           "versions": c["versions"], "unit_tests": tests, "recallcause_digest": digest(after["recallcause"]),
            "verdict": v, "per_window": per_window, "seconds": round(time.time() - t0, 1)}
     _write("screen", out)
     print(json.dumps({"kept_change": dl_k, "c2": out["kept"]["c2"], "verdict": v}, indent=1))
