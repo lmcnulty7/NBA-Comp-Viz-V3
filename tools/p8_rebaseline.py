@@ -34,7 +34,8 @@ GAMES = (CHA, BKN, HOU)
 ORDER = (BKN, CHA, HOU)                # gsw_bkn_2015 first: its previous truth is the reproduction gate (10.5)
 CAP_S = 3600
 BOOT_N, BOOT_SEED = 2000, 0
-GATE_FIELDS = ("missed", "in_frame", "nr_ghosts", "nr_boxes", "matched", "far", "missed_1to1", "unmatched_1to1")
+GATE_FIELDS = ("missed", "in_frame", "nr_ghosts", "nr_boxes", "matched", "far", "missed_1to1", "unmatched_1to1",
+               "team", "cov_acc", "cov_live", "duplicates")
 
 
 def roots() -> dict:
@@ -217,8 +218,9 @@ def cmd_score(args) -> dict:
     if not clean:
         raise SystemExit(f"{WHO}: tools/ or sportvu/ has uncommitted changes")
     pinned, now = read_json(p8_pin.PIN_FILE), p8_pin.current()
-    if now["scorer"] != pinned["scorer"] or now["constants_sha256"] != pinned["constants_sha256"]:
-        raise SystemExit(f"{WHO}: the scorecard does not match its pin")
+    bad_pin = [k for k in now if now[k] != pinned.get(k)]          # every field p8_pin.current() reports
+    if bad_pin:
+        raise SystemExit(f"{WHO}: the scorecard does not match its pin ({bad_pin})")
     if not (r["ms"] / "label_build").is_symlink() or \
             (r["ms"] / "label_build").resolve() != (r["ref"] / "label_build").resolve():
         raise SystemExit(f"{WHO}: work_ms/label_build is not the reference root's label_build")
@@ -231,8 +233,12 @@ def cmd_score(args) -> dict:
     refs = B.References()
     d = r["ref"] / "rebaseline"
     d.mkdir(exist_ok=True)
+    run_id = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime(t0))
+    if (d / "score_run.json").exists():                    # an earlier run's record is moved aside, never deleted
+        (d / "earlier").mkdir(exist_ok=True)
+        (d / "score_run.json").rename(d / "earlier" / f"score_run__{int(t0)}.json")
     tr = truths(r)
-    result = {"label": LABEL, "head": head, "scorecard_pin": pinned.get("scorer"), "pairs": {}}
+    result = {"label": LABEL, "run_id": run_id, "head": head, "scorecard_pin": pinned.get("scorer"), "pairs": {}}
 
     def stop(msg):
         raise SystemExit(f"{WHO}: {msg}")
@@ -258,11 +264,12 @@ def cmd_score(args) -> dict:
                                                    ("clip", P_t["label_build"] / f"{s}.mp4"),
                                                    ("timemap", P_t["label_build"] / f"{s}_timemap.json"),
                                                    ("labels", P_t["labels"] / game / f"{s}.jsonl"),
+                                                   ("identity", comp / f"{s}_identity.json"),
                                                    ("cache", cp))}
             tw = time.time()
             recs[s] = score_pair(P_t, game, w, {"r23": comp, "new": comp}, {"r23": side, "new": side}, ctx)["r23"]
             if any(miss.values()):
-                cache_log[s] = {**miss, "seconds": round(time.time() - tw, 1)}
+                cache_log[s] = {**miss, "window_seconds": round(time.time() - tw, 1)}
         return recs, cache_log, hashes
 
     for game in ORDER:
@@ -315,6 +322,10 @@ def cmd_score(args) -> dict:
                     if timemap_content(read_json(r["ws"] / "label_build" / f"{s}_timemap.json")) != \
                             timemap_content(read_json(P["label_build"] / f"{s}_timemap.json")):
                         stop(f"{s}: the workspace time map differs in content")
+            stems_l = {p.name[:-len(".jsonl")] for p in (root / "labels" / game).glob(f"{game}_s*.jsonl")}
+            if stems_l != {w["window"] for w in wins}:
+                stop(f"{game} {name}: the truth's label windows ({len(stems_l)}) are not the scored windows "
+                     f"({len(wins)})")
             pin = labels_pin(root, game)
             if game == BKN and name == "previous":
                 arm_pin = read_json(r["ref"] / "resetfix" / f"truth_pin__{game}.json")["files"]
@@ -326,18 +337,22 @@ def cmd_score(args) -> dict:
                                     read_json(r["ref"] / "resetfix" / f"score__{game}.json")["windows"])
                 if bad:
                     stop(f"the reproduction gate fails: {bad[:3]}")
-            rec = {"game": game, "truth": name, "root": root.name, "labels_pin": pin, "windows": recs,
+            rec = {"run_id": run_id, "game": game, "truth": name, "root": root.name, "labels_pin": pin, "windows": recs,
                    "cache": cache_log, "hashes": hashes}
             atomic_write(d / f"score__{game}__{name}.json", json.dumps(rec))
             result["pairs"][f"{game}__{name}"] = {"windows": len(recs), "cache_windows": len(cache_log)}
         if game in POOL:                                   # the common-frames split (10.4)
-            common = {}
+            common, frame_counts = {}, {}
             for w in wins:
                 s = w["window"]
                 fr = [set(int(json.loads(x)["frame"]) for x in (root / "labels" / game / f"{s}.jsonl").read_text()
                           .splitlines() if x.strip()) if (root / "labels" / game / f"{s}.jsonl").exists() else set()
                       for root in tr[game].values()]
                 common[s] = fr[0] & fr[1]
+                for k_, v_ in (("previous_only", len(fr[list(tr[game]).index("previous")] - fr[list(tr[game]).index("current")])),
+                               ("current_only", len(fr[list(tr[game]).index("current")] - fr[list(tr[game]).index("previous")])),
+                               ("both", len(common[s]))):
+                    frame_counts[k_] = frame_counts.get(k_, 0) + v_
             for name, root in tr[game].items():
                 lc = d / "labels_common" / name
                 (lc / game).mkdir(parents=True, exist_ok=True)
@@ -352,8 +367,8 @@ def cmd_score(args) -> dict:
                     atomic_write(lc / game / f"{s}.jsonl", "".join(x + "\n" for x in keep))
                 recs, cache_log, _h = score_set(game, name, {**P, "labels": lc}, wins, ctx, comp)
                 atomic_write(d / f"score__{game}__{name}__common.json",
-                             json.dumps({"game": game, "truth": name, "common_frames": True, "windows": recs,
-                                         "cache": cache_log}))
+                             json.dumps({"run_id": run_id, "game": game, "truth": name, "common_frames": True,
+                                         "windows": recs, "cache": cache_log, "frame_counts": frame_counts}))
     after = {"ms": manifest(r["ms"], ("labels", "label_build", "cache", "truth_accept")),
              "ws": manifest(r["ws"], ("labels", "label_build", "cache", "truth_accept")),
              "ref": manifest(r["ref"], ("labels", "label_build", "truth_accept"))}
@@ -373,16 +388,26 @@ def cmd_report(args) -> dict:
     d = roots()["ref"] / "rebaseline"
     run = read_json(d / "score_run.json")
     sc = {k: read_json(d / f"score__{k}.json") for k in run["pairs"]}
+    for g in POOL:
+        for n in ("previous", "current"):
+            sc[f"{g}__{n}__common"] = read_json(d / f"score__{g}__{n}__common.json")
+    stale = [k for k, v in sc.items() if v.get("run_id") != run["run_id"]]
+    if stale:
+        raise SystemExit(f"{WHO}: score files from another run: {stale}")
     wins = {k: [v["windows"][s] for s in sorted(v["windows"])] for k, v in sc.items()}
-    out = {"label": LABEL, "limits": LIMITS, "head": run["head"], "seconds": run["seconds"], "per_game": {},
+    out = {"label": LABEL, "limits": LIMITS, "run_id": run["run_id"], "head": run["head"], "seconds": run["seconds"],
+           "cache_copied": run.get("cache_copied"), "per_game": {},
            "pooled_cha_bkn": None, "truth_change": {}, "common_frames": {}, "cache": {}}
     for k, w in wins.items():
+        if k.endswith("__common"):
+            continue
         out["per_game"][k] = unit_rows(w)
-        out["cache"][k] = {"windows": len(sc[k]["cache"]), "seconds": round(sum(c["seconds"] for c in sc[k]["cache"]
-                                                                                 .values()), 1),
+        out["cache"][k] = {"windows": len(sc[k]["cache"]),
+                           "window_seconds": round(sum(c["window_seconds"] for c in sc[k]["cache"].values()), 1),
                            "missing": {f: sum(c[f] for c in sc[k]["cache"].values()) for f in ("wide", "referees",
                                                                                                 "corr_absent")}}
-    pooled = [sc[f"{g}__current"]["windows"][s] for g in POOL for s in sorted(sc[f"{g}__current"]["windows"])]
+    pool_w = {s: sc[f"{g}__current"]["windows"][s] for g in POOL for s in sc[f"{g}__current"]["windows"]}
+    pooled = [pool_w[s] for s in sorted(pool_w)]                # sorted over all pooled stems (10.3)
     out["pooled_cha_bkn"] = unit_rows(pooled)
     for g in POOL:
         a, b = sc[f"{g}__previous"]["windows"], sc[f"{g}__current"]["windows"]
@@ -393,9 +418,9 @@ def cmd_report(args) -> dict:
                                   "windows_both": len(both), "windows_previous_only": len(a.keys() - b.keys()),
                                   "windows_current_only": len(b.keys() - a.keys()),
                                   **change_rows([a[s] for s in both], [b[s] for s in both])}
-        ca, cb = (read_json(d / f"score__{g}__{n}__common.json")["windows"] for n in ("previous", "current"))
+        ca, cb = (sc[f"{g}__{n}__common"]["windows"] for n in ("previous", "current"))
         cboth = sorted(ca.keys() & cb.keys())
-        out["common_frames"][g] = {"windows": len(cboth),
+        out["common_frames"][g] = {"windows": len(cboth), "frame_counts": sc[f"{g}__current__common"]["frame_counts"],
                                    **change_rows([ca[s] for s in cboth], [cb[s] for s in cboth])}
     res = rnd(out)
     text = json.dumps(res, indent=1)

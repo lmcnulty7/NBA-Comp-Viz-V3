@@ -73,3 +73,25 @@ def test_timemap_content_ignores_run_fields():
 def test_order_puts_the_gate_first():
     assert R.ORDER[0] == R.BKN and list(R.truths(R.roots())[R.BKN])[0] == "previous"
     assert set(R.ORDER) == set(R.GAMES) and R.POOL == (R.CHA, R.BKN)
+
+
+def test_report_refuses_score_files_from_another_run(tmp_path, monkeypatch):
+    d = tmp_path / "work_ref" / "rebaseline"
+    d.mkdir(parents=True)
+    pairs = {f"{g}__{n}": {} for g, ns in (("gsw_cha_2016", ("current", "previous")),
+                                           ("gsw_bkn_2015", ("previous", "current")), ("hou_cle_2016", ("current",)))
+             for n in ns}
+    (d / "score_run.json").write_text(json.dumps({"run_id": "A", "head": "h", "seconds": 1.0, "pairs": pairs}))
+    for k in pairs:
+        (d / f"score__{k}.json").write_text(json.dumps({"run_id": "A", "windows": {}, "cache": {}}))
+    for g in R.POOL:
+        for n in ("previous", "current"):
+            (d / f"score__{g}__{n}__common.json").write_text(json.dumps({"run_id": "B", "windows": {}}))
+    monkeypatch.setattr(R, "roots", lambda: {"ws": tmp_path / "work", "ref": tmp_path / "work_ref",
+                                            "ms": tmp_path / "work_ms"})
+    with pytest.raises(SystemExit):
+        R.cmd_report(None)
+
+
+def test_gate_fields_cover_team_coverage_and_duplicates():
+    assert {"team", "cov_acc", "cov_live", "duplicates"} <= set(R.GATE_FIELDS)

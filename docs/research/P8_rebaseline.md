@@ -178,3 +178,10 @@ file is missing in the reference root gets the workspace's file when the clips a
 entry still missing is counted per window (wide, referees, corr absent) and the window's scoring time recorded. Tests:
 the ratio rows (placement as missed minus detection), intervals that contain their values, the truth change against
 tools.p8_e1_score.diffs, the gate, the manifests and pins, the content test of time maps, the order.
+
+**10.11 Re-check fixes (2026-11-27, PASS, GO WITH CHANGES; before the run).** The common-frames record stores the
+frames accepted by the previous truth only, the current truth only and both, per game; the pooled bootstrap sorts all
+pooled stems; every field of the scorecard pin is compared; the cache timing is named window_seconds; each truth
+root's label stems must equal the scored stems, and the identity file joins the per-window hashes; every score file
+carries the run's id, report refuses a file from another run, and an earlier run record is moved aside under
+rebaseline/earlier/, never deleted; the gate also compares team, cov_acc, cov_live and duplicates.
