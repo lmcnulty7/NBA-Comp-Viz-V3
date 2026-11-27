@@ -58,15 +58,21 @@ fit under this rule can rescue gsw_cha_2016, and with the one-game upper bound n
     G4, fixed seed 10: (47.8121, 137.3554, -30.9693).
 - Reading rule, fixed now; it reads J only (never checks A, B or C, accepted frames, line support, the scorer or any
   score): with J_B = J(B) and J_G = the lowest of J(G1) to J(G4):
-  - J_B <= J_G: STOP. The rule would select the broken basin over every good position on record; no multi-pool run
-    under this rule can rescue gsw_cha_2016. Report and end this item.
+  - J_B <= J_G: STOP. On record, J does not prefer the good basin: every position here is a 200-evaluation fit and the
+    G positions only sample the good region, so this does not prove that no good position scores lower, but it gives
+    no ground to run the multi-pool fit. Report and end this item.
   - J_G < J_B but by less than 1 percent of J_B: STOP as inconclusive; report and leave the next step to the lead.
   - J_G <= 0.99 J_B: continue to stage 1.
-- Per-frame optimality check (finding 6), on the seed-0 pool at B: for each of its 400 frames, cost at fit_frame's
-  solution against the cost at the pooled solution's own (rvec, f) for that frame (from the tools-side copy's final
-  parameter vector at 200 evaluations, which reproduces fit_game). If more than 5 percent of the frames have a
-  fit_frame cost more than 1 percent above the pooled pose's cost, J's per-frame minimisation is not reliable: STOP and
-  report, whatever the J reading.
+- Validity of J (re-check S0-3): if J is not finite at any of the five positions, or fit_frame fails on any init at any
+  of them (fit_frame_failed above 0), J is invalid: STOP, whatever the reading.
+- Per-frame optimality check (finding 6; re-check S0-1), at B on the seed-0 pool and at G4 on the seed-10 pool: for
+  each of the pool's 400 frames, cost at fit_frame's solution against the cost at the pooled solution's own (rvec, f)
+  for that frame (from the tools-side copy's final parameter vector after one 200-evaluation chunk). If at either
+  position more than 5 percent of the frames have a fit_frame cost more than 1 percent above the pooled pose's cost,
+  J's per-frame minimisation is not reliable: STOP and report, whatever the J reading.
+- Copy checks (re-check S0-1 and S0-2): the copy's C after its first chunk must equal fit_game(frames, seed)'s C within
+  0.01 ft for seed 0 and seed 10, and the seed-10 copy's C must equal F1's recorded seed-10 C (G4) within 0.01 ft;
+  any difference above 0.01 ft: STOP.
 - Chunked-continuation smoke (finding 5), report only: on the seed-0 pool from C0, ten chunks of 200 evaluations,
   each continuing from the previous chunk's end, against the recorded single 2,000-evaluation run (P8_cha_fit.md F2: C
   (47.0457, 104.4133, -34.5452), cost 1,062,115); the C distance and cost difference are reported.
@@ -224,3 +230,23 @@ version reviewed before it runs.
 
 No compute, no numbers, no truth written, nothing rescored, no D line. The frozen fit_game and step_fit and their
 recorded outputs stay as they are.
+
+## 13. Amendments after the re-check (2026-11-27, before stage 0 runs)
+
+Stage 0 (section 3, amended in place above): the optimality check also at G4 on the seed-10 pool, with its first chunk
+reproducing F1's seed-10 C; a copy difference above 0.01 ft at B or G4 stops; a non-finite J or any fit_frame failure at
+any of the five positions stops; the STOP wording says what the reading can and cannot show.
+
+Stage 1, for its code and review (no stage 1 code yet):
+
+- S1-1, stability pixels (replaces section 6's pixels): the truth-space distance is measured at pixels the per-frame
+  fits were not fitted to: every sidecar box's foot_stab pixel on each init frame (the label build's boxes of that
+  frame, not the frame's inlier pair pixels), mapped through each selection's per-frame H. The median over all such
+  feet of all inits and the 0.25 ft bar are unchanged.
+- S1-2, order (replaces section 7 and 8's stage 1 order): gsw_cha_2016 first (three seed sets, stability, truth step);
+  then kill rule 4 (gsw_cha_2016's selected C more than 5 ft from the frozen fixed C, or the item ends); then
+  gsw_bkn_2015.
+- S1-3, decisions (adds to section 9): every comparison uses each game's decided version; the lead accepts or rejects
+  the whole set of switches at once, not game by game.
+- S1-4, cost (adds to section 8): the reproduction calls (one fit_game call per seed per game, 24 a game, about one
+  200-evaluation chunk each) are part of the stage 1 and 2 estimates; the stage 1 code review checks them.

@@ -8,7 +8,9 @@ Stage 0 (the design's section 3, registered before any number): on gsw_cha_2016'
 tools.p8_frozen.step_fit builds them, (a) gates: 4,943 inits and fit_game(frames, seed=0) reproducing the recorded
 fixed C within 0.01 ft; (b) the common objective J at five recorded positions (the broken fixed C and four good ones,
 read from reports/research/p8_cha_fit_stage2.json) and the registered reading; (c) the per-frame optimality check on
-the seed-0 pool at the broken C; (d) a report-only chunked-continuation smoke; (e) timings. It reads J only for its
+the seed-0 pool at the broken C and on the seed-10 pool at G4, each with the copy's C checked against fit_game and
+the recorded C (stop above 0.01 ft); a non-finite J or any fit_frame failure stops; (d) a report-only
+chunked-continuation smoke; (e) timings. It reads J only for its
 reading: never checks A, B or C, accepted frames, line support, the scorer or any score. The frozen code
 (sportvu.camera, sportvu.truth, tools.p8_frozen.step_fit) is called, never edited. It writes only under
 <reference root>/diag/multistart/ and the record, and checks a SHA-256 manifest of the reference root's labels,
@@ -60,6 +62,13 @@ def reading(j_b: float, j_goods: list, margin: float = STOP_MARGIN) -> str:
     if j_g > (1.0 - margin) * j_b:
         return "INCONCLUSIVE"
     return "CONTINUE"
+
+
+def j_valid(js: dict) -> tuple:
+    """(valid, reasons): every position's J finite and no fit_frame failure (re-check S0-3)."""
+    bad = [f"{k}: J not finite" for k, v in js.items() if not np.isfinite(v.get("J", np.nan))]
+    bad += [f"{k}: fit_frame failed on {v['fit_frame_failed']} inits" for k, v in js.items() if v.get("fit_frame_failed")]
+    return not bad, bad
 
 
 def optimality(fit_costs, pooled_costs, slack: float = OPT_SLACK, share: float = OPT_SHARE) -> dict:
@@ -244,21 +253,36 @@ def stage0() -> dict:
         out["J"] = js
         out["reading"] = {"J_B": j_b, "J_G_min": min(j_g), "best_good": min(("G1", "G2", "G3", "G4"), key=lambda k: js[k]["J"]),
                           "relative_margin": (j_b - min(j_g)) / j_b, "verdict": reading(j_b, j_g)}
-        # per-frame optimality on the seed-0 pool at B: the pooled solution's own poses against fit_frame
-        pool = pool_of(inits, 0)
+        # per-frame optimality at B (seed-0 pool) and at G4 (seed-10 pool), with the copy checks (S0-1, S0-2)
         C0 = np.median(np.array([p[2] for _, p in inits]), axis=0)
-        first, x = run_chunks(pool, start_vector(pool, C0), 1)
-        times["chunk_s"] = first[0]["seconds"]
         from sportvu.camera import project
-        Cb = x[:3]
-        pooled_c, fit_c = [], []
-        for k, (fr, _) in enumerate(pool):
-            r = project(Cb, x[3 + 4 * k: 6 + 4 * k], np.exp(x[6 + 4 * k]), fr["w"], fr["h"], fr["ft"]) - fr["px"]
-            pooled_c.append(soft_l1_cost(r))
-            fit_c.append(frame_cost(Cb, fr)[0])
-        opt = optimality([c if c is not None else np.inf for c in fit_c], pooled_c)
-        opt["copy_C_diff_from_fit_game_ft"] = float(np.linalg.norm(Cb - np.asarray(fz["C"])))
-        out["optimality"] = opt
+        out["optimality"], stops = {}, []
+        for name, seed in (("B", 0), ("G4", 10)):
+            t = time.time()
+            fz_s = fz if seed == 0 else cam.fit_game(frames, seed=seed)
+            pool = pool_of(inits, seed)
+            first, x = run_chunks(pool, start_vector(pool, C0), 1)
+            Cs = x[:3]
+            pooled_c, fit_c = [], []
+            for k, (fr, _) in enumerate(pool):
+                r = project(Cs, x[3 + 4 * k: 6 + 4 * k], np.exp(x[6 + 4 * k]), fr["w"], fr["h"], fr["ft"]) - fr["px"]
+                pooled_c.append(soft_l1_cost(r))
+                fit_c.append(frame_cost(Cs, fr)[0])
+            opt = optimality([c if c is not None else np.inf for c in fit_c], pooled_c)
+            opt["seed"] = seed
+            opt["copy_C"] = Cs.tolist()
+            opt["copy_C_diff_from_fit_game_ft"] = float(np.linalg.norm(Cs - np.asarray(fz_s["C"])))
+            opt["copy_C_diff_from_recorded_ft"] = float(np.linalg.norm(Cs - np.asarray(rec["positions"][name])))
+            opt["seconds"] = round(time.time() - t, 1)
+            out["optimality"][name] = opt
+            if not opt["passes"]:
+                stops.append(f"optimality at {name}: {opt['share_worse']} of frames worse")
+            if opt["copy_C_diff_from_fit_game_ft"] > REPRO_FT:
+                stops.append(f"copy at {name} differs from fit_game by {opt['copy_C_diff_from_fit_game_ft']:.4f} ft")
+            if opt["copy_C_diff_from_recorded_ft"] > REPRO_FT:
+                stops.append(f"copy at {name} differs from the recorded C by {opt['copy_C_diff_from_recorded_ft']:.4f} ft")
+        times["chunk_s"] = first[0]["seconds"]
+        pool = pool_of(inits, 0)
         # report-only chunk smoke: 10 chunks from C0 against the recorded single 2,000-evaluation run
         smoke, xs = run_chunks(pool, start_vector(pool, C0), SMOKE_CHUNKS)
         out["report_only_chunk_smoke"] = {
@@ -266,8 +290,13 @@ def stage0() -> dict:
             "single_2000_C": rec["single_2000"]["C"], "single_2000_cost": rec["single_2000"]["cost"],
             "C_diff_ft": float(np.linalg.norm(xs[:3] - np.asarray(rec["single_2000"]["C"]))),
             "cost_diff_rel": (smoke[-1]["cost"] - rec["single_2000"]["cost"]) / rec["single_2000"]["cost"]}
-        if not opt["passes"]:
-            out["reading"]["verdict"] = "STOP (optimality check failed)"
+        ok, why = j_valid(js)
+        if not ok:
+            stops.insert(0, "J invalid: " + "; ".join(why))
+        out["stops"] = stops
+        if stops:
+            out["reading"]["verdict_by_J_alone"] = out["reading"]["verdict"]
+            out["reading"]["verdict"] = "STOP (" + "; ".join(stops) + ")"
     else:
         out["stopped"] = "gates failed: inputs or the frozen fit are not reproduced"
     after = manifest(ref)

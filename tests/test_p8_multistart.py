@@ -100,3 +100,21 @@ def test_constants_are_the_registered_ones():
     assert (M.CHUNK, M.STOP_MARGIN, M.OPT_SLACK, M.OPT_SHARE, M.SMOKE_CHUNKS, M.EXPECT_INITS, M.REPRO_FT) == \
         (200, 0.01, 0.01, 0.05, 10, 4943, 0.01)
     assert M.GAME == "gsw_cha_2016"
+
+
+def test_j_validity_stops_on_non_finite_or_failed_frames():
+    good = {"B": {"J": 10.0, "fit_frame_failed": 0}, "G1": {"J": 5.0, "fit_frame_failed": 0}}
+    assert M.j_valid(good) == (True, [])
+    ok, why = M.j_valid({**good, "G2": {"J": float("nan"), "fit_frame_failed": 0}})
+    assert not ok and why == ["G2: J not finite"]
+    ok, why = M.j_valid({**good, "G3": {"J": float("inf"), "fit_frame_failed": 0}})
+    assert not ok and "G3: J not finite" in why
+    ok, why = M.j_valid({**good, "G4": {"J": 7.0, "fit_frame_failed": 2}})
+    assert not ok and why == ["G4: fit_frame failed on 2 inits"]
+
+
+def test_g4_is_fixed_seed_10_in_the_record():
+    import json
+    d = json.loads(M.STAGE2_RECORD.read_text())
+    seed10 = [r["C"] for r in d["F1"]["fix"] if r["seed"] == 10][0]
+    assert np.allclose(M.recorded_positions()["positions"]["G4"], seed10)
