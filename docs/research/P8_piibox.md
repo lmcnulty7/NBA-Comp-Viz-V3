@@ -211,3 +211,16 @@ hits as among P-ii boxes says less about the P-ii row than one concentrated in i
    - the video id is guarded;
    - no track is a stopping counter;
    - "short" counts scored frames only.
+
+## 11. Amendment (2026-11-27, after the code check of 45841d80, GO WITH CHANGES; before any number)
+
+1. **Section 4, another's with stage B evidence.** When n_own is 0, n_other at least 1 and n_ownB at least 1, the 0.2
+   rule is applied with the own evidence taken as n_ownB:
+   - n_other at most 0.2 of (n_ownB + n_other) reads **own, misplaced, with crossings**, read with own (the foot or
+     per-box route);
+   - n_ownB at most 0.2 of the same reads **another's**;
+   - otherwise it reads **switch**.
+
+   The class joins the list after another's and before own, misplaced, and it joins the own group ("own (all four)").
+2. **The camera check** is relative: every entry of the two normalised matrices agrees within 1e-9 of its size (numpy
+   allclose, rtol 1e-9, atol 1e-15). An absolute 1e-6 would be loose for the third-row entries, which are about 6e-5.

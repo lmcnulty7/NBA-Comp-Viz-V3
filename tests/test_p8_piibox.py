@@ -16,14 +16,17 @@ def test_classes_in_their_registered_order():
     assert c(8, 2, 0, False, 10) == "own, with crossings"          # 2 of 10 is at most 0.2
     assert c(7, 3, 0, False, 10) == "switch"
     assert c(2, 8, 0, False, 10) == "another's, with crossings"
-    assert c(0, 4, 5, True, 10) == "another's"                     # another's comes before own, misplaced
+    assert c(0, 4, 0, True, 10) == "another's"
+    assert c(0, 2, 8, True, 10) == "own, misplaced, with crossings"   # amendment 11: own evidence = n_ownB
+    assert c(0, 8, 2, True, 10) == "another's"
+    assert c(0, 4, 5, True, 10) == "switch"
     assert c(0, 0, 1, True, 1) == "own, misplaced"                 # before every ghost
     assert c(0, 0, 0, True, 1) == "ghost, referee-flagged"         # referee before short
     assert c(0, 0, 0, False, 2) == "ghost, short"
     assert c(0, 0, 0, False, 3) == "ghost, persistent"
     assert set(M.CLASSES) == {c(*a) for a in [(3, 0, 0, 0, 9), (8, 2, 0, 0, 9), (7, 3, 0, 0, 9), (2, 8, 0, 0, 9),
-                                               (0, 4, 0, 0, 9), (0, 0, 1, 0, 9), (0, 0, 0, 1, 9), (0, 0, 0, 0, 1),
-                                               (0, 0, 0, 0, 9)]}
+                                               (0, 4, 0, 0, 9), (0, 1, 9, 0, 9), (0, 0, 1, 0, 9), (0, 0, 0, 1, 9),
+                                               (0, 0, 0, 0, 1), (0, 0, 0, 0, 9)]}
 
 
 def frame(f, cids, A=None, Bm=None, ref=None, ft=None):
@@ -78,6 +81,8 @@ def test_camera_check():
     assert M.camera_matches(row, W, H)
     bad = dict(row, H_truth=(Hc.ravel() * (1 + np.r_[1e-3, np.zeros(8)])).tolist())
     assert not M.camera_matches(bad, W, H)
+    third = Hc.ravel().copy(); third[6] *= 1 + 1e-7                   # a third-row entry, about 6e-5 in size
+    assert not M.camera_matches(dict(row, H_truth=third.tolist()), W, H)
 
 
 def test_overlap_and_truncation():

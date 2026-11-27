@@ -38,11 +38,12 @@ PERSON_FT = 6.5                       # nominal height for the expected box heig
 RATIO_BINS = (0.75, 1.25)
 EDGE_PX = 2
 IOU_BAR, INSIDE_BAR = 0.3, 0.5
-CAM_TOL = 1e-6
+CAM_RTOL, CAM_ATOL = 1e-9, 1e-15       # amendment 11: relative comparison
 BOOT_N, SEED = 2000, 0
-CLASSES = ("own", "own, with crossings", "another's, with crossings", "switch", "another's", "own, misplaced",
-           "ghost, referee-flagged", "ghost, short", "ghost, persistent")
-GROUPS = {"own (all three)": ("own", "own, with crossings", "own, misplaced"),
+CLASSES = ("own", "own, with crossings", "another's, with crossings", "switch", "another's",
+           "own, misplaced, with crossings", "own, misplaced", "ghost, referee-flagged", "ghost, short",
+           "ghost, persistent")
+GROUPS = {"own (all four)": ("own", "own, with crossings", "own, misplaced, with crossings", "own, misplaced"),
           "another's (both)": ("another's", "another's, with crossings"),
           "switch": ("switch",),
           "ghost (all three)": ("ghost, referee-flagged", "ghost, short", "ghost, persistent")}
@@ -65,6 +66,13 @@ def classify(n_own: int, n_other: int, n_ownB: int, referee_flagged: bool, prese
             return "another's, with crossings"
         return "switch"
     if n_other >= 1:
+        if n_ownB >= 1:                          # amendment 11 (2026-11-27): the 0.2 rule with own evidence = n_ownB
+            tot = n_ownB + n_other
+            if n_other <= CROSS_FRAC * tot:
+                return "own, misplaced, with crossings"
+            if n_ownB <= CROSS_FRAC * tot:
+                return "another's"
+            return "switch"
         return "another's"
     if n_ownB >= 1:
         return "own, misplaced"
@@ -161,7 +169,7 @@ def camera_matches(row: dict, W: int, H: int) -> bool:
     Hc = np.asarray(h_px2ft(np.asarray(row["camera_C"], float), np.asarray(row["camera_rvec"], float),
                             float(row["camera_f"]), W, H), float).reshape(3, 3)
     Ht = np.asarray(row["H_truth"], float).reshape(3, 3)
-    return bool(np.abs(Hc / Hc[2, 2] - Ht / Ht[2, 2]).max() <= CAM_TOL)
+    return bool(np.allclose(Hc / Hc[2, 2], Ht / Ht[2, 2], rtol=CAM_RTOL, atol=CAM_ATOL))
 
 
 def depth_lateral(cam_C, foot_ft, sv_xy) -> tuple:
@@ -553,7 +561,7 @@ def report() -> dict:
     if find_private(text):
         raise SystemExit(f"{WHO}: the record holds private data")
     atomic_write(RECORD, text)
-    print(json.dumps({g: {k: v["shares"]["own (all three)"] for k, v in res["classes"][g].items()}
+    print(json.dumps({g: {k: v["shares"]["own (all four)"] for k, v in res["classes"][g].items()}
                       for g in res["classes"]}, indent=1))
     return res
 
