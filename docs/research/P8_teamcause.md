@@ -156,7 +156,8 @@ cross-tabulated, and carrying bins in such a pair are reported "not separated" f
 and their run_id must be 20261127T171848Z; per window, the recomputed team-row tuples must equal score_window's own
 team_rows (same order), and n, majority and fixed must equal the D202 record; otherwise nothing is reported. Missing
 cache entries are counted for every window before scoring, and stage B stops if any is non-zero (it computes nothing
-new). The manifests cover labels/, label_build/, truth_accept/ and cache/scorecard in every root read. A clean
+new). The watch manifests cover work_ms's labels/ and truth_accept/, the reference root's label_build/, truth_accept/ and
+cache/scorecard/, and the 156 windows' files in builds/r23 (amended 2026-11-27 to match the code). A clean
 `git status -- tools sportvu` is required and HEAD recorded. At the cap the run stops, reports nothing and is not
 retried without a new go. Stage B now covers 156 windows (73 and 83): about 3 minutes, cap 20.
 
@@ -168,3 +169,13 @@ Tests (tests/test_p8_teamcause.py): the tie rule, the fixed mapping against tool
 bootstrap bound on synthetic rows, ranking and overlap, and stage A on synthetic records writing only its own record
 (writers patched), plus a refusal of an unpinned record. Stage B's row recomputation is tested by its own gate at run
 time (tuples equal to score_window's team_rows, counts equal to D202).
+
+**8.9 Re-check fixes (2026-11-27, GO WITH CHANGES; before the run).** The overlap check ranks each feature by an
+explicit order (crowding <3, 3-6, >6; edge <50, 50-150, >150; terciles low, middle, high; since cut and track age <1,
+1-3, >3, with "censored" left out of the ranks; third far, middle, near; zone by the scorer's bins from the rim;
+two-level features False then True); team_id, unordered with more than two levels pooled, is left out of the check.
+Silhouette is added as a stage B row feature (the window's value, per-game terciles), so the 8.6 carry rule applies to
+it; stage A's terciles are descriptive only. Identity switches count player ids only on pairs within B.ID_MATCH_FT
+(2.5 ft). Stage A's record carries the D202 hashes and run id, stage B checks them and writes them into its own. The
+bootstrap lower bound of 8.6 is slightly optimistic when a resample has no rows in a bin (that resample is dropped).
+

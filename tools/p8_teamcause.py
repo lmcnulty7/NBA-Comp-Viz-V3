@@ -178,20 +178,38 @@ def carry_reading(rows: list, feature: str, n_boot: int = BOOT_N, seed: int = BO
     return out
 
 
+TERC = ("low", "middle", "high")
+# the explicit order of every feature that enters the overlap check (re-check finding 1); a value outside its order
+# (since_cut "censored", a None) is left out of that feature's ranks; unordered features with more than two levels
+# (team_id pooled over games) are left out of the check
+ORDERS = {"crowd_box": ("<3", "3-6", ">6"), "crowd_sv": ("<3", "3-6", ">6"), "edge": ("<50", "50-150", ">150"),
+          "height": TERC, "colour_lab": TERC, "silhouette": TERC, "since_cut": ("<1", "1-3", ">3"),
+          "track_age": ("<1", "1-3", ">3"), "third": ("far", "middle", "near"),
+          "zone": ("<4", "4-16", "16-23.75", ">=23.75"), "pair_distance": ("<=2.5", "2.5-5"),
+          "light_label": (False, True), "referee_rule": (False, True), "referee_overlap": (False, True),
+          "switch_track": (False, True)}
+
+
+def rank_code(feature: str, value):
+    """The rank of a value in its feature's fixed order, or None (left out)."""
+    order = ORDERS.get(feature)
+    return None if order is None or value not in order else order.index(value)
+
+
 def overlap_pairs(rows: list, features: list) -> list:
-    """Feature pairs whose rank correlation over the labelled rows exceeds OVERLAP_RHO in absolute value."""
+    """Feature pairs whose rank correlation over the labelled rows (each value ranked by its feature's fixed order;
+    rows where either value is outside its order left out) exceeds OVERLAP_RHO in absolute value."""
     from scipy.stats import spearmanr
     lab = [r for r in rows if not r["abstained"]]
-    codes = {}
-    for f in features:
-        levels = sorted({str(r[f]) for r in lab})
-        codes[f] = [levels.index(str(r[f])) for r in lab]
+    feats = [f for f in features if f in ORDERS]
     out = []
-    for i, a in enumerate(features):
-        for b in features[i + 1:]:
-            if len(set(codes[a])) < 2 or len(set(codes[b])) < 2:
+    for i, a in enumerate(feats):
+        for b in feats[i + 1:]:
+            pairs = [(rank_code(a, r[a]), rank_code(b, r[b])) for r in lab]
+            pairs = [(x, y) for x, y in pairs if x is not None and y is not None]
+            if len(pairs) < 3 or len({x for x, _ in pairs}) < 2 or len({y for _, y in pairs}) < 2:
                 continue
-            rho = float(spearmanr(codes[a], codes[b]).statistic)
+            rho = float(spearmanr(*zip(*pairs)).statistic)
             if abs(rho) > OVERLAP_RHO:
                 out.append({"pair": [a, b], "rho": rho})
     return out
@@ -289,6 +307,7 @@ def cmd_stored(args, root: Path | None = None) -> dict:
     per = {g: stored_window_rows(recs[g], ref / "builds" / "r23") for g in POOL}
     out = {"what": "Team errors by cause, stage A: a readout of the D202 score records and identity files "
                    "(docs/research/P8_teamcause.md section 8.3); report only",
+           "d202": {"run_id": RUN_ID, "sha256": dict(D202_SHA)},
            "games": {g: readout(per[g]) for g in POOL}, "pooled": readout(per[CHA] + per[BKN]),
            "per_window": per}
     hou = read_json(ref / "rebaseline" / f"score__{HOU}__current.json")
@@ -307,7 +326,7 @@ def cmd_stored(args, root: Path | None = None) -> dict:
 
 # ── stage B: per-row features (frozen CV python, inside the lock) ──────────────────────────────────────────────────
 FEATURES = ("team_id", "light_label", "third", "zone", "crowd_box", "crowd_sv", "edge", "height", "colour_lab",
-            "since_cut", "referee_rule", "referee_overlap", "track_age", "pair_distance", "switch_track")
+            "silhouette", "since_cut", "referee_rule", "referee_overlap", "track_age", "pair_distance", "switch_track")
 
 
 def window_rows(P, game, w, comp, ctx, edges_h=None) -> tuple:
@@ -327,6 +346,7 @@ def window_rows(P, game, w, comp, ctx, edges_h=None) -> tuple:
     team_of = {int(k): v for k, v in ident.get("team_by_track", {}).items()}
     light = ident.get("light_team")
     _bgr, lab_d = colour_distances(ident.get("team_colors_bgr") or {})
+    sil = ((ident.get("identity") or {}).get("teams") or {}).get("silhouette")
     fps = float(tm["fps"])
     live = sorted({int(f) for f, _, _ in tm["frames"]})
     rows, _off = S.truth_rows(P, game, w, "camera", ctx["mom"].index, ctx["mirror"])
@@ -366,7 +386,8 @@ def window_rows(P, game, w, comp, ctx, edges_h=None) -> tuple:
             lab = team_of.get(cid)
             if lab is not None:
                 tuples.append((cid, lab, int(team[j])))
-            pid_pairs.append((cid, int(pid[j])))
+            if dist <= B.ID_MATCH_FT:                 # identity pairs only (the scorer's 2.5 ft)
+                pid_pairs.append((cid, int(pid[j])))
             others = [np.hypot(*(ct[k] - ct[bi])) for k in range(len(ct)) if k != bi]
             x1, y1, x2, y2 = b["bbox"][:4]
             is_ref = (b.get("cls") in ("referee", B.REFEREE_CLASS)) if sidecar_cls else \
@@ -378,7 +399,7 @@ def window_rows(P, game, w, comp, ctx, edges_h=None) -> tuple:
                         "crowd_box": bin_of(min(others) if others else None, (3.0, 6.0), ("<3", "3-6", ">6")),
                         "crowd_sv": bin_of(float(cr[j]), (3.0, 6.0), ("<3", "3-6", ">6")),
                         "edge": bin_of(float(min(x1, y1, Wd - x2, Hd - y2)), (50.0, 150.0), ("<50", "50-150", ">150")),
-                        "height_px": float(y2 - y1), "colour_lab_value": lab_d,
+                        "height_px": float(y2 - y1), "colour_lab_value": lab_d, "silhouette_value": sil,
                         "since_cut": "censored" if cens else bin_of(since, (1.0, 3.0), ("<1", "1-3", ">3")),
                         "referee_rule": bool(is_ref),
                         "referee_overlap": any(B._iou(b["bbox"], dd[:4]) >= 0.3 for dd in refd.get(f, [])),
@@ -442,8 +463,12 @@ def cmd_rows(args) -> dict:
         recs[g] = read_json(p)
     if not out_stored().exists():
         raise SystemExit(f"{WHO}: run stage A (stored) first")
+    if read_json(out_stored()).get("d202") != {"run_id": RUN_ID, "sha256": dict(D202_SHA)}:
+        raise SystemExit(f"{WHO}: stage A's record was made from other D202 records")
+    pool_files = sorted(p for g in POOL for w in recs[g]["windows"] for p in (ref / "builds" / "r23").glob(f"{w}_*"))
     watch = lambda: {"ms": manifest(ms, ("labels", "truth_accept")),
-                     "ref": manifest(ref, ("label_build", "truth_accept", "cache/scorecard"))}
+                     "ref": manifest(ref, ("label_build", "truth_accept", "cache/scorecard")),
+                     "builds_r23": {p.name: sha256(p) for p in pool_files}}
     before = watch()
     t0 = time.time()
     P = F.install_paths()
@@ -496,15 +521,18 @@ def cmd_rows(args) -> dict:
     for g in POOL:                                         # per-game terciles of box height and colour distance
         gr = [r for r in rows_all if r["game"] == g]
         eh, ec = tercile_edges([r["height_px"] for r in gr]), tercile_edges([r["colour_lab_value"] for r in gr])
+        es = tercile_edges([r["silhouette_value"] for r in gr])
         for r in gr:
-            r["height"] = bin_of(r["height_px"], eh, ("low", "middle", "high"))
-            r["colour_lab"] = bin_of(r["colour_lab_value"], ec, ("low", "middle", "high"))
+            r["height"] = bin_of(r["height_px"], eh, TERC)
+            r["colour_lab"] = bin_of(r["colour_lab_value"], ec, TERC)
+            r["silhouette"] = bin_of(r["silhouette_value"], es, TERC)
     if not out_stored().exists():
         raise SystemExit(f"{WHO}: run stage A (stored) first; its worst windows are read here")
     worst = set(read_json(out_stored())["pooled"]["worst_windows"])
     units = {g: [r for r in rows_all if r["game"] == g] for g in POOL}
     units["pooled"] = rows_all
     out = {"what": "Team errors by cause, stage B (docs/research/P8_teamcause.md); report only", "head": head,
+           "d202": {"run_id": RUN_ID, "sha256": dict(D202_SHA)},
            "gate_windows": len(gate), "seconds": round(time.time() - t0, 1), "units": {}}
     for u, rr in units.items():
         out["units"][u] = {"rows": sum(1 for r in rr if not r["abstained"]),

@@ -64,10 +64,12 @@ def test_carry_reading_names_the_concentrated_bin():
 
 
 def test_overlap_pairs():
-    rows = [{"abstained": False, "a": i % 3, "b": i % 3, "c": (i * 7) % 5} for i in range(60)]
-    ov = T.overlap_pairs(rows, ["a", "b", "c"])
-    assert [o["pair"] for o in ov] == [["a", "b"]]
-    assert T.cross_tab([{**r, "error": False} for r in rows], "a", "b")["0|0"]["rows"] == 20
+    lv = ("<3", "3-6", ">6"); ev = ("<50", "50-150", ">150"); tv = ("far", "middle", "near")
+    rows = [{"abstained": False, "crowd_box": lv[i % 3], "edge": ev[i % 3], "third": tv[(i * 7) % 3 if i % 2 else 0]}
+            for i in range(60)]
+    ov = T.overlap_pairs(rows, ["crowd_box", "edge", "third"])
+    assert [o["pair"] for o in ov] == [["crowd_box", "edge"]]
+    assert T.cross_tab([{**r, "error": False} for r in rows], "crowd_box", "edge")["<3|<50"]["rows"] == 20
 
 
 def test_stored_writes_only_its_record(tmp_path, monkeypatch):
@@ -110,3 +112,15 @@ def test_stored_refuses_an_unpinned_record(tmp_path, monkeypatch):
         (ref / "rebaseline" / f"score__{g}__current.json").write_text(json.dumps({"run_id": T.RUN_ID, "windows": {}}))
     with pytest.raises(SystemExit):
         T.cmd_stored(None, root=ref)
+
+
+
+def test_rank_codes_follow_the_fixed_orders():
+    assert T.rank_code("crowd_box", "<3") == 0 and T.rank_code("crowd_box", "3-6") == 1 and T.rank_code("crowd_box", ">6") == 2
+    assert T.rank_code("since_cut", "censored") is None and T.rank_code("team_id", 5) is None
+    assert T.rank_code("third", "far") == 0 and T.rank_code("switch_track", True) == 1
+    # text sort would put ">6" before "3-6"; the fixed order does not
+    rows = [{"abstained": False, "crowd_box": c, "edge": e} for c, e in
+            [("<3", "<50"), ("3-6", "50-150"), (">6", ">150")] * 20]
+    ov = T.overlap_pairs(rows, ["crowd_box", "edge", "team_id"])
+    assert ov and ov[0]["pair"] == ["crowd_box", "edge"] and ov[0]["rho"] > 0.99
