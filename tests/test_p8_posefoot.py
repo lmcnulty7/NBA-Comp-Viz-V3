@@ -103,3 +103,34 @@ def test_constants_match_the_design():
     assert (M.NULL_MARGIN, M.MED_BAR_FT, M.HIT_MED_FT, M.HIT_LOST, M.EST_BAR) == (0.10, -0.5, 0.10, 0.05, -0.010)
     assert M.OWN == ("own", "own, with crossings", "own, misplaced, with crossings", "own, misplaced")
     assert M.POOL == (M.CHA, M.BKN) and (M.BOOT_N, M.SEED) == (2000, 0)
+
+
+def test_cross_frame_partner_frame():
+    fr = [0, 6, 60, 66, 120]
+    assert M.cross_frame(fr, 6, 59.94) == 66
+    assert M.cross_frame(fr, 120, 59.94) == 60
+    assert M.cross_frame([0, 6, 12], 6, 59.94) is None
+
+
+def test_rule1_reads_r_and_r_null_on_the_same_boxes():
+    rows = []
+    for wi in range(2):
+        rows += [row(wi, "P-ii", "own", 3.0, 2.0, 3.5), row(wi, "P-ii", "own", 3.0, 2.0, None),
+                 row(wi, "hit", "own", 1.0, 1.0, 1.0)]
+    per = {M.CHA: {"windows": 2, "rows": rows, "in_frame_by_window": [50, 50], "nr_boxes_by_window": [40, 40]}}
+    out = M.unit_rows(per, [M.CHA], "raw", {M.CHA: 2})
+    assert out["P-ii own"]["R"] == pytest.approx(1.0) and out["P-ii own"]["R_null"] == pytest.approx(0.0)
+    assert out["P-ii own"]["R_all_boxes"]["value"] == pytest.approx(1.0)
+    assert out["P-ii own"]["cross_frame_null"]["R"]["value"] is None
+
+
+def test_the_only_writes_are_the_records():
+    """Writer check: the module writes through atomic_write only, at its two record paths."""
+    import ast
+    import inspect
+    tree = ast.parse(inspect.getsource(M))
+    calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
+    names = [getattr(c.func, "id", getattr(c.func, "attr", None)) for c in calls]
+    assert names.count("atomic_write") == 2
+    assert not any(n in ("write_text", "write_bytes", "unlink", "rmtree", "remove", "rename") for n in names)
+    assert "open" not in names

@@ -420,3 +420,30 @@ Unchanged from section 8, except that it now follows stage A and needs 11.7 (8) 
 
 The tool's D207 gate is stricter than 11.3 states. Per window, it checks the ordered list of (kind, class, box height)
 rows against D207's record, not only the class counts.
+
+## 12. Version 1.2 (2026-11-27, after the code check of 323b90ce: GO for stage 0a with fixes, NO-GO on stage A's rule; before any number)
+
+12.1 **Rule 1 on the same boxes (A1).** R and R_null are computed on the same own P-ii boxes, those that have a null
+foot. R over all own boxes is reported beside it.
+
+12.2 **Speed (A2).** The count of own P-ii rows with no SportVU speed is reported. The speed split sees player motion
+only. Camera pan moves every box on the frame alike, so its lag is common to the frame and not in this split.
+
+12.3 **Wording.** foot_raw is the tracked box's bottom centre. The ultralytics tracker's boxes are its Kalman state,
+not the raw detection, so foot_raw is not unfiltered. Only foot_stab's EMA and occlusion correction are absent from
+it. Where 11.3 calls it "the per-frame box bottom, no EMA", read "the tracked box's bottom, without the foot
+stabiliser".
+
+12.4 **Nulls.**
+- A null partner whose box overlaps b at IoU 0.5 or more is excluded, and the exclusions are counted.
+- Beside the same-frame null, a cross-frame null is reported, not ruled: the nearest-height non-referee box on the
+  window's first scored frame at least 1 s after f (else the last at least 1 s before), its offset scaled the same way
+  and added to b's foot_stab.
+- A test checks that the module's only writes are its records (atomic_write at the two record paths).
+
+12.5 **est (11.4).** The coverage division is dropped before stage 2. est's numerator counts rescued P-ii boxes and
+lost hits among the boxes with a candidate foot, without dividing by coverage. Coverage is reported beside it. For
+stage 0a, coverage is 1, so nothing changes there.
+
+12.6 **Stage A's alignment rule is not run as written in 11.6.** It is re-registered in its own dated section before
+any stage A code, and dry-run read-only on reports/research/p8_a3align.json's stored offsets before any lock.

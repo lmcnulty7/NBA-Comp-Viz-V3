@@ -31,6 +31,7 @@ WHO = "tools.p8_posefoot"
 CHA, BKN, HOU = "gsw_cha_2016", "gsw_bkn_2015", "hou_cle_2016"
 POOL = (CHA, BKN)
 MISS_FT, GHOST_FT = 2.5, 3.0
+PARTNER_IOU = 0.5                         # v1.2: a null partner overlapping the box at IoU 0.5 or more is excluded
 OWN = ("own", "own, with crossings", "own, misplaced, with crossings", "own, misplaced")
 SPEED_BINS = (5.0, 10.0)                  # ft/s: under 5, 5 to 10, 10 and over
 BOOT_N, SEED = 2000, 0
@@ -75,6 +76,16 @@ def null_foot(stab_b, off_k, h_b: float, h_k: float) -> list:
     """b's foot_stab plus k's offset scaled by h_b / h_k."""
     s = h_b / h_k if h_k > 0 else 1.0
     return [float(stab_b[0] + off_k[0] * s), float(stab_b[1] + off_k[1] * s)]
+
+
+def cross_frame(frames_sorted: list, f: int, fps: float) -> int | None:
+    """v1.2's cross-frame null: the first scored frame of the window at least 1 s after f, else the last at least 1 s
+    before f, else None."""
+    after = [g for g in frames_sorted if g - f >= fps]
+    if after:
+        return after[0]
+    before = [g for g in frames_sorted if f - g >= fps]
+    return before[-1] if before else None
 
 
 def speed_bin(v) -> str | None:
@@ -160,7 +171,8 @@ def collect0a(game: str) -> dict:
     want = {}
     for x in d207["rows"]:
         want.setdefault(x["wi"], []).append((x["kind"], x["class"], x["h"]))
-    rows, counters = [], {"no_null_partner": 0, "no_B": 0}
+    rows, counters = [], {"no_null_partner": 0, "no_cross_partner": 0, "no_B": 0, "no_speed": 0,
+                          "partners_excluded_iou_0.5": 0}
     for wi, w in enumerate(wins):
         s = w["window"]
         for key, p in (("sidecar", comp / f"{s}_frames.json"), ("timemap", P_t["label_build"] / f"{s}_timemap.json"),
@@ -190,7 +202,7 @@ def collect0a(game: str) -> dict:
         cap = cv2.VideoCapture(str(P_t["label_build"] / f"{s}.mp4")); W, H = int(cap.get(3)), int(cap.get(4)); cap.release()
         truth, _ = S.truth_rows(P_t, game, w, "camera", mom.index, mirror)
         c = {k: 0 for k in ("in_frame", "missed", "far", "missed_1to1", "unmatched_1to1")}
-        frames, sv_of, items = [], {}, []
+        frames, sv_of, items, fboxes = [], {}, [], {}
         for row in truth:
             f = int(row["frame"])
             x = srow.get(f)
@@ -230,9 +242,15 @@ def collect0a(game: str) -> dict:
             picked, _why = PB.select_items(cls, main)
             Hb = np.asarray(x["H"], np.float64).reshape(3, 3) if B.accepted(x) and x.get("H") is not None else None
             hts = [float(b["bbox"][3] - b["bbox"][1]) for b in x["boxes"]]
-            okn = [not bool(is_ref[k]) for k in range(len(x["boxes"]))]
+            offs = [[b["foot_raw"][0] - b["foot_stab"][0], b["foot_raw"][1] - b["foot_stab"][1]] for b in x["boxes"]]
+            fboxes[f] = [(hts[k], offs[k], not bool(is_ref[k])) for k in range(len(x["boxes"]))]
             for j, kind, bk in picked:
                 bx = x["boxes"][bk]
+                okn = []
+                for kk in range(len(x["boxes"])):          # v1.2: partners overlapping b at IoU 0.5 or more excluded
+                    near = kk != bk and B._iou(x["boxes"][kk]["bbox"], bx["bbox"]) >= PARTNER_IOU
+                    counters["partners_excluded_iou_0.5"] += bool(near and not is_ref[kk])
+                    okn.append(not bool(is_ref[kk]) and not near)
                 k = null_partner(hts, bk, okn)
                 nf = None
                 if k is not None:
@@ -249,9 +267,11 @@ def collect0a(game: str) -> dict:
                     dT[name] = float(np.hypot(*(q - svf[j])))
                     gT[name] = bool(np.sqrt(((svf - q) ** 2).sum(1)).min() > GHOST_FT)
                     dB[name] = float(np.hypot(*(map_px(Hb, [p])[0] - svf[j]))) if Hb is not None else None
+                spd = mom.speed(int(row["q"]), int(row["moment"]), pids[j])
+                counters["no_speed"] += spd is None
                 items.append({"wi": wi, "kind": kind, "f": f, "pid": pids[j], "cid": cids[bk], "h": hts[bk],
-                              "dT": dT, "gT": gT, "dB": dB,
-                              "speed": mom.speed(int(row["q"]), int(row["moment"]), pids[j])})
+                              "dT": dT, "gT": gT, "dB": dB, "speed": spd,
+                              "_Ht": Ht, "_Hb": Hb, "_sv": svf, "_j": j, "_stab": bx["foot_stab"]})
                 counters["no_null_partner"] += k is None
                 counters["no_B"] += Hb is None
         wd = score["windows"][s]
@@ -266,6 +286,23 @@ def collect0a(game: str) -> dict:
             got.append((it["kind"], it["class"], it["h"]))
         if got != want.get(wi, []):
             raise SystemExit(f"{WHO}: D207 gate failed on {s}: the recomputed (kind, class, height) rows differ")
+        fr_sorted = sorted(fboxes)
+        for it in items:                                   # v1.2: the cross-frame null, report only
+            g_ = cross_frame(fr_sorted, it["f"], fps)
+            xk = null_partner([b[0] for b in fboxes[g_]] + [it["h"]], len(fboxes[g_]),
+                              [b[2] for b in fboxes[g_]] + [False]) if g_ is not None else None
+            if xk is None:
+                counters["no_cross_partner"] += 1
+                for dct in (it["dT"], it["gT"], it["dB"]):
+                    dct["xnull"] = None
+                continue
+            h_k, off_k, _ = fboxes[g_][xk]
+            q = map_px(it["_Ht"], [null_foot(it["_stab"], off_k, it["h"], h_k)])[0]
+            sv = it["_sv"]
+            it["dT"]["xnull"] = float(np.hypot(*(q - sv[it["_j"]])))
+            it["gT"]["xnull"] = bool(np.sqrt(((sv - q) ** 2).sum(1)).min() > GHOST_FT)
+            it["dB"]["xnull"] = float(np.hypot(*(map_px(it["_Hb"], [null_foot(it["_stab"], off_k, it["h"], h_k)])[0]
+                                                - sv[it["_j"]]))) if it["_Hb"] is not None else None
         for it in items:
             rows.append({k: it[k] for k in ("wi", "kind", "class", "h", "dT", "gT", "dB", "speed")})
     after = {k: RB.manifest(r[k], ("labels", "builds", "cache")) for k in ("ref", "ms")}
@@ -305,11 +342,16 @@ def unit_rows(per_game: dict, gs: list, cand: str = "raw", hit_all: dict | None 
         return median_iv(vals, picks)
 
     within = lambda key: (lambda x: x["dT"][key] is not None and x["dT"][key] <= MISS_FT)
-    R = share(own, within(cand), lambda x: x["dT"][cand] is not None)
-    Rn = share(own, within("null"), lambda x: x["dT"]["null"] is not None)
+    paired = lambda key: (lambda x: x["dT"][cand] is not None and x["dT"].get(key) is not None)
+    R = share(own, within(cand), paired("null"))                     # v1.2 (A1): the same boxes as R_null
+    Rn = share(own, within("null"), paired("null"))
+    Rx = share(own, within(cand), paired("xnull"))
+    Rxn = share(own, within("xnull"), paired("xnull"))
     lost = share(hit, lambda x: x["dT"][cand] > MISS_FT, lambda x: x["dT"][cand] is not None)
     out = {"P-ii own": {"n": sum(len(x) for x in own), "R": R["value"], "R_interval": R["interval"],
                         "R_null": Rn["value"], "R_null_interval": Rn["interval"],
+                        "R_all_boxes": share(own, within(cand), lambda x: x["dT"][cand] is not None),
+                        "cross_frame_null": {"R": Rx, "R_xnull": Rxn},
                         "med_T": delta(own, "dT"), "med_B": delta(own, "dB")},
            "P-ii all": {"n": sum(len(x) for x in pii), "R": share(pii, within(cand), lambda x: x["dT"][cand] is not None)},
            "hits": {"n": sum(len(x) for x in hit), "lost": lost["value"], "lost_interval": lost["interval"],
@@ -331,6 +373,7 @@ def unit_rows(per_game: dict, gs: list, cand: str = "raw", hit_all: dict | None 
     for b in ("under 5", "5 to 10", "10 and over"):
         sp[b] = share(own, within(cand), lambda x, b=b: speed_bin(x["speed"]) == b and x["dT"][cand] is not None)
     out["R_by_speed"] = sp
+    out["no_speed_rows"] = sum(x["speed"] is None for rs in own for x in rs)
     return out
 
 
