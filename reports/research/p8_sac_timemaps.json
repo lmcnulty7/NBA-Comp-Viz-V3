@@ -41,7 +41,9 @@
      "mtime_workspace": "2026-11-18T08:53:33Z",
      "mtime_reference": "2026-11-27T07:07:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 24.6,
+     "ocr_seconds_reference": 21.7
     },
     "gsw_sac_2015_s01_w01": {
      "keys_differing": [
@@ -57,7 +59,9 @@
      "mtime_workspace": "2026-11-18T08:55:16Z",
      "mtime_reference": "2026-11-27T07:11:05Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 20.9,
+     "ocr_seconds_reference": 16.8
     },
     "gsw_sac_2015_s01_w02": {
      "keys_differing": [
@@ -73,7 +77,9 @@
      "mtime_workspace": "2026-11-18T08:57:07Z",
      "mtime_reference": "2026-11-27T07:14:41Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 22.8,
+     "ocr_seconds_reference": 17.2
     },
     "gsw_sac_2015_s01_w03": {
      "keys_differing": [
@@ -89,7 +95,9 @@
      "mtime_workspace": "2026-11-18T08:57:58Z",
      "mtime_reference": "2026-11-27T07:16:30Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.4,
+     "ocr_seconds_reference": 9.3
     },
     "gsw_sac_2015_s01_w04": {
      "keys_differing": [
@@ -105,7 +113,9 @@
      "mtime_workspace": "2026-11-18T08:58:46Z",
      "mtime_reference": "2026-11-27T07:17:50Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.0,
+     "ocr_seconds_reference": 8.1
     },
     "gsw_sac_2015_s01_w05": {
      "keys_differing": [
@@ -121,7 +131,9 @@
      "mtime_workspace": "2026-11-18T08:59:29Z",
      "mtime_reference": "2026-11-27T07:18:48Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 12.4,
+     "ocr_seconds_reference": 4.7
     },
     "gsw_sac_2015_s01_w06": {
      "keys_differing": [
@@ -137,7 +149,9 @@
      "mtime_workspace": "2026-11-18T08:59:54Z",
      "mtime_reference": "2026-11-27T07:19:20Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.9,
+     "ocr_seconds_reference": 4.0
     },
     "gsw_sac_2015_s01_w07": {
      "keys_differing": [
@@ -153,7 +167,9 @@
      "mtime_workspace": "2026-11-18T09:00:24Z",
      "mtime_reference": "2026-11-27T07:20:01Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.9,
+     "ocr_seconds_reference": 3.2
     },
     "gsw_sac_2015_s02_w00": {
      "keys_differing": [
@@ -169,7 +185,9 @@
      "mtime_workspace": "2026-11-18T09:02:52Z",
      "mtime_reference": "2026-11-27T07:24:05Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 36.9,
+     "ocr_seconds_reference": 17.8
     },
     "gsw_sac_2015_s02_w01": {
      "keys_differing": [
@@ -185,7 +203,9 @@
      "mtime_workspace": "2026-11-18T09:05:03Z",
      "mtime_reference": "2026-11-27T07:27:49Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 21.9,
+     "ocr_seconds_reference": 16.0
     },
     "gsw_sac_2015_s02_w02": {
      "keys_differing": [
@@ -201,7 +221,9 @@
      "mtime_workspace": "2026-11-18T09:07:29Z",
      "mtime_reference": "2026-11-27T07:31:19Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 45.0,
+     "ocr_seconds_reference": 16.6
     },
     "gsw_sac_2015_s02_w03": {
      "keys_differing": [
@@ -217,7 +239,9 @@
      "mtime_workspace": "2026-11-18T09:09:12Z",
      "mtime_reference": "2026-11-27T07:33:42Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 26.7,
+     "ocr_seconds_reference": 10.1
     },
     "gsw_sac_2015_s02_w04": {
      "keys_differing": [
@@ -233,7 +257,9 @@
      "mtime_workspace": "2026-11-18T09:11:02Z",
      "mtime_reference": "2026-11-27T07:36:06Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 30.4,
+     "ocr_seconds_reference": 10.9
     },
     "gsw_sac_2015_s02_w05": {
      "keys_differing": [
@@ -249,7 +275,9 @@
      "mtime_workspace": "2026-11-18T09:11:52Z",
      "mtime_reference": "2026-11-27T07:37:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.5,
+     "ocr_seconds_reference": 4.7
     },
     "gsw_sac_2015_s02_w06": {
      "keys_differing": [
@@ -265,7 +293,9 @@
      "mtime_workspace": "2026-11-18T09:12:42Z",
      "mtime_reference": "2026-11-27T07:38:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.9,
+     "ocr_seconds_reference": 4.6
     },
     "gsw_sac_2015_s02_w07": {
      "keys_differing": [
@@ -281,7 +311,9 @@
      "mtime_workspace": "2026-11-18T09:13:20Z",
      "mtime_reference": "2026-11-27T07:39:29Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.7,
+     "ocr_seconds_reference": 4.4
     },
     "gsw_sac_2015_s03_w00": {
      "keys_differing": [
@@ -297,7 +329,9 @@
      "mtime_workspace": "2026-11-18T09:15:18Z",
      "mtime_reference": "2026-11-27T07:42:44Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 23.2,
+     "ocr_seconds_reference": 16.2
     },
     "gsw_sac_2015_s03_w01": {
      "keys_differing": [
@@ -313,7 +347,9 @@
      "mtime_workspace": "2026-11-18T09:16:44Z",
      "mtime_reference": "2026-11-27T07:45:56Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 16.8,
+     "ocr_seconds_reference": 13.2
     },
     "gsw_sac_2015_s03_w02": {
      "keys_differing": [
@@ -329,7 +365,9 @@
      "mtime_workspace": "2026-11-18T09:17:36Z",
      "mtime_reference": "2026-11-27T07:47:59Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.5,
+     "ocr_seconds_reference": 8.6
     },
     "gsw_sac_2015_s03_w03": {
      "keys_differing": [
@@ -345,7 +383,9 @@
      "mtime_workspace": "2026-11-18T09:18:23Z",
      "mtime_reference": "2026-11-27T07:49:35Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.2,
+     "ocr_seconds_reference": 7.3
     },
     "gsw_sac_2015_s03_w04": {
      "keys_differing": [
@@ -361,7 +401,9 @@
      "mtime_workspace": "2026-11-18T09:18:58Z",
      "mtime_reference": "2026-11-27T07:50:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.3,
+     "ocr_seconds_reference": 4.1
     },
     "gsw_sac_2015_s03_w05": {
      "keys_differing": [
@@ -377,7 +419,9 @@
      "mtime_workspace": "2026-11-18T09:19:31Z",
      "mtime_reference": "2026-11-27T07:51:20Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 10.1,
+     "ocr_seconds_reference": 3.8
     },
     "gsw_sac_2015_s03_w06": {
      "keys_differing": [
@@ -393,7 +437,9 @@
      "mtime_workspace": "2026-11-18T09:20:03Z",
      "mtime_reference": "2026-11-27T07:51:57Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.4,
+     "ocr_seconds_reference": 4.0
     },
     "gsw_sac_2015_s04_w00": {
      "keys_differing": [
@@ -409,7 +455,9 @@
      "mtime_workspace": "2026-11-18T09:22:30Z",
      "mtime_reference": "2026-11-27T07:57:13Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 35.1,
+     "ocr_seconds_reference": 22.6
     },
     "gsw_sac_2015_s04_w01": {
      "keys_differing": [
@@ -425,7 +473,9 @@
      "mtime_workspace": "2026-11-18T09:24:06Z",
      "mtime_reference": "2026-11-27T08:00:21Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 26.7,
+     "ocr_seconds_reference": 14.2
     },
     "gsw_sac_2015_s04_w02": {
      "keys_differing": [
@@ -441,7 +491,9 @@
      "mtime_workspace": "2026-11-18T09:25:25Z",
      "mtime_reference": "2026-11-27T08:03:10Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 18.6,
+     "ocr_seconds_reference": 10.9
     },
     "gsw_sac_2015_s04_w03": {
      "keys_differing": [
@@ -457,7 +509,9 @@
      "mtime_workspace": "2026-11-18T09:26:39Z",
      "mtime_reference": "2026-11-27T08:05:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 20.6,
+     "ocr_seconds_reference": 10.5
     },
     "gsw_sac_2015_s04_w04": {
      "keys_differing": [
@@ -473,7 +527,9 @@
      "mtime_workspace": "2026-11-18T09:27:43Z",
      "mtime_reference": "2026-11-27T08:07:51Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 14.7,
+     "ocr_seconds_reference": 8.9
     },
     "gsw_sac_2015_s04_w05": {
      "keys_differing": [
@@ -489,7 +545,9 @@
      "mtime_workspace": "2026-11-18T09:28:35Z",
      "mtime_reference": "2026-11-27T08:09:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.9,
+     "ocr_seconds_reference": 7.4
     },
     "gsw_sac_2015_s04_w06": {
      "keys_differing": [
@@ -505,7 +563,9 @@
      "mtime_workspace": "2026-11-18T09:29:07Z",
      "mtime_reference": "2026-11-27T08:10:06Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.8,
+     "ocr_seconds_reference": 4.0
     },
     "gsw_sac_2015_s04_w07": {
      "keys_differing": [
@@ -521,7 +581,9 @@
      "mtime_workspace": "2026-11-18T09:29:41Z",
      "mtime_reference": "2026-11-27T08:11:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.1,
+     "ocr_seconds_reference": 4.1
     },
     "gsw_sac_2015_s04_w08": {
      "keys_differing": [
@@ -537,7 +599,9 @@
      "mtime_workspace": "2026-11-18T09:29:57Z",
      "mtime_reference": "2026-11-27T08:11:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.5,
+     "ocr_seconds_reference": 3.8
     },
     "gsw_sac_2015_s04_w09": {
      "keys_differing": [
@@ -553,7 +617,9 @@
      "mtime_workspace": "2026-11-18T09:30:27Z",
      "mtime_reference": "2026-11-27T08:12:17Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.9,
+     "ocr_seconds_reference": 3.6
     },
     "gsw_sac_2015_s05_w00": {
      "keys_differing": [
@@ -569,7 +635,9 @@
      "mtime_workspace": "2026-11-22T07:21:44Z",
      "mtime_reference": "2026-11-27T08:17:08Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 21.1,
+     "ocr_seconds_reference": 22.1
     },
     "gsw_sac_2015_s05_w01": {
      "keys_differing": [
@@ -585,7 +653,9 @@
      "mtime_workspace": "2026-11-22T07:23:03Z",
      "mtime_reference": "2026-11-27T08:20:26Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 12.4,
+     "ocr_seconds_reference": 13.0
     },
     "gsw_sac_2015_s05_w02": {
      "keys_differing": [
@@ -601,7 +671,9 @@
      "mtime_workspace": "2026-11-22T07:24:13Z",
      "mtime_reference": "2026-11-27T08:22:49Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 10.8,
+     "ocr_seconds_reference": 10.2
     },
     "gsw_sac_2015_s05_w03": {
      "keys_differing": [
@@ -617,7 +689,9 @@
      "mtime_workspace": "2026-11-22T07:25:03Z",
      "mtime_reference": "2026-11-27T08:24:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 10.3,
+     "ocr_seconds_reference": 12.4
     },
     "gsw_sac_2015_s05_w04": {
      "keys_differing": [
@@ -633,7 +707,9 @@
      "mtime_workspace": "2026-11-22T07:25:43Z",
      "mtime_reference": "2026-11-27T08:26:05Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.5,
+     "ocr_seconds_reference": 5.7
     },
     "gsw_sac_2015_s05_w05": {
      "keys_differing": [
@@ -649,7 +725,9 @@
      "mtime_workspace": "2026-11-22T07:26:17Z",
      "mtime_reference": "2026-11-27T08:27:19Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.4,
+     "ocr_seconds_reference": 4.8
     },
     "gsw_sac_2015_s05_w06": {
      "keys_differing": [],
@@ -663,7 +741,9 @@
      "mtime_workspace": "2026-11-22T07:26:39Z",
      "mtime_reference": "2026-11-27T08:27:59Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.7,
+     "ocr_seconds_reference": 3.7
     },
     "gsw_sac_2015_s05_w07": {
      "keys_differing": [
@@ -679,7 +759,9 @@
      "mtime_workspace": "2026-11-22T07:26:59Z",
      "mtime_reference": "2026-11-27T08:28:33Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.6,
+     "ocr_seconds_reference": 3.7
     },
     "gsw_sac_2015_s05_w08": {
      "keys_differing": [
@@ -695,7 +777,9 @@
      "mtime_workspace": "2026-11-22T07:27:31Z",
      "mtime_reference": "2026-11-27T08:29:37Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.7,
+     "ocr_seconds_reference": 3.8
     },
     "gsw_sac_2015_s06_w00": {
      "keys_differing": [
@@ -711,7 +795,9 @@
      "mtime_workspace": "2026-11-22T07:28:58Z",
      "mtime_reference": "2026-11-27T08:32:58Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.6,
+     "ocr_seconds_reference": 15.8
     },
     "gsw_sac_2015_s06_w01": {
      "keys_differing": [],
@@ -725,7 +811,9 @@
      "mtime_workspace": "2026-11-22T07:29:53Z",
      "mtime_reference": "2026-11-27T08:34:57Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.0,
+     "ocr_seconds_reference": 9.0
     },
     "gsw_sac_2015_s06_w02": {
      "keys_differing": [
@@ -741,7 +829,9 @@
      "mtime_workspace": "2026-11-22T07:30:50Z",
      "mtime_reference": "2026-11-27T08:37:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.1,
+     "ocr_seconds_reference": 9.3
     },
     "gsw_sac_2015_s06_w03": {
      "keys_differing": [
@@ -757,7 +847,9 @@
      "mtime_workspace": "2026-11-22T07:31:43Z",
      "mtime_reference": "2026-11-27T08:38:58Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.0,
+     "ocr_seconds_reference": 7.7
     },
     "gsw_sac_2015_s06_w04": {
      "keys_differing": [
@@ -773,7 +865,9 @@
      "mtime_workspace": "2026-11-22T07:32:31Z",
      "mtime_reference": "2026-11-27T08:40:42Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.8,
+     "ocr_seconds_reference": 7.3
     },
     "gsw_sac_2015_s06_w05": {
      "keys_differing": [
@@ -789,7 +883,9 @@
      "mtime_workspace": "2026-11-22T07:33:06Z",
      "mtime_reference": "2026-11-27T08:41:41Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.1,
+     "ocr_seconds_reference": 5.8
     },
     "gsw_sac_2015_s06_w06": {
      "keys_differing": [
@@ -805,7 +901,9 @@
      "mtime_workspace": "2026-11-22T07:33:40Z",
      "mtime_reference": "2026-11-27T08:42:52Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.4,
+     "ocr_seconds_reference": 4.9
     },
     "gsw_sac_2015_s06_w07": {
      "keys_differing": [
@@ -821,7 +919,9 @@
      "mtime_workspace": "2026-11-22T07:34:11Z",
      "mtime_reference": "2026-11-27T08:43:44Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.0,
+     "ocr_seconds_reference": 4.5
     },
     "gsw_sac_2015_s06_w08": {
      "keys_differing": [
@@ -837,7 +937,9 @@
      "mtime_workspace": "2026-11-22T07:34:37Z",
      "mtime_reference": "2026-11-27T08:44:28Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.1,
+     "ocr_seconds_reference": 3.5
     },
     "gsw_sac_2015_s07_w00": {
      "keys_differing": [
@@ -853,7 +955,9 @@
      "mtime_workspace": "2026-11-22T07:37:54Z",
      "mtime_reference": "2026-11-27T08:52:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 35.9,
+     "ocr_seconds_reference": 44.5
     },
     "gsw_sac_2015_s07_w01": {
      "keys_differing": [
@@ -869,7 +973,9 @@
      "mtime_workspace": "2026-11-22T07:39:10Z",
      "mtime_reference": "2026-11-27T08:55:50Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.4,
+     "ocr_seconds_reference": 14.0
     },
     "gsw_sac_2015_s07_w02": {
      "keys_differing": [
@@ -885,7 +991,9 @@
      "mtime_workspace": "2026-11-22T07:40:22Z",
      "mtime_reference": "2026-11-27T08:58:51Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 12.0,
+     "ocr_seconds_reference": 13.6
     },
     "gsw_sac_2015_s07_w03": {
      "keys_differing": [
@@ -901,7 +1009,9 @@
      "mtime_workspace": "2026-11-22T07:41:12Z",
      "mtime_reference": "2026-11-27T09:00:49Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.2,
+     "ocr_seconds_reference": 10.3
     },
     "gsw_sac_2015_s07_w04": {
      "keys_differing": [
@@ -917,7 +1027,9 @@
      "mtime_workspace": "2026-11-22T07:41:53Z",
      "mtime_reference": "2026-11-27T09:02:11Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.2,
+     "ocr_seconds_reference": 8.0
     },
     "gsw_sac_2015_s07_w05": {
      "keys_differing": [
@@ -933,7 +1045,9 @@
      "mtime_workspace": "2026-11-22T07:42:40Z",
      "mtime_reference": "2026-11-27T09:04:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.3,
+     "ocr_seconds_reference": 8.7
     },
     "gsw_sac_2015_s07_w06": {
      "keys_differing": [
@@ -949,7 +1063,9 @@
      "mtime_workspace": "2026-11-22T07:43:08Z",
      "mtime_reference": "2026-11-27T09:05:09Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.3,
+     "ocr_seconds_reference": 5.6
     },
     "gsw_sac_2015_s07_w07": {
      "keys_differing": [
@@ -965,7 +1081,9 @@
      "mtime_workspace": "2026-11-22T07:43:43Z",
      "mtime_reference": "2026-11-27T09:06:21Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.0,
+     "ocr_seconds_reference": 4.6
     },
     "gsw_sac_2015_s07_w08": {
      "keys_differing": [
@@ -981,7 +1099,9 @@
      "mtime_workspace": "2026-11-22T07:44:12Z",
      "mtime_reference": "2026-11-27T09:07:20Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.5,
+     "ocr_seconds_reference": 5.0
     },
     "gsw_sac_2015_s08_w00": {
      "keys_differing": [
@@ -997,7 +1117,9 @@
      "mtime_workspace": "2026-11-22T07:46:00Z",
      "mtime_reference": "2026-11-27T09:11:37Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 20.6,
+     "ocr_seconds_reference": 22.7
     },
     "gsw_sac_2015_s08_w01": {
      "keys_differing": [
@@ -1013,7 +1135,9 @@
      "mtime_workspace": "2026-11-22T07:47:49Z",
      "mtime_reference": "2026-11-27T09:21:50Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 18.5,
+     "ocr_seconds_reference": 21.7
     },
     "gsw_sac_2015_s08_w02": {
      "keys_differing": [
@@ -1029,7 +1153,9 @@
      "mtime_workspace": "2026-11-22T07:48:50Z",
      "mtime_reference": "2026-11-27T09:24:31Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.7,
+     "ocr_seconds_reference": 11.9
     },
     "gsw_sac_2015_s08_w03": {
      "keys_differing": [
@@ -1045,7 +1171,9 @@
      "mtime_workspace": "2026-11-22T07:49:46Z",
      "mtime_reference": "2026-11-27T09:27:02Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.4,
+     "ocr_seconds_reference": 13.2
     },
     "gsw_sac_2015_s08_w04": {
      "keys_differing": [
@@ -1061,7 +1189,9 @@
      "mtime_workspace": "2026-11-22T07:50:35Z",
      "mtime_reference": "2026-11-27T09:29:19Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.3,
+     "ocr_seconds_reference": 11.3
     },
     "gsw_sac_2015_s08_w05": {
      "keys_differing": [
@@ -1077,7 +1207,9 @@
      "mtime_workspace": "2026-11-22T07:51:06Z",
      "mtime_reference": "2026-11-27T09:30:43Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.6,
+     "ocr_seconds_reference": 7.4
     },
     "gsw_sac_2015_s08_w06": {
      "keys_differing": [
@@ -1093,7 +1225,9 @@
      "mtime_workspace": "2026-11-22T07:51:27Z",
      "mtime_reference": "2026-11-27T09:31:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.7,
+     "ocr_seconds_reference": 5.6
     },
     "gsw_sac_2015_s08_w07": {
      "keys_differing": [
@@ -1109,7 +1243,9 @@
      "mtime_workspace": "2026-11-22T07:51:56Z",
      "mtime_reference": "2026-11-27T09:32:40Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.5,
+     "ocr_seconds_reference": 4.8
     },
     "gsw_sac_2015_s09_w00": {
      "keys_differing": [
@@ -1125,7 +1261,9 @@
      "mtime_workspace": "2026-11-22T07:54:20Z",
      "mtime_reference": "2026-11-27T09:38:53Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 24.1,
+     "ocr_seconds_reference": 26.9
     },
     "gsw_sac_2015_s09_w01": {
      "keys_differing": [
@@ -1141,7 +1279,9 @@
      "mtime_workspace": "2026-11-22T07:55:49Z",
      "mtime_reference": "2026-11-27T09:42:33Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.5,
+     "ocr_seconds_reference": 16.7
     },
     "gsw_sac_2015_s09_w02": {
      "keys_differing": [
@@ -1157,7 +1297,9 @@
      "mtime_workspace": "2026-11-22T07:56:54Z",
      "mtime_reference": "2026-11-27T09:44:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 10.4,
+     "ocr_seconds_reference": 11.8
     },
     "gsw_sac_2015_s09_w03": {
      "keys_differing": [
@@ -1173,7 +1315,9 @@
      "mtime_workspace": "2026-11-22T07:57:46Z",
      "mtime_reference": "2026-11-27T09:46:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.4,
+     "ocr_seconds_reference": 7.1
     },
     "gsw_sac_2015_s09_w04": {
      "keys_differing": [
@@ -1189,7 +1333,9 @@
      "mtime_workspace": "2026-11-22T07:58:36Z",
      "mtime_reference": "2026-11-27T09:48:07Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.3,
+     "ocr_seconds_reference": 8.0
     },
     "gsw_sac_2015_s09_w05": {
      "keys_differing": [
@@ -1205,7 +1351,9 @@
      "mtime_workspace": "2026-11-22T07:59:31Z",
      "mtime_reference": "2026-11-27T09:49:22Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.5,
+     "ocr_seconds_reference": 6.1
     },
     "gsw_sac_2015_s09_w06": {
      "keys_differing": [
@@ -1221,7 +1369,9 @@
      "mtime_workspace": "2026-11-22T08:00:10Z",
      "mtime_reference": "2026-11-27T09:50:50Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.5,
+     "ocr_seconds_reference": 6.0
     },
     "gsw_sac_2015_s09_w07": {
      "keys_differing": [
@@ -1237,7 +1387,9 @@
      "mtime_workspace": "2026-11-22T08:00:33Z",
      "mtime_reference": "2026-11-27T09:51:33Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.2,
+     "ocr_seconds_reference": 3.9
     },
     "gsw_sac_2015_s10_w00": {
      "keys_differing": [
@@ -1253,7 +1405,9 @@
      "mtime_workspace": "2026-11-22T08:01:26Z",
      "mtime_reference": "2026-11-27T09:53:24Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.1,
+     "ocr_seconds_reference": 12.3
     },
     "gsw_sac_2015_s10_w01": {
      "keys_differing": [
@@ -1269,7 +1423,9 @@
      "mtime_workspace": "2026-11-22T08:02:20Z",
      "mtime_reference": "2026-11-27T09:55:44Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.2,
+     "ocr_seconds_reference": 11.0
     },
     "gsw_sac_2015_s10_w02": {
      "keys_differing": [
@@ -1285,7 +1441,9 @@
      "mtime_workspace": "2026-11-22T08:03:09Z",
      "mtime_reference": "2026-11-27T09:58:00Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.9,
+     "ocr_seconds_reference": 9.8
     },
     "gsw_sac_2015_s10_w03": {
      "keys_differing": [
@@ -1301,7 +1459,9 @@
      "mtime_workspace": "2026-11-22T08:03:43Z",
      "mtime_reference": "2026-11-27T09:59:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.2,
+     "ocr_seconds_reference": 6.6
     },
     "gsw_sac_2015_s10_w04": {
      "keys_differing": [
@@ -1317,7 +1477,9 @@
      "mtime_workspace": "2026-11-22T08:04:14Z",
      "mtime_reference": "2026-11-27T10:00:40Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.3,
+     "ocr_seconds_reference": 6.3
     },
     "gsw_sac_2015_s10_w05": {
      "keys_differing": [
@@ -1333,7 +1495,77 @@
      "mtime_workspace": "2026-11-22T08:04:54Z",
      "mtime_reference": "2026-11-27T10:01:46Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.6,
+     "ocr_seconds_reference": 4.5
+    }
+   },
+   "sync_maps": {
+    "gsw_sac_2015_s00_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s01_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s02_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s03_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s04_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s05_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s06_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s07_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s08_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s09_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_sac_2015_s10_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
     }
    }
   },
@@ -1377,7 +1609,9 @@
      "mtime_workspace": "2026-11-18T04:53:04Z",
      "mtime_reference": "2026-11-26T11:24:28Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 16.6,
+     "ocr_seconds_reference": 19.4
     },
     "gsw_cha_2016_s00_w01": {
      "keys_differing": [
@@ -1393,7 +1627,9 @@
      "mtime_workspace": "2026-11-18T04:53:51Z",
      "mtime_reference": "2026-11-26T11:26:09Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.7,
+     "ocr_seconds_reference": 11.0
     },
     "gsw_cha_2016_s01_w00": {
      "keys_differing": [
@@ -1409,7 +1645,9 @@
      "mtime_workspace": "2026-11-18T04:56:05Z",
      "mtime_reference": "2026-11-26T11:31:49Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 25.2,
+     "ocr_seconds_reference": 25.3
     },
     "gsw_cha_2016_s01_w01": {
      "keys_differing": [
@@ -1425,7 +1663,9 @@
      "mtime_workspace": "2026-11-18T04:58:10Z",
      "mtime_reference": "2026-11-26T11:36:40Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 23.6,
+     "ocr_seconds_reference": 20.2
     },
     "gsw_cha_2016_s01_w02": {
      "keys_differing": [
@@ -1441,7 +1681,9 @@
      "mtime_workspace": "2026-11-18T04:59:45Z",
      "mtime_reference": "2026-11-26T11:40:13Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 16.4,
+     "ocr_seconds_reference": 16.3
     },
     "gsw_cha_2016_s01_w03": {
      "keys_differing": [
@@ -1457,7 +1699,9 @@
      "mtime_workspace": "2026-11-18T05:00:47Z",
      "mtime_reference": "2026-11-26T11:42:48Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 10.8,
+     "ocr_seconds_reference": 11.3
     },
     "gsw_cha_2016_s01_w04": {
      "keys_differing": [
@@ -1473,7 +1717,9 @@
      "mtime_workspace": "2026-11-18T05:01:49Z",
      "mtime_reference": "2026-11-26T11:45:09Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.5,
+     "ocr_seconds_reference": 11.9
     },
     "gsw_cha_2016_s01_w05": {
      "keys_differing": [
@@ -1489,7 +1735,9 @@
      "mtime_workspace": "2026-11-18T05:02:10Z",
      "mtime_reference": "2026-11-26T11:45:32Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.4,
+     "ocr_seconds_reference": 7.2
     },
     "gsw_cha_2016_s01_w06": {
      "keys_differing": [],
@@ -1503,7 +1751,9 @@
      "mtime_workspace": "2026-11-18T05:02:45Z",
      "mtime_reference": "2026-11-26T11:46:45Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.1,
+     "ocr_seconds_reference": 5.1
     },
     "gsw_cha_2016_s01_w07": {
      "keys_differing": [
@@ -1519,7 +1769,9 @@
      "mtime_workspace": "2026-11-18T05:03:10Z",
      "mtime_reference": "2026-11-26T11:47:29Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.4,
+     "ocr_seconds_reference": 4.3
     },
     "gsw_cha_2016_s01_w08": {
      "keys_differing": [
@@ -1535,7 +1787,9 @@
      "mtime_workspace": "2026-11-18T05:03:32Z",
      "mtime_reference": "2026-11-26T11:48:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.7,
+     "ocr_seconds_reference": 3.6
     },
     "gsw_cha_2016_s01_w09": {
      "keys_differing": [
@@ -1551,7 +1805,9 @@
      "mtime_workspace": "2026-11-18T05:03:58Z",
      "mtime_reference": "2026-11-26T11:48:41Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.2,
+     "ocr_seconds_reference": 3.4
     },
     "gsw_cha_2016_s02_w00": {
      "keys_differing": [
@@ -1567,7 +1823,9 @@
      "mtime_workspace": "2026-11-18T05:05:51Z",
      "mtime_reference": "2026-11-26T11:52:29Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 20.1,
+     "ocr_seconds_reference": 18.9
     },
     "gsw_cha_2016_s02_w01": {
      "keys_differing": [
@@ -1583,7 +1841,9 @@
      "mtime_workspace": "2026-11-18T05:06:52Z",
      "mtime_reference": "2026-11-26T11:54:21Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.0,
+     "ocr_seconds_reference": 11.2
     },
     "gsw_cha_2016_s02_w02": {
      "keys_differing": [],
@@ -1597,7 +1857,9 @@
      "mtime_workspace": "2026-11-18T05:07:52Z",
      "mtime_reference": "2026-11-26T11:56:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.9,
+     "ocr_seconds_reference": 9.9
     },
     "gsw_cha_2016_s02_w03": {
      "keys_differing": [
@@ -1613,7 +1875,9 @@
      "mtime_workspace": "2026-11-18T05:08:41Z",
      "mtime_reference": "2026-11-26T11:58:00Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.0,
+     "ocr_seconds_reference": 8.8
     },
     "gsw_cha_2016_s02_w04": {
      "keys_differing": [
@@ -1629,7 +1893,9 @@
      "mtime_workspace": "2026-11-18T05:09:29Z",
      "mtime_reference": "2026-11-26T11:59:40Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.8,
+     "ocr_seconds_reference": 8.2
     },
     "gsw_cha_2016_s02_w05": {
      "keys_differing": [
@@ -1645,7 +1911,9 @@
      "mtime_workspace": "2026-11-18T05:10:02Z",
      "mtime_reference": "2026-11-26T12:00:40Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.9,
+     "ocr_seconds_reference": 5.9
     },
     "gsw_cha_2016_s02_w06": {
      "keys_differing": [
@@ -1661,7 +1929,9 @@
      "mtime_workspace": "2026-11-18T05:10:51Z",
      "mtime_reference": "2026-11-26T12:01:47Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.1,
+     "ocr_seconds_reference": 4.9
     },
     "gsw_cha_2016_s02_w07": {
      "keys_differing": [
@@ -1677,7 +1947,9 @@
      "mtime_workspace": "2026-11-18T05:11:25Z",
      "mtime_reference": "2026-11-26T12:02:47Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.3,
+     "ocr_seconds_reference": 4.4
     },
     "gsw_cha_2016_s03_w00": {
      "keys_differing": [
@@ -1693,7 +1965,9 @@
      "mtime_workspace": "2026-11-18T05:14:24Z",
      "mtime_reference": "2026-11-26T12:09:43Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 33.3,
+     "ocr_seconds_reference": 34.4
     },
     "gsw_cha_2016_s03_w01": {
      "keys_differing": [
@@ -1709,7 +1983,9 @@
      "mtime_workspace": "2026-11-18T05:16:07Z",
      "mtime_reference": "2026-11-26T12:13:26Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 18.1,
+     "ocr_seconds_reference": 17.8
     },
     "gsw_cha_2016_s03_w02": {
      "keys_differing": [
@@ -1725,7 +2001,9 @@
      "mtime_workspace": "2026-11-18T05:16:40Z",
      "mtime_reference": "2026-11-26T12:13:59Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 14.1,
+     "ocr_seconds_reference": 14.0
     },
     "gsw_cha_2016_s03_w03": {
      "keys_differing": [
@@ -1741,7 +2019,9 @@
      "mtime_workspace": "2026-11-18T05:17:44Z",
      "mtime_reference": "2026-11-26T12:16:24Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 10.7,
+     "ocr_seconds_reference": 11.5
     },
     "gsw_cha_2016_s03_w04": {
      "keys_differing": [],
@@ -1755,7 +2035,9 @@
      "mtime_workspace": "2026-11-18T05:18:59Z",
      "mtime_reference": "2026-11-26T12:18:48Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.5,
+     "ocr_seconds_reference": 11.5
     },
     "gsw_cha_2016_s03_w05": {
      "keys_differing": [
@@ -1771,7 +2053,9 @@
      "mtime_workspace": "2026-11-18T05:19:49Z",
      "mtime_reference": "2026-11-26T12:20:37Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.8,
+     "ocr_seconds_reference": 7.9
     },
     "gsw_cha_2016_s03_w06": {
      "keys_differing": [
@@ -1787,7 +2071,9 @@
      "mtime_workspace": "2026-11-18T05:20:42Z",
      "mtime_reference": "2026-11-26T12:22:22Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.4,
+     "ocr_seconds_reference": 7.8
     },
     "gsw_cha_2016_s03_w07": {
      "keys_differing": [
@@ -1803,7 +2089,9 @@
      "mtime_workspace": "2026-11-18T05:21:10Z",
      "mtime_reference": "2026-11-26T12:23:07Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.2,
+     "ocr_seconds_reference": 7.9
     },
     "gsw_cha_2016_s03_w08": {
      "keys_differing": [
@@ -1819,7 +2107,9 @@
      "mtime_workspace": "2026-11-18T05:21:37Z",
      "mtime_reference": "2026-11-26T12:23:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.7,
+     "ocr_seconds_reference": 3.6
     },
     "gsw_cha_2016_s04_w00": {
      "keys_differing": [
@@ -1835,7 +2125,9 @@
      "mtime_workspace": "2026-11-18T05:24:35Z",
      "mtime_reference": "2026-11-26T12:30:28Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 29.2,
+     "ocr_seconds_reference": 30.2
     },
     "gsw_cha_2016_s04_w01": {
      "keys_differing": [
@@ -1851,7 +2143,9 @@
      "mtime_workspace": "2026-11-18T05:25:23Z",
      "mtime_reference": "2026-11-26T12:32:05Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.9,
+     "ocr_seconds_reference": 6.6
     },
     "gsw_cha_2016_s04_w02": {
      "keys_differing": [
@@ -1867,7 +2161,9 @@
      "mtime_workspace": "2026-11-18T05:26:04Z",
      "mtime_reference": "2026-11-26T12:33:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.2,
+     "ocr_seconds_reference": 5.8
     },
     "gsw_cha_2016_s04_w03": {
      "keys_differing": [
@@ -1883,7 +2179,9 @@
      "mtime_workspace": "2026-11-18T05:26:46Z",
      "mtime_reference": "2026-11-26T12:34:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.0,
+     "ocr_seconds_reference": 5.7
     },
     "gsw_cha_2016_s04_w04": {
      "keys_differing": [
@@ -1899,7 +2197,9 @@
      "mtime_workspace": "2026-11-18T05:27:22Z",
      "mtime_reference": "2026-11-26T12:35:57Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.4,
+     "ocr_seconds_reference": 4.5
     },
     "gsw_cha_2016_s04_w05": {
      "keys_differing": [
@@ -1915,7 +2215,9 @@
      "mtime_workspace": "2026-11-18T05:27:57Z",
      "mtime_reference": "2026-11-26T12:36:59Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.9,
+     "ocr_seconds_reference": 4.3
     },
     "gsw_cha_2016_s04_w06": {
      "keys_differing": [
@@ -1931,7 +2233,9 @@
      "mtime_workspace": "2026-11-18T05:28:26Z",
      "mtime_reference": "2026-11-26T12:37:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.7,
+     "ocr_seconds_reference": 3.6
     },
     "gsw_cha_2016_s04_w07": {
      "keys_differing": [],
@@ -1945,7 +2249,9 @@
      "mtime_workspace": "2026-11-18T05:28:44Z",
      "mtime_reference": "2026-11-26T12:38:20Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.3,
+     "ocr_seconds_reference": 3.3
     },
     "gsw_cha_2016_s05_w00": {
      "keys_differing": [
@@ -1961,7 +2267,9 @@
      "mtime_workspace": "2026-11-18T05:32:10Z",
      "mtime_reference": "2026-11-26T12:46:10Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 37.5,
+     "ocr_seconds_reference": 37.6
     },
     "gsw_cha_2016_s05_w01": {
      "keys_differing": [
@@ -1977,7 +2285,9 @@
      "mtime_workspace": "2026-11-18T05:35:09Z",
      "mtime_reference": "2026-11-26T12:52:51Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 35.3,
+     "ocr_seconds_reference": 34.4
     },
     "gsw_cha_2016_s05_w02": {
      "keys_differing": [
@@ -1993,7 +2303,9 @@
      "mtime_workspace": "2026-11-18T05:35:58Z",
      "mtime_reference": "2026-11-26T12:54:32Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.7,
+     "ocr_seconds_reference": 8.8
     },
     "gsw_cha_2016_s05_w03": {
      "keys_differing": [
@@ -2009,7 +2321,9 @@
      "mtime_workspace": "2026-11-18T05:36:47Z",
      "mtime_reference": "2026-11-26T12:56:14Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.3,
+     "ocr_seconds_reference": 8.4
     },
     "gsw_cha_2016_s05_w04": {
      "keys_differing": [
@@ -2025,7 +2339,9 @@
      "mtime_workspace": "2026-11-18T05:37:33Z",
      "mtime_reference": "2026-11-26T12:57:35Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.7,
+     "ocr_seconds_reference": 6.7
     },
     "gsw_cha_2016_s05_w05": {
      "keys_differing": [
@@ -2041,7 +2357,9 @@
      "mtime_workspace": "2026-11-18T05:38:16Z",
      "mtime_reference": "2026-11-26T12:58:55Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.6,
+     "ocr_seconds_reference": 6.8
     },
     "gsw_cha_2016_s06_w00": {
      "keys_differing": [
@@ -2057,7 +2375,9 @@
      "mtime_workspace": "2026-11-18T05:40:07Z",
      "mtime_reference": "2026-11-26T13:03:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 20.7,
+     "ocr_seconds_reference": 25.4
     },
     "gsw_cha_2016_s06_w01": {
      "keys_differing": [
@@ -2073,7 +2393,9 @@
      "mtime_workspace": "2026-11-18T05:41:25Z",
      "mtime_reference": "2026-11-26T13:06:55Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.5,
+     "ocr_seconds_reference": 18.7
     },
     "gsw_cha_2016_s06_w02": {
      "keys_differing": [
@@ -2089,7 +2411,9 @@
      "mtime_workspace": "2026-11-18T05:41:47Z",
      "mtime_reference": "2026-11-26T13:07:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.4,
+     "ocr_seconds_reference": 10.8
     },
     "gsw_cha_2016_s06_w03": {
      "keys_differing": [
@@ -2105,7 +2429,9 @@
      "mtime_workspace": "2026-11-18T05:42:28Z",
      "mtime_reference": "2026-11-26T13:08:59Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.7,
+     "ocr_seconds_reference": 9.2
     },
     "gsw_cha_2016_s06_w04": {
      "keys_differing": [
@@ -2121,7 +2447,9 @@
      "mtime_workspace": "2026-11-18T05:43:05Z",
      "mtime_reference": "2026-11-26T13:10:13Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.3,
+     "ocr_seconds_reference": 7.5
     },
     "gsw_cha_2016_s06_w05": {
      "keys_differing": [
@@ -2137,7 +2465,9 @@
      "mtime_workspace": "2026-11-18T05:43:42Z",
      "mtime_reference": "2026-11-26T13:11:29Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.9,
+     "ocr_seconds_reference": 6.7
     },
     "gsw_cha_2016_s06_w06": {
      "keys_differing": [
@@ -2153,7 +2483,9 @@
      "mtime_workspace": "2026-11-18T05:44:09Z",
      "mtime_reference": "2026-11-26T13:12:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.7,
+     "ocr_seconds_reference": 5.6
     },
     "gsw_cha_2016_s06_w08": {
      "keys_differing": [
@@ -2169,7 +2501,9 @@
      "mtime_workspace": "2026-11-18T05:44:49Z",
      "mtime_reference": "2026-11-26T13:13:45Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.6,
+     "ocr_seconds_reference": 5.6
     },
     "gsw_cha_2016_s06_w09": {
      "keys_differing": [
@@ -2185,7 +2519,9 @@
      "mtime_workspace": "2026-11-18T05:45:09Z",
      "mtime_reference": "2026-11-26T13:14:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.5,
+     "ocr_seconds_reference": 4.2
     },
     "gsw_cha_2016_s06_w10": {
      "keys_differing": [
@@ -2201,7 +2537,9 @@
      "mtime_workspace": "2026-11-18T05:45:36Z",
      "mtime_reference": "2026-11-26T13:15:22Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.8,
+     "ocr_seconds_reference": 4.4
     },
     "gsw_cha_2016_s06_w11": {
      "keys_differing": [
@@ -2217,7 +2555,9 @@
      "mtime_workspace": "2026-11-18T05:46:03Z",
      "mtime_reference": "2026-11-26T13:16:22Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.7,
+     "ocr_seconds_reference": 4.3
     },
     "gsw_cha_2016_s07_w00": {
      "keys_differing": [
@@ -2233,7 +2573,9 @@
      "mtime_workspace": "2026-11-22T06:00:19Z",
      "mtime_reference": "2026-11-26T13:24:48Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 38.6,
+     "ocr_seconds_reference": 44.4
     },
     "gsw_cha_2016_s07_w01": {
      "keys_differing": [
@@ -2249,7 +2591,9 @@
      "mtime_workspace": "2026-11-22T06:02:37Z",
      "mtime_reference": "2026-11-26T13:30:17Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 22.3,
+     "ocr_seconds_reference": 27.9
     },
     "gsw_cha_2016_s07_w02": {
      "keys_differing": [
@@ -2265,7 +2609,9 @@
      "mtime_workspace": "2026-11-22T06:03:27Z",
      "mtime_reference": "2026-11-26T13:32:18Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.3,
+     "ocr_seconds_reference": 10.7
     },
     "gsw_cha_2016_s07_w03": {
      "keys_differing": [
@@ -2281,7 +2627,9 @@
      "mtime_workspace": "2026-11-22T06:04:27Z",
      "mtime_reference": "2026-11-26T13:34:12Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.4,
+     "ocr_seconds_reference": 9.0
     },
     "gsw_cha_2016_s07_w04": {
      "keys_differing": [
@@ -2297,7 +2645,9 @@
      "mtime_workspace": "2026-11-22T06:05:11Z",
      "mtime_reference": "2026-11-26T13:35:45Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.9,
+     "ocr_seconds_reference": 8.6
     },
     "gsw_cha_2016_s07_w05": {
      "keys_differing": [
@@ -2313,7 +2663,9 @@
      "mtime_workspace": "2026-11-22T06:05:37Z",
      "mtime_reference": "2026-11-26T13:36:31Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.8,
+     "ocr_seconds_reference": 4.2
     },
     "gsw_cha_2016_s07_w06": {
      "keys_differing": [
@@ -2329,7 +2681,9 @@
      "mtime_workspace": "2026-11-22T06:05:52Z",
      "mtime_reference": "2026-11-26T13:36:48Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.5,
+     "ocr_seconds_reference": 4.0
     },
     "gsw_cha_2016_s08_w00": {
      "keys_differing": [
@@ -2345,7 +2699,9 @@
      "mtime_workspace": "2026-11-22T06:08:20Z",
      "mtime_reference": "2026-11-26T13:42:57Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 25.9,
+     "ocr_seconds_reference": 32.2
     },
     "gsw_cha_2016_s08_w01": {
      "keys_differing": [
@@ -2361,7 +2717,9 @@
      "mtime_workspace": "2026-11-22T06:09:29Z",
      "mtime_reference": "2026-11-26T13:45:37Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.8,
+     "ocr_seconds_reference": 17.4
     },
     "gsw_cha_2016_s08_w02": {
      "keys_differing": [
@@ -2377,7 +2735,9 @@
      "mtime_workspace": "2026-11-22T06:10:55Z",
      "mtime_reference": "2026-11-26T13:49:20Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.8,
+     "ocr_seconds_reference": 17.6
     },
     "gsw_cha_2016_s08_w03": {
      "keys_differing": [
@@ -2393,7 +2753,9 @@
      "mtime_workspace": "2026-11-22T06:11:39Z",
      "mtime_reference": "2026-11-26T13:50:57Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.7,
+     "ocr_seconds_reference": 9.5
     },
     "gsw_cha_2016_s08_w04": {
      "keys_differing": [
@@ -2409,7 +2771,9 @@
      "mtime_workspace": "2026-11-22T06:12:28Z",
      "mtime_reference": "2026-11-26T13:52:51Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.4,
+     "ocr_seconds_reference": 8.6
     },
     "gsw_cha_2016_s08_w05": {
      "keys_differing": [
@@ -2425,7 +2789,9 @@
      "mtime_workspace": "2026-11-22T06:12:50Z",
      "mtime_reference": "2026-11-26T13:53:22Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.0,
+     "ocr_seconds_reference": 4.2
     },
     "gsw_cha_2016_s08_w06": {
      "keys_differing": [
@@ -2441,7 +2807,9 @@
      "mtime_workspace": "2026-11-22T06:13:19Z",
      "mtime_reference": "2026-11-26T13:54:18Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.9,
+     "ocr_seconds_reference": 4.0
     },
     "gsw_cha_2016_s08_w07": {
      "keys_differing": [
@@ -2457,7 +2825,9 @@
      "mtime_workspace": "2026-11-22T06:13:47Z",
      "mtime_reference": "2026-11-26T13:55:09Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.0,
+     "ocr_seconds_reference": 3.6
     },
     "gsw_cha_2016_s08_w08": {
      "keys_differing": [
@@ -2473,7 +2843,9 @@
      "mtime_workspace": "2026-11-22T06:14:12Z",
      "mtime_reference": "2026-11-26T13:55:53Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.3,
+     "ocr_seconds_reference": 3.5
     },
     "gsw_cha_2016_s09_w00": {
      "keys_differing": [
@@ -2489,7 +2861,9 @@
      "mtime_workspace": "2026-11-22T06:15:12Z",
      "mtime_reference": "2026-11-26T13:57:51Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.5,
+     "ocr_seconds_reference": 8.5
     },
     "gsw_cha_2016_s09_w01": {
      "keys_differing": [
@@ -2505,7 +2879,9 @@
      "mtime_workspace": "2026-11-22T06:15:54Z",
      "mtime_reference": "2026-11-26T13:59:13Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.0,
+     "ocr_seconds_reference": 5.9
     },
     "gsw_cha_2016_s09_w02": {
      "keys_differing": [
@@ -2521,7 +2897,71 @@
      "mtime_workspace": "2026-11-22T06:16:31Z",
      "mtime_reference": "2026-11-26T14:00:19Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.8,
+     "ocr_seconds_reference": 4.4
+    }
+   },
+   "sync_maps": {
+    "gsw_cha_2016_s00_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_cha_2016_s01_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_cha_2016_s02_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_cha_2016_s03_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_cha_2016_s04_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_cha_2016_s05_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_cha_2016_s06_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_cha_2016_s07_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_cha_2016_s08_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_cha_2016_s09_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
     }
    }
   },
@@ -2564,7 +3004,9 @@
      "mtime_workspace": "2026-11-18T02:08:05Z",
      "mtime_reference": "2026-11-27T04:05:47Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 12.7,
+     "ocr_seconds_reference": 12.2
     },
     "gsw_bkn_2015_s00_w01": {
      "keys_differing": [
@@ -2580,7 +3022,9 @@
      "mtime_workspace": "2026-11-18T02:09:08Z",
      "mtime_reference": "2026-11-27T04:08:09Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.1,
+     "ocr_seconds_reference": 10.7
     },
     "gsw_bkn_2015_s00_w02": {
      "keys_differing": [
@@ -2596,7 +3040,9 @@
      "mtime_workspace": "2026-11-18T02:10:16Z",
      "mtime_reference": "2026-11-27T04:10:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.8,
+     "ocr_seconds_reference": 10.7
     },
     "gsw_bkn_2015_s00_w03": {
      "keys_differing": [
@@ -2612,7 +3058,9 @@
      "mtime_workspace": "2026-11-18T02:11:11Z",
      "mtime_reference": "2026-11-27T04:12:36Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.6,
+     "ocr_seconds_reference": 8.3
     },
     "gsw_bkn_2015_s00_w04": {
      "keys_differing": [
@@ -2628,7 +3076,9 @@
      "mtime_workspace": "2026-11-18T02:11:55Z",
      "mtime_reference": "2026-11-27T04:14:12Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.4,
+     "ocr_seconds_reference": 6.8
     },
     "gsw_bkn_2015_s00_w05": {
      "keys_differing": [
@@ -2644,7 +3094,9 @@
      "mtime_workspace": "2026-11-18T02:12:16Z",
      "mtime_reference": "2026-11-27T04:14:39Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.8,
+     "ocr_seconds_reference": 6.0
     },
     "gsw_bkn_2015_s00_w06": {
      "keys_differing": [
@@ -2660,7 +3112,9 @@
      "mtime_workspace": "2026-11-18T02:12:54Z",
      "mtime_reference": "2026-11-27T04:16:07Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.6,
+     "ocr_seconds_reference": 7.5
     },
     "gsw_bkn_2015_s00_w07": {
      "keys_differing": [
@@ -2676,7 +3130,9 @@
      "mtime_workspace": "2026-11-18T02:13:27Z",
      "mtime_reference": "2026-11-27T04:17:22Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.0,
+     "ocr_seconds_reference": 6.8
     },
     "gsw_bkn_2015_s00_w08": {
      "keys_differing": [
@@ -2692,7 +3148,9 @@
      "mtime_workspace": "2026-11-18T02:13:54Z",
      "mtime_reference": "2026-11-27T04:18:21Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.9,
+     "ocr_seconds_reference": 3.8
     },
     "gsw_bkn_2015_s01_w00": {
      "keys_differing": [
@@ -2708,7 +3166,9 @@
      "mtime_workspace": "2026-11-18T02:16:04Z",
      "mtime_reference": "2026-11-27T04:23:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 24.5,
+     "ocr_seconds_reference": 23.1
     },
     "gsw_bkn_2015_s01_w01": {
      "keys_differing": [
@@ -2724,7 +3184,9 @@
      "mtime_workspace": "2026-11-18T02:17:41Z",
      "mtime_reference": "2026-11-27T04:27:31Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 19.0,
+     "ocr_seconds_reference": 17.5
     },
     "gsw_bkn_2015_s01_w02": {
      "keys_differing": [
@@ -2740,7 +3202,9 @@
      "mtime_workspace": "2026-11-18T02:19:00Z",
      "mtime_reference": "2026-11-27T04:30:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.0,
+     "ocr_seconds_reference": 12.3
     },
     "gsw_bkn_2015_s01_w03": {
      "keys_differing": [
@@ -2756,7 +3220,9 @@
      "mtime_workspace": "2026-11-18T02:19:42Z",
      "mtime_reference": "2026-11-27T04:31:39Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.9,
+     "ocr_seconds_reference": 7.9
     },
     "gsw_bkn_2015_s01_w04": {
      "keys_differing": [
@@ -2772,7 +3238,9 @@
      "mtime_workspace": "2026-11-18T02:20:36Z",
      "mtime_reference": "2026-11-27T04:33:17Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 12.8,
+     "ocr_seconds_reference": 7.1
     },
     "gsw_bkn_2015_s01_w05": {
      "keys_differing": [
@@ -2788,7 +3256,9 @@
      "mtime_workspace": "2026-11-18T02:21:32Z",
      "mtime_reference": "2026-11-27T04:34:46Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.4,
+     "ocr_seconds_reference": 6.2
     },
     "gsw_bkn_2015_s01_w06": {
      "keys_differing": [
@@ -2804,7 +3274,9 @@
      "mtime_workspace": "2026-11-18T02:22:23Z",
      "mtime_reference": "2026-11-27T04:36:12Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.3,
+     "ocr_seconds_reference": 6.1
     },
     "gsw_bkn_2015_s01_w07": {
      "keys_differing": [
@@ -2820,7 +3292,9 @@
      "mtime_workspace": "2026-11-18T02:23:11Z",
      "mtime_reference": "2026-11-27T04:37:17Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.1,
+     "ocr_seconds_reference": 5.4
     },
     "gsw_bkn_2015_s01_w08": {
      "keys_differing": [
@@ -2836,7 +3310,9 @@
      "mtime_workspace": "2026-11-18T02:23:56Z",
      "mtime_reference": "2026-11-27T04:38:18Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.7,
+     "ocr_seconds_reference": 4.2
     },
     "gsw_bkn_2015_s01_w09": {
      "keys_differing": [
@@ -2852,7 +3328,9 @@
      "mtime_workspace": "2026-11-18T02:24:39Z",
      "mtime_reference": "2026-11-27T04:39:14Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.2,
+     "ocr_seconds_reference": 4.1
     },
     "gsw_bkn_2015_s01_w10": {
      "keys_differing": [
@@ -2868,7 +3346,9 @@
      "mtime_workspace": "2026-11-18T02:25:04Z",
      "mtime_reference": "2026-11-27T04:39:45Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.8,
+     "ocr_seconds_reference": 3.3
     },
     "gsw_bkn_2015_s01_w11": {
      "keys_differing": [
@@ -2884,7 +3364,9 @@
      "mtime_workspace": "2026-11-18T02:25:47Z",
      "mtime_reference": "2026-11-27T04:40:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.0,
+     "ocr_seconds_reference": 4.1
     },
     "gsw_bkn_2015_s02_w00": {
      "keys_differing": [
@@ -2900,7 +3382,9 @@
      "mtime_workspace": "2026-11-18T02:28:44Z",
      "mtime_reference": "2026-11-27T04:45:06Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 42.9,
+     "ocr_seconds_reference": 20.3
     },
     "gsw_bkn_2015_s02_w01": {
      "keys_differing": [
@@ -2916,7 +3400,9 @@
      "mtime_workspace": "2026-11-18T02:30:46Z",
      "mtime_reference": "2026-11-27T04:48:46Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 26.3,
+     "ocr_seconds_reference": 17.3
     },
     "gsw_bkn_2015_s02_w02": {
      "keys_differing": [
@@ -2932,7 +3418,9 @@
      "mtime_workspace": "2026-11-18T02:32:32Z",
      "mtime_reference": "2026-11-27T04:51:41Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 23.0,
+     "ocr_seconds_reference": 13.2
     },
     "gsw_bkn_2015_s02_w03": {
      "keys_differing": [
@@ -2948,7 +3436,9 @@
      "mtime_workspace": "2026-11-18T02:34:02Z",
      "mtime_reference": "2026-11-27T04:54:18Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 16.2,
+     "ocr_seconds_reference": 13.3
     },
     "gsw_bkn_2015_s02_w04": {
      "keys_differing": [
@@ -2964,7 +3454,9 @@
      "mtime_workspace": "2026-11-18T02:35:14Z",
      "mtime_reference": "2026-11-27T04:56:33Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.0,
+     "ocr_seconds_reference": 10.3
     },
     "gsw_bkn_2015_s02_w05": {
      "keys_differing": [
@@ -2980,7 +3472,9 @@
      "mtime_workspace": "2026-11-18T02:35:41Z",
      "mtime_reference": "2026-11-27T04:57:09Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.1,
+     "ocr_seconds_reference": 4.5
     },
     "gsw_bkn_2015_s02_w06": {
      "keys_differing": [
@@ -2996,7 +3490,9 @@
      "mtime_workspace": "2026-11-18T02:36:06Z",
      "mtime_reference": "2026-11-27T04:57:49Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.2,
+     "ocr_seconds_reference": 3.7
     },
     "gsw_bkn_2015_s03_w00": {
      "keys_differing": [
@@ -3012,7 +3508,9 @@
      "mtime_workspace": "2026-11-18T02:38:46Z",
      "mtime_reference": "2026-11-27T05:02:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 40.6,
+     "ocr_seconds_reference": 24.6
     },
     "gsw_bkn_2015_s03_w01": {
      "keys_differing": [
@@ -3028,7 +3526,9 @@
      "mtime_workspace": "2026-11-18T02:40:07Z",
      "mtime_reference": "2026-11-27T05:05:10Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 14.9,
+     "ocr_seconds_reference": 12.4
     },
     "gsw_bkn_2015_s03_w02": {
      "keys_differing": [
@@ -3044,7 +3544,9 @@
      "mtime_workspace": "2026-11-18T02:41:05Z",
      "mtime_reference": "2026-11-27T05:06:45Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.5,
+     "ocr_seconds_reference": 9.6
     },
     "gsw_bkn_2015_s03_w03": {
      "keys_differing": [
@@ -3060,7 +3562,9 @@
      "mtime_workspace": "2026-11-18T02:42:07Z",
      "mtime_reference": "2026-11-27T05:08:46Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.5,
+     "ocr_seconds_reference": 8.6
     },
     "gsw_bkn_2015_s03_w04": {
      "keys_differing": [
@@ -3076,7 +3580,9 @@
      "mtime_workspace": "2026-11-18T02:43:08Z",
      "mtime_reference": "2026-11-27T05:10:32Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.7,
+     "ocr_seconds_reference": 8.3
     },
     "gsw_bkn_2015_s03_w05": {
      "keys_differing": [
@@ -3092,7 +3598,9 @@
      "mtime_workspace": "2026-11-18T02:43:58Z",
      "mtime_reference": "2026-11-27T05:11:49Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.7,
+     "ocr_seconds_reference": 7.9
     },
     "gsw_bkn_2015_s03_w06": {
      "keys_differing": [
@@ -3108,7 +3616,9 @@
      "mtime_workspace": "2026-11-18T02:44:57Z",
      "mtime_reference": "2026-11-27T05:13:17Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.0,
+     "ocr_seconds_reference": 6.9
     },
     "gsw_bkn_2015_s03_w07": {
      "keys_differing": [
@@ -3124,7 +3634,9 @@
      "mtime_workspace": "2026-11-18T02:45:32Z",
      "mtime_reference": "2026-11-27T05:14:03Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.9,
+     "ocr_seconds_reference": 4.7
     },
     "gsw_bkn_2015_s03_w08": {
      "keys_differing": [
@@ -3140,7 +3652,9 @@
      "mtime_workspace": "2026-11-18T02:46:02Z",
      "mtime_reference": "2026-11-27T05:14:43Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.3,
+     "ocr_seconds_reference": 4.1
     },
     "gsw_bkn_2015_s03_w09": {
      "keys_differing": [
@@ -3156,7 +3670,9 @@
      "mtime_workspace": "2026-11-18T02:46:35Z",
      "mtime_reference": "2026-11-27T05:15:24Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.8,
+     "ocr_seconds_reference": 3.3
     },
     "gsw_bkn_2015_s04_w00": {
      "keys_differing": [
@@ -3172,7 +3688,9 @@
      "mtime_workspace": "2026-11-18T02:50:31Z",
      "mtime_reference": "2026-11-27T05:23:46Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 42.5,
+     "ocr_seconds_reference": 42.3
     },
     "gsw_bkn_2015_s04_w01": {
      "keys_differing": [
@@ -3188,7 +3706,9 @@
      "mtime_workspace": "2026-11-18T02:51:42Z",
      "mtime_reference": "2026-11-27T05:25:57Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.4,
+     "ocr_seconds_reference": 10.7
     },
     "gsw_bkn_2015_s04_w02": {
      "keys_differing": [
@@ -3204,7 +3724,9 @@
      "mtime_workspace": "2026-11-18T02:52:38Z",
      "mtime_reference": "2026-11-27T05:27:42Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.2,
+     "ocr_seconds_reference": 7.7
     },
     "gsw_bkn_2015_s04_w03": {
      "keys_differing": [
@@ -3220,7 +3742,9 @@
      "mtime_workspace": "2026-11-18T02:53:28Z",
      "mtime_reference": "2026-11-27T05:29:05Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.0,
+     "ocr_seconds_reference": 5.8
     },
     "gsw_bkn_2015_s04_w04": {
      "keys_differing": [
@@ -3236,7 +3760,9 @@
      "mtime_workspace": "2026-11-18T02:54:12Z",
      "mtime_reference": "2026-11-27T05:30:16Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.4,
+     "ocr_seconds_reference": 5.0
     },
     "gsw_bkn_2015_s05_w00": {
      "keys_differing": [
@@ -3252,7 +3778,9 @@
      "mtime_workspace": "2026-11-18T02:56:41Z",
      "mtime_reference": "2026-11-27T05:35:35Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 26.7,
+     "ocr_seconds_reference": 23.6
     },
     "gsw_bkn_2015_s05_w01": {
      "keys_differing": [
@@ -3268,7 +3796,9 @@
      "mtime_workspace": "2026-11-18T02:58:27Z",
      "mtime_reference": "2026-11-27T05:39:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 22.7,
+     "ocr_seconds_reference": 19.4
     },
     "gsw_bkn_2015_s05_w02": {
      "keys_differing": [
@@ -3284,7 +3814,9 @@
      "mtime_workspace": "2026-11-18T03:00:13Z",
      "mtime_reference": "2026-11-27T05:42:00Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 22.8,
+     "ocr_seconds_reference": 18.9
     },
     "gsw_bkn_2015_s05_w03": {
      "keys_differing": [
@@ -3300,7 +3832,9 @@
      "mtime_workspace": "2026-11-18T03:02:16Z",
      "mtime_reference": "2026-11-27T05:46:13Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 20.5,
+     "ocr_seconds_reference": 20.4
     },
     "gsw_bkn_2015_s05_w04": {
      "keys_differing": [
@@ -3316,7 +3850,9 @@
      "mtime_workspace": "2026-11-18T03:03:30Z",
      "mtime_reference": "2026-11-27T05:48:59Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 14.2,
+     "ocr_seconds_reference": 13.5
     },
     "gsw_bkn_2015_s05_w05": {
      "keys_differing": [
@@ -3332,7 +3868,9 @@
      "mtime_workspace": "2026-11-18T03:04:42Z",
      "mtime_reference": "2026-11-27T05:51:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.9,
+     "ocr_seconds_reference": 10.9
     },
     "gsw_bkn_2015_s05_w06": {
      "keys_differing": [
@@ -3348,7 +3886,9 @@
      "mtime_workspace": "2026-11-18T03:05:30Z",
      "mtime_reference": "2026-11-27T05:53:10Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.1,
+     "ocr_seconds_reference": 8.8
     },
     "gsw_bkn_2015_s05_w07": {
      "keys_differing": [
@@ -3364,7 +3904,9 @@
      "mtime_workspace": "2026-11-18T03:05:53Z",
      "mtime_reference": "2026-11-27T05:53:44Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.6,
+     "ocr_seconds_reference": 6.2
     },
     "gsw_bkn_2015_s06_w00": {
      "keys_differing": [
@@ -3380,7 +3922,9 @@
      "mtime_workspace": "2026-11-18T03:07:33Z",
      "mtime_reference": "2026-11-27T05:57:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 19.8,
+     "ocr_seconds_reference": 17.7
     },
     "gsw_bkn_2015_s06_w01": {
      "keys_differing": [
@@ -3396,7 +3940,9 @@
      "mtime_workspace": "2026-11-18T03:09:20Z",
      "mtime_reference": "2026-11-27T06:01:01Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 18.8,
+     "ocr_seconds_reference": 19.1
     },
     "gsw_bkn_2015_s06_w02": {
      "keys_differing": [
@@ -3412,7 +3958,9 @@
      "mtime_workspace": "2026-11-18T03:10:58Z",
      "mtime_reference": "2026-11-27T06:04:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 17.3,
+     "ocr_seconds_reference": 16.4
     },
     "gsw_bkn_2015_s06_w03": {
      "keys_differing": [
@@ -3428,7 +3976,9 @@
      "mtime_workspace": "2026-11-18T03:12:37Z",
      "mtime_reference": "2026-11-27T06:07:44Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.6,
+     "ocr_seconds_reference": 14.6
     },
     "gsw_bkn_2015_s06_w04": {
      "keys_differing": [
@@ -3444,7 +3994,9 @@
      "mtime_workspace": "2026-11-18T03:13:14Z",
      "mtime_reference": "2026-11-27T06:09:00Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.1,
+     "ocr_seconds_reference": 5.8
     },
     "gsw_bkn_2015_s06_w05": {
      "keys_differing": [
@@ -3460,7 +4012,9 @@
      "mtime_workspace": "2026-11-18T03:13:46Z",
      "mtime_reference": "2026-11-27T06:10:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.8,
+     "ocr_seconds_reference": 3.9
     },
     "gsw_bkn_2015_s07_w00": {
      "keys_differing": [
@@ -3476,7 +4030,9 @@
      "mtime_workspace": "2026-11-18T03:17:07Z",
      "mtime_reference": "2026-11-27T06:17:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 37.6,
+     "ocr_seconds_reference": 36.7
     },
     "gsw_bkn_2015_s07_w01": {
      "keys_differing": [
@@ -3492,7 +4048,9 @@
      "mtime_workspace": "2026-11-18T03:19:00Z",
      "mtime_reference": "2026-11-27T06:22:48Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 20.2,
+     "ocr_seconds_reference": 18.5
     },
     "gsw_bkn_2015_s07_w02": {
      "keys_differing": [],
@@ -3506,7 +4064,9 @@
      "mtime_workspace": "2026-11-18T03:20:32Z",
      "mtime_reference": "2026-11-27T06:26:17Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.2,
+     "ocr_seconds_reference": 15.2
     },
     "gsw_bkn_2015_s07_w03": {
      "keys_differing": [
@@ -3522,7 +4082,9 @@
      "mtime_workspace": "2026-11-18T03:21:21Z",
      "mtime_reference": "2026-11-27T06:28:10Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.2,
+     "ocr_seconds_reference": 8.1
     },
     "gsw_bkn_2015_s07_w04": {
      "keys_differing": [
@@ -3538,7 +4100,9 @@
      "mtime_workspace": "2026-11-18T03:22:04Z",
      "mtime_reference": "2026-11-27T06:29:32Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.9,
+     "ocr_seconds_reference": 6.1
     },
     "gsw_bkn_2015_s07_w05": {
      "keys_differing": [
@@ -3554,7 +4118,9 @@
      "mtime_workspace": "2026-11-18T03:22:34Z",
      "mtime_reference": "2026-11-27T06:30:28Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.9,
+     "ocr_seconds_reference": 5.0
     },
     "gsw_bkn_2015_s07_w06": {
      "keys_differing": [
@@ -3570,7 +4136,9 @@
      "mtime_workspace": "2026-11-18T03:23:04Z",
      "mtime_reference": "2026-11-27T06:31:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.0,
+     "ocr_seconds_reference": 5.4
     },
     "gsw_bkn_2015_s08_w00": {
      "keys_differing": [],
@@ -3584,7 +4152,9 @@
      "mtime_workspace": "2026-11-18T03:23:44Z",
      "mtime_reference": "2026-11-27T06:33:02Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.6,
+     "ocr_seconds_reference": 5.6
     },
     "gsw_bkn_2015_s08_w01": {
      "keys_differing": [
@@ -3600,7 +4170,9 @@
      "mtime_workspace": "2026-11-18T03:24:28Z",
      "mtime_reference": "2026-11-27T06:34:18Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.1,
+     "ocr_seconds_reference": 5.0
     },
     "gsw_bkn_2015_s08_w02": {
      "keys_differing": [
@@ -3616,7 +4188,9 @@
      "mtime_workspace": "2026-11-18T03:25:07Z",
      "mtime_reference": "2026-11-27T06:35:24Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.1,
+     "ocr_seconds_reference": 4.5
     },
     "gsw_bkn_2015_s08_w03": {
      "keys_differing": [
@@ -3632,7 +4206,9 @@
      "mtime_workspace": "2026-11-18T03:25:42Z",
      "mtime_reference": "2026-11-27T06:36:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.3,
+     "ocr_seconds_reference": 3.9
     },
     "gsw_bkn_2015_s08_w04": {
      "keys_differing": [
@@ -3648,7 +4224,9 @@
      "mtime_workspace": "2026-11-18T03:26:13Z",
      "mtime_reference": "2026-11-27T06:37:27Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.7,
+     "ocr_seconds_reference": 4.4
     },
     "gsw_bkn_2015_s08_w05": {
      "keys_differing": [
@@ -3664,7 +4242,9 @@
      "mtime_workspace": "2026-11-18T03:26:44Z",
      "mtime_reference": "2026-11-27T06:38:28Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.6,
+     "ocr_seconds_reference": 3.3
     },
     "gsw_bkn_2015_s09_w00": {
      "keys_differing": [
@@ -3680,7 +4260,9 @@
      "mtime_workspace": "2026-11-18T03:28:15Z",
      "mtime_reference": "2026-11-27T06:41:56Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 16.8,
+     "ocr_seconds_reference": 16.5
     },
     "gsw_bkn_2015_s09_w01": {
      "keys_differing": [
@@ -3696,7 +4278,9 @@
      "mtime_workspace": "2026-11-18T03:30:00Z",
      "mtime_reference": "2026-11-27T06:45:24Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 17.2,
+     "ocr_seconds_reference": 15.0
     },
     "gsw_bkn_2015_s09_w02": {
      "keys_differing": [
@@ -3712,7 +4296,9 @@
      "mtime_workspace": "2026-11-18T03:31:15Z",
      "mtime_reference": "2026-11-27T06:47:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 12.4,
+     "ocr_seconds_reference": 11.3
     },
     "gsw_bkn_2015_s09_w03": {
      "keys_differing": [
@@ -3728,7 +4314,9 @@
      "mtime_workspace": "2026-11-18T03:31:48Z",
      "mtime_reference": "2026-11-27T06:49:01Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.5,
+     "ocr_seconds_reference": 6.4
     },
     "gsw_bkn_2015_s09_w04": {
      "keys_differing": [
@@ -3744,7 +4332,9 @@
      "mtime_workspace": "2026-11-18T03:32:12Z",
      "mtime_reference": "2026-11-27T06:49:41Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.5,
+     "ocr_seconds_reference": 4.0
     },
     "gsw_bkn_2015_s09_w05": {
      "keys_differing": [
@@ -3760,7 +4350,9 @@
      "mtime_workspace": "2026-11-18T03:32:41Z",
      "mtime_reference": "2026-11-27T06:50:42Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.8,
+     "ocr_seconds_reference": 3.7
     },
     "gsw_bkn_2015_s10_w00": {
      "keys_differing": [
@@ -3776,7 +4368,9 @@
      "mtime_workspace": "2026-11-18T03:33:20Z",
      "mtime_reference": "2026-11-27T06:52:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.4,
+     "ocr_seconds_reference": 6.7
     },
     "gsw_bkn_2015_s10_w01": {
      "keys_differing": [
@@ -3792,7 +4386,9 @@
      "mtime_workspace": "2026-11-18T03:33:54Z",
      "mtime_reference": "2026-11-27T06:53:13Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.2,
+     "ocr_seconds_reference": 4.7
     },
     "gsw_bkn_2015_s10_w02": {
      "keys_differing": [
@@ -3808,7 +4404,9 @@
      "mtime_workspace": "2026-11-18T03:34:25Z",
      "mtime_reference": "2026-11-27T06:54:15Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.6,
+     "ocr_seconds_reference": 4.7
     },
     "gsw_bkn_2015_s10_w03": {
      "keys_differing": [
@@ -3824,7 +4422,9 @@
      "mtime_workspace": "2026-11-18T03:34:59Z",
      "mtime_reference": "2026-11-27T06:55:33Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.1,
+     "ocr_seconds_reference": 5.9
     },
     "gsw_bkn_2015_s10_w04": {
      "keys_differing": [
@@ -3840,7 +4440,9 @@
      "mtime_workspace": "2026-11-18T03:35:36Z",
      "mtime_reference": "2026-11-27T06:56:46Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.2,
+     "ocr_seconds_reference": 4.9
     },
     "gsw_bkn_2015_s10_w05": {
      "keys_differing": [
@@ -3856,7 +4458,9 @@
      "mtime_workspace": "2026-11-18T03:36:10Z",
      "mtime_reference": "2026-11-27T06:57:48Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.4,
+     "ocr_seconds_reference": 4.1
     },
     "gsw_bkn_2015_s10_w06": {
      "keys_differing": [
@@ -3872,7 +4476,77 @@
      "mtime_workspace": "2026-11-18T03:36:37Z",
      "mtime_reference": "2026-11-27T06:58:43Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.3,
+     "ocr_seconds_reference": 3.1
+    }
+   },
+   "sync_maps": {
+    "gsw_bkn_2015_s00_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s01_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s02_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s03_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s04_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s05_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s06_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s07_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s08_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s09_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
+    },
+    "gsw_bkn_2015_s10_local_timemap.json": {
+     "link_workspace": true,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": true
     }
    }
   },
@@ -3916,7 +4590,9 @@
      "mtime_workspace": "2026-11-22T11:34:16Z",
      "mtime_reference": "2026-11-26T17:33:33Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 27.4,
+     "ocr_seconds_reference": 30.1
     },
     "hou_cle_2016_s00_w01": {
      "keys_differing": [
@@ -3932,7 +4608,9 @@
      "mtime_workspace": "2026-11-22T11:35:24Z",
      "mtime_reference": "2026-11-26T17:36:12Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 14.7,
+     "ocr_seconds_reference": 13.3
     },
     "hou_cle_2016_s00_w02": {
      "keys_differing": [
@@ -3948,7 +4626,9 @@
      "mtime_workspace": "2026-11-22T11:36:34Z",
      "mtime_reference": "2026-11-26T17:38:35Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 12.6,
+     "ocr_seconds_reference": 10.9
     },
     "hou_cle_2016_s00_w03": {
      "keys_differing": [
@@ -3964,7 +4644,9 @@
      "mtime_workspace": "2026-11-22T11:37:31Z",
      "mtime_reference": "2026-11-26T17:40:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 12.1,
+     "ocr_seconds_reference": 11.1
     },
     "hou_cle_2016_s00_w04": {
      "keys_differing": [
@@ -3980,7 +4662,9 @@
      "mtime_workspace": "2026-11-22T11:38:14Z",
      "mtime_reference": "2026-11-26T17:41:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.2,
+     "ocr_seconds_reference": 8.0
     },
     "hou_cle_2016_s00_w05": {
      "keys_differing": [
@@ -3996,7 +4680,9 @@
      "mtime_workspace": "2026-11-22T11:38:42Z",
      "mtime_reference": "2026-11-26T17:42:42Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.1,
+     "ocr_seconds_reference": 6.6
     },
     "hou_cle_2016_s00_w06": {
      "keys_differing": [
@@ -4012,7 +4698,9 @@
      "mtime_workspace": "2026-11-22T11:39:17Z",
      "mtime_reference": "2026-11-26T17:43:53Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.3,
+     "ocr_seconds_reference": 6.0
     },
     "hou_cle_2016_s01_w00": {
      "keys_differing": [
@@ -4028,7 +4716,9 @@
      "mtime_workspace": "2026-11-22T11:41:42Z",
      "mtime_reference": "2026-11-26T17:49:37Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 27.5,
+     "ocr_seconds_reference": 30.5
     },
     "hou_cle_2016_s01_w01": {
      "keys_differing": [
@@ -4044,7 +4734,9 @@
      "mtime_workspace": "2026-11-22T11:43:10Z",
      "mtime_reference": "2026-11-26T17:52:46Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 19.3,
+     "ocr_seconds_reference": 18.6
     },
     "hou_cle_2016_s01_w02": {
      "keys_differing": [
@@ -4060,7 +4752,9 @@
      "mtime_workspace": "2026-11-22T11:44:38Z",
      "mtime_reference": "2026-11-26T17:55:47Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 18.7,
+     "ocr_seconds_reference": 15.2
     },
     "hou_cle_2016_s01_w03": {
      "keys_differing": [
@@ -4076,7 +4770,9 @@
      "mtime_workspace": "2026-11-22T11:45:31Z",
      "mtime_reference": "2026-11-26T17:57:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 10.6,
+     "ocr_seconds_reference": 8.9
     },
     "hou_cle_2016_s01_w04": {
      "keys_differing": [
@@ -4092,7 +4788,9 @@
      "mtime_workspace": "2026-11-22T11:46:14Z",
      "mtime_reference": "2026-11-26T17:58:57Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.4,
+     "ocr_seconds_reference": 7.2
     },
     "hou_cle_2016_s01_w05": {
      "keys_differing": [
@@ -4108,7 +4806,9 @@
      "mtime_workspace": "2026-11-22T11:46:46Z",
      "mtime_reference": "2026-11-26T18:00:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.0,
+     "ocr_seconds_reference": 5.3
     },
     "hou_cle_2016_s01_w06": {
      "keys_differing": [
@@ -4124,7 +4824,9 @@
      "mtime_workspace": "2026-11-22T11:47:15Z",
      "mtime_reference": "2026-11-26T18:01:00Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.9,
+     "ocr_seconds_reference": 4.1
     },
     "hou_cle_2016_s01_w07": {
      "keys_differing": [
@@ -4140,7 +4842,9 @@
      "mtime_workspace": "2026-11-22T11:47:43Z",
      "mtime_reference": "2026-11-26T18:01:52Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.5,
+     "ocr_seconds_reference": 3.9
     },
     "hou_cle_2016_s01_w08": {
      "keys_differing": [
@@ -4156,7 +4860,9 @@
      "mtime_workspace": "2026-11-22T11:48:05Z",
      "mtime_reference": "2026-11-26T18:02:24Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.8,
+     "ocr_seconds_reference": 4.0
     },
     "hou_cle_2016_s01_w09": {
      "keys_differing": [
@@ -4172,7 +4878,9 @@
      "mtime_workspace": "2026-11-22T11:48:28Z",
      "mtime_reference": "2026-11-26T18:03:01Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.8,
+     "ocr_seconds_reference": 4.1
     },
     "hou_cle_2016_s01_w10": {
      "keys_differing": [
@@ -4188,7 +4896,9 @@
      "mtime_workspace": "2026-11-22T11:48:51Z",
      "mtime_reference": "2026-11-26T18:03:36Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.4,
+     "ocr_seconds_reference": 3.7
     },
     "hou_cle_2016_s02_w00": {
      "keys_differing": [
@@ -4204,7 +4914,9 @@
      "mtime_workspace": "2026-11-22T11:50:34Z",
      "mtime_reference": "2026-11-26T18:35:03Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 21.9,
+     "ocr_seconds_reference": 17.0
     },
     "hou_cle_2016_s02_w01": {
      "keys_differing": [
@@ -4220,7 +4932,9 @@
      "mtime_workspace": "2026-11-22T11:51:40Z",
      "mtime_reference": "2026-11-26T18:37:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.2,
+     "ocr_seconds_reference": 10.9
     },
     "hou_cle_2016_s02_w02": {
      "keys_differing": [
@@ -4236,7 +4950,9 @@
      "mtime_workspace": "2026-11-22T11:52:37Z",
      "mtime_reference": "2026-11-26T18:39:37Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.2,
+     "ocr_seconds_reference": 9.5
     },
     "hou_cle_2016_s02_w03": {
      "keys_differing": [
@@ -4252,7 +4968,9 @@
      "mtime_workspace": "2026-11-22T11:53:28Z",
      "mtime_reference": "2026-11-26T18:41:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.5,
+     "ocr_seconds_reference": 8.5
     },
     "hou_cle_2016_s02_w04": {
      "keys_differing": [
@@ -4268,7 +4986,9 @@
      "mtime_workspace": "2026-11-22T11:54:05Z",
      "mtime_reference": "2026-11-26T18:42:41Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.9,
+     "ocr_seconds_reference": 6.8
     },
     "hou_cle_2016_s02_w05": {
      "keys_differing": [
@@ -4284,7 +5004,9 @@
      "mtime_workspace": "2026-11-22T11:54:32Z",
      "mtime_reference": "2026-11-26T18:43:30Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.6,
+     "ocr_seconds_reference": 6.0
     },
     "hou_cle_2016_s02_w06": {
      "keys_differing": [],
@@ -4298,7 +5020,9 @@
      "mtime_workspace": "2026-11-22T11:55:03Z",
      "mtime_reference": "2026-11-26T18:44:35Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.7,
+     "ocr_seconds_reference": 4.7
     },
     "hou_cle_2016_s02_w07": {
      "keys_differing": [
@@ -4314,7 +5038,9 @@
      "mtime_workspace": "2026-11-22T11:55:35Z",
      "mtime_reference": "2026-11-26T18:45:37Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.1,
+     "ocr_seconds_reference": 4.5
     },
     "hou_cle_2016_s02_w08": {
      "keys_differing": [
@@ -4330,7 +5056,9 @@
      "mtime_workspace": "2026-11-22T11:56:06Z",
      "mtime_reference": "2026-11-26T18:46:32Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.9,
+     "ocr_seconds_reference": 4.0
     },
     "hou_cle_2016_s03_w00": {
      "keys_differing": [
@@ -4346,7 +5074,9 @@
      "mtime_workspace": "2026-11-22T11:58:19Z",
      "mtime_reference": "2026-11-26T19:28:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 27.4,
+     "ocr_seconds_reference": 30.0
     },
     "hou_cle_2016_s03_w01": {
      "keys_differing": [
@@ -4362,7 +5092,9 @@
      "mtime_workspace": "2026-11-22T11:59:47Z",
      "mtime_reference": "2026-11-26T19:32:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 18.9,
+     "ocr_seconds_reference": 19.5
     },
     "hou_cle_2016_s03_w02": {
      "keys_differing": [
@@ -4378,7 +5110,9 @@
      "mtime_workspace": "2026-11-22T12:01:05Z",
      "mtime_reference": "2026-11-26T19:35:36Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.1,
+     "ocr_seconds_reference": 16.3
     },
     "hou_cle_2016_s03_w03": {
      "keys_differing": [
@@ -4394,7 +5128,9 @@
      "mtime_workspace": "2026-11-22T12:02:21Z",
      "mtime_reference": "2026-11-26T19:38:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.6,
+     "ocr_seconds_reference": 15.4
     },
     "hou_cle_2016_s03_w04": {
      "keys_differing": [
@@ -4410,7 +5146,9 @@
      "mtime_workspace": "2026-11-22T12:03:37Z",
      "mtime_reference": "2026-11-26T19:41:28Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.9,
+     "ocr_seconds_reference": 16.1
     },
     "hou_cle_2016_s03_w05": {
      "keys_differing": [
@@ -4426,7 +5164,9 @@
      "mtime_workspace": "2026-11-22T12:04:48Z",
      "mtime_reference": "2026-11-26T19:44:09Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.5,
+     "ocr_seconds_reference": 12.4
     },
     "hou_cle_2016_s03_w06": {
      "keys_differing": [
@@ -4442,7 +5182,9 @@
      "mtime_workspace": "2026-11-22T12:05:38Z",
      "mtime_reference": "2026-11-26T19:45:55Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.4,
+     "ocr_seconds_reference": 9.4
     },
     "hou_cle_2016_s03_w07": {
      "keys_differing": [
@@ -4458,7 +5200,9 @@
      "mtime_workspace": "2026-11-22T12:06:26Z",
      "mtime_reference": "2026-11-26T19:47:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.7,
+     "ocr_seconds_reference": 9.2
     },
     "hou_cle_2016_s03_w08": {
      "keys_differing": [
@@ -4474,7 +5218,9 @@
      "mtime_workspace": "2026-11-22T12:07:12Z",
      "mtime_reference": "2026-11-26T19:48:56Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 10.0,
+     "ocr_seconds_reference": 10.7
     },
     "hou_cle_2016_s03_w09": {
      "keys_differing": [
@@ -4490,7 +5236,9 @@
      "mtime_workspace": "2026-11-22T12:07:47Z",
      "mtime_reference": "2026-11-26T19:50:06Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.9,
+     "ocr_seconds_reference": 6.3
     },
     "hou_cle_2016_s03_w10": {
      "keys_differing": [
@@ -4506,7 +5254,9 @@
      "mtime_workspace": "2026-11-22T12:08:17Z",
      "mtime_reference": "2026-11-26T19:51:08Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.0,
+     "ocr_seconds_reference": 5.6
     },
     "hou_cle_2016_s04_w00": {
      "keys_differing": [
@@ -4522,7 +5272,9 @@
      "mtime_workspace": "2026-11-22T12:09:56Z",
      "mtime_reference": "2026-11-27T02:00:48Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 19.4,
+     "ocr_seconds_reference": 17.6
     },
     "hou_cle_2016_s04_w01": {
      "keys_differing": [
@@ -4538,7 +5290,9 @@
      "mtime_workspace": "2026-11-22T12:10:56Z",
      "mtime_reference": "2026-11-27T02:02:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.1,
+     "ocr_seconds_reference": 10.3
     },
     "hou_cle_2016_s04_w02": {
      "keys_differing": [
@@ -4554,7 +5308,9 @@
      "mtime_workspace": "2026-11-22T12:11:52Z",
      "mtime_reference": "2026-11-27T02:04:41Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 12.6,
+     "ocr_seconds_reference": 10.2
     },
     "hou_cle_2016_s04_w03": {
      "keys_differing": [
@@ -4570,7 +5326,9 @@
      "mtime_workspace": "2026-11-22T12:12:33Z",
      "mtime_reference": "2026-11-27T02:05:54Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.0,
+     "ocr_seconds_reference": 7.3
     },
     "hou_cle_2016_s04_w04": {
      "keys_differing": [
@@ -4586,7 +5344,9 @@
      "mtime_workspace": "2026-11-22T12:13:19Z",
      "mtime_reference": "2026-11-27T02:07:18Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.5,
+     "ocr_seconds_reference": 6.9
     },
     "hou_cle_2016_s04_w05": {
      "keys_differing": [
@@ -4602,7 +5362,9 @@
      "mtime_workspace": "2026-11-22T12:13:48Z",
      "mtime_reference": "2026-11-27T02:08:03Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.3,
+     "ocr_seconds_reference": 5.9
     },
     "hou_cle_2016_s05_w00": {
      "keys_differing": [
@@ -4618,7 +5380,9 @@
      "mtime_workspace": "2026-11-22T12:15:19Z",
      "mtime_reference": "2026-11-27T02:11:14Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 19.6,
+     "ocr_seconds_reference": 16.0
     },
     "hou_cle_2016_s05_w01": {
      "keys_differing": [
@@ -4634,7 +5398,9 @@
      "mtime_workspace": "2026-11-22T12:16:25Z",
      "mtime_reference": "2026-11-27T02:13:35Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 14.3,
+     "ocr_seconds_reference": 11.2
     },
     "hou_cle_2016_s05_w02": {
      "keys_differing": [
@@ -4650,7 +5416,9 @@
      "mtime_workspace": "2026-11-22T12:17:24Z",
      "mtime_reference": "2026-11-27T02:15:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.5,
+     "ocr_seconds_reference": 11.7
     },
     "hou_cle_2016_s05_w03": {
      "keys_differing": [
@@ -4666,7 +5434,9 @@
      "mtime_workspace": "2026-11-22T12:18:17Z",
      "mtime_reference": "2026-11-27T02:17:02Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.6,
+     "ocr_seconds_reference": 7.8
     },
     "hou_cle_2016_s05_w04": {
      "keys_differing": [
@@ -4682,7 +5452,9 @@
      "mtime_workspace": "2026-11-22T12:18:51Z",
      "mtime_reference": "2026-11-27T02:18:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.0,
+     "ocr_seconds_reference": 5.0
     },
     "hou_cle_2016_s05_w05": {
      "keys_differing": [
@@ -4698,7 +5470,9 @@
      "mtime_workspace": "2026-11-22T12:19:19Z",
      "mtime_reference": "2026-11-27T02:18:57Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.0,
+     "ocr_seconds_reference": 4.3
     },
     "hou_cle_2016_s05_w06": {
      "keys_differing": [
@@ -4714,7 +5488,9 @@
      "mtime_workspace": "2026-11-22T12:19:47Z",
      "mtime_reference": "2026-11-27T02:19:46Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.0,
+     "ocr_seconds_reference": 5.4
     },
     "hou_cle_2016_s06_w00": {
      "keys_differing": [
@@ -4730,7 +5506,9 @@
      "mtime_workspace": "2026-11-22T12:22:52Z",
      "mtime_reference": "2026-11-27T02:26:49Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 37.8,
+     "ocr_seconds_reference": 39.7
     },
     "hou_cle_2016_s06_w01": {
      "keys_differing": [
@@ -4746,7 +5524,9 @@
      "mtime_workspace": "2026-11-22T12:24:53Z",
      "mtime_reference": "2026-11-27T02:31:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 24.9,
+     "ocr_seconds_reference": 25.3
     },
     "hou_cle_2016_s06_w02": {
      "keys_differing": [
@@ -4762,7 +5542,9 @@
      "mtime_workspace": "2026-11-22T12:26:20Z",
      "mtime_reference": "2026-11-27T02:34:28Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 21.4,
+     "ocr_seconds_reference": 17.5
     },
     "hou_cle_2016_s06_w03": {
      "keys_differing": [
@@ -4778,7 +5560,9 @@
      "mtime_workspace": "2026-11-22T12:27:36Z",
      "mtime_reference": "2026-11-27T02:37:21Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 13.8,
+     "ocr_seconds_reference": 14.8
     },
     "hou_cle_2016_s06_w04": {
      "keys_differing": [
@@ -4794,7 +5578,9 @@
      "mtime_workspace": "2026-11-22T12:28:29Z",
      "mtime_reference": "2026-11-27T02:39:14Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.9,
+     "ocr_seconds_reference": 10.0
     },
     "hou_cle_2016_s06_w05": {
      "keys_differing": [
@@ -4810,7 +5596,9 @@
      "mtime_workspace": "2026-11-22T12:29:27Z",
      "mtime_reference": "2026-11-27T02:41:10Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 9.7,
+     "ocr_seconds_reference": 9.8
     },
     "hou_cle_2016_s06_w06": {
      "keys_differing": [
@@ -4826,7 +5614,9 @@
      "mtime_workspace": "2026-11-22T12:30:09Z",
      "mtime_reference": "2026-11-27T02:42:37Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.0,
+     "ocr_seconds_reference": 7.2
     },
     "hou_cle_2016_s06_w07": {
      "keys_differing": [
@@ -4842,7 +5632,9 @@
      "mtime_workspace": "2026-11-22T12:30:35Z",
      "mtime_reference": "2026-11-27T02:43:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.5,
+     "ocr_seconds_reference": 5.6
     },
     "hou_cle_2016_s06_w08": {
      "keys_differing": [
@@ -4858,7 +5650,9 @@
      "mtime_workspace": "2026-11-22T12:31:01Z",
      "mtime_reference": "2026-11-27T02:44:13Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.9,
+     "ocr_seconds_reference": 4.1
     },
     "hou_cle_2016_s07_w00": {
      "keys_differing": [
@@ -4874,7 +5668,9 @@
      "mtime_workspace": "2026-11-22T12:35:40Z",
      "mtime_reference": "2026-11-27T02:55:07Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 60.1,
+     "ocr_seconds_reference": 61.0
     },
     "hou_cle_2016_s07_w01": {
      "keys_differing": [
@@ -4890,7 +5686,9 @@
      "mtime_workspace": "2026-11-22T12:38:36Z",
      "mtime_reference": "2026-11-27T03:01:34Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 36.4,
+     "ocr_seconds_reference": 34.2
     },
     "hou_cle_2016_s07_w02": {
      "keys_differing": [
@@ -4906,7 +5704,9 @@
      "mtime_workspace": "2026-11-22T12:39:51Z",
      "mtime_reference": "2026-11-27T03:04:14Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 15.5,
+     "ocr_seconds_reference": 15.1
     },
     "hou_cle_2016_s07_w03": {
      "keys_differing": [
@@ -4922,7 +5722,9 @@
      "mtime_workspace": "2026-11-22T12:40:36Z",
      "mtime_reference": "2026-11-27T03:05:43Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.9,
+     "ocr_seconds_reference": 8.3
     },
     "hou_cle_2016_s07_w04": {
      "keys_differing": [],
@@ -4936,7 +5738,9 @@
      "mtime_workspace": "2026-11-22T12:41:06Z",
      "mtime_reference": "2026-11-27T03:06:42Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.7,
+     "ocr_seconds_reference": 4.7
     },
     "hou_cle_2016_s07_w05": {
      "keys_differing": [],
@@ -4950,7 +5754,9 @@
      "mtime_workspace": "2026-11-22T12:41:30Z",
      "mtime_reference": "2026-11-27T03:07:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.7,
+     "ocr_seconds_reference": 3.7
     },
     "hou_cle_2016_s08_w00": {
      "keys_differing": [
@@ -4966,7 +5772,9 @@
      "mtime_workspace": "2026-11-22T12:43:29Z",
      "mtime_reference": "2026-11-27T03:11:35Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 25.0,
+     "ocr_seconds_reference": 24.5
     },
     "hou_cle_2016_s08_w01": {
      "keys_differing": [
@@ -4982,7 +5790,9 @@
      "mtime_workspace": "2026-11-22T12:45:12Z",
      "mtime_reference": "2026-11-27T03:15:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 23.2,
+     "ocr_seconds_reference": 20.4
     },
     "hou_cle_2016_s08_w02": {
      "keys_differing": [
@@ -4998,7 +5808,9 @@
      "mtime_workspace": "2026-11-22T12:45:50Z",
      "mtime_reference": "2026-11-27T03:16:16Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.1,
+     "ocr_seconds_reference": 6.5
     },
     "hou_cle_2016_s08_w03": {
      "keys_differing": [
@@ -5014,7 +5826,9 @@
      "mtime_workspace": "2026-11-22T12:46:26Z",
      "mtime_reference": "2026-11-27T03:17:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.6,
+     "ocr_seconds_reference": 5.8
     },
     "hou_cle_2016_s08_w04": {
      "keys_differing": [
@@ -5030,7 +5844,9 @@
      "mtime_workspace": "2026-11-22T12:47:00Z",
      "mtime_reference": "2026-11-27T03:18:24Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 6.4,
+     "ocr_seconds_reference": 4.7
     },
     "hou_cle_2016_s08_w05": {
      "keys_differing": [
@@ -5046,7 +5862,9 @@
      "mtime_workspace": "2026-11-22T12:47:29Z",
      "mtime_reference": "2026-11-27T03:19:07Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.8,
+     "ocr_seconds_reference": 4.0
     },
     "hou_cle_2016_s08_w06": {
      "keys_differing": [
@@ -5062,7 +5880,9 @@
      "mtime_workspace": "2026-11-22T12:47:50Z",
      "mtime_reference": "2026-11-27T03:19:35Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.0,
+     "ocr_seconds_reference": 3.5
     },
     "hou_cle_2016_s08_w07": {
      "keys_differing": [
@@ -5078,7 +5898,9 @@
      "mtime_workspace": "2026-11-22T12:48:19Z",
      "mtime_reference": "2026-11-27T03:20:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.6,
+     "ocr_seconds_reference": 4.1
     },
     "hou_cle_2016_s09_w00": {
      "keys_differing": [
@@ -5094,7 +5916,9 @@
      "mtime_workspace": "2026-11-22T12:50:57Z",
      "mtime_reference": "2026-11-27T03:26:00Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 34.6,
+     "ocr_seconds_reference": 28.7
     },
     "hou_cle_2016_s09_w01": {
      "keys_differing": [
@@ -5110,7 +5934,9 @@
      "mtime_workspace": "2026-11-22T12:52:58Z",
      "mtime_reference": "2026-11-27T03:30:19Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 25.9,
+     "ocr_seconds_reference": 23.8
     },
     "hou_cle_2016_s09_w02": {
      "keys_differing": [
@@ -5126,7 +5952,9 @@
      "mtime_workspace": "2026-11-22T12:54:32Z",
      "mtime_reference": "2026-11-27T03:33:33Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 21.0,
+     "ocr_seconds_reference": 17.5
     },
     "hou_cle_2016_s09_w03": {
      "keys_differing": [
@@ -5142,7 +5970,9 @@
      "mtime_workspace": "2026-11-22T12:55:46Z",
      "mtime_reference": "2026-11-27T03:36:08Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 17.2,
+     "ocr_seconds_reference": 17.3
     },
     "hou_cle_2016_s09_w04": {
      "keys_differing": [
@@ -5158,7 +5988,9 @@
      "mtime_workspace": "2026-11-22T12:56:38Z",
      "mtime_reference": "2026-11-27T03:37:40Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 10.1,
+     "ocr_seconds_reference": 11.4
     },
     "hou_cle_2016_s09_w05": {
      "keys_differing": [
@@ -5174,7 +6006,9 @@
      "mtime_workspace": "2026-11-22T12:57:35Z",
      "mtime_reference": "2026-11-27T03:39:35Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 11.6,
+     "ocr_seconds_reference": 9.5
     },
     "hou_cle_2016_s09_w06": {
      "keys_differing": [
@@ -5190,7 +6024,9 @@
      "mtime_workspace": "2026-11-22T12:58:20Z",
      "mtime_reference": "2026-11-27T03:41:00Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 8.9,
+     "ocr_seconds_reference": 6.7
     },
     "hou_cle_2016_s09_w07": {
      "keys_differing": [
@@ -5206,7 +6042,9 @@
      "mtime_workspace": "2026-11-22T12:58:48Z",
      "mtime_reference": "2026-11-27T03:41:52Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 3.8,
+     "ocr_seconds_reference": 3.7
     },
     "hou_cle_2016_s09_w08": {
      "keys_differing": [],
@@ -5220,7 +6058,9 @@
      "mtime_workspace": "2026-11-22T12:59:17Z",
      "mtime_reference": "2026-11-27T03:42:43Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.4,
+     "ocr_seconds_reference": 4.4
     },
     "hou_cle_2016_s10_w00": {
      "keys_differing": [
@@ -5236,7 +6076,9 @@
      "mtime_workspace": "2026-11-22T13:01:08Z",
      "mtime_reference": "2026-11-27T03:46:36Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 26.1,
+     "ocr_seconds_reference": 20.6
     },
     "hou_cle_2016_s10_w01": {
      "keys_differing": [
@@ -5252,7 +6094,9 @@
      "mtime_workspace": "2026-11-22T13:02:12Z",
      "mtime_reference": "2026-11-27T03:48:23Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 19.6,
+     "ocr_seconds_reference": 10.8
     },
     "hou_cle_2016_s10_w02": {
      "keys_differing": [
@@ -5268,7 +6112,9 @@
      "mtime_workspace": "2026-11-22T13:02:54Z",
      "mtime_reference": "2026-11-27T03:49:39Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.9,
+     "ocr_seconds_reference": 7.5
     },
     "hou_cle_2016_s10_w03": {
      "keys_differing": [
@@ -5284,7 +6130,9 @@
      "mtime_workspace": "2026-11-22T13:03:36Z",
      "mtime_reference": "2026-11-27T03:51:04Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.0,
+     "ocr_seconds_reference": 7.1
     },
     "hou_cle_2016_s10_w04": {
      "keys_differing": [
@@ -5300,7 +6148,9 @@
      "mtime_workspace": "2026-11-22T13:04:18Z",
      "mtime_reference": "2026-11-27T03:52:28Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.1,
+     "ocr_seconds_reference": 6.9
     },
     "hou_cle_2016_s10_w05": {
      "keys_differing": [
@@ -5316,7 +6166,9 @@
      "mtime_workspace": "2026-11-22T13:04:57Z",
      "mtime_reference": "2026-11-27T03:53:38Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 7.2,
+     "ocr_seconds_reference": 6.8
     },
     "hou_cle_2016_s10_w06": {
      "keys_differing": [
@@ -5332,7 +6184,9 @@
      "mtime_workspace": "2026-11-22T13:05:30Z",
      "mtime_reference": "2026-11-27T03:54:44Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.3,
+     "ocr_seconds_reference": 5.1
     },
     "hou_cle_2016_s10_w07": {
      "keys_differing": [
@@ -5348,7 +6202,9 @@
      "mtime_workspace": "2026-11-22T13:06:05Z",
      "mtime_reference": "2026-11-27T03:55:52Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 5.6,
+     "ocr_seconds_reference": 5.2
     },
     "hou_cle_2016_s10_w08": {
      "keys_differing": [
@@ -5364,7 +6220,9 @@
      "mtime_workspace": "2026-11-22T13:06:33Z",
      "mtime_reference": "2026-11-27T03:56:50Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.7,
+     "ocr_seconds_reference": 4.5
     },
     "hou_cle_2016_s10_w09": {
      "keys_differing": [
@@ -5380,7 +6238,83 @@
      "mtime_workspace": "2026-11-22T13:06:54Z",
      "mtime_reference": "2026-11-27T03:57:25Z",
      "symlink_workspace": false,
-     "symlink_reference": false
+     "symlink_reference": false,
+     "ocr_seconds_workspace": 4.2,
+     "ocr_seconds_reference": 4.1
+    }
+   },
+   "sync_maps": {
+    "hou_cle_2016_s00_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s01_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s02_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s03_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s04_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s05_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s06_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s07_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s08_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s09_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s10_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
+    },
+    "hou_cle_2016_s11_local_timemap.json": {
+     "link_workspace": false,
+     "link_reference": true,
+     "same_file": true,
+     "in_main_checkout_sync": false
     }
    }
   }

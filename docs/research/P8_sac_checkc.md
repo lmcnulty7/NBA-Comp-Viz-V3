@@ -1,5 +1,8 @@
 # P8: why gsw_sac_2015's fixed CPU truth fails check C (registered 2026-11-27, before any number)
 
+Status (2026-11-27): closed. Stage 1 result in section 8, the version 2.2 side reading in section 11, the close in
+section 12; stage 2 did not run.
+
 Status: design only, report only. No number in this document has been computed yet. Nothing trains; no rule of
 P8_truth_arenas.md or P8_resetfix.md changes; gsw_sac_2015 stays "apart" whatever this finds (D199). Code, when
 approved: tools/p8_sac_checkc.py with tests; record reports/research/p8_sac_checkc.json.
@@ -276,7 +279,9 @@ function is imported from tools.p8_truth_v2.
 
 Note (2026-11-27, the lead's decision): the Clock reading above stands in the record as registered, but it is a false
 alarm of the instrument. The SHA-256 rule reacted to the "ocr_seconds" run metadata; every frame set, span and clock is
-identical between the roots (largest difference 0.0 s; section 9). Post hoc, not registered: the table's non-Clock
+identical between the roots (largest difference 0.0 s; section 9, whose record reports/research/p8_sac_timemaps.json
+also holds each window's ocr_seconds, for example 24.6 against 21.7 s in gsw_sac_2015_s01_w00). Post hoc, not
+registered: the table's non-Clock
 reading is Platform for both the share and the median (hybrid (i) moves all the way and hybrid (ii) not at all).
 
 Descriptions (no reading): hybrid (i) (the fixed record's d in the none class only) gives share 0.8219 and median 0.64,
@@ -289,7 +294,8 @@ windows); grid-edge hits MPS V3 5 and r23 2, fixed V3 6 and r23 1. gsw_cha_2016'
 their unfixed builds in all 61 windows. The equivalence evidence holds for all three games.
 
 **Post hoc, not registered.** After the reading, the differing time maps were opened: the only key that differs is
-"ocr_seconds", the OCR run's duration (for example 24.6 against 21.7 s); in all 82 windows the frame sets, the spans
+"ocr_seconds", the OCR run's duration (for example 24.6 against 21.7 s in gsw_sac_2015_s01_w00, section 9's record);
+in all 82 windows the frame sets, the spans
 and every frame's clock are identical (largest clock difference 0.0 s). So the two roots' time maps carry the same
 clock, and the Clock reading comes from the identity rule of 6.4 (SHA-256 of the whole file), not from a clock
 difference; that rule was too strict. Without it, the decomposition table would read Platform for both statistics
@@ -309,13 +315,15 @@ every frame to the same game clock.
 **(2) Provenance.** A window time map is written by the frozen label step (sportvu.autolabel, phase A) when the file is
 absent, as sportvu.local_sync.build_local_timemap(section, reader, vid=<the window clip>): a fresh clock read of the
 window clip, with "ocr_seconds" set to that read's wall-clock duration (round(time.time() - t0, 1)). The section sync
-maps the label step uses (sync/<section>_local_timemap.json; gsw_sac_2015's 11 sections, checked) are, in both roots,
-symbolic links resolving to the same files in the main checkout's data/sportvu/sync (the reference root's links made by the truth plan's link step, tools
+maps the label step uses (sync/<section>_local_timemap.json; gsw_sac_2015's 11 sections, recorded in the record's
+sync_maps: a link in each root, the same resolved file, inside the main checkout's data/sportvu/sync) are, in both
+roots, symbolic links resolving to the same files in the main checkout's data/sportvu/sync (the reference root's links made by the truth plan's link step, tools
 p8_truth_cpu.sh, for gsw_* games). The window time maps themselves are plain files written by each root's own label
 step: workspace modification dates 2026-11-18 and 2026-11-22, reference root 2026-11-27 for gsw_sac_2015. So each root
 read the clock afresh, got the same clock everywhere, and recorded a different read duration.
 
-**(3) Controls.** The same check on the other games, workspace against reference root:
+**(3) Controls.** The same check on the other games, workspace against reference root (hou_cle_2016 is read as an
+extra control beyond section 6.10's list):
 
 | game | windows in both | SHA-256 differs | keys that differ | equal frame sets, equal spans | largest clock difference |
 |---|---|---|---|---|---|
@@ -365,11 +373,22 @@ disagree. Stage 2 does not run (section 10).
 - Registered readings: the decomposition reads Clock (section 8), a false alarm of the SHA-256 rule on "ocr_seconds";
   the side reads "not separated" (section 11); against the controls (absolute changes, common windows) gsw_sac_2015's
   change is within their range on the share and outside it on the median (+0.12 s against at most 0.04 s).
-- What this says (the post hoc Platform reading and the crossings, labelled as such): gsw_sac_2015's check C change
-  sits in windows with no reset in any of the four builds (the none class nets the whole +2 windows; swapping in the
-  fixed record's d there alone reproduces the fixed share and median), so it comes with the platform move (MPS to CPU
-  builds), not with the reset fix. Which side carries it is not separated.
+- What this says, post hoc: the net change (+2 windows; median +0.12 s) is carried by the no-reset windows, where only
+  the build platform changed and the fix cannot act; they are 62 of the 73 measured windows (the others: 8 both, 2 MPS
+  only, 1 CPU only). The reset windows move more per window (median |d change| 0.28 s over all 11, 0.34 s over the 8
+  "both" windows, against 0.12 s in the no-reset windows) but their moves cancel (2 up, 2 down). The share change is
+  within the controls' range; the median change is outside it and is not explained by the platform alone, since the
+  controls moved platform too. "Platform" also bundles anything else that differs between the two roots' builds.
+  Figures: reports/research/p8_sac_checkc_close.json (tools.p8_sac_checkc close, from the two check C records and
+  stage 1's classes). Which side carries the change is not separated.
 - Unchanged: gsw_sac_2015 stays "apart" (D199); no window is excluded from check C, nothing is adopted, and any change
   of its status would be a new registration.
 - Lesson: an identity test on whole files reacts to run metadata (here a read duration); a clock test should compare
   the content the measurement uses.
+
+Review notes (2026-11-27, the ml-review of 3ef14f27..ba144d3c, PASS): section 12's post hoc cause narrowed to what the
+records show, with its figures recorded (close command; the reviewer's 0.34 s is the "both" class, 0.28 s covers all
+11 reset windows; both are in the record); the ocr_seconds example is named and recorded; the sync-map links are
+recorded in the time-maps record; a status line; a write-scope test for tools/p8_sac_timemaps.py, and hou_cle_2016
+named as an extra control.
+

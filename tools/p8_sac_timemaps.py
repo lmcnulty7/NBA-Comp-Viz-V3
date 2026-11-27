@@ -7,7 +7,11 @@ Stored files only, system python, no lock.
 Per game (gsw_sac_2015, and as controls gsw_cha_2016, gsw_bkn_2015, hou_cle_2016) and per window with a time map in
 both roots: SHA-256 equal or not; the top-level keys whose values differ; whether the frame sets and the spans are
 equal; the largest and median absolute clock difference and the count of period differences over the frames both
-hold; each file's modification time and whether it is a symbolic link. Provenance: the window time map is written by
+hold; each file's modification time, whether it is a symbolic link, and its ocr_seconds value. Per section, the sync
+map each root's label step reads (sync/<section>_local_timemap.json): whether it is a symbolic link in each root,
+whether the two resolve to the same file, and whether that file lies in the main checkout's data/sportvu/sync (only
+names and booleans are recorded, no local path). hou_cle_2016 is read as an extra control beyond section 6.10 of the
+design. Provenance: the window time map is written by
 the frozen label step (sportvu.autolabel, build_local_timemap of sportvu.local_sync) when the file is absent, from a
 fresh clock read of the window clip; its "ocr_seconds" is that read's wall-clock duration.
 """
@@ -54,6 +58,25 @@ def compare_timemaps(a: dict, b: dict) -> dict:
             "period_differences": sum(1 for f in com if fa[f][0] != fb[f][0])}
 
 
+def sync_links(ws: Path, ref: Path, game: str, checkout: Path | None = None) -> dict:
+    """Per section sync map: symbolic link in each root, same resolved file, inside the main checkout's
+    data/sportvu/sync. Names and booleans only."""
+    if checkout is None:
+        from tools.p8_common import main_checkout
+        checkout = main_checkout()
+    target_dir = (Path(checkout) / "data" / "sportvu" / "sync").resolve()
+    names = sorted({p.name for root in (ws, ref) for p in (root / "sync").glob(f"{game}_s*_local_timemap.json")})
+    out = {}
+    for n in names:
+        a, b = ws / "sync" / n, ref / "sync" / n
+        ra = a.resolve() if a.exists() else None
+        rb = b.resolve() if b.exists() else None
+        out[n] = {"link_workspace": a.is_symlink(), "link_reference": b.is_symlink(),
+                  "same_file": ra is not None and ra == rb,
+                  "in_main_checkout_sync": rb is not None and rb.parent == target_dir}
+    return out
+
+
 def mtime(p: Path) -> str:
     return dt.datetime.fromtimestamp(p.lstat().st_mtime, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -77,7 +100,8 @@ def run(ws: Path = DATA / "work", ref: Path = DATA / "work_ref") -> dict:
                 b = json.load(fh)
             c = compare_timemaps(a, b)
             c.update({"sha_equal": sha256(pa) == sha256(pb), "mtime_workspace": mtime(pa), "mtime_reference": mtime(pb),
-                      "symlink_workspace": pa.is_symlink(), "symlink_reference": pb.is_symlink()})
+                      "symlink_workspace": pa.is_symlink(), "symlink_reference": pb.is_symlink(),
+                      "ocr_seconds_workspace": a.get("ocr_seconds"), "ocr_seconds_reference": b.get("ocr_seconds")})
             rows[name[:-len("_timemap.json")]] = c
             for k in c["keys_differing"]:
                 keyset[k] = keyset.get(k, 0) + 1
@@ -98,6 +122,7 @@ def run(ws: Path = DATA / "work", ref: Path = DATA / "work_ref") -> dict:
             "symlinks": {"workspace": sum(c["symlink_workspace"] for c in rows.values()),
                          "reference": sum(c["symlink_reference"] for c in rows.values())},
             "windows": rows}
+        out["games"][g]["sync_maps"] = sync_links(ws, ref, g)
         s = out["games"][g]
         print(g, json.dumps({k: s[k] for k in ("windows_both", "sha_differing", "keys_differing_counts",
                                                "frames_equal_sets", "spans_equal", "clock_abs_diff_max_over_windows",

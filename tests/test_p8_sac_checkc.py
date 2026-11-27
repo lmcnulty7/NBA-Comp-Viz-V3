@@ -158,6 +158,7 @@ def test_no_cmd_import_and_one_output_path():
             assert not any(a.name.startswith("cmd_") for a in node.names)
     src = inspect.getsource(C)
     assert src.count("atomic_write(out_path()") == 2 and src.count("atomic_write(out_path_v22()") == 1
+    assert src.count("atomic_write(out_path_close()") == 1 and src.count("atomic_write(") == 4
     assert '"truth_accept"' not in src                                    # no path is built there
     assert C.out_path().name == "p8_sac_checkc.json" and C.out_path().parent.name == "research"
 
@@ -197,3 +198,15 @@ def test_stage1_side_writes_only_its_record(tmp_path, monkeypatch):
     monkeypatch.setattr(builtins, "open", guarded_open)
     res = C.run_stage1_side(ws, ref, clock=same)
     assert res["side"]["reading"] == "invalid (clock differs)"
+
+
+
+def test_close_figures():
+    dm = {"a": 0.1, "b": 0.3, "c": 0.1, "d": 0.5, "e": 0.2}
+    df = {"a": 0.3, "b": 0.3, "c": 0.5, "d": 0.1, "e": 0.25}
+    cls = {"a": "none", "b": "none", "e": "none", "c": "both", "d": "MPS only"}
+    f = C.close_figures(dm, df, cls)
+    assert f["measured"] == 5 and f["class_split"] == {"none": 3, "both": 1, "MPS only": 1, "CPU only": 0}
+    assert f["no_reset"]["net"] == 2 and f["reset"]["net"] == 0
+    assert abs(f["no_reset"]["median_abs_d_change_s"] - 0.05) < 1e-12 and abs(f["reset"]["median_abs_d_change_s"] - 0.4) < 1e-12
+    assert f["median_abs_d_change_by_class_s"]["CPU only"] is None and abs(f["median_abs_d_change_by_class_s"]["both"] - 0.4) < 1e-12

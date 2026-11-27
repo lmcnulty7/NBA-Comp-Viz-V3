@@ -4,6 +4,9 @@
     python3 -m tools.p8_sac_checkc stage1        -> reports/research/p8_sac_checkc.json
     python3 -m tools.p8_sac_checkc stage1-side   -> reports/research/p8_sac_checkc_v22.json  (version 2.2: the side
                                                     reading with the clock tested on time-map content; nothing else)
+    python3 -m tools.p8_sac_checkc close         -> reports/research/p8_sac_checkc_close.json   (post hoc figures
+                                                    of section 12: the class split of the measured windows and the
+                                                    median per-window change of d by class)
 Each command writes only its own record.
 
 Inputs, all opened read-only: the check C records (the P8 workspace's truth_v2/<game>.json, MPS; the reference root's
@@ -37,6 +40,11 @@ DATA = Path.home() / "Developer" / "nba-v3-worktrees" / "_p8-data"
 def out_path() -> Path:
     from tools.p8_common import REPO
     return REPO / "reports" / "research" / "p8_sac_checkc.json"
+
+
+def out_path_close() -> Path:
+    from tools.p8_common import REPO
+    return REPO / "reports" / "research" / "p8_sac_checkc_close.json"
 
 
 def out_path_v22() -> Path:
@@ -444,16 +452,54 @@ def run_stage1_side(ws: Path, ref: Path, clock=clock_inputs) -> dict:
     return res
 
 
+def close_figures(d_mps: dict, d_fix: dict, classes: dict) -> dict:
+    """Post hoc (section 12): on the windows both records measure, the class split and, for the no-reset (none) class
+    and the reset classes together, the median |d(fixed) - d(MPS)| and the net crossings of 0.2 s."""
+    common = sorted(d_mps.keys() & d_fix.keys())
+    split = {c: sum(1 for s in common if classes.get(s) == c) for c in ("none", "both", "MPS only", "CPU only")}
+    groups = {"no_reset": [s for s in common if classes.get(s) == "none"],
+              "reset": [s for s in common if classes.get(s) != "none"]}
+    out = {"measured": len(common), "class_split": split,
+           "median_abs_d_change_by_class_s": {c: (float(np.median([abs(d_fix[s] - d_mps[s]) for s in common
+                                                                     if classes.get(s) == c]))
+                                                   if split[c] else None) for c in split}}
+    for g, ws in groups.items():
+        ch = [abs(d_fix[s] - d_mps[s]) for s in ws]
+        up = sum(1 for s in ws if d_mps[s] <= OVER < d_fix[s])
+        dn = sum(1 for s in ws if d_fix[s] <= OVER < d_mps[s])
+        out[g] = {"windows": len(ws), "median_abs_d_change_s": float(np.median(ch)) if ch else None,
+                  "crossings_up": up, "crossings_down": dn, "net": up - dn}
+    return out
+
+
+def run_close(ws: Path, ref: Path) -> dict:
+    from tools.p8_common import atomic_write, guard
+    from tools.research_testset import refuse_cv_test
+    refuse_cv_test([SAC], WHO)
+    guard([SAC], WHO)
+    rec_m = read_json(ws / "truth_v2" / f"{SAC}.json")
+    rec_f = read_json(ref / "truth_v2" / "dev" / f"{SAC}.json")
+    classes = read_json(out_path())["classes"]["windows"]           # stage 1's record (read only)
+    res = rnd({"what": "Post hoc figures of docs/research/P8_sac_checkc.md section 12; descriptive",
+               **close_figures(checkc_d(rec_m), checkc_d(rec_f), classes)})
+    atomic_write(out_path_close(), json.dumps(res, indent=1))
+    print(json.dumps(res, indent=1))
+    return res
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="python3 -m tools.p8_sac_checkc")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("stage1")
     sub.add_parser("stage1-side")
+    sub.add_parser("close")
     a = ap.parse_args(argv)
     if a.cmd == "stage1":
         run_stage1(DATA / "work", DATA / "work_ref")
     elif a.cmd == "stage1-side":
         run_stage1_side(DATA / "work", DATA / "work_ref")
+    elif a.cmd == "close":
+        run_close(DATA / "work", DATA / "work_ref")
 
 
 if __name__ == "__main__":
