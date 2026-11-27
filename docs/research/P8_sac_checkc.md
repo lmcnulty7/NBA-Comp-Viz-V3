@@ -247,3 +247,12 @@ solve_frozen). A test patches tools.p8_common.atomic_write and builtins.open in 
 - Stage 2 re-estimate: it reads about twice measure-dev's sidecars (both records reproduced, then (a) and (b)), so
   about 320 s; cap 480 s. At the cap it stops, reports nothing, and is not retried without a new go.
 - The workspace's r23 rebuild is MPS: P8_truth_v2.md line 47 ("Same clip, time map, detector and device (MPS)").
+
+**7.8 Stage 1 tool (2026-11-27, written, not run).** tools/p8_sac_checkc.py stage1 and tests/test_p8_sac_checkc.py. It
+re-derives every quoted fact (the class lists, the sac summaries and the 58 to 60 windows, the controls' own-window
+changes) and, on any difference, writes only the list of differences to its record and stops with no reading. Tests:
+the pure rules (classes, crossings, hybrids, the halfway rule, the decomposition and side tables, the share reading's
+single-window cases of 7.4, the controls' reading), a synthetic two-root run that patches atomic_write and
+builtins.open and fails on any write but its one record, a stop on a differing fact, and an AST check that no cmd_*
+function is imported from tools.p8_truth_v2.
+
