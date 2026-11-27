@@ -80,3 +80,123 @@ Stage 1 reads stored JSON only (records, sidecars, time maps, plans): system pyt
 four sidecar variants); it reads DATA_ROOT-free workspace files but imports frozen code, so it runs under the
 heavy-job lock as measure-dev did, after its own go. Guards: tools.research_testset.refuse_cv_test and
 tools.p8_common.guard on the game list; gsw_sac_2015 and gsw_bkn_2015 only; nothing held out is read.
+
+## 6. Version 2 (2026-11-27; the review of cd0f989f, NO-GO with 4 blockers; still before any number)
+
+This version replaces sections 3, 4 and 5 where it differs; sections 1 and 2 stand, with the corrections below.
+Nothing has been computed. Facts quoted from the reviewer are marked as such; the study re-derives every one in
+stage 1 and stops if any differs.
+
+### 6.1 Window classes (replaces section 3's separation)
+
+Each gsw_sac_2015 window is classed by whether its builds reset, read from the identity files (camera_cut_resets
+above 0) of all four builds: MPS V3 (workspace label_build), MPS r23 (workspace builds/r23), CPU V3 (reference root
+label_build, built with the fix) and CPU r23 (reference root builds/r23_nofix; the plan's reset windows):
+- **both**: at least one MPS build and at least one CPU build reset;
+- **MPS only**: an MPS build resets, no CPU build does;
+- **CPU only**: a CPU build resets, no MPS build does;
+- **none**: no build resets.
+Reviewer's count, to be re-derived: the MPS builds reset in 12 windows (s01_w00, s02_w00, s04_w02, s04_w08, s05_w04,
+s07_w00, s07_w02, s07_w08, s08_w02, s08_w04, s09_w01, s09_w05), the CPU builds in the plan's 10; s02_w00, s04_w08 and
+s05_w04 reset on MPS only, s06_w02 on CPU only. A "platform only" effect is claimed only for the none class: in MPS-only
+windows the MPS builds carry the bug while the CPU builds do not reset, and in both and CPU-only windows the fix acts,
+so platform and fix are confounded there. The MPS builds' reset frames are not stored (no reset log; only counts), so
+nothing is cut at an MPS reset.
+
+### 6.2 The share change is known (replaces "how many windows carry the change")
+
+From the records (reviewer's figures, re-derived in stage 1): the share moves from 58 to 60 of 73 windows (0.7945 to
+0.8219), a net change of +2 windows; the median from 0.52 to 0.64 s. Stage 1 reports the gross crossings (windows going
+above 0.2 s and windows going below) by class, and judges the size of the change against the controls (6.6).
+
+### 6.3 Decomposition and readings (replaces section 4's Platform and Fix rules)
+
+Swap hybrids, diagnostic only (never a check C value): **(i)** the fixed record's d in the none class and the MPS
+record's d in every other class; **(ii)** the reverse. For each statistic (the share over 0.2 s and the median of d,
+each judged separately), a hybrid "moves" when it covers at least half of the change from the MPS value to the fixed
+value, in the same direction. Readings, in this fixed priority, for each statistic:
+
+| order | reading | condition |
+|---|---|---|
+| 1 | Clock | any window time map, the SportVU moments file or the game's mirror differs between the roots (6.4) |
+| 2 | Platform | (i) moves and (ii) does not |
+| 3 | Reset-affected windows (labelled Fix) | (ii) moves and (i) does not; the class mixes the fix (both, CPU only) and the MPS builds' bug (MPS only), and the report says so |
+| 4 | Joint | both move |
+| 5 | Neither | neither moves |
+
+The few-windows note stands as a description: the gross crossings and the windows carrying them are named.
+
+### 6.4 Clock (replaces M3's reading)
+
+Clock rests only on identity, checked by SHA-256: each window's time map in the two roots, the SportVU moments file
+the two fits read, and the game's mirror (direction result). The fits' stored offsets are not part of it (they move
+with the V3 side, which the reviewer finds moved in 0.41 of windows); M3 keeps the stored offsets and grid-edge hits as
+descriptions only (edge hits are counted, never a reading).
+
+### 6.5 Side (replaces M2's reading)
+
+Cross pairs, valid only when every time map is identical (6.4): **V3 swap**, d of (fixed V3, MPS r23) per window;
+**r23 swap**, d of (MPS V3, fixed r23). A side is named only if its swap alone moves both the median and the share at
+least halfway from the MPS value toward the fixed value; otherwise the reading is "both". Note: the r23 side changes
+platform as well (the workspace's r23 rebuild is MPS, the reference root's is CPU), so an r23-side reading includes the
+platform; it is not the fix alone.
+
+### 6.6 Controls
+
+- gsw_bkn_2015: the MPS record and the fixed record (its fixed truth passes C).
+- gsw_cha_2016: three records, the MPS record (workspace truth_v2/gsw_cha_2016.json), the CPU unfixed record
+  (reference root superseded_nofix/truth_v2/dev/gsw_cha_2016.json) and the CPU fixed record (reference root
+  truth_v2/dev/gsw_cha_2016.json), each on its own windows and on the windows common to all three.
+- For each control: the change in median and share between its records. Reading, report only: sac's change from MPS
+  to fixed is "within the controls' range of change" when both its median change and its share change lie inside the
+  range spanned by the controls' changes (bkn MPS to fixed, cha MPS to unfixed, cha MPS to fixed, cha unfixed to
+  fixed); otherwise "outside", with the statistic named.
+
+### 6.7 Evidence for "identical without a reset"
+
+Cited exactly: reference root resetfix/equiv__gsw_sac_2015.json, both equivalence windows (s01_w01, s10_w05)
+identical to builds/r23_nofix (frames as canonical JSON without "source", trajectories and identity byte for byte),
+and the prefix check passing on the 10 reset windows; the same file for gsw_cha_2016 and gsw_bkn_2015. New in stage 1,
+for the V3 side: every gsw_cha_2016 window whose CPU V3 label build has no reset is compared with its unfixed CPU label
+build (reference root superseded_nofix/label_build) by SHA-256 of frames, trajectories and identity; the count of
+identical and differing windows is reported, and a differing window is named.
+
+### 6.8 Stage 1 assertions and cost
+
+Before any reading, stage 1 asserts and stops on a mismatch: both sac records hold the same 82 windows; the fixed
+record's check C set is 73 windows; stability recomputed from each record's window rows equals its stored summary
+(fixed: n 73, median 0.64, share 0.8219; MPS: median 0.52, share 0.7945, n re-derived and reported); the controls'
+summaries likewise. Stage 1 reads one file at a time and counts frames with a clock through the frozen
+sportvu.truth.frame_clock (as tools.p8_truth_v2.rows_pc_of does). System python, no model, no lock.
+
+### 6.9 Stage 2 (replaces section 3's M4 stage 2 and section 5's stage 2)
+
+Runs only if stage 1's reading for the share or the median is Fix, Joint or Neither, and after its own go.
+- **Reproduction gate first, exact:** with the same code path (tools.p8_truth_v2.rows_pc_of and solve_frozen,
+  unchanged) and the same interpreter as measure-dev (the frozen CV python), recompute the frozen offset of every
+  window and side of the sac fixed and MPS records on the full stored sidecars; every value must equal the record on
+  the 0.04 s grid, and the summaries must reproduce (fixed n 73, 0.64, 0.8219; MPS 0.52, 0.7945). Otherwise nothing is
+  reported.
+- **(a) Before the reset.** For the CPU reset windows, both sides (fixed V3 and composite r23) are cut at the same
+  frame, the arm's first logged reset (resetfix log of the CPU r23 build), keeping frames before it; the MPS builds
+  are not cut (their reset frames are not stored). A cut window with fewer than MIN_FRAMES (20) usable frames on either
+  side gets no offset and is reported as dropped (the reviewer expects at most 6 of 10 to remain). A remaining window
+  "returns" when |d(cut) - d(MPS)| is at most 0.2 s. Reading: the fix moves the offsets through post-reset frames if
+  at least k = 3 remaining windows return and they are more than half of the remaining windows; otherwise not shown.
+- **(b) r23 side without the fix.** d of (fixed V3, builds/r23_nofix) per window. Byte check first: for every
+  no-reset window, builds/r23_nofix and the composite builds/r23 hold byte-identical frames, trajectories and identity
+  (else (b) is not reported). Reading: if replacing the composite by r23_nofix moves both the median and the share at
+  least halfway back toward the MPS values, the fix on the r23 side contributes; otherwise it does not.
+- Never run: cmd_measure_dev, or any write under truth_v2/ or truth_accept/ in either root; the tool writes only its
+  own record. Lock name "sac checkc stage 2", estimate 159 s (measure-dev's recorded time for this game, per the
+  reviewer), cap 1.5 times (240 s).
+
+### 6.10 Guards and corrections
+
+- Games: gsw_sac_2015 and the controls gsw_bkn_2015 and gsw_cha_2016 only, through
+  tools.research_testset.refuse_cv_test and tools.p8_common.guard. Nothing held out is read.
+- No window is excluded from check C, nothing is adopted, and any change of gsw_sac_2015's status ("apart", D199) is a
+  new registration.
+- Correction to section 4's Platform reading: P8_truth_arenas.md section 15 found that gsw_cha_2016's truth MOVED on
+  accepted frames, while its fits' stored per-window offsets did not move (median 0.08 s); it is not evidence that the
+  CPU platform moves check C offsets, and this study no longer cites it as such.
