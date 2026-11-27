@@ -54,11 +54,12 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Level 2 by cause (D202 to D204): team errors are carried by crowding (D203; tracking and colour not separated);
-   placement misses are carried by players whose nearest box belongs to a neighbour (D204), which may really be own
-   boxes missing, merged or misplaced. Next, report only: a one-to-one view of the missed row (each SportVU player
-   matched to at most one box, as the scorer's one-to-one net error does), splitting placement into no own box,
-   own box misplaced, and neighbour's box taken, so the Level 2 targets are measured on what a fix can move.
+1. Level 2 map (D202 to D205), development standard rows on cha and bkn: missed 0.214 = own box 2.5 to 5 ft off
+   (0.114) + no box left near a close neighbour (0.041) + no box within 5 ft (0.044 + 0.014); ghosts 0.121; team 0.834,
+   carried by crowding. Next: a registered foot-model correction on the new truths aimed at the 0.114 row, Mac only and
+   stored files first, with near-field non-inferiority (D186 to D188 failed there on the old truths; the truth change
+   moved placement most, so the question is open again). Detection recall (0.085) needs a detector or tracker arm under
+   the training protocol and comes after.
 2. Deferred: the gsw_ind_2016 CPU rebuild (D200); the tracker-fix question on a real pool (D198, decides only the
    reported baseline under D193).
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
