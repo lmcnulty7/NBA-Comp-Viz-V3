@@ -54,13 +54,14 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Level 2 map (D202 to D205), development standard rows on cha and bkn: missed 0.214 = own box 2.5 to 5 ft off
-   (0.114) + no box left near a close neighbour (0.041) + no box within 5 ft (0.044 + 0.014); ghosts 0.121; team 0.834,
-   carried by crowding. A median foot shift toward the truth was killed at its in-sample gate (D206): about -0.004 against
-   the -0.010 bar. Next candidates, to re-rank: a report-only look at the P-ii boxes themselves (whether they are the
-   player's own box, a ghost or a neighbour's, by identity and box geometry), which decides whether the 0.114 row is a
-   foot problem or a detection problem; and detection recall (0.085), which needs a detector or tracker arm under the
-   training protocol.
+1. Level 2 map (D202 to D207), development standard rows on cha and bkn: missed 0.214 = own box 2.5 to 5 ft off
+   (0.114) + no box left near a close neighbour (0.041) + no box within 5 ft (0.044 + 0.014); ghosts 0.121; team 0.834.
+   The 0.114 row is mostly the player's own box placed off on that frame, and about 0.58 of the ghost row is these same
+   boxes (D207). Foot median shift killed (D206); the raw box bottom is no better than the smoothed foot (posefoot 0a).
+   The no-box misses are lost mostly at the detector on kept windows (D208), with NMS about 0.12 of them.
+   Running: posefoot (a per-box ankle foot, hybrid arm), stage A alignment next, then licence, smoke and falsifier.
+   Next candidates, to rank after posefoot: an NMS setting arm (report only, cheap, bounded near 0.12 of no-box
+   misses, with duplicate ghosts as its cost); a detector recall arm under the training protocol (C1, crowding).
 2. Deferred: the gsw_ind_2016 CPU rebuild (D200); the tracker-fix question on a real pool (D198, decides only the
    reported baseline under D193).
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
@@ -137,6 +138,8 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   73, inside the controls' normal swing (D201).
 - Check what sets the fitted statistic before fitting. A cell median of fit rows that are 86 percent hits is set by the
   hits, not by the misses the correction targets, so it moved position but not the missed row (D206).
+- A relayed estimate is not a record. A reviewer's figure passed on in a lead message entered a result section and failed review for traceability (D208); cite only committed records, or compute the figure into one.
+- A strict tie rule over-drops when the compared states barely differ: "above both neighbours" with ties as failures dropped 32 of 120 windows, 20 on ties (D208). Put the burden of proof on the failure, with a margin, and dry-run any rule on stored data before a lock.
 - Chain the steps, do not wait for a wake-up. A teammate waiting on a completion notice left the Mac idle 20 minutes
   twice in a day; one background script for the whole sequence, plus a lead-side watcher on the lock, removed it.
 
