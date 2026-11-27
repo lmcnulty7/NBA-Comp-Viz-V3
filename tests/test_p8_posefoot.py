@@ -131,7 +131,7 @@ def test_the_only_writes_are_the_records():
     tree = ast.parse(inspect.getsource(M))
     calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
     names = [getattr(c.func, "id", getattr(c.func, "attr", None)) for c in calls]
-    assert names.count("atomic_write") == 4                  # the 0a and alignment records, per game and reported
+    assert names.count("atomic_write") == 5                  # the 0a, alignment and model records
     assert not any(n in ("write_text", "write_bytes", "unlink", "rmtree", "remove", "rename") for n in names)
     assert "open" not in names
 

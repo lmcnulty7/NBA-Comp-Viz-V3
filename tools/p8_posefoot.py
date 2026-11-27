@@ -51,6 +51,12 @@ HIT_MED_FT, HIT_LOST = 0.10, 0.05         # rule 4
 EST_BAR = -0.010                          # rule 5
 RECORD_0A = REPO / "reports" / "research" / "p8_posefoot_0a.json"
 RECORD_ALIGN = REPO / "reports" / "research" / "p8_posefoot_align.json"
+RECORD_MODEL = REPO / "reports" / "research" / "p8_posefoot_model.json"
+# stage 0 (section 11.8): the one download, at a pinned revision
+MODEL_REPO = "usyd-community/vitpose-base-simple"
+MODEL_REV = "a93ac0c67e0b7e2c55287d21d4c460c8f3c54d45"
+MODEL_FILES = ("config.json", "preprocessor_config.json", "model.safetensors", "README.md")
+MODEL_LFS_SHA = {"model.safetensors": "85375373893ddd3641f3912821073e53f5435f9e966e1dca59d004454bfe4fdf"}
 # stage A (section 14)
 ALIGN_SEGMENTS, ALIGN_MIN_ELIGIBLE, ALIGN_MIN_BOXES = 15, 10, 4
 ALIGN_MARGIN, ALIGN_LEVEL = 0.05, 0.85     # v1.3: L_0 under 0.85 reads misaligned
@@ -810,6 +816,34 @@ def report0a() -> dict:
     return out
 
 
+def fetch_model() -> dict:
+    """Stage 0: the one download of the pinned revision into the Hugging Face cache (outside the repository and
+    iCloud), SHA-256 per file, model.safetensors checked against the Hub's LFS oid. Later loads use HF_HUB_OFFLINE=1."""
+    import hashlib
+    from huggingface_hub import hf_hub_download
+    from tools.p8_placecause import clean
+    from export.schemas import find_private
+    files = {}
+    for name in MODEL_FILES:
+        p = Path(hf_hub_download(MODEL_REPO, name, revision=MODEL_REV))
+        h = hashlib.sha256()
+        with open(p, "rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b""):
+                h.update(chunk)
+        files[name] = {"sha256": h.hexdigest(), "bytes": p.stat().st_size}
+        if name in MODEL_LFS_SHA and files[name]["sha256"] != MODEL_LFS_SHA[name]:
+            raise SystemExit(f"{WHO}: {name} does not match the Hub's LFS oid")
+    out = clean({"what": "docs/research/P8_posefoot.md stage 0: the pose model's one download", "repo": MODEL_REPO,
+                 "revision": MODEL_REV, "files": files, "licence": "docs/DATA_SOURCES.md, ViTPose-B row",
+                 "fetched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
+    text = json.dumps(out, indent=1)
+    if find_private(text):
+        raise SystemExit(f"{WHO}: the record holds private data")
+    atomic_write(RECORD_MODEL, text)
+    print(text)
+    return out
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog=f"python -m {WHO}")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -819,6 +853,7 @@ def main(argv=None) -> None:
     c2 = sub.add_parser("align")
     c2.add_argument("game")
     c2.add_argument("--smoke", action="store_true", help="the six smoke windows of 14.2 only")
+    sub.add_parser("fetch_model")
     ra = sub.add_parser("report_align")
     ra.add_argument("--smoke", action="store_true")
     a = ap.parse_args(argv)
@@ -830,6 +865,8 @@ def main(argv=None) -> None:
         collect_align(a.game, SMOKE_WINDOWS if a.smoke else None)
     elif a.cmd == "report0a":
         report0a()
+    elif a.cmd == "fetch_model":
+        fetch_model()
     else:
         report_align(a.smoke)
 
