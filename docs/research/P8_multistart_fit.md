@@ -71,7 +71,8 @@ fit under this rule can rescue gsw_cha_2016, and with the one-game upper bound n
   each continuing from the previous chunk's end, against the recorded single 2,000-evaluation run (P8_cha_fit.md F2: C
   (47.0457, 104.4133, -34.5452), cost 1,062,115); the C distance and cost difference are reported.
 - Timing: inputs, fit_game, each J evaluation, each chunk, in seconds. Estimate 900 s; cap 1,800 s.
-- Record: reports/research/p8_multistart_stage0.json; outputs under work_ref/diag/multistart/ only.
+- Record: reports/research/p8_multistart_stage0.json; outputs under work_ref/diag/multistart/ only. Code:
+  tools/p8_multistart.py stage0, tests tests/test_p8_multistart.py (committed with this version, before any run).
 
 ## 4. Stages 1 and 2: the multi-pool fit
 
