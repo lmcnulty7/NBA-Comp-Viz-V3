@@ -230,7 +230,9 @@
     },
     "matched_only_in_baseline": 32
    },
-   "reported_only": true
+   "reported_only": true,
+   "windows": 83,
+   "windows_differing": 9
   }
  },
  "hou": null,
@@ -452,7 +454,9 @@
       "pass": true
      }
     }
-   }
+   },
+   "windows": 83,
+   "windows_differing": 2
   }
  },
  "bracket_guard": {},

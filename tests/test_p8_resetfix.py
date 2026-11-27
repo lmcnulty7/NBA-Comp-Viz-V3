@@ -820,3 +820,9 @@ def test_report_no_pool_reports_the_one_game_in_use(tmp_path, monkeypatch):
     md = R.render_report(json.loads(json.dumps(res)))
     assert "**Verdict: no pass: no pool (1 pool game in use; cha unused, sac apart).**" in md
     assert "reported only" in md and "Not scored: it is scored only after a pool pass" in md
+    assert "reading (decides nothing): pass; windows with a nonzero difference: 6 of 6" in md
+    assert "(the guard and report only)" not in md and "section 24" in md and "To be written by hand" not in md
+    # a score file of a game whose truth is not in use is never reported (review item 7)
+    (d / "score__gsw_sac_2015.json").write_text(json.dumps({"windows": wins, "windows_common": wins}))
+    res = R.cmd_report(None)
+    assert list(res["per_game"]) == ["gsw_bkn_2015"] and res["no_pool"]

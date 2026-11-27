@@ -11,7 +11,7 @@ No pool (section 23): there are no pooled rows.
 
 ### Per game (E and missed: not worse; position, bias and team: margins)
 
-**gsw_bkn_2015**: pass
+**gsw_bkn_2015**: reading (decides nothing): pass; windows with a nonzero difference: 9 of 83
 
 | row | baseline | arm | difference | window interval | game interval | gate |
 |---|---|---|---|---|---|---|
@@ -34,9 +34,9 @@ No pool (section 23): there are no pooled rows.
 | gsw_bkn_2015 | +0.0008 | [-0.0024, +0.0033] |
 | pooled | n/a | n/a |
 
-### Bracket: frames both truths accepted (the guard and report only)
+### Bracket: frames both truths accepted (report only)
 
-**gsw_bkn_2015**
+**gsw_bkn_2015**: windows with a nonzero difference: 2 of 83
 
 | row | baseline | arm | difference | window interval | game interval | gate |
 |---|---|---|---|---|---|---|
@@ -73,4 +73,4 @@ Not scored: it is scored only after a pool pass (section 18).
 
 ### Against the forecast (sections 17 and 19), diagnosis and ledger
 
-To be written by hand after the numbers above, with no number typed that is not in a record: which way the result differs from the version 2.3 forecasts and why; error analysis by cause; the lesson; the ledger row.
+See docs/research/P8_resetfix.md section 24 for the comparison with the forecasts, the diagnosis, the lesson and the ledger row.

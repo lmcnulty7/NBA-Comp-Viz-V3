@@ -1709,6 +1709,12 @@ def report_only(wins: list) -> dict:
     return out
 
 
+def windows_differing(wins: list) -> int:
+    """Windows whose arm counts differ from the baseline's in the net-error numerator (missed or non-referee ghosts):
+    the windows that carry the whole difference."""
+    return sum(1 for w in wins if (w["new"]["missed"], w["new"]["nr_ghosts"]) != (w["r23"]["missed"], w["r23"]["nr_ghosts"]))
+
+
 def verdict_text_no_pool(pins: dict) -> str:
     """Section 23 addendum: "no pass: no pool (<n> pool game(s) in use; <short> <status>, ...)"."""
     short = {"gsw_cha_2016": "cha", "gsw_bkn_2015": "bkn", "gsw_sac_2015": "sac"}
@@ -1729,13 +1735,15 @@ def no_pool_report(files: dict, pins: dict, have: list, d: Path) -> dict:
         ev = unit_eval(wins, resample_picks(len(wins), 2000, 0))
         out["per_game"][g] = {**ev, "verdict": v23_verdict(ev["point"], ev["window_interval"], ev["rows"]["coverage"],
                                                           "game"),
-                              "report_only": report_only(wins), "reported_only": True}
+                              "report_only": report_only(wins), "reported_only": True,
+                              "windows": len(wins), "windows_differing": windows_differing(wins)}
     br = {}
     for g in have:
         wc = list((files[g].get("windows_common") or {}).values())
         if len(wc) >= 2:
             e = unit_eval(wc, resample_picks(len(wc), 2000, 0))
-            br[g] = {**e, "verdict": v23_verdict(e["point"], e["window_interval"], e["rows"]["coverage"], "game")}
+            br[g] = {**e, "verdict": v23_verdict(e["point"], e["window_interval"], e["rows"]["coverage"], "game"),
+                     "windows": len(wc), "windows_differing": windows_differing(wc)}
     out["bracket_common_frames"] = br
     out["bracket_guard"] = {}
     text = verdict_text_no_pool(pins)
@@ -1769,8 +1777,8 @@ def cmd_report(args) -> dict:
     pins = {g: _read(d / f"truth_pin__{g}.json") for g in POOL}
     if any(p is None for p in pins.values()):
         raise SystemExit(f"{WHO}: not every pool game's truth is pinned; nothing is reported")
-    have = [g for g in POOL if files[g] is not None]
-    unscored = [g for g in POOL if files[g] is None]
+    have = [g for g in POOL if files[g] is not None and pins[g]["status"] == "use"]   # only truth in use is reported
+    unscored = [g for g in POOL if g not in have]
     if any(pins[g]["status"] == "use" for g in unscored):
         raise SystemExit(f"{WHO}: pool games with truth in use are not scored yet: {unscored}")
     if len(have) < 2:                              # section 23 addendum: no pool; the game in use is reported only
@@ -1786,7 +1794,8 @@ def cmd_report(args) -> dict:
         ev = unit_eval(wins, resample_picks(len(wins), 2000, 0))
         cov = ev["rows"]["coverage"]
         per[g] = v23_verdict(ev["point"], ev["window_interval"], cov, "game")
-        out["per_game"][g] = {**ev, "verdict": per[g], "report_only": report_only(wins)}
+        out["per_game"][g] = {**ev, "verdict": per[g], "report_only": report_only(wins), "windows": len(wins),
+                              "windows_differing": windows_differing(wins)}
     groups = [list(files[g]["windows"].values()) for g in have]
     allw = [w for grp in groups for w in grp]
     ev = unit_eval(allw, resample_picks(len(allw), 2000, 0), resample_picks(len(groups), 2000, 0), groups)
@@ -1916,7 +1925,11 @@ def render_report(rep: dict) -> str:
                                 NET_1TO1_ROW], pool.get("pooled_verdict", {}).get("rows"))
     L += ["", "### Per game (E and missed: not worse; position, bias and team: margins)", ""]
     for g, u in rep["per_game"].items():
-        L += [f"**{g}**: {'pass' if u['verdict']['pass'] else 'fail'}", ""]
+        res_word = 'pass' if u['verdict']['pass'] else 'fail'
+        head = f"reading (decides nothing): {res_word}" if rep.get("no_pool") else res_word
+        if "windows_differing" in u:
+            head += f"; windows with a nonzero difference: {u['windows_differing']} of {u['windows']}"
+        L += [f"**{g}**: {head}", ""]
         L += _unit_table(u, [NET_ROW, "missed_rate", "position_p50_ft", "position_p90_ft", "nearfield_bias_ft",
                              "team_accuracy", "coverage", "ghost_rate", "detection_rate", NET_1TO1_ROW, ONE_TO_ONE_ROW],
                          u["verdict"]["rows"])
@@ -1926,9 +1939,12 @@ def render_report(rep: dict) -> str:
         L.append(f"| {g} | {_f(c.get('diff'), signed=True)} | {_iv(c.get('window_interval'))} |")
     gc = pool.get("ghost_cost_pooled") or {}
     L.append(f"| pooled | {_f(gc.get('diff'), signed=True)} | {_iv(gc.get('window_interval'))} |")
-    L += ["", "### Bracket: frames both truths accepted (the guard and report only)", ""]
+    L += ["", "### Bracket: frames both truths accepted (" + ("report only" if rep.get("no_pool") else
+                                                              "the guard and report only") + ")", ""]
     for k, u in (rep.get("bracket_common_frames") or {}).items():
-        L += [f"**{k}**", ""] + _unit_table(u, [NET_ROW, "missed_rate", "ghost_rate", NET_1TO1_ROW],
+        extra = f": windows with a nonzero difference: {u['windows_differing']} of {u['windows']}" \
+            if "windows_differing" in u else ""
+        L += [f"**{k}**{extra}", ""] + _unit_table(u, [NET_ROW, "missed_rate", "ghost_rate", NET_1TO1_ROW],
                                            u.get("verdict", {}).get("rows")) + [""]
     L += ["### Report only", "", "| unit | side | boxes per in-frame | duplicates per in-frame | ghosts per in-frame |",
           "|---|---|---|---|---|"]
@@ -1961,9 +1977,14 @@ def render_report(rep: dict) -> str:
                          h["verdict"]["rows"])
     else:
         L += ["", "### hou_cle_2016", "", "Not scored: it is scored only after a pool pass (section 18)."]
-    L += ["", "### Against the forecast (sections 17 and 19), diagnosis and ledger", "",
-          "To be written by hand after the numbers above, with no number typed that is not in a record: which way the "
-          "result differs from the version 2.3 forecasts and why; error analysis by cause; the lesson; the ledger row."]
+    L += ["", "### Against the forecast (sections 17 and 19), diagnosis and ledger", ""]
+    if rep.get("no_pool"):
+        L.append("See docs/research/P8_resetfix.md section 24 for the comparison with the forecasts, the diagnosis, the "
+                 "lesson and the ledger row.")
+    else:
+        L.append("To be written by hand after the numbers above, with no number typed that is not in a record: which way "
+                 "the result differs from the version 2.3 forecasts and why; error analysis by cause; the lesson; the "
+                 "ledger row.")
     return "\n".join(L) + "\n"
 
 
