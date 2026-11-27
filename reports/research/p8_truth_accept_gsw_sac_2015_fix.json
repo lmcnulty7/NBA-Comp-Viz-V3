@@ -1,0 +1,108 @@
+{
+ "game": "gsw_sac_2015",
+ "design": "docs/research/P8_truth_arenas.md section 16 version 4.3 (reset fix, PLAN.md D192)",
+ "acceptance": {
+  "tag": "gsw_sac_2015",
+  "design": "docs/research/P8_truth_arenas.md sections 0 and 5",
+  "checks": {
+   "A": {
+    "pass": true,
+    "partial": false,
+    "reproj_px_median_after": 6.65,
+    "bar": 10.0
+   },
+   "B": {
+    "pass": true,
+    "partial": false,
+    "accepted": 2949,
+    "mapped_s": 2316.9,
+    "bars": {
+     "accepted_min": 1000,
+     "mapped_s_min": 1500.0
+    }
+   },
+   "C": {
+    "pass": false,
+    "n": 73,
+    "windows_measured": 82,
+    "median_abs_s": 0.64,
+    "share_over_0_2_s": 0.8219,
+    "bars": {
+     "offset_median_s_max": 0.54,
+     "offset_share_max": 0.7945,
+     "offset_n_share_min": 0.8
+    }
+   }
+  },
+  "platform_ok": true,
+  "use": "apart",
+  "truth_platform": {
+   "label": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 82
+   },
+   "r23_rebuild": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 82
+   }
+  },
+  "label_windows": 82,
+  "rebuild_windows": 82
+ },
+ "check_c_r23_side": {
+  "game": "gsw_sac_2015",
+  "design": "docs/research/P8_truth_arenas.md section 16 version 4",
+  "sources": {
+   "arm": "builds/resetfix_r23_detcpu__gsw_sac_2015 of the reference root (reset windows)",
+   "baseline": "builds/m9_r23_detcpu__gsw_sac_2015 of the P8 workspace (other windows)"
+  },
+  "reference_devices": {
+   "detector": "cpu",
+   "court": "auto",
+   "gate": "auto"
+  },
+  "windows_on_record": 82,
+  "reset_windows": 10,
+  "copied_from_arm": 10,
+  "copied_from_baseline": 72,
+  "already_present": 0,
+  "refused": {},
+  "v3_label_windows": 82,
+  "v3_windows_without_r23": [],
+  "complete": true,
+  "note": "check C runs only when every V3 label window has an r23 build here (complete); nothing is built"
+ },
+ "measure_dev_summary": {
+  "windows": 82,
+  "frozen_recompute_mismatch": [
+   "gsw_sac_2015_s01_w06",
+   "gsw_sac_2015_s03_w06",
+   "gsw_sac_2015_s04_w08",
+   "gsw_sac_2015_s05_w06",
+   "gsw_sac_2015_s05_w07",
+   "gsw_sac_2015_s06_w08",
+   "gsw_sac_2015_s07_w06",
+   "gsw_sac_2015_s07_w08",
+   "gsw_sac_2015_s08_w07"
+  ],
+  "frozen": {
+   "n": 73,
+   "median_abs_s": 0.64,
+   "share_over_0_2_s": 0.8219,
+   "max_abs_s": 2.16
+  },
+  "v2": {
+   "n": 73,
+   "median_abs_s": 0.466,
+   "share_over_0_2_s": 0.7534,
+   "max_abs_s": 1.63
+  },
+  "v2_at_edge": {
+   "v3": 14,
+   "r23": 2
+  },
+  "candidates_v3": {
+   "frozen": 4716,
+   "v2": 5589,
+   "ratio": 1.1851
+  }
+ }
+}

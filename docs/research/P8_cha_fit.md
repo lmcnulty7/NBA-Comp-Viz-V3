@@ -1,0 +1,246 @@
+# P8: why gsw_cha_2016's camera fit broke with the reset-fixed label builds (design, before any number)
+
+Written 2026-11-27, after the truth phase of P8_truth_arenas.md section 16 version 4.3, at the lead's request. Report
+only: nothing is retuned, no truth changes, no bar changes, and section 5's verdict for gsw_cha_2016 (A and B fail, so
+the truth is "unused" and the MPS truth stays in use) stands whatever this finds. gsw_cha_2016 is a development game
+(D85 (3)); no held-out game and no D85 test game is read. This document was committed before any number below the
+"Already known" list was computed.
+
+## 1. Question
+
+With the reset fix (PLAN.md D192), the label builds of gsw_cha_2016 kept more tracked boxes after resets, and the
+frozen game-level camera fit (sportvu/camera.py fit_game, run by tools/p8_frozen.py step_fit) moved: camera position C
+from (46.9, 127.8, -31.4) to (47.1, 104.3, -34.6) ft, median reprojection after refinement 7.06 to 15.18 px, accepted
+frames 2,459 to 971, with line_matches_low 985 to 2,317 and feet_resid_high 467 to 1,320. Which change in the inputs
+moved the fit, and is the new C a different minimum of the same problem or the right answer to a changed problem?
+
+Already known (from the two fits' result files, read for the truth report): inits 4,123 (unfixed) and 4,943 (fixed);
+pooled frames 400 in both; reprojection before refinement 106.98 and 109.15 px; per-window frozen offsets identical
+(median absolute difference 0.00 s over 73 windows). hou_cle_2016, gsw_bkn_2015 and gsw_sac_2015 fitted well with the
+fix (A 5.54, 7.41 and 6.65 px).
+
+## 2. How the fit works (the parts that matter here)
+
+- Inits: every frame with at least 6 inlier foot-to-SportVU pairs (sportvu.truth.window_truth, frames_from_rows) and a
+  camera decomposition of its V3 court H (pose_from_h). C0 is the median of the inits' decomposed positions.
+- Pool: 400 inits drawn by numpy default_rng(0).choice over the init list, then a pooled bundle adjustment from C0
+  (shared C, per-frame rotation and focal length; soft-L1 on foot reprojection; at most 200 evaluations).
+- Because the pool is a random draw over the init list, any change in the number or order of inits changes which 400
+  frames are pooled, not only the added frames.
+- Per frame: C fixed, rotation and focal length refit to the feet, then to the painted-line ridges; the acceptance
+  rules (line matches, zoom bound, feet residual, line support) then reject or keep the frame.
+
+## 3. Candidate causes
+
+- H1, pool resampling. The fixed build adds about 820 inits, so the seed-0 draw picks a different 400. The pooled fit is
+  sensitive to which frames it pools; the new C is one draw's outcome.
+- H2, a local minimum (as D98's gsw_ind_2016 MPS fit, 18.35 px). The pooled problem has more than one basin and this
+  pool from this C0 fell into a worse one; the old C would score better on the same pool.
+- H3, the new frames pull C. Frames that newly qualify (mostly after a window's first reset, where the unfixed tracker
+  kept about 0.3 of the boxes) carry pairs whose geometry disagrees with the rest (for example foot pixels of
+  newly confirmed tracks, identity swaps after a reset, or frames of another camera after a cut), and C moves to fit
+  them.
+- H4, the court side changed. The V3 court H of the same frame differs between the two label builds (the court model
+  runs on MPS, whose repeatability is not guaranteed), so C0 and the inits' decompositions moved.
+- H5, the pairs of the old frames changed. Frames that were inits before have different inlier pairs now (the fix
+  changes the boxes after a reset in those frames too), not only new frames entering.
+
+## 4. Measurements
+
+Stage 1, stored files only (no fit, no model, no video decode, no lock; system python):
+
+- S1 Arena consistency. C and C0 of every recorded camera fit of the GSW home games (gsw_bkn_2015, gsw_cha_2016,
+  gsw_sac_2015 on MPS, CPU unfixed where it exists, CPU fixed; gsw_ind_2016's MPS fit for reference) and of
+  hou_cle_2016. A broadcast main camera at one arena should sit in nearly the same place across games.
+- S2 Court identity. For every label window and frame present in both gsw_cha_2016 label builds (superseded_nofix and
+  the reference root's label_build): whether the sidecar's per-frame H is identical, and the distribution of the
+  difference in decomposed camera position (pose_from_h, a closed-form decomposition, not a fit) where not.
+- S3 Where the change sits. Per window and over the game, relative to each window's first reset (the reset logs of the
+  fixed builds, and tools.p8_trackreset.reset_like on the unfixed sidecars): tracked boxes per frame, and frames with
+  at least 6 boxes (an upper bound on frames that can become inits), before and after the first reset, in both builds.
+- S4 What the truth kept. For the accepted rows of both truths (labels/gsw_cha_2016/*.jsonl): count, feet_resid_ft and
+  line_matches, before and after the window's first reset, and the windows that lost or gained most accepted frames.
+- S5 C0 against C. Both fits' C0 (stored in their result files) beside C: whether the start moved (points to H4 or H3
+  through the init population) or only the end point (points to H1 or H2).
+
+Stage 2, needs the lead's approval before it runs (it reruns frozen fitting code: sportvu.truth.window_truth and
+sportvu.camera.fit_game on the stored label sidecars; no model, no video decode beyond reading clip sizes; under the
+heavy-job lock, about 5 to 10 minutes, after the arm's builds):
+
+- F1 Seeds: fit_game on the fixed inits with seeds 1 to 10 (the frozen fit uses seed 0). The spread of C and of
+  reprojection tells H1.
+- F2 Same pool, two starts: the fixed seed-0 pool fitted from the unfixed C and from the fixed C0; compare final cost
+  and C. A lower cost near the old C on the same pool is H2.
+- F3 Old inits only: fit_game on the fixed builds restricted to the frames that were inits in the unfixed build (seed
+  0), and on the fixed inits minus frames after each window's first reset. C back near the old one says H3; still far
+  says H5 (or H1 and H2).
+- F4 Same frames, both builds: for frames that are inits in both builds, the change in inlier pair count and foot
+  pixels; a large change on old frames is H5.
+
+## 5. What each pattern would mean
+
+- S1 shows the fixed cha C as the outlier among GSW fits, S5 shows C0 near the old start, and F1 or F2 land near the
+  old C with equal or lower cost: the pooled fit is fragile (H1 or H2), and the bad truth is a fit failure, not a
+  change in the data. A remedy (multi-start, a larger pool, or a fixed arena C) would be a new registration under D98;
+  it is not proposed here.
+- S2 shows the court H differing between the builds: H4; the court side is not repeatable on MPS for this game, and
+  that would matter for every truth rebuild, not only the fix.
+- S3 and S4 show the change concentrated after first resets and F3 returns the old C without those frames: H3; the
+  frames the fix newly exposes carry pairs that mislead the fit. That would bear on the reset-fix arm too, since the
+  same frames enter its scored universe.
+- F4 shows large changes on frames that were inits before: H5.
+- Several can hold together; the report states each measurement and which causes it supports or rules out.
+
+## 6. Outputs and cost
+
+A tool, tools/p8_cha_fit.py (stage 1 now, stage 2 only after approval), with tests on synthetic inputs; record
+reports/research/p8_cha_fit.json; a dated result section here. Stage 1 runs in seconds to minutes on stored JSON. No
+Colab units. The accept phase of section 16 is not affected and still waits for the lead's word.
+
+## 7. Stage 1 results (computed 2026-11-27, after this design was committed in 9e7b34b1)
+
+Stored files only, about 2 seconds; record reports/research/p8_cha_fit.json.
+
+S1 and S5, every recorded fit (C and C0 in ft, court frame; reprojection after refinement):
+
+| Fit | C | C0 | Distance C to C0 | Reprojection | Inits | Accepted |
+| --- | --- | --- | --- | --- | --- | --- |
+| gsw_bkn_2015 MPS | (46.9, 125.2, -29.5) | (41.5, 108.1, -35.1) | 18.8 | 6.52 | 3,234 | 2,075 |
+| gsw_bkn_2015 CPU, fix | (48.1, 122.8, -29.7) | (46.8, 105.1, -34.8) | 18.5 | 7.41 | 4,728 | 2,903 |
+| gsw_cha_2016 MPS | (42.6, 118.7, -31.1) | (40.0, 103.9, -35.0) | 15.5 | 7.65 | 2,586 | 1,366 |
+| gsw_cha_2016 CPU, no fix | (46.9, 127.8, -31.4) | (47.2, 103.6, -34.9) | 24.5 | 7.06 | 4,123 | 2,459 |
+| gsw_cha_2016 CPU, fix | (47.1, 104.3, -34.6) | (47.2, 103.5, -34.9) | 0.9 | 15.18 | 4,943 | 971 |
+| gsw_sac_2015 MPS | (47.7, 134.1, -30.1) | (36.8, 106.8, -34.7) | 29.8 | 5.47 | 3,277 | 2,151 |
+| gsw_sac_2015 CPU, fix | (45.4, 126.5, -29.8) | (41.2, 106.5, -34.5) | 21.0 | 6.65 | 4,721 | 2,949 |
+| hou_cle_2016 MPS | (43.5, 131.6, -38.4) | (41.6, 127.3, -43.7) | 7.1 | 6.40 | 6,863 | 4,427 |
+| hou_cle_2016 CPU, fix | (44.7, 135.5, -37.5) | (44.6, 126.8, -43.7) | 10.7 | 5.54 | 10,804 | 7,447 |
+| gsw_ind_2016 MPS (apart, D98) | (46.6, 106.0, -34.7) | (46.7, 106.0, -35.3) | 0.6 | 18.35 | 3,900 | 970 |
+
+(The C to C0 distances are computed from the rounded values shown.) Among the GSW home fits, the fixed gsw_cha_2016 C
+is 22.0 ft from the median C of the other GSW fits; the others are 1.5 to 9.0 ft from theirs. The two broken fits on
+record, gsw_cha_2016 CPU with the fix and gsw_ind_2016 MPS, are the only ones whose C stayed within about 1 ft of its
+start C0; every good fit moved 15 to 30 ft from C0 (7 to 11 ft at hou_cle_2016, whose C0 already sits near its C).
+S5: between gsw_cha_2016's two CPU fits, C0 moved 0.09 ft and C moved 23.65 ft.
+
+S2, court identity: of 18,083 frames in both label builds, 17,595 have an identical court H, 488 have no H in either
+build, and none differs. The fix did not touch the court side.
+
+S3, boxes: the first reset of each window is taken from the fixed build's reset log for both builds (the design
+named tools.p8_trackreset.reset_like for the unfixed build; before the first reset both builds run the same code, so
+one frame boundary serves both). Before each window's first reset the two builds have identical box counts and summary
+statistics (15,016 frames, median 9 boxes, 13,142 frames with at least 6). After a first reset (3,067 frames in the 12 windows with one) the unfixed build has a median
+of 3 boxes and 527 frames with at least 6; the fixed build a median of 9 and 2,792.
+
+S4, accepted rows: before the first reset 2,416 (no fix) against 856 (fix); after it 43 against 115. Feet residual
+medians 1.20 and 1.25 ft (no fix) against 1.47 and 1.56 ft (fix); line matches medians 53 and 40 against 37 and 37. The
+largest losses are in windows with no reset at all (gsw_cha_2016_s07_w00 265 to 115, s08_w00 205 to 76, s03_w01 114
+to 33); the gains are in reset windows (s05_w00 0 to 57, s01_w00 4 to 15, s06_w00 0 to 12).
+
+Reading against section 5, stage 1 only:
+
+- H4 (court side changed) is ruled out: every court H is identical, and C0 is unchanged.
+- The loss is not confined to the frames the fix newly exposes: accepted frames fall most in windows without any
+  reset, whose inputs are identical in both builds, and their residuals rise. That is the signature of a wrong shared
+  camera position applied to every frame, not of bad post-reset frames being rejected.
+- The fixed fit ended where it started (C within 0.9 ft of C0), as did gsw_ind_2016's broken MPS fit (0.6 ft); every
+  good fit moved 7 to 30 ft. This points to the pooled bundle adjustment not leaving its start on these pools (H1 or
+  H2), with the new post-reset inits (S3) changing the pool through the seed-0 draw. Stage 1 cannot tell H1 from H2, or
+  whether the new frames' pairs (H3, H5) are what held the fit at its start; stage 2's F1 to F4 can.
+- Nothing is retuned; gsw_cha_2016's section 5 verdict (A and B fail, unused) stands.
+
+## 8. Stage 2 reading rules (registered 2026-11-27, after stage 1, before any stage 2 number)
+
+Approved by the lead to run after the accept phase, under the heavy-job lock with its own name (`p8 cha fit stage2`),
+through tools/p8_cha_fit.py only (CLAUDE.md rule 5), with every output in work_ref/diag/cha_fit/ and nothing written
+over a truth, a build or a frozen output. Diagnosis only: no stage 2 fit becomes a truth, and a seed, start or subset
+that would make gsw_cha_2016 pass is a forking path this item does not adopt; any change to the fit is a new
+registered design for a later decision.
+
+Inputs, rebuilt exactly as tools.p8_frozen.step_fit builds them (same windows in the same order, sportvu.truth
+window_truth, sportvu.camera.frames_from_rows), from the fixed label build (work_ref/label_build) and the unfixed one
+(work_ref/superseded_nofix/label_build), with the same SportVU moments and mirror. Definitions: a run "leaves its start"
+when its final C is at least 5 ft from its C0; a run is "good" when its pooled reprojection (fit_game's
+reproj_px_median_after, before any line refinement, so a proxy for check A) is at most 10 px; C_old is the unfixed
+CPU fit's C (46.9, 127.8, -31.4).
+
+- F0 Reproduction, first. fit_game with seed 0 on each build's rebuilt inputs must reproduce its recorded fit (C within
+  0.01 ft, the same inits and pooled frames, reprojection within 0.01 px). If either fails, stage 2 stops and reports
+  F0 only. Also recorded for both: the optimizer's evaluation count and termination status (fit_game caps at 200
+  evaluations), from a tools-side copy of fit_game's least-squares call on the same pool and start, which must give the
+  same C as the frozen call.
+- F1 Seeds. fit_game with seeds 1 to 10 on each build. Reading: if at least 1 of the 10 fixed-build runs leaves its
+  start and is good, while the unfixed-build runs leave theirs, the outcome depends on which 400 frames are pooled (H1).
+  If none of the 10 fixed-build runs leaves its start while the unfixed ones do, the fixed init set itself holds the
+  fit at its start; F2 and F3 decide why. If unfixed runs also stay at their start, the fit is fragile on both and the
+  fix only exposed it.
+- F2 Two starts, one pool. On the fixed build's seed-0 pool, the same least-squares problem started from C_old (the
+  per-frame rotations and focal lengths initialised from each frame's V3 court H, as the frozen fit does) against the
+  frozen start C0. Reading: if the run from C_old ends within 5 ft of C_old with a lower final cost than the run from C0,
+  the pool has a better minimum the frozen start did not reach (H2). If it ends with a higher cost, or drifts back
+  towards C0, the pool prefers the near position (points to H3 or H5, by F3 and F4). Report only, not ruled: the run
+  from C0 with 2,000 evaluations instead of 200, to show whether the cap stopped it.
+- F3 Subsets, seed 0. (a) The fixed build's inits restricted to the frames that were inits in the unfixed build (by
+  window and frame). (b) The fixed build's inits without frames at or after their window's first reset. Reading: if (a)
+  and (b) both leave their start and are good, while F1 shows the fixed build's full init set held at its start, the
+  frames added after resets cause it (H3). If they also stay at their start, the added frames are not the cause (H5 or
+  H2, by F2 and F4).
+- F4 Pairs on shared frames. For frames that are inits in both builds: the share whose inlier pairs (foot pixels and
+  SportVU positions) are identical. Reading: if more than 10 percent of the shared init frames have different pairs,
+  the old frames' inputs changed too (H5).
+
+Several readings may hold; the result section states each measurement and the causes it supports or rules out. The
+accept phase, the truth verdicts and every bar are unaffected.
+
+## 9. Stage 2 results (computed 2026-11-27, after section 8 was committed in c2e0a494)
+
+Run under the lock as "p8 cha fit stage2": 419 s of lock (418 s measured inside), from r-p8-truth-cpu 125a5a77, the
+frozen window_truth, frames_from_rows and fit_game called through tools/p8_cha_fit.py; outputs work_ref/diag/cha_fit/
+stage2.json and reports/research/p8_cha_fit_stage2.json; nothing else written.
+
+**F0, reproduction: passed for both builds.** The frozen fit_game with seed 0 on the rebuilt inputs gives the recorded
+fits exactly: fixed C (47.08, 104.32, -34.56), 4,943 inits, 15.18 px; unfixed C (46.91, 127.75, -31.37), 4,123 inits,
+7.06 px. The tools-side copy gives the same C. Both runs end at the 200-evaluation cap (scipy status 0, "maximum
+number of function evaluations exceeded"), the fixed at cost 1,100,742 and the unfixed at 795,646.
+
+**F1, seeds 1 to 10.** Fixed build: 7 of 10 runs leave their start, 4 of them good (seeds 1, 4, 7 and 10: 6.66, 9.36,
+7.80 and 5.81 px, 27.3, 12.8, 27.0 and 34.1 ft from C0); seeds 5, 6 and 8 stay within 4 ft of C0 at 13.1 to 13.4 px.
+Unfixed build: 6 of 10 leave their start, all 6 good (5.45 to 9.88 px); seeds 2, 3, 4 and 6 stay within 5 ft of C0 at
+11.8 to 15.8 px. Good runs: fixed 4 of 10 against unfixed 6 of 10; ten seeds cannot separate those two rates.
+Registered reading: the fit is fragile on both builds; the fix exposed it. How the rule was read: its "while the
+unfixed-build runs leave theirs" was coded as all 10 unfixed runs leaving (tools/p8_cha_fit.readings, committed in
+125a5a77 before the run); 6 of 10 did, so the rule's third branch applies. A majority reading of the same words would
+have given H1 (at least 1 fixed run leaves and is good, while most unfixed runs leave).
+
+**F2, two starts on the fixed seed-0 pool.** The run from C_old started with each frame's rotation and focal length
+from that frame's V3 court H, as the frozen fit does, and only C changed. After 200 evaluations from each start, the run
+from C_old ended at (47.3, 125.7, -30.2), within 5 ft of C_old, at 10.05 px, and at a higher cost (1,290,761 against
+1,100,742); neither run converged, so this does not locate the minimum. Not H2 by the registered rule; the rule's other
+branch reads "the pool prefers the near position (H3 or H5, by F3 and F4)". Report only: from C0 with 2,000
+evaluations the run also ended at its cap; C moved 0.10 ft (0.098) more with ten times the evaluations, to 0.98 ft from
+C0, while the cost still fell (1,100,742 to 1,062,115; 14.86 px).
+
+**F3, init subsets (seed 0).** Old inits only (4,083 frames): leaves its start (9.49 ft) and is good (9.05 px), but
+ends at (45.9, 111.3, -29.7), not near C_old. No post-reset frames (4,060 inits): stays at its start (3.77 ft), 14.29
+px. Registered reading: mixed (no registered pattern).
+
+**F4, pairs on shared frames.** 4,083 frames are inits in both builds; 211 (0.0517) have different inlier pairs; 860
+inits are new with the fix and 40 were lost. Registered reading: not H5 by the registered 10 percent rule.
+
+**Readings together, by the registered rules.** H4 was ruled out in stage 1. H5 is not supported by the registered
+10 percent rule (F4). F1 shows the frozen pooled fit stays at its start for some pools on both builds (4 of 10 unfixed
+seeds, 3 of 10 fixed), so the failure is a property of the fit that the fixed build's seed-0 pool happened to hit, not
+of the fix alone; that is not "no effect of the fix" (good runs 4 of 10 against 6 of 10, which ten seeds cannot
+separate). F2: after 200 evaluations the run from C0 had the lower cost on that pool; neither run converged, so this
+does not locate the minimum, and it is not H2 by the registered rule. F3 (one seed) neither shows nor rules out a role
+for the post-reset frames: removing them left the fit at its start, keeping only the old inits moved it.
+
+**Report only, post hoc, not ruled.** (a) The soft-L1 cost and the median reprojection disagree on the fixed pool: the
+near position has the lower cost and the higher median, which suggests that it fits a subset of pairs very well and
+the rest poorly; which frames those are is not measured. (b) Both reproduced frozen fits (fixed and unfixed, seed 0) and the
+F2 run from C_old stop at the 200-evaluation cap, and the report-only run with 2,000 evaluations stopped at its cap too
+(C moved 0.10 ft more while the cost still fell), so on this game the frozen fit does not reach its convergence test
+(the F1 runs' evaluation counts were not recorded). (c) gsw_ind_2016's broken MPS fit
+(D98) shows the same end-at-start pattern (stage 1). None of this changes a truth or a verdict: gsw_cha_2016's CPU
+truth with the fix stays "unused" and its MPS truth stays in use. A remedy (several starts or pools with a selection
+rule fixed in advance, a convergence criterion, or an arena-level camera position) would be a new registered design
+for the lead's decision; no seed, start or subset seen here is adopted.

@@ -61,3 +61,22 @@ def test_registered_constants_and_guards():
     assert V.APART == ("gsw_ind_2016",) and "hou_cle_2016" not in V.POOLED + V.APART
     src = open(V.__file__).read()
     assert "refuse_cv_test([tag], WHO)" in src and "guard([tag], WHO)" in src
+
+
+def test_measure_dev_refuses_registered_games_only_in_the_registered_workspace(tmp_path):
+    reg, ref = tmp_path / "work", tmp_path / "work_ref"
+    for g in V.POOLED:
+        with pytest.raises(SystemExit, match="registered workspace"):
+            V.refuse_dev(g, reg, reg)
+        V.refuse_dev(g, ref, reg)                       # the reference root's check C (P8_truth_arenas.md section 16)
+    for root in (reg, ref):
+        with pytest.raises(SystemExit, match="apart"):
+            V.refuse_dev("gsw_ind_2016", root, reg)
+    V.refuse_dev("hou_cle_2016", reg, reg)
+    assert V.REGISTERED_ROOT.name == "work"
+
+
+def test_registered_root_is_p8_commons_default(monkeypatch):
+    from tools import p8_common
+    monkeypatch.delenv("V3_P8_ROOT", raising=False)
+    assert p8_common.p8_root() == V.REGISTERED_ROOT

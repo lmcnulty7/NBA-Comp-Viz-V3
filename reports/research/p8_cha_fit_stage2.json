@@ -1,0 +1,707 @@
+{
+ "what": "docs/research/P8_cha_fit.md stage 2 (section 8); diagnosis only, no output is a truth",
+ "F0": {
+  "fix": {
+   "reproduced": true,
+   "frozen": {
+    "C": [
+     47.08145668397006,
+     104.32310482592156,
+     -34.55852522406055
+    ],
+    "inits": 4943,
+    "pooled_frames": 400,
+    "reproj_px_median_after": 15.18
+   },
+   "recorded": {
+    "C": [
+     47.08145668397006,
+     104.32310482592156,
+     -34.55852522406055
+    ],
+    "inits": 4943,
+    "pooled_frames": 400,
+    "reproj_px_median_after": 15.18
+   },
+   "copy": {
+    "C": [
+     47.08145668397006,
+     104.32310482592156,
+     -34.55852522406055
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 15.18,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 1100741.6621676295,
+    "nfev": 200,
+    "ls_status": 0,
+    "status": null,
+    "dist_C_C0_ft": 0.89,
+    "leaves_start": false,
+    "good": false
+   }
+  },
+  "nofix": {
+   "reproduced": true,
+   "frozen": {
+    "C": [
+     46.90991991411326,
+     127.7548789042653,
+     -31.373430881051902
+    ],
+    "inits": 4123,
+    "pooled_frames": 400,
+    "reproj_px_median_after": 7.06
+   },
+   "recorded": {
+    "C": [
+     46.90991991411326,
+     127.7548789042653,
+     -31.373430881051902
+    ],
+    "inits": 4123,
+    "pooled_frames": 400,
+    "reproj_px_median_after": 7.06
+   },
+   "copy": {
+    "C": [
+     46.90991991411326,
+     127.7548789042653,
+     -31.373430881051902
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 7.06,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 795645.6736642679,
+    "nfev": 200,
+    "ls_status": 0,
+    "status": null,
+    "dist_C_C0_ft": 24.42,
+    "leaves_start": true,
+    "good": true
+   }
+  }
+ },
+ "F1": {
+  "fix": [
+   {
+    "C": [
+     46.47702597393854,
+     130.35526237226034,
+     -29.934537833683017
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 6.66,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 866936.1194584453,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 27.31,
+    "leaves_start": true,
+    "good": true,
+    "seed": 1
+   },
+   {
+    "C": [
+     47.039077641002066,
+     113.23664344585464,
+     -32.12952862094377
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 13.73,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 1304899.0960514415,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 10.12,
+    "leaves_start": true,
+    "good": false,
+    "seed": 2
+   },
+   {
+    "C": [
+     46.81541316234243,
+     114.42880212435486,
+     -32.06707248407424
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 11.33,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 1071549.9737831228,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 11.29,
+    "leaves_start": true,
+    "good": false,
+    "seed": 3
+   },
+   {
+    "C": [
+     46.37827562915607,
+     115.5490435011141,
+     -30.76507720123865
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 9.36,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 820052.3604881673,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 12.76,
+    "leaves_start": true,
+    "good": true,
+    "seed": 4
+   },
+   {
+    "C": [
+     47.005176712182624,
+     103.93473437524717,
+     -34.481975304570184
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 13.4,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 915092.0348469403,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 0.61,
+    "leaves_start": false,
+    "good": false,
+    "seed": 5
+   },
+   {
+    "C": [
+     47.11493957491625,
+     107.11053339355145,
+     -33.62570115627574
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 13.07,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 987073.3963239451,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 3.82,
+    "leaves_start": false,
+    "good": false,
+    "seed": 6
+   },
+   {
+    "C": [
+     47.33029259690697,
+     130.52699827977528,
+     -33.93743619897086
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 7.8,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 786458.6125511981,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 27.04,
+    "leaves_start": true,
+    "good": true,
+    "seed": 7
+   },
+   {
+    "C": [
+     46.60641899566424,
+     104.72876250244802,
+     -33.16399039349941
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 13.28,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 973137.2511483995,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 2.19,
+    "leaves_start": false,
+    "good": false,
+    "seed": 8
+   },
+   {
+    "C": [
+     46.73308290963969,
+     108.94518461976347,
+     -31.638017998515025
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 12.23,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 929525.365262988,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 6.35,
+    "leaves_start": true,
+    "good": false,
+    "seed": 9
+   },
+   {
+    "C": [
+     47.81209303387981,
+     137.3554280043917,
+     -30.969346861347173
+    ],
+    "C0": [
+     47.16985836955489,
+     103.50424458763186,
+     -34.887914574648704
+    ],
+    "reproj_px_median_after": 5.81,
+    "inits": 4943,
+    "pooled_frames": 400,
+    "cost": 589520.0395687319,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 34.08,
+    "leaves_start": true,
+    "good": true,
+    "seed": 10
+   }
+  ],
+  "nofix": [
+   {
+    "C": [
+     46.644354182531615,
+     133.017101074685,
+     -31.164555006537483
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 5.6,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 574952.4989539866,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 29.67,
+    "leaves_start": true,
+    "good": true,
+    "seed": 1
+   },
+   {
+    "C": [
+     47.08145813517782,
+     103.42615907839196,
+     -34.622784200391024
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 15.8,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 1202357.859841391,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 0.31,
+    "leaves_start": false,
+    "good": false,
+    "seed": 2
+   },
+   {
+    "C": [
+     46.90943461257663,
+     107.42075707512687,
+     -32.25322153394474
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 11.75,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 931450.1420623461,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 4.65,
+    "leaves_start": false,
+    "good": false,
+    "seed": 3
+   },
+   {
+    "C": [
+     47.298979239184966,
+     104.92915949704494,
+     -34.580852839254675
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 15.57,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 1207290.0465033199,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 1.38,
+    "leaves_start": false,
+    "good": false,
+    "seed": 4
+   },
+   {
+    "C": [
+     47.20098645356228,
+     135.53373598218826,
+     -30.74174483381071
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 5.45,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 540473.6395280643,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 32.22,
+    "leaves_start": true,
+    "good": true,
+    "seed": 5
+   },
+   {
+    "C": [
+     47.166436236661575,
+     106.01767203534604,
+     -33.87411443020411
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 15.6,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 1197134.36432289,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 2.63,
+    "leaves_start": false,
+    "good": false,
+    "seed": 6
+   },
+   {
+    "C": [
+     47.07984582464687,
+     138.70190446947214,
+     -30.90101218393231
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 5.85,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 597973.4542147884,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 35.34,
+    "leaves_start": true,
+    "good": true,
+    "seed": 7
+   },
+   {
+    "C": [
+     46.20904015853202,
+     114.06994090873202,
+     -30.763138584336616
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 9.76,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 916614.8015301523,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 11.3,
+    "leaves_start": true,
+    "good": true,
+    "seed": 8
+   },
+   {
+    "C": [
+     47.405232809390476,
+     132.41123457336377,
+     -30.05731883893033
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 5.68,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 534981.069349915,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 29.23,
+    "leaves_start": true,
+    "good": true,
+    "seed": 9
+   },
+   {
+    "C": [
+     46.50951261759095,
+     111.79286702384347,
+     -30.426046308400778
+    ],
+    "C0": [
+     47.20943753638334,
+     103.58143552152681,
+     -34.856918497162994
+    ],
+    "reproj_px_median_after": 9.88,
+    "inits": 4123,
+    "pooled_frames": 400,
+    "cost": 844922.7454495563,
+    "nfev": null,
+    "ls_status": null,
+    "status": "ok",
+    "dist_C_C0_ft": 9.36,
+    "leaves_start": true,
+    "good": true,
+    "seed": 10
+   }
+  ]
+ },
+ "F2": {
+  "from_C0": {
+   "C": [
+    47.08145668397006,
+    104.32310482592156,
+    -34.55852522406055
+   ],
+   "C0": [
+    47.16985836955489,
+    103.50424458763186,
+    -34.887914574648704
+   ],
+   "reproj_px_median_after": 15.18,
+   "inits": 4943,
+   "pooled_frames": 400,
+   "cost": 1100741.6621676295,
+   "nfev": 200,
+   "ls_status": 0,
+   "status": null,
+   "dist_C_C0_ft": 0.89,
+   "leaves_start": false,
+   "good": false
+  },
+  "from_C_old": {
+   "C": [
+    47.30162898675484,
+    125.68420546136774,
+    -30.187491107621963
+   ],
+   "C0": [
+    47.16985836955489,
+    103.50424458763186,
+    -34.887914574648704
+   ],
+   "reproj_px_median_after": 10.05,
+   "inits": 4943,
+   "pooled_frames": 400,
+   "cost": 1290761.0990424526,
+   "nfev": 200,
+   "ls_status": 0,
+   "status": null,
+   "dist_C_C0_ft": 22.67,
+   "leaves_start": true,
+   "good": false
+  },
+  "report_only_from_C0_2000_evaluations": {
+   "C": [
+    47.045712388514445,
+    104.41328069900688,
+    -34.545201436080426
+   ],
+   "C0": [
+    47.16985836955489,
+    103.50424458763186,
+    -34.887914574648704
+   ],
+   "reproj_px_median_after": 14.86,
+   "inits": 4943,
+   "pooled_frames": 400,
+   "cost": 1062114.91595794,
+   "nfev": 2000,
+   "ls_status": 0,
+   "status": null,
+   "dist_C_C0_ft": 0.98,
+   "leaves_start": false,
+   "good": false
+  }
+ },
+ "F3": {
+  "old_inits_only": {
+   "C": [
+    45.93552812086053,
+    111.33661172180743,
+    -29.742193712451034
+   ],
+   "C0": [
+    47.31609053604966,
+    103.44668847616376,
+    -34.835674508874604
+   ],
+   "reproj_px_median_after": 9.05,
+   "inits": 4083,
+   "pooled_frames": 400,
+   "cost": 650185.3192449032,
+   "nfev": null,
+   "ls_status": null,
+   "status": "ok",
+   "dist_C_C0_ft": 9.49,
+   "leaves_start": true,
+   "good": true,
+   "frames": 4083
+  },
+  "no_post_reset": {
+   "C": [
+    47.09886941803495,
+    106.50673145872398,
+    -32.48906671286637
+   ],
+   "C0": [
+    46.92096353787592,
+    103.59222402300406,
+    -34.871587803241866
+   ],
+   "reproj_px_median_after": 14.29,
+   "inits": 4060,
+   "pooled_frames": 400,
+   "cost": 1170668.8741976712,
+   "nfev": null,
+   "ls_status": null,
+   "status": "ok",
+   "dist_C_C0_ft": 3.77,
+   "leaves_start": false,
+   "good": false,
+   "frames": 4061
+  }
+ },
+ "F4": {
+  "shared_init_frames": 4083,
+  "changed": 211,
+  "share_changed": 0.0517,
+  "inits_fix_only": 860,
+  "inits_nofix_only": 40
+ },
+ "readings": {
+  "F1": {
+   "fix_runs_leaving_start_and_good": 4,
+   "fix_runs_leaving_start": 7,
+   "nofix_runs_leaving_start": 6,
+   "runs": 10,
+   "reading": "the fit is fragile on both builds; the fix exposed it"
+  },
+  "F2": {
+   "from_C_old_ends_near_C_old": true,
+   "cost_from_C_old": 1290761.0990424526,
+   "cost_from_C0": 1100741.6621676295,
+   "reading": "the pool prefers the near position (H3 or H5, by F3 and F4)"
+  },
+  "F3": {
+   "reading": "mixed (no registered pattern)"
+  },
+  "F4": {
+   "share_changed": 0.0517,
+   "reading": "not H5"
+  }
+ },
+ "seconds": 418.0
+}

@@ -374,3 +374,326 @@ description: the CPU truth sits closer to the r23 build's H than the MPS truth d
 shared input: B comes from a CPU-detector r23 build, and the new truth was fitted from CPU-detector label builds with
 player feet among its inputs. So it is not evidence that the CPU truth is better. It does not show which truth is closer
 to SportVU, and no rule was fixed for it.
+
+## 16. Plan (2026-11-26, registered before any run): CPU-detector truth for the in-use games, through acceptance
+
+Version 2 of this plan, written the same day and still before any run. Version 1 (commit c2698c7f) built the three
+truths and compared them with the MPS truth, but had no r23 builds, so no CPU truth could pass section 5's check C
+and come into use. Version 2 adds check C's r23 side and the acceptance checks for all four in-use games.
+
+**Why.** Section 15 read MOVED on gsw_cha_2016. Section 0 fixed the consequence: the truth of the other in-use games is
+rebuilt on the CPU detector before any cross-arena tuning. gsw_ind_2016 stays apart (D98). The gsw_cha_2016 truth in
+use stays the MPS truth until its CPU truth passes section 5 (section 15). This plan builds the three truths, runs
+section 5's checks A, B and C on all four CPU truths, and reports, per game, whether its truth moved. It runs only on
+the lead's go, after the a3run job's report.
+
+**Games and order.** gsw_cha_2016 first (its truth is built; only check C's r23 side and the acceptance run, minutes
+of lock), then hou_cle_2016 (the only non-GSW arena with truth), gsw_bkn_2015 and gsw_sac_2015. All four are
+development games: the guard and refuse_cv_test run at every step; no held-out game and no D85 test game.
+
+**Truth steps, the same as gsw_cha_2016 (section 15).** Driver: tools/p8_truth_cpu.sh, in the reference root
+(work_ref), the detector on CPU (`P8_DEVICE_DETECTOR=cpu`), court and gate unchanged, no clip fix. Per game: link;
+label one job a section (V3 court model, gate v2); fit. Every model step takes the heavy-job lock alone.
+
+- Links, read only. The GSW games use the frozen link step (the main checkout's sections, moments and sync maps, the
+  files their MPS truth used). hou_cle_2016 is a channel game, so its inputs are linked from the P8 workspace (work):
+  its 12 sections, its SportVU moments, its 12 sync time maps (the OCR runs on CPU, so they do not depend on the
+  device), its layout result (abc_finals16_720, a frozen layout) and its mirror record (status ok, identity, vote
+  share 1.0). The mirror is not voted again: as for the GSW games, whose mirror comes from the R1.2 record, it is a
+  resolved property of the game, and this test is about the label builds and the fit. Nothing is written to work.
+
+**Check C's r23 side.** Check C compares, per window, the V3 label build with an r23 build of the same clip in the same
+root. The reference-platform r23 builds of all four games already exist in work (tools.p8_placement.BUILDS: M9's for
+gsw_cha_2016, gsw_sac_2015 and hou_cle_2016, M6's r23 arm for gsw_bkn_2015, 73, 82, 93 and 83 windows), made from
+work's label clips with the same device request (detector cpu, court and gate auto, no clip fix); they are the
+r23 builds the reference-platform scores already use. The reference root's label clips are cut again from the same
+sections; on gsw_cha_2016 all 73 are byte-identical to work's (SHA-256, checked before this plan without writing
+anything). So:
+
+- Default (R23_SOURCE=link): tools/p8_truth_cpu_r23.py copies a window's work build into work_ref/builds/r23 only
+  when its clip is byte-identical in both roots and its device record asked for exactly the reference setting; it
+  records each refused window and why. Then the frozen rebuild step runs one job a section (`rebuild --build r23`,
+  the r23 court checked against its recorded SHA-256). It builds every window without an r23 build (refused windows,
+  and gate-empty label windows) and refuses any cached build whose device record differs.
+- Alternative (R23_SOURCE=rebuild): every window built again under the lock, about 9.8 more lock hours. Chosen by
+  the lead before the go if the copied builds are not wanted; the bars and the checks are the same either way.
+- Then `tools/p8_truth_v2.py measure-dev` (under the lock, about 2 to 3 minutes a game) writes
+  truth_v2/dev/<game>.json in the reference root, and `tools/p8_truth_accept.py` applies A, B and C with the section 5
+  bars unchanged and the platform rule (every label and r23 window resolving the detector to cpu): use, apart or
+  unused. Code change for this, stated here: measure-dev refused the three pooled truth v2 games anywhere; it now
+  refuses them only in the registered workspace (work), where `measure` and the registered report hold them, and
+  still refuses gsw_ind_2016 everywhere (tools/p8_truth_v2.refuse_dev, with a test). The registered truth v2 record
+  and report are not touched: report reads only truth_v2/<game>.json of its own root.
+
+**Lock estimates and caps.** Label lock time on gsw_cha_2016 was 1.21 times its M9 CPU r23 build (9,567 s against
+7,905 s on the same windows: the label step also cuts the clips and reads each window's clock). The same ratio is
+applied to each game's CPU r23 build time; the fit is the MPS fit's time times 1.22 (gsw_cha_2016: 146 s on MPS,
+178 s here). Check C with copied builds: about 400 s a game (ten to twelve rebuild jobs that find cached windows, the
+gate-empty windows, measure-dev); gsw_cha_2016 is given 600 s. With R23_SOURCE=rebuild, the game's CPU r23 build time
+is added. A game whose lock time in this driver passes 1.5 times its estimate stops the driver before its next step.
+
+| Game | CPU r23 build on record | Truth (label and fit) | Estimate, copied r23 | Cap | Estimate, r23 rebuilt | Cap |
+| --- | --- | --- | --- | --- | --- | --- |
+| gsw_cha_2016 | 7,905 s (M9) | done (section 15, 9,745 s) | 600 s | 900 s | 8,205 s | 12,300 s |
+| hou_cle_2016 | 10,339 s (M9) | 12,795 s | 13,195 s (3.67 h) | 19,790 s | 23,434 s (6.51 h) | 35,150 s |
+| gsw_bkn_2015 | 8,906 s (M6, r23 arm) | 10,980 s | 11,380 s (3.16 h) | 17,070 s | 20,286 s (5.64 h) | 30,430 s |
+| gsw_sac_2015 | 8,249 s (M9) | 10,200 s | 10,600 s (2.94 h) | 15,900 s | 18,849 s (5.24 h) | 28,270 s |
+| All four | | | about 9.9 h | | about 19.7 h | |
+
+**Stops.** Resumable: a step with a done marker (or, for measure-dev, its record) is skipped and built windows are
+cached. A failed step is retried at most twice, then the driver stops and the failure is reported. A STOP file in the
+reference root stops it before the next step. One heavy job at a time.
+
+**Reports, per game (stored files, no lock).**
+
+- Acceptance: tools/p8_truth_accept.py, A, B and C with section 5's bars and the platform rule, giving use, apart or
+  unused.
+- Moved: tools/p8_truth_moved.py with section 0's bars unchanged (reprojection 1.0 px, accepted frames 10 percent of
+  the MPS count, median per-window offset difference 0.2 s), beside each game's MPS truth (gsw_cha_2016's is on
+  record already, section 15).
+- Report only, post hoc, not ruled: tools/p8_truth_moved_dh.py, the median |d_H| at the scored r23 sidecar's foot
+  pixels for each truth, as in section 15, with section 15's confound (the sidecar and the CPU truth share the CPU
+  detector).
+- Records: reports/research/p8_truth_moved_<game>.json and reports/research/p8_truth_accept_<game>.json, committed
+  with a dated result section here.
+
+**What this plan does not decide.** Which truth is used afterwards (a CPU truth that reads "use" in place of the MPS
+truth, or both with the platform recorded) is the lead's decision once all four acceptances are in. Nothing registered
+is rescored and no bar changes after a game is seen.
+
+**Version 3 (2026-11-26, the lead's decisions; before any run). Where it differs from version 2 above, version 3
+holds.**
+
+1. hou_cle_2016's mirror: the recorded vote is reused (status ok, identity, vote share 1.0) and not voted again (the
+   lead's decision). A unanimous vote is not a close call, and the GSW games reuse their recorded mirrors too.
+2. Check C needs no new r23 build, and the driver builds none. An r23 build does not depend on the truth: it is a
+   build of the label clip with the r23 court. tools.p8_truth_v2's measure-dev reads the r23 builds from builds/r23 of
+   its own root (V3_P8_ROOT), and tools.p8_truth_accept reads their device records there, so the workspace's
+   reference-platform r23 builds (builds/m9_r23_detcpu__<game>, and e1m6_r23_detcpu for gsw_bkn_2015) serve once
+   they are in work_ref/builds/r23. They are copied, not linked, by tools/p8_truth_cpu_r23.py, for each window whose
+   build records the workspace's label clip as its source, whose clip is byte-identical in both roots, and whose
+   device request is the reference one. Checked before any run, without writing: every build on record names the
+   workspace clip and the reference request (gsw_bkn_2015 83 windows, gsw_cha_2016 73, gsw_sac_2015 82,
+   hou_cle_2016 93), and gsw_cha_2016's 73 clips are byte-identical in both roots; the other three games' clips are
+   compared when their label step has cut them. Copying keeps the workspace untouchable and leaves nothing in the reference root pointing into it.
+   The rebuild step and R23_SOURCE=rebuild are removed from the driver.
+3. Coverage: measure-dev measures only windows with both builds, so a window without an r23 build would drop out
+   unseen. Check C and the acceptance therefore run only when every V3 label window of the game has a verified r23
+   build (the copy record's "complete"). Otherwise the driver writes "CHECK C NOT RUN", the game's acceptance stays
+   pending, and the missing windows are reported: building them would be a fresh r23 build in this root, about 0.44 s
+   a processed frame (a whole game is 7,905 to 10,339 s, M9 and M6), left out of this driver.
+4. Check C runs per game as a report step after the fit: the copy (no lock), measure-dev (under the lock, about 2 to 3
+   minutes), then tools.p8_truth_accept (no lock), with section 5's bars and the platform rule unchanged. Then
+   p8_truth_moved and the d_H report as above.
+5. Base: the branch holds v4-research at 136b742c (D191), which includes the reviewed sections 14 and 15.
+
+Lock estimates and caps under version 3 (truth as in version 2's table, plus about 250 s a game for measure-dev; for
+gsw_cha_2016 only measure-dev):
+
+| Game | Estimate | Cap (1.5 times) |
+| --- | --- | --- |
+| gsw_cha_2016 | 300 s | 450 s |
+| hou_cle_2016 | 13,045 s (3.62 h) | 19,570 s |
+| gsw_bkn_2015 | 11,230 s (3.12 h) | 16,850 s |
+| gsw_sac_2015 | 10,450 s (2.90 h) | 15,680 s |
+| All four | about 9.7 h | |
+
+Review fixes (ml-review of 5c1bafd3, GO; applied before any run). A copied r23 build must also carry a detector record
+naming the r23 player detector (model "r23", weights sha256 4c886d5f..., the repository's models/player_detector.pt;
+every build on record does). A build already in work_ref/builds/r23 passes the same checks on its own files or stops
+the copy, and one there with no build on record stops it too. The driver exits at start unless the reference root and
+the P8 workspace are different folders (real paths) and the repository's models/player_detector.pt has the r23
+sha256. The registered workspace path of measure-dev's guard stays written out in tools/p8_truth_v2.py (moving it into
+tools/p8_common.py would change a file under the scorer's pin); a test checks it equals p8_common's default root.
+
+**Version 4 (2026-11-26, PLAN.md D192 and the lead's decisions; registered before any fixed build). Where it differs
+from versions 2 and 3 above, version 4 holds.**
+
+*Why.* D192: the tracker double-update bug after a reset (detect/tracker.py PlayerTracker.reset; the tracker keeps
+about 0.3 of the detector's boxes after a reset) also thins camera truth, since truth frames come from the label
+build's tracker boxes. Truth built with the bug under-represents post-reset frames. The lead stopped the version 3 run
+after hou_cle_2016 label s03 (lock spent on unfixed builds: gsw_cha_2016 9,745 s in section 15 plus 130 s, and
+hou_cle_2016 4,658 s for s00 to s03).
+
+*Decisions (the lead's).*
+
+1. Every label build of all four games (gsw_cha_2016 included) is rebuilt with the reset fix:
+   `P8_TRACKER_RESET_FIX=1` (tools/p8_device.py and tools/p8_resetfix.py of the reset-fix arm, branch r-p8-resetfix,
+   design docs/research/P8_resetfix.md section 14), with the detector on CPU, court and gate auto, no clip fix,
+   TRACKER_REID unset. Each label window's device record must carry "reset_fix": true.
+2. Every earlier label window in the reference root is invalid. tools.p8_device.check_cached refuses a cached window
+   whose reset_fix differs, so they cannot mix. They are moved aside, kept and not deleted (tools/p8_truth_fixprep.py
+   supersede, into work_ref/superseded_nofix/ at the same relative paths): every unfixed label window's outputs, the
+   truth fitted from them (labels/<game>/ and its result, offsets and paint files), the records read from that truth
+   (truth_v2/dev, truth_accept, truth_moved), the label and fit done markers, and version 3's unfixed r23 copies
+   (builds/r23/<window>_*, builds/r23_source_<game>.json). The label clips (<window>.mp4) and window time maps stay in
+   place and are reused, never cut again, so they stay byte-identical to the P8 workspace's.
+3. The unfixed gsw_cha_2016 CPU truth stays on record as it is: section 15, and its acceptance ("use"; A 7.06 px, B
+   2,459 frames and 2,308 s, C n 63 of 73, median 0.48 s, share 0.7619) in
+   reports/research/p8_truth_accept_gsw_cha_2016_nofix.json. It is not used for anything further.
+4. Check C pairs fixed with fixed, so it stays a court-model comparison and section 5's bars keep their meaning. In
+   the reference root, builds/r23 becomes check C's composite, filled per game by tools/p8_truth_cpu_r23.py compose
+   only after the reset-fix arm's equivalence record for that game (resetfix/equiv__<game>.json) shows "passes": true:
+   - the windows listed in resetfix/plan__<game>.json "reset_windows" (a reset in the baseline build, identity
+     camera_cut_resets above 0): the arm's fixed build, builds/resetfix_r23_detcpu__<game> of the reference root;
+   - every other window: the workspace's reference-platform r23 build (tools.p8_placement.BUILDS). With no reset, the
+     fix changes nothing, which the arm's equivalence windows test byte for byte.
+   A build is copied only when its sidecar's source is the window's label clip (the reference root's for an arm build,
+   the workspace's for a baseline build) and that clip is byte-identical in both roots; its device record asks for the
+   reference setting with reset_fix true (arm) or absent (baseline) and no clip fix; and its detector record is the
+   r23 detector (model r23, sha256 4c886d5f...). Check C and the acceptance run only when every fixed V3 label window
+   has such an r23 build ("complete"); otherwise "CHECK C NOT RUN" and acceptance waits. tools/p8_truth_v2.py
+   measure-dev and tools/p8_truth_accept.py are unchanged; the folder r23_resetfix_checkc of an earlier message is
+   dropped.
+5. The arm's unfixed baseline is the arm's, in builds/r23_nofix of the reference root (made by the arm's own command
+   with this tool's checks). The arm writes only builds/resetfix_r23_detcpu__<game>, builds/r23_nofix, resetfix/,
+   cache/scorecard copies and tmp/resetfix_common_labels; this driver writes only label_build/, labels/, truth_v2/dev/,
+   truth_accept/, truth_moved/, builds/r23/ and its records, superseded_nofix/ and meta/done/.
+6. hou_cle_2016's reset-window arm builds run before the arm's pool verdict (the lead lifted that gate for builds,
+   not for scoring), so hou_cle_2016's check C waits only for them; no r23 build is made by this plan.
+
+*Order, one heavy job at a time.* (1) The arm's stage 0 and smoke, reviewed. (2) This driver's truth phase, all four
+games: supersede, link, label with the fix, label-check, fit, then truth_moved and the d_H report against the MPS truth.
+(3) The arm's builds and equivalence for the three pool games and hou_cle_2016 (build only, no score). (4) This
+driver's accept phase per game: compose, measure-dev, p8_truth_accept. (5) The arm's pin-truth (it requires a final
+use verdict and every label device record with reset_fix true and detector cpu) and pool scoring. (6) hou_cle_2016
+scoring only if the pool passes. Steps 2 and 3 do not overlap.
+
+*Driver.* tools/p8_truth_cpu.sh, two phases: `truth` and `accept`, a new log (logs/truth_fix.log) and lock names
+("p8 fixtruth <phase> <game> ..."), so version 3's lock time does not count against version 4's caps. It exits at
+start unless the reset-fix code is on the branch (tools.p8_resetfix importable, RESET_FIX_FLAG in tools.p8_device;
+r-p8-resetfix must be merged first), TRACKER_REID is unset, the two roots differ and models/player_detector.pt is
+r23's. The label-check runs before every fit and stops the driver if any label window lacks the fix or the reference
+devices. Resumable, two retries at most, STOP file, as before.
+
+*Estimates and caps (lock seconds).* Truth as in version 2's rates (label 1.21 times the CPU r23 build, fit 1.22 times
+the MPS fit; gsw_cha_2016 from its section 15 run). The fix is not expected to change build time materially (it removes
+a second tracker update per frame after a reset). Accept: measure-dev, 130 s on gsw_cha_2016.
+
+| Game | Truth estimate | Truth cap | Accept estimate | Accept cap |
+| --- | --- | --- | --- | --- |
+| gsw_cha_2016 | 9,750 s (2.71 h) | 14,630 s | 130 to 250 s | 450 s |
+| hou_cle_2016 | 12,795 s (3.55 h) | 19,190 s | 130 to 250 s | 450 s |
+| gsw_bkn_2015 | 10,980 s (3.05 h) | 16,470 s | 130 to 250 s | 450 s |
+| gsw_sac_2015 | 10,200 s (2.83 h) | 15,300 s | 130 to 250 s | 450 s |
+| All four | 43,725 s (12.1 h) | | under 0.3 h | |
+
+*Reading the reports.* p8_truth_moved now compares MPS truth without the fix with CPU truth with the fix, so a MOVED
+reading carries both the platform and the fix; section 15 isolates the platform part on gsw_cha_2016. The bars of
+section 0 and section 5 are unchanged. Records: reports/research/p8_truth_moved_<game>.json and
+reports/research/p8_truth_accept_<game>.json, committed with a dated result section.
+
+**Version 4.1 (2026-11-26, the lead's decisions after the reset-fix design review; before any fixed build).** (Commit
+f0948913 briefly wrote the opposite composer choice; the lead reversed it the same day, before any review or run, and
+this text replaces it.)
+
+1. One check C composer, this plan's: `tools/p8_truth_cpu_r23.py compose` is the only writer of builds/r23. The
+   reset-fix arm composes nothing; it writes its unfixed baseline to builds/r23_nofix (with its own
+   builds/r23_nofix_source_<game>.json). compose gates on resetfix/equiv__<game>.json "passes": true; takes the reset
+   windows from resetfix/plan__<game>.json "reset_windows" (a sorted list of window stems) and ignores the arm
+   folder's other windows (equivalence and smoke windows); accepts an arm build only when its sidecar source resolves
+   to the reference root's clip and that clip's SHA-256 equals the workspace clip's; takes every other window from the
+   workspace's baseline build; and stops if builds/r23 already holds a file that fails these checks or a window with
+   no build on record. The accept phase runs compose, then measure-dev and p8_truth_accept (unchanged) only when its
+   record builds/r23_checkc_<game>.json shows "complete": true.
+2. Before any composition, builds/r23 is cleared of unfixed copies: the truth phase's supersede moves version 3's
+   unfixed copies (gsw_cha_2016's 73 windows, and any hou_cle_2016 ones; there are none) and
+   builds/r23_source_<game>.json into superseded_nofix/builds/. supersede runs per game at the start of the truth phase;
+   compose runs only in the accept phase, after the truth phase.
+3. Before any fixed label build, supersede also moves aside every artefact of the bug-carrying truth that the arm's
+   pin-truth could capture: labels/<game>/ (the jsonl files), labels/<game>_result.json, _offsets.json and
+   _paint.jsonl, truth_v2/dev/<game>.json, truth_accept/<game>.json, truth_moved/<game>*.json, and the label and fit
+   done markers. The fixed truth's files are then all written after every fixed label build of the game (the fit
+   follows the label-check of every window), which the pin checks.
+4. Clips (label_build/<window>.mp4) and window time maps are never moved, cut again or rewritten; the arm checks clip
+   SHA-256 at plan, build, equivalence and score, and compose checks it per window.
+
+Order: the arm's design v2.2 and its re-review, its merge to v4-research, this branch's merge of v4-research, an
+ml-review of version 4.1, the arm's smoke, then the lead's go for the truth phase. Estimates, caps and bars as in
+version 4.
+
+Composer, final (the lead's definitive instruction, 2026-11-26, overriding every earlier message on it): this plan's
+`tools.p8_truth_cpu_r23 compose` is present and is the only writer of builds/r23, as in the corrected version 4.1
+above (29b97e62). Why: the reset-fix arm's design v2.1 has no composer, and there must be exactly one. Commits
+f0948913 and 208c846a, which left the composing to the arm after crossed messages, are superseded; the code equals
+29b97e62's.
+
+**Version 4.2 (2026-11-26, the ml-review of cc0e05db, NO-GO on one file-only blocker; before any fixed build).**
+
+1. The label-check reads what the build wrote, not only what it was asked to do. The device record says reset_fix true
+   before the build starts, so for every built label window (a sidecar) tools/p8_truth_fixprep.py label-check now also
+   requires <window>_resetfix.json with reset_fix true, tracker_reid_env None, versions equal to
+   tools.p8_resetfix.PINNED_VERSIONS (opencv 4.13.0, torch 2.2.2, ultralytics 8.4.48), every reset with a frame and
+   exactly 2 callbacks stripped, and as many resets as the identity file's camera_cut_resets. The log is written by the
+   build child at exit into the build's tracking folder and moved next to the window's outputs by sportvu.rebuild.build
+   (every <window>_* file); a test pins that path, and the arm's smoke window gsw_cha_2016_s00_w00 shows it (its
+   _resetfix.json sits beside its sidecar and passes the same check). Gate-empty windows have no sidecar and need no
+   log. At start the driver also checks that the build interpreter's library versions equal PINNED_VERSIONS (they do:
+   4.13.0, 2.2.2, 8.4.48).
+2. The truth phase exits at start unless resetfix/smoke_check.json in the reference root shows "passes": true.
+3. compose (the only writer of builds/r23): every <window>_* file already in builds/r23 must be byte-identical to its
+   source, or the step stops; the arm's equivalence record must be newer than every reset window's arm sidecar, or the
+   step stops; an arm build must also carry a reset log that passes the same check as item 1.
+4. The driver exits at start if P8_DEVICE, P8_DEVICE_COURT, P8_DEVICE_GATE or P8_MPS_CLIP_FIX is set.
+5. STOP is checked at the top of every game, before supersede moves anything. The lead removes work_ref/STOP only at
+   the go.
+6. Records of version 4 are named apart from section 15's: reports/research/p8_truth_moved_<game>_fix.json and
+   reports/research/p8_truth_accept_<game>_fix.json (version 4's "Reading the reports" names are replaced by these).
+7. Folders the driver writes in the reference root (correcting the list of version 4, decision 5): label_build/,
+   labels/, truth_v2/dev/, truth_accept/, truth_moved/, builds/r23/ and builds/r23_checkc_<game>.json, superseded_nofix/,
+   meta/done/, logs/ (truth_fix.log), failed/ and tmp/ (the frozen build path's own scratch), and symbolic links:
+   for gsw_bkn_2015 and gsw_sac_2015 the frozen link step's links in video/, sportvu/ and sync/ to the main checkout's
+   sections, moments and sync maps (gsw_cha_2016's exist already), and for hou_cle_2016 links in video/, sportvu/,
+   sync/, meta/ and reports/ to the P8 workspace's files (all read only). tools.p8_frozen.install_paths also creates
+   the workspace layout's empty folders if missing.
+
+**Version 4.3 (2026-11-26, the re-review of dc8cf478, PASS with one accept-phase leftover).** compose also requires
+that every <window>_* file of a window's source (the arm's folder or the workspace baseline) is present in builds/r23
+for a window already there, so a copy with a missing file stops the step (test added). The truth phase is unchanged.
+
+## 17. Result (2026-11-27): CPU-detector truth with the reset fix (section 16 version 4.3)
+
+**What ran.** The truth phase (2026-11-26 21:04 to 2026-11-27 10:05 UTC, from r-p8-truth-cpu f005e78e, with two
+pauses for other jobs at the lead's STOP), then the accept phase (2026-11-27 12:18 to 12:27 UTC, from 125a5a77), each
+heavy step under its own lock. No step failed and none was retried. Every label window of the four games passed the
+label-check (device record and reset log); every r23 window of check C's composite resolves the detector to cpu.
+
+**Lock time.** Truth phase 42,033 s: gsw_cha_2016 8,916, hou_cle_2016 11,386, gsw_bkn_2015 10,737 and gsw_sac_2015
+10,994 s, each under its cap; gsw_sac_2015 7.8 percent over its estimate (10,200 s), the others under theirs. Accept
+phase 477 s (measure-dev 152, 166 and 159 s). Source of the lock times and of hou_cle_2016's "CHECK C NOT RUN": the
+driver's log, logs/truth_fix.log in the reference root (the heavy-job lines of each step).
+
+**Check C's r23 side** (tools/p8_truth_cpu_r23.py compose, after the arm's equivalence passed for each pool game):
+gsw_cha_2016 12 reset windows from the arm and 61 from the baseline (73 of 73 label windows covered), gsw_bkn_2015 17
+and 66 (83 of 83), gsw_sac_2015 10 and 72 (82 of 82); nothing refused.
+
+**Section 5, with its bars unchanged** (records reports/research/p8_truth_accept_<game>_fix.json and
+p8_truth_moved_<game>_fix.json):
+
+| Game | A: reprojection (bar 10.0 px) | B: frames (1,000), clock (1,500 s) | C: windows used of measured (0.8), median (0.54 s), share over 0.2 s (0.7945) | Use |
+| --- | --- | --- | --- | --- |
+| gsw_cha_2016 | 15.18 px, fails | 971 frames, fails; 2,308 s | 64 of 73, 0.50 s, 0.7188, passes | unused |
+| gsw_bkn_2015 | 7.41 px, passes | 2,903, 2,529 s, passes | 77 of 83, 0.48 s, 0.6883, passes | use |
+| gsw_sac_2015 | 6.65 px, passes | 2,949, 2,317 s, passes | 73 of 82, 0.64 s, 0.8219, fails both | apart |
+| hou_cle_2016 | 5.54 px, passes | 7,447, 2,635 s, passes | not run | pending |
+
+hou_cle_2016's acceptance is pending: the reset-fix arm has no plan or equivalence record for it yet (its hou builds
+have not run), so compose refused it and check C was not measured. It is decided when the arm's hou equivalence passes
+and the accept phase runs again for that game; nothing else about it changes.
+
+**Moved against the MPS truth** (section 0's bars; the reading carries the platform and the fix together, section 16
+version 4): all four MOVED, on accepted frames in every game (gsw_cha_2016 1,366 to 971, hou_cle_2016 4,427 to 7,447,
+gsw_bkn_2015 2,075 to 2,903, gsw_sac_2015 2,151 to 2,949). Reprojection moves past its 1.0 px bar at gsw_cha_2016
+(7.65 to 15.18 px) and gsw_sac_2015 (5.47 to 6.65 px) and stays under it at hou_cle_2016 and gsw_bkn_2015; the median
+per-window offset difference stays under 0.2 s in all four.
+
+**What this decides, by section 5 and D98 as registered.** gsw_bkn_2015's CPU truth with the fix reads "use".
+gsw_sac_2015's reads "apart": check C fails (the frozen offset rule's median and share between the fixed V3 label build
+and the fixed r23 composite are above the worst in-use pooled game's), so it is reported apart and flagged and not used
+to tune anything. gsw_cha_2016's reads "unused" (B fails), so its MPS truth stays in use (D191); why its fit broke is
+docs/research/P8_cha_fit.md. Which truth each game uses from here is the lead's decision.
+
+Report only, post hoc, not ruled: gsw_sac_2015's check C was not measured on the unfixed CPU truth (no such truth
+exists for it), so whether the fix or the platform moved its offset stability over the bar is not known from these
+records; gsw_cha_2016's C on the unfixed CPU truth was 0.48 s and 0.7619 (reports/research/p8_truth_accept_
+gsw_cha_2016_nofix.json) against 0.50 s and 0.7188 with the fix.

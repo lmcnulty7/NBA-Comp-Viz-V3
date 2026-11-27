@@ -223,12 +223,27 @@ def dev_path(tag: str) -> Path:
     return p8_root() / "truth_v2" / "dev" / f"{tag}.json"
 
 
+# the registered workspace: p8_common.p8_root's default (written out because p8_common is under the scorer's pin; a
+# test checks that the two agree)
+REGISTERED_ROOT = Path.home() / "Developer" / "nba-v3-worktrees" / "_p8-data" / "work"
+
+
+def refuse_dev(tag: str, root: Path, registered: Path = REGISTERED_ROOT) -> None:
+    """measure-dev's refusals. gsw_ind_2016 is always refused (apart, D98). The pooled registered games are refused in
+    the registered workspace, where measure and the registered report hold them; in another root (the reference root
+    of docs/research/P8_truth_arenas.md section 16, CPU-detector truth) their measure-dev record is check C of that
+    root's truth and is never read by report, which reads only truth_v2/<tag>.json of its own root."""
+    if tag in APART:
+        raise SystemExit(f"{WHO}: {tag} stays apart (D98)")
+    if tag in POOLED and Path(root).expanduser().resolve() == Path(registered).expanduser().resolve():
+        raise SystemExit(f"{WHO}: {tag} is a registered truth v2 game in the registered workspace; use measure")
+
+
 def cmd_measure_dev(args) -> dict:
-    """Report only. The registered games are refused here (they use measure and the registered report); any other
-    development game passes the project guard through _game first."""
+    """Report only. refuse_dev first (the registered games in the registered workspace, and gsw_ind_2016 anywhere);
+    then the project guard through _game."""
     import time
-    if args.tag in POOLED + APART:
-        raise SystemExit(f"{WHO}: {args.tag} is a registered truth v2 game; use measure")
+    refuse_dev(args.tag, p8_root())
     P, index, mirror = _game(args.tag)
     t0 = time.time()
     out = dev_record(args.tag, measure_windows(P, index, mirror, args.tag), time.time() - t0)
