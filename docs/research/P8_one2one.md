@@ -145,3 +145,56 @@ with the git head; per-game rows and gate records under work_ref/one2one/ (M3).
 equal assign_1to1's pairs at 2.5 ft, or the tool stops. M2: the three impossibility counters are counted for both
 sensitivities as well as the main split, and any non-zero counter stops the tool. M3: section 9 names work_ref/one2one/.
 
+
+## 11. Result (2026-11-27, run from f0287e5a, recorded in each game's record; record reports/research/p8_one2one.json)
+
+**Run.** Three collect steps under the lock, one game at a time: gsw_cha_2016 59 s, gsw_bkn_2015 55 s, hou_cle_2016
+113 s (lock times from the heavy-job lines of work_ref/logs/one2one.log); report in system python. The count gate passed
+on every window (73, 83 and 93 windows; in_frame, missed, far, nr_boxes, missed_1to1 and unmatched_1to1 equal to D202's
+records); on every scored frame the copies equalled the scorer's one-to-one functions at both gates and stage A's pairs
+equalled assign_1to1's; every impossibility counter was zero for the main split and both sensitivities; the manifests
+were unchanged. hou_cle_2016: the count gate only; no class computed; it stays unspent.
+
+**The split (main, two stages), rate over in-frame players [window interval]; share of the placement or detection
+misses in brackets after it:**
+
+| Class | gsw_cha_2016 | gsw_bkn_2015 | Pooled |
+| --- | --- | --- | --- |
+| P-i, no box left | 0.0378 [0.0328, 0.0432] (0.242) | 0.0431 [0.0383, 0.0481] (0.279) | 0.0405 [0.0369, 0.0441] (0.261 [0.239, 0.281]) |
+| P-ii, an unclaimed box 2.5 to 5 ft away | 0.1178 [0.1045, 0.1310] (0.755) | 0.1105 [0.1009, 0.1214] (0.714) | 0.1141 [0.1060, 0.1231] (0.734 [0.712, 0.756]) |
+| P-iii-ref, a referee box nearest | 0.0005 [0.0003, 0.0009] | 0.0011 [0.0006, 0.0017] | 0.0008 [0.0005, 0.0012] (0.005) |
+| D-i, a neighbour's box nearest | 0.0374 [0.0334, 0.0418] (0.715) | 0.0503 [0.0427, 0.0598] (0.772) | 0.0440 [0.0395, 0.0495] (0.747 [0.713, 0.777]) |
+| D-iii-ref | 0.0002 [0.0000, 0.0004] | 0.0009 [0.0005, 0.0014] | 0.0006 [0.0003, 0.0009] (0.010) |
+| D-iii-free, an unclaimed box beyond 5 ft nearest | 0.0147 [0.0117, 0.0183] (0.281) | 0.0140 [0.0114, 0.0171] (0.214) | 0.0143 [0.0124, 0.0167] (0.243 [0.213, 0.278]) |
+| D-iii-none, no box on the frame | 0 | 0 | 0 |
+
+The classes add up to D202's rows: placement 0.155 (P-i 0.041 + P-ii 0.114 + P-iii-ref 0.001) and detection 0.059
+(D-i 0.044 + D-iii-free 0.014 + D-iii-ref 0.001), pooled.
+
+**Sensitivities, pooled (rates):** single-stage 5 ft: P-i 0.0369 [0.0335, 0.0403], P-ii 0.1178 [0.1093, 0.1271], D-i
+0.0442 [0.0397, 0.0497], D-iii-free 0.0141 [0.0122, 0.0164]. In-frame-only convention (missed_1to1's; referee boxes
+inside the assignment, so no referee class): P-i 0.0404 [0.0368, 0.0441], P-ii 0.1150 [0.1069, 0.1240], D-i 0.0442
+[0.0395, 0.0498], D-iii-free 0.0147 [0.0127, 0.0171]. Per game in the record. The main split's rates move by at most
+0.004 under either.
+
+**Report only:** P-ii's stage B box lies a median 3.20 and 3.21 ft from the player (gsw_cha_2016, gsw_bkn_2015). For P-i,
+the player that claimed the nearest box is in frame in 0.995 and 0.999 of cases, a median 3.64 and 3.73 ft from the
+missed player; 0.245 and 0.227 of P-i players have an unclaimed non-referee box 5 to 10 ft away. For D-i, the claimer is
+in frame in 0.996 and 0.999 of cases, a median 7.26 and 7.74 ft away, and 0.144 and 0.108 have an unclaimed box 5 to
+10 ft away.
+
+**Reading by the registered table (section 7), with its limits.** The largest class is P-ii, 0.114 of in-frame players
+pooled: a box no one claims within 2.5 ft lies 2.5 to 5 ft away (median about 3.2 ft); the foot model, box bottom or
+court geometry line (D186 to D188) is where that class points, with its ceiling and its "own box" reading depending on
+the assignment (the sensitivities move it by at most 0.004). No box is left for 0.041 (P-i) and 0.044 (D-i) of in-frame
+players pooled, 0.085 together, where the table points to detection recall in overlaps; a foot or geometry fix moves P-i
+only where the player's own box lies beyond 5 ft. Each rate is a ceiling, not a forecast. Limits carried from D204: the
+build's and the truth's errors are not separable and not independent (truth frames selected by, and the multipool camera
+fitted to, the same detector's feet), frames the truth rejected are not seen, and one-to-one assignment is a convention.
+
+Post hoc, not ruled: (a) D204's 0.230 (placement misses whose nearest box is another player's _match at 2.5 ft) and P-i's
+0.261 of placement misses are close but measure different things (gate order, box set, player set), and P-ii, not P-i,
+holds most of the placement row; (b) about a quarter of P-i players (0.245, 0.227) have an unclaimed box 5 to 10 ft away,
+which may be their own box placed beyond 5 ft, so the detection-recall reading of P-i is an upper bound on what recall
+alone could move; (c) the D-i claimers sit a median 7.3 to 7.7 ft away, so "a neighbour's box nearest" for detection
+misses is not a close-pair effect in the way P-i (about 3.7 ft) is.
