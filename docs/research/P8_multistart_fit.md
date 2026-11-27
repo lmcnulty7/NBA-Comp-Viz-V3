@@ -317,3 +317,37 @@ asserts that the labels folders lie inside work_ms and are not links.
 Each run's chunks are recorded, and a run counts as converged at its first chunk end that meets section 4.2. Every run
 goes to all 20 chunks and competes in the selection whatever its convergence (as section 4 states); its final C is
 the C after chunk 20.
+
+## 16. Stage 1 result, gsw_cha_2016 (2026-11-27, run from 6fe49156)
+
+Three steps, each under its own lock, the reference root's 1,905 protected files unchanged after each:
+multipool 1,661 s of lock (estimate 4,746 s), truth step 209 s, acceptance 156 s. Records
+reports/research/p8_multistart_multipool_gsw_cha_2016.json, p8_multistart_truth_gsw_cha_2016.json and
+p8_multistart_accept_gsw_cha_2016.json.
+
+- Kill rule 1: every one of the 24 runs' first chunk reproduced fit_game(frames, seed) within 0.01 ft.
+- J was finite and fit_frame failed on no init for every run.
+- Selections (lowest J per set): truth set seed 4, C (47.23, 137.06, -30.72), J 4,036,298, pooled median 5.8825 px;
+  set {16..23} seed 20, C (47.32, 137.86, -30.68), J 4,037,002; set {24..31} seed 25, C (47.60, 138.58, -31.24), J
+  4,034,569.
+- Stability (section 6 with amendment S1-1 and review R1: 12,604 sidecar box feet that are not inlier-pair boxes,
+  33,690 inlier-pair feet dropped): pair medians 0.068, 0.090 and 0.138 ft, all at most 0.25 ft: stable.
+- Kill rule 4: the truth set's selection is 32.96 ft from the frozen fixed C, more than 5 ft: stage 2 may run.
+- Truth step (multipool v1, in work_ms): fit_game called once, returning the selected run; 2,924 accepted frames;
+  every labels file hashed into the record.
+- Section 5, bars unchanged: A 5.88 px (pass, bar 10.0); B 2,924 frames and 2,308 s (pass); C 64 of 73, median 0.50 s,
+  share 0.7188 (pass; unchanged, as expected, since C does not depend on the fit). Status: use.
+
+So the procedure's switch rule (section 9) is met for gsw_cha_2016 (stable and "use"); the decision is the lead's,
+for all games at once (amendment S1-3), and nothing switches before it.
+
+Report only, not ruled: convergence counts 8 of 8 in every set by section 4.2's rule, which under restarts overstates
+convergence (section 14). Selected-set pairwise C distances 0.81, 0.95 and 1.65 ft.
+
+Post hoc, not ruled: (a) of the 24 runs, 13 ended with C y below 117 ft (12 of them with J 5.70 to 8.20 million and
+pooled medians 9.57 to 16.31 px; seed 18 at y 116.9 ft with J 4.73 million and 7.90 px) and 11 with y 127.1 to 138.6 ft
+(J 4.03 to 4.53 million, pooled medians 5.27 to 7.45 px); seed 0's run (the frozen pool) stayed in the broken basin after 4,000 evaluations (C y 104.4 ft, 14.76 px), so the cap
+was not what held the frozen fit there. (b) The selected C lies 9.3 ft from the unfixed CPU fit's C and within the
+range of the good GSW fits on record (P8_cha_fit.md stage 1). (c) A on earlier gsw_cha_2016 truths: MPS 7.65 px, CPU
+without the fix 7.06 px, CPU with the fix (frozen fit) 15.18 px; accepted frames 1,366, 2,459 and 971 against 2,924
+here.
