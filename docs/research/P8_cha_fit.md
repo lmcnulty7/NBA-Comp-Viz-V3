@@ -96,3 +96,52 @@ heavy-job lock, about 5 to 10 minutes, after the arm's builds):
 A tool, tools/p8_cha_fit.py (stage 1 now, stage 2 only after approval), with tests on synthetic inputs; record
 reports/research/p8_cha_fit.json; a dated result section here. Stage 1 runs in seconds to minutes on stored JSON. No
 Colab units. The accept phase of section 16 is not affected and still waits for the lead's word.
+
+## 7. Stage 1 results (computed 2026-11-27, after this design was committed in 9e7b34b1)
+
+Stored files only, about 2 seconds; record reports/research/p8_cha_fit.json.
+
+S1 and S5, every recorded fit (C and C0 in ft, court frame; reprojection after refinement):
+
+| Fit | C | C0 | Distance C to C0 | Reprojection | Inits | Accepted |
+| --- | --- | --- | --- | --- | --- | --- |
+| gsw_bkn_2015 MPS | (46.9, 125.2, -29.5) | (41.5, 108.1, -35.1) | 18.8 | 6.52 | 3,234 | 2,075 |
+| gsw_bkn_2015 CPU, fix | (48.1, 122.8, -29.7) | (46.8, 105.1, -34.8) | 18.5 | 7.41 | 4,728 | 2,903 |
+| gsw_cha_2016 MPS | (42.6, 118.7, -31.1) | (40.0, 103.9, -35.0) | 15.5 | 7.65 | 2,586 | 1,366 |
+| gsw_cha_2016 CPU, no fix | (46.9, 127.8, -31.4) | (47.2, 103.6, -34.9) | 24.5 | 7.06 | 4,123 | 2,459 |
+| gsw_cha_2016 CPU, fix | (47.1, 104.3, -34.6) | (47.2, 103.5, -34.9) | 0.9 | 15.18 | 4,943 | 971 |
+| gsw_sac_2015 MPS | (47.7, 134.1, -30.1) | (36.8, 106.8, -34.7) | 29.8 | 5.47 | 3,277 | 2,151 |
+| gsw_sac_2015 CPU, fix | (45.4, 126.5, -29.8) | (41.2, 106.5, -34.5) | 21.0 | 6.65 | 4,721 | 2,949 |
+| hou_cle_2016 MPS | (43.5, 131.6, -38.4) | (41.6, 127.3, -43.7) | 7.1 | 6.40 | 6,863 | 4,427 |
+| hou_cle_2016 CPU, fix | (44.7, 135.5, -37.5) | (44.6, 126.8, -43.7) | 10.7 | 5.54 | 10,804 | 7,447 |
+| gsw_ind_2016 MPS (apart, D98) | (46.6, 106.0, -34.7) | (46.7, 106.0, -35.3) | 0.6 | 18.35 | 3,900 | 970 |
+
+(The C to C0 distances are computed from the rounded values shown.) Among the GSW home fits, the fixed gsw_cha_2016 C
+is 22.0 ft from the median C of the other GSW fits; the others are 1.5 to 9.0 ft from theirs. The two broken fits on
+record, gsw_cha_2016 CPU with the fix and gsw_ind_2016 MPS, are the only ones whose C stayed within about 1 ft of its
+start C0; every good fit moved 15 to 30 ft from C0 (7 to 11 ft at hou_cle_2016, whose C0 already sits near its C).
+S5: between gsw_cha_2016's two CPU fits, C0 moved 0.09 ft and C moved 23.65 ft.
+
+S2, court identity: of 18,083 frames in both label builds, 17,595 have an identical court H, 488 have no H in either
+build, and none differs. The fix did not touch the court side.
+
+S3, boxes: before each window's first reset the two builds have identical boxes (15,016 frames, median 9 boxes, 13,142
+frames with at least 6). After a first reset (3,067 frames in the 12 windows with one) the unfixed build has a median
+of 3 boxes and 527 frames with at least 6; the fixed build a median of 9 and 2,792.
+
+S4, accepted rows: before the first reset 2,416 (no fix) against 856 (fix); after it 43 against 115. Feet residual
+medians 1.20 and 1.25 ft (no fix) against 1.47 and 1.56 ft (fix); line matches medians 53 and 40 against 37 and 37. The
+largest losses are in windows with no reset at all (gsw_cha_2016_s07_w00 265 to 115, s08_w00 205 to 76, s03_w01 114
+to 33); the gains are in reset windows (s05_w00 0 to 57, s01_w00 4 to 15, s06_w00 0 to 12).
+
+Reading against section 5, stage 1 only:
+
+- H4 (court side changed) is ruled out: every court H is identical, and C0 is unchanged.
+- The loss is not confined to the frames the fix newly exposes: accepted frames fall most in windows without any
+  reset, whose inputs are identical in both builds, and their residuals rise. That is the signature of a wrong shared
+  camera position applied to every frame, not of bad post-reset frames being rejected.
+- The fixed fit ended where it started (C within 0.9 ft of C0), as did gsw_ind_2016's broken MPS fit (0.6 ft); every
+  good fit moved 7 to 30 ft. This points to the pooled bundle adjustment not leaving its start on these pools (H1 or
+  H2), with the new post-reset inits (S3) changing the pool through the seed-0 draw. Stage 1 cannot tell H1 from H2, or
+  whether the new frames' pairs (H3, H5) are what held the fit at its start; stage 2's F1 to F4 can.
+- Nothing is retuned; gsw_cha_2016's section 5 verdict (A and B fail, unused) stands.
