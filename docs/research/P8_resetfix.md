@@ -847,3 +847,47 @@ of theirs is scored. (2) report had no path for fewer than two pool games in use
 record (no_pool_report): the verdict text above, adoption false, and for the game in use its rows, its version 2.3
 per-game reading (deciding nothing), the bracket and the report-only rows; render prints the verdict text first.
 Tested on a synthetic record with one game in use.
+
+## 24. Result (2026-11-27): no pass, no pool; gsw_bkn_2015 reported only
+
+The generated result page is reports/research/p8_resetfix_result.md (from the reference root's resetfix/report.json,
+copied to reports/research/p8_resetfix.json); every number below is in those records or in the score file's record.
+
+**What ran.** Pins: gsw_bkn_2015 "use" (83 label windows with the fix, checks A, B and C pass), gsw_cha_2016 "unused"
+(A and B fail) and gsw_sac_2015 "apart" (C fails), each with its label builds' device records and reset logs checked
+(v2.4). Cache copies: 83 of 83 gsw_bkn_2015 windows from the workspace (same clips), so no cache entry was computed
+(cache seconds 0). Score: gsw_bkn_2015 only, 146 s inside a 153 s lock (peak 1.0 GB), 83 windows, all also scored on
+the bracket's frames. Builds before it: 1.80 lock hours for the three pool games (section 23's chain), smoke 0.33.
+
+**Verdict, fixed in advance (section 23 addendum): no pass: no pool (1 pool game in use; cha unused, sac apart).**
+Not adopted; r23's registered rows stay the reported baseline and carry the bug; the fixed pipeline stays the
+development standard (D193). hou_cle_2016 is not scored.
+
+**gsw_bkn_2015, reported only** (arm minus baseline on the truth rebuilt with the fix; window intervals): net error E
+0.428 to 0.379, -0.049 [-0.087, -0.012]; missed 0.313 to 0.253, -0.060 [-0.107, -0.016]; one-to-one missed -0.060
+[-0.108, -0.016]; one-to-one net error -0.042 [-0.076, -0.010]; detection row -0.067 [-0.120, -0.017]; ghosts +0.0008
+[-0.0024, +0.0033]; position p50 -0.002 and p90 -0.006 ft, bias about 0, team +0.007 [-0.003, +0.019]; coverage equal.
+Its version 2.3 per-game reading passes every condition; it decides nothing.
+
+**Bracket** (the frames the bug-carrying workspace truth also accepted: 13,769 of the 28,554 in-frame players): E
+-0.020 [-0.061, 0.000], missed -0.023 [-0.071, 0.000], ghosts -0.0002, one-to-one net error -0.017 [-0.052, 0.000].
+On these frames, which a truth built on the buggy tracker selected, the point estimates still improve, with
+intervals that reach zero.
+
+**Report only.** Boxes per in-frame player 0.836 to 0.914, ghosts per in-frame player 0.115 to 0.126, duplicates
+0.044 to 0.050; 2,101 players are matched only in the arm (their error p50 1.59 ft, p90 3.45 ft, close to the
+baseline's 1.58 and 3.41 on players matched in both); 32 only in the baseline. The arm's sidecar boxes equal the fixed
+label build's on all 20,644 shared frames, which confirms the shared input of section 16 (A2): the new truth selects
+frames by the arm's own boxes.
+
+**Against the forecast (section 19).** The version 2.3 simulations forecast gsw_bkn_2015's E change at a median of
+-0.105 (registered scaling) and -0.030 (processed-share sensitivity), and missed at -0.136 and -0.039. The observed
+-0.049 and -0.060 lie between the two, nearer the sensitivity, as section 17's post hoc note on the registered
+scaling's overshoot on gsw_bkn_2015 suggested. The forecast pooled ghost cost (median +0.014 and +0.013 under the two
+scalings; no per-game ghost difference was forecast) did not appear on gsw_bkn_2015 (+0.0008): post hoc, the r23 boxes that the fixed truth lets in after a reset are mostly players, since the
+truth accepts frames whose boxes fit the court.
+
+**Lesson.** A truth built from the same detector and tracker as the arm must pass acceptance on its own before an arm
+can be judged on it: two of three pool games' fixed truths failed acceptance here (one on registration and coverage,
+one on offset stability), which left no pool. The fix itself is confirmed in the build (smoke, equivalence) and, on
+the one game in use, lowers missed and net error without a ghost cost; that is a report, not a verdict.

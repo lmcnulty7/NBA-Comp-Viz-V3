@@ -1,0 +1,564 @@
+{
+ "per_game": {
+  "gsw_bkn_2015": {
+   "rows": {
+    "position_p50_ft": [
+     1.5848904252052307,
+     1.5826975107192993
+    ],
+    "position_p90_ft": [
+     3.4093849897384656,
+     3.403382015228272
+    ],
+    "nearfield_bias_ft": [
+     1.5205097198486328,
+     1.520472526550293
+    ],
+    "missed_rate": [
+     0.31267072914477834,
+     0.252609091545843
+    ],
+    "ghost_rate": [
+     0.13731155778894472,
+     0.13815839914130185
+    ],
+    "coverage": [
+     0.998061463025258,
+     0.998061463025258
+    ],
+    "team_accuracy": [
+     0.8508931826467372,
+     0.8575575368028199
+    ],
+    "detection_rate": [
+     0.1417664775513063,
+     0.07480563143517546
+    ],
+    "missed_1to1_rate": [
+     0.33610002101281783,
+     0.27621349022903974
+    ],
+    "net_error_rate": [
+     0.4275057785249002,
+     0.37882608391118583
+    ],
+    "net_error_1to1_rate": [
+     0.515829656090215,
+     0.47359389227428733
+    ]
+   },
+   "point": {
+    "position_p50_ft": -0.00219,
+    "position_p90_ft": -0.006,
+    "nearfield_bias_ft": -4e-05,
+    "missed_rate": -0.06006,
+    "ghost_rate": 0.00085,
+    "coverage": 0.0,
+    "team_accuracy": 0.00666,
+    "detection_rate": -0.06696,
+    "missed_1to1_rate": -0.05989,
+    "net_error_rate": -0.04868,
+    "net_error_1to1_rate": -0.04224
+   },
+   "window_interval": {
+    "position_p50_ft": [
+     -0.00639,
+     -7e-05
+    ],
+    "position_p90_ft": [
+     -0.02363,
+     -0.00029
+    ],
+    "nearfield_bias_ft": [
+     -0.00367,
+     0.00201
+    ],
+    "missed_rate": [
+     -0.10713,
+     -0.01632
+    ],
+    "ghost_rate": [
+     -0.00245,
+     0.00327
+    ],
+    "team_accuracy": [
+     -0.00257,
+     0.01893
+    ],
+    "coverage": [
+     0.0,
+     0.0
+    ],
+    "detection_rate": [
+     -0.12028,
+     -0.0171
+    ],
+    "missed_1to1_rate": [
+     -0.10755,
+     -0.01633
+    ],
+    "net_error_rate": [
+     -0.08665,
+     -0.01195
+    ],
+    "net_error_1to1_rate": [
+     -0.0755,
+     -0.0101
+    ]
+   },
+   "game_interval": null,
+   "verdict": {
+    "pass": true,
+    "rows": {
+     "net_error_rate": {
+      "diff": -0.04868,
+      "window_interval": [
+       -0.08665,
+       -0.01195
+      ],
+      "improves": true,
+      "interval_below_zero": true,
+      "worse": false,
+      "pass": true
+     },
+     "missed_rate": {
+      "diff": -0.06006,
+      "window_interval": [
+       -0.10713,
+       -0.01632
+      ],
+      "improves": true,
+      "interval_below_zero": true,
+      "worse": false,
+      "pass": true
+     },
+     "position_p50_ft": {
+      "diff": -0.00219,
+      "window_interval": [
+       -0.00639,
+       -7e-05
+      ],
+      "bad_end": -7e-05,
+      "margin": 0.05,
+      "pass": true
+     },
+     "position_p90_ft": {
+      "diff": -0.006,
+      "window_interval": [
+       -0.02363,
+       -0.00029
+      ],
+      "bad_end": -0.00029,
+      "margin": 0.1,
+      "pass": true
+     },
+     "nearfield_bias_ft": {
+      "diff": -4e-05,
+      "window_interval": [
+       -0.00367,
+       0.00201
+      ],
+      "bad_end": 0.00201,
+      "margin": 0.1,
+      "pass": true
+     },
+     "team_accuracy": {
+      "diff": 0.00666,
+      "window_interval": [
+       -0.00257,
+       0.01893
+      ],
+      "bad_end": -0.00257,
+      "margin": -0.03,
+      "pass": true
+     },
+     "ghost_rate": {
+      "diff": 0.00085,
+      "window_interval": [
+       -0.00245,
+       0.00327
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "detection_rate": {
+      "diff": -0.06696,
+      "window_interval": [
+       -0.12028,
+       -0.0171
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "net_error_1to1_rate": {
+      "diff": -0.04224,
+      "window_interval": [
+       -0.0755,
+       -0.0101
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "coverage": {
+      "baseline": 0.99806,
+      "arm": 0.99806,
+      "floor_holds": true,
+      "pass": true
+     }
+    }
+   },
+   "report_only": {
+    "r23": {
+     "boxes_per_in_frame": 0.83631,
+     "duplicates_per_in_frame": 0.04395,
+     "ghosts_per_in_frame": 0.11484
+    },
+    "new": {
+     "boxes_per_in_frame": 0.91357,
+     "duplicates_per_in_frame": 0.05036,
+     "ghosts_per_in_frame": 0.12622
+    },
+    "arm_only_matches": {
+     "n": 2101,
+     "p50": 1.59002,
+     "p90": 3.44962
+    },
+    "matched_in_both_baseline_error": {
+     "n": 22700,
+     "p50": 1.58489,
+     "p90": 3.40938
+    },
+    "matched_only_in_baseline": 32
+   },
+   "reported_only": true
+  }
+ },
+ "hou": null,
+ "partial": true,
+ "no_pool": true,
+ "not_scored": [
+  "gsw_cha_2016",
+  "gsw_sac_2015"
+ ],
+ "truth_status": {
+  "gsw_bkn_2015": "use",
+  "gsw_cha_2016": "unused",
+  "gsw_sac_2015": "apart"
+ },
+ "bracket_common_frames": {
+  "gsw_bkn_2015": {
+   "rows": {
+    "position_p50_ft": [
+     1.502279281616211,
+     1.5014773607254028
+    ],
+    "position_p90_ft": [
+     3.1925902366638184,
+     3.1892142295837402
+    ],
+    "nearfield_bias_ft": [
+     1.5900249481201172,
+     1.5915145874023438
+    ],
+    "missed_rate": [
+     0.25339530830125645,
+     0.22993681458348464
+    ],
+    "ghost_rate": [
+     0.11757506527415143,
+     0.11737756714060031
+    ],
+    "coverage": [
+     0.998061463025258,
+     0.998061463025258
+    ],
+    "team_accuracy": [
+     0.8696985629162285,
+     0.874409979770735
+    ],
+    "detection_rate": [
+     0.09049313675648195,
+     0.06667150846103566
+    ],
+    "missed_1to1_rate": [
+     0.27271406783353913,
+     0.2491103202846975
+    ],
+    "net_error_rate": [
+     0.35805069358704333,
+     0.3378604110683419
+    ],
+    "net_error_1to1_rate": [
+     0.44680078437068776,
+     0.42937032464231245
+    ]
+   },
+   "point": {
+    "position_p50_ft": -0.0008,
+    "position_p90_ft": -0.00338,
+    "nearfield_bias_ft": 0.00149,
+    "missed_rate": -0.02346,
+    "ghost_rate": -0.0002,
+    "coverage": 0.0,
+    "team_accuracy": 0.00471,
+    "detection_rate": -0.02382,
+    "missed_1to1_rate": -0.0236,
+    "net_error_rate": -0.02019,
+    "net_error_1to1_rate": -0.01743
+   },
+   "window_interval": {
+    "position_p50_ft": [
+     -0.00366,
+     0.00037
+    ],
+    "position_p90_ft": [
+     -0.01508,
+     0.00238
+    ],
+    "nearfield_bias_ft": [
+     -0.00217,
+     0.00481
+    ],
+    "missed_rate": [
+     -0.07064,
+     0.0
+    ],
+    "ghost_rate": [
+     -0.00166,
+     0.00056
+    ],
+    "team_accuracy": [
+     0.0,
+     0.01456
+    ],
+    "coverage": [
+     0.0,
+     0.0
+    ],
+    "detection_rate": [
+     -0.0731,
+     0.0
+    ],
+    "missed_1to1_rate": [
+     -0.07109,
+     0.0
+    ],
+    "net_error_rate": [
+     -0.06057,
+     0.0
+    ],
+    "net_error_1to1_rate": [
+     -0.05229,
+     0.0
+    ]
+   },
+   "game_interval": null,
+   "verdict": {
+    "pass": true,
+    "rows": {
+     "net_error_rate": {
+      "diff": -0.02019,
+      "window_interval": [
+       -0.06057,
+       0.0
+      ],
+      "improves": true,
+      "interval_below_zero": false,
+      "worse": false,
+      "pass": true
+     },
+     "missed_rate": {
+      "diff": -0.02346,
+      "window_interval": [
+       -0.07064,
+       0.0
+      ],
+      "improves": true,
+      "interval_below_zero": false,
+      "worse": false,
+      "pass": true
+     },
+     "position_p50_ft": {
+      "diff": -0.0008,
+      "window_interval": [
+       -0.00366,
+       0.00037
+      ],
+      "bad_end": 0.00037,
+      "margin": 0.05,
+      "pass": true
+     },
+     "position_p90_ft": {
+      "diff": -0.00338,
+      "window_interval": [
+       -0.01508,
+       0.00238
+      ],
+      "bad_end": 0.00238,
+      "margin": 0.1,
+      "pass": true
+     },
+     "nearfield_bias_ft": {
+      "diff": 0.00149,
+      "window_interval": [
+       -0.00217,
+       0.00481
+      ],
+      "bad_end": 0.00481,
+      "margin": 0.1,
+      "pass": true
+     },
+     "team_accuracy": {
+      "diff": 0.00471,
+      "window_interval": [
+       0.0,
+       0.01456
+      ],
+      "bad_end": 0.0,
+      "margin": -0.03,
+      "pass": true
+     },
+     "ghost_rate": {
+      "diff": -0.0002,
+      "window_interval": [
+       -0.00166,
+       0.00056
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "detection_rate": {
+      "diff": -0.02382,
+      "window_interval": [
+       -0.0731,
+       0.0
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "net_error_1to1_rate": {
+      "diff": -0.01743,
+      "window_interval": [
+       -0.05229,
+       0.0
+      ],
+      "gated": false,
+      "pass": true
+     },
+     "coverage": {
+      "baseline": 0.99806,
+      "arm": 0.99806,
+      "floor_holds": true,
+      "pass": true
+     }
+    }
+   }
+  }
+ },
+ "bracket_guard": {},
+ "pool": {
+  "verdict": {
+   "pass": false,
+   "adopt": false,
+   "failing": [
+    "no pool"
+   ],
+   "no_pool": true
+  },
+  "verdict_text": "no pass: no pool (1 pool game in use; cha unused, sac apart)",
+  "label": null,
+  "ghost_cost_by_game": {
+   "gsw_bkn_2015": {
+    "diff": 0.00085,
+    "window_interval": [
+     -0.00245,
+     0.00327
+    ]
+   }
+  }
+ },
+ "adoption": {
+  "adopt": false,
+  "rule": "no pool: the fixed pipeline does not replace r23's registered rows"
+ },
+ "label_build_consistency": {
+  "gsw_bkn_2015": {
+   "frames_shared": 20644,
+   "frames_equal": 20644,
+   "frames_only_arm": 0,
+   "frames_only_label": 0
+  }
+ },
+ "resets": {
+  "gsw_bkn_2015": {
+   "gsw_bkn_2015_s00_w00": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s02_w00": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s03_w00": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s03_w01": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s03_w04": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s04_w00": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s05_w01": {
+    "baseline": 2,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s05_w02": {
+    "baseline": 2,
+    "arm": 3
+   },
+   "gsw_bkn_2015_s05_w07": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s07_w00": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s07_w04": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s07_w05": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s09_w00": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s09_w02": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s09_w04": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s10_w00": {
+    "baseline": 1,
+    "arm": 1
+   },
+   "gsw_bkn_2015_s10_w02": {
+    "baseline": 1,
+    "arm": 1
+   }
+  }
+ }
+}

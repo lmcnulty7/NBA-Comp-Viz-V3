@@ -1908,9 +1908,12 @@ def render_report(rep: dict) -> str:
     L.append(f"Bracket guard (frames both truths accepted): pooled missed below zero {_f(bg.get('pooled_missed_point_below_zero'))}, "
              f"pooled E below zero {_f(bg.get('pooled_net_error_point_below_zero'))}, holds {_f(bg.get('holds'))}.")
     L += ["", "### Pooled", ""]
-    L += _unit_table(pool, [NET_ROW, "missed_rate", ONE_TO_ONE_ROW, "position_p50_ft", "position_p90_ft",
+    if "point" not in pool:
+        L.append("No pool (section 23): there are no pooled rows.")
+    else:
+        L += _unit_table(pool, [NET_ROW, "missed_rate", ONE_TO_ONE_ROW, "position_p50_ft", "position_p90_ft",
                             "nearfield_bias_ft", "team_accuracy", "coverage", "ghost_rate", "detection_rate",
-                            NET_1TO1_ROW], pool.get("pooled_verdict", {}).get("rows"))
+                                NET_1TO1_ROW], pool.get("pooled_verdict", {}).get("rows"))
     L += ["", "### Per game (E and missed: not worse; position, bias and team: margins)", ""]
     for g, u in rep["per_game"].items():
         L += [f"**{g}**: {'pass' if u['verdict']['pass'] else 'fail'}", ""]
