@@ -54,14 +54,13 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Development truth set (D199): three usable games now, gsw_cha_2016 and gsw_bkn_2015 on the multi-pool truth and
-   hou_cle_2016 on its fixed CPU truth; gsw_sac_2015 apart on check C; gsw_ind_2016 apart (D98) but showing the same
-   fit fragility. Next: a registered CPU rebuild of gsw_ind_2016 with the reset fix and the multi-pool fit (about 3 to
-   4 lock hours, 0 units) was designed and deferred (D200): it is a GSW home game, not a new arena, and its MPS check
-   C already fails; the gsw_sac_2015 check C diagnosis found no cause a rebuild would change (D201).
-2. With two or three usable pool games, re-ask the tracker-fix question on a real pool as a new registration (the
-   reset-fix arm stays closed, D198); under D193 every development arm already builds on the fixed tracker, so this
-   decides only the reported baseline and ranks below item 1.
+1. Level 2 by cause on the development standard rows (D202): missed 0.214 (placement 0.155, detection 0.059),
+   ghosts 0.121 per box, team 0.834 (hou_cle_2016 0.756), against 0.05, 0.05 and 0.95. Next, report only from the
+   stored D202 score records: (a) team errors by cause (which team, court region, crowding, frame position, colour
+   distance), since team is the largest relative gap and the cheapest to study; (b) placement misses by cause on the
+   decided truths (foot model, near-camera bias, occlusion, box truncation at the frame edge).
+2. Deferred: the gsw_ind_2016 CPU rebuild (D200); the tracker-fix question on a real pool (D198, decides only the
+   reported baseline under D193).
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
 4. Colab as a build helper: only through a tested split route (detector on CUDA, court on the reference device),
    since CUDA matches neither Mac build (D179). Transfers go through Google Drive (D177).
