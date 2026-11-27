@@ -351,3 +351,22 @@ was not what held the frozen fit there. (b) The selected C lies 9.3 ft from the 
 range of the good GSW fits on record (P8_cha_fit.md stage 1). (c) A on earlier gsw_cha_2016 truths: MPS 7.65 px, CPU
 without the fix 7.06 px, CPU with the fix (frozen fit) 15.18 px; accepted frames 1,366, 2,459 and 971 against 2,924
 here.
+
+## 17. Stage 2 code (2026-11-27, written while gsw_bkn_2015's stage 1 ran; not run)
+
+tools/p8_multistart_stage2.py with tests/test_p8_multistart_stage2.py. It runs stage 1's procedure (the same seed sets,
+chunks, kill rule 1 after chunk 1, J, every run competing, selection, stability at unfitted feet, stale-run refusal,
+the truth step with fit_game replaced) through one core that takes the label build's root as a parameter, so
+tools/p8_multistart.py, which stage 1 ran from, is not changed. Its steps:
+
+- `multipool GAME` for hou_cle_2016, gsw_sac_2015 and gsw_ind_2016 (V3_P8_ROOT = work_ref). gsw_ind_2016's inputs come
+  from the P8 workspace's MPS label build, read only, with a SHA-256 manifest of that game's workspace labels and
+  sidecars checked before and after; its record is report only and it never gets a truth step (D98).
+- `truth hou_cle_2016` and `accept hou_cle_2016` (V3_P8_ROOT = work_ms), as stage 1's. hou_cle_2016's acceptance is
+  recorded as pending while the reference root has no complete check C composite for it.
+- Gate: every step refuses unless gsw_cha_2016's multipool record shows kill rule 4's "stage 2 runs" and stability,
+  and gsw_bkn_2015's shows stability (kill rule 3).
+- Each record also reports, not ruled, the selection's distance from the game's frozen-fit C and the convergence
+  counts (section 14's caution applies).
+
+Estimate and cap as section 15: 15,090 s, cap 22,635 s. It runs only after its review and the lead's word.
