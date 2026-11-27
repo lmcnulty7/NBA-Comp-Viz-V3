@@ -271,7 +271,8 @@ recorded single 2,000-evaluation run with a cost 0.84 percent lower. scipy repor
 3 (status 2, after 52 evaluations), yet chunk 4, restarted from that point, used all 200 evaluations (9.35 s) and
 lowered the cost further, and chunk 8 used 142 evaluations (6.61 s) after reporting status 3 in chunks 5 to 7. Under
 restarts a scipy status therefore overstates convergence: the convergence counts of stage 1 (converged_per_set and
-each run's converged_at_chunk in the multipool records) are report only and are read with that in mind.
+each run's converged_at_chunk in the multipool records) are report only and are read with that in mind. (Wording
+corrected 2026-11-27 in 6fe49156, before stage 1; numbers unchanged.)
 
 Post hoc, not ruled: the all-inits median |residual| (from J's per-frame solutions) is 11.95 px at B and 5.20 to 6.71
 px at the good positions. These are not check A (which reads a run's pooled median) and are not used by any rule.
@@ -321,7 +322,7 @@ the C after chunk 20.
 ## 16. Stage 1 result, gsw_cha_2016 (2026-11-27, run from 6fe49156)
 
 Three steps, each under its own lock, the reference root's 1,905 protected files unchanged after each:
-multipool 1,661 s of lock (estimate 4,746 s), truth step 209 s, acceptance 156 s. Records
+multipool 1,661 s of lock (estimate 4,746 s), truth step 212 s of lock, acceptance 156 s. Records
 reports/research/p8_multistart_multipool_gsw_cha_2016.json, p8_multistart_truth_gsw_cha_2016.json and
 p8_multistart_accept_gsw_cha_2016.json.
 
@@ -347,10 +348,12 @@ convergence (section 14). Selected-set pairwise C distances 0.81, 0.95 and 1.65 
 Post hoc, not ruled: (a) of the 24 runs, 13 ended with C y below 117 ft (12 of them with J 5.70 to 8.20 million and
 pooled medians 9.57 to 16.31 px; seed 18 at y 116.9 ft with J 4.73 million and 7.90 px) and 11 with y 127.1 to 138.6 ft
 (J 4.03 to 4.53 million, pooled medians 5.27 to 7.45 px); seed 0's run (the frozen pool) stayed in the broken basin after 4,000 evaluations (C y 104.4 ft, 14.76 px), so the cap
-was not what held the frozen fit there. (b) The selected C lies 9.3 ft from the unfixed CPU fit's C and within the
-range of the good GSW fits on record (P8_cha_fit.md stage 1). (c) A on earlier gsw_cha_2016 truths: MPS 7.65 px, CPU
-without the fix 7.06 px, CPU with the fix (frozen fit) 15.18 px; accepted frames 1,366, 2,459 and 971 against 2,924
-here.
+was not what held the frozen fit there. (b) The selected C lies 9.3 ft from the unfixed CPU fit's C; at y 137.1 ft it
+is about 3 ft beyond the good GSW fits on record (y 118.7 to 134.1 ft, P8_cha_fit.md stage 1 table, its good GSW rows at lines 108 to 111 and 113 to 114),
+and all three games' selections (y 137.1, 137.8 and 139.0 ft, sections 16 and 17) lie beyond them on y. (c) A on
+earlier gsw_cha_2016 truths: MPS 7.65 px, CPU without the fix 7.06 px, CPU with the fix (frozen fit) 15.18 px; accepted
+frames 1,366, 2,459 and 971 against 2,924 here (sources: P8_cha_fit.md stage 1 table, lines 109 to 112, and
+P8_truth_arenas.md section 17, lines 675 to 676).
 
 **gsw_bkn_2015 (stage 1, run from 6fe49156 after gsw_cha_2016 read "use", 2026-11-27).** Three steps under their
 own locks, the reference root's protected files unchanged after each: multipool 1,645 s of lock, truth step 218 s,
@@ -371,7 +374,9 @@ distances 0.56 to 2.47 ft.
 
 Post hoc, not ruled: (a) 7 of the 24 runs ended with C y 104.6 to 115.8 ft (J 4.82 to 7.14 million, pooled medians 8.95
 to 17.18 px) and 17 with y 122.8 to 138.3 ft (J 3.81 to 4.23 million). (b) The selection is 15.1 ft from gsw_bkn_2015's
-frozen fixed fit, whose A (7.41 px) already passed; accepted frames 2,903 there against 2,984 here. (c) J was not
+frozen fixed fit, whose A (7.41 px) already passed; accepted frames 2,903 there against 2,984 here (source of the frozen
+fit's C, A and frames: work_ref/labels/gsw_bkn_2015_result.json, also in reports/research/
+p8_truth_moved_gsw_bkn_2015_fix.json). (c) J was not
 computed at the frozen fixed C for this game, so the two are not compared on J.
 
 ## 17. Stage 2 code (2026-11-27, written while gsw_bkn_2015's stage 1 ran; not run)
@@ -458,7 +463,26 @@ version. Applied to the records, this is the proposed set; the decision is the l
 | gsw_sac_2015 | not run (deferred, section 17) | reset-fixed CPU truth (frozen fit), apart | check C fails whatever the fit |
 | gsw_ind_2016 | report only, "same fragility" on its MPS build | none; apart under D98 | no truth step; a CPU rebuild would be a separate registration |
 
+What the switch shows, stated, not decided: check A reads the selected run's pooled median reprojection, which is
+close to the selection objective J (both measure how well the camera explains the matched feet), so a better A after
+selecting on J is largely by construction; check B depends on that reprojection through the per-frame acceptance
+rules; only check C is independent of the fit, and it is unchanged. So the switch gives a lower J and a lower A, not a
+truth shown to be closer to the players' true positions.
+
 Consequences to weigh with the decision, stated, not decided: within one comparison all games use one version, so a
 comparison that includes hou_cle_2016 or gsw_sac_2015 beside gsw_cha_2016 or gsw_bkn_2015 would mix multipool v1 with
 the frozen fit unless those games are left out or later get their own multipool truth; earlier results and the
 reset-fix arm's pinned scores stand as recorded (section 9), and any rescore on multipool v1 is its own registration.
+
+Moved reports of section 9 (dated 2026-11-27, after the ml-review of 77b544aa; report only, section 0's bars; stored
+files, no lock): tools/p8_truth_moved.py with work_ms's multipool v1 truth as the new side. Record
+reports/research/p8_multistart_moved.json (the tool's reading text refers to section 0's platform test and is not read).
+
+- gsw_cha_2016 against its MPS fallback (D191): MOVED; reprojection 7.65 to 5.88 px (1.77 px, past the 1.0 px bar);
+  accepted frames 1,366 to 2,924 (+1.141, past the 10 percent bar); per-window offset median difference 0.08 s over 73
+  windows (under 0.2 s).
+- gsw_cha_2016 against its reset-fixed CPU truth with the frozen fit: MOVED; reprojection 15.18 to 5.88 px (9.30 px);
+  accepted frames 971 to 2,924 (+2.011); offsets 0.00 s over 73 windows.
+- gsw_bkn_2015 against its reset-fixed CPU truth with the frozen fit: MOVED on reprojection only; 7.41 to 5.37 px (2.04
+  px); accepted frames 2,903 to 2,984 (+0.028, under the bar); offsets 0.00 s over 83 windows.
+

@@ -1,0 +1,123 @@
+{
+ "what": "docs/research/P8_multistart_fit.md section 9's moved reports, report only, section 0's bars; the tool's 'mps' side is the earlier truth named in each key (work = P8 workspace MPS truth; work_ref = the reset-fixed CPU truth with the frozen fit), its 'cpu' side the multipool v1 truth in work_ms",
+ "comparisons": {
+  "gsw_cha_2016 vs mps_fallback_D191": {
+   "game": "gsw_cha_2016",
+   "design": "docs/research/P8_truth_arenas.md section 0 (platform mix)",
+   "report_only": true,
+   "bars": {
+    "reproj_px_abs_min": 1.0,
+    "accepted_rel_min": 0.1,
+    "offset_median_s_min": 0.2
+   },
+   "measures": {
+    "reprojection": {
+     "mps_px": 7.65,
+     "cpu_px": 5.88,
+     "abs_diff_px": 1.7700000000000005,
+     "moved": true
+    },
+    "accepted": {
+     "mps": 1366,
+     "cpu": 2924,
+     "rel_diff": 1.1405563689604685,
+     "moved": true
+    },
+    "offsets": {
+     "windows_both": 73,
+     "windows_mps": 73,
+     "windows_cpu": 73,
+     "median_abs_diff_s": 0.08000000000000002,
+     "share_over_0_2_s": 0.3424657534246575,
+     "max_abs_diff_s": 1.44,
+     "moved": false
+    }
+   },
+   "moved": true,
+   "reading": "moved: rebuild the other in-use games' truth on the CPU detector before any cross-arena tuning",
+   "cpu_platform": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 73
+   },
+   "cpu_label_windows": 73
+  },
+  "gsw_cha_2016 vs fixed_cpu_frozen_fit": {
+   "game": "gsw_cha_2016",
+   "design": "docs/research/P8_truth_arenas.md section 0 (platform mix)",
+   "report_only": true,
+   "bars": {
+    "reproj_px_abs_min": 1.0,
+    "accepted_rel_min": 0.1,
+    "offset_median_s_min": 0.2
+   },
+   "measures": {
+    "reprojection": {
+     "mps_px": 15.18,
+     "cpu_px": 5.88,
+     "abs_diff_px": 9.3,
+     "moved": true
+    },
+    "accepted": {
+     "mps": 971,
+     "cpu": 2924,
+     "rel_diff": 2.011328527291452,
+     "moved": true
+    },
+    "offsets": {
+     "windows_both": 73,
+     "windows_mps": 73,
+     "windows_cpu": 73,
+     "median_abs_diff_s": 0.0,
+     "share_over_0_2_s": 0.0,
+     "max_abs_diff_s": 0.0,
+     "moved": false
+    }
+   },
+   "moved": true,
+   "reading": "moved: rebuild the other in-use games' truth on the CPU detector before any cross-arena tuning",
+   "cpu_platform": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 73
+   },
+   "cpu_label_windows": 73
+  },
+  "gsw_bkn_2015 vs fixed_cpu_frozen_fit": {
+   "game": "gsw_bkn_2015",
+   "design": "docs/research/P8_truth_arenas.md section 0 (platform mix)",
+   "report_only": true,
+   "bars": {
+    "reproj_px_abs_min": 1.0,
+    "accepted_rel_min": 0.1,
+    "offset_median_s_min": 0.2
+   },
+   "measures": {
+    "reprojection": {
+     "mps_px": 7.41,
+     "cpu_px": 5.37,
+     "abs_diff_px": 2.04,
+     "moved": true
+    },
+    "accepted": {
+     "mps": 2903,
+     "cpu": 2984,
+     "rel_diff": 0.027902170168790905,
+     "moved": false
+    },
+    "offsets": {
+     "windows_both": 83,
+     "windows_mps": 83,
+     "windows_cpu": 83,
+     "median_abs_diff_s": 0.0,
+     "share_over_0_2_s": 0.0,
+     "max_abs_diff_s": 0.0,
+     "moved": false
+    }
+   },
+   "moved": true,
+   "reading": "moved: rebuild the other in-use games' truth on the CPU detector before any cross-arena tuning",
+   "cpu_platform": {
+    "{\"court\": \"mps\", \"detector\": \"cpu\", \"gate\": \"mps\"}": 83
+   },
+   "cpu_label_windows": 83
+  }
+ },
+ "note": "each comparison's 'reading' text is the tool's wording for P8_truth_arenas.md section 0's platform test and does not apply here; only the measures and 'moved' against section 0's bars are read, report only"
+}
