@@ -151,6 +151,7 @@ def test_job_script_keeps_the_token_out_of_children_and_pins_everything():
     base = "6261476535188ed4cedf7d6d4c69a7d310e3889b"
     s = C.job_script(base, "abc_DEF-123")
     assert s.splitlines()[1] == 'T="$DRIVE_TOKEN"; unset DRIVE_TOKEN'
+    assert "trap 'echo \"JOB FAILED" in s and "CHECK1 cv2" in s and "import cv2, numpy, torch, ultralytics" in s
     assert s.count('DRIVE_TOKEN="$T"') == 2                  # the fetch and the run only
     assert f"git checkout -q --detach {base}" in s
     assert "--no-deps opencv-python-headless==4.13.0.92 ultralytics==8.4.48" in s

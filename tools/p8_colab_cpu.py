@@ -99,6 +99,7 @@ T="$DRIVE_TOKEN"; unset DRIVE_TOKEN
 export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 END_AT=$(( $(date +%s) + {end_after_s} ))
 stamp() {{ echo "JOB $1 $(date -u +%Y-%m-%dT%H:%M:%SZ)"; }}
+trap 'echo "JOB FAILED rc=$? line=$LINENO $(date -u +%Y-%m-%dT%H:%M:%SZ)"' ERR
 stamp start
 pip -q install uv && uv --version
 uv python install -q {PYTHON_PIN}
@@ -107,10 +108,11 @@ uv pip install -q --python {py} --index-url https://download.pytorch.org/whl/cpu
 printf '%s\\n' {' '.join(TORCH_PINS + CORE_PINS)} > /content/p8_core.txt
 uv pip install -q --python {py} -c /content/p8_core.txt {' '.join(CORE_PINS)}
 uv pip install -q --python {py} --no-deps {' '.join(NODEPS_PINS)}
-{py} -c "import cv2, numpy; print('cv2', cv2.__version__, 'numpy', numpy.__version__)"
+{py} -c "import cv2, numpy, torch; print('CHECK1 cv2', cv2.__version__, 'numpy', numpy.__version__, 'torch', torch.__version__)"
 uv pip install -q --python {py} -c /content/p8_core.txt {soft} || for p in {soft}; do
   uv pip install -q --python {py} -c /content/p8_core.txt "$p" || {{ echo "PIN_FAILED $p"; uv pip install -q --python {py} -c /content/p8_core.txt "${{p%%==*}}"; }}
 done
+{py} -c "import cv2, numpy, torch, ultralytics; print('CHECK2 cv2', cv2.__version__, 'numpy', numpy.__version__, 'torch', torch.__version__, 'ultralytics', ultralytics.__version__)"
 stamp env
 [ -d {RT['repo']} ] || git clone -q --filter=blob:none {REPO_URL} {RT['repo']}
 cd {RT['repo']} && git fetch -q origin && git checkout -q --detach {base} && git log --oneline -1

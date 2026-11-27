@@ -196,4 +196,9 @@ No window, arm, measure, tolerance or reading changed. Each item below was made 
   polls are every 5 minutes from now on). The Mac builds were made on 2026-11-26 from 22:16Z to 22:22Z under the lock,
   from this same pack's clips, plan and weights. The pack is not rebuilt. The runtime's run uses the tool from the
   pack (sha256 19ec7511...), the same code the Mac builds ran. Only the job text, which is pasted into the
-  execute_code call and never runs from the pack, comes from this amendment's commit.
+  execute_code call and never runs from the pack, comes from this amendment's commit. On the Mac, `pip show` in
+  the frozen CV Python lists numpy 1.26.4 and opencv-python-headless 4.13.0.92 (Requires: numpy, unversioned in
+  the installed metadata's summary). The job now fails fast. An ERR trap prints "JOB FAILED" with the exit code and line;
+  after the core and no-dependency installs it imports cv2, numpy and torch and prints their versions (CHECK1); after
+  the soft pins it imports cv2, numpy, torch and ultralytics and prints their versions (CHECK2). The first poll comes
+  3 minutes after the job starts.
