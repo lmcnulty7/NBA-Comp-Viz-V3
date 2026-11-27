@@ -38,6 +38,16 @@ def proposed_ok(before: float, at: float, after: float, margin: float = MARGIN, 
     return not (max(before, after) > at + margin or at < floor)
 
 
+def fails_on(before: float, at: float, after: float) -> str | None:
+    """Why the registered rule drops a window (its mean shares): "at_under_bar" (at under 0.9), "neighbour_above"
+    (at 0.9 or more, a neighbour higher), "tie" (at 0.9 or more, a neighbour equal, none higher); None if kept."""
+    if strict_ok(before, at, after):
+        return None
+    if at < BAR:
+        return "at_under_bar"
+    return "neighbour_above" if max(before, after) > at else "tie"
+
+
 def a3align_levels(v: dict):
     """(before, at, after) pairs from one a3align window: [(S_-1, S_0 paired), (S_+1, S_0 paired)] and S_0 at 0."""
     b = v["by_offset"]
@@ -67,6 +77,23 @@ def measure(rc: dict, a3: dict) -> dict:
     refuse_cv_test(names, WHO)
     guard(names, WHO)
     out = {"games": {}, "a3align_dry_run": {}}
+    why = {s: fails_on(*np.asarray(align[s]["shares"], float).mean(0)) for s in dropped}
+    if any(v is None for v in why.values()):
+        raise SystemExit(f"{WHO}: a dropped window passes the registered rule on its stored shares")
+    tot = sum(dropped.values())
+    out["dropped_by_reason"] = {r: {"windows": sum(1 for s in dropped if why[s] == r),
+                                    "misses": int(sum(dropped[s] for s in dropped if why[s] == r)),
+                                    "share_of_dropped_misses": (sum(dropped[s] for s in dropped if why[s] == r) / tot)
+                                    if tot else None}
+                                for r in ("tie", "at_under_bar", "neighbour_above")}
+    nfr = [int(align[s]["frames"]) for s in dropped]
+    out["dropped_alignment_frames"] = {str(k): nfr.count(k) for k in sorted(set(nfr))}
+    units = rc.get("units") or {}
+    if "both__pooled" in units:
+        kept_n = units["both__pooled"]["misses"]
+        c1 = units["both__pooled"]["groups"]["C1"]["count"]
+        out["c1_worst_case_both"] = {"kept_misses": kept_n, "all_misses": kept_n + tot, "kept_c1": c1,
+                                     "c1_if_no_dropped_miss_is_c1": c1 / (kept_n + tot)}
     for g in GAMES:
         ws = sorted(s for s in align if s.startswith(g + "_"))
         dr = [s for s in ws if s in dropped]
@@ -75,15 +102,18 @@ def measure(rc: dict, a3: dict) -> dict:
         kcov = [s for s in kept if s in aw]
         own_kept = [s for s in dr if proposed_ok(*np.asarray(align[s]["shares"], float).mean(0))]
         own_newdrop = [s for s in kept if not proposed_ok(*np.asarray(align[s]["shares"], float).mean(0))]
+        kept_m = units[f"both__{g}"]["misses"] if f"both__{g}" in units else None
+        drop_m = int(sum(dropped[s] for s in dr))
         out["games"][g] = {
-            "windows_with_misses": len(ws), "dropped": len(dr), "dropped_misses": int(sum(dropped[s] for s in dr)),
+            "windows_with_misses": len(ws), "dropped": len(dr), "dropped_misses": drop_m, "kept_misses": kept_m,
+            "dropped_share_of_misses": (drop_m / (drop_m + kept_m)) if kept_m is not None else None,
             "dropped_in_a3align": len(cov), "dropped_a3align_aligned": sum(not aw[s]["misaligned"] for s in cov),
             "kept": len(kept), "kept_in_a3align": len(kcov),
             "kept_a3align_misaligned": sum(bool(aw[s]["misaligned"]) for s in kcov),
             "own_shares_proposed": {"dropped_now_kept": len(own_kept),
                                     "their_misses": int(sum(dropped[s] for s in own_kept)),
                                     "kept_now_dropped": len(own_newdrop)},
-            "dropped_windows": {s: {"misses": dropped[s],
+            "dropped_windows": {s: {"misses": dropped[s], "fails_on": why[s], "alignment_frames": align[s]["frames"],
                                     "mean_shares": [round(float(x), 4) for x in np.asarray(align[s]["shares"], float).mean(0)],
                                     "a3align": (None if s not in aw else ("misaligned" if aw[s]["misaligned"] else "aligned"))}
                                 for s in dr}}

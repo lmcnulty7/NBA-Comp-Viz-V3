@@ -216,7 +216,7 @@ number).** Where this differs from 8.1 to 8.9, it rules.
 **9.1 The run.** One lock job ("p8 recallcause"), frozen CV python (opencv 4.13.0, torch 2.2.2, ultralytics 8.4.48;
 NMS backend torchvision), 2,243 s of the 75-minute cap; per-stage times were not recorded. Before the run the B1 check
 (test_nms_once_does_not_change_its_input, which pytest skips under the repository python) was run under the frozen CV
-python inside the lock and passed; the same check showed that a bare non_max_suppression call changes its input.
+python and passed; the same check showed that a bare non_max_suppression call changes its input.
 Gates, all passed:
 - D205's rows: recomputed equal to the stored rows in every window, 28,427 rows (gsw_cha_2016) and 29,370
   (gsw_bkn_2015), records at the pinned SHA-256 and run 20261127T171848Z, with D205's per-window hash, cache and count
@@ -226,8 +226,18 @@ Gates, all passed:
 - no max_det or max_nms cap was hit; "other" is 0 in every unit.
 
 **9.2 Dropped windows (registered rule 8.10).** 32 of the 120 windows that hold universe misses failed the alignment
-rule; their 1,291 misses are left out (3,591 kept). Against tools/p8_a3align.py's stored verdicts, where both cover a
-window (reports/research/p8_recallcause_aligndry.json):
+rule; their 1,291 misses are left out (3,591 kept). By game: gsw_bkn_2015 945 of
+2,745 misses (34 percent), gsw_cha_2016 346 of 2,137 (16 percent).
+Why they failed, on the run's own stored shares (window means of the alignment frames):
+- 20 windows (768 misses, 59 percent of the dropped misses) fail only on a tie: the share at f is 0.9
+  or more and a neighbour equals it, none is higher;
+- 7 (335) have the share at f under 0.9;
+- 5 (188) have the share at f at 0.9 or more and a neighbour above it.
+That ties are likely where boxes move little between stride frames is inference; no record measures motion.
+9 dropped windows had fewer than five alignment frames (1 to 3; 6 had one), because fewer than five of their
+universe frames have both neighbours processed; any version 2.2 rule fixes a minimum number of alignment frames.
+Against tools/p8_a3align.py's stored verdicts, where both cover a
+window (reports/research/p8_recallcause_aligndry.json, which also holds the counts above):
 
 | game | windows with misses | dropped | misses in dropped | dropped also in a3align | of those, a3align aligned | kept | kept in a3align | of those, a3align misaligned |
 |---|---|---|---|---|---|---|---|---|
@@ -253,8 +263,8 @@ percent intervals (2,000 resamples, seed 0); the main loss is read on the pool o
 | both bkn | 1,800 (42) | 0.719 [0.678, 0.756] | 0.102 [0.084, 0.122] | 0.076 [0.058, 0.098] | 0.103 [0.081, 0.126] | 0 | (read on the pool) |
 | both pooled | 3,591 (88) | 0.674 [0.638, 0.711] | 0.117 [0.096, 0.140] | 0.094 [0.074, 0.115] | 0.114 [0.100, 0.130] | 0 | C1: main loss |
 
-As registered, C1 (no box of its own after NMS, and not a suppressed candidate of its own) is the main loss of
-both P-i (0.588, lower bound 0.543) and D-i (0.749, lower bound 0.706). The subclasses, pooled (count: share
+As registered, on the kept windows, C1 (no box of its own after NMS, and not a suppressed candidate of its own) is
+the main loss of both P-i (0.588, lower bound 0.543) and D-i (0.749, lower bound 0.706). The subclasses, pooled (count: share
 [interval]); no subclass is named the main loss:
 
 | subclass | P-i pooled | D-i pooled | both pooled |
@@ -275,15 +285,21 @@ and nearer j than any other player is 0.0085 for P-i (591 C1c), 0.0361 for D-i (
 Other-class boxes within 5 ft of a miss, counted apart (M1), pooled over both units: ball 64, rim 0, number 454. C2:
 421 misses, median candidate score 0.758, median IoU with its suppressor 0.559.
 
-**The drop and these shares.** The 1,291 left-out misses are 26 percent of the universe's 4,882 misses, and the
-drop is not random: by the posefoot check, the strict rule (ties read not aligned) fails most often where players stand
-still, so the kept windows lean toward windows with moving players. The shares above may be biased by that; the
-direction is unknown. They are the registered result, read with that caveat.
+**The drop and these shares.** The registered result holds on the 88 kept windows, 3,591 of 4,882 misses;
+no statement here covers the full universe. The drop is not random: it is 34 percent of bkn's misses and
+16 percent of cha's, and most dropped windows fail on a tie (9.2), so the kept windows may lean toward windows
+where boxes move more between frames (inference). The shares may be biased by that; the direction is unknown. The
+worst case for the pool of both units: if no dropped miss were C1, C1 would be 2,421 of 4,882, 0.496, a share under
+0.5. P-i and D-i cannot be bounded apart from the record (it counts each dropped window's misses,
+not their P-i and D-i split).
 
 **9.4 Post hoc (not registered; descriptive).**
 - C1a_other, a position inside only another player's detection, is the largest C1 subclass of D-i (0.400) and the
-  second of P-i (0.194). That is consistent with one box covering two players rather than an empty spot, though the
-  class does not show it; C1c, no candidate at all near j, is 0.354 of P-i and 0.245 of D-i.
+  second of P-i (0.194). Its geometry: j's image foot point lies inside a box (to a tenth of its height below its
+  bottom) whose own foot maps more than 5 ft from j and which the assignment gives to another player, so that
+  player's box spans j's position in the image; the reading is that j stands behind that player, partly or fully
+  hidden, and the detector returns one box for the two. That is inference from the geometry; no per-miss occlusion
+  is measured; C1c, no candidate at all near j, is 0.354 of P-i and 0.245 of D-i.
 - The threshold lever is small: lowering the conf threshold to 0.25 adds a box near j for under 4 percent of C1c.
 - C4a is 0 in D-i, as the class definitions require (a D-i miss has no box foot within 5 ft).
 - C1a_own, j's own box with its foot mapped beyond 5 ft, is 0.029 in both units.
@@ -300,11 +316,19 @@ registered, nothing rerun).**
   included, are stored in the reference root's recallcause/ folder, and the sidecar boxes are stored.
 Dry run (tools/p8_recallcause_aligndry.py; post hoc). Neither record stores the mean IoU, so the dry run checks the
 margin, floor and tie logic on stored shares of boxes matched at IoU 0.5, not the statistic:
+Limits of this dry run: on p8_a3align.json it is partly circular (a3align's own thresholds and statistic decide
+which windows count as aligned), and a3align's verdicts are not ground truth for this run's decode; the 0.75 floor
+was applied to shares, not to the mean IoU.
 - on p8_a3align.json (a3align's paired S_k against S_0 at offsets -1 and +1, its S_0 at offset 0), pool games only:
   of the windows a3align calls aligned, the registered rule fails 12 of 49 (cha, 7 with a tie) and 8 of 54 (bkn, 4
   with a tie); the proposal fails 3 of 49 and 1 of 54. Of the windows a3align calls misaligned, the registered rule
   flags 4 of 4 (cha) and 8 of 8 (bkn); the proposal flags 4 of 4 and 6 of 8 (a3align's misaligned set includes
-  sub-stride suspects, which no offset rule can see). These rates are lower than the posefoot check's estimate (27 percent
-  bkn, 32 percent cha), which used its own reading of the stored offsets;
-- on this run's own stored shares: the proposal would keep 23 of the 32 dropped windows (6 cha with 165 misses, 17
-  bkn with 726) and drop none of the kept ones.
+  sub-stride suspects, which no offset rule can see);
+- on this run's own stored shares, with the proposal's thresholds applied to the shares: it would keep 23 of the 32
+  dropped windows (6 cha with 165 misses, 17 bkn with 726) and drop none of the kept ones; the mean IoU could keep
+  fewer.
+If version 2.2 is adopted, its result is reported beside 9.3, which stands as the registered result.
+
+**9.6 Plan (2026-11-27; not registered).** Posefoot's stage A will give an independent alignment verdict for all 156
+windows under its own registered rule. A supplement may then score the 32 dropped windows with those verdicts,
+reported beside 9.3; the decision is the lead's after stage A.
