@@ -499,6 +499,16 @@ the manifests were unchanged.
   bottom would raise missed.
 - (d) **The pose arm reads on the hybrid only.** foot_raw fails rule 4 on gsw_cha_2016 (share lost 0.0597).
 
+**A registered risk for the pose hybrid (stated after stage 0a; it changes no bar).**
+- The chance floor (about 0.10 to 0.15 of own P-ii boxes within 2.5 ft) and foot_raw's hit loss on gsw_cha_2016
+  (0.0597) both came from a perturbation of foot_raw's size: |foot_raw - foot_stab| over every box of the two games'
+  builds/r23 sidecars has a median of 7.0 px (quartiles 3.4 and 13.1 px; 308,128 boxes; computed read-only from the
+  sidecars after the run).
+- An ankle error of 5 to 10 px on top of any real signal would move the hybrid's feet by a similar amount, and so puts
+  its rule 4 at the same risk.
+- The rules stay as registered in version 1.1 (self-decided by the lead): loosening a bar after seeing stage 0a would be
+  a forking path.
+
 Stage 0a stops nothing about the pose line (11.3). Its next step, stage A, waits for the re-registered alignment rule
 (12.6).
 
@@ -555,3 +565,9 @@ Limits of the dry run:
   build-order decode on the 83 and 73 windows of the decided truths.
 
 Stage A's own result may therefore differ. The 0.25 stop bar leaves room for about twice a3align's bkn share.
+
+### 14.1 Note on the order (2026-11-27)
+
+The margins in section 14's dry-run table were computed read-only before section 14 was committed, and section 14 was
+committed with its dry run in one commit (127beebe). The registered margin, 0.05, is a3align's own threshold, chosen
+for that reason and not from the table. The other margins are labelled sensitivities. No stage A number exists yet.
