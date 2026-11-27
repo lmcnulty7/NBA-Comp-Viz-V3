@@ -380,3 +380,23 @@ ghosts per box with its denominator.
 
 **14.5 Cost.** Stage 1a: about 25 lock minutes (4 identity windows, 2,798 frames; the control, 1,053 frames; scoring).
 Pilot: about 85 minutes (10,923 frames) plus about 5 minutes of scoring. Each stage stops at 1.5 times its estimate.
+
+**14.6 The code check of abffaf2e (2026-11-27; GO WITH CHANGES; before any stage 1 run or pilot number).** Where this
+differs from 14.1 to 14.5, it rules.
+- **The mechanism ceiling (replaces 14.4's 0.0098; the lead's decision).** The ceiling is the count of C2 misses
+  recoverable at 0.55 on the 31 pilot windows (12.2's rule on the stored candidates, kept and dropped windows, every
+  universe frame), over the pilot's in-frame players. cmd_score computes it per window and records it; the gate reads it
+  from that record. Reason: 0.0098 counted C2 misses recoverable at any threshold, not at the arm's. Disclosed: the
+  reviewer saw in stage 0's per-window rows that the pre-tracker missed fall on these 31 windows is about 0.0067 per
+  in-frame player, above the expected new ceiling (about 0.005). This amendment is made knowing that, on definitional
+  grounds, before any pilot build, score or outcome exists.
+- **Watches.** builds/r23 and the labels, label_build, truth_accept and cache folders of the reference root and of
+  work_ms are hashed before and after every build and score step; any change stops the step and nothing is recorded.
+- **Stale records.** The identity and control records a later step needs must carry the current HEAD; the gate re-checks
+  the stage order and requires the pilot record's head to equal HEAD; a window already present in a stage's folder, or
+  returned as cached by the build, is refused (a restart moves the folder aside first).
+- **Caps.** The build cap (1.5 times 0.44 s per processed frame) is checked before every attempt, retries included;
+  scoring has its own cap at 1.5 times its estimate (identity about 2.5 minutes, control 0.5, the pilot about 11: the
+  pilot scores each side twice, once through score_pair for the rows and once through score_window for the
+  observations, since score_pair does not return them).
+- All four identity windows and the control stay (the lead's decision).

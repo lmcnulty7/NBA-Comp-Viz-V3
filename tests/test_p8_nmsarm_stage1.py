@@ -111,7 +111,7 @@ def test_pilot_gate_outcomes():
     rng = np.random.default_rng(0)
     prev = [_win(200, 300, 50) for _ in range(31)]
     good = [_win(195 + int(rng.integers(0, 2)), 290 + int(rng.integers(0, 2)), 52) for _ in range(31)]
-    mech = {"arm_only_hits_by_class": {"P-i": 30, "D-i": 20, "P-ii": 10}}
+    mech = {"arm_only_hits_by_class": {"P-i": 30, "D-i": 20, "P-ii": 10}, "ceiling": 0.006}
     g = N1.pilot_gate(prev, good, mech, n_boot=200)
     assert g["outcome"] == "PASS" and not g["gates"]["P2_kill"] and not g["mechanism"]["flag_ceiling"]
     worse = [_win(195, 301, 50) for _ in range(31)]                          # missed falls, one-to-one rises
@@ -119,15 +119,17 @@ def test_pilot_gate_outcomes():
     dup = [_win(195, 290, 60) for _ in range(31)]                            # +0.01 duplicates per in-frame player
     r = N1.pilot_gate(prev, dup, mech, n_boot=200)
     assert r["outcome"] == "STOP" and not r["gates"]["duplicate_guard"]
-    pii = {"arm_only_hits_by_class": {"P-i": 5, "P-ii": 10}}
+    pii = {"arm_only_hits_by_class": {"P-i": 5, "P-ii": 10}, "ceiling": 0.006}
     r = N1.pilot_gate(prev, good, pii, n_boot=200)
     assert r["outcome"] == "STOP" and r["mechanism"]["flag_pii"]
-    big = [_win(185, 290, 50) for _ in range(31)]                            # missed falls 0.015, above the ceiling
+    big = [_win(193, 290, 50) for _ in range(31)]                            # missed falls 0.007, above 0.006
     r = N1.pilot_gate(prev, big, mech, n_boot=200)
     assert r["mechanism"]["flag_ceiling"] and r["outcome"] == "STOP"
     noisy = [_win(195, 300 + (40 if i % 2 else -48), 50) for i in range(31)]  # a small mean fall, wide spread
     r = N1.pilot_gate(prev, noisy, mech, n_boot=200)
     assert r["outcome"] == "STOP" and not r["gates"]["P3_powered"]
+    with pytest.raises(SystemExit):
+        N1.pilot_gate(prev, good, {"arm_only_hits_by_class": {}}, n_boot=200)     # no ceiling, no gate
 
 
 def test_stage_order(tmp_path, monkeypatch):
@@ -136,8 +138,9 @@ def test_stage_order(tmp_path, monkeypatch):
     (tmp_path / "screen.json").write_text(json.dumps({"verdict": {"arm": "0.55"}}))
     assert N1.stage_problems("identity", "build") == []
     assert N1.stage_problems("control", "build") == ["stage identity has not passed"]
-    (tmp_path / "identity.json").write_text(json.dumps({"passed": True}))
-    assert N1.stage_problems("control", "build") == [] and N1.stage_problems("pilot", "build")
+    (tmp_path / "identity.json").write_text(json.dumps({"passed": True, "head": "abc"}))
+    assert N1.stage_problems("control", "build", "abc") == [] and N1.stage_problems("pilot", "build", "abc")
+    assert N1.stage_problems("control", "build", "def") == ["stage identity's record is from another head"]
     (tmp_path / "screen.json").write_text(json.dumps({"verdict": {"arm": None}}))
     assert "stage 0b did not choose 0.55" in N1.stage_problems("identity", "build")
 

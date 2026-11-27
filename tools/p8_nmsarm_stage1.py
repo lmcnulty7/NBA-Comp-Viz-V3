@@ -34,8 +34,8 @@ PILOT_MOD = 4
 N_PILOT, N_CONFIRM = 31, 90
 P3_FACTOR = 0.7
 DUP_MARGIN = 0.005
-MECH_CEILING = 0.0098                      # 12.7: the larger measured C2 share (kept windows)
 SEC_PER_FRAME = 0.44
+SCORE_EST_S = {"identity": 150, "control": 30, "pilot": 660}    # 14.6: the pilot's scoring about 11 minutes
 CAP_FACTOR = 1.5
 BOOT_N, BOOT_SEED = 2000, 0
 
@@ -139,7 +139,10 @@ def pilot_gate(prev: list, curr: list, mech: dict, n_boot: int = BOOT_N, seed: i
     p3_proj = None if half is None else half * float(np.sqrt(N_PILOT / N_CONFIRM))
     hits = mech.get("arm_only_hits_by_class", {})
     n_hits = sum(hits.values())
-    flag_ceiling = dm is not None and -dm > MECH_CEILING
+    ceiling = mech.get("ceiling")                                 # 14.6: C2 recoverable at 0.55 / in-frame players
+    if ceiling is None:
+        raise SystemExit(f"{WHO}: the mechanism ceiling is missing")
+    flag_ceiling = dm is not None and -dm > ceiling
     flag_pii = n_hits > 0 and hits.get("P-ii", 0) > 0.5 * n_hits
     g = {"P1_missed_falls": dm is not None and dm < 0,
          "P2_kill": d1 is None or d1 >= 0,
@@ -184,9 +187,9 @@ def _write_report(stage: str, out: dict) -> None:
     atomic_write(score_path(stage), text)
 
 
-def stage_problems(stage: str, step: str) -> list:
-    """The gates in force: stage 0 chose 0.55; identity before the control, the control before the pilot; a stage's
-    build before its score; the pilot's score before its gate."""
+def stage_problems(stage: str, step: str, head: str | None = None) -> list:
+    """The gates in force: stage 0 chose 0.55; identity before the control, the control before the pilot, each passed
+    at this head (14.6: a record from another head is stale)."""
     why = []
     scr = _read(score_path("screen"))
     if not scr or (scr.get("verdict") or {}).get("arm") != "0.55":
@@ -196,7 +199,16 @@ def stage_problems(stage: str, step: str) -> list:
         rec = _read(score_path(s))
         if not rec or not rec.get("passed"):
             why.append(f"stage {s} has not passed")
+        elif head is not None and rec.get("head") != head:
+            why.append(f"stage {s}'s record is from another head")
     return why
+
+
+def watched(r: dict) -> dict:
+    """14.6: the manifests that must not change while a stage builds or scores."""
+    from tools import p8_rebaseline as RB
+    return {k: RB.manifest(r[k], ("labels", "label_build", "truth_accept", "cache")) for k in ("ref", "ms")} | \
+        {"builds_r23": RB.manifest(r["ref"], ("builds/r23",))}
 
 
 # ── child (frozen CV python, inside the build subprocess) ──────────────────────────────────────────────────────────
@@ -290,9 +302,10 @@ def cmd_build(args) -> dict:
     from tools.p8_resetfix import R23_SHA, arm_source_problem, sha256_file
     stage = args.stage
     r, head, d202 = _common()
-    why = stage_problems(stage, "build")
+    why = stage_problems(stage, "build", head)
     if why:
         raise SystemExit(f"{WHO}: stage {stage} may not build: {why}")
+    before = watched(r)
     todo = allowed(stage_windows(stage, d202))
     for k in ("P8_DEVICE", "P8_DEVICE_COURT", "P8_DEVICE_GATE", "P8_MPS_CLIP_FIX", "TRACKER_REID"):
         os.environ.pop(k, None)
@@ -318,17 +331,25 @@ def cmd_build(args) -> dict:
     t_start = time.time()
     res = {"stage": stage, "iou": STAGE_IOU[stage], "folder": out.name, "head": head, "estimate_s": round(est),
            "windows": {}}
-    for s in todo:
+    def cap():
         if time.time() - t_start > CAP_FACTOR * est:
             raise SystemExit(f"{WHO}: stage {stage} passed {CAP_FACTOR} times its estimate; stopped for re-estimate")
+    for s in todo:
+        cap()
+        if (out / f"{s}_frames.json").exists():
+            raise SystemExit(f"{WHO}: {s} is already built in {out.name}; move the folder aside (never reuse a cached "
+                             "window, 14.6)")
         t0 = time.time()
         clip = P["label_build"] / f"{s}.mp4"
         for attempt in (1, 2, 3):
+            cap()
             rr = F.safe_build(P, wins[s], clip, out, extra_args=gate_args())
             if rr["ok"]:
                 break
         else:
             raise SystemExit(f"{WHO}: build of {s} failed three times: {rr.get('tail')}")
+        if rr.get("cached"):
+            raise SystemExit(f"{WHO}: {s} came back cached; refused (14.6)")
         bad = record_problems(_read(out / f"{s}_device.json"), _read(out / f"{s}_detector.json"), STAGE_IOU[stage])
         why_src = arm_source_problem(_read(out / f"{s}_frames.json") or {}, s, r["ref"], r["ws"])
         if why_src:
@@ -338,6 +359,8 @@ def cmd_build(args) -> dict:
         res["windows"][s] = {"cached": bool(rr.get("cached")), "attempts": attempt,
                              "seconds": None if rr.get("cached") else round(time.time() - t0, 1)}
     res["seconds"] = round(time.time() - t_start, 1)
+    if watched(r) != before:
+        raise SystemExit(f"{WHO}: a watched folder changed during the build; nothing is recorded")
     d = r["ref"] / "nmsarm"
     d.mkdir(exist_ok=True)
     atomic_write(d / f"build__{stage}.json", json.dumps(res, indent=1))
@@ -360,7 +383,7 @@ def cmd_score(args) -> dict:
     from tools.p8_resetfix import compare_window, score_pair
     stage = args.stage
     r, head, d202 = _common()
-    why = stage_problems(stage, "score")
+    why = stage_problems(stage, "score", head)
     if why:
         raise SystemExit(f"{WHO}: stage {stage} may not be scored: {why}")
     build = _read(r["ref"] / "nmsarm" / f"build__{stage}.json")
@@ -372,11 +395,16 @@ def cmd_score(args) -> dict:
     todo = allowed(stage_windows(stage, d202))
     if sorted(build["windows"]) != sorted(todo):
         raise SystemExit(f"{WHO}: the build record's windows are not the stage's")
+    before = watched(r)
     t0 = time.time()
     P = F.install_paths()
     S.load_fixed_constants()
     refs = B.References()
     comp, arm = P["builds"] / "r23", P["builds"] / FOLDERS[stage]
+
+    def cap():
+        if time.time() - t0 > CAP_FACTOR * SCORE_EST_S[stage]:
+            raise SystemExit(f"{WHO}: scoring {stage} passed {CAP_FACTOR} times its estimate; stopped for re-estimate")
     raw_d = RC.raw_dir(r["ref"])
     out = {"stage": stage, "iou": STAGE_IOU[stage], "head": head, "windows": {}}
     obs_rows = {}
@@ -393,6 +421,7 @@ def cmd_score(args) -> dict:
         P_t = {**P, "labels": RB.truths(r)[g]["current"] / "labels"}
         wins = {w["window"]: w for w in F.label_windows(P, g)}
         for s in mine:
+            cap()
             w = wins[s]
             side_b, side_a = _read(comp / f"{s}_frames.json"), _read(arm / f"{s}_frames.json")
             rec = {"device": _read(arm / f"{s}_device.json")}
@@ -430,6 +459,20 @@ def cmd_score(args) -> dict:
                 cls = {(x["frame"], x["pid"]): x for x in rows}
                 raw = _read(raw_d / f"{s}.json") if (raw_d / f"{s}.json").exists() else {}
                 c2_hits = 0
+                c2_rec = 0                              # 14.6: C2 misses recoverable at 0.55, every universe frame
+                for x in rows:
+                    if x["rec"]["class"] not in RC.UNIVERSE or str(x["frame"]) not in raw:
+                        continue
+                    v = raw[str(x["frame"])]
+                    pre, post = v["pre"], v["post"]
+                    pf, qf = RC.feet_of(pre, x["Ht"]), RC.feet_of(post, x["Ht"])
+                    supp = RC.suppressors(pre, post, list(range(len(pre))), N0.post_ids_of(pre, post))
+                    main, _ = O.two_stage(qf, x["sv"], range(len(x["sv"])), range(len(post)), O._assign_all)
+                    if main.get(x["player"]) is not None:
+                        continue
+                    cands = N0.c2_candidates(x["player"], x["sv"], pf, qf, supp)
+                    if cands and set(cands) & set(N0.nms_keep(pre, ARM_IOU)):
+                        c2_rec += 1
                 for k in hits:
                     x = cls.get(k)
                     if x is None or x["rec"]["class"] not in RC.UNIVERSE or str(k[0]) not in raw:
@@ -444,10 +487,17 @@ def cmd_score(args) -> dict:
                 by = lambda ks: {c: sum(1 for k in ks if (cls.get(k) or {"rec": {"class": "unclassed"}})["rec"]["class"] == c)
                                  for c in sorted({(cls.get(k) or {"rec": {"class": "unclassed"}})["rec"]["class"] for k in ks})}
                 rec["mechanism"] = {"arm_only_hits": len(hits), "arm_only_misses": len(losses), "hits_by_class": by(hits),
-                                    "misses_by_class": by(losses), "c2_hits_on_stored_frames": c2_hits}
+                                    "misses_by_class": by(losses), "c2_hits_on_stored_frames": c2_hits,
+                                    "c2_recoverable_055": c2_rec}
                 obs_rows[s] = rec["mechanism"]
             out["windows"][s] = rec
     out["passed"] = all(v.get("passed", True) for v in out["windows"].values()) if stage != "pilot" else None
+    if stage == "pilot":
+        n_in = sum(v["baseline"]["in_frame"] for v in out["windows"].values())
+        n_rec = sum(v["mechanism"]["c2_recoverable_055"] for v in out["windows"].values())
+        out["mechanism_ceiling"] = {"c2_recoverable_055": n_rec, "in_frame": n_in, "ceiling": n_rec / n_in if n_in else None}
+    if watched(r) != before:
+        raise SystemExit(f"{WHO}: a watched folder changed during scoring; nothing is recorded")
     out["seconds"] = round(time.time() - t0, 1)
     _write_report(stage, out)
     print(json.dumps({"stage": stage, "passed": out["passed"], "windows": len(out["windows"]), "seconds": out["seconds"]}))
@@ -456,9 +506,15 @@ def cmd_score(args) -> dict:
 
 def cmd_gate(args) -> dict:
     """System python: the pilot gate (14.4) from the pilot's score record."""
+    import subprocess
+    from tools.p8_common import REPO
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True, check=True).stdout.strip()
+    why = stage_problems("pilot", "gate", head)
+    if why:
+        raise SystemExit(f"{WHO}: the pilot gate may not run: {why}")
     rec = _read(score_path("pilot"))
-    if not rec:
-        raise SystemExit(f"{WHO}: no pilot score record")
+    if not rec or rec.get("head") != head:
+        raise SystemExit(f"{WHO}: no pilot score record from this head")
     ws = sorted(rec["windows"])
     allowed(ws)
     if len(ws) != N_PILOT:
@@ -468,7 +524,8 @@ def cmd_gate(args) -> dict:
     for s in ws:
         for c, n in rec["windows"][s]["mechanism"]["hits_by_class"].items():
             hits[c] = hits.get(c, 0) + n
-    mech = {"arm_only_hits_by_class": hits,
+    mech = {"arm_only_hits_by_class": hits, "ceiling": rec["mechanism_ceiling"]["ceiling"],
+            "ceiling_counts": rec["mechanism_ceiling"],
             "arm_only_misses": sum(rec["windows"][s]["mechanism"]["arm_only_misses"] for s in ws),
             "c2_hits_on_stored_frames": sum(rec["windows"][s]["mechanism"]["c2_hits_on_stored_frames"] for s in ws)}
     out = {"what": "P8 NMS arm pilot gate (docs/research/P8_nmsarm.md 14.4); report only", "pilot_head": rec["head"],
