@@ -122,6 +122,13 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 - Public modern uploads are edited, so the game clock cannot place plays in them (D157, D159).
 - Colab GPU runtimes are reclaimed about 30 minutes after the last client call, even with a running cell; poll every
   8 minutes or less (D171). Measured cost about 1.15 units a T4-hour or less.
+- Same versions are not the same build. A Colab CPU with every numeric library pinned to the Mac's versions
+  repeats itself exactly on the one window repeated, yet differs from the Mac on boxes (0.35 of frames within 1 px)
+  and runs about 3.5 times slower per window (D196). The reference platform is the machine, not the version list.
+- A teammate's poll timer does not wake it while it is idle. Two runtimes sat idle 79 of 112 minutes after their
+  jobs ended or failed (D196). The job deletes nothing on its own, so the poller must be a Monitor or a background
+  loop, the runtime is deleted the moment the job ends, and the lead checks any runtime it has not heard about
+  within 10 minutes.
 
 ## First draft (2026-11-20), kept as written
 
