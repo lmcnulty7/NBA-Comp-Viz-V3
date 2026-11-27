@@ -194,4 +194,6 @@ No window, arm, measure, tolerance or reading changed. Each item below was made 
   the runtime; if a build fails, the soft-pin fallback applies and the result reads "versions differ". The runtime then
   sat idle for about 50 minutes, because the job's failure was not seen until a poll at 00:29Z (a polling lapse; the
   polls are every 5 minutes from now on). The Mac builds were made on 2026-11-26 from 22:16Z to 22:22Z under the lock,
-  from this same pack's clips, plan and weights. Only the tool's sha256 in the manifest changes, so the Mac builds stand.
+  from this same pack's clips, plan and weights. The pack is not rebuilt. The runtime's run uses the tool from the
+  pack (sha256 19ec7511...), the same code the Mac builds ran. Only the job text, which is pasted into the
+  execute_code call and never runs from the pack, comes from this amendment's commit.
