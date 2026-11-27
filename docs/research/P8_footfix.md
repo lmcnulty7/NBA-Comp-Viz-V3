@@ -482,8 +482,10 @@ Readings B to E change no gate. They are reported with G0.
 ## 15. Result of stage 0 (2026-11-27, run 20261127T195746Z from 1ff4a9b9; record reports/research/p8_footfix_s0.json)
 
 **Run.** One lock, "p8 footfix s0", 474 s, which includes the manifest hashing; peak memory 0.7 GB. The report took
-71 s in system python. cv2 4.13.0, numpy 1.26.4, Python 3.12.2 (frozen CV python). Written: 467 MB under
-work_ref/footfix/. The watched manifests were unchanged.
+71 s in system python. The source for these three figures is work_ref/logs/footfix.log: the heavy-job line, and the
+time stamps of the END score s0 and END report s0 lines. The record holds the run's own 470.9 s. Versions, from run.json
+and copied into the record: cv2 4.13.0, numpy 1.26.4, Python 3.12.2 (frozen CV python). Written: 467 MB under
+work_ref/footfix/, measured with du after the run. The watched manifests were unchanged.
 
 **Gates before G0.**
 - Smoke: identity was byte-equal and equal to D202 on one window per game.
@@ -504,8 +506,8 @@ work_ref/footfix/. The watched manifests were unchanged.
 | team | -0.0007 [-0.0017, +0.0002] | -0.0016 [-0.0026, -0.0003] | passes |
 | position p50 (reported) | -0.158 ft [-0.172, -0.142] | -0.145 ft [-0.163, -0.125] | |
 
-F1's in-sample tables shift the foot by -0.10 to -0.58 ft (gsw_cha_2016) and -0.09 to -0.87 ft (gsw_bkn_2015) along the
-ray, so toward the camera. 146,429 and 160,169 boxes moved. F2, the control, moved missed by -0.0032 and -0.0028 and
+The tables put the feet 0.10 to 0.58 ft (gsw_cha_2016) and 0.09 to 0.87 ft (gsw_bkn_2015) short of the truth's image,
+toward the camera; F1 moves each foot that far away from the camera. 146,429 and 160,169 boxes moved. F2, the control, moved missed by -0.0032 and -0.0028 and
 reads the same way. Per section 8 and 13.4, the arm closes:
 - no stage 1;
 - no third form, no new cell and no new margin;
@@ -548,22 +550,29 @@ Audit tables, from the record:
   reviewer's bound (13.4 (6)) said was likely.
 - Section 9's forecast ("near-third p90 and near-field bias rise on at least one game") was half right. Near-third p90
   rose on both games (+0.028, +0.097 ft), but near-field bias fell on both.
-- The premise behind that forecast does not hold on the population. On the same rows, T and B both place the feet
-  short in the near third. D204's beyond-the-player near-third depth was a property of selected placement misses, not
-  of all players.
 
 **Post hoc (not registered; no test confirms it).**
-- Median shifts of 0.1 to 0.9 ft per cell move missed by only about 0.004, even fitted and scored on the same game.
-  The edge mass was there: 0.044 to 0.047 of in-frame players had an unclaimed box 2.5 to 3.0 ft away. So the P-ii row
-  looks like per-box scatter around a small systematic offset, not a systematic offset that one shift can remove: a
-  shift that brings some boxes inside 2.5 ft takes about as many hits outside it.
+- The premise behind that forecast does not hold on this population. On the same fit rows, the depth toward T's image
+  (d1) and toward SportVU under B (dB) are both short of the player, toward the camera, in every near-third cell. D204's
+  beyond-the-player near-third depth (+1.15 and +1.30 ft) differs in frame and in population: it was the depth of the
+  nearest foot under T, measured from SportVU, over placement misses only (the nearest box 2.5 to 5 ft away). Here the rows
+  are all one-to-one pairs within 5 ft, 86 percent of them stage A hits. The two are not a contradiction, and this item
+  does not test which population the premise should have named.
+- Median shifts of 0.09 to 0.87 ft per cell move missed (scored under T) by only about 0.004, even fitted and scored on
+  the same game, while position p50 (scored under B) falls by about 0.15 ft. The edge mass was there: 0.044 to 0.047 of
+  in-frame players had an unclaimed box 2.5 to 3.0 ft away. This is consistent with three readings, not separated here:
+  - per-box scatter;
+  - a P-ii offset unlike the hits' (the cell medians are set by stage A hits, 86 percent of fit rows);
+  - ghost or neighbour boxes.
+
+  How many boxes moved inside 2.5 ft and how many hits moved out was not measured.
 - The F2 null prediction failed narrowly (|r| 0.013 to 0.025 against 0.01). T absorbs part of the box-height ratio
-  that D186 measured toward SportVU under B (-0.017 to -0.036), not all of it. The residual is too small to move missed.
-- What this rules out for the next design, on these truths and this build:
-  - any population-level foot shift, by cell, by box height or global, in pixel space or along the ray, as a route to
-    the missed bar. Its in-sample ceiling here is about -0.004 against -0.010.
-  - more forms of the same kind (finer cells, other bins, a smooth near-to-middle hand-off), which would be tuning on
-    the pool.
+  that D186 measured toward SportVU under B (-0.017 to -0.036), not all of it. The residual is too small to reach the
+  bar: F2 moved missed by -0.0032 and -0.0028.
+- What this rules out for the next design, on these truths and this build: on these truths, the two registered median
+  forms reach about -0.004 in sample. Other population shifts (global, toward SportVU under B, sideways, other
+  statistics) were not tested here, and D188 bars tuning new ones on the pool. More forms of the same kind (finer
+  cells, other bins, a smooth near-to-middle hand-off) would be such tuning.
 - What it leaves open: a per-box signal for where the foot is. That would need new evidence about each box (for
   example pose keypoints or box-bottom quality), not a population shift. It is not proposed here.
 - The position rows under B improve as in D187 (p50 -0.15 ft, near-field bias -0.29 to -0.34 ft), but D188 closed that

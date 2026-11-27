@@ -1,9 +1,14 @@
 {
- "what": "docs/research/P8_footfix.md version 1.1, stage 0 (smoke, reproduction, 0c audit, F1 and F2 in sample); G0 reads F1 only; F2 is the predicted-null control",
+ "what": "docs/research/P8_footfix.md version 1.2, stage 0 (smoke, reproduction, 0c audit, F1 and F2 in sample); G0 reads F1 only; F2 is the predicted-null control",
  "run_id": "20261127T195746Z",
  "git": {
   "head": "1ff4a9b94ac2eb59a1a53d2b5742414bfd16f975",
   "tools_and_sportvu_clean": true
+ },
+ "versions": {
+  "cv2": "4.13.0",
+  "numpy": "1.26.4",
+  "python": "3.12.2"
  },
  "seconds": 470.9,
  "smoke_and_reproduction": {

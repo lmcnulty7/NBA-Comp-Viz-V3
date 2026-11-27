@@ -1,4 +1,4 @@
-"""tools/p8_footfix.py: a foot-model correction on the decided truths (docs/research/P8_footfix.md, version 1.1).
+"""tools/p8_footfix.py: a foot-model correction on the decided truths (docs/research/P8_footfix.md, version 1.2).
 
     <frozen CV python> -m tools.p8_footfix score s0     inside the lock ("p8 footfix s0"): smoke, identity reproduction
                                                         of D202, the fit-row audit (0c), F1 and F2 in sample (0d)
@@ -13,7 +13,7 @@
 Two forms, fitted by medians on fit rows (in-frame players paired one to one with non-referee boxes by D205's two-stage
 assignment under the truth camera T), toward t = T^-1(SportVU), the pixel where the decided truth images the player:
 F1, a depth shift by cell (box height by third under B, the build's court H) applied in B's frame; F2, a vertical pixel
-offset scaled by box height (the predicted-null control, version 1.1 section 13.1 (c)). A box whose cell has no
+offset scaled by box height (the predicted-null control, section 13.1 (c)). A box whose cell has no
 correction keeps its stored foot_stab exactly. Scoring is D202's: the pinned tools.p8_scorecard.score_window through
 tools.p8_resetfix.score_pair, the corrected build's own folder and sidecar on both sides. Writes only under the
 reference root's footfix/ folder and reports/research/p8_footfix_*.json; SHA-256 manifests of the watched folders
@@ -972,9 +972,9 @@ def cmd_report_s0() -> dict:
     in_frame = {g: sum(v["in_frame"] for v in RB.read_json(d / f"score__identity__{g}.json")["recs"].values())
                 for g in POOL}
     readings = audit_readings(run["audit"], in_frame, {g: run["games"][g]["label_boxes"] for g in POOL})
-    out = {"what": "docs/research/P8_footfix.md version 1.1, stage 0 (smoke, reproduction, 0c audit, F1 and F2 in "
+    out = {"what": "docs/research/P8_footfix.md version 1.2, stage 0 (smoke, reproduction, 0c audit, F1 and F2 in "
                    "sample); G0 reads F1 only; F2 is the predicted-null control", "run_id": run["run_id"],
-           "git": run["git"], "seconds": run["seconds"],
+           "git": run["git"], "versions": run.get("versions"), "seconds": run["seconds"],
            "smoke_and_reproduction": {g: run["games"][g] for g in POOL}, "audit": run["audit"], "in_sample": games,
            "g0": {"verdict": "PASS" if passes else "FAIL", "action": "stage 1 may be asked for" if passes else "KILL",
                   "per_game": {g: games[g][CANDIDATE]["g0"] for g in POOL}},
@@ -1006,9 +1006,9 @@ def cmd_report_s1() -> dict:
             games[g][form]["rule"] = game_rule(games[g][form]["changes"])
         f1 = games[g][CANDIDATE]
         per[g] = {"rule": f1["rule"], "p50": f1["changes"]["position_p50_ft"]["change"], "split": f1["inlier_split"]}
-    out = {"what": "docs/research/P8_footfix.md version 1.1, stage 1 (leave one game out); the rule and readings read "
+    out = {"what": "docs/research/P8_footfix.md version 1.2, stage 1 (leave one game out); the rule and readings read "
                    "F1 only; F2 is the predicted-null control", "run_id": run["run_id"], "s0_run_id": run["s0_run_id"],
-           "git": run["git"], "seconds": run["seconds"], "tables": run["tables"], "per_game": games,
+           "git": run["git"], "versions": run.get("versions"), "seconds": run["seconds"], "tables": run["tables"], "per_game": games,
            "verdict": reading(per, tuple(s0_rec["audit_readings"]["F_split_descriptive_on"])),
            "f2_null_fold_tables": {g: f2_null(games[g][CONTROL]["table"]) for g in POOL}}
     res = write_record("s1", out)
@@ -1046,9 +1046,10 @@ def cmd_report_hou() -> dict:
     rep = arm_report(d, "score__identity.json", "score__F1.json", None)
     rule = game_rule(rep["changes"])
     team = rep["changes"].pop("team")
-    out = {"what": "docs/research/P8_footfix.md version 1.1, stage 2: hou_cle_2016 scored once with the committed "
+    out = {"what": "docs/research/P8_footfix.md version 1.2, stage 2: hou_cle_2016 scored once with the committed "
                    "pooled F1 table; team reported only as rule 6 needs it (D203)", "run_id": run["run_id"],
-           "go": run["go"], "table_sha256": run["table_sha256"], "git": run["git"], "seconds": run["seconds"],
+           "go": run["go"], "table_sha256": run["table_sha256"], "git": run["git"],
+           "versions": run.get("versions"), "seconds": run["seconds"],
            "changes": {k: v for k, v in rep["changes"].items()}, "team_change_for_rule_6": team,
            "rule": rule, "verdict": "PASS" if rule["passes"] else "FAIL",
            "limit": "a FAIL cannot separate the correction from hou_cle_2016's single-pool truth fit"}
