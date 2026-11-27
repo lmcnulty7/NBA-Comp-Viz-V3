@@ -152,10 +152,12 @@ def test_job_script_keeps_the_token_out_of_children_and_pins_everything():
     s = C.job_script(base, "abc_DEF-123")
     assert s.splitlines()[1] == 'T="$DRIVE_TOKEN"; unset DRIVE_TOKEN'
     assert s.count('DRIVE_TOKEN="$T"') == 2                  # the fetch and the run only
-    assert f"git checkout -q --detach {base}" in s and "--no-deps ultralytics==8.4.48" in s
+    assert f"git checkout -q --detach {base}" in s
+    assert "--no-deps opencv-python-headless==4.13.0.92 ultralytics==8.4.48" in s
     assert "--index-url https://download.pytorch.org/whl/cpu torch==2.2.2 torchvision==0.17.2" in s
     assert f"uv venv -q --python {C.PYTHON_PIN}" in s and "--arms plain,isa,plain_b" in s
-    for pin in C.CORE_PINS + C.SOFT_PINS:
+    assert not any(p.startswith("opencv") for p in C.CORE_PINS)       # numpy>=2 metadata; installed without deps
+    for pin in C.CORE_PINS + C.SOFT_PINS + C.NODEPS_PINS:
         assert pin in s
     with pytest.raises(SystemExit):
         C.job_script("main", "abc")

@@ -177,3 +177,21 @@ Mac (frozen CV Python for pack and run; the reference root as V3_P8_ROOT for pac
 
 Runtime: one execute_code call writes the push-map line to /content/p8_drive_ids.json and starts the job script
 detached (`bash -c <script>`, log /content/p8_job.log), with the Drive-only token in that process's environment only.
+
+## 10. Amendments before any Colab build
+
+No window, arm, measure, tolerance or reading changed. Each item below was made before any Colab build existed.
+
+- A1 (2026-11-26, approved by the lead before any run). The lead approved the isa arm, the plain_b repeat and the
+  shorter core windows.
+- A2 (2026-11-27). The first runtime (p8-colab-cpu-1, CPU standard, created 23:36:10Z, deleted 00:29:35Z) built
+  nothing. The job stopped about a minute in, at the core install: the Linux opencv-python-headless 4.13.0.92 wheel
+  declares numpy>=2, against the numpy 1.26.4 pin. The Mac's own install has the same metadata (that wheel, with
+  numpy 1.26.4), so the faithful fix is to install it without dependencies, as the Mac has it. It moves from the core
+  pins to the no-dependency pins, and the job prints the cv2 and numpy versions right after. Before the second
+  runtime, every install stage was resolved on the Mac for Linux x86_64 and Python 3.12 (`uv pip compile`, uv 0.13.10,
+  nothing installed). All resolve. Only psutil 5.9.0 and kiwisolver 1.4.4 have no wheel and are built from source on
+  the runtime; if a build fails, the soft-pin fallback applies and the result reads "versions differ". The runtime then
+  sat idle for about 50 minutes, because the job's failure was not seen until a poll at 00:29Z (a polling lapse; the
+  polls are every 5 minutes from now on). The Mac builds were made on 2026-11-26 from 22:16Z to 22:22Z under the lock,
+  from this same pack's clips, plan and weights. Only the tool's sha256 in the manifest changes, so the Mac builds stand.

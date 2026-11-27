@@ -68,10 +68,12 @@ ISA_KEYS = ("ATEN_CPU_CAPABILITY", "DNNL_MAX_CPU_ISA", "ONEDNN_MAX_CPU_ISA", "MK
 # the runtime environment: Python and every build dependency at the Mac's frozen CV versions (pip names)
 PYTHON_PIN = "3.12.2"
 TORCH_PINS = ("torch==2.2.2", "torchvision==0.17.2")                      # the CPU wheels
-CORE_PINS = ("numpy==1.26.4", "scipy==1.13.1", "opencv-python-headless==4.13.0.92", "transformers==4.49.0",
+CORE_PINS = ("numpy==1.26.4", "scipy==1.13.1", "transformers==4.49.0",
              "tokenizers==0.21.4", "safetensors==0.7.0", "huggingface_hub==0.36.2", "lap==0.5.13", "pillow==12.2.0",
              "scikit-learn==1.8.0", "joblib==1.4.2", "threadpoolctl==3.5.0", "matplotlib==3.10.9")
-NODEPS_PINS = ("ultralytics==8.4.48", "ultralytics-thop==2.0.19")         # ultralytics asks for opencv-python
+# without dependencies: ultralytics asks for opencv-python (a second cv2); the opencv-python-headless 4.13.0.92 wheel
+# declares numpy>=2, yet the Mac runs it with numpy 1.26.4 (installed the same way), so it goes in as the Mac has it
+NODEPS_PINS = ("opencv-python-headless==4.13.0.92", "ultralytics==8.4.48", "ultralytics-thop==2.0.19")
 SOFT_PINS = ("pandas==3.0.3", "pyarrow==22.0.0", "beautifulsoup4==4.12.3", "lxml==5.2.1", "requests==2.34.2",
              "tqdm==4.66.5", "PyYAML==6.0.1", "psutil==5.9.0", "filelock==3.13.1", "packaging==24.1",
              "polars==1.40.1", "python-dateutil==2.9.0.post0", "pytz==2022.7.1", "pyparsing==3.1.2",
@@ -105,6 +107,7 @@ uv pip install -q --python {py} --index-url https://download.pytorch.org/whl/cpu
 printf '%s\\n' {' '.join(TORCH_PINS + CORE_PINS)} > /content/p8_core.txt
 uv pip install -q --python {py} -c /content/p8_core.txt {' '.join(CORE_PINS)}
 uv pip install -q --python {py} --no-deps {' '.join(NODEPS_PINS)}
+{py} -c "import cv2, numpy; print('cv2', cv2.__version__, 'numpy', numpy.__version__)"
 uv pip install -q --python {py} -c /content/p8_core.txt {soft} || for p in {soft}; do
   uv pip install -q --python {py} -c /content/p8_core.txt "$p" || {{ echo "PIN_FAILED $p"; uv pip install -q --python {py} -c /content/p8_core.txt "${{p%%==*}}"; }}
 done
