@@ -129,6 +129,11 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   jobs ended or failed (D196). The job deletes nothing on its own, so the poller must be a Monitor or a background
   loop, the runtime is deleted the moment the job ends, and the lead checks any runtime it has not heard about
   within 10 minutes.
+- A single-start fit can fail silently. The frozen pooled camera fit stayed at its start on one random draw of
+  gsw_cha_2016 and on gsw_ind_2016; across ten seeds it fails 4 to 6 times in 10 on the same data (D197). Any fit that
+  sets a truth needs several starts or a convergence check, or a usable game can be lost by chance.
+- Chain the steps, do not wait for a wake-up. A teammate waiting on a completion notice left the Mac idle 20 minutes
+  twice in a day; one background script for the whole sequence, plus a lead-side watcher on the lock, removed it.
 
 ## First draft (2026-11-20), kept as written
 
