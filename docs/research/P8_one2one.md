@@ -168,8 +168,9 @@ misses in brackets after it:**
 | D-iii-free, an unclaimed box beyond 5 ft nearest | 0.0147 [0.0117, 0.0183] (0.281) | 0.0140 [0.0114, 0.0171] (0.214) | 0.0143 [0.0124, 0.0167] (0.243 [0.213, 0.278]) |
 | D-iii-none, no box on the frame | 0 | 0 | 0 |
 
-The classes add up to D202's rows: placement 0.155 (P-i 0.041 + P-ii 0.114 + P-iii-ref 0.001) and detection 0.059
-(D-i 0.044 + D-iii-free 0.014 + D-iii-ref 0.001), pooled.
+The classes add up to D202's rows, pooled: placement 2,341 (P-i) + 6,596 (P-ii) + 48 (P-iii-ref) = 8,985 and
+detection 2,541 (D-i) + 828 (D-iii-free) + 33 (D-iii-ref) = 3,402, out of 57,797 in-frame players, giving 0.1555 and
+0.0589 (the rounded rates of the terms add to 0.156).
 
 **Sensitivities, pooled (rates):** single-stage 5 ft: P-i 0.0369 [0.0335, 0.0403], P-ii 0.1178 [0.1093, 0.1271], D-i
 0.0442 [0.0397, 0.0497], D-iii-free 0.0141 [0.0122, 0.0164]. In-frame-only convention (missed_1to1's; referee boxes
@@ -186,9 +187,10 @@ in frame in 0.996 and 0.999 of cases, a median 7.26 and 7.74 ft away, and 0.144 
 **Reading by the registered table (section 7), with its limits.** The largest class is P-ii, 0.114 of in-frame players
 pooled: a box no one claims within 2.5 ft lies 2.5 to 5 ft away (median about 3.2 ft); the foot model, box bottom or
 court geometry line (D186 to D188) is where that class points, with its ceiling and its "own box" reading depending on
-the assignment (the sensitivities move it by at most 0.004). No box is left for 0.041 (P-i) and 0.044 (D-i) of in-frame
-players pooled, 0.085 together, where the table points to detection recall in overlaps; a foot or geometry fix moves P-i
-only where the player's own box lies beyond 5 ft. Each rate is a ceiling, not a forecast. Limits carried from D204: the
+the assignment (the sensitivities move it by at most 0.004). P-i, 0.041 of in-frame players pooled (no box left; the
+claimer a median 3.6 to 3.7 ft away), matches the table's row for detection recall where players overlap; a foot or
+geometry fix moves P-i only where the player's own box lies beyond 5 ft. D-i, 0.044 (no box within 5 ft; the claimer a
+median 7.3 to 7.7 ft away), is detection recall, not shown to be an overlap. Each rate is a ceiling, not a forecast. Limits carried from D204: the
 build's and the truth's errors are not separable and not independent (truth frames selected by, and the multipool camera
 fitted to, the same detector's feet), frames the truth rejected are not seen, and one-to-one assignment is a convention.
 
@@ -196,5 +198,12 @@ Post hoc, not ruled: (a) D204's 0.230 (placement misses whose nearest box is ano
 0.261 of placement misses are close but measure different things (gate order, box set, player set), and P-ii, not P-i,
 holds most of the placement row; (b) about a quarter of P-i players (0.245, 0.227) have an unclaimed box 5 to 10 ft away,
 which may be their own box placed beyond 5 ft, so the detection-recall reading of P-i is an upper bound on what recall
-alone could move; (c) the D-i claimers sit a median 7.3 to 7.7 ft away, so "a neighbour's box nearest" for detection
+alone could move within P-i; and P-ii's stage B box is only "unclaimed": it may be a ghost rather than the player's own
+box, so recall could also move part of P-ii, and this view cannot tell those apart; (c) the D-i claimers sit a median 7.3 to 7.7 ft away, so "a neighbour's box nearest" for detection
 misses is not a close-pair effect in the way P-i (about 3.7 ft) is.
+
+Dated note (2026-11-27, after the ml-review of f592969b): the registered table of section 7 groups D-i with P-i under
+"detection recall where players overlap"; that "overlap" wording does not fit D-i, whose players have no box within
+5 ft and whose claimer is a median 7.3 to 7.7 ft away. Section 11 reads D-i as detection recall, not shown to be an
+overlap. Sections 1 to 10 stay unchanged.
+
