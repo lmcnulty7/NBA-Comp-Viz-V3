@@ -652,7 +652,7 @@
      -0.01974,
      0.02102
     ],
-    "players": "matched under both truths"
+    "players": "each truth's own matched players, on the windows both score"
    }
   },
   "gsw_bkn_2015": {
@@ -746,7 +746,7 @@
      -0.00375,
      0.00361
     ],
-    "players": "matched under both truths"
+    "players": "each truth's own matched players, on the windows both score"
    }
   }
  },
@@ -844,7 +844,7 @@
      -0.00426,
      0.00613
     ],
-    "players": "matched under both truths"
+    "players": "each truth's own matched players, on the windows both score"
    }
   },
   "gsw_bkn_2015": {
@@ -940,7 +940,7 @@
      -0.00195,
      0.00269
     ],
-    "players": "matched under both truths"
+    "players": "each truth's own matched players, on the windows both score"
    }
   }
  },

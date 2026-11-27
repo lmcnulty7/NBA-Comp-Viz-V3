@@ -140,6 +140,10 @@ frames both truths accepted (filtered labels written under the reference root's 
 change on common frames shows the geometry part apart from the frame-selection part; counts of frames accepted by
 each truth only and by both are reported.
 
+Correction (2026-11-27, from the ml-review of 6e739eb1): in this section's change, only position p50, p90 and
+near-field bias are on players matched under both truths; team is computed from each truth's own matched players on
+the windows both score (tools.p8_e1_score.rows counts each side's team rows).
+
 **10.5 Reproduction gate (finding 5).** Before any other score: gsw_bkn_2015 on its previous truth (the fixed CPU
 truth) with the composite must reproduce, per window, the reset-fix arm's score record (reference root
 resetfix/score__gsw_bkn_2015.json, windows[*].new) on missed, in_frame, nr_ghosts, nr_boxes, matched, far,
@@ -208,7 +212,8 @@ gsw_bkn_2015 (present); entries computed in the score step, all referee detectio
 | gsw_cha_2016, current | 54 | 1,677 | 102.8 |
 | hou_cle_2016, current | 78 | 3,858 | 233.6 |
 
-**Rows on the decided truths** (value [interval]; missed = detection + placement):
+**Rows on the decided truths** (value [window interval]; missed = detection + placement; scored-frame counts are
+not in the record and are left out, the windows and in-frame players stand for the sample size):
 
 | row | gsw_cha_2016 (multipool v1) | gsw_bkn_2015 (multipool v1) | pooled cha and bkn | hou_cle_2016 (fixed CPU), apart |
 |---|---|---|---|---|
@@ -220,18 +225,13 @@ gsw_bkn_2015 (present); entries computed in the score step, all referee detectio
 | ghosts per in-frame player | 0.1182 [0.1047, 0.1344] | 0.1076 [0.0964, 0.1207] | 0.1128 [0.1033, 0.1233] | 0.0659 [0.0570, 0.0748] |
 | net error E | 0.3267 [0.2968, 0.3606] | 0.3276 [0.3038, 0.3546] | 0.3272 [0.3078, 0.3493] | 0.2238 [0.2031, 0.2449] |
 | one-to-one net error | 0.4063 [0.3725, 0.4450] | 0.4136 [0.3858, 0.4459] | 0.4100 [0.3875, 0.4346] | 0.2936 [0.2698, 0.3175] |
-| position p50 (ft) | 1.566 [1.484, 1.650] | 1.593 [1.536, 1.664] | 1.580 [1.527, 1.636] | 1.556 [1.500, 1.620] |
-| position p90 (ft) | 3.304 [3.150, 3.482] | 3.430 [3.293, 3.591] | 3.371 [3.260, 3.493] | 3.400 [3.280, 3.525] |
-| near-field bias (ft) | 1.217 [1.134, 1.327] | 1.595 [1.484, 1.697] | 1.411 [1.319, 1.503] | 1.173 [1.076, 1.292] |
+| position p50 (ft) | 1.566 [1.484, 1.649] | 1.593 [1.536, 1.664] | 1.580 [1.527, 1.636] | 1.556 [1.500, 1.620] |
+| position p90 (ft) | 3.304 [3.150, 3.482] | 3.430 [3.293, 3.591] | 3.370 [3.260, 3.493] | 3.400 [3.280, 3.525] |
+| near-field bias (ft) | 1.217 [1.134, 1.326] | 1.595 [1.484, 1.697] | 1.411 [1.319, 1.502] | 1.172 [1.076, 1.292] |
 | team | 0.8101 [0.7855, 0.8339] | 0.8572 [0.8423, 0.8716] | 0.8338 [0.8180, 0.8490] | 0.7558 [0.7206, 0.7884] |
-| coverage | 0.9930 | 0.9981 | 0.9957 | 0.9997 |
+| coverage | 0.9930 [0.9818, 0.9993] | 0.9981 [0.9958, 0.9997] | 0.9957 [0.9902, 0.9990] | 0.9997 [0.9993, 1.0000] |
 
-**The same build on the previous truths, report only:** gsw_cha_2016 on the Mac MPS truth (73 windows, 13,284 in-frame
-players): missed 0.2915, detection 0.0696, placement 0.2219, ghosts per box 0.1884, E 0.4700, one-to-one net error
-0.5710, p50 1.522 ft, p90 3.108 ft, bias 1.152 ft, team 0.8116. gsw_bkn_2015 on the fixed CPU truth (83 windows, 28,554
-in-frame players): missed 0.2526, detection 0.0748, placement 0.1778, ghosts per box 0.1382, E 0.3788, one-to-one net
-error 0.4736, p50 1.583, p90 3.406, bias 1.533, team 0.8576 (the reset-fix arm's own rows, as the gate requires).
-Intervals are in the record.
+**The same build on the previous truths, report only.** gsw_cha_2016 on the Mac MPS truth (73 windows, 13,284 in-frame players): missed 0.2915 [0.2728, 0.3150], detection 0.0696 [0.0598, 0.0817], placement 0.2219 [0.2109, 0.2364], ghosts per box 0.1884 [0.1713, 0.2087], ghosts per in-frame player 0.1785 [0.1625, 0.1978], net error E 0.4700 [0.4366, 0.5113], one-to-one net error 0.5710 [0.5385, 0.6110], position p50 1.522 [1.424, 1.635], position p90 3.108 [2.942, 3.368], near-field bias 1.152 [1.049, 1.261], team 0.8116 [0.7804, 0.8385], coverage 0.9930 [0.9818, 0.9993]. gsw_bkn_2015 on the fixed CPU truth (83 windows, 28,554 in-frame players; the reset-fix arm's own rows, as the gate requires): missed 0.2526 [0.2391, 0.2687], detection 0.0748 [0.0654, 0.0862], placement 0.1778 [0.1676, 0.1889], ghosts per box 0.1382 [0.1247, 0.1542], ghosts per in-frame player 0.1262 [0.1135, 0.1410], net error E 0.3788 [0.3554, 0.4082], one-to-one net error 0.4736 [0.4481, 0.5050], position p50 1.583 [1.526, 1.653], position p90 3.406 [3.262, 3.560], near-field bias 1.533 [1.416, 1.635], team 0.8576 [0.8421, 0.8717], coverage 0.9981 [0.9958, 0.9997].
 
 **The truth change, per game (current minus previous, paired window bootstrap over the windows both truths score, all
 of each game's windows):**
@@ -239,24 +239,34 @@ of each game's windows):**
 | row | gsw_cha_2016: platform, the bug's thinning and the fit changed | gsw_bkn_2015: the fit only |
 |---|---|---|
 | missed | -0.0830 [-0.1087, -0.0577] | -0.0326 [-0.0398, -0.0256] |
-| detection | -0.0173 [-0.0298, -0.0067] | -0.0096 [-0.0129, -0.0063] |
-| placement | -0.0658 [-0.0850, -0.0473] | -0.0230 [-0.0301, -0.0160] |
+| detection (no foot within 5 ft) | -0.0173 [-0.0298, -0.0067] | -0.0096 [-0.0129, -0.0063] |
+| placement (2.5 to 5 ft) | -0.0658 [-0.0850, -0.0473] | -0.0230 [-0.0301, -0.0160] |
 | ghosts per box | -0.0639 [-0.0876, -0.0405] | -0.0205 [-0.0271, -0.0141] |
+| ghosts per in-frame player | -0.0602 [-0.0830, -0.0377] | -0.0186 [-0.0249, -0.0127] |
 | net error E | -0.1433 [-0.1904, -0.0970] | -0.0512 [-0.0639, -0.0390] |
 | one-to-one net error | -0.1646 [-0.2137, -0.1171] | -0.0600 [-0.0741, -0.0461] |
-| position p50, players matched under both truths (ft) | +0.011 [-0.108, +0.138] | +0.000 [-0.001, +0.002] |
-| position p90, same players (ft) | -0.014 [-0.219, +0.218] | -0.002 [-0.008, +0.004] |
-| near-field bias, same players (ft) | +0.008 [-0.083, +0.121] | +0.003 [+0.000, +0.011] |
-| team | -0.001 [-0.020, +0.021] | -0.000 [-0.004, +0.004] |
+| position p50 (ft), players matched under both truths | +0.011 [-0.108, +0.137] | +0.000 [-0.001, +0.002] |
+| position p90 (ft), players matched under both truths | -0.014 [-0.219, +0.218] | -0.002 [-0.008, +0.004] |
+| near-field bias (ft), players matched under both truths | +0.008 [-0.083, +0.121] | +0.003 [+0.000, +0.010] |
+| team, each truth's own matched players on the windows both score | -0.0014 [-0.0197, +0.0210] | -0.0003 [-0.0037, +0.0036] |
+| coverage | +0.0000 [+0.0000, +0.0000] | +0.0000 [+0.0000, +0.0000] |
 
-**Common-frames split** (both truths' rows on only the frames both accepted; the geometry part): gsw_cha_2016 912 frames
-in both, 454 previous only, 2,012 current only: missed -0.1108 [-0.1383, -0.0801], E -0.1914 [-0.2377, -0.1404], ghosts
-per box -0.0847 [-0.1061, -0.0614]. gsw_bkn_2015 2,543 in both, 360 previous only, 441 current only: missed -0.0318
-[-0.0390, -0.0239], E -0.0499 [-0.0617, -0.0380], ghosts per box -0.0196 [-0.0251, -0.0141]. The position, bias and
-team columns of the change already sit on players matched under both truths, so they coincide with the split's.
+**Common-frames split** (both truths' rows on only the frames both accepted; the geometry part): gsw_cha_2016 912 frames in both, 454 previous only, 2,012 current only: missed -0.1108 [-0.1383, -0.0801], E -0.1914 [-0.2377, -0.1404], ghosts per box -0.0847 [-0.1061, -0.0614], team +0.00122 [-0.00426, +0.00613]. gsw_bkn_2015 2,543 frames in both, 360 previous only, 441 current only: missed -0.0318 [-0.0390, -0.0239], E -0.0499 [-0.0617, -0.0380], ghosts per box -0.0196 [-0.0251, -0.0141], team +0.00037 [-0.00195, +0.00269].
+The position p50, p90 and near-field bias columns of the change already sit on players matched under both truths, so
+they coincide with the split's; team does not (it counts each truth's own matched players), so the split's team change
+is given above.
 
 **Post hoc, not registered.** Most of each game's truth change in missed is placement (gsw_cha_2016 -0.066 of -0.083,
 gsw_bkn_2015 -0.023 of -0.033), and the change persists on the frames both truths accept (gsw_cha_2016's is larger
-there), so it comes mainly from the truth's geometry, not from which frames it accepts. The same build reads lower
-missed, ghosts and net error under the multipool truths than under the previous ones by these amounts; given limit
-(b), that is a change in the reference, not an improvement of the build.
+there), so it comes mainly from the truth's geometry, not from which frames it accepts. Given limit (a), the geometry
+part may be the fit moving truth positions toward r23's own boxes, and for gsw_cha_2016 it also mixes in the platform
+change; it does not show which truth is nearer the players' real positions. The same build reads lower missed, ghosts
+and net error under the multipool truths than under the previous ones by these amounts; given limit (b), that is a
+change in the reference, not an improvement of the build.
+
+Review notes (2026-11-27, the ml-review of 6e739eb1, FAIL on one label): the truth change's team column was labelled as
+players matched under both truths; it is each truth's own matched players on the windows both score (for example
+gsw_cha_2016: 11,298 team rows on the previous truth against 24,708 on the current), corrected in the record (report
+rerun, every number unchanged) and here, with the split's team change given apart; values rounded once from the record;
+ghosts per player and coverage added to the change table and the previous-truth rows, coverage with its intervals; the
+limit (a) sentence added to the post hoc reading.

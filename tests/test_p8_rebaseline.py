@@ -40,7 +40,9 @@ def test_change_rows_match_the_registered_diffs():
     c = R.change_rows(prev, curr, n_boot=100)
     assert abs(c["missed"]["change"] - (71 - 75) / 300) < 1e-12
     d = diffs([{"r23": a, "new": b} for a, b in zip(prev, curr)])
-    assert c["position_p50_ft"]["change"] == d["position_p50_ft"] and c["team"]["players"] == "matched under both truths"
+    assert c["position_p50_ft"]["change"] == d["position_p50_ft"] and c["position_p50_ft"]["players"] == \
+        "matched under both truths"
+    assert c["team"]["players"] == "each truth's own matched players, on the windows both score"
 
 
 def test_gate_problems():

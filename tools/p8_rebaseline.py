@@ -171,7 +171,9 @@ def change_rows(prev: list, curr: list, n_boot: int = BOOT_N, seed: int = BOOT_S
     d = diffs(pair)
     wiv = boot({i: [p] for i, p in enumerate(pair)}, n=n_boot, seed=seed) if len(pair) >= 2 else {}
     for k, r in MATCHED_ROWS.items():
-        out[k] = {"change": d[r], "interval": wiv.get(r), "players": "matched under both truths"}
+        out[k] = {"change": d[r], "interval": wiv.get(r),
+                  "players": ("each truth's own matched players, on the windows both score" if k == "team"
+                              else "matched under both truths")}
     return out
 
 
