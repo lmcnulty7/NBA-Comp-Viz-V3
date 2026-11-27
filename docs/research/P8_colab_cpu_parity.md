@@ -202,3 +202,67 @@ No window, arm, measure, tolerance or reading changed. Each item below was made 
   after the core and no-dependency installs it imports cv2, numpy and torch and prints their versions (CHECK1); after
   the soft pins it imports cv2, numpy, torch and ultralytics and prints their versions (CHECK2). The first poll comes
   3 minutes after the job starts.
+
+## 11. Result (2026-11-27): plain is "different"; Colab CPU is repeatable; isa not built
+
+Record: reports/research/p8_colab_cpu.json, a copy of the P8 data folder's colab_cpu/colab_cpu_result.json, written
+by `tools.p8_colab_cpu compare` under the section 5 rule, which is unchanged since before any build.
+
+**The runs.** Mac: both core windows, built under the heavy-job lock from 22:16Z to 22:22Z on 2026-11-26, every model
+on CPU, reset fix on, 157.5 s and 171.1 s. Colab: runtime p8-colab-cpu-2 (CPU standard, an Intel Xeon at 2.20GHz,
+2 vCPUs), created 00:32:26Z, job 00:33:07Z to 01:04:48Z, deleted 01:31:32Z. Setup took about 3 minutes. Every
+install exited 0, with no PIN_FAILED. Three of the seven steps were built: plain s02_w03 (563.9 s), plain s00_w01
+(601.1 s) and plain_b s02_w03 (556.0 s), about 3.6 times the Mac's time. The start rule skipped both isa steps
+(predicted 1,803 s each) and both tail windows (1,027 s and 2,747 s). The first runtime, p8-colab-cpu-1, built
+nothing (A2). Every flag holds: the same pack manifest, the same tool code (sha256 19ec7511...), the same weights and
+the same CLIP fingerprint on both sides. Every build passed its checks.
+
+**Versions.** Both sides: Python 3.12.2, torch 2.2.2 (the Colab wheel is 2.2.2+cpu), torchvision 0.17.2, OpenCV
+4.13.0 (opencv-python-headless 4.13.0.92), NumPy 1.26.4, ultralytics 8.4.48, transformers 4.49.0, and every soft pin
+at the Mac's version. Distributions that still differ were pulled in unpinned and none is in the numeric path:
+certifi, charset-normalizer, hf-xet, idna, markupsafe, six, tzdata, urllib3. Torch's MKL is oneMKL 2022.0 Update 2 on
+both. The platforms differ: the Mac runs x86_64 under Rosetta on an Apple M5, torch at "NO AVX" with 10 threads and
+MKL at SSE4.2. Colab's plain arm runs torch at AVX2 with 1 thread, oneDNN at AVX2 and MKL at AVX2.
+
+**Reading (section 5).** plain: **different** on both windows, so the arm reads "different". isa: **not read** (not
+built). plain_b against plain: **identical** (frames, trajectories and identity all equal), so the Colab CPU build is
+repeatable and the difference below comes from the platform, not from run-to-run noise.
+
+| plain against Mac all-CPU | s02_w03 (1 reset) | s00_w01 (no reset) |
+| --- | --- | --- |
+| Files equal (frames, trajectories, identity) | no, no, no | no, no, no |
+| Frame sets | 152 = 152 (1.0) | 169 = 169 (1.0) |
+| Frames with every box within 1 px | 0.349 | 0.343 |
+| Boxes (Colab, Mac); unmatched | 1,248, 1,242; 20 | 1,152, 1,144; 30 |
+| Box offset median, max (px) | 1.0, 25.0 | 1.0, 29.0 |
+| foot_stab offset median (px) | 0.36 | 0.35 |
+| Track ids equal, consistent under a mapping | 0.101, 0.991 | 0.795, 0.969 |
+| Resets (Colab, Mac) | 1, 1 | 0, 0 |
+| Court mapping gap median (p90), px | 9.54 (27.7) | 9.93 (30.5) |
+
+**Where the bits part (probe hashes, fixed seeded inputs).** Under plain, every torch operation (conv2d, matmul,
+softmax), the OpenCV blur and both NumPy operations differ from the Mac; only the OpenCV resize agrees. Under the isa
+caps (probe only, no build), torch conv2d, torch matmul, the OpenCV blur and the NumPy sum become bit-equal to the
+Mac. Torch softmax and the NumPy matrix product still differ. The NumPy wheel's OpenBLAS has its own kernel
+dispatch, which these caps do not touch. Torch softmax may depend on the thread count (1 against 10); this is not
+tested. So the isa arm would very probably still not be identical, but nothing here measures it.
+
+**Report only** (not in the reading): on s00_w01, against the reference-platform build (r23_nofix, detector on CPU,
+court and gate on MPS; no reset, same clip), the Mac all-CPU build has identical boxes on every frame and a court
+gap of 6.73 px median. That is the court device alone, on the Mac. Colab plain against the same build: 0.343 of
+frames within 1 px, court gap 11.90 px. s02_w03 has no reference build with the same reset behaviour, so it is not
+reported.
+
+**What this means (section 6, scoped to these two windows).**
+
+1. A Colab CPU runtime with the pinned stack does not reproduce the Mac's builds. Its box sets agree on about a third
+   of frames, its track ids differ, and its court mapping sits about 10 px away. Colab CPU builds cannot stand in
+   for or be mixed with Mac builds, and rebuilds cannot be split between the two on this evidence.
+2. The court mapping is the most platform-sensitive output measured so far: about 10 px (Colab CPU against Mac CPU,
+   with the same versions), 8 to 11 px (CUDA, P8_cuda_check.md), and 4 to 7 px (Mac CPU against Mac MPS). The CUDA
+   check's court gap is therefore not a CUDA effect alone. It appears on Colab's CPU too, with matching library
+   versions.
+3. Open, not run: whether the isa arm plus a matched thread count and an OpenBLAS cap (OPENBLAS_CORETYPE) reaches
+   "identical". The probe hashes make it a cheap first check (no build): any remaining hash difference rules it out.
+   At about 3.6 times the Mac's time per window with no caps, and slower with the caps, Colab CPU would not save time
+   even if it matched. A rerun of the isa arm would be a new runtime and needs the lead's go.
