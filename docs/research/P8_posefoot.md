@@ -704,3 +704,53 @@ gsw_bkn_2015, and no neighbour came within 0.05 of f.
 corpus's sequential read, not of the build. This fits P8_a3run.md's controls, where a sequential read matched the corpus
 and not the sidecars. It bears on the analyses a3align listed (the E1 labels, the E1b bound, M1 to M4, detrow), which
 scored the corpus JPEGs. Those may carry the offset; the build-side rows do not.
+
+## 15. The pose stages, as coded (2026-11-27, before any pose number; tools/p8_posefoot_pose.py)
+
+This section states how the code implements 11.4, 11.5 and 11.7 for stages 1 and 2. Where the earlier sections leave
+a choice open, this fixes it before any pose number exists.
+
+- **Start condition.** The tool refuses to start unless reports/research/p8_posefoot_align.json exists, reads stop
+  false and is the full pass (not the smoke). It reads only that record's aligned windows (151). Every frame comes
+  through tools.p8_posefoot.build_read, the build's own read path, with its read validation. A window that stage A
+  aligned but whose read is now not reproduced stops the run.
+- **Boxes.** D207's selection is recomputed and gated per window as in stage 0a. The boxes are every P-ii box, plus up
+  to 2 hit boxes per scored frame:
+  - the hits are drawn with numpy default_rng(0) over the game's windows and frames in order;
+  - the draw runs for every window, aligned or not, so the sample does not depend on alignment.
+- **Model.** The pinned ViTPose-B (MODEL_REV), loaded with HF_HUB_OFFLINE=1, runs on CPU. Each frame is converted
+  BGR to RGB and the boxes are given in COCO format. The image processor's defaults are used, and nothing is tuned.
+- **The ankle and the lift.** The ankle point is the midpoint of both ankles at score 0.3 or more, or the one
+  confident ankle. It is lifted to 0.25 ft and dropped to the floor, through two cameras:
+  - under T, the label row's own camera (camera_C, camera_rvec, camera_f);
+  - under B, sportvu.camera.pose_from_h(B).
+
+  At 0 ft the lift equals the ground mapping, which is tested. The lifted point lies nearer the camera, which is the
+  sign test. 0.35 ft and 0 ft are reported beside it, for the pose-raw and hybrid distances under T.
+- **The arms.**
+  - Pose-raw: the lifted ground point itself.
+  - Hybrid: foot_stab + (the lifted ground point's pixel - foot_raw), the pixel taken through T for T-frame distances
+    and through B for B-frame ones.
+- **The null (11.5, made exact).**
+  - Pose runs on the two nearest-height non-referee partners of each selected box (IoU under 0.5 with it).
+  - The null partner is the first of those two with a both-ankle pose. Its lifted ground pixel minus its foot_raw,
+    scaled by h_b / h_k, is added to b's foot_stab.
+  - With no such partner, there is no null, and this is counted.
+  - "With a candidate foot" in 11.5 is read as "with a both-ankle pose", since the rules read both-ankle boxes
+    (11.7 (7)).
+- **The rules** read both-ankle boxes (11.7 (7)), on the hybrid, through the same unit_rows and rule_set as stage 0a,
+  with rule 1 on the same boxes as the null (12.1) and est without a coverage division (12.5).
+  - One-ankle boxes get the same rows apart.
+  - Pose-raw's rule 4 is reported against foot_raw (11.4): the median of d_poseraw - d_raw on hits, and the share
+    lost.
+  - Coverage (2, 1 and 0 ankles) is reported per game and kind.
+- **Stage 1, the smoke:**
+  - Windows: gsw_cha_2016_s00_w00 and gsw_bkn_2015_s00_w00, the first window of each game by name, both aligned in
+    stage A.
+  - Gate (mechanical): the ankle point of at least 0.95 of the boxes with an ankle lies inside its box or within 0.2
+    box heights below it.
+  - The smoke measures the seconds per crop with the decode included. From that it projects stage 2's lock time
+    against the 120-minute cap. If the projection is above the cap, stage 2 does not run and the lead decides.
+  - The smoke's rules are computed for the mechanics only and are not read.
+- **Writes:** work_ref/posefoot/pose[_smoke]/<game>.json and reports/research/p8_posefoot_pose[_smoke].json. A test
+  checks that these are the only writes.
