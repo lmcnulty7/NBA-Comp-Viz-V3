@@ -175,3 +175,37 @@ the later scored frames within 1.0 s (a sidecar foot within 2.5 ft of j there); 
 builds' (equal frame sets, P8_resetfix.md 14.3). Tests: box matching and the stored-box equality, suppression clusters
 and C2 (a duplicate of j's own box does not count), the class order, the alignment rule, the share table, groups and
 the main-loss rule, and an AST check that the only writes are the record and the raw folder.
+
+**8.10 Version 2.1 (2026-11-27; the code check of c43915b4, NO-GO for the run, the design stands; before any
+number).** Where this differs from 8.1 to 8.9, it rules.
+- **The NMS calls (B1).** ultralytics' non_max_suppression rewrites its input tensor in place, so each of the four
+  calls gets its own fresh clone of the raw tensor. A test checks that the raw tensor is unchanged and that repeated
+  calls equal a call on a fresh copy.
+- **Alignment (B2, replaces 8.2's alignment).** R_post is predicted at f only and compared with the sidecar at
+  f - stride, f and f + stride; the rule (higher at f than at both neighbours, at least 0.9 on average at f) is
+  unchanged.
+- **8.2's tolerance, worded as coded.** R_post's coordinates are rounded to 0.01 px and its score to 0.00001 (the
+  stored records' rounding), and every rounded value must equal the stored one (within 1e-6), one to one.
+- **C1a split (M2, replaces 8.4's C1a).** C1a_own: a covering R_pre box (as in 8.4) whose kept box, or whose
+  suppressor, no player is assigned to in D205's two-stage assignment on R_post, so it is j's own box with its foot
+  misplaced. C1a_other: every covering box is another player's detection (its kept box or its suppressor is
+  assigned to another player). C1a_own comes first.
+- **C1b (M1, replaces 8.4's C1b).** Class 1 (referee) only. Boxes of class 2, 3 and 4 (ball, rim, number) within 5 ft
+  of each miss are counted and reported apart; they assign no class.
+- **"Other."** By the class order every miss gets a class before "other" (a miss with no own box falls in C1 or C2; one
+  with an own box in C3 or C4), so "other" is expected to be 0; any count there is reported as a code fault.
+- **C3 late start (M3).** Matched on the SportVU pid of each row (mom.index.q[q]["pid"][moment]), not on the array
+  position.
+- **D205's records (M4, completes 8.6).** Pinned as constants: gsw_cha_2016.json SHA-256 12de9125...97005,
+  gsw_bkn_2015.json 501f61d5...27747, both run 20261127T171848Z; D202's score records must carry the same run id and
+  the same windows. Per window, before scoring, D205's own checks run: the sidecar, time map and labels (and the
+  identity file where recorded) must hash as D202 recorded them, tools.p8_placecause.cache_gaps must find nothing,
+  and the scorer's in_frame, missed, nr_boxes and nr_ghosts must equal D202's record. Any failure stops the run.
+- **The row gate per window (M6, completes 8.6).** Each window's recomputed rows must equal D205's stored rows of that
+  window before its raw pass; the run stops at the first window that differs. The whole-game comparison stays.
+- **Readings (M5, replaces 8.7's main-loss rule).** The main loss is read on the groups C1, C2, C3 and C4, each with its
+  window-bootstrap interval (2,000 resamples, seed 0); the largest group is "the main loss" of P-i or D-i only when
+  its lower bound is at least 0.5, else "largest, not main". The subclasses inside each group are shown with their own
+  counts, shares and intervals; no subclass is named the main loss.
+- **Reads.** An undecodable frame anywhere in a window's read stops the run, as in tools/p8_a3run.py.
+- **Suppressor.** A kept box suppresses a candidate only at IoU above 0.45, as NMS does (8.3 said "0.45 or more").

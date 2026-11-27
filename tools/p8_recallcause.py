@@ -1,5 +1,5 @@
 """tools/p8_recallcause.py: where the build loses the boxes of D205's players with no box of their own
-(docs/research/P8_recallcause.md, version 2). Report only: nothing is fitted, tuned or adopted.
+(docs/research/P8_recallcause.md, version 2.1). Report only: nothing is fitted, tuned or adopted.
 
     <frozen CV python> -m tools.p8_recallcause run      inside the heavy-job lock ("p8 recallcause"; V3_P8_ROOT =
                                                         the reference root) -> reports/research/p8_recallcause.json,
@@ -7,10 +7,12 @@
     python3 -m tools.p8_recallcause selftest            (nothing; the pure parts are covered by the tests)
 
 Steps: (1) D205's rows of gsw_cha_2016 and gsw_bkn_2015 recomputed in order through tools.p8_one2one's functions and
-checked equal to its stored rows (class and both sensitivities), with the scorer's counts checked against D202 as
-D205 did; (2) the two build-environment gate windows, every frame equal to a3trace's and a3run's stored predict boxes;
+checked equal to its stored rows (class and both sensitivities) per window before its raw pass, with D205's own
+checks per window (the inputs hash as D202 recorded them, the scorecard cache complete, the scorer's counts equal to
+D202's); D205's records pinned by SHA-256 and run id; (2) the two build-environment gate windows, every frame equal to a3trace's and a3run's stored predict boxes;
 (3) per window, a3run's read order, r23's raw prediction tensor through the predictor's own preprocess and inference,
-three NMS calls and one at conf 0.25, an alignment check; (4) the classes of section 5 as amended in version 2.
+three NMS calls and one at conf 0.25, each on its own copy of the tensor, an alignment check of R_post at f against
+the sidecar at f - stride, f and f + stride; (4) the classes of section 5 as amended in versions 2 and 2.1.
 """
 
 from __future__ import annotations
@@ -41,7 +43,15 @@ CAP_S = 75 * 60
 BOOT_N, BOOT_SEED = 2000, 0
 GATE_WINDOWS = {"gsw_cha_2016_s05_w00": ("a3trace", "gsw_cha_2016_s05_w00.json"),
                 "gsw_bkn_2015_s04_w00": ("a3run", "gsw_bkn_2015_s04_w00.json")}
-CLASSES = ("C1a", "C1b", "C1c", "C2", "C3_late", "C3_not_confirmed", "C3_undetermined", "C4a", "C4b", "other")
+CLASSES = ("C1a_own", "C1a_other", "C1b", "C1c", "C2", "C3_late", "C3_not_confirmed", "C3_undetermined", "C4a", "C4b",
+           "other")
+GROUPS = {"C1": ("C1a_own", "C1a_other", "C1b", "C1c"), "C2": ("C2",),
+          "C3": ("C3_late", "C3_not_confirmed", "C3_undetermined"), "C4": ("C4a", "C4b"), "other": ("other",)}
+REFEREE_CLASS = 1                          # models/player_detector.pt: {0 player, 1 referee, 2 ball, 3 rim, 4 number}
+OTHER_NAMES = {2: "ball", 3: "rim", 4: "number"}
+RUN_ID = "20261127T171848Z"
+D205_SHA = {CHA: "12de912598adf5dd6902ab63a4fafe4f72914aca280c228f3008128ba5897005",
+            BKN: "501f61d5b3dee7554b56eb6fdf4ff53b11f6287cb872ffc7d8c52bf996b27747"}
 
 
 def out_path() -> Path:
@@ -117,14 +127,14 @@ def nearest_player(foot, sv) -> int:
 
 def suppressors(pre: list, post: list, pre_ids: list, post_ids: list) -> dict:
     """{index in pre of a suppressed candidate: index in post of its suppressor} (the highest-score kept box at IoU
-    >= IOU with it); a candidate with no such box maps to None."""
+    above IOU with it, as NMS suppresses); a candidate with no such box maps to None."""
     kept = set(post_ids)
     order = sorted(range(len(post)), key=lambda k: -post[k][4])
     out = {}
     for i, a in enumerate(pre):
         if pre_ids[i] in kept:
             continue
-        out[i] = next((k for k in order if iou(a, post[k]) >= IOU), None)
+        out[i] = next((k for k in order if iou(a, post[k]) > IOU), None)        # NMS suppresses at IoU > iou_thres
     return out
 
 
@@ -148,17 +158,22 @@ def covers(box, pt, ext: float = 0.1) -> bool:
     return x1 <= pt[0] <= x2 and y1 <= pt[1] <= y2 + ext * (y2 - y1)
 
 
-def classify(j, sv, px_j, own_post, pre, pre_feet, other_feet, supp_c2, side_match, side_foot_ft, late):
-    """The class of one miss (version 2's order). own_post: j's R_post box index or None; supp_c2: is_c2's result;
-    side_match: the sidecar box index matched to j's R_post box or None; side_foot_ft: that sidecar box's stabilised
-    foot in court ft; late: True, False or None (undetermined) for C3."""
+def classify(j, sv, px_j, own_post, pre, pre_feet, ref_feet, supp_c2, side_match, side_foot_ft, late, pre_owner=None):
+    """The class of one miss (version 2.1's order). own_post: j's R_post box index or None; supp_c2: is_c2's result;
+    pre_owner: per R_pre box, the player its kept box (or its suppressor) is assigned to, or None; ref_feet: referee
+    class feet; side_match: the sidecar box index matched to j's R_post box or None; side_foot_ft: that sidecar box's
+    stabilised foot in court ft; late: True, False or None (undetermined) for C3."""
     if own_post is None:
         if supp_c2:
             return "C2"
-        for b, f in zip(pre, pre_feet):
-            if covers(b, px_j) and float(np.hypot(*(np.asarray(f) - sv[j]))) > NEAR_FT:
-                return "C1a"
-        if any(float(np.hypot(*(np.asarray(f) - sv[j]))) <= NEAR_FT for f in other_feet):
+        owners = pre_owner if pre_owner is not None else [None] * len(pre)
+        cov = [owners[i] for i, (b, f) in enumerate(zip(pre, pre_feet))
+               if covers(b, px_j) and float(np.hypot(*(np.asarray(f) - sv[j]))) > NEAR_FT]
+        if any(o is None or o == j for o in cov):
+            return "C1a_own"                       # j's own box, its bottom cut short (the foot model)
+        if cov:
+            return "C1a_other"                     # covered only by another player's detection
+        if any(float(np.hypot(*(np.asarray(f) - sv[j]))) <= NEAR_FT for f in ref_feet):
             return "C1b"
         return "C1c"
     if side_match is None:
@@ -170,6 +185,15 @@ def classify(j, sv, px_j, own_post, pre, pre_feet, other_feet, supp_c2, side_mat
     return "other"
 
 
+def align_shares(post_f: list, side_prev: list, side_at: list, side_next: list) -> tuple:
+    """R_post at frame f against the sidecar at f - stride, f and f + stride: the share of each sidecar frame's boxes
+    that R_post(f) matches one to one at IoU 0.5 (aligned decoding matches best at f)."""
+    out = []
+    for sb in (side_prev, side_at, side_next):
+        out.append(len(match_boxes(sb, [b[:4] for b in post_f])) / len(sb) if sb else 1.0)
+    return tuple(out)
+
+
 def alignment_ok(shares: list) -> bool:
     """shares: [(before, at, after)] per alignment frame -> at f higher than both neighbours and at least the bar."""
     if not shares:
@@ -178,17 +202,18 @@ def alignment_ok(shares: list) -> bool:
     return bool(a[:, 1].mean() > a[:, 0].mean() and a[:, 1].mean() > a[:, 2].mean() and a[:, 1].mean() >= ALIGN_BAR)
 
 
-def share_table(rows: list, n_boot: int = BOOT_N, seed: int = BOOT_SEED) -> dict:
-    """rows: (window, class) of one unit -> per class count, share and a window-cluster bootstrap of the share."""
+def share_table(rows: list, n_boot: int = BOOT_N, seed: int = BOOT_SEED, names: tuple = CLASSES) -> dict:
+    """rows: (window, class) of one unit -> per class (or group, with names) count, share and a window-cluster
+    bootstrap of the share."""
     from tools.p8_resetfix import resample_picks
     wins = sorted({w for w, _ in rows})
-    M = np.zeros((len(wins), len(CLASSES)))
+    M = np.zeros((len(wins), len(names)))
     for w, c in rows:
-        M[wins.index(w), CLASSES.index(c)] += 1
+        M[wins.index(w), names.index(c)] += 1
     tot = M.sum()
     picks = resample_picks(len(wins), n_boot, seed) if len(wins) >= 2 else None
     out = {}
-    for k, c in enumerate(CLASSES):
+    for k, c in enumerate(names):
         n = M[:, k].sum()
         iv = None
         if picks is not None and tot:
@@ -199,25 +224,32 @@ def share_table(rows: list, n_boot: int = BOOT_N, seed: int = BOOT_SEED) -> dict
     return {"misses": int(tot), "windows": len(wins), "classes": out}
 
 
-def groups_of(table: dict) -> dict:
-    """The four groups (C1, C2, C3, C4) and other, summed."""
-    g = {"C1": ("C1a", "C1b", "C1c"), "C2": ("C2",), "C3": ("C3_late", "C3_not_confirmed", "C3_undetermined"),
-         "C4": ("C4a", "C4b"), "other": ("other",)}
-    tot = table["misses"]
-    return {k: {"count": sum(table["classes"][c]["count"] for c in v),
-                "share": (sum(table["classes"][c]["count"] for c in v) / tot) if tot else None} for k, v in g.items()}
+def groups_of(rows: list, n_boot: int = BOOT_N, seed: int = BOOT_SEED) -> dict:
+    """Version 2.1: the groups C1 to C4 and other, each with its count, share and window-bootstrap interval, and the
+    subclasses inside."""
+    group_of = {c: g for g, cs in GROUPS.items() for c in cs}
+    t = share_table(rows, n_boot, seed)
+    gt = share_table([(w, group_of[c]) for w, c in rows], n_boot, seed, tuple(GROUPS))
+    return {g: {**gt["classes"][g], "subclasses": {c: t["classes"][c] for c in GROUPS[g]}} for g in GROUPS}
 
 
-def main_loss(table: dict) -> dict:
-    """Section 8.7: the largest class; "main" only when its bootstrap lower bound is at least 0.5."""
-    cl = table["classes"]
-    top = max(CLASSES, key=lambda c: (cl[c]["count"], c))
-    lo = (cl[top]["interval"] or [None])[0]
-    return {"class": top, "share": cl[top]["share"], "lower": lo,
+def main_loss(groups: dict) -> dict:
+    """Version 2.1 (8.7): read on the groups C1 to C4; the largest group is "the main loss" only when its bootstrap
+    lower bound is at least 0.5, else "largest, not main"."""
+    top = max(("C1", "C2", "C3", "C4"), key=lambda g: (groups[g]["count"], g))
+    lo = (groups[top]["interval"] or [None])[0]
+    return {"group": top, "share": groups[top]["share"], "lower": lo,
             "reading": "main loss" if lo is not None and lo >= 0.5 else "largest, not main"}
 
 
 # ── the run (frozen CV python, inside the lock) ────────────────────────────────────────────────────────────────────
+def nms_once(raw_t, conf, iou_, classes, max_det):
+    """ultralytics' non_max_suppression on a fresh copy of the raw tensor: the function rewrites its input in place
+    (a transpose view and an xywh2xyxy assignment), so every call gets its own clone (code check B1)."""
+    from ultralytics.utils import nms
+    return nms.non_max_suppression(raw_t.clone(), conf, iou_, classes, False, max_det=max_det, return_idxs=True)
+
+
 class Raw:
     """r23's raw prediction tensor through the predictor's own preprocess and inference, and the NMS calls."""
 
@@ -244,8 +276,10 @@ class Raw:
         raw = self.pred.inference(im)
         self.backend = "torchvision" if "torchvision" in self._sys.modules else "TorchNMS"
 
+        raw_t = raw[0] if isinstance(raw, (list, tuple)) else raw
+
         def call(conf, iou_, max_det, classes):
-            out, idx = nms.non_max_suppression(raw, conf, iou_, classes, False, max_det=max_det, return_idxs=True)
+            out, idx = nms_once(raw_t, conf, iou_, classes, max_det)
             d = out[0]
             if len(d):
                 d[:, :4] = ops.scale_boxes(im.shape[2:], d[:, :4], img.shape)
@@ -254,9 +288,9 @@ class Raw:
             return boxes, ids
         post, post_ids = call(CONF, IOU, MAX_DET, [config.PERSON_CLASS])
         pre, pre_ids = call(CONF, PRE_IOU, PRE_MAX_DET, [config.PERSON_CLASS])
-        other, _ = call(CONF, IOU, MAX_DET, None)
+        other, _ = call(CONF, IOU, MAX_DET, None)                  # every class, filtered below
         low, _ = call(LOW_CONF, IOU, MAX_DET, [config.PERSON_CLASS])
-        n_cand = int((raw[0] if isinstance(raw, (list, tuple)) else raw).shape[-1])
+        n_cand = int(raw_t.shape[-1])
         return {"post": post, "post_ids": post_ids, "pre": pre, "pre_ids": pre_ids,
                 "other": [b for b in other if b[5] != config.PERSON_CLASS], "low": [b for b in low if b[4] < CONF],
                 "caps": {"post": len(post) >= MAX_DET, "pre": len(pre) >= PRE_MAX_DET}, "anchors": n_cand}
@@ -279,16 +313,22 @@ def read_window(clip: Path, frames: list, stride: int, need: set, raw: Raw) -> d
             break
     out, prev = {}, None
     if frames and frames[0] > 0:
-        reader.read(0)
+        ok, _ = reader.read(0)
+        if not ok:
+            raise SystemExit(f"{WHO}: frame 0 unreadable")
         for i in range(stride, frames[0], stride):
             ok, img = reader.read(i)
-            if ok and i in need:
+            if not ok:
+                raise SystemExit(f"{WHO}: start frame {i} unreadable")
+            if i in need:
                 out[i] = raw.run(img)
     for f in frames:
         if prev is not None and f - reader.next > SEEK_MIN_GAP:
             for i in range(prev + stride, f, stride):
                 ok, img = reader.read(i)
-                if ok and i in need:
+                if not ok:
+                    raise SystemExit(f"{WHO}: gap frame {i} unreadable")
+                if i in need:
                     out[i] = raw.run(img)
         prev = f
         ok, img = reader.read(f)
@@ -300,18 +340,32 @@ def read_window(clip: Path, frames: list, stride: int, need: set, raw: Raw) -> d
     return out
 
 
-def d205_rows(game: str, P_t, w, comp, ctx) -> list:
-    """D205's rows of one window in its order, with each row's frame, player and frame context (its collect loop)."""
+def d205_rows(game: str, P_t, w, comp, ctx, d202_win: dict, d202_hashes: dict) -> list:
+    """D205's rows of one window in its order, with each row's frame, player, SportVU pid and frame context (its
+    collect loop, with its checks: the inputs hash as D202 recorded them, the cache is complete, the counts equal)."""
     import cv2
     from sportvu import bench as B
     from sportvu.eval import FRAME_MARGIN_PX
     from sportvu.sync import apply_mirror
     from tools import p8_one2one as O
     from tools import p8_scorecard as S
+    from tools.p8_e1_score import window_stats
+    from tools.p8_placecause import cache_gaps
     s = w["window"]
+    for key, p in (("sidecar", comp / f"{s}_frames.json"), ("timemap", P_t["label_build"] / f"{s}_timemap.json"),
+                   ("labels", P_t["labels"] / game / f"{s}.jsonl"), ("identity", comp / f"{s}_identity.json")):
+        want = d202_hashes.get(key)
+        if (want is None and key != "identity") or (want is not None and sha256(p) != want):
+            raise SystemExit(f"{WHO}: {s} {key} does not hash as D202 recorded it")
+    why = cache_gaps(P_t, game, w, comp, ctx["mom"], ctx["mirror"])
+    if why:
+        raise SystemExit(f"{WHO}: {s}: the scorecard cache lacks {why}")
     full = S.score_window(P_t, game, w, comp, "camera", ctx["mom"], ctx["mirror"], ctx["refs"], ctx["events"])
     if "skipped" in full[0]:
         raise SystemExit(f"{WHO}: {s} skipped")
+    st = window_stats(full[0])
+    if any(st[k] != d202_win.get(k) for k in ("in_frame", "missed", "nr_boxes", "nr_ghosts")):
+        raise SystemExit(f"{WHO}: {s}: the scorer's counts differ from D202's record")
     scored = {int(o["f"]) for o in full[1]}
     side = read_json(comp / f"{s}_frames.json")
     srow = {int(x["frame"]): x for x in side["frames"]}
@@ -327,6 +381,7 @@ def d205_rows(game: str, P_t, w, comp, ctx) -> list:
         if x is None or f not in scored:
             continue
         sv = apply_mirror(ctx["mom"].index.q[row["q"]]["xy"][row["moment"]], ctx["fx"], ctx["fy"])
+        pids = [int(v) for v in ctx["mom"].index.q[row["q"]]["pid"][row["moment"]]]
         Ht = np.asarray(row["H_truth"], np.float64).reshape(3, 3)
         px = cv2.perspectiveTransform(np.asarray(sv, np.float32).reshape(-1, 1, 2), np.linalg.inv(Ht)).reshape(-1, 2)
         m = FRAME_MARGIN_PX
@@ -338,8 +393,8 @@ def d205_rows(game: str, P_t, w, comp, ctx) -> list:
                           bool)
         svf = np.asarray(sv, np.float64)
         for j, rec in O.frame_classes(ft, svf, inside, is_ref).items():
-            out.append({"frame": f, "player": int(j), "rec": rec, "sv": svf, "Ht": Ht, "px": px, "side_feet": ft,
-                        "side_boxes": [b["bbox"] for b in x["boxes"]]})
+            out.append({"frame": f, "player": int(j), "pid": pids[int(j)], "pids": pids, "rec": rec, "sv": svf, "Ht": Ht,
+                        "px": px, "side_feet": ft, "side_boxes": [b["bbox"] for b in x["boxes"]]})
     return out
 
 
@@ -374,9 +429,14 @@ def cmd_run(args) -> dict:
         raise SystemExit(f"{WHO}: the detector is not r23")
     one2one = {g: r["ref"] / "one2one" / f"{g}.json" for g in POOL}
     pins = {g: sha256(p) for g, p in one2one.items()}
-    if any(v is None for v in pins.values()):
-        raise SystemExit(f"{WHO}: D205's records are missing")
+    if pins != D205_SHA:
+        raise SystemExit(f"{WHO}: D205's records are not the pinned ones")
     d205 = {g: read_json(p) for g, p in one2one.items()}
+    if any(d205[g].get("run_id") != RUN_ID for g in POOL):
+        raise SystemExit(f"{WHO}: D205's records are not from run {RUN_ID}")
+    d202 = {g: read_json(r["ref"] / "rebaseline" / f"score__{g}__current.json") for g in POOL}
+    if any(d202[g].get("run_id") != RUN_ID for g in POOL):
+        raise SystemExit(f"{WHO}: D202's records are not from run {RUN_ID}")
     watch = lambda: {k: RB.manifest(r[k], ("labels", "label_build", "truth_accept", "cache")) for k in ("ref", "ms")} | \
         {"builds_r23": RB.manifest(r["ref"], ("builds/r23",))}
     before = watch()
@@ -424,13 +484,19 @@ def cmd_run(args) -> dict:
                       key=lambda w: w["window"])
         guard([w["window"] for w in wins], WHO)
         stored_rows = d205[g]["rows"]
+        if sorted(d202[g]["windows"]) != [w["window"] for w in wins]:
+            raise SystemExit(f"{WHO}: {g}: the windows differ from D202's record")
         mine_all = []
         for wi, w in enumerate(wins):
             if time.time() - t0 > CAP_S:
                 raise SystemExit(f"{WHO}: the 75-minute cap was reached; nothing is reported")
             s = w["window"]
-            rows = d205_rows(g, P_t, w, comp, ctx)
-            mine_all += [[wi, {k: x["rec"][k] for k in ("class", "single", "inframe")}] for x in rows]
+            rows = d205_rows(g, P_t, w, comp, ctx, d202[g]["windows"][s], (d202[g].get("hashes") or {}).get(s, {}))
+            mine = [[wi, {k: x["rec"][k] for k in ("class", "single", "inframe")}] for x in rows]
+            want_w = [[a, {k: b[k] for k in ("class", "single", "inframe")}] for a, b in stored_rows if a == wi]
+            if mine != want_w:                     # code check M6: stop at the first window that differs
+                raise SystemExit(f"{WHO}: the D205 row gate fails on {s}; nothing is reported")
+            mine_all += mine
             uni = [x for x in rows if x["rec"]["class"] in UNIVERSE]
             if not uni:
                 continue
@@ -440,17 +506,11 @@ def cmd_run(args) -> dict:
             fset = set(frames)
             uframes = sorted({x["frame"] for x in uni})
             al = [f for f in uframes if f - stride in fset and f + stride in fset][:ALIGN_FRAMES]
-            need = set(uframes) | {f + k for f in al for k in (-stride, 0, stride)}
-            res = read_window(P["label_build"] / f"{s}.mp4", frames, stride, need, raw)
+            res = read_window(P["label_build"] / f"{s}.mp4", frames, stride, set(uframes), raw)
             srow = {int(x["frame"]): x for x in side["frames"]}
-            shares = []
-            for f in al:
-                trip = []
-                for ff in (f - stride, f, f + stride):
-                    sb = [b["bbox"] for b in srow[ff]["boxes"]]
-                    m = match_boxes(sb, [b[:4] for b in res[ff]["post"]])
-                    trip.append(len(m) / len(sb) if sb else 1.0)
-                shares.append(tuple(trip))
+            shares = [align_shares(res[f]["post"], [b["bbox"] for b in srow[f - stride]["boxes"]],
+                                   [b["bbox"] for b in srow[f]["boxes"]], [b["bbox"] for b in srow[f + stride]["boxes"]])
+                      for f in al]
             ok = alignment_ok(shares)
             align[s] = {"frames": len(al), "shares": shares, "aligned": ok}
             caps["post"] += sum(v["caps"]["post"] for v in res.values())
@@ -465,10 +525,19 @@ def cmd_run(args) -> dict:
                 rr = res[f]
                 post, pre = rr["post"], rr["pre"]
                 post_feet, pre_feet = feet_of(post, Ht), feet_of(pre, Ht)
-                other_feet = feet_of(rr["other"], Ht)
-                main, _cl = O.two_stage(post_feet, sv, range(len(sv)), range(len(post)), O._assign_all)
+                ref_boxes = [b for b in rr["other"] if b[5] == REFEREE_CLASS]
+                ref_feet = feet_of(ref_boxes, Ht)
+                near_other = {OTHER_NAMES[c]: sum(1 for b, fo in zip(rr["other"], feet_of(rr["other"], Ht))
+                                                  if b[5] == c and float(np.hypot(*(fo - sv[j]))) <= NEAR_FT)
+                              for c in OTHER_NAMES}
+                main, claimed = O.two_stage(post_feet, sv, range(len(sv)), range(len(post)), O._assign_all)
                 own = main.get(j, (None,))[0]
                 supp = suppressors(pre, post, rr["pre_ids"], rr["post_ids"])
+                pos = {a: k for k, a in enumerate(rr["post_ids"])}
+                pre_owner = []
+                for i, a in enumerate(rr["pre_ids"]):
+                    k = pos.get(a, supp.get(i))
+                    pre_owner.append(claimed.get(k) if k is not None else None)
                 c2, cidx = is_c2(j, sv, pre_feet, post_feet, supp) if own is None else (False, None)
                 side_m, side_ft, late = None, None, None
                 if own is not None:
@@ -477,16 +546,17 @@ def cmd_run(args) -> dict:
                     if side_m is not None:
                         side_ft = x["side_feet"][side_m]
                     else:
-                        later = [y for y in rows if y["player"] == j and f < y["frame"] <= f + LATE_S * float(side["fps"])]
-                        if later:
-                            late = any(len(y["side_feet"]) and float(np.hypot(*(y["side_feet"] - y["sv"][j]).T).min())
-                                       <= MISS_FT for y in later)
-                cls = classify(j, sv, x["px"][j], own, pre, pre_feet, other_feet, c2, side_m, side_ft, late)
+                        later = [y for y in rows if y["pid"] == x["pid"] and f < y["frame"] <= f + LATE_S * float(side["fps"])]
+                        if later:                  # matched on the SportVU pid (code check M3)
+                            late = any(len(y["side_feet"]) and float(np.hypot(*(y["side_feet"] - y["sv"][y["player"]]).T)
+                                                                     .min()) <= MISS_FT for y in later)
+                cls = classify(j, sv, x["px"][j], own, pre, pre_feet, ref_feet, c2, side_m, side_ft, late, pre_owner)
                 lowshare = cls == "C1c" and any(
                     float(np.hypot(*(np.asarray(fl) - sv[j]))) <= MISS_FT and nearest_player(fl, sv) == j
                     for fl in feet_of(rr["low"], Ht))
-                misses.append({"game": g, "window": s, "frame": f, "player": j, "d205": x["rec"]["class"],
-                               "class": cls, "low_conf_box": bool(lowshare),
+                misses.append({"game": g, "window": s, "frame": f, "player": j, "pid": x["pid"],
+                               "d205": x["rec"]["class"], "class": cls, "low_conf_box": bool(lowshare),
+                               "other_classes_within_5ft": near_other,
                                "c2_score": (pre[cidx][4] if c2 else None),
                                "c2_iou": (iou(pre[cidx], post[supp[cidx]]) if c2 else None)})
         want = [[a, {k: b[k] for k in ("class", "single", "inframe")}] for a, b in stored_rows]
@@ -501,11 +571,14 @@ def cmd_run(args) -> dict:
         for scope in POOL + ("pooled",):
             mm = [m for m in misses if sel(m) and (scope == "pooled" or m["game"] == scope)]
             t = share_table([(m["window"], m["class"]) for m in mm])
-            t["groups"] = groups_of(t)
+            t["groups"] = groups_of([(m["window"], m["class"]) for m in mm])
+            t["other_is_a_code_fault"] = t["classes"]["other"]["count"] > 0     # expected 0 (version 2.1)
+            t["other_classes_within_5ft"] = {n: sum(m["other_classes_within_5ft"][n] for m in mm) for n in
+                                             OTHER_NAMES.values()}
             t["low_conf_share_of_C1c"] = (sum(m["low_conf_box"] for m in mm if m["class"] == "C1c") /
                                           max(1, sum(m["class"] == "C1c" for m in mm)))
             if scope == "pooled":
-                t["reading"] = main_loss(t)
+                t["reading"] = main_loss(t["groups"])
             units[f"{name}__{scope}"] = t
     c2 = [m for m in misses if m["class"] == "C2"]
     out = {"what": "Where the build loses the boxes of D205's no-own-box misses (docs/research/P8_recallcause.md); "
