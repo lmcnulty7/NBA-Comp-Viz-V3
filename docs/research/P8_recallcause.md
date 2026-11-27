@@ -101,3 +101,69 @@ NMS; if C3, the tracker; if C4, identity or the foot stabiliser. Each rate is a 
   records pinned by SHA-256 and run id; manifests of the roots read (labels, label_build, truth_accept,
   cache/scorecard, builds/r23) before and after; identity tested on content (time maps by frames and spans).
 - Nothing held out is read; hou_cle_2016 gets the count gate only.
+
+## 8. Version 2 (2026-11-27; the review of 15cd5512, GO WITH CHANGES; before any code or number)
+
+Where this section differs from sections 1 to 7, it rules.
+
+**8.1 The candidates (replaces section 4's two sets).** Per universe frame, the predictor's own preprocess and
+inference run once (the predictor that model.predict sets up for r23 with the build's arguments; imgsz is the
+predictor's own), giving the raw prediction tensor. `assert not model.end2end` (an end-to-end head has no NMS step).
+ultralytics.utils.nms.non_max_suppression is then called on that tensor with its own arguments, three times:
+- **as built:** conf 0.40, iou 0.45, max_det 300, classes [0], return_idxs=True: R_post, what the tracker receives;
+- **all candidates:** conf 0.40, iou 1.0, max_det 30000, classes [0], return_idxs=True: R_pre (at IoU 1.0 duplicates are
+  kept, so R_pre holds every candidate at conf 0.40 or more up to its own cap);
+- **other classes:** conf 0.40, iou 0.45, classes None, filtered after to the non-player classes (for C1b);
+plus the as-built call at conf 0.25 for the threshold sub-share (8.4). Boxes are scaled to the frame with
+ultralytics.utils.ops.scale_boxes as postprocess does. Recorded per frame: the candidate counts of each call, and
+every frame where a call hit its max_det or its max_nms cap; recorded once: the NMS backend (torchvision if loaded,
+else ultralytics' TorchNMS) and the versions.
+
+**8.2 Decoding and alignment (replaces section 4's decode).** Each window is read as tools/p8_a3run.py reads it:
+every stride frame in sequence from frame 0 with videoseq.SeqReader, predicting only on universe frames and on the
+alignment frames. Alignment, per window: on its first five universe frames, R_post is computed at f and at the stride
+frames before and after; the share of the sidecar's boxes that R_post matches one to one at IoU 0.5 must be higher at
+f than at both neighbours and at least 0.9 on average at f; else the window's misses are left out and counted.
+Gates before any class is counted (both must pass):
+- gsw_cha_2016_s05_w00: R_post equals a3trace's stored predict boxes on every frame (same count, one to one, every
+  coordinate within 0.01 px and score within 0.0001, the record's rounding), and the counts sum to a3input's 8,766;
+- gsw_bkn_2015_s04_w00: R_post equals tools/p8_a3run.py's stored predict boxes (placement/a3run/gsw_bkn_2015_s04_w00.json)
+  on every frame, to the same tolerance.
+Both gates run the full sequence of their window with the same code path; the versions must equal a3input's.
+
+**8.3 C2 by clusters (replaces C2's rule).** Each suppressed candidate (in R_pre, not kept in R_post) belongs to its
+suppressor: the highest-score kept R_post box at IoU 0.45 or more with it. Player j is C2 when it has no R_post box of
+its own and some suppressed candidate c has all three: c's foot within 2.5 ft of j; c's foot nearer j than any other
+player; and c's suppressor's foot nearer another player than j. Reported for C2: the candidate's score and its IoU
+with the suppressor. A duplicate of a kept box does not make j detected: a candidate whose suppressor is j's own box,
+or whose suppressor's nearest player is j, does not count.
+
+**8.4 C1 split (replaces C1).** For j with no own R_post box and not C2:
+- **C1a, the foot model:** an R_pre box covers j's image position (j's SportVU position through H_truth's inverse
+  lies inside the box, its bottom extended by a tenth of its height) but its foot maps beyond 5 ft of j;
+- **C1b, another class:** an r23 box of another class at conf 0.40 or more has its foot within 5 ft of j;
+- **C1c, a recall miss:** neither.
+The threshold lever, report only: the share of C1c misses with a player-class box at conf 0.25 to 0.40 whose foot is
+within 2.5 ft of j and nearer j than any other player.
+
+**8.5 C4 split and the leftover (replaces C4 and "other").** For j with an own R_post box that matches a sidecar box
+one to one at IoU 0.5: **C4a,** the sidecar box's stabilised foot is within 5 ft of j but D205's assignment gives it to
+another player (identity or the scorer's pairing, not separated); **C4b,** the stabilised foot lies beyond 5 ft of j.
+"Other" is a pure leftover, reported with its count. C3's late start uses the sidecar's own frame order (its processed
+frames within the next 1.0 s).
+
+**8.6 The gate on D205's rows (replaces section 3's count gate).** The tool recomputes D205's rows in D205's order
+(its collect path, through tools.p8_one2one) and requires every row's class and both sensitivities to equal D205's
+stored row, for every window, besides the counts; D205's records (reference root one2one/<game>.json for
+gsw_cha_2016 and gsw_bkn_2015) are pinned by SHA-256 and run id. hou_cle_2016 is not recomputed (D205 gated it): it
+stays unspent.
+
+**8.7 Readings (replaces section 6's reading).** P-i and D-i are read separately, the pool of the two beside them.
+A class is "the main loss" of P-i or D-i only when the window-bootstrap lower bound of its share is at least 0.5; else
+the largest class is named "largest, not main". Each class rate over in-frame players is an upper bound on how far a
+lever could lower missed, with the ghost cost of more boxes not measured.
+
+**8.8 Other changes.** Section 1's D190 reference is to its finding only; the runtime question it left open was
+settled for this pipeline by D192 (the bug was the tracker, not the detector's runtime). Cap 75 minutes. Writes: the
+reference root's recallcause/ folder (the raw candidates per frame, not committed) and
+reports/research/p8_recallcause.json; nothing else, with a test that patches the writers.
