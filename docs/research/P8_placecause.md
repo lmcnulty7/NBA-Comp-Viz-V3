@@ -51,8 +51,9 @@ a diagnosis. It cannot tell whether the decided truths are closer to the real po
 - Games and inputs: exactly D202's score run (reports/research/p8_rebaseline.json, run 20261127T171848Z): each game's
   current truth labels (gsw_cha_2016 and gsw_bkn_2015 in work_ms, hou_cle_2016 in work_ref), the r23 composite's
   sidecars (work_ref/builds/r23), the scorecard cache's wide frames, cuts and referee entries, time maps, SportVU
-  moments and mirrors, each file's SHA-256 checked against work_ref/rebaseline/score__<game>__current.json's hashes
-  before use.
+  moments and mirrors; each window's sidecar, time map, labels and identity file has its SHA-256 checked against
+  work_ref/rebaseline/score__<game>__current.json's hashes before use (the cache files are not compared: D202's score
+  step completed missing cache entries after hashing them; the count gate guards what the scorer reads from them).
 - Per window, the pinned scorer (tools.p8_scorecard.score_window, truth mode camera) is called as D202 called it, and
   the scored frames are its observation frames. On those frames, per in-frame player (projected inside the frame with
   the 10 px margin), the nearest box foot_stab through the truth H (nearest, not one to one, as the scorer's missed
