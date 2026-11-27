@@ -186,7 +186,9 @@ Report only; the limits of D202 hold (truth frames selected by the same r23 boxe
 shown better), and the majority mapping's limits of 8.1 apply to every number. hou_cle_2016: aggregate only, 0.7558
 (already seen in D202).
 
-**Run.** Stage A (system python, about 2 s); stage B at HEAD 87909736, 102.9 s inside a 127 s lock "p8 teamcause rows".
+**Run.** Stage A (system python, about 2 s; its record carries no HEAD, and its d202 key, which stage B checked, ties it
+to the same pinned D202 records); stage B at HEAD 87909736, 102.9 s (the record's seconds) inside the lock "p8
+teamcause rows".
 The gate passed on all 156 windows (recomputed team-row tuples equal to score_window's team_rows in order; n, majority
 and fixed equal to the pinned D202 records); no cache entry was missing; the watch manifests were unchanged.
 
@@ -211,18 +213,33 @@ apply.
 - **One bin carries, and it is the top carrier: SportVU crowding under 3 ft** (the nearest other player within 3 ft):
   7,159 rows, 2,149 errors, rate 0.300, share 0.26, ratio 1.81 with a window-bootstrap lower bound of 1.63, rows from
   117 windows, excess 959 errors. By 8.6 it points to mixed crops in crowds (crowding-aware assignment or a crop mask);
-  by the added row, an error carried in crowding may also be the scorer's pairing rather than the labelling.
+  by the added row, an error carried in crowding may also be the scorer's pairing rather than the labelling. Its share
+  (0.260) sits close to the 0.25 bar, and the bootstrap bound covers the ratio only, not the share.
 - Overlaps over 0.5: crowding by boxes with crowding by SportVU (0.70), and the referee rule with the referee overlap
   (0.64). No overlapping pair holds two carriers, so nothing is reported "not separated"; crowding by boxes under 3 ft
   has ratio 1.58 (lower 1.41) but a share of 0.171, under the 0.25 bar.
-- Bins that hold a large share without the ratio bar: rows of tracks paired with two or more player ids, 0.809 of
-  errors at ratio 1.32 (lower 1.25; 61 percent of rows); labels that are not the light kit, share 0.70 at ratio 1.24;
-  pair distance 2.5 to 5 ft, ratio 1.20 at share 0.175. Referee boxes carry 0.6 percent of errors; time since a cut,
-  track age, colour-distance and silhouette terciles have ratios near 1 (0.89 to 1.30).
+- Every bin with a share of at least 0.25, a ratio under 1.5 and a bootstrap lower bound above 1 (none carries):
+  tracks paired with two or more player ids, share 0.809 at 1.324 [1.253]; labels that are not the light kit, 0.696 at
+  1.244 [1.196]; Golden State's rows, 0.600 at 1.200 [1.061]; box edge distance over 150 px, 0.858 at 1.064 [1.033];
+  the lowest tercile of box height, 0.395 at 1.193 [1.083]; crowding by boxes 3 to 6 ft, 0.369 at 1.091 [1.010];
+  crowding by SportVU 3 to 6 ft, 0.362 at 1.091 [1.018]; the far third, 0.328 at 1.235 [1.069].
+- Apart, with a small share: track age under 1 s, ratio 1.304 [1.102] at share 0.088. Pair distance 2.5 to 5 ft has
+  ratio 1.20 at share 0.175. Referee boxes carry 0.6 percent of errors; time since a cut and the colour-distance and
+  silhouette terciles have ratios near 1.
 - Per game and with the worst windows left out: in the record (bins per unit), not read.
 
-**Post hoc, not registered.** Identity switches are wide (61 percent of team rows sit on tracks paired with two or more
-players) and carry a high error rate, short of the 1.5 bar; with crowding they suggest that tracking through contact,
-not the colour model, sets much of the team error, while the colour diagnostics (silhouette, colour distance) barely
-relate to accuracy. gsw_cha_2016's kits are closer in colour (median 76.5 against 99.1) and its accuracy is lower, a
-two-game contrast that this study cannot test.
+**Post hoc, not registered.** 61 percent of team rows sit on tracks paired with two or more SportVU player ids within
+2.5 ft; the flag does not separate an identity switch, a wrong merge and a single scorer mismatch. Those rows' error
+rate is 0.220 against 0.081 for the rest (ratio 1.32), below the bar. The carrier is crowding, which 8.6 reads as mixed
+crops or the scorer's pairing. Below the bar there is also an asymmetry by kit and by team: labels that are not the
+light kit hold 0.696 of errors at 1.24 [1.20], Golden State's rows 0.600 at 1.20 [1.06], and Charlotte's rows sit at a
+ratio of 0.555. This study does not separate tracking from colour assignment.
+
+Separately, gsw_cha_2016's kits are closer in colour (median CIELAB distance 76.5 against 99.1) and its accuracy is
+lower, a two-game contrast that this study cannot test.
+
+Review notes (2026-11-27, the ml-review of 9d8bc57a, FAIL on wording): the post hoc paragraph rewritten (no claim that
+the colour model is not the cause; what the switch flag cannot separate; the kit and team asymmetry); every bin with a
+share of at least 0.25 and a lower bound above 1 listed; track age under 1 s named apart; the carrier's closeness to
+the share bar and the bootstrap's scope noted; the lock figure from the heavy-job log dropped; stage A's missing HEAD
+noted.
