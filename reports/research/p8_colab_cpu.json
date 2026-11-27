@@ -1,0 +1,474 @@
+{
+ "what": "P8 Colab CPU parity, comparison",
+ "design": "docs/research/P8_colab_cpu_parity.md",
+ "rule": {
+  "box_tol_px": 1.0,
+  "gate_px": 32.0,
+  "near": {
+   "frames_jaccard_min": 1.0,
+   "frames_within_1px_min": 0.99,
+   "h_gap_median_px_max": 1.0
+  }
+ },
+ "flags": {
+  "mac_pack_ok": true,
+  "colab_pack_ok": true,
+  "code_equal": true,
+  "weights_equal": true,
+  "clip_equal": true
+ },
+ "problems": {},
+ "reset_windows_mac": [
+  "gsw_cha_2016_s02_w03"
+ ],
+ "build_seconds": {
+  "mac": {
+   "gsw_cha_2016_s02_w03": 157.5,
+   "gsw_cha_2016_s00_w01": 171.1
+  },
+  "plain": {
+   "gsw_cha_2016_s02_w03": 563.9,
+   "gsw_cha_2016_s00_w01": 601.1
+  },
+  "plain_b": {
+   "gsw_cha_2016_s02_w03": 556.0
+  }
+ },
+ "steps_skipped": [
+  [
+   "isa",
+   "gsw_cha_2016_s02_w03",
+   "end_at",
+   1803
+  ],
+  [
+   "isa",
+   "gsw_cha_2016_s00_w01",
+   "end_at",
+   1803
+  ],
+  [
+   "plain",
+   "gsw_cha_2016_s00_w00",
+   "end_at",
+   1027
+  ],
+  [
+   "plain",
+   "gsw_cha_2016_s05_w00",
+   "end_at",
+   2747
+  ]
+ ],
+ "isa_env": {
+  "ATEN_CPU_CAPABILITY": "default",
+  "DNNL_MAX_CPU_ISA": "SSE41",
+  "ONEDNN_MAX_CPU_ISA": "SSE41",
+  "MKL_ENABLE_INSTRUCTIONS": "SSE4_2",
+  "OPENCV_CPU_DISABLE": "AVX,AVX2,FP16",
+  "NPY_DISABLE_CPU_FEATURES": "AVX AVX2 F16C FMA3"
+ },
+ "versions": {
+  "mac": {
+   "python": "3.12.2",
+   "python_build": "CPython main Feb 16 2024 21:00:12",
+   "platform": "macOS-26.6.2",
+   "machine": "x86_64",
+   "cpu_model": "Apple M5",
+   "cpu_count": 10,
+   "torch": "2.2.2",
+   "torch_cpu_capability": "NO AVX",
+   "torch_threads": 10,
+   "torch_interop_threads": 10,
+   "torch_mkldnn": true,
+   "torch_nnpack": null,
+   "cv2": "4.13.0",
+   "cv2_cpu_features": "SSE SSE2 SSE3 SSSE3 SSE4.1 *SSE4.2 *AVX? *FP16? *AVX2? *AVX512-SKX?",
+   "cv2_threads": 10,
+   "cv2_build_cpu": [
+    "Version control:               4.13.0-1-gb4c5ec4042",
+    "Baseline:                    SSE SSE2 SSE3 SSSE3 SSE4_1",
+    "requested:                 DETECT",
+    "Dispatched code generation:  SSE4_2 AVX FP16 AVX2 AVX512_SKX",
+    "requested:                 SSE4_1 SSE4_2 AVX FP16 AVX2 AVX512_SKX"
+   ],
+   "numpy": "1.26.4",
+   "numpy_cpu_found": [
+    "MMX",
+    "POPCNT",
+    "SSE",
+    "SSE2",
+    "SSE3",
+    "SSE41",
+    "SSE42",
+    "SSSE3"
+   ],
+   "numpy_dispatch": [
+    "AVX",
+    "AVX2",
+    "AVX512CD",
+    "AVX512F",
+    "AVX512_CLX",
+    "AVX512_CNL",
+    "AVX512_ICL",
+    "AVX512_KNL",
+    "AVX512_SKX",
+    "F16C",
+    "FMA3",
+    "POPCNT",
+    "SSE41",
+    "SSE42",
+    "SSSE3"
+   ],
+   "isa_env": {
+    "ATEN_CPU_CAPABILITY": null,
+    "DNNL_MAX_CPU_ISA": null,
+    "ONEDNN_MAX_CPU_ISA": null,
+    "MKL_ENABLE_INSTRUCTIONS": null,
+    "OPENCV_CPU_DISABLE": null,
+    "NPY_DISABLE_CPU_FEATURES": null
+   },
+   "ultralytics": "8.4.48",
+   "transformers": "4.49.0",
+   "scipy": "1.13.1",
+   "lap": "0.5.13",
+   "PIL": "12.2.0",
+   "sklearn": "1.8.0",
+   "torchvision": "0.17.2",
+   "onednn_isa": "Intel SSE4.1",
+   "mkl": "MKL_VERBOSE oneMKL 2022.0 Update 2 Product build 20220801 for Intel(R) 64 architecture Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) enabled processors, OSX 4.18GHz lp64 intel_thread"
+  },
+  "colab": {
+   "python": "3.12.2",
+   "python_build": "CPython main Feb 25 2024 04:38:01",
+   "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+   "machine": "x86_64",
+   "cpu_model": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+   "cpu_count": 2,
+   "torch": "2.2.2+cpu",
+   "torch_cpu_capability": "AVX2",
+   "torch_threads": 1,
+   "torch_interop_threads": 2,
+   "torch_mkldnn": true,
+   "torch_nnpack": null,
+   "cv2": "4.13.0",
+   "cv2_cpu_features": "SSE SSE2 SSE3 *SSE4.1 *SSE4.2 *AVX *FP16 *AVX2 *AVX512-SKX?",
+   "cv2_threads": 2,
+   "cv2_build_cpu": [
+    "Version control:               4.13.0-1-gb4c5ec4042",
+    "Baseline:                    SSE SSE2 SSE3",
+    "requested:                 SSE3",
+    "Dispatched code generation:  SSE4_1 SSE4_2 AVX FP16 AVX2 AVX512_SKX"
+   ],
+   "numpy": "1.26.4",
+   "numpy_cpu_found": [
+    "AVX",
+    "AVX2",
+    "F16C",
+    "FMA3",
+    "MMX",
+    "POPCNT",
+    "SSE",
+    "SSE2",
+    "SSE3",
+    "SSE41",
+    "SSE42",
+    "SSSE3"
+   ],
+   "numpy_dispatch": [
+    "AVX",
+    "AVX2",
+    "AVX512CD",
+    "AVX512F",
+    "AVX512_CLX",
+    "AVX512_CNL",
+    "AVX512_ICL",
+    "AVX512_KNL",
+    "AVX512_KNM",
+    "AVX512_SKX",
+    "F16C",
+    "FMA3",
+    "POPCNT",
+    "SSE41",
+    "SSE42",
+    "SSSE3"
+   ],
+   "isa_env": {
+    "ATEN_CPU_CAPABILITY": null,
+    "DNNL_MAX_CPU_ISA": null,
+    "ONEDNN_MAX_CPU_ISA": null,
+    "MKL_ENABLE_INSTRUCTIONS": null,
+    "OPENCV_CPU_DISABLE": null,
+    "NPY_DISABLE_CPU_FEATURES": null
+   },
+   "ultralytics": "8.4.48",
+   "transformers": "4.49.0",
+   "scipy": "1.13.1",
+   "lap": "0.5.13",
+   "PIL": "12.2.0",
+   "sklearn": "1.8.0",
+   "torchvision": "0.17.2+cpu",
+   "onednn_isa": "Intel AVX2",
+   "mkl": "MKL_VERBOSE oneMKL 2022.0 Update 2 Product build 20220804 for Intel(R) 64 architecture Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2) enabled processors, Lnx 2.20GHz lp64 gnu_thread"
+  }
+ },
+ "isa_probe": {
+  "torch_cpu_capability": "NO AVX",
+  "cv2_cpu_features": "SSE SSE2 SSE3 *SSE4.1 *SSE4.2 *AVX? *FP16? *AVX2? *AVX512-SKX?",
+  "numpy_cpu_found": [
+   "MMX",
+   "POPCNT",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42",
+   "SSSE3"
+  ],
+  "onednn_isa": "Intel SSE4.1",
+  "mkl": "MKL_VERBOSE oneMKL 2022.0 Update 2 Product build 20220804 for Intel(R) 64 architecture Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) enabled processors, Lnx 2.20GHz lp64 gnu_thread"
+ },
+ "fingerprints": {
+  "mac": {
+   "torch_conv2d": "e03744762cc21259",
+   "torch_matmul": "6849da463fe1baab",
+   "torch_softmax": "9a9f0f6f436ae814",
+   "cv2_resize": "fca9f241d7ad39d3",
+   "cv2_gaussian": "51cdb776c39533cb",
+   "numpy_exp_sum": "4b92c27add2c2682",
+   "numpy_matmul": "edef7efcb6e65468"
+  },
+  "colab_plain": {
+   "torch_conv2d": "a755ca2ca3923c97",
+   "torch_matmul": "5053ec54bc2e332f",
+   "torch_softmax": "26e6e4950c788e80",
+   "cv2_resize": "fca9f241d7ad39d3",
+   "cv2_gaussian": "1d9e5d50808cab11",
+   "numpy_exp_sum": "d20c8ca4a179082e",
+   "numpy_matmul": "51d02a4652839cb5"
+  },
+  "colab_isa": {
+   "torch_conv2d": "e03744762cc21259",
+   "torch_matmul": "6849da463fe1baab",
+   "torch_softmax": "98921ba27715a211",
+   "cv2_resize": "fca9f241d7ad39d3",
+   "cv2_gaussian": "51cdb776c39533cb",
+   "numpy_exp_sum": "4b92c27add2c2682",
+   "numpy_matmul": "51d02a4652839cb5"
+  }
+ },
+ "distribution_differences": {
+  "certifi": [
+   "2026.4.22",
+   "2026.11.20"
+  ],
+  "charset-normalizer": [
+   "3.3.2",
+   "3.5.3"
+  ],
+  "hf-xet": [
+   "1.5.0",
+   "1.8.0"
+  ],
+  "idna": [
+   "3.7",
+   "3.20"
+  ],
+  "markupsafe": [
+   "2.1.3",
+   "3.0.3"
+  ],
+  "six": [
+   "1.16.0",
+   "1.17.0"
+  ],
+  "torch": [
+   "2.2.2",
+   "2.2.2+cpu"
+  ],
+  "torchvision": [
+   "0.17.2",
+   "0.17.2+cpu"
+  ],
+  "tzdata": [
+   "2023.3",
+   "2026.6"
+  ],
+  "urllib3": [
+   "2.7.0",
+   "2.8.0"
+  ]
+ },
+ "pairs": {
+  "plain~mac/gsw_cha_2016_s02_w03": {
+   "equal": {
+    "frames": false,
+    "trajectories": false,
+    "identity": false
+   },
+   "metrics": {
+    "frames_x": 152,
+    "frames_r": 152,
+    "common": 152,
+    "frames_jaccard": 1.0,
+    "frames_within_1px": 0.3487,
+    "boxes_x": 1248,
+    "boxes_r": 1242,
+    "pairs": 1235,
+    "unmatched_boxes": 20,
+    "offset_px_median": 1.0,
+    "offset_px_max": 25.0,
+    "foot_stab_px_median": 0.3555,
+    "foot_stab_px_max": 40.4755,
+    "pairs_within_1px": 1054,
+    "tid_equal_share": 0.1006,
+    "tid_mapped_share": 0.9905,
+    "h_gap_px": {
+     "median": 9.5367,
+     "p90": 27.6987,
+     "frames": 148
+    }
+   },
+   "resets_x": 1,
+   "resets_r": 1,
+   "reading": "different"
+  },
+  "plain~mac/gsw_cha_2016_s00_w01": {
+   "equal": {
+    "frames": false,
+    "trajectories": false,
+    "identity": false
+   },
+   "metrics": {
+    "frames_x": 169,
+    "frames_r": 169,
+    "common": 169,
+    "frames_jaccard": 1.0,
+    "frames_within_1px": 0.3432,
+    "boxes_x": 1152,
+    "boxes_r": 1144,
+    "pairs": 1133,
+    "unmatched_boxes": 30,
+    "offset_px_median": 1.0,
+    "offset_px_max": 29.0,
+    "foot_stab_px_median": 0.3536,
+    "foot_stab_px_max": 84.0528,
+    "pairs_within_1px": 960,
+    "tid_equal_share": 0.7948,
+    "tid_mapped_share": 0.9688,
+    "h_gap_px": {
+     "median": 9.9284,
+     "p90": 30.5064,
+     "frames": 169
+    }
+   },
+   "resets_x": 0,
+   "resets_r": 0,
+   "reading": "different"
+  }
+ },
+ "readings": {
+  "plain": {
+   "windows": {
+    "gsw_cha_2016_s02_w03": "different",
+    "gsw_cha_2016_s00_w01": "different"
+   },
+   "reading": "different"
+  },
+  "isa": {
+   "windows": {},
+   "reading": "not read"
+  }
+ },
+ "repeatability": {
+  "gsw_cha_2016_s02_w03": {
+   "equal": {
+    "frames": true,
+    "trajectories": true,
+    "identity": true
+   },
+   "reading": "identical",
+   "frames_within_1px": 1.0
+  }
+ },
+ "report_only": {
+  "gsw_cha_2016_s00_w01": {
+   "reference": "r23_nofix (no reset in the window, so the fix changes nothing)",
+   "note": "report only: the reference platform has the court and gate on MPS",
+   "clip_equal_to_pack": true,
+   "mac": {
+    "equal": {
+     "frames": false,
+     "trajectories": false,
+     "identity": false
+    },
+    "metrics": {
+     "frames_x": 169,
+     "frames_r": 169,
+     "common": 169,
+     "frames_jaccard": 1.0,
+     "frames_within_1px": 1.0,
+     "boxes_x": 1144,
+     "boxes_r": 1144,
+     "pairs": 1144,
+     "unmatched_boxes": 0,
+     "offset_px_median": 0.0,
+     "offset_px_max": 0.0,
+     "foot_stab_px_median": 0.0,
+     "foot_stab_px_max": 0.0,
+     "pairs_within_1px": 1144,
+     "tid_equal_share": 1.0,
+     "tid_mapped_share": 1.0,
+     "h_gap_px": {
+      "median": 6.7299,
+      "p90": 22.3081,
+      "frames": 169
+     }
+    },
+    "resets": [
+     0,
+     0
+    ]
+   },
+   "plain": {
+    "equal": {
+     "frames": false,
+     "trajectories": false,
+     "identity": false
+    },
+    "metrics": {
+     "frames_x": 169,
+     "frames_r": 169,
+     "common": 169,
+     "frames_jaccard": 1.0,
+     "frames_within_1px": 0.3432,
+     "boxes_x": 1152,
+     "boxes_r": 1144,
+     "pairs": 1133,
+     "unmatched_boxes": 30,
+     "offset_px_median": 1.0,
+     "offset_px_max": 29.0,
+     "foot_stab_px_median": 0.3536,
+     "foot_stab_px_max": 84.0528,
+     "pairs_within_1px": 960,
+     "tid_equal_share": 0.7948,
+     "tid_mapped_share": 0.9688,
+     "h_gap_px": {
+      "median": 11.9041,
+      "p90": 28.9254,
+      "frames": 169
+     }
+    },
+    "resets": [
+     0,
+     0
+    ]
+   }
+  }
+ },
+ "answer": {
+  "plain": "different",
+  "isa": "not read",
+  "repeatable": true
+ }
+}
