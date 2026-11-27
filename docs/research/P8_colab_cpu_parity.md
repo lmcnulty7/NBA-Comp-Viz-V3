@@ -192,7 +192,7 @@ No window, arm, measure, tolerance or reading changed. Each item below was made 
   runtime, every install stage was resolved on the Mac for Linux x86_64 and Python 3.12 (`uv pip compile`, uv 0.13.10,
   nothing installed). All resolve. Only psutil 5.9.0 and kiwisolver 1.4.4 have no wheel and are built from source on
   the runtime; if a build fails, the soft-pin fallback applies and the result reads "versions differ". The runtime then
-  sat idle for about 50 minutes, because the job's failure was not seen until a poll at 00:29Z (a polling lapse; the
+  sat idle for about 52 minutes, because the job's failure was not seen until a poll at 00:29Z (a polling lapse; the
   polls are every 5 minutes from now on). The Mac builds were made on 2026-11-26 from 22:16Z to 22:22Z under the lock,
   from this same pack's clips, plan and weights. The pack is not rebuilt. The runtime's run uses the tool from the
   pack (sha256 19ec7511...), the same code the Mac builds ran. Only the job text, which is pasted into the
@@ -203,10 +203,19 @@ No window, arm, measure, tolerance or reading changed. Each item below was made 
   the soft pins it imports cv2, numpy, torch and ultralytics and prints their versions (CHECK2). The first poll comes
   3 minutes after the job starts.
 
-## 11. Result (2026-11-27): plain is "different"; Colab CPU is repeatable; isa untested
+## 11. Result (2026-11-27): plain is "different"; Colab CPU is repeatable on s02_w03 (the one window repeated); isa untested
 
 Record: reports/research/p8_colab_cpu.json, a copy of the P8 data folder's colab_cpu/colab_cpu_result.json, written
 by `tools.p8_colab_cpu compare` under the section 5 rule, which is unchanged since before any build.
+
+Sources for the run facts below. The Mac build window, build seconds and checks come from mac_run.log in the P8 data
+folder's colab_cpu/, and from the Mac result's run_record.json. The Colab setup times (the JOB stamps: start 00:33:07Z,
+env 00:34:11Z, clone 00:34:54Z, fetch 00:35:13Z, end 01:04:48Z), the CHECK1 and CHECK2 version lines, the absence of
+JOB FAILED and PIN_FAILED lines (the install exit codes: with `set -e` and the ERR trap, any failing install stops the
+job with a JOB FAILED line), and the step lines with their Drive upload records come from the runtime's job log,
+/content/p8_job.log. That log was read live through execute_code polls and not kept; it went with the runtime. What
+survives of the Colab run is the result tar's run_record.json (probes, setup seconds of the run step, per-build
+seconds, the skipped steps with their predictions) in the P8 data folder's colab_cpu/colab_out/.
 
 **The runs.** Mac: both core windows, built under the heavy-job lock from 22:16Z to 22:22Z on 2026-11-26, every model
 on CPU, reset fix on, 157.5 s and 171.1 s. Colab: runtime p8-colab-cpu-2 (CPU standard, an Intel Xeon at 2.20GHz,
@@ -221,12 +230,14 @@ the same CLIP fingerprint on both sides. Every build passed its checks.
 4.13.0 (opencv-python-headless 4.13.0.92), NumPy 1.26.4, ultralytics 8.4.48, transformers 4.49.0, and every soft pin
 at the Mac's version. Distributions that still differ were pulled in unpinned and none is in the numeric path:
 certifi, charset-normalizer, hf-xet, idna, markupsafe, six, tzdata, urllib3. Torch's MKL is oneMKL 2022.0 Update 2 on
-both. The platforms differ: the Mac runs x86_64 under Rosetta on an Apple M5, torch at "NO AVX" with 10 threads and
+both, but not the same build: the Mac's is product build 20220801 for OSX with intel_thread, and Colab's is product
+build 20220804 for Linux with gnu_thread. The platforms differ: the Mac runs x86_64 under Rosetta on an Apple M5, torch at "NO AVX" with 10 threads and
 MKL at SSE4.2. Colab's plain arm runs torch at AVX2 with 1 thread, oneDNN at AVX2 and MKL at AVX2.
 
 **Reading (section 5).** plain: **different** on both windows, so the arm reads "different". isa: **untested** (not
-built; the record's "not read"). plain_b against plain: **identical** (frames, trajectories and identity all equal), so the Colab CPU build is
-repeatable and the difference below comes from the platform, not from run-to-run noise.
+built; the record's "not read"). plain_b against plain on s02_w03: **identical** (frames, trajectories and identity all equal), so the Colab CPU build is
+repeatable on s02_w03 (the one window repeated; s00_w01 was not repeated), and the difference below comes from the
+platform, not from run-to-run noise.
 
 | plain against Mac all-CPU | s02_w03 (1 reset) | s00_w01 (no reset) |
 | --- | --- | --- |
@@ -259,12 +270,14 @@ reported.
 1. A Colab CPU runtime with the pinned stack does not reproduce the Mac's builds. Its box sets agree on about a third
    of frames, its track ids differ, and its court mapping sits about 10 px away. Colab CPU builds cannot stand in
    for or be mixed with Mac builds, and rebuilds cannot be split between the two on this evidence.
-2. The court mapping is the most platform-sensitive output measured so far: about 10 px (Colab CPU against Mac CPU,
-   with the same versions), 8 to 11 px (CUDA, P8_cuda_check.md), and 4 to 7 px (Mac CPU against Mac MPS). The CUDA
-   check's court gap is therefore not a CUDA effect alone. It appears on Colab's CPU too, with matching library
-   versions.
+2. (Post hoc, outside the registered outcomes.) The court mapping is the most platform-sensitive output measured
+   so far: about 10 px (Colab CPU against Mac CPU, with the same versions, this test); 8.0 to 10.6 px (CUDA against
+   the Mac builds, P8_cuda_check.md section 13); 3.84 and 4.65 px (Mac CPU against Mac MPS on the two D99 windows,
+   P8_PLATFORM.md, "What the local builds show", recomputed in P8_cuda_check.md section 13); and 6.73 px (Mac
+   all-CPU against the reference platform's MPS court on s00_w01, this test's report-only value). The CUDA check's
+   court gap is therefore not a CUDA effect alone. It appears on Colab's CPU too, with matching library versions.
 3. Open, not run: whether the isa arm plus a matched thread count and an OpenBLAS cap (OPENBLAS_CORETYPE) reaches
-   "identical". The probe hashes make it a cheap first check (no build): any remaining hash difference rules it out.
+   "identical". The probe hashes make it a cheap first check (no build): any remaining hash difference makes it unlikely.
    At about 3.5 times the Mac's time per window with no caps, and slower with the caps, Colab CPU would not save time
    even if it matched. The lead closed this arm on 2026-11-27: no more runtimes, and no tail windows on the Mac.
 
