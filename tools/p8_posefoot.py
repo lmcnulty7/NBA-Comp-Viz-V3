@@ -819,18 +819,14 @@ def report0a() -> dict:
 def fetch_model() -> dict:
     """Stage 0: the one download of the pinned revision into the Hugging Face cache (outside the repository and
     iCloud), SHA-256 per file, model.safetensors checked against the Hub's LFS oid. Later loads use HF_HUB_OFFLINE=1."""
-    import hashlib
     from huggingface_hub import hf_hub_download
+    from tools import p8_rebaseline as RB
     from tools.p8_placecause import clean
     from export.schemas import find_private
     files = {}
     for name in MODEL_FILES:
         p = Path(hf_hub_download(MODEL_REPO, name, revision=MODEL_REV))
-        h = hashlib.sha256()
-        with open(p, "rb") as fh:
-            for chunk in iter(lambda: fh.read(1 << 20), b""):
-                h.update(chunk)
-        files[name] = {"sha256": h.hexdigest(), "bytes": p.stat().st_size}
+        files[name] = {"sha256": RB.sha256(p), "bytes": p.stat().st_size}
         if name in MODEL_LFS_SHA and files[name]["sha256"] != MODEL_LFS_SHA[name]:
             raise SystemExit(f"{WHO}: {name} does not match the Hub's LFS oid")
     out = clean({"what": "docs/research/P8_posefoot.md stage 0: the pose model's one download", "repo": MODEL_REPO,
