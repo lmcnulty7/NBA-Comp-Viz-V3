@@ -661,3 +661,15 @@ CAP_FFMPEG open falls back the same way in this runtime. The gate ran on mps, as
   and 240), which the old sequential read did not seek to.
 
 The full pass waits for the lead's read of this smoke and a code check of the read-path code.
+
+### 14.4 Before the full pass (2026-11-27, the code check of the read path: GO)
+
+- The run sets HF_HUB_OFFLINE=1 (no hub fetch) and PYTORCH_ENABLE_MPS_FALLBACK=1 (as sportvu.rebuild sets it for the
+  build). The tool refuses to run without both.
+- Each game record holds the gate's provenance: the head's and its coefficient file's SHA-256, the "v2" threshold value
+  and the CLIP backbone id.
+- report_align lists the windows that are not aligned, by cause, so the stop share reads by cause. Five windows are
+  undetermined before any decode because they have fewer than 10 eligible frames: gsw_cha_2016_s01_w05, s03_w02,
+  s06_w02 and s07_w06, and gsw_bkn_2015_s00_w05. These count toward the 0.25 stop share.
+- **The smoke mainly confirmed the read path.** Five of its six windows were the windows the 0.82 and 0.85 thresholds
+  were calibrated on, so the smoke is not a test of those thresholds. The full pass is.

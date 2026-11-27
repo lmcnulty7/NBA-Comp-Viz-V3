@@ -318,3 +318,14 @@ def test_offset_sizes(tmp_path):
                                                   {"foot_raw": [1.0, 1.0], "foot_stab": [1.0, 1.0]}]}]}))
     o = M.offset_sizes([p])
     assert o["boxes"] == 2 and o["median_px"] == pytest.approx(2.5) and o["sidecars"] == 1
+
+
+def test_by_cause_and_env_guard(monkeypatch):
+    w = {"a": {"verdict": "aligned"}, "b": {"verdict": "misaligned"},
+         "c": {"verdict": "undetermined", "why": "fewer than 10 eligible frames"},
+         "d": {"verdict": "undetermined", "why": "fewer than 10 eligible frames"}}
+    assert M.by_cause(w) == {"misaligned": {"n": 1, "windows": ["b"]},
+                             "undetermined: fewer than 10 eligible frames": {"n": 2, "windows": ["c", "d"]}}
+    monkeypatch.delenv("HF_HUB_OFFLINE", raising=False)
+    with pytest.raises(SystemExit):
+        M.collect_align("gsw_cha_2016")

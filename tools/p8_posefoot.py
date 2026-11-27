@@ -534,8 +534,14 @@ SMOKE_WINDOWS = ("gsw_bkn_2015_s04_w00", "gsw_cha_2016_s05_w00", "gsw_cha_2016_s
                  "gsw_bkn_2015_s00_w07")       # first frame 54, no gap over 300 frames (the first such window by name)
 
 
+ALIGN_ENV = {"HF_HUB_OFFLINE": "1", "PYTORCH_ENABLE_MPS_FALLBACK": "1"}    # the build's MPS fallback; no hub fetch
+
+
 def collect_align(game: str, only: tuple | None = None) -> dict:
     refuse_game(game)
+    bad_env = {k: os.environ.get(k) for k, v in ALIGN_ENV.items() if os.environ.get(k) != v}
+    if bad_env:
+        raise SystemExit(f"{WHO}: set {ALIGN_ENV} before the run (got {bad_env})")
     import hashlib
     import config
     from tools import p8_frozen as F
@@ -580,6 +586,11 @@ def collect_align(game: str, only: tuple | None = None) -> dict:
     mc = main_checkout() / "models"
     head_p, thr = mc / config.HEAD_V2_PATH.name, json.loads((mc / config.THRESHOLDS_PATH.name).read_text())["v2"]
     gates = {}
+
+    gate_rec = {"head": head_p.name, "head_sha256": RB.sha256(head_p),
+                "coefs": head_p.with_name(head_p.stem + "_coefs.npz").name,
+                "coefs_sha256": RB.sha256(head_p.with_name(head_p.stem + "_coefs.npz")),
+                "threshold_v2": thr, "clip_backbone": config.CLIP_MODEL_NAME, "env": dict(ALIGN_ENV)}
 
     def gate_for(dev: str):
         if dev not in gates:
@@ -642,7 +653,7 @@ def collect_align(game: str, only: tuple | None = None) -> dict:
     out = {"game": game, "design": "docs/research/P8_posefoot.md section 14 (stage A)", "git": head,
            "weights_sha256": sha, "versions": {"opencv": cv2.__version__, "torch": torch.__version__,
                                               "ultralytics": ultralytics.__version__},
-           "windows": out_w, "summary": game_alignment({k: v["verdict"] for k, v in out_w.items()}),
+           "gate": gate_rec, "windows": out_w, "summary": game_alignment({k: v["verdict"] for k, v in out_w.items()}),
            "manifest_unchanged": after == watched, "seconds": round(time.time() - t0, 1)}
     dd = r["ref"] / "posefoot" / ("alignment_smoke" if only is not None else "alignment")
     dd.mkdir(parents=True, exist_ok=True)
@@ -652,6 +663,17 @@ def collect_align(game: str, only: tuple | None = None) -> dict:
     if after != watched:
         raise SystemExit(f"{WHO}: protected files changed")
     return out
+
+
+def by_cause(windows: dict) -> dict:
+    """The windows not aligned, by cause: misaligned, or undetermined by its reason."""
+    out = {}
+    for w, x in sorted(windows.items()):
+        if x["verdict"] == "aligned":
+            continue
+        key = "misaligned" if x["verdict"] == "misaligned" else f"undetermined: {x.get('why')}"
+        out.setdefault(key, []).append(w)
+    return {k: {"n": len(v), "windows": v} for k, v in out.items()}
 
 
 def report_align(smoke: bool = False) -> dict:
@@ -671,6 +693,8 @@ def report_align(smoke: bool = False) -> dict:
         a3g = {w: x["misaligned"] for w, x in a3.get(g, {}).get("windows", {}).items()}
         out["per_game"][g] = {"summary": game_alignment(v), "cross_table_a3align": cross_table(v, a3g),
                               "not_aligned": sorted(w for w, x in v.items() if x != "aligned"),
+                              "not_aligned_by_cause": by_cause(recs[g]["windows"]),
+                              "gate": recs[g].get("gate"),
                               "M_and_L0": {w: {"M": x.get("M"), "L0": x.get("L0"), "verdict": x["verdict"],
                                                "why": x.get("why"), "read_validation": x.get("read_validation"),
                                                "seeks_main": x.get("seeks_main"), "backend": x.get("backend")}
