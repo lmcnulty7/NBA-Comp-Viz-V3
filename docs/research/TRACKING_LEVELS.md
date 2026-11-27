@@ -54,11 +54,11 @@ source of uncut modern broadcasts, reopened only if one appears.
 
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
-1. Level 2 by cause on the development standard rows (D202): missed 0.214 (placement 0.155, detection 0.059),
-   ghosts 0.121 per box, team 0.834 (hou_cle_2016 0.756), against 0.05, 0.05 and 0.95. Next, report only from the
-   stored D202 score records: (a) team errors by cause (which team, court region, crowding, frame position, colour
-   distance), since team is the largest relative gap and the cheapest to study; (b) placement misses by cause on the
-   decided truths (foot model, near-camera bias, occlusion, box truncation at the frame edge).
+1. Level 2 by cause (D202 to D204): team errors are carried by crowding (D203; tracking and colour not separated);
+   placement misses are carried by players whose nearest box belongs to a neighbour (D204), which may really be own
+   boxes missing, merged or misplaced. Next, report only: a one-to-one view of the missed row (each SportVU player
+   matched to at most one box, as the scorer's one-to-one net error does), splitting placement into no own box,
+   own box misplaced, and neighbour's box taken, so the Level 2 targets are measured on what a fix can move.
 2. Deferred: the gsw_ind_2016 CPU rebuild (D200); the tracker-fix question on a real pool (D198, decides only the
    reported baseline under D193).
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
