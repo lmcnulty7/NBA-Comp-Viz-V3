@@ -170,3 +170,11 @@ compared byte for byte.
 
 Section 8's cost stands, with the reproduction gate (one more pair) and the bracket split (two more scores per game
 for cha and bkn) added: about 10 to 20 minutes of scoring plus the cache entries; the cap stays 60 minutes.
+
+**10.10 Tool (2026-11-27, written, not run).** tools/p8_rebaseline.py (score inside the lock "p8 rebaseline score",
+report in system python) and tests/test_p8_rebaseline.py. Order: gsw_bkn_2015 first, its previous truth first, so the
+reproduction gate runs before any other number is kept; then gsw_cha_2016, then hou_cle_2016. A window whose cache
+file is missing in the reference root gets the workspace's file when the clips are byte-identical (counted); every
+entry still missing is counted per window (wide, referees, corr absent) and the window's scoring time recorded. Tests:
+the ratio rows (placement as missed minus detection), intervals that contain their values, the truth change against
+tools.p8_e1_score.diffs, the gate, the manifests and pins, the content test of time maps, the order.
