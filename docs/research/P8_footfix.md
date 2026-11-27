@@ -295,3 +295,131 @@ docs/research/TRAINING_PROTOCOL.md.
 - Frames the truth rejected are not seen; one-to-one assignment for the fit rows is a convention (D205).
 - Report and research only: no registered row is replaced, and nothing enters the pipeline or the site without a
   further D line.
+
+## 13. Version 1.1 (2026-11-27, after the design review of 4abb21a9; before any code or number)
+
+The independent review (training-design-reviewer) read version 1 as GO WITH CHANGES, with three blockers, three serious
+findings and six minors. Sections 1 to 12 stand as registered except where this section replaces them; where the two
+differ, this section rules.
+
+### 13.1 Circularity (blocker 1)
+
+The truth camera T removes the hits' mean offset by construction: fit_game pools foot-to-SportVU pairs, each frame's
+camera is then refitted to that frame's inlier feet (sportvu.camera.fit_frame on the pairs of sportvu.truth.window_truth,
+then refine_lines), and frames are kept only at a median foot residual of 2.0 ft or less (sportvu.autolabel
+MAX_FEET_RESID_FT). All three games share the procedure, so leave one game out does not break the circle. Registered:
+
+(a) **Reading of a stage 1 pass.** A form that passes section 6 reads **"feet nearer"** only if position p50 under B
+changes by 0 or less (point estimate) on both pool games and (b) below does not read "copying T". Otherwise it reads
+**"agreement with T only"**: stage 2 is not requested and hou_cle_2016 stays unspent.
+
+(b) **Split by truth-fit inliers.** For every scored frame, the inliers of that frame's truth fit are recomputed as the
+truth step computed them: sportvu.truth.window_truth on the window's label-build sidecar and time map (the
+work_ref/label_build files the truths were fitted from; work_ms links to them), as tools.p8_multistart.build_inputs and
+tools.p8_frozen's fit step call it. Gate: every frame the truth accepted (every labels row) has a recomputed row with
+status ok and the same q and moment; else the run stops. A player is an **inlier player** on a frame when its SportVU id
+is in an inlier pair of that frame's recomputed row; the label-build box of that pair is reported beside the scored box
+(the share of scored frames whose label-build boxes equal builds/r23's in bbox and foot_stab is reported). The missed
+change and the position p50 change are reported separately for inlier and non-inlier players, per game, with window
+intervals. **"Copying T"** reads when, on either game, for missed or for p50, the inlier players' change is below 0 and
+the non-inlier players' change is 0 or above (point estimates).
+
+(c) **F2 is a predicted-null control, not a candidate.** T was fitted to these feet, so a vertical offset proportional to
+box height is largely absorbed by T's per-frame pose. Predicted now: every populated bin of every F2 table (in sample and
+per fold) has |r_bin| at most 0.01 (about 2 px on a 200 px box; D186's ratios toward SportVU under B were -0.017 to
+-0.036). F2 is scored in stages 0 and 1 and reported beside F1, but G0, stage 1's pass and stage 2 read F1 only.
+Section 4's choice between forms is withdrawn. If the prediction fails, that is reported as T not absorbing the vertical
+offset; it changes no gate.
+
+### 13.2 Guard readings and power (blocker 2)
+
+The guard bars of section 6 sit near the paired noise half-widths. A guard failure counts as **harm** only when the
+point estimate is beyond the bar. A failure by the interval's end alone reads **"not shown non-inferior,
+inconclusive"**. Both close the arm: there is no rescue, no further pool look and no bar is widened (D188).
+
+Computed power (section 7 is extended by this). For a form whose true effect on a guard row is zero, the chance that the
+row passes is about Phi(1.96 (bar / u - 1)), with u the distance from the point to the upper end of the closest measured
+paired interval (D186 and D187's K1; D188's K1m for near-third p90). Team has no measured paired interval and is left out.
+
+| guard (bar) | gsw_bkn_2015: u, pass chance | gsw_cha_2016: u, pass chance |
+|---|---|---|
+| ghosts per box (+0.010) | 0.0036, 1.00 | 0.0067, 0.84 |
+| near-field bias (+0.10 ft) | 0.028 ft, 1.00 | 0.158 ft, 0.24 |
+| position p90 (+0.10 ft) | 0.078 ft, 0.71 | 0.072 ft, 0.78 |
+| near-third p90 (+0.05 ft) | 0.052 ft, 0.46 | 0.038 ft, 0.73 |
+| all four, if independent | 0.33 | 0.11 |
+
+Both games together: about 0.04. The primary row passes with chance 0.50 at a true change of -0.010 on either game, 0.93
+(bkn) and 0.86 (cha) at -0.015, and 0.98 or more at -0.020. So a form with a real -0.015 effect and no harm to any
+guard passes the whole rule with a chance of a few percent, if the guards are independent (they are not: p90 and
+near-third p90 share players, which raises it). The proxies come from older truths with fewer gsw_cha_2016 frames, so
+the gsw_cha_2016 figures are likely pessimistic. Read plainly: the registered rule rarely passes a harmless form, and
+stage 1's main information is likely the harm or inconclusive reading per row, not a pass.
+
+### 13.3 Rule 7 (blocker 3)
+
+Moving a P-ii box onto its player also lowers one-to-one missed, and it removes that box from the ghost row (its foot
+comes within 3 ft of a player). So neither one-to-one missed nor ghosts catches a ghost box moved onto a player; this is
+a limit of the design, listed in section 12. Rule 7 becomes: **one-to-one missed change at most -0.0075 on each game,
+or at most 0.75 times the missed change** (a one-to-one fall of at least three quarters of the missed fall). In-frame
+players and boxes stay equal by construction (a difference stops the run). Net error is reported, not ruled.
+
+### 13.4 Serious findings 4 to 6
+
+4. **G0 (self-decided by the lead):** F1, fitted and scored in sample, has missed change at most -0.010 on both games and
+   meets rules 2 to 7 by point estimate. This replaces the -0.020 bar of section 8: it keeps a cheap kill without the
+   false-negative risk of -0.020. G0 fails: KILL, as before.
+5. **hou_cle_2016.**
+   - The once-marker is written before any hou_cle_2016 file is read, at work_ref/footfix/hou_once.json. That folder is
+     outside the folders the manifests watch. If the marker exists, the tool refuses. Any retry after the marker needs
+     the lead's decision.
+   - Stage 2 needs, besides a stage 1 pass of F1, the reading "feet nearer" of 13.1 (a). It also needs F1's ml-review
+     and the lead's go.
+   - Section 10 adds D185's reading as seen: near-third misses on gsw_cha_2016 and hou_cle_2016 were mostly
+     disagreement between the r23 court's H and the truth camera (old truths).
+   - A stage 2 FAIL cannot separate the correction from hou_cle_2016's single-pool fit (its truth is the fixed CPU fit,
+     not multipool). It is recorded as a FAIL of the arm with that limit stated.
+   - Team on hou_cle_2016: only the change rule 6 needs is reported, with no team breakdown (D203 keeps
+     hou_cle_2016's team rows for a team arm).
+6. **The reviewer's bound.** The likely in-sample effect is at the low end of section 7's range, and a G0 kill is likely
+   (about 70 percent, the reviewer's estimate). 0c's same-row conflict table (13.6) is the real premise of the arm. If T
+   and B disagree in sign on the same rows in the cells that carry P-ii, no single foot shift can serve both frames.
+
+### 13.5 Minors 7 to 12
+
+7. Fit-row eligibility: only in-frame players (the scorer's 10 px margin) give fit rows. The assignment follows
+   assign_1to1's convention: non-referee boxes against all ten players. This is D205's main split:
+   two_stage(feet, sv, range(10), non-referee boxes, _assign_all). A pair whose player is out of frame claims its box
+   but gives no row.
+8. Byte-equal identity: a box whose cell has no correction (no table entry, a zero entry, or F1 on a frame without an
+   accepted B or pose) keeps its stored foot_stab values exactly, with no image to court round trip. The identity table
+   therefore writes a sidecar whose frames equal builds/r23's (checked by hash in the smoke).
+9. score_pair: the corrected arm is scored with its own folder as both sides and the corrected sidecar passed as both
+   sides' sidecar, so its extra counts (one-to-one missed, far, duplicates, unmatched) come from the corrected feet. The
+   baseline is the identity arm, which must equal D202's records. Asserted per arm: if missed differs from the baseline
+   on a game, missed_1to1 differs too; else the run stops, because the sidecar handed to the extra counts would be
+   stale.
+10. F1 has 11 populated cells on D186's tables (no box of 250 px or more in the far third), not 12.
+11. Disk: about 0.9 GB for the corrected builds (stage 0: two forms on both games in sample, plus the identity copy;
+    stage 1: two forms on both games; stage 2: identity and one form on hou_cle_2016).
+12. Section 12 adds: the scored frames are themselves selected on agreement between T and the feet (median foot
+    residual at most 2.0 ft), so frames where the feet disagree most with T are not scored.
+
+### 13.6 Stage 0's audit, extended (0c, in the same lock, before G0 is computed)
+
+- The F1 and F2 tables fitted on each game's inlier rows only and on its non-inlier rows only, beside the all-rows table.
+- F2's ratios against the predicted 0 of 13.1 (c), per bin, in sample and for each fold table.
+- The same-row comparison: for every F1 fit row, the depth toward T's image of the player (F1's fit quantity) and the
+  depth toward SportVU under B (D186's quantity), on the same row. Per cell and game: both medians, their difference,
+  and the share of rows where the two have opposite signs. Cells holding P-ii rows are flagged with their P-ii counts.
+- These are report only and gate nothing. They are written to the stage 0 record before the in-sample scoring starts.
+
+### 13.7 Summary of the rule as it now stands
+
+- **Stage 0:** smoke, then identity reproduction of D202 on every window, then 0c, then G0 on F1 in sample (13.4 (4)).
+  G0 fails: the arm closes.
+- **Stage 1:** F1 leave one game out, with section 6 rules 1 to 6 and rule 7 as in 13.3.
+  - A guard failure reads harm or inconclusive (13.2). Either way the arm closes.
+  - A pass reads "feet nearer" or "agreement with T only" (13.1).
+  - Only "feet nearer" requests stage 2.
+- **Stage 2:** as 13.4 (5).
