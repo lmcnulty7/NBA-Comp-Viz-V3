@@ -57,8 +57,8 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 1. Development truth set (D199): three usable games now, gsw_cha_2016 and gsw_bkn_2015 on the multi-pool truth and
    hou_cle_2016 on its fixed CPU truth; gsw_sac_2015 apart on check C; gsw_ind_2016 apart (D98) but showing the same
    fit fragility. Next: a registered CPU rebuild of gsw_ind_2016 with the reset fix and the multi-pool fit (about 3 to
-   4 lock hours, 0 units), which could add a usable game from a fourth arena; and a design for why gsw_sac_2015 fails
-   check C (timing), report only first.
+   4 lock hours, 0 units) was designed and deferred (D200): it is a GSW home game, not a new arena, and its MPS check
+   C already fails; the gsw_sac_2015 check C diagnosis found no cause a rebuild would change (D201).
 2. With two or three usable pool games, re-ask the tracker-fix question on a real pool as a new registration (the
    reset-fix arm stays closed, D198); under D193 every development arm already builds on the fixed tracker, so this
    decides only the reported baseline and ranks below item 1.
@@ -130,6 +130,10 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 - A single-start fit can fail silently. The frozen pooled camera fit stayed at its start on one random draw of
   gsw_cha_2016 and on gsw_ind_2016; across ten seeds it fails 4 to 6 times in 10 on the same data (D197). Any fit that
   sets a truth needs several starts or a convergence check, or a usable game can be lost by chance.
+- Test identity on the content a measure reads, not on whole files. A byte rule flagged every time map as changed
+  because one run-time field differed, and fired a registered reading on a false alarm (D201).
+- Read the size of a gate's margin before chasing its failure: gsw_sac_2015 fails check C's share by 2 windows of
+  73, inside the controls' normal swing (D201).
 - Chain the steps, do not wait for a wake-up. A teammate waiting on a completion notice left the Mac idle 20 minutes
   twice in a day; one background script for the whole sequence, plus a lead-side watcher on the lock, removed it.
 
