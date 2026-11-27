@@ -415,3 +415,8 @@ Unchanged from section 8, except that it now follows stage A and needs 11.7 (8) 
 - Stage A: one lock per game ("p8 posefoot align <game>"), cap 60 minutes each.
 - Stages 1 and 2: as section 8, with 11.7 (9)'s estimate.
 - Each stage runs as one background chain and is reported the moment it ends.
+
+### 11.10 Note on the stage 0a tool (2026-11-27, before any number)
+
+The tool's D207 gate is stricter than 11.3 states. Per window, it checks the ordered list of (kind, class, box height)
+rows against D207's record, not only the class counts.
