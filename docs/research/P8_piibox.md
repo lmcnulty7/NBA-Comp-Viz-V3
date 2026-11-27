@@ -237,3 +237,111 @@ Such a player then has either no match or only a stage B box. Section 4's hits b
 in-frame player of class hit") does not cover these players. They are now counted, not classified, as two report-only
 counters: hits without a stage A box, and hits with a stage B box only. No class, geometry or gate changes. The P-ii
 check (a P-ii player's box must be a stage B match at frame_classes' distance) stays a stop.
+
+## 13. Result (2026-11-27, retry 1 of run 1, from 97cc0b3a; record reports/research/p8_piibox.json)
+
+**Run.** One collect per game, each under its own lock. Lock times are from the heavy-job lines of
+work_ref/logs/piibox.log:
+
+| step | lock time | the collect's own time | peak memory |
+|---|---|---|---|
+| gsw_cha_2016 | 57 s | 50.8 s | 0.6 GB |
+| gsw_bkn_2015 | 60 s | 53.6 s | 0.7 GB |
+| hou_cle_2016 | 126 s | 119.7 s | 0.6 GB |
+
+The report took 17 s in system python. Written: 24 MB under work_ref/piibox/.
+
+**Gates.**
+- D202's six fields equalled its records on every window (73, 83 and 93 windows).
+- D205's class counts and sorted stage B distances equalled its records on every pool window.
+- Every label row's camera reproduced its H_truth (relative 1e-9).
+- The stopping counters (no track, camera mismatch) were 0.
+- The manifests were unchanged.
+- hou_cle_2016: D202's gate only; no class, geometry or camera was computed, and it stays unspent.
+
+**Amendment 12's counters** (hits by the nearest-foot rule that have no stage A box, so are not classified):
+- gsw_cha_2016: 482 without any match, 148 with a stage B box only, against 21,871 classified hits;
+- gsw_bkn_2015: 740 and 164, against 22,005.
+
+**Class shares, P-ii boxes beside hit boxes** (pooled over gsw_cha_2016 and gsw_bkn_2015; window intervals; 6,596 P-ii
+boxes, 43,876 hit boxes):
+
+| class | P-ii | hits | P-ii rate over in-frame players |
+|---|---|---|---|
+| own | 0.330 [0.299, 0.364] | 0.357 [0.321, 0.399] | 0.0376 |
+| own, with crossings | 0.198 [0.163, 0.234] | 0.236 [0.202, 0.270] | 0.0226 |
+| own, misplaced, with crossings | 0.001 [0.000, 0.003] | 0.000 | 0.0001 |
+| own, misplaced | 0.012 [0.007, 0.019] | 0.001 [0.001, 0.002] | 0.0014 |
+| **own (all four)** | **0.541 [0.507, 0.578]** | **0.595 [0.558, 0.633]** | 0.0617 |
+| switch | 0.328 [0.296, 0.359] | 0.328 [0.294, 0.361] | 0.0375 |
+| another's, with crossings | 0.072 [0.061, 0.084] | 0.060 [0.052, 0.067] | 0.0083 |
+| another's | 0.046 [0.039, 0.054] | 0.013 [0.011, 0.015] | 0.0053 |
+| **another's (both)** | **0.119 [0.106, 0.132]** | **0.073 [0.065, 0.080]** | 0.0136 |
+| ghost, referee-flagged | 0.000 [0.000, 0.001] | 0.000 | 0.0000 |
+| ghost, short | 0.010 [0.007, 0.014] | 0.004 [0.003, 0.005] | 0.0011 |
+| ghost, persistent | 0.002 [0.001, 0.004] | 0.001 [0.000, 0.001] | 0.0002 |
+| **ghost (all three)** | **0.012 [0.009, 0.016]** | **0.005 [0.004, 0.006]** | 0.0014 |
+
+Per game, own (all four) is 0.547 and 0.535 among P-ii boxes against 0.598 and 0.592 among hits, and another's (both)
+is 0.106 and 0.132 against 0.073 and 0.072. The full per-class table per game, the (n_own, n_other, n_ownB)
+histogram and the report-only medians are in the record.
+
+**Geometry per group, P-ii against hits (pooled):**
+
+| group | h / e median | short (under 0.75) | tall (over 1.25) | IoU at least 0.3 | half inside another box | bottom truncated |
+|---|---|---|---|---|---|---|
+| P-ii, all | 0.964 [0.957, 0.971] | 0.032 [0.026, 0.037] | 0.011 [0.008, 0.014] | 0.126 [0.116, 0.139] | 0.111 [0.101, 0.121] | 0.001 |
+| hits, all | 0.985 [0.981, 0.990] | 0.011 [0.010, 0.013] | 0.006 [0.005, 0.007] | 0.140 [0.133, 0.147] | 0.113 [0.107, 0.119] | 0.001 |
+| P-ii, own (all four) | 0.969 [0.960, 0.977] | 0.028 [0.020, 0.036] | 0.008 [0.004, 0.011] | 0.100 [0.087, 0.114] | 0.093 [0.081, 0.106] | 0.002 |
+| hits, own (all four) | 0.987 [0.982, 0.993] | 0.010 [0.008, 0.012] | 0.004 [0.003, 0.005] | 0.117 [0.109, 0.126] | 0.095 [0.087, 0.102] | 0.001 |
+| P-ii, switch | 0.959 [0.947, 0.972] | 0.035 [0.024, 0.045] | 0.015 [0.009, 0.022] | 0.142 [0.119, 0.166] | 0.119 [0.101, 0.141] | 0.001 |
+| hits, switch | 0.984 [0.976, 0.991] | 0.012 [0.009, 0.015] | 0.006 [0.004, 0.008] | 0.160 [0.149, 0.172] | 0.128 [0.119, 0.138] | 0.000 |
+| P-ii, another's (both) | 0.954 [0.938, 0.968] | 0.036 [0.021, 0.053] | 0.015 [0.007, 0.026] | 0.200 [0.168, 0.239] | 0.165 [0.134, 0.198] | 0.001 |
+| hits, another's (both) | 0.971 [0.965, 0.978] | 0.017 [0.012, 0.023] | 0.018 [0.009, 0.026] | 0.232 [0.211, 0.258] | 0.196 [0.180, 0.215] | 0.001 |
+| P-ii, ghost (all three) | 0.900 [0.864, 0.961] | 0.101 [0.044, 0.172] | 0.013 [0.000, 0.042] | 0.165 [0.086, 0.253] | 0.139 [0.074, 0.214] | 0.000 |
+| hits, ghost (all three) | 0.961 [0.922, 0.986] | 0.082 [0.037, 0.137] | 0.034 [0.006, 0.068] | 0.193 [0.140, 0.251] | 0.145 [0.097, 0.197] | 0.010 |
+
+The geometry barely separates P-ii boxes from hits' boxes:
+- the height ratio is lower by about 0.02 (0.964 against 0.985; the intervals do not overlap);
+- short boxes are about three times as common, but are 0.032 against 0.011 of boxes;
+- overlap and truncation are the same or lower among P-ii boxes;
+- within each group the pattern is the same.
+
+The median P-ii box is 167 px tall, against 172 px for hits. P-ii boxes lie more often in the far third: 0.28 of P-ii
+boxes against 0.25 of hits.
+
+**Proximity (the 5 ft share; boxes whose track lies within 5 ft of p on at least half the other frames where it
+appears), pooled:**
+- another's: 0.108 [0.073, 0.147], against hits 0.173 [0.140, 0.206];
+- another's, with crossings: 0.079 [0.051, 0.116], against 0.125 [0.095, 0.163];
+- own, misplaced: 0.866 [0.736, 0.966], against 0.954 [0.890, 1.000];
+- ghost, persistent: 0.154 [0.000, 0.445], against 0.200 [0.053, 0.360].
+
+So few another's and ghost tracks stay near the missed player: the own classes are not hiding many of them.
+
+**Scorer ghosts.** 0.571 [0.552, 0.589] of P-ii boxes are scorer ghosts on their frame (more than 3.0 ft from all ten
+players), against none of the hit boxes, as their 2.5 to 5 ft distance implies.
+
+**Reading by the registered table (section 7).**
+- The P-ii row is mostly the player's own box: own (all four) 0.541 of P-ii boxes, 0.062 of in-frame players. That
+  points to a foot or per-box problem, and the own share (0.062) is a ceiling for that route, not a forecast.
+- Switch is 0.328, the same share as among hits: an identity pattern of tracks in general, not one particular to the
+  P-ii row.
+- Another's is 0.119, against 0.073 among hits.
+- Ghosts are 0.012, against 0.005.
+
+**Post hoc (not registered; no test confirms them).**
+- Every class's share among P-ii boxes lies within about 0.05 of its share among hits. Only another's (+0.046) and
+  ghosts (+0.007) are enriched, and own (all four) is lower by 0.054. So the tracks behind P-ii boxes look much like
+  the tracks behind hits. The P-ii row reads as ordinary boxes and ordinary tracks placed 2.5 to 5 ft off on that
+  frame, not as a separate population of false or foreign boxes. This fits D206's per-box scatter reading.
+- The geometry barely separates them either (above). Box height, truncation and overlap do not mark the P-ii boxes, so
+  a per-box signal for the misplaced foot would have to come from something this item did not measure (for example
+  pose keypoints, or the foot's motion between frames).
+- Own, misplaced is rare (0.012). A player's own box is seldom 2.5 to 5 ft off for long, which also fits frame-level
+  scatter.
+- Report-only medians: the nearest own-pairing frame for a P-ii own box is a median 0.20 s away, against 0.10 s for
+  hits. The P-ii own boxes' foot sits a median 0.39 ft short of the player along the ray, against 0.35 ft for hits'
+  own boxes. Those medians hide the 2.5 to 5 ft offset, which is spread in direction.
+- Switch at a third of both hits and P-ii boxes is large in its own right: a third of tracks change partner within a
+  window. That bears on D203's team row, not on missed.
