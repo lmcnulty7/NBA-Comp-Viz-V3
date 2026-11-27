@@ -78,3 +78,19 @@ def test_readings_follow_the_registered_rules():
     assert r["F2"]["reading"].startswith("the pool prefers") and r["F4"]["reading"].startswith("H5")
     r = C.readings({"fix": [stuck] * 10, "nofix": [stuck] + [ok] * 9}, f2_no, f3_ok, {"share_changed": None})
     assert r["F1"]["reading"].startswith("the fit is fragile on both")
+
+
+def test_stage1_guards_every_game_it_reads_before_reading(monkeypatch):
+    import pytest
+    seen = {}
+
+    def fake_guard(items, who):
+        seen["guard"] = list(items)
+        raise SystemExit("stop after the guard")
+    monkeypatch.setattr(C, "refuse_cv_test", lambda items, who: seen.setdefault("refuse", list(items)))
+    monkeypatch.setattr(C, "guard", fake_guard)
+    monkeypatch.setattr(C, "roots", lambda: (_ for _ in ()).throw(AssertionError("read before the guard")))
+    with pytest.raises(SystemExit, match="after the guard"):
+        C.stage1()
+    want = {"gsw_cha_2016", "gsw_bkn_2015", "gsw_sac_2015", "hou_cle_2016", "gsw_ind_2016"}
+    assert set(seen["refuse"]) == want and set(seen["guard"]) == want

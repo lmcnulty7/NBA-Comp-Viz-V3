@@ -659,7 +659,9 @@ heavy step under its own lock. No step failed and none was retried. Every label 
 label-check (device record and reset log); every r23 window of check C's composite resolves the detector to cpu.
 
 **Lock time.** Truth phase 42,033 s: gsw_cha_2016 8,916, hou_cle_2016 11,386, gsw_bkn_2015 10,737 and gsw_sac_2015
-10,994 s, each under its estimate and cap. Accept phase 477 s (measure-dev 152, 166 and 159 s).
+10,994 s, each under its cap; gsw_sac_2015 7.8 percent over its estimate (10,200 s), the others under theirs. Accept
+phase 477 s (measure-dev 152, 166 and 159 s). Source of the lock times and of hou_cle_2016's "CHECK C NOT RUN": the
+driver's log, logs/truth_fix.log in the reference root (the heavy-job lines of each step).
 
 **Check C's r23 side** (tools/p8_truth_cpu_r23.py compose, after the arm's equivalence passed for each pool game):
 gsw_cha_2016 12 reset windows from the arm and 61 from the baseline (73 of 73 label windows covered), gsw_bkn_2015 17
@@ -681,8 +683,9 @@ and the accept phase runs again for that game; nothing else about it changes.
 
 **Moved against the MPS truth** (section 0's bars; the reading carries the platform and the fix together, section 16
 version 4): all four MOVED, on accepted frames in every game (gsw_cha_2016 1,366 to 971, hou_cle_2016 4,427 to 7,447,
-gsw_bkn_2015 2,075 to 2,903, gsw_sac_2015 2,151 to 2,949); reprojection and the median per-window offset difference
-stay under their bars except gsw_cha_2016's reprojection (7.65 to 15.18 px).
+gsw_bkn_2015 2,075 to 2,903, gsw_sac_2015 2,151 to 2,949). Reprojection moves past its 1.0 px bar at gsw_cha_2016
+(7.65 to 15.18 px) and gsw_sac_2015 (5.47 to 6.65 px) and stays under it at hou_cle_2016 and gsw_bkn_2015; the median
+per-window offset difference stays under 0.2 s in all four.
 
 **What this decides, by section 5 and D98 as registered.** gsw_bkn_2015's CPU truth with the fix reads "use".
 gsw_sac_2015's reads "apart": check C fails (the frozen offset rule's median and share between the fixed V3 label build

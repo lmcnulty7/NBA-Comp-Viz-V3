@@ -111,10 +111,16 @@ def windows(lb: Path) -> list:
     return sorted(p.name[:-len("_frames.json")] for p in lb.glob(f"{GAME}_s[0-9][0-9]_w[0-9][0-9]_frames.json"))
 
 
+def read_tags() -> list:
+    """Every game whose files stage 1 reads: gsw_cha_2016 and the fits of S1."""
+    return sorted({GAME, *GSW, *OTHERS, *REFERENCE_ONLY})
+
+
 def stage1() -> dict:
     from sportvu.camera import pose_from_h
-    refuse_cv_test([GAME], WHO)
-    guard([GAME], WHO)
+    tags = read_tags()
+    refuse_cv_test(tags, WHO)
+    guard(tags, WHO)
     work, ref = roots()
     lb_fix, lb_old = ref / "label_build", ref / "superseded_nofix" / "label_build"
     stems = sorted(set(windows(lb_fix)) | set(windows(lb_old)))

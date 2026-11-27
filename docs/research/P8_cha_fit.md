@@ -125,8 +125,10 @@ S5: between gsw_cha_2016's two CPU fits, C0 moved 0.09 ft and C moved 23.65 ft.
 S2, court identity: of 18,083 frames in both label builds, 17,595 have an identical court H, 488 have no H in either
 build, and none differs. The fix did not touch the court side.
 
-S3, boxes: before each window's first reset the two builds have identical boxes (15,016 frames, median 9 boxes, 13,142
-frames with at least 6). After a first reset (3,067 frames in the 12 windows with one) the unfixed build has a median
+S3, boxes: the first reset of each window is taken from the fixed build's reset log for both builds (the design
+named tools.p8_trackreset.reset_like for the unfixed build; before the first reset both builds run the same code, so
+one frame boundary serves both). Before each window's first reset the two builds have identical box counts and summary
+statistics (15,016 frames, median 9 boxes, 13,142 frames with at least 6). After a first reset (3,067 frames in the 12 windows with one) the unfixed build has a median
 of 3 boxes and 527 frames with at least 6; the fixed build a median of 9 and 2,792.
 
 S4, accepted rows: before the first reset 2,416 (no fix) against 856 (fix); after it 43 against 115. Feet residual
@@ -203,31 +205,40 @@ number of function evaluations exceeded"), the fixed at cost 1,100,742 and the u
 **F1, seeds 1 to 10.** Fixed build: 7 of 10 runs leave their start, 4 of them good (seeds 1, 4, 7 and 10: 6.66, 9.36,
 7.80 and 5.81 px, 27.3, 12.8, 27.0 and 34.1 ft from C0); seeds 5, 6 and 8 stay within 4 ft of C0 at 13.1 to 13.4 px.
 Unfixed build: 6 of 10 leave their start, all 6 good (5.45 to 9.88 px); seeds 2, 3, 4 and 6 stay within 5 ft of C0 at
-11.8 to 15.8 px. Registered reading: the fit is fragile on both builds; the fix exposed it.
+11.8 to 15.8 px. Good runs: fixed 4 of 10 against unfixed 6 of 10; ten seeds cannot separate those two rates.
+Registered reading: the fit is fragile on both builds; the fix exposed it. How the rule was read: its "while the
+unfixed-build runs leave theirs" was coded as all 10 unfixed runs leaving (tools/p8_cha_fit.readings, committed in
+125a5a77 before the run); 6 of 10 did, so the rule's third branch applies. A majority reading of the same words would
+have given H1 (at least 1 fixed run leaves and is good, while most unfixed runs leave).
 
-**F2, two starts on the fixed seed-0 pool.** From C_old the run ends at (47.3, 125.7, -30.2), within 5 ft of C_old,
-at 10.05 px but a higher cost (1,290,761) than the frozen run from C0 (1,100,742). Registered reading: the pool prefers
-the near position (H3 or H5, by F3 and F4). Report only: from C0 with 2,000 evaluations the run stays at C0 (0.98 ft
-from it) at 14.86 px and cost 1,062,115, so the cap is not what held it there.
+**F2, two starts on the fixed seed-0 pool.** The run from C_old started with each frame's rotation and focal length
+from that frame's V3 court H, as the frozen fit does, and only C changed. After 200 evaluations from each start, the run
+from C_old ended at (47.3, 125.7, -30.2), within 5 ft of C_old, at 10.05 px, and at a higher cost (1,290,761 against
+1,100,742); neither run converged, so this does not locate the minimum. Not H2 by the registered rule; the rule's other
+branch reads "the pool prefers the near position (H3 or H5, by F3 and F4)". Report only: from C0 with 2,000
+evaluations the run also ended at its cap; C moved 0.10 ft (0.098) more with ten times the evaluations, to 0.98 ft from
+C0, while the cost still fell (1,100,742 to 1,062,115; 14.86 px).
 
 **F3, init subsets (seed 0).** Old inits only (4,083 frames): leaves its start (9.49 ft) and is good (9.05 px), but
 ends at (45.9, 111.3, -29.7), not near C_old. No post-reset frames (4,060 inits): stays at its start (3.77 ft), 14.29
 px. Registered reading: mixed (no registered pattern).
 
 **F4, pairs on shared frames.** 4,083 frames are inits in both builds; 211 (0.0517) have different inlier pairs; 860
-inits are new with the fix and 40 were lost. Registered reading: not H5.
+inits are new with the fix and 40 were lost. Registered reading: not H5 by the registered 10 percent rule.
 
-**Readings together, by the registered rules.** H4 was ruled out in stage 1. H5 is ruled out by F4. F1 shows the
-frozen pooled fit stays at its start for some pools on both builds (4 of 10 unfixed seeds, 3 of 10 fixed), so the
-failure is a property of the fit that the fixed build's seed-0 pool happened to hit, not of the fix alone. F2 shows
-that, on that pool, the soft-L1 cost is lower at the near position than at the old one, so the near position is not a
-start the optimizer failed to leave for a better minimum (not H2 in the registered sense). F3 does not isolate the
-post-reset frames (H3 not shown): removing them leaves the fit at its start, keeping only old inits moves it.
+**Readings together, by the registered rules.** H4 was ruled out in stage 1. H5 is not supported by the registered
+10 percent rule (F4). F1 shows the frozen pooled fit stays at its start for some pools on both builds (4 of 10 unfixed
+seeds, 3 of 10 fixed), so the failure is a property of the fit that the fixed build's seed-0 pool happened to hit, not
+of the fix alone; that is not "no effect of the fix" (good runs 4 of 10 against 6 of 10, which ten seeds cannot
+separate). F2: after 200 evaluations the run from C0 had the lower cost on that pool; neither run converged, so this
+does not locate the minimum, and it is not H2 by the registered rule. F3 (one seed) neither shows nor rules out a role
+for the post-reset frames: removing them left the fit at its start, keeping only the old inits moved it.
 
 **Report only, post hoc, not ruled.** (a) The soft-L1 cost and the median reprojection disagree on the fixed pool: the
 near position has the lower cost and the higher median, which suggests that it fits a subset of pairs very well and
 the rest poorly; which frames those are is not measured. (b) Both reproduced frozen fits (fixed and unfixed, seed 0) and the
-F2 run from C_old stop at the 200-evaluation cap, so on this game the frozen fit does not reach its convergence test
+F2 run from C_old stop at the 200-evaluation cap, and the report-only run with 2,000 evaluations stopped at its cap too
+(C moved 0.10 ft more while the cost still fell), so on this game the frozen fit does not reach its convergence test
 (the F1 runs' evaluation counts were not recorded). (c) gsw_ind_2016's broken MPS fit
 (D98) shows the same end-at-start pattern (stage 1). None of this changes a truth or a verdict: gsw_cha_2016's CPU
 truth with the fix stays "unused" and its MPS truth stays in use. A remedy (several starts or pools with a selection
