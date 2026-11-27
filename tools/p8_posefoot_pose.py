@@ -9,11 +9,12 @@ Report only; nothing is fitted or tuned.
 Refuses to start unless reports/research/p8_posefoot_align.json exists with stop false, and reads only its aligned
 windows, through tools.p8_posefoot.build_read (the build's own read path). On each frame holding a selected box (every
 P-ii box; up to 2 hit boxes per scored frame, numpy default_rng(0) over the game's windows and frames in order), the
-pinned ViTPose-B (tools.p8_posefoot MODEL_REPO at MODEL_REV, CPU, offline) runs on the selected boxes and on each one's
-two nearest-height non-referee partners (IoU under 0.5). The frame goes BGR to RGB first. Per selected box: the ankle
-point (both ankles at score 0.3 or more: their midpoint; one: that ankle), lifted to ANKLE_FT through the label row's
-camera (T) and through pose_from_h(B) (B), the pose-raw foot, the hybrid foot_stab + (pose ground pixel - foot_raw), the
-same-frame null from the nearest-height both-ankle partner, the 0.35 ft and unlifted sensitivities, scorer-ghost flags.
+pinned ViTPose-B (tools.p8_posefoot MODEL_REPO at MODEL_REV, CPU, offline) runs on the selected boxes only. The frame
+goes BGR to RGB first. Per selected box: the ankle point (both ankles at score 0.3 or more: their midpoint; one: that
+ankle); its lift pixel (15.1 (1): the floor point beneath the ankle lifted ANKLE_FT, through the label row's camera for
+T and pose_from_h(B) for B, projected back through the same camera), then mapped through T or B; the pose-raw foot (the
+lift pixel), the hybrid foot_stab + (lift pixel - foot_raw), the same-frame null from the nearest-height sampled hit box
+with both ankles (15.1 (6)), the 0.35 ft and unlifted sensitivities, scorer-ghost flags.
 hou_cle_2016 is refused before any file is read.
 """
 
@@ -37,10 +38,10 @@ ANKLES = (15, 16)                         # COCO left and right ankle
 ANKLE_SCORE = 0.3
 ANKLE_FT, ANKLE_FT_ALT = 0.25, 0.35       # 11.7 (4): 0.25 ruled, 0.35 and 0 reported
 HITS_PER_FRAME = 2                        # 11.7 (6)
-PARTNERS = 2                              # section 15: the two nearest-height partners get a pose
 MECH_SHARE, MECH_BELOW = 0.95, 0.2        # stage 1's mechanical check
 SMOKE_WINDOWS = {PF.CHA: "gsw_cha_2016_s00_w00", PF.BKN: "gsw_bkn_2015_s00_w00"}
-POSE_CAP_S = 120 * 60
+POSE_CAP_S = 60 * 60                      # 15.1 (3): per game
+READ_FAIL_MAX = 3                         # 15.1 (5): more than 3 unreproduced reads in a game stop the run
 RECORD = REPO / "reports" / "research" / "p8_posefoot_pose.json"
 
 
@@ -81,6 +82,21 @@ def lift_ground(px, C, rvec, f: float, W: int, H: int, h_ft: float) -> np.ndarra
     return np.array([X[0], X[1]])
 
 
+def lift_pixel(px, cam: tuple, W: int, H: int, h_ft: float) -> list | None:
+    """15.1 (1): the camera gives the lift shift only. The floor point beneath the point h_ft up the pixel's ray is
+    projected back through the same camera to a pixel; that pixel is then mapped through T or B like any foot. At
+    h_ft 0 it is the pixel itself."""
+    from tools.p8_scorecard import project3d
+    C, rvec, f = cam
+    g = lift_ground(px, C, rvec, f, W, H, h_ft)
+    if g is None:
+        return None
+    uv, depth = project3d(C, rvec, f, W, H, [[float(g[0]), float(g[1]), 0.0]])
+    if not (depth > 0).all():
+        return None
+    return [float(uv[0][0]), float(uv[0][1])]
+
+
 def to_pixel(H_px2ft, q) -> np.ndarray:
     """A court point back to the image through H's inverse."""
     return PF.map_px(np.linalg.inv(np.asarray(H_px2ft, np.float64).reshape(3, 3)), [q])[0]
@@ -108,6 +124,16 @@ def sample_hits(n_by_frame: list, rng) -> list:
     out = []
     for n in n_by_frame:
         out.append(sorted(int(i) for i in rng.choice(n, min(n, HITS_PER_FRAME), replace=False)) if n else [])
+    return out
+
+
+def fill_no_change(row: dict) -> dict:
+    """15.1 (2): for est, a row with no hybrid foot reads as no change (its hybrid equals foot_stab)."""
+    out = {**row, "dT": dict(row["dT"]), "gT": dict(row["gT"])}
+    if out["dT"].get("hyb") is None:
+        out["dT"]["hyb"] = out["dT"]["stab"]
+    if out["gT"].get("hyb") is None:
+        out["gT"]["hyb"] = out["gT"]["stab"]
     return out
 
 
@@ -222,11 +248,14 @@ def collect_pose(game: str, smoke: bool = False) -> dict:
                                               threshold=thr)
         return gates[dev]
     rng = np.random.default_rng(0)
-    rows, counters, rates = [], {"no_partner_pose": 0, "no_B_pose": 0, "frames": 0, "crops": 0}, []
+    rows, rates, sel_seconds = [], [], 0.0
+    counters = {"no_partner_pose": 0, "no_B_pose": 0, "frames": 0, "crops": 0, "crops_all_aligned": 0,
+                "read_not_reproduced": 0, "read_not_reproduced_windows": []}
     for wi, w in enumerate(wins):
         s = w["window"]
-        if time.time() - t0 > POSE_CAP_S:
-            raise SystemExit(f"{WHO}: the cap was reached; nothing is reported")
+        if time.time() - t0 > POSE_CAP_S:                 # 15.1 (3): 60 minutes per game, checked before each window
+            raise SystemExit(f"{WHO}: the 60-minute cap was reached; nothing is reported")
+        tsel = time.time()
         full = S.score_window(P_t, game, w, comp, "camera", mom, mirror, refs, events)
         if "skipped" in full[0]:
             raise SystemExit(f"{WHO}: {s} skipped: {full[0]['skipped']}")
@@ -289,48 +318,60 @@ def collect_pose(game: str, smoke: bool = False) -> dict:
         hits_by_f = {f: [k for k, it in enumerate(items) if it["f"] == f and it["kind"] == "hit"] for f in fr_sorted}
         draws = sample_hits([len(hits_by_f[f]) for f in fr_sorted], rng)
         keep_hits = {hits_by_f[f][i] for f, ii in zip(fr_sorted, draws) for i in ii}
-        if s not in aligned or (smoke and s != SMOKE_WINDOWS[game]):
-            continue
         sel = [it for k, it in enumerate(items) if it["kind"] == "P-ii" or k in keep_hits]
+        sel_seconds += time.time() - tsel
+        if s not in aligned:
+            continue
+        counters["crops_all_aligned"] += len(sel)            # one crop per selected box (section 15.1 (4))
+        if smoke and s != SMOKE_WINDOWS[game]:
+            continue
         need = {}
         for it in sel:
-            x = ctx[it["f"]]["x"]
-            hts = [float(b["bbox"][3] - b["bbox"][1]) for b in x["boxes"]]
-            ok = [not bool(ctx[it["f"]]["is_ref"][k]) and PF.box_iou(x["boxes"][k]["bbox"], x["boxes"][it["bk"]]["bbox"])
-                  < PF.PARTNER_IOU for k in range(len(x["boxes"]))]
-            it["partners"] = partner_order(hts, it["bk"], ok)[:PARTNERS]
-            need.setdefault(it["f"], set()).update([it["bk"], *it["partners"]])
+            need.setdefault(it["f"], set()).add(it["bk"])
         max_frames = (w["f_end"] - w["f_start"]) // build_stride(w["fps"]) + 2
         dev_rec = RB.read_json(comp / f"{s}_device.json") if (comp / f"{s}_device.json").exists() else {}
         gdev = (dev_rec.get("resolved") or {}).get("gate") or "cpu"
         tw = time.time()
-        frames_pose = {}
-        # main_reads calls predict(img) once per frame in need, in increasing frame order
-        order = sorted(need)
+        frames_pose, pose_s = {}, [0.0]
+        order = sorted(need)                              # main_reads calls predict once per frame, in frame order
         it_order = iter(order)
 
         def predict_seq(img):
             f = next(it_order)
             ks = sorted(need[f])
+            tp = time.time()
             res = run_pose(proc, model, img, [ctx[f]["x"]["boxes"][k]["bbox"] for k in ks])
+            pose_s[0] += time.time() - tp
             frames_pose[f] = dict(zip(ks, res))
             return True
 
         br = PF.build_read(P["label_build"] / f"{s}.mp4", side, max_frames, gate_for(gdev).is_court_visible,
                            set(order), predict_seq)
         if not br["validation"]["passes"] or set(order) - set(frames_pose):
-            raise SystemExit(f"{WHO}: {s}: the build's read path is not reproduced, although stage A aligned it")
-        rates.append({"window": s, "seconds": round(time.time() - tw, 1), "frames": len(order),
-                      "crops": sum(len(v) for v in frames_pose.values())})
+            counters["read_not_reproduced"] += 1          # 15.1 (5): skipped and counted
+            counters["read_not_reproduced_windows"].append(s)
+            if counters["read_not_reproduced"] > READ_FAIL_MAX:
+                raise SystemExit(f"{WHO}: more than {READ_FAIL_MAX} windows of {game} did not reproduce the read")
+            continue
+        rates.append({"window": s, "seconds": round(time.time() - tw, 1), "pose_seconds": round(pose_s[0], 2),
+                      "frames": len(order), "crops": sum(len(v) for v in frames_pose.values())})
         counters["frames"] += len(order)
         counters["crops"] += rates[-1]["crops"]
+        anks = {}
+        for f_, kd in frames_pose.items():
+            for k_, (kk, ss) in kd.items():
+                anks[(f_, k_)] = ankle_point(kk, ss)
+        hits_on = {}
+        for it in sel:
+            if it["kind"] == "hit":
+                hits_on.setdefault(it["f"], []).append(it["bk"])
         for it in sel:
             c = ctx[it["f"]]
             x, Ht, Hb, poseB, sv, row = c["x"], c["Ht"], c["Hb"], c["poseB"], c["sv"], c["row"]
             bx = x["boxes"][it["bk"]]
-            kps, sc = frames_pose[it["f"]][it["bk"]]
-            ank, n_ank = ankle_point(kps, sc)
+            ank, n_ank = anks[(it["f"], it["bk"])]
             camT = (row["camera_C"], row["camera_rvec"], float(row["camera_f"]))
+            camB = (poseB[2], poseB[0], poseB[1]) if poseB is not None else None
             rec = {"wi": wi, "kind": it["kind"], "class": it["class"], "h": it["h"], "speed": None, "ankles": n_ank,
                    "mech": None if ank is None else inside_or_below(ank, bx["bbox"]),
                    "dT": {k: None for k in ("poseraw", "hyb", "poseraw_035", "hyb_035", "poseraw_0", "hyb_0", "null")},
@@ -349,41 +390,37 @@ def collect_pose(game: str, smoke: bool = False) -> dict:
                 rec["dB"][name] = dist(Hb, p) if Hb is not None else None
             if ank is not None:
                 for hname, hft in (("", ANKLE_FT), ("_035", ANKLE_FT_ALT), ("_0", 0.0)):
-                    gT_ = lift_ground(ank, *camT, W, H, hft)
-                    if gT_ is None:
+                    pl = lift_pixel(ank, camT, W, H, hft)          # 15.1 (1): the camera gives the lift only
+                    if pl is None:
                         continue
-                    pT = to_pixel(Ht, gT_)
-                    hyb = hybrid_pixel(bx["foot_stab"], bx["foot_raw"], pT)
-                    rec["dT"]["poseraw" + hname] = float(np.hypot(*(gT_ - sv[j])))
+                    hyb = hybrid_pixel(bx["foot_stab"], bx["foot_raw"], pl)
+                    rec["dT"]["poseraw" + hname] = dist(Ht, pl)
                     rec["dT"]["hyb" + hname] = dist(Ht, hyb)
                     if hname == "":
                         rec["gT"]["hyb"] = ghost(Ht, hyb)
-                    if poseB is not None and hname == "":
-                        gB_ = lift_ground(ank, poseB[2], poseB[0], poseB[1], W, H, hft)
-                        if gB_ is not None:
-                            rec["dB"]["poseraw"] = float(np.hypot(*(gB_ - sv[j])))
-                            rec["dB"]["hyb"] = dist(Hb, hybrid_pixel(bx["foot_stab"], bx["foot_raw"], to_pixel(Hb, gB_)))
-            counters["no_B_pose"] += poseB is None
-            # the same-frame null: the first of the two partners with a both-ankle pose
-            nk = None
-            for k in it["partners"]:
-                kk, ss = frames_pose[it["f"]][k]
-                a_k, n_k = ankle_point(kk, ss)
-                if n_k == 2:
-                    nk = (k, a_k)
-                    break
-            if nk is not None:
-                k, a_k = nk
-                bk_ = x["boxes"][k]
-                h_k = float(bk_["bbox"][3] - bk_["bbox"][1])
-                gk = lift_ground(a_k, *camT, W, H, ANKLE_FT)
-                if gk is not None:
-                    off = np.asarray(to_pixel(Ht, gk)) - np.asarray(bk_["foot_raw"], float)
+                if camB is not None:
+                    plB = lift_pixel(ank, camB, W, H, ANKLE_FT)
+                    if plB is not None:
+                        rec["dB"]["poseraw"] = dist(Hb, plB)
+                        rec["dB"]["hyb"] = dist(Hb, hybrid_pixel(bx["foot_stab"], bx["foot_raw"], plB))
+            counters["no_B_pose"] += camB is None
+            # 15.1 (6): the null partner is the nearest-height sampled hit box on the frame with both ankles
+            hts = [float(b["bbox"][3] - b["bbox"][1]) for b in x["boxes"]]
+            okp = [k in hits_on.get(it["f"], []) and anks.get((it["f"], k), (None, 0))[1] == 2 and
+                   PF.box_iou(x["boxes"][k]["bbox"], bx["bbox"]) < PF.PARTNER_IOU for k in range(len(x["boxes"]))]
+            order_k = partner_order(hts, it["bk"], okp)
+            if order_k:
+                k = order_k[0]
+                bk_, a_k = x["boxes"][k], anks[(it["f"], k)][0]
+                h_k = hts[k]
+                pk = lift_pixel(a_k, camT, W, H, ANKLE_FT)
+                if pk is not None:
+                    off = np.asarray(pk) - np.asarray(bk_["foot_raw"], float)
                     rec["dT"]["null"] = dist(Ht, PF.null_foot(bx["foot_stab"], off, it["h"], h_k))
-                if poseB is not None:
-                    gkB = lift_ground(a_k, poseB[2], poseB[0], poseB[1], W, H, ANKLE_FT)
-                    if gkB is not None:
-                        offB = np.asarray(to_pixel(Hb, gkB)) - np.asarray(bk_["foot_raw"], float)
+                if camB is not None:
+                    pkB = lift_pixel(a_k, camB, W, H, ANKLE_FT)
+                    if pkB is not None:
+                        offB = np.asarray(pkB) - np.asarray(bk_["foot_raw"], float)
                         rec["dB"]["null"] = dist(Hb, PF.null_foot(bx["foot_stab"], offB, it["h"], h_k))
             else:
                 counters["no_partner_pose"] += 1
@@ -395,6 +432,7 @@ def collect_pose(game: str, smoke: bool = False) -> dict:
            "windows": len(stems), "aligned_windows": len(aligned), "rates": rates, "counters": counters,
            "in_frame_by_window": [score["windows"][s_]["in_frame"] for s_ in stems],
            "nr_boxes_by_window": [score["windows"][s_]["nr_boxes"] for s_ in stems],
+           "selection_seconds": round(sel_seconds, 1),
            "manifest_unchanged": after == watched, "seconds": round(time.time() - t0, 1), "rows": rows}
     dd = r["ref"] / "posefoot" / ("pose_smoke" if smoke else "pose")
     dd.mkdir(parents=True, exist_ok=True)
@@ -416,6 +454,7 @@ def report(smoke: bool = False) -> dict:
     o2o = {g: RB.read_json(r["ref"] / "one2one" / f"{g}.json") for g in PF.POOL}
     hit_all = {g: sum(1 for _, rec in o2o[g]["rows"] if rec["class"] == "hit") for g in PF.POOL}
     both = {g: {**per[g], "rows": [x for x in per[g]["rows"] if x["ankles"] == 2]} for g in PF.POOL}
+    filled = {g: {**per[g], "rows": [fill_no_change(x) for x in per[g]["rows"]]} for g in PF.POOL}
     one = {g: {**per[g], "rows": [x for x in per[g]["rows"] if x["ankles"] == 1]} for g in PF.POOL}
     out = {"what": "docs/research/P8_posefoot.md section 15, the pose " + ("smoke" if smoke else "falsifier") +
                    "; report only", "smoke": smoke, "git": {g: per[g]["git"] for g in PF.POOL},
@@ -434,6 +473,10 @@ def report(smoke: bool = False) -> dict:
     for g in list(PF.POOL) + ["pooled"]:
         gs = list(PF.POOL) if g == "pooled" else [g]
         out["hybrid"][g] = PF.unit_rows(both, gs, "hyb", hit_all)
+        allr = PF.unit_rows(filled, gs, "hyb", hit_all)          # 15.1 (2): est over every selected row
+        for k in ("est", "ghost_change_per_box", "s_hit"):
+            out["hybrid"][g][k] = allr[k]
+        out["hybrid"][g]["est_rows"] = "every selected row; a missing pose foot reads as no change"
         out["one_ankle"][g] = PF.unit_rows(one, gs, "hyb", hit_all)
         hit = [x for gg in gs for x in both[gg]["rows"] if x["kind"] == "hit" and x["dT"].get("poseraw") is not None]
         dv = [x["dT"]["poseraw"] - x["dT"]["raw"] for x in hit]
@@ -444,15 +487,35 @@ def report(smoke: bool = False) -> dict:
                                           "hybrid") for g in PF.POOL}
     if smoke:
         out["note"] = "smoke: two windows; the rules are computed for the mechanics only and are not read"
-        crops = sum(x["crops"] for g in PF.POOL for x in per[g]["rates"])
-        secs = sum(x["seconds"] for g in PF.POOL for x in per[g]["rates"])
-        out["rate_seconds_per_crop_with_decode"] = secs / crops if crops else None
+        out["projection"] = project_stage2(per, {g: RB.read_json(r["ref"] / "posefoot" / "alignment" / f"{g}.json")
+                                                 for g in PF.POOL})
     out = clean(out)
     text = json.dumps(out, indent=1)
     if find_private(text):
         raise SystemExit(f"{WHO}: the record holds private data")
     atomic_write(RECORD.with_name("p8_posefoot_pose_smoke.json") if smoke else RECORD, text)
     print(json.dumps({k: out[k] for k in ("coverage", "mechanical", "rules_hybrid")}, indent=1))
+    return out
+
+
+def project_stage2(per: dict, align_games: dict) -> dict:
+    """15.1 (4): stage 2's lock time per game = stage A's measured decode and gate seconds over the aligned windows +
+    the selection seconds measured here over every window + the exact crops over the aligned windows x the smoke's pose
+    seconds per crop."""
+    crops_s = sum(x["crops"] for g in PF.POOL for x in per[g]["rates"])
+    pose_s = sum(x["pose_seconds"] for g in PF.POOL for x in per[g]["rates"])
+    spc = pose_s / crops_s if crops_s else None
+    out = {"pose_seconds_per_crop": spc, "per_game": {}}
+    for g in PF.POOL:
+        dec = sum((x.get("seconds") or 0.0) for x in align_games[g]["windows"].values() if x["verdict"] == "aligned")
+        crops = per[g]["counters"]["crops_all_aligned"]
+        out["per_game"][g] = {"crops_all_aligned": crops, "stage_A_decode_and_gate_s": dec,
+                              "selection_s": per[g]["selection_seconds"],
+                              "pose_s": crops * spc if spc is not None else None}
+        parts = [v for v in (dec, per[g]["selection_seconds"], out["per_game"][g]["pose_s"]) if v is not None]
+        out["per_game"][g]["total_s"] = sum(parts)
+    out["total_min"] = sum(v["total_s"] for v in out["per_game"].values()) / 60.0
+    out["over_120_min"] = out["total_min"] > 120.0
     return out
 
 

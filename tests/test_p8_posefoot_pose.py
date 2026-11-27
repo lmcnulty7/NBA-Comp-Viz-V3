@@ -106,5 +106,52 @@ def test_the_only_writes_are_the_records():
 
 
 def test_constants_match_the_design():
-    assert (M.ANKLE_SCORE, M.ANKLE_FT, M.ANKLE_FT_ALT, M.HITS_PER_FRAME, M.PARTNERS) == (0.3, 0.25, 0.35, 2, 2)
+    assert (M.ANKLE_SCORE, M.ANKLE_FT, M.ANKLE_FT_ALT, M.HITS_PER_FRAME) == (0.3, 0.25, 0.35, 2)
+    assert (M.POSE_CAP_S, M.READ_FAIL_MAX) == (3600, 3)
     assert (M.MECH_SHARE, M.MECH_BELOW) == (0.95, 0.2) and M.ANKLES == (15, 16)
+
+
+# a real stored B: builds/r23 gsw_cha_2016_s00_w00, frame 30, and its first box
+HB_REAL = [0.036258996322889585, 0.06051632856056825, -40.51878316199468, -0.00912497739965471, 0.169207630803979,
+           -51.694168081089614, 3.458406276211347e-05, 0.0012031769592921, 0.5769749223111552]
+RAW_REAL, STAB_REAL = [369.99407958984375, 553.6014404296875], [352.46978759765625, 552.8682250976562]
+
+
+def test_lift_pixel_at_zero_is_the_pixel_on_a_real_b_and_the_hybrid_is_foot_stab():
+    from sportvu.camera import pose_from_h
+    pose = pose_from_h(np.asarray(HB_REAL).reshape(3, 3), W, H)
+    assert pose is not None
+    camB = (pose[2], pose[0], pose[1])
+    pl = M.lift_pixel(RAW_REAL, camB, W, H, 0.0)
+    assert np.allclose(pl, RAW_REAL, atol=1e-6)
+    assert np.allclose(M.hybrid_pixel(STAB_REAL, RAW_REAL, pl), STAB_REAL, atol=1e-6)
+    # B's own mapping is used for distances, so at lift 0 the hybrid maps exactly where foot_stab maps under B
+    Hb = np.asarray(HB_REAL).reshape(3, 3)
+    assert np.allclose(M.PF.map_px(Hb, [M.hybrid_pixel(STAB_REAL, RAW_REAL, pl)]), M.PF.map_px(Hb, [STAB_REAL]))
+
+
+def test_lift_pixel_moves_down_the_image_toward_the_camera():
+    pl0 = M.lift_pixel([640.0, 500.0], CAM, W, H, 0.0)
+    pl = M.lift_pixel([640.0, 500.0], CAM, W, H, 0.25)
+    assert np.allclose(pl0, [640.0, 500.0], atol=1e-6)
+    assert pl[1] > 500.0                                      # the floor point beneath the ankle sits lower in the frame
+    assert M.lift_pixel([640.0, 500.0], CAM, W, H, 0.35)[1] > pl[1]
+
+
+def test_fill_no_change():
+    row = {"dT": {"stab": 3.0, "hyb": None}, "gT": {"stab": True, "hyb": None}}
+    out = M.fill_no_change(row)
+    assert out["dT"]["hyb"] == 3.0 and out["gT"]["hyb"] is True and row["dT"]["hyb"] is None
+    row2 = {"dT": {"stab": 3.0, "hyb": 1.0}, "gT": {"stab": True, "hyb": False}}
+    assert M.fill_no_change(row2)["dT"]["hyb"] == 1.0 and M.fill_no_change(row2)["gT"]["hyb"] is False
+
+
+def test_project_stage2():
+    per = {g: {"rates": [{"crops": 100, "pose_seconds": 20.0}], "counters": {"crops_all_aligned": 6000},
+               "selection_seconds": 60.0} for g in M.PF.POOL}
+    align = {g: {"windows": {"a": {"verdict": "aligned", "seconds": 300.0}, "b": {"verdict": "undetermined"}}}
+             for g in M.PF.POOL}
+    out = M.project_stage2(per, align)
+    assert out["pose_seconds_per_crop"] == pytest.approx(0.2)
+    assert out["per_game"][M.PF.CHA]["total_s"] == pytest.approx(300 + 60 + 1200)
+    assert out["total_min"] == pytest.approx(2 * 1560 / 60) and out["over_120_min"] is False

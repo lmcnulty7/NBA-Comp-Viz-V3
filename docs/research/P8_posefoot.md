@@ -754,3 +754,36 @@ a choice open, this fixes it before any pose number exists.
   - The smoke's rules are computed for the mechanics only and are not read.
 - **Writes:** work_ref/posefoot/pose[_smoke]/<game>.json and reports/research/p8_posefoot_pose[_smoke].json. A test
   checks that these are the only writes.
+
+### 15.1 Amendment (2026-11-27, after the pose code check of 41766bda, GO WITH CHANGES; before any pose number)
+
+Where this differs from section 15, it rules.
+
+1. **B distances (the blocker).** pose_from_h(B) does not reproduce B: at lift 0, its floor point differs from B's
+   mapping by a median of 0.5 to 1.8 ft and a p90 of 2.9 to 5.7 ft on 4 windows (the code check's measurement). So a
+   camera now gives only the lift shift:
+   - The ankle pixel's ray is cut at ANKLE_FT, and the floor point beneath it is projected back through the same
+     camera to a pixel, p_lift. At lift 0, p_lift is the ankle pixel.
+   - p_lift is mapped through B, or through T, like any foot:
+     - poseraw = |H(p_lift) - SportVU|;
+     - hybrid = |H(foot_stab + (p_lift - foot_raw)) - SportVU|;
+     - the null is built the same way.
+   - T uses the label row's camera, and B uses pose_from_h(B), for the lift only.
+   - A test on a real stored B (builds/r23, gsw_cha_2016_s00_w00, frame 30) checks that at lift 0, with the ankle at
+     foot_raw, the hybrid equals foot_stab and maps where foot_stab maps.
+2. **est** is computed from every selected row, with a missing hybrid foot reading as no change: its distance and
+   ghost flag are foot_stab's. So a failed lift is not counted as a ghost removed. Rules 1 to 4 stay on both-ankle
+   boxes. This replaces 12.5's "among the boxes with a candidate foot" for the pose stages.
+3. **Cap:** 60 minutes per game, checked before each window.
+4. **Cost projection** (the smoke's report), per game, from three measured parts:
+   - stage A's measured decode and gate seconds over the aligned windows (work_ref/posefoot/alignment/<game>.json);
+   - the selection seconds measured over every window;
+   - the exact crop count over all aligned windows, counted in the smoke with no pose run, times the smoke's pose
+     seconds per crop.
+5. **A window whose read is not reproduced** is skipped and counted, not a stop of the game. More than 3 such windows
+   in a game stop the run.
+6. **Cost reduction (self-decided by the lead, the reviewer's choice):** pose runs on the selected boxes only. The
+   null partner is now the nearest-height **sampled hit box** on the same frame: other than b, IoU under 0.5 with b,
+   both ankles. Hits stay at 2 per frame. This replaces section 15's two-partner rule and roughly halves the crops.
+   - If the projection still exceeds 120 minutes in total, the registered second step is 1 hit per frame.
+   - If that is still over, the item stops and the lead is told.
