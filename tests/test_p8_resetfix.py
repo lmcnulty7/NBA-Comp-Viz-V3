@@ -785,3 +785,38 @@ def test_render_report_from_a_synthetic_record(tmp_path, monkeypatch):
     assert "\u2014" not in md and "\u2013" not in md
     rep["hou"] = None
     assert "Not scored: it is scored only after a pool pass" in R.render_report(rep)
+
+
+
+def test_report_no_pool_reports_the_one_game_in_use(tmp_path, monkeypatch):
+    """Section 23 addendum: one pool game in use (others unused and apart) -> no pool, the verdict fixed as no pass,
+    the game in use reported only (rows, reading, bracket, report-only rows), hou absent; the page renders."""
+    import json
+    from tools import p8_common
+    root = tmp_path / "ref"
+    (root / "builds").mkdir(parents=True)
+    (root / "label_build").mkdir()
+    d = root / "resetfix"
+    d.mkdir()
+    rng = np.random.default_rng(6)
+    wins = {}
+    for i in range(6):
+        m = {f"{f}:0": [float(rng.random()), 0.1, "near"] for f in range(4)}
+        b, n = _win(30, 10, 32, 5, 90, m), _win(28, 9, 29, 6, 92, dict(m))
+        b["unmatched_1to1"], n["unmatched_1to1"] = 40, 37
+        wins[f"gsw_bkn_2015_s00_w{i:02d}"] = {"r23": b, "new": n}
+    (d / "score__gsw_bkn_2015.json").write_text(json.dumps({"windows": wins, "windows_common": wins}))
+    for g, st in (("gsw_cha_2016", "unused"), ("gsw_bkn_2015", "use"), ("gsw_sac_2015", "apart")):
+        (d / f"truth_pin__{g}.json").write_text(json.dumps({"status": st, "files": {}}))
+        (d / f"plan__{g}.json").write_text(json.dumps({"reset_windows": [f"{g}_s00_w00"],
+                                                      "baseline_resets": {f"{g}_s00_w00": 1}}))
+    monkeypatch.setenv("V3_P8_ROOT", str(root))
+    monkeypatch.setattr(p8_common, "atomic_write", lambda path, text: None)
+    res = R.cmd_report(None)
+    assert res["no_pool"] and res["pool"]["verdict"]["pass"] is False and res["adoption"]["adopt"] is False
+    assert res["pool"]["verdict_text"] == "no pass: no pool (1 pool game in use; cha unused, sac apart)"
+    assert list(res["per_game"]) == ["gsw_bkn_2015"] and res["per_game"]["gsw_bkn_2015"]["reported_only"]
+    assert "gsw_bkn_2015" in res["bracket_common_frames"] and res["hou"] is None
+    md = R.render_report(json.loads(json.dumps(res)))
+    assert "**Verdict: no pass: no pool (1 pool game in use; cha unused, sac apart).**" in md
+    assert "reported only" in md and "Not scored: it is scored only after a pool pass" in md

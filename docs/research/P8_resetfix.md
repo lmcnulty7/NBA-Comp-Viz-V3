@@ -831,3 +831,19 @@ any score:
 The code already enforces all three: score refuses a game whose pinned status is not "use"; report marks the pool
 partial when a pool game's truth is not in use and sets the pass to false; hou scoring needs a pool pass in
 resetfix/report.json.
+
+**Addendum (2026-11-27, before any score; the lead's record of the final statuses).** The accept phase gives
+(work_ref/truth_accept): gsw_cha_2016 "unused" (fails A and B); gsw_bkn_2015 "use" (C: median 0.48 s, share over
+0.2 s 0.688, n share 77 of 83); gsw_sac_2015 "apart" (C fails: median 0.64 s against the bar 0.54, share over 0.2 s
+0.822 against 0.7945). Only one pool game is in use, and under section 14.6 fewer than two pool games in use means no
+pool. The arm's verdict is therefore fixed as "no pass: no pool (one pool game in use; cha unused, sac apart)". The
+fixed r23 pipeline does not replace r23's registered rows as the reported baseline (section 20); it stays the
+development standard (D193). gsw_bkn_2015 alone is pinned and scored as registered, reported only, with the bracket and
+the report-only rows; gsw_sac_2015 is not scored (its truth is "apart"), and hou_cle_2016 stays unscored.
+
+Two mechanics, registered with this addendum: (1) score's gate requires every pool game's truth to be pinned final, so
+pin-truth is also run for gsw_cha_2016 and gsw_sac_2015 to record their final non-use statuses and file hashes; nothing
+of theirs is scored. (2) report had no path for fewer than two pool games in use (it stopped); it now writes a no-pool
+record (no_pool_report): the verdict text above, adoption false, and for the game in use its rows, its version 2.3
+per-game reading (deciding nothing), the bracket and the report-only rows; render prints the verdict text first.
+Tested on a synthetic record with one game in use.
