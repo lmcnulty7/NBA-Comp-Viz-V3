@@ -290,3 +290,36 @@ clock, and the Clock reading comes from the identity rule of 6.4 (SHA-256 of the
 difference; that rule was too strict. Without it, the decomposition table would read Platform for both statistics
 (hybrid (i) carries the whole change), but that reading is not registered here. Whether to register a content test of
 the time maps (frames, spans and clocks) and rerun stage 1 is the lead's decision; stage 2 waits.
+
+## 9. Addendum (2026-11-27; the lead's request; descriptive and post hoc, since the registered Clock reading has fired)
+
+Stored files only, system python, no lock: tools/p8_sac_timemaps.py (test tests/test_p8_sac_timemaps.py), record
+reports/research/p8_sac_timemaps.json. No rule changes, and section 8's registered readings stand.
+
+**(1) Content, not bytes.** For gsw_sac_2015's 82 windows with a time map in both roots, 80 differ by SHA-256, and in
+every one the only top-level key whose value differs is "ocr_seconds". All 82 have equal frame sets and equal spans;
+over the frames both hold, the largest absolute clock difference is 0.0 s and no period differs. The two roots map
+every frame to the same game clock.
+
+**(2) Provenance.** A window time map is written by the frozen label step (sportvu.autolabel, phase A) when the file is
+absent, as sportvu.local_sync.build_local_timemap(section, reader, vid=<the window clip>): a fresh clock read of the
+window clip, with "ocr_seconds" set to that read's wall-clock duration (round(time.time() - t0, 1)). The section sync
+maps the label step uses (sync/<section>_local_timemap.json; gsw_sac_2015's 11 sections, checked) are, in both roots,
+symbolic links resolving to the same files in the main checkout's data/sportvu/sync (the reference root's links made by the truth plan's link step, tools
+p8_truth_cpu.sh, for gsw_* games). The window time maps themselves are plain files written by each root's own label
+step: workspace modification dates 2026-11-18 and 2026-11-22, reference root 2026-11-27 for gsw_sac_2015. So each root
+read the clock afresh, got the same clock everywhere, and recorded a different read duration.
+
+**(3) Controls.** The same check on the other games, workspace against reference root:
+
+| game | windows in both | SHA-256 differs | keys that differ | equal frame sets, equal spans | largest clock difference |
+|---|---|---|---|---|---|
+| gsw_sac_2015 | 82 | 80 | ocr_seconds (80) | 82, 82 | 0.0 s |
+| gsw_cha_2016 | 73 | 69 | ocr_seconds (69) | 73, 73 | 0.0 s |
+| gsw_bkn_2015 | 83 | 81 | ocr_seconds (81) | 83, 83 | 0.0 s |
+| hou_cle_2016 | 93 | 89 | ocr_seconds (89) | 93, 93 | 0.0 s |
+
+gsw_sac_2015 is not unusual: every game's time maps differ by bytes in the read duration only, with identical clocks.
+Post hoc: the registered SHA-256 rule of 6.4 would have read Clock on any of these games; the clock inputs of check C
+(time maps, moments file, mirror) are the same in both roots for gsw_sac_2015 by content. Whether to register a
+content rule and rerun stage 1 is the lead's decision; stage 2 stays unrun.
