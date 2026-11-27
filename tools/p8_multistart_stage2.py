@@ -38,6 +38,37 @@ WHO = "tools.p8_multistart_stage2"
 STAGE2 = {"hou_cle_2016": {"label_root": "ref", "truth": True},
           "gsw_sac_2015": {"label_root": "ref", "truth": False},
           "gsw_ind_2016": {"label_root": "work", "truth": False}}
+ENABLED = ("gsw_ind_2016",)          # section 17's narrowing: hou_cle_2016 and gsw_sac_2015 wait for a later amendment
+IND_ESTIMATE_S, IND_CAP_S = 4640, 6960
+IND_ANCHOR = {"inits": 3900, "reproj_px_median_after": 18.35}      # D98's recorded MPS fit (work/labels)
+SAME_FT, SAME_J = 5.0, 0.99
+
+
+def ind_reading(sel_C, sel_J: float, frozen_C, j_f: float, stable: bool, ft: float = SAME_FT, rel: float = SAME_J) -> str:
+    """Section 17's registered reading for gsw_ind_2016 (reads C, J and stability only, never checks A, B or C)."""
+    far = float(np.linalg.norm(np.asarray(sel_C) - np.asarray(frozen_C))) > ft
+    lower = sel_J <= rel * j_f
+    if far and lower and stable:
+        return "same fragility"
+    if not far or not lower:
+        return "not the same"
+    return "inconclusive"
+
+
+def anchor_problem(fz: dict, recorded: dict, ft: float = 0.01) -> str | None:
+    """None when fit_game(frames, seed=0) reproduces D98's recorded fit (C within ft, inits, pooled median within
+    0.01 px), else the reason."""
+    if fz.get("status") != "ok":
+        return f"fit_game status {fz.get('status')}"
+    d = float(np.linalg.norm(np.asarray(fz["C"]) - np.asarray(recorded["C"])))
+    if d > ft:
+        return f"C {d:.4f} ft from the recorded fit"
+    if fz["inits"] != recorded["inits"] or fz["inits"] != IND_ANCHOR["inits"]:
+        return f"inits {fz['inits']}, recorded {recorded['inits']}, expected {IND_ANCHOR['inits']}"
+    if abs(fz["reproj_px_median_after"] - recorded["reproj_px_median_after"]) > 0.01 or \
+            abs(recorded["reproj_px_median_after"] - IND_ANCHOR["reproj_px_median_after"]) > 0.01:
+        return f"pooled median {fz['reproj_px_median_after']}, recorded {recorded['reproj_px_median_after']}"
+    return None
 
 
 def gate_stage2(ms: Path) -> None:
@@ -66,6 +97,8 @@ def workspace_manifest(work: Path, game: str) -> dict:
 def _check(game: str):
     if game not in STAGE2:
         raise SystemExit(f"{WHO}: {game} is not a stage 2 game")
+    if game not in ENABLED:
+        raise SystemExit(f"{WHO}: {game} is deferred until a later amendment (section 17)")
     refuse_cv_test([game], WHO)
     guard([game], WHO)
     return M.roots_ms()
@@ -94,10 +127,20 @@ def multipool(game: str) -> dict:
     inits = inits_of(frames)
     init_frames = [fr for fr, _ in inits]
     C0 = np.median(np.array([p[2] for _, p in inits]), axis=0)
+    anchor = None
+    if game == "gsw_ind_2016":                      # anchor to D98's recorded fit before any run
+        recorded = json.loads((work / "labels" / f"{game}_result.json").read_text())["camera"]
+        why = anchor_problem(cam.fit_game(frames, seed=0), recorded)
+        if why:
+            raise SystemExit(f"{WHO}: {game} does not reproduce D98's recorded fit ({why}); stop")
+        anchor = {"reproduced": True, "recorded_C": recorded["C"], "inits": recorded["inits"],
+                  "reproj_px_median_after": recorded["reproj_px_median_after"]}
     d = ms / "multistart" / game
     d.mkdir(parents=True, exist_ok=True)
     fh = M.keys_hash(frames)
     runs = {}
+    # The per-seed loop below duplicates tools.p8_multistart.multipool's loop line for line (names prefixed with M.,
+    # comments aside), apart from the lines marked "stage 2 only"; tests/test_p8_multistart_stage2.py pins that.
     for set_name, seeds in M.SEED_SETS.items():
         for seed in seeds:
             rp = d / f"seed_{seed:02d}.json"
@@ -108,6 +151,8 @@ def multipool(game: str) -> dict:
                     raise SystemExit(f"{WHO}: {rp.name} is stale ({stale}); move it aside before resuming")
                 runs[seed] = r
                 continue
+            if time.time() - t0 > IND_CAP_S:              # stage 2 only: kill rule 5, the stage's cap
+                raise SystemExit(f"{WHO}: kill rule 5, {game} passed its cap of {IND_CAP_S} s")  # stage 2 only
             t = time.time()
             fz = cam.fit_game(frames, seed=seed)
             pool = M.pool_of(inits, seed)
@@ -160,6 +205,17 @@ def multipool(game: str) -> dict:
                                          for i, a in enumerate(sorted(sel)) for b in sorted(sel)[i + 1:]},
            "report_only_distance_from_frozen_C_ft": round(float(np.linalg.norm(np.asarray(sel["truth"]["C"]) - np.asarray(frozen_C))), 3)
            if frozen_C else None}
+    if game == "gsw_ind_2016":
+        j_f = M.common_objective(frozen_C, init_frames)
+        out["anchor"] = anchor
+        out["J_frozen"] = j_f
+        out["reading"] = {"verdict": ind_reading(sel["truth"]["C"], sel["truth"]["J"], frozen_C, j_f["J"], stab["passes"]),
+                          "J_selected": sel["truth"]["J"], "J_frozen": j_f["J"],
+                          "J_ratio": sel["truth"]["J"] / j_f["J"] if j_f["J"] else None,
+                          "distance_from_frozen_C_ft": out["report_only_distance_from_frozen_C_ft"],
+                          "stable": stab["passes"],
+                          "limitation": "an MPS build with the tracker bug; a verdict here does not carry over to a CPU "
+                                        "rebuild, which would be a separate registration"}
     after, after_w = M.manifest(ref), workspace_manifest(work, game)
     out["guard_manifest"] = {"files": len(before), "unchanged": before == after,
                              "workspace_files": len(before_w), "workspace_unchanged": before_w == after_w}
@@ -167,7 +223,8 @@ def multipool(game: str) -> dict:
     text = json.dumps(out, indent=1, default=str)
     atomic_write(d / "multipool.json", text)
     atomic_write(REPO / "reports" / "research" / f"p8_multistart_multipool_{game}.json", text)
-    print(json.dumps({k: out[k] for k in ("game", "selected", "stability", "guard_manifest", "seconds")}, indent=1, default=str))
+    print(json.dumps({k: out.get(k) for k in ("game", "selected", "stability", "reading", "guard_manifest", "seconds")},
+                     indent=1, default=str))
     if before != after or before_w != after_w:
         raise SystemExit(f"{WHO}: protected files changed")
     return out

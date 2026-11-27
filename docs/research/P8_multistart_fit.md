@@ -378,3 +378,20 @@ gsw_sac_2015 is apart on check C, which does not depend on the fit, and hou_cle_
 C composite exists. Saving: about 10,450 s of section 15's 15,090 s estimate (hou_cle_2016 about 5,700 s, gsw_sac_2015
 about 4,750 s); stage 2 is now about 4,640 s, with its cap 1.5 times that, 6,960 s. The deferred code stays as written
 and reviewed for a later decision.
+
+**gsw_ind_2016 path, after the review of 65dd675d (2026-11-27, registered before any gsw_ind_2016 number).**
+
+- Anchor to D98: before any run, fit_game(frames, seed=0) on the rebuilt inputs must reproduce the recorded fit in
+  work/labels/gsw_ind_2016_result.json: C within 0.01 ft, 3,900 inits, pooled median 18.35 px within 0.01; otherwise
+  stop. (This is one extra fit_game call, about 8 s, before the loop, whose seed-0 run calls fit_game again.)
+- Registered reading, reading only C, J and stability (never checks A, B or C): J_F = J at the recorded frozen C.
+  - "same fragility": the truth set's selection is more than 5 ft from the frozen C, its J is at most 0.99 J_F, and the
+    game passes the stability bar;
+  - "not the same": the selection is within 5 ft of the frozen C, or its J is above 0.99 J_F;
+  - "inconclusive": anything else (far and lower but not stable).
+- Limitation: gsw_ind_2016's build is an MPS build carrying the tracker bug; "same fragility" here does not carry over
+  to a CPU rebuild, and any rebuild of its truth is a separate registration. The record is report only; D98's "apart"
+  is unchanged.
+- multipool, truth and accept refuse hou_cle_2016 and gsw_sac_2015 until a later amendment. gsw_ind_2016's estimate is
+  4,640 s and its cap 6,960 s, enforced in the code between runs (kill rule 5).
+- The stage 2 per-seed loop duplicates stage 1's line for line apart from the cap check; a test pins that.
