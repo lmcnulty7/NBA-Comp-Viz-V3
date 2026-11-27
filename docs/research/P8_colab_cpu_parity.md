@@ -203,7 +203,7 @@ No window, arm, measure, tolerance or reading changed. Each item below was made 
   the soft pins it imports cv2, numpy, torch and ultralytics and prints their versions (CHECK2). The first poll comes
   3 minutes after the job starts.
 
-## 11. Result (2026-11-27): plain is "different"; Colab CPU is repeatable; isa not built
+## 11. Result (2026-11-27): plain is "different"; Colab CPU is repeatable; isa untested
 
 Record: reports/research/p8_colab_cpu.json, a copy of the P8 data folder's colab_cpu/colab_cpu_result.json, written
 by `tools.p8_colab_cpu compare` under the section 5 rule, which is unchanged since before any build.
@@ -212,7 +212,7 @@ by `tools.p8_colab_cpu compare` under the section 5 rule, which is unchanged sin
 on CPU, reset fix on, 157.5 s and 171.1 s. Colab: runtime p8-colab-cpu-2 (CPU standard, an Intel Xeon at 2.20GHz,
 2 vCPUs), created 00:32:26Z, job 00:33:07Z to 01:04:48Z, deleted 01:31:32Z. Setup took about 3 minutes. Every
 install exited 0, with no PIN_FAILED. Three of the seven steps were built: plain s02_w03 (563.9 s), plain s00_w01
-(601.1 s) and plain_b s02_w03 (556.0 s), about 3.6 times the Mac's time. The start rule skipped both isa steps
+(601.1 s) and plain_b s02_w03 (556.0 s). That is about 3.5 times the Mac's time per window (3.58 and 3.51). The start rule skipped both isa steps
 (predicted 1,803 s each) and both tail windows (1,027 s and 2,747 s). The first runtime, p8-colab-cpu-1, built
 nothing (A2). Every flag holds: the same pack manifest, the same tool code (sha256 19ec7511...), the same weights and
 the same CLIP fingerprint on both sides. Every build passed its checks.
@@ -224,8 +224,8 @@ certifi, charset-normalizer, hf-xet, idna, markupsafe, six, tzdata, urllib3. Tor
 both. The platforms differ: the Mac runs x86_64 under Rosetta on an Apple M5, torch at "NO AVX" with 10 threads and
 MKL at SSE4.2. Colab's plain arm runs torch at AVX2 with 1 thread, oneDNN at AVX2 and MKL at AVX2.
 
-**Reading (section 5).** plain: **different** on both windows, so the arm reads "different". isa: **not read** (not
-built). plain_b against plain: **identical** (frames, trajectories and identity all equal), so the Colab CPU build is
+**Reading (section 5).** plain: **different** on both windows, so the arm reads "different". isa: **untested** (not
+built; the record's "not read"). plain_b against plain: **identical** (frames, trajectories and identity all equal), so the Colab CPU build is
 repeatable and the difference below comes from the platform, not from run-to-run noise.
 
 | plain against Mac all-CPU | s02_w03 (1 reset) | s00_w01 (no reset) |
@@ -240,12 +240,13 @@ repeatable and the difference below comes from the platform, not from run-to-run
 | Resets (Colab, Mac) | 1, 1 | 0, 0 |
 | Court mapping gap median (p90), px | 9.54 (27.7) | 9.93 (30.5) |
 
-**Where the bits part (probe hashes, fixed seeded inputs).** Under plain, every torch operation (conv2d, matmul,
+**Where the bits part (probe hashes, fixed seeded inputs; indirect evidence only, not a reading).** Under plain, every torch operation (conv2d, matmul,
 softmax), the OpenCV blur and both NumPy operations differ from the Mac; only the OpenCV resize agrees. Under the isa
 caps (probe only, no build), torch conv2d, torch matmul, the OpenCV blur and the NumPy sum become bit-equal to the
 Mac. Torch softmax and the NumPy matrix product still differ. The NumPy wheel's OpenBLAS has its own kernel
 dispatch, which these caps do not touch. Torch softmax may depend on the thread count (1 against 10); this is not
-tested. So the isa arm would very probably still not be identical, but nothing here measures it.
+tested. These hashes come from a few small computations, not from builds. They suggest the caps alone would not
+make the isa arm identical, but they are not a result: the isa arm is untested.
 
 **Report only** (not in the reading): on s00_w01, against the reference-platform build (r23_nofix, detector on CPU,
 court and gate on MPS; no reset, same clip), the Mac all-CPU build has identical boxes on every frame and a court
@@ -264,5 +265,17 @@ reported.
    versions.
 3. Open, not run: whether the isa arm plus a matched thread count and an OpenBLAS cap (OPENBLAS_CORETYPE) reaches
    "identical". The probe hashes make it a cheap first check (no build): any remaining hash difference rules it out.
-   At about 3.6 times the Mac's time per window with no caps, and slower with the caps, Colab CPU would not save time
-   even if it matched. A rerun of the isa arm would be a new runtime and needs the lead's go.
+   At about 3.5 times the Mac's time per window with no caps, and slower with the caps, Colab CPU would not save time
+   even if it matched. The lead closed this arm on 2026-11-27: no more runtimes, and no tail windows on the Mac.
+
+**Runtime use and a process lesson.**
+
+| Runtime | Up | Job | Idle after the job ended or failed |
+| --- | --- | --- | --- |
+| p8-colab-cpu-1 | 23:36:10Z to 00:29:35Z, about 53 min | failed at setup about 23:37Z | about 52 min |
+| p8-colab-cpu-2 | 00:32:26Z to 01:31:32Z, about 59 min | 00:33:07Z to 01:04:48Z | about 27 min |
+
+About 79 of the 112 runtime minutes were idle. Both idle spells came from late polls: the poll timers did not wake an
+idle session. Lesson: delete the runtime the moment its job ends or fails. A later job should make that step
+impossible to miss, for example a poll that stays inside the session's turn until the job's last line appears, followed at once by
+delete_runtime.
