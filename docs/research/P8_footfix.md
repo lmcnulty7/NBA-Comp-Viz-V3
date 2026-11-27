@@ -478,3 +478,93 @@ start, and refuses an empty go.
   under 0.9, that game's inlier split is descriptive only: it is reported, but the copying-T reading does not read it.
 
 Readings B to E change no gate. They are reported with G0.
+
+## 15. Result of stage 0 (2026-11-27, run 20261127T195746Z from 1ff4a9b9; record reports/research/p8_footfix_s0.json)
+
+**Run.** One lock, "p8 footfix s0", 474 s, which includes the manifest hashing; peak memory 0.7 GB. The report took
+71 s in system python. cv2 4.13.0, numpy 1.26.4, Python 3.12.2 (frozen CV python). Written: 467 MB under
+work_ref/footfix/. The watched manifests were unchanged.
+
+**Gates before G0.**
+- Smoke: identity was byte-equal and equal to D202 on one window per game.
+- Reproduction: identity equalled D202's records on every window (73 and 83 windows) for all twelve GATE_FIELDS.
+- Inlier recompute: every truth-accepted frame was reproduced by window_truth.
+- Label-build boxes equalled builds/r23's on 2,911 of 2,911 and 2,982 of 2,982 scored frames.
+
+**G0, as registered (13.4 (4)): FAIL, so KILL.** F1, fitted and scored in sample. Changes, with window intervals:
+
+| row | gsw_cha_2016 | gsw_bkn_2015 | G0 point rule |
+|---|---|---|---|
+| missed | -0.0039 [-0.0082, -0.0003] | -0.0035 [-0.0076, +0.0009] | at most -0.010: fails on both |
+| one-to-one missed | -0.0018 [-0.0063, +0.0019] | -0.0018 [-0.0059, +0.0025] | rule 7, at most -0.0075: fails on both |
+| ghosts per box | +0.0003 [-0.0034, +0.0037] | -0.0011 [-0.0037, +0.0018] | passes |
+| near-field bias | -0.286 ft [-0.305, -0.274] | -0.340 ft [-0.359, -0.319] | passes |
+| position p90 | -0.110 ft [-0.144, -0.079] | -0.117 ft [-0.150, -0.078] | passes |
+| near-third p90 | +0.028 ft [-0.005, +0.103] | +0.097 ft [+0.050, +0.159] | at most +0.05: fails on gsw_bkn_2015 |
+| team | -0.0007 [-0.0017, +0.0002] | -0.0016 [-0.0026, -0.0003] | passes |
+| position p50 (reported) | -0.158 ft [-0.172, -0.142] | -0.145 ft [-0.163, -0.125] | |
+
+F1's in-sample tables shift the foot by -0.10 to -0.58 ft (gsw_cha_2016) and -0.09 to -0.87 ft (gsw_bkn_2015) along the
+ray, so toward the camera. 146,429 and 160,169 boxes moved. F2, the control, moved missed by -0.0032 and -0.0028 and
+reads the same way. Per section 8 and 13.4, the arm closes:
+- no stage 1;
+- no third form, no new cell and no new margin;
+- no pool refit;
+- hou_cle_2016 stays unspent (its marker was never written).
+
+**Audit readings A to F, as registered (14.8).**
+
+| reading | gsw_cha_2016 | gsw_bkn_2015 | outcome |
+|---|---|---|---|
+| A, absorbed (rows in cells within 0.3 ft, needs 0.8 on both) | 0.43 | 0.22 | does not hold; the line was not closed by A (G0 closed it) |
+| B, frame conflict (P-ii rows in conflicting cells, needs 0.5) | 0.00 (no conflicting cell) | 0.00 | does not hold |
+| C, T's residual dominates (rows in cells with opposite inlier and non-inlier signs, needs over 0.5) | 0.34 | 0.19 | does not hold |
+| D, F2 null (every bin within 0.01) | -0.013 to -0.016 | -0.013 to -0.025 | fails on both: T did not absorb the box-height ratio fully |
+| E, edge ceiling (P-ii rows at 2.5 to 3.0 ft over in-frame players, below 0.02) | 0.047 | 0.044 | does not hold: the edge mass was there |
+| F, box match (below 0.9) | 1.00 | 1.00 | does not hold: the inlier split reads |
+
+Audit tables, from the record:
+- **Fit rows.** 25,369 and 25,415. The stage B share is 0.138 and 0.134, and the inlier share 0.773 and 0.781.
+- **Stage by inlier.**
+
+  | game | A, inlier | A, non-inlier | B, inlier | B, non-inlier |
+  |---|---|---|---|---|
+  | gsw_cha_2016 | 18,232 | 3,639 | 1,366 | 2,132 |
+  | gsw_bkn_2015 | 18,387 | 3,618 | 1,469 | 1,941 |
+
+- **P-ii distances,** 2.5 to 3.0 ft, then each further 0.5 ft out to 5 ft:
+  - gsw_cha_2016: 1,344, 863, 589, 416, 286;
+  - gsw_bkn_2015: 1,295, 852, 576, 396, 291.
+- **Same rows.** In every cell, the median depth toward T's image (d1) and toward SportVU under B (dB) are both
+  negative: both short, toward the camera. dB is the larger in size in most cells. The share of rows with opposite
+  signs runs 0.16 to 0.37.
+- **Inlier split, F1 in sample.**
+  - missed: inlier -0.0031 and -0.0036, non-inlier -0.0057 and -0.0034;
+  - p50: inlier -0.173 and -0.163 ft, non-inlier -0.099 and -0.088 ft;
+  - so neither copying-T clause reads.
+
+**Against the expectations written before the run.**
+- Section 7 expected -0.005 to -0.020. The in-sample result (-0.0035 to -0.0039) is below the low end, as the
+  reviewer's bound (13.4 (6)) said was likely.
+- Section 9's forecast ("near-third p90 and near-field bias rise on at least one game") was half right. Near-third p90
+  rose on both games (+0.028, +0.097 ft), but near-field bias fell on both.
+- The premise behind that forecast does not hold on the population. On the same rows, T and B both place the feet
+  short in the near third. D204's beyond-the-player near-third depth was a property of selected placement misses, not
+  of all players.
+
+**Post hoc (not registered; no test confirms it).**
+- Median shifts of 0.1 to 0.9 ft per cell move missed by only about 0.004, even fitted and scored on the same game.
+  The edge mass was there: 0.044 to 0.047 of in-frame players had an unclaimed box 2.5 to 3.0 ft away. So the P-ii row
+  looks like per-box scatter around a small systematic offset, not a systematic offset that one shift can remove: a
+  shift that brings some boxes inside 2.5 ft takes about as many hits outside it.
+- The F2 null prediction failed narrowly (|r| 0.013 to 0.025 against 0.01). T absorbs part of the box-height ratio
+  that D186 measured toward SportVU under B (-0.017 to -0.036), not all of it. The residual is too small to move missed.
+- What this rules out for the next design, on these truths and this build:
+  - any population-level foot shift, by cell, by box height or global, in pixel space or along the ray, as a route to
+    the missed bar. Its in-sample ceiling here is about -0.004 against -0.010.
+  - more forms of the same kind (finer cells, other bins, a smooth near-to-middle hand-off), which would be tuning on
+    the pool.
+- What it leaves open: a per-box signal for where the foot is. That would need new evidence about each box (for
+  example pose keypoints or box-bottom quality), not a population shift. It is not proposed here.
+- The position rows under B improve as in D187 (p50 -0.15 ft, near-field bias -0.29 to -0.34 ft), but D188 closed that
+  route over near-third tail growth, and near-third p90 rose here too.
