@@ -179,3 +179,50 @@ it; stage A's terciles are descriptive only. Identity switches count player ids 
 (2.5 ft). Stage A's record carries the D202 hashes and run id, stage B checks them and writes them into its own. The
 bootstrap lower bound of 8.6 is slightly optimistic when a resample has no rows in a bin (that resample is dropped).
 
+
+## 9. Result (2026-11-27; records reports/research/p8_teamcause_stored.json and p8_teamcause.json)
+
+Report only; the limits of D202 hold (truth frames selected by the same r23 boxes; multipool a better fit, not a truth
+shown better), and the majority mapping's limits of 8.1 apply to every number. hou_cle_2016: aggregate only, 0.7558
+(already seen in D202).
+
+**Run.** Stage A (system python, about 2 s); stage B at HEAD 87909736, 102.9 s inside a 127 s lock "p8 teamcause rows".
+The gate passed on all 156 windows (recomputed team-row tuples equal to score_window's team_rows in order; n, majority
+and fixed equal to the pinned D202 records); no cache entry was missing; the watch manifests were unchanged.
+
+**Stage A, a readout.**
+
+| | gsw_cha_2016 | gsw_bkn_2015 | pooled |
+|---|---|---|---|
+| windows with team rows (of all) | 56 of 73 | 65 of 83 | 121 |
+| team rows; errors | 24,708; 4,691 | 24,966; 3,564 | 49,674; 8,255 |
+| accuracy (majority); fixed | 0.8101; 0.8101 | 0.8573; 0.8571 | 0.8338 |
+| windows below 0.5; at or below 0.6 | 0; 2 | 0; 0 | 0; 2 |
+| worst windows' share of errors (of rows) | 0.375 (0.331) | 0.361 (0.371) | 0.387 (0.344), 13 windows |
+| median team-colour distance (CIELAB); silhouette | 76.5; 0.547 | 99.1; 0.623 | |
+
+Majority differs from fixed only in gsw_bkn_2015_s04_w04 (as the review found). Rank correlations of window accuracy
+with silhouette, colour distance, abstained tracks and vetoes are all at most 0.23 in absolute value (pooled:
+silhouette 0.23, CIELAB 0.19, BGR 0.14, abstained 0.03, vetoes 0.02). The errors are not concentrated in a few windows
+(worst tenth 0.387 of errors against 0.344 of rows), so the "per-window clustering failure" direction of 6 does not
+apply.
+
+**Stage B, the pooled carry reading (8.6).** 49,674 labelled rows, 8,255 errors (rate 0.166), 1,570 abstentions.
+- **One bin carries, and it is the top carrier: SportVU crowding under 3 ft** (the nearest other player within 3 ft):
+  7,159 rows, 2,149 errors, rate 0.300, share 0.26, ratio 1.81 with a window-bootstrap lower bound of 1.63, rows from
+  117 windows, excess 959 errors. By 8.6 it points to mixed crops in crowds (crowding-aware assignment or a crop mask);
+  by the added row, an error carried in crowding may also be the scorer's pairing rather than the labelling.
+- Overlaps over 0.5: crowding by boxes with crowding by SportVU (0.70), and the referee rule with the referee overlap
+  (0.64). No overlapping pair holds two carriers, so nothing is reported "not separated"; crowding by boxes under 3 ft
+  has ratio 1.58 (lower 1.41) but a share of 0.171, under the 0.25 bar.
+- Bins that hold a large share without the ratio bar: rows of tracks paired with two or more player ids, 0.809 of
+  errors at ratio 1.32 (lower 1.25; 61 percent of rows); labels that are not the light kit, share 0.70 at ratio 1.24;
+  pair distance 2.5 to 5 ft, ratio 1.20 at share 0.175. Referee boxes carry 0.6 percent of errors; time since a cut,
+  track age, colour-distance and silhouette terciles have ratios near 1 (0.89 to 1.30).
+- Per game and with the worst windows left out: in the record (bins per unit), not read.
+
+**Post hoc, not registered.** Identity switches are wide (61 percent of team rows sit on tracks paired with two or more
+players) and carry a high error rate, short of the 1.5 bar; with crowding they suggest that tracking through contact,
+not the colour model, sets much of the team error, while the colour diagnostics (silhouette, colour distance) barely
+relate to accuracy. gsw_cha_2016's kits are closer in colour (median 76.5 against 99.1) and its accuracy is lower, a
+two-game contrast that this study cannot test.
