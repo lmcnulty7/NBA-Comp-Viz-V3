@@ -447,3 +447,57 @@ stage 0a, coverage is 1, so nothing changes there.
 
 12.6 **Stage A's alignment rule is not run as written in 11.6.** It is re-registered in its own dated section before
 any stage A code, and dry-run read-only on reports/research/p8_a3align.json's stored offsets before any lock.
+
+## 13. Result of stage 0a (2026-11-27, from bda0e954; record reports/research/p8_posefoot_0a.json)
+
+**Run.** One lock per game, from work_ref/logs/posefoot.log's heavy-job lines: 57 s for gsw_cha_2016 and 57 s for
+gsw_bkn_2015 (the collects' own times were 51.0 and 51.4 s). The report took 7 s.
+
+**Gates.** D202's six fields and D207's ordered (kind, class, height) rows were equal on every window (73 and 83), and
+the manifests were unchanged.
+
+**Counters** (gsw_cha_2016, gsw_bkn_2015):
+- no same-frame null partner: 0, 0;
+- partners excluded at IoU 0.5: 63, 71;
+- no cross-frame partner: 107, 139;
+- no SportVU speed: 3, 1, all on hit rows, none on own P-ii rows.
+
+**The five rules for foot_raw (11.3, with 12.1):** own P-ii boxes number 1,831 and 1,737, and hits 21,871 and 22,005.
+
+| rule | bar | gsw_cha_2016 | gsw_bkn_2015 | outcome |
+|---|---|---|---|---|
+| 1. R - R_null (same boxes) | at least 0.10 | 0.1496 [0.1234, 0.1763] - 0.1333 [0.1110, 0.1577] = +0.016 | 0.1387 [0.1102, 0.1695] - 0.1048 [0.0871, 0.1239] = +0.034 | fails both |
+| 2. median d_raw - d_stab, T | at most -0.5 ft, upper end below 0 | +0.048 ft [-0.005, +0.141] | +0.010 ft [-0.033, +0.059] | fails both |
+| 3. median, B | at most 0 | +0.077 ft [+0.005, +0.157] | +0.025 ft [-0.015, +0.083] | fails both |
+| 4. hits: median d_raw - d_stab, T; share lost | at most +0.10 ft; at most 0.05 | +0.084 ft [+0.061, +0.106]; 0.0597 [0.0508, 0.0687] | +0.041 ft [+0.022, +0.063]; 0.0486 [0.0411, 0.0572] | fails gsw_cha_2016 (share lost), passes gsw_bkn_2015 |
+| 5. est | at most -0.010 | +0.0290 [+0.0213, +0.0369] | +0.0211 [+0.0140, +0.0289] | fails both |
+
+- Beside est, the ghost change per box is +0.0169 [+0.0098, +0.0233] and +0.0094 [+0.0039, +0.0155].
+- s_hit is 1.029 and 1.041, from D205's hit class counts of 22,501 and 22,909.
+- The rescue share over all P-ii boxes is 0.155 and 0.152.
+- Pooled: R 0.144 [0.126, 0.164] against R_null 0.119 [0.103, 0.135]; median d_raw - d_stab +0.025 ft under T and
+  +0.049 ft under B; est +0.025 [+0.020, +0.030].
+
+**Readings (11.3), as registered.**
+- (a) **Regression-to-the-mean baseline.** About 0.10 to 0.15 of own P-ii boxes come within 2.5 ft under any
+  per-frame perturbation of the foot:
+  - foot_raw: 0.150 and 0.139;
+  - the same-frame null: 0.133 and 0.105;
+  - the cross-frame null (12.4, report only): 0.118 and 0.136, against R 0.149 and 0.140 on its boxes.
+
+  The pose hybrid's rule 1 must beat its own same-run null by 0.10 on top of this.
+- (b) **The EMA lag.** R_raw on own P-ii boxes by SportVU speed (under 5, 5 to 10, 10 ft/s and over):
+  - gsw_cha_2016: 0.167, 0.128, 0.132;
+  - gsw_bkn_2015: 0.130, 0.148, 0.159;
+  - the intervals overlap.
+
+  R_raw does not rise with speed on gsw_cha_2016, and the rise on gsw_bkn_2015 is inside its intervals. So the
+  stabiliser's lag is not visible as a cause of P-ii, as far as player motion shows it (12.2: pan lag is common to the
+  frame and not in this split).
+- (c) **No finding about the stabiliser.** foot_raw does not clear rules 1, 2, 3 and 5. Its median distance is
+  slightly larger than foot_stab's under both T and B, and est is positive: replacing foot_stab by the tracked box's
+  bottom would raise missed.
+- (d) **The pose arm reads on the hybrid only.** foot_raw fails rule 4 on gsw_cha_2016 (share lost 0.0597).
+
+Stage 0a stops nothing about the pose line (11.3). Its next step, stage A, waits for the re-registered alignment rule
+(12.6).
