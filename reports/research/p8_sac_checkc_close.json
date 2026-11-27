@@ -1,0 +1,30 @@
+{
+ "what": "Post hoc figures of docs/research/P8_sac_checkc.md section 12; descriptive",
+ "measured": 73,
+ "class_split": {
+  "none": 62,
+  "both": 8,
+  "MPS only": 2,
+  "CPU only": 1
+ },
+ "median_abs_d_change_by_class_s": {
+  "none": 0.12,
+  "both": 0.34,
+  "MPS only": 0.42,
+  "CPU only": 0.04
+ },
+ "no_reset": {
+  "windows": 62,
+  "median_abs_d_change_s": 0.12,
+  "crossings_up": 5,
+  "crossings_down": 3,
+  "net": 2
+ },
+ "reset": {
+  "windows": 11,
+  "median_abs_d_change_s": 0.28,
+  "crossings_up": 2,
+  "crossings_down": 2,
+  "net": 0
+ }
+}

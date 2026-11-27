@@ -1,0 +1,51 @@
+{
+ "what": "Version 2.2: the side reading with the clock tested on time-map content (docs/research/P8_sac_checkc.md section 10); report only",
+ "clock_content": {
+  "windows": 82,
+  "time_map_content_differs": [],
+  "inputs": {
+   "workspace": {
+    "moments_sha256": "48031b2bbadb25b1dbb7d6ad453690fa633be04f0ee35b77e35d56235b66cc36",
+    "mirror": "identity"
+   },
+   "reference": {
+    "moments_sha256": "48031b2bbadb25b1dbb7d6ad453690fa633be04f0ee35b77e35d56235b66cc36",
+    "mirror": "identity"
+   }
+  },
+  "holds": true
+ },
+ "n_common": 73,
+ "mps": {
+  "n": 73,
+  "median_abs_s": 0.52,
+  "share_over_0_2_s": 0.7945,
+  "max_abs_s": 2.44
+ },
+ "fixed": {
+  "n": 73,
+  "median_abs_s": 0.64,
+  "share_over_0_2_s": 0.8219,
+  "max_abs_s": 2.16
+ },
+ "side": {
+  "v3_swap": {
+   "n": 73,
+   "median_abs_s": 0.64,
+   "share_over_0_2_s": 0.7945,
+   "max_abs_s": 2.24
+  },
+  "r23_swap": {
+   "n": 73,
+   "median_abs_s": 0.56,
+   "share_over_0_2_s": 0.8082,
+   "max_abs_s": 2.4
+  },
+  "per_statistic": {
+   "share_over_0_2_s": "r23 side",
+   "median_abs_s": "V3 side"
+  },
+  "reading": "not separated",
+  "note": "the r23 side changes platform too (the workspace r23 rebuild is MPS)"
+ }
+}
