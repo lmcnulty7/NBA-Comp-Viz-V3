@@ -56,10 +56,11 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 
 1. Level 2 map (D202 to D205), development standard rows on cha and bkn: missed 0.214 = own box 2.5 to 5 ft off
    (0.114) + no box left near a close neighbour (0.041) + no box within 5 ft (0.044 + 0.014); ghosts 0.121; team 0.834,
-   carried by crowding. Next: a registered foot-model correction on the new truths aimed at the 0.114 row, Mac only and
-   stored files first, with near-field non-inferiority (D186 to D188 failed there on the old truths; the truth change
-   moved placement most, so the question is open again). Detection recall (0.085) needs a detector or tracker arm under
-   the training protocol and comes after.
+   carried by crowding. A median foot shift toward the truth was killed at its in-sample gate (D206): about -0.004 against
+   the -0.010 bar. Next candidates, to re-rank: a report-only look at the P-ii boxes themselves (whether they are the
+   player's own box, a ghost or a neighbour's, by identity and box geometry), which decides whether the 0.114 row is a
+   foot problem or a detection problem; and detection recall (0.085), which needs a detector or tracker arm under the
+   training protocol.
 2. Deferred: the gsw_ind_2016 CPU rebuild (D200); the tracker-fix question on a real pool (D198, decides only the
    reported baseline under D193).
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
@@ -134,6 +135,8 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   because one run-time field differed, and fired a registered reading on a false alarm (D201).
 - Read the size of a gate's margin before chasing its failure: gsw_sac_2015 fails check C's share by 2 windows of
   73, inside the controls' normal swing (D201).
+- Check what sets the fitted statistic before fitting. A cell median of fit rows that are 86 percent hits is set by the
+  hits, not by the misses the correction targets, so it moved position but not the missed row (D206).
 - Chain the steps, do not wait for a wake-up. A teammate waiting on a completion notice left the Mac idle 20 minutes
   twice in a day; one background script for the whole sequence, plus a lead-side watcher on the lock, removed it.
 
