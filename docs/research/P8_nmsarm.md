@@ -195,3 +195,84 @@ A stage that runs past 1.5 times its estimate stops and is re-estimated.
   Records: reports/research/p8_nmsarm_<stage>.json, each checked with find_private.
 - tests/test_p8_nmsarm.py: re-NMS on synthetic boxes, the pilot split, the gates, the adoption, kill and
   inconclusive outcomes, the guards on game and window lists, and an AST check of the write targets.
+
+## 12. Version 1.1 (2026-11-27; the design review of 328853f0, GO WITH CHANGES; before any code)
+
+Where this section differs from sections 1 to 11, it rules. Only stages 0a and 0b may run under it; stage 1 (1a on)
+needs a further dated amendment after stage 0b's result, and its code is not written before then.
+
+**12.1 The review's finding.** The reviewer's re-NMS on the stored candidates of the 88 kept windows added 766 boxes at
+0.55 and 1,299 at 0.70, against at most 421 C2 recoveries (about 200 at 0.55), and many added boxes sit on the same
+person. The nearest-rule rows (missed, ghosts) cannot see a duplicate next to a tracked player, so a pilot read on them
+would favour the arm with most duplicates.
+
+**12.2 Stage 0b gates (replaces section 7's stage 0b).** Per arm t, on the universe frames of D208's 88 kept windows,
+against re-NMS at 0.45 as the baseline (equal to the stored R_post wherever stage 0a's check holds; agreement is
+counted on every frame), the change in:
+- **one-to-one net** (the primary row): tools.p8_resetfix.unmatched_1to1, imported, the count D202 and D205 checked
+  against the scorer's own counts; the raw boxes are r23's player class (class 0), so none is a referee box;
+- **missed plus ghosts**: missed counts in-frame players with no box foot within sportvu.eval.MISS_FT; ghosts count
+  boxes with no player of all ten within sportvu.eval.GHOST_FT (3.0 ft), as tools.p8_scorecard.score_window counts
+  them; both constants are imported, not typed;
+- **duplicates**: tools.p8_resetfix.frame_extra's count (in-frame players with two or more feet within 2.5 ft).
+Feet are the raw boxes' bottom centres through H_truth (p8_recallcause.feet_of), as D208 did; in-frame uses
+sportvu.eval.FRAME_MARGIN_PX on the clip's size; the players and H_truth come from D205's rows, recomputed and checked
+equal to D205's stored rows per window, as in D208. Gates, per arm:
+- K1: an arm whose pooled one-to-one net change is not below 0 is killed;
+- K2: 0.70 is kept only if its one-to-one net change is below 0.55's (its marginal change over 0.55 is negative);
+- G0 (section 7, unchanged): R(t) at least 0.25 of the 421 C2 misses;
+- the C2 recount must equal D208's 421 and the row gate must pass on every window, else stage 0b stops.
+At most one arm goes on: 0.70 if it passes K1, K2 and G0, else 0.55 if it passes K1 and G0, else none and the item
+ends. Reported beside, not gating: the same rows on the 32 dropped windows, a window-bootstrap interval for each
+pooled change, and R(t) and A(t) as in section 7.
+Limit, read with it: universe frames are the frames with at least one P-i or D-i miss. Other frames have none of
+the misses C2 can recover and still pay for the added boxes, so the screen leans in the arm's favour: a kill is safe;
+a pass does not show that the build gains.
+
+**12.3 If an arm survives (replaces parts of sections 6 and 7).** The one-to-one net error (unmatched_1to1 /
+in_frame) is the primary row for P2, the kill rule and A2; missed, ghosts and net error are reported. With one arm
+the arm choice is moot. Added:
+- a non-inferiority guard on duplicates per in-frame player: the difference at most +0.005 (D202's baseline is 0.0516
+  over all 156 windows, so about a tenth of it);
+- a mechanism check: the in-frame players hit in the arm and missed in the baseline, counted by D205's class and,
+  inside D208's universe, by D208's class. A missed fall larger than the measured ceiling (12.7), or arm-only hits
+  carried mostly (more than half) by P-ii, is flagged "duplicates suspected"; a flagged result is not an adoption
+  candidate.
+
+**12.4 Stage 1a (replaces section 7's stage 1a; not coded until stage 1 is amended).** The identity builds at 0.45 on
+the three windows of section 7 plus one D208-dropped window that did not fail on a tie, gsw_cha_2016_s02_w01 (a
+neighbour above f, five alignment frames, 77 misses, 208 frames, no reset). A positive control: gsw_cha_2016_s05_w00
+at 0.55 must differ from the composite and its device record must carry detector_iou 0.55. Unit tests: model.track
+receives iou=t on the first call and after PlayerTracker.reset(); the iou patch applies whether or not a device flag
+is set.
+
+**12.5 Allow-list.** ALLOWED = {gsw_cha_2016, gsw_bkn_2015} is asserted on every game name, every window name and every
+score call, besides tools.p8_common.guard and refuse_cv_test (guard allows hou_cle_2016 and gsw_sac_2015 today).
+Tests show that a hou or sac game or window is refused.
+
+**12.6 Noise floor.** Unknown before a pilot, and expected to be dominated by tracker churn: any NMS change perturbs
+BoT-SORT everywhere (activations, identities, resets), so per-window differences carry churn beyond the C2 mechanism.
+The build itself is deterministic (P8_resetfix.md, the equivalence windows), so there is no run-to-run noise. P3
+(replaces section 7's): the pilot's bootstrap half-width of the one-to-one net error difference, scaled by the square
+root of n_pilot / n_confirm, must be under 0.7 times the absolute pilot difference on that row.
+
+**12.7 Ceiling (replaces section 2's figure).** Measured: D208's 421 C2 misses on the kept windows, 0.0073 of the
+57,797 in-frame players of both games (D202's record, all windows), and 0.0098 of the 42,801 in-frame players of the
+88 kept windows. Section 2's 0.010 was an extrapolation of shares to all windows; the measured count stands instead.
+C2 in the 32 dropped windows is not measured.
+
+**12.8 Windows with no in-frame player.** 35 of the 156 windows have in_frame 0 and no scored box in D202's record (no
+truth frame with a player in frame), so the scorer reads nothing there and an arm cannot change their rows. Stage 1
+neither builds nor scores them. The split of section 7 is recomputed on the 121 scorable windows (every index divisible
+by 4 in each game's sorted list): pilot gsw_cha_2016 14 of 56 windows (4,603 frames), gsw_bkn_2015 17 of 65 (6,320);
+confirmation 42 (12,078) and 48 (12,325).
+
+**12.9 Truth-bias limit.** D202's limit holds here with more force: the truth frames were selected with r23's own
+boxes at NMS 0.45, so the rows lean toward r23 as built. An arm differs from the baseline exactly in its boxes, and its
+score against a truth chosen with the baseline's boxes may favour the baseline where the two differ; neither the size
+nor the direction of that effect is measured. Stage 0b's feet also use H_truth.
+
+**12.10 Cost (replaces section 10).** Stage 0a: seconds of lock. Stage 0b: about 10 lock minutes (D205's recompute,
+as in D208; no detector). If an arm survives and stage 1 is amended: 1a about 25 minutes (four identity windows,
+2,798 frames, and the positive control, 1,053 frames); pilot of one arm about 85 minutes (10,923 frames); confirmation
+about 190 minutes (24,403 frames). At most about 5.0 lock hours, 0 Colab units.
