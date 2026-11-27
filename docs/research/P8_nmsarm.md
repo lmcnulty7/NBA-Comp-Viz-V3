@@ -291,3 +291,46 @@ K2, G0 or the recount:
   assert torch 2.2.2 and record torchvision;
 - both stages run tests/test_p8_nmsarm.py under the interpreter that runs them (the frozen CV python, so the NMS test
   runs), require it to pass with nothing skipped, and record the result.
+
+
+## 13. Stage 0 result (2026-11-27; run at 18a13d7b; reports/research/p8_nmsarm_replay.json and p8_nmsarm_screen.json)
+
+**13.1 Stage 0a, the replay.** One lock job ("p8 nmsarm replay", 42 s). torchvision NMS on the stored R_pre at 0.45
+with max_det 300 equals the stored R_post on every stored frame: gsw_cha_2016_s05_w00 0 of 111 frames differing,
+gsw_bkn_2015_s04_w00 0 of 131. The stage ran tests/test_p8_nmsarm.py under the frozen CV python first (11 passed, none
+skipped, the NMS test included). torch 2.2.2, torchvision 0.17.2. Passed.
+
+**13.2 Stage 0b, the screen.** One lock job ("p8 nmsarm stage0", 132 s), after the same unit tests (11 passed). The
+D205 row gate passed on all 120 windows with stored candidates; the C2 recount on the kept windows is 421, equal to
+D208's. Re-NMS at 0.45 equals the stored R_post on 3,630 of 3,631 universe frames (the one other frame lies outside the
+two check windows; it stays in the rows, scored against re-NMS at 0.45 like every frame). The scorer's referee rule
+flags 563 raw boxes at 0.45, 568 at 0.55 and 571 at 0.70 (all 120 windows). Baseline on the kept windows' 2,642 universe
+frames: in-frame players 25,979, one-to-one net 13,306, missed plus ghosts 11,001, duplicates 1,248.
+
+Changes, arm minus re-NMS at 0.45, on D208's 88 kept windows (sums over universe frames; window-bootstrap 95 percent
+intervals, 2,000 resamples, seed 0):
+
+| arm | one-to-one net | missed plus ghosts | duplicates | missed | ghosts | boxes | C2 recoverable | added: duplicates, ghost candidates, other |
+|---|---|---|---|---|---|---|---|---|
+| 0.55 | -134 [-215, -55] | -222 [-298, -150] | +175 [+119, +236] | -313 | +91 | +540 | 218 of 421 | 273, 133, 143 |
+| 0.70 | -14 [-93, +65] | -274 [-367, -192] | +420 [+300, +549] | -486 | +212 | +1,078 | 322 of 421 | 491, 253, 227 |
+
+Gates as registered (12.2): 0.55 passes K1 (-134 below 0) and G0 (218 at least 0.25 of 421); 0.70 passes K1 (-14)
+and G0 (322) but fails K2 (-14 is not below 0.55's -134). **The arm that goes on is 0.55.**
+
+Beside, not gating: the 32 dropped windows (989 universe frames):
+
+| arm | one-to-one net | missed plus ghosts | duplicates | missed | C2 recoverable |
+|---|---|---|---|---|---|
+| 0.55 | -56 | -98 | +46 | -139 | 89 of 151 |
+| 0.70 | +14 | -106 | +125 | -195 | 120 of 151 |
+
+**13.3 Reading, with its limits.**
+- The screen leans in the arm's favour: it reads only universe frames (frames with a P-i or D-i miss, where C2 can be
+  recovered) and raw boxes before any tracker. Its pass shows nothing about the build; stage 1 decides that.
+- Mechanism-check warning (registered for the pilot, 12.3; not a finding): at 0.55 the missed count falls by
+  313, more than the 218 recoverable C2 misses, so about 95 of the fall comes from players outside C2. That fits added boxes
+  landing near P-ii players (a box 2.5 to 5 ft away already) rather than finding lost ones. Duplicates rise by 175
+  [119, 236]. The pilot's mechanism check (arm-only hits by class) tests this.
+- On the one-to-one row 0.70 gains almost nothing over the baseline (-14, interval across 0): its extra boxes beyond 0.55
+  are mostly duplicates (+420 against +175).

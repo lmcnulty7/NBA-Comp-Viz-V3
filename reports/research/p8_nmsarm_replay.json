@@ -1,0 +1,34 @@
+{
+ "what": "P8 NMS arm stage 0a: re-NMS on stored candidates against the stored R_post (docs/research/P8_nmsarm.md, version 1.1); report only",
+ "head": "18a13d7b2d8ca7c5f301939c8e406797da66235f",
+ "versions": {
+  "torch": "2.2.2",
+  "torchvision": "0.17.2"
+ },
+ "unit_tests": {
+  "file": "tests/test_p8_nmsarm.py",
+  "returncode": 0,
+  "summary": "11 passed, 3 warnings in 1.88s",
+  "skipped": []
+ },
+ "recallcause_digest": "bfa5904d9c9bc85a3fd55d971ce206b9a3016cb36d731183401db94b4a192d5e",
+ "iou": 0.45,
+ "max_det": 300,
+ "windows": {
+  "gsw_cha_2016_s05_w00": {
+   "frames": 111,
+   "differing": 0,
+   "differing_edge": [],
+   "differing_other": []
+  },
+  "gsw_bkn_2015_s04_w00": {
+   "frames": 131,
+   "differing": 0,
+   "differing_edge": [],
+   "differing_other": []
+  }
+ },
+ "passed": true,
+ "edge_only": false,
+ "seconds": 19.2
+}
