@@ -899,6 +899,11 @@ the one game in use, lowers missed and net error; the ghost share per box is unc
 while ghost boxes per in-frame player rise from 0.115 to 0.126 (report only, point values), and net error still falls.
 That is a report, not a verdict.
 
+Correction (2026-11-27, from the review of P8_rebaseline.md): "cache seconds 0" above is wrong. The score record's
+cache_seconds timed only windows with no cache file at all; every gsw_bkn_2015 window had a copied file, but 1,217
+referee entries in 65 windows were missing from those files and were computed inside the 146 s (wide and cut entries:
+none missing). Checked by comparing the reference root's cache files with the workspace's.
+
 Review notes (2026-11-27, the ml-review of d2e7638f..8b83899e, FAIL on wording): "without a ghost cost" withdrawn (section
 18 withdrew any claim of no ghost harm) in favour of the per-box and per-player ghost figures; the forecast comparison
 now uses gsw_bkn_2015's own ghost forecasts; the shared-input sentence and the counts of windows with a nonzero

@@ -104,3 +104,69 @@ Report only: no gate, no adoption, and no registered number is replaced (r23's r
 result stand as recorded; D198). Nothing held out is read; the D85 test set is refused. Writes: the score records under
 the reference root's rebaseline/ folder, the cache entries in its cache/scorecard, and reports/research/
 p8_rebaseline.json; nothing under work_ms, the P8 workspace, truth_v2/ or truth_accept/.
+
+## 10. Version 2 (2026-11-27; the review of 97258274, GO WITH CHANGES, no blockers; before any number)
+
+Where this section differs from sections 1 to 9, it rules.
+
+**10.1 Name and claim limits (finding 4).** The rows are the **development standard rows (D193 (2))**: r23 on the
+fixed tracker, the build every later development arm builds both sides on. They are not the reported baseline, which
+stays r23's registered rows (D198); the record carries this label. Limits, stated with every row:
+(a) shared input: each truth's frames were selected by fits on the same r23 label build's boxes (detector and
+tracker shared with this build), so the rows are optimistic in absolute terms and biased toward r23;
+(b) multipool v1 is a better fit by the acceptance measures, not a truth shown to be better (D199).
+
+**10.2 Writes (finding 1).** tools.p8_frozen.install_paths is called only on the reference root. Each truth is scored
+with {**P, "labels": <that truth's root>/labels}, the cache and label_build left on the reference root's layout;
+install_paths is never called on work_ms or the P8 workspace (work_ms/cache is empty and stays so). Before the first
+score and after the last, the tool takes a SHA-256 manifest and a listing of labels/, label_build/, cache/ and
+truth_accept/ in work_ms and in the P8 workspace, and of labels/, label_build/ and truth_accept/ in the reference root;
+any difference stops the run and reports nothing. The reference root's cache/scorecard is the only place it adds
+entries (counted, 10.6). Writes: the reference root's rebaseline/ (score records, the bracket's filtered labels),
+cache entries there, and reports/research/p8_rebaseline.json.
+
+**10.3 Pooling (finding 3).** Pooled rows cover gsw_cha_2016 and gsw_bkn_2015 only (one truth version, multipool v1);
+hou_cle_2016 is reported apart, per the P8 convention (D153). The pooled interval is window-level only (no game
+interval with two games); windows enter the bootstrap in sorted name order (finding 9).
+
+**10.4 The truth change (finding 2; replaces section 5).** Per game only; the pooled truth-change row is dropped, since
+the two changes differ in kind. What changed: gsw_cha_2016, from the Mac MPS truth to multipool v1 on CPU label builds
+with the fixed tracker, so the platform, the tracker bug's thinning of post-reset truth frames (P8_resetfix.md part
+a) and the multipool fit all change at once; gsw_bkn_2015, from the fixed CPU truth to multipool v1 on the same label
+builds, so only the fit changes. The section 5 change is computed on the windows both truths score; its position, bias
+and team columns cover the players matched under both truths, which differs from section 4's rows (players matched
+under one truth). Report-only split, the bracket method of P8_resetfix.md section 14.6: both truths' rows on only the
+frames both truths accepted (filtered labels written under the reference root's rebaseline/labels_common/), so the
+change on common frames shows the geometry part apart from the frame-selection part; counts of frames accepted by
+each truth only and by both are reported.
+
+**10.5 Reproduction gate (finding 5).** Before any other score: gsw_bkn_2015 on its previous truth (the fixed CPU
+truth) with the composite must reproduce, per window, the reset-fix arm's score record (reference root
+resetfix/score__gsw_bkn_2015.json, windows[*].new) on missed, in_frame, nr_ghosts, nr_boxes, matched, far,
+missed_1to1 and unmatched_1to1, exactly; its truth pin must equal resetfix/truth_pin__gsw_bkn_2015.json's files.
+Otherwise nothing is reported. Also asserted: reports/research/p8_scorecard_pin.json as tools/p8_scorecard.py checks
+it; `git status -- tools sportvu` clean; HEAD recorded.
+
+**10.6 Caches (finding 6).** Before scoring, per window and truth, the missing wide, referee and corr entries are
+counted (against the frames the score will need); every window with any is timed, and the counts and seconds are
+recorded. (The reset-fix arm's record said "cache seconds 0" while 1,217 referee entries in 65 gsw_bkn_2015 windows were
+computed inside its 146 s; corrected in P8_resetfix.md section 24.)
+
+**10.7 What becomes seen about hou_cle_2016 (finding 7).** Seen after this run: the development standard rows of r23
+on the fixed tracker on hou_cle_2016's fixed CPU truth (section 4's rows with intervals). Limits: (i) no difference
+between fixed and unfixed builds on hou_cle_2016 is computed; (ii) no breakdown beyond section 4's rows (no thirds,
+zones or per-window lists in the report); (iii) any later arm that uses hou_cle_2016 cites this list as seen
+(a forking path to name).
+
+**10.8 Asserts (finding 8).** SHA-256 of every file score_window reads per window (sidecar, clip, time map, labels,
+cache file) recorded before scoring; equal window lists, mirror and moments across the truths' roots; guard and
+refuse_cv_test on every game, stem and SportVU id; the score step refuses to run without V3_HEAVY_HELD; find_private on
+the record before it is written; the 60-minute cap checked between windows.
+
+**10.9 Equivalence wording (finding 10; corrects section 2).** On no-reset windows the composite equals the unfixed
+build by the code argument (the fix acts only inside PlayerTracker.reset, so a window with no reset makes the same
+calls) and by two tested equivalence windows per game (resetfix/equiv__<game>.json); not every no-reset window was
+compared byte for byte.
+
+Section 8's cost stands, with the reproduction gate (one more pair) and the bracket split (two more scores per game
+for cha and bkn) added: about 10 to 20 minutes of scoring plus the cache entries; the cap stays 60 minutes.
