@@ -501,3 +501,57 @@ the manifests were unchanged.
 
 Stage 0a stops nothing about the pose line (11.3). Its next step, stage A, waits for the re-registered alignment rule
 (12.6).
+
+## 14. Stage A's alignment rule, re-registered (2026-11-27, after the code check of 323b90ce; before any stage A code or lock)
+
+This replaces 11.6's rule. 11.6's read order, its scope (all 156 windows, detector only, no download), the a3align
+cross table and its writes stand.
+
+**Frames.**
+- Eligible frames: the window's processed frames that have both neighbours (f - stride and f + stride) in the sidecar
+  and at least 4 boxes at f.
+- The sidecar's own box motion at f is the median, over the tracks present at f - stride and at f + stride (matched by
+  tid), of the box centre's displacement in pixels between those two frames.
+- The eligible frames, in time order, are cut into 15 equal segments. In each segment, the frame with the largest
+  motion is taken (ties: the earlier frame).
+- A window with fewer than 10 eligible frames is undetermined, left out and counted.
+
+**Statistic.**
+- r23's detector predicts at f only (11.6).
+- For each of the sidecar's frames f - stride, f and f + stride, the sidecar's boxes are matched to the predictions
+  one to one, by Hungarian on IoU.
+- The mean IoU is taken over the sidecar's boxes, with unmatched sidecar boxes and pairs below IoU 0.1 counting as 0.
+  This is M_-1, M_0 or M_+1, pooled over the window's chosen frames.
+- The level at f, L_0, is a3align's: among the sidecar's boxes whose matched IoU at f is at least 0.3, the median of
+  that IoU.
+- Unmatched sidecar boxes and unmatched detections are counted per frame.
+
+**Rule (fixed now).**
+- A window is **misaligned** when a neighbour beats f by the margin (M_-1 or M_+1 at least M_0 + 0.05), or when the
+  level at f is too low (L_0 under 0.75). Otherwise it is **aligned**. Ties read aligned.
+- 0.05 and 0.75 are a3align's thresholds, kept for the reasons it gives: players move between processed frames, and a
+  matched tracked box sits near 0.9 IoU.
+- A frame the reader cannot decode makes the window undetermined.
+- Per-game stop bar, unchanged from 11.6: if more than 0.25 of a game's windows are misaligned or undetermined, no pose
+  stage follows.
+
+**Dry run, read-only, before any lock** (reports/research/p8_a3align.json's stored per-window offsets; 2 s, no
+lock). The new statistic was not stored by a3align, so the dry run applies the rule's form to a3align's stored share
+S_k at offsets -1, 0 and +1 only, and to its stored median same-frame IoU:
+
+| margin | gsw_bkn_2015 (62) | gsw_cha_2016 (53) | gsw_sac_2015 (60, not in this item) | agreement with a3align's verdicts |
+|---|---|---|---|---|
+| 0.05 (registered) | 8 (0.129) | 4 (0.075) | 2 (0.033) | identical on every window |
+| 0.02 (sensitivity) | 10 (0.161) | 7 (0.132) | 3 (0.050) | adds 2, 3 and 1 windows |
+| 0.10 (sensitivity) | 7 (0.113) | 3 (0.057) | 2 (0.033) | misses 1, 1 and 0 |
+
+At the registered margin, the ±1 rule reproduces a3align's 13 and 8 percent exactly. Its offsets of ±2 added no
+window. The level rule alone flags 7, 2 and 1 windows.
+
+Limits of the dry run:
+- It checks the thresholds on a3align's statistic (the share of corpus raw boxes at IoU 0.5), not on stage A's mean
+  IoU.
+- a3align compared the corpus decode with the sidecar on 62 and 53 windows of the old truths. Stage A compares a
+  build-order decode on the 83 and 73 windows of the decided truths.
+
+Stage A's own result may therefore differ. The 0.25 stop bar leaves room for about twice a3align's bkn share.
