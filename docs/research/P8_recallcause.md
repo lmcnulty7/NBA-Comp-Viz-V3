@@ -209,3 +209,102 @@ number).** Where this differs from 8.1 to 8.9, it rules.
   counts, shares and intervals; no subclass is named the main loss.
 - **Reads.** An undecodable frame anywhere in a window's read stops the run, as in tools/p8_a3run.py.
 - **Suppressor.** A kept box suppresses a candidate only at IoU above 0.45, as NMS does (8.3 said "0.45 or more").
+
+
+## 9. Result (2026-11-27; run at 7ba557d2, reports/research/p8_recallcause.json)
+
+**9.1 The run.** One lock job ("p8 recallcause"), frozen CV python (opencv 4.13.0, torch 2.2.2, ultralytics 8.4.48;
+NMS backend torchvision), 2,243 s of the 75-minute cap; per-stage times were not recorded. Before the run the B1 check
+(test_nms_once_does_not_change_its_input, which pytest skips under the repository python) was run under the frozen CV
+python inside the lock and passed; the same check showed that a bare non_max_suppression call changes its input.
+Gates, all passed:
+- D205's rows: recomputed equal to the stored rows in every window, 28,427 rows (gsw_cha_2016) and 29,370
+  (gsw_bkn_2015), records at the pinned SHA-256 and run 20261127T171848Z, with D205's per-window hash, cache and count
+  checks;
+- build environment: gsw_cha_2016_s05_w00, 1,053 frames, 0 differing, 8,766 boxes; gsw_bkn_2015_s04_w00, 1,102 frames,
+  0 differing;
+- no max_det or max_nms cap was hit; "other" is 0 in every unit.
+
+**9.2 Dropped windows (registered rule 8.10).** 32 of the 120 windows that hold universe misses failed the alignment
+rule; their 1,291 misses are left out (3,591 kept). Against tools/p8_a3align.py's stored verdicts, where both cover a
+window (reports/research/p8_recallcause_aligndry.json):
+
+| game | windows with misses | dropped | misses in dropped | dropped also in a3align | of those, a3align aligned | kept | kept in a3align | of those, a3align misaligned |
+|---|---|---|---|---|---|---|---|---|
+| gsw_cha_2016 | 56 | 10 | 346 | 9 | 6 | 46 | 42 | 1 |
+| gsw_bkn_2015 | 64 | 22 | 945 | 20 | 14 | 42 | 36 | 0 |
+
+So 20 of the 29 dropped windows that a3align covers are windows a3align called aligned, and a3align called only one
+kept window misaligned. Per window, the dropped list, its misses, its mean shares and a3align's verdict are in the dry
+run record.
+
+**9.3 Shares on the kept windows, as registered (8.10).** Group shares of the no-own-box misses, window-bootstrap 95
+percent intervals (2,000 resamples, seed 0); the main loss is read on the pool of each unit:
+
+| unit | misses (windows) | C1 | C2 | C3 | C4 | other | reading |
+|---|---|---|---|---|---|---|---|
+| P-i cha | 892 (46) | 0.553 [0.498, 0.621] | 0.163 [0.104, 0.217] | 0.094 [0.065, 0.126] | 0.191 [0.162, 0.225] | 0 | (read on the pool) |
+| P-i bkn | 778 (39) | 0.629 [0.578, 0.675] | 0.144 [0.112, 0.178] | 0.060 [0.037, 0.086] | 0.167 [0.136, 0.207] | 0 | (read on the pool) |
+| P-i pooled | 1,670 (85) | 0.588 [0.543, 0.632] | 0.154 [0.120, 0.188] | 0.078 [0.058, 0.100] | 0.180 [0.157, 0.207] | 0 | C1: main loss |
+| D-i cha | 899 (44) | 0.704 [0.649, 0.753] | 0.102 [0.074, 0.134] | 0.132 [0.096, 0.172] | 0.061 [0.044, 0.079] | 0 | (read on the pool) |
+| D-i bkn | 1,022 (41) | 0.789 [0.736, 0.837] | 0.070 [0.049, 0.097] | 0.087 [0.063, 0.115] | 0.054 [0.035, 0.074] | 0 | (read on the pool) |
+| D-i pooled | 1,921 (85) | 0.749 [0.706, 0.788] | 0.085 [0.067, 0.107] | 0.108 [0.085, 0.134] | 0.057 [0.045, 0.072] | 0 | C1: main loss |
+| both cha | 1,791 (46) | 0.629 [0.581, 0.679] | 0.132 [0.094, 0.171] | 0.113 [0.084, 0.146] | 0.126 [0.108, 0.146] | 0 | (read on the pool) |
+| both bkn | 1,800 (42) | 0.719 [0.678, 0.756] | 0.102 [0.084, 0.122] | 0.076 [0.058, 0.098] | 0.103 [0.081, 0.126] | 0 | (read on the pool) |
+| both pooled | 3,591 (88) | 0.674 [0.638, 0.711] | 0.117 [0.096, 0.140] | 0.094 [0.074, 0.115] | 0.114 [0.100, 0.130] | 0 | C1: main loss |
+
+As registered, C1 (no box of its own after NMS, and not a suppressed candidate of its own) is the main loss of
+both P-i (0.588, lower bound 0.543) and D-i (0.749, lower bound 0.706). The subclasses, pooled (count: share
+[interval]); no subclass is named the main loss:
+
+| subclass | P-i pooled | D-i pooled | both pooled |
+|---|---|---|---|
+| C1a_own | 49: 0.029 [0.019, 0.041] | 56: 0.029 [0.020, 0.039] | 105: 0.029 [0.022, 0.037] |
+| C1a_other | 324: 0.194 [0.169, 0.223] | 768: 0.400 [0.361, 0.436] | 1,092: 0.304 [0.275, 0.332] |
+| C1b | 18: 0.011 [0.006, 0.016] | 144: 0.075 [0.045, 0.106] | 162: 0.045 [0.029, 0.063] |
+| C1c | 591: 0.354 [0.315, 0.392] | 471: 0.245 [0.206, 0.289] | 1,062: 0.296 [0.263, 0.331] |
+| C2 | 257: 0.154 [0.120, 0.188] | 164: 0.085 [0.067, 0.107] | 421: 0.117 [0.096, 0.140] |
+| C3_late | 109: 0.065 [0.048, 0.085] | 160: 0.083 [0.063, 0.107] | 269: 0.075 [0.058, 0.093] |
+| C3_not_confirmed | 14: 0.008 [0.004, 0.013] | 30: 0.016 [0.010, 0.021] | 44: 0.012 [0.009, 0.016] |
+| C3_undetermined | 8: 0.005 [0.002, 0.009] | 18: 0.009 [0.005, 0.014] | 26: 0.007 [0.005, 0.010] |
+| C4a | 220: 0.132 [0.113, 0.155] | 0: 0.000 [0.000, 0.000] | 220: 0.061 [0.051, 0.072] |
+| C4b | 80: 0.048 [0.037, 0.060] | 110: 0.057 [0.045, 0.072] | 190: 0.053 [0.043, 0.063] |
+
+The threshold sub-share (8.4): of the C1c misses, the share with a player box at conf 0.25 to 0.40 within 2.5 ft of j
+and nearer j than any other player is 0.0085 for P-i (591 C1c), 0.0361 for D-i (471) and 0.0207 pooled (1,062).
+Other-class boxes within 5 ft of a miss, counted apart (M1), pooled over both units: ball 64, rim 0, number 454. C2:
+421 misses, median candidate score 0.758, median IoU with its suppressor 0.559.
+
+**The drop and these shares.** The 1,291 left-out misses are 26 percent of the universe's 4,882 misses, and the
+drop is not random: by the posefoot check, the strict rule (ties read not aligned) fails most often where players stand
+still, so the kept windows lean toward windows with moving players. The shares above may be biased by that; the
+direction is unknown. They are the registered result, read with that caveat.
+
+**9.4 Post hoc (not registered; descriptive).**
+- C1a_other, a position inside only another player's detection, is the largest C1 subclass of D-i (0.400) and the
+  second of P-i (0.194). That is consistent with one box covering two players rather than an empty spot, though the
+  class does not show it; C1c, no candidate at all near j, is 0.354 of P-i and 0.245 of D-i.
+- The threshold lever is small: lowering the conf threshold to 0.25 adds a box near j for under 4 percent of C1c.
+- C4a is 0 in D-i, as the class definitions require (a D-i miss has no box foot within 5 ft).
+- C1a_own, j's own box with its foot mapped beyond 5 ft, is 0.029 in both units.
+Whether these hold on the dropped windows is open (9.5).
+
+**9.5 Proposed alignment rule, version 2.2 (2026-11-27; a proposal for the lead's decision after ml-review; not
+registered, nothing rerun).**
+- Level of a pair of frames: Hungarian pairs between R_post(f) and the sidecar boxes at f' on IoU, the mean IoU over
+  max(len R_post(f), len sidecar(f')) with every unmatched box counted as 0. The window's level at f' is its mean over
+  the alignment frames (the first five universe frames with both neighbours processed, as now).
+- Misaligned only when the level at f - stride or at f + stride beats the level at f by more than 0.05 (a3align's
+  margin), or the level at f is under 0.75; ties read aligned.
+- It needs no detector run: R_post at every universe frame and the raw candidates of every window, the dropped ones
+  included, are stored in the reference root's recallcause/ folder, and the sidecar boxes are stored.
+Dry run (tools/p8_recallcause_aligndry.py; post hoc). Neither record stores the mean IoU, so the dry run checks the
+margin, floor and tie logic on stored shares of boxes matched at IoU 0.5, not the statistic:
+- on p8_a3align.json (a3align's paired S_k against S_0 at offsets -1 and +1, its S_0 at offset 0), pool games only:
+  of the windows a3align calls aligned, the registered rule fails 12 of 49 (cha, 7 with a tie) and 8 of 54 (bkn, 4
+  with a tie); the proposal fails 3 of 49 and 1 of 54. Of the windows a3align calls misaligned, the registered rule
+  flags 4 of 4 (cha) and 8 of 8 (bkn); the proposal flags 4 of 4 and 6 of 8 (a3align's misaligned set includes
+  sub-stride suspects, which no offset rule can see). These rates are lower than the posefoot check's estimate (27 percent
+  bkn, 32 percent cha), which used its own reading of the stored offsets;
+- on this run's own stored shares: the proposal would keep 23 of the 32 dropped windows (6 cha with 165 misses, 17
+  bkn with 726) and drop none of the kept ones.
