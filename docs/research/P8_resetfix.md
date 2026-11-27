@@ -906,3 +906,19 @@ difference (now in the report record, windows_differing) are added; the lock tim
 heavy-job log rather than a record, are dropped; render prints the per-game reading as deciding nothing and points to
 this section; report only reports games whose pinned truth is "use".
 
+
+## 25. Note (2026-11-27, the lead's decision, self-decided; before running): hou_cle_2016 builds for truth acceptance only
+
+hou_cle_2016's fixed truth is pending only because check C needs its reset-window composite (builds/r23, composed by
+the truth plan from this arm's fixed builds), and that needs hou_cle_2016's reset-fix builds and equivalence check. So
+baseline-copy, plan, build (under the lock, named "resetfix truth-only build hou_cle_2016") and equiv run for
+hou_cle_2016 alone, as one chain, for truth acceptance only. hou_cle_2016 is not pinned or scored for this arm: the
+arm is closed (D198, section 24) and its hou stage stays unrun. Expected from the workspace builds: 23 reset windows,
+10,076 frames, about 1.3 lock hours (cap 1.5 times).
+
+**Result (2026-11-27, truth acceptance only).** baseline-copy 93 of 93; plan 23 reset windows and 10,076 frames (as
+expected) plus 2 equivalence windows (336 frames). Build: 25 windows, all on the first attempt, 4,384 window seconds
+(1.22 lock hours) against about 4,680 (1.3 h), ratio 0.94. Equiv passes: both equivalence windows (s00_w02, s10_w09)
+identical to the r23_nofix baseline, every reset window passes the prefix, source and clip checks. Resets, baseline
+against arm: 23 against 25 (s03_w01 and s08_w00 each 1 to 2). Records: <reference root>/resetfix/build__hou_cle_2016.json
+and equiv__hou_cle_2016.json. Nothing of hou_cle_2016 is pinned or scored for this arm.
