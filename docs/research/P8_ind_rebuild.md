@@ -1,5 +1,56 @@
 # P8: gsw_ind_2016's camera truth rebuilt on the reference platform (design, version 1, before any compute)
 
+## 0. Deferred (2026-11-27, after the design review; the lead's decision)
+
+**The prior the review found.** gsw_ind_2016 already fails check C on its MPS build: P8_truth_v2.md (court-model pairs
+table, line 94) records the frozen rule's median absolute offset difference 0.60 s and share over 0.2 s 0.7978 on 89
+windows, against section 5's bars of 0.54 s and 0.7945. Check C does not depend on the camera fit, so neither the reset
+fix's frozen fit nor the multi-pool fit can move it except through the rebuilt label and r23 builds. The three games
+with both an MPS record (P8_truth_v2.md) and a CPU reset-fix record (P8_truth_arenas.md section 17) moved as follows:
+
+| Game | MPS: median, share | CPU with the fix: median, share | Change in median, share |
+| --- | --- | --- | --- |
+| gsw_bkn_2015 | 0.44 s, 0.7273 | 0.48 s, 0.6883 | +0.04 s, -0.0390 |
+| gsw_cha_2016 | 0.54 s, 0.7812 | 0.50 s, 0.7188 | -0.04 s, -0.0624 |
+| gsw_sac_2015 | 0.52 s, 0.7945 | 0.64 s, 0.8219 | +0.12 s, +0.0274 |
+
+gsw_ind_2016 would need its median to fall by at least 0.06 s (0.60 to 0.54) and its share by at least 0.0033; no game
+moved its median down by that much. The review put the chance of passing check C at about one in four at best, and in
+section 4's order check C is seen only after steps 2 to 5, about 6.8 of the 7.5 lock hours.
+
+**Decision (the lead's, self-decided; options weighed: run now with a futility gate, about 2.3 lock hours before it
+could stop, against deferring): deferred.** e1b-design's check C diagnosis for gsw_sac_2015 (P8_sac_checkc) is about to
+run on stored files and may show why check C fails on GSW games. If its reading points to a cause a rebuild would
+change, this design is revived as a new dated version; otherwise it stays deferred. D98's "apart" stands.
+
+**Changes a revived version must make (the review's other findings), before any run:**
+
+1. Code changes, all written and reviewed before anything runs:
+   - gsw_ind_2016 in tools/p8_truth_cpu.sh's game table with the revived caps;
+   - gsw_ind_2016 in the multi-pool tool's allowed list (tools/p8_multistart.py stage 1 functions), touching nothing
+     else;
+   - step 4's checks (no gsw_ind_2016 file in builds/r23 before; every window reset_fix true, cpu, reference devices,
+     no clip fix after; complete coverage) in code, not only in the doc;
+   - the D98 guards: tools/p8_truth_fixprep.py, tools/p8_truth_v2.py, tools/p8_truth_moved.py and the compose step
+     refuse gsw_ind_2016 today (D98, "apart"); a revived version lifts each refusal only for this registration, by a
+     named, tested exception;
+   - the reference-root manifest: builds/r23/gsw_ind_2016_* is excluded from the before-and-after manifest while step 4
+     writes it, then added, and a complete-file record (every label window with a sidecar has its r23 build) is written
+     before check C runs.
+2. A narrower upper bound: one game whose status can change, and at best a third usable GSW game (gsw_sac_2015 is
+   apart), not a new arena. It would take the usable development games from 3 (gsw_cha_2016, gsw_bkn_2015,
+   hou_cle_2016) to 4, so a game-level bootstrap (D85 (3), games as clusters) would go from 3 to 4 clusters; the revived
+   design must say what that buys for the comparisons that would use it.
+3. Switch wording: the rule of section 6 is D199's unchanged; the revived text says "the lead's whole-set decision" and
+   does not imply that a passing truth lifts D98 by itself.
+4. Build order with a futility rule: build and check section by section, and stop once check C can no longer pass
+   (for example, after enough sections that even the best remaining windows cannot bring the median to 0.54 s), so the
+   lock hours spent before check C is known are bounded; the rule and its arithmetic are fixed in the revived version
+   before any section runs.
+5. Every estimate and cap is restated per section for the futility rule.
+
+Sections 1 to 8 below are version 1 as reviewed; they are not run.
+
 Written 2026-11-27 for PLAN.md D199's queue item 1. Design only: nothing here has run; every figure quoted comes from
 committed records (P8_truth_arenas.md sections 5, 15 to 17; P8_multistart_fit.md; P8_cha_fit.md; the P8 workspace's
 recorded MPS build and fit of gsw_ind_2016, read only). No held-out game, no D85 test game and no test arena is read
