@@ -906,6 +906,10 @@ difference (now in the report record, windows_differing) are added; the lock tim
 heavy-job log rather than a record, are dropped; render prints the per-game reading as deciding nothing and points to
 this section; report only reports games whose pinned truth is "use".
 
+Correction (2026-11-27, from the review of P8_rebaseline.md): "cache seconds 0" above is wrong. The score record's
+cache_seconds timed only windows with no cache file at all; every gsw_bkn_2015 window had a copied file, but 1,217
+referee entries in 65 windows were missing from those files and were computed inside the 146 s (wide and cut entries:
+none missing). Checked by comparing the reference root's cache files with the workspace's.
 
 ## 25. Note (2026-11-27, the lead's decision, self-decided; before running): hou_cle_2016 builds for truth acceptance only
 
