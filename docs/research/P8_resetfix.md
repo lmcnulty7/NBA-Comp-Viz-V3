@@ -811,3 +811,23 @@ and their error, matched only in the baseline, label-build consistency, reset co
 (or "not scored" before a pool pass); and a closing part written by hand afterwards (against the forecasts of
 sections 17 and 19, diagnosis by cause, the lesson, the ledger row), which quotes only numbers that are in a record.
 Tested on a synthetic record.
+
+## 23. Note (2026-11-27, before any score; the lead's decision, self-decided): gsw_cha_2016's fixed truth fails acceptance
+
+truth-rebuild reports that gsw_cha_2016's camera truth rebuilt with the fix fails P8_truth_arenas.md section 5's checks
+A (median reprojection 15.18 px against a bar of 10.0) and B (971 accepted frames against a bar of 1,000), so its final
+status will be "unused". The lead weighed stopping the arm's builds (saving about 2 lock hours) against continuing,
+and decided to continue: the fixed builds of gsw_cha_2016, gsw_bkn_2015 and gsw_sac_2015 and their equivalence checks
+go ahead as planned, because D193 needs fixed-tracker builds of both sides for every later arm. Registered now, before
+any score:
+
+1. Once the accept phase confirms gsw_cha_2016's status as "unused", this arm's verdict is fixed by the rule of
+   sections 14.6 and 18: "no pass: partial pool (gsw_cha_2016 truth unused)". A partial pool never passes, so the fixed
+   r23 pipeline does not replace r23's registered rows as the reported reference baseline (section 20).
+2. gsw_bkn_2015 and gsw_sac_2015, if their truth is accepted with "use", are pinned and scored as registered
+   (pin-truth, cache-copy, score, report and render unchanged), and their rows are reported only: they decide nothing.
+3. hou_cle_2016 stays unscored (it is scored only after a pool pass).
+
+The code already enforces all three: score refuses a game whose pinned status is not "use"; report marks the pool
+partial when a pool game's truth is not in use and sets the pass to false; hou scoring needs a pool pass in
+resetfix/report.json.
