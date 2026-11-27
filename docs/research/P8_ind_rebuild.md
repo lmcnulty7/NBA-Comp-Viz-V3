@@ -39,15 +39,21 @@ change, this design is revived as a new dated version; otherwise it stays deferr
      before check C runs.
 2. A narrower upper bound: one game whose status can change, and at best a third usable GSW game (gsw_sac_2015 is
    apart), not a new arena. It would take the usable development games from 3 (gsw_cha_2016, gsw_bkn_2015,
-   hou_cle_2016) to 4, so a game-level bootstrap (D85 (3), games as clusters) would go from 3 to 4 clusters; the revived
-   design must say what that buys for the comparisons that would use it.
-3. Switch wording: the rule of section 6 is D199's unchanged; the revived text says "the lead's whole-set decision" and
-   does not imply that a passing truth lifts D98 by itself.
-4. Build order with a futility rule: build and check section by section, and stop once check C can no longer pass
-   (for example, after enough sections that even the best remaining windows cannot bring the median to 0.54 s), so the
-   lock hours spent before check C is known are bounded; the rule and its arithmetic are fixed in the revived version
-   before any section runs.
+   hou_cle_2016) to 4 for a game-level bootstrap (D85 (3), games as clusters). With 3 games, a resample that draws one
+   game three times has probability 1/27 (about 0.037, above 0.025), so a 95 percent game-bootstrap interval is in
+   effect the [min, max] of the game effects; with 4 games that probability is 1/256 per game and the interval stops
+   being degenerate. That is what the fourth game would buy. gsw_ind_2016 was in sample for r23 (D98), so it adds no
+   out-of-sample evidence about r23 itself.
+3. Switch wording: the rule of section 6 is D199's, unchanged, and only gsw_ind_2016's version is decided in this item;
+   every D199 decision about the other games stands and is not reopened. A passing truth does not lift D98 by itself.
+4. Build order with a futility rule (the review's example; the thresholds are fixed at revival, before any build):
+   build section by section, the label build and then the r23 build of the same section; after 4 of the game's
+   sections (about 30 windows, about 2.3 lock hours), stop if the interim median absolute offset difference is at least
+   0.70 s or the share over 0.2 s is at least 0.90. The rule only ever stops; it never passes early (check C is read
+   only on the whole game), and it has its own cap.
 5. Every estimate and cap is restated per section for the futility rule.
+6. Optional, report only: the new truth's camera position C beside Colab's R1.3 C for this game (camera height about
+   123 ft, pooled reprojection 6.53 px), the independent reference D98 used; never part of any rule.
 
 Sections 1 to 8 below are version 1 as reviewed; they are not run.
 
