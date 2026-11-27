@@ -1,0 +1,429 @@
+{
+ "game": "gsw_ind_2016",
+ "design": "docs/research/P8_multistart_fit.md sections 7, 8 and 15 (stage 2)",
+ "label_build": "P8 workspace (MPS, unfixed), read only; report only",
+ "truth_step": false,
+ "inits": 3900,
+ "frames_hash": "ef40d90d2521369abb1eebad835f987f8dbdd886cf634c4da7c4304c1484f5fc",
+ "C0": [
+  46.71418094641693,
+  105.95804046657847,
+  -35.258206223285896
+ ],
+ "selected": {
+  "truth": {
+   "seed": 2,
+   "C": [
+    45.527090355413605,
+    138.94823563792593,
+    -30.716929083360895
+   ],
+   "J": 2977607.20552387,
+   "pooled_median_px": 5.2813,
+   "pooled_median_px_at_start": 100.79,
+   "cost": 461624.92909073096,
+   "converged_at_chunk": 3,
+   "report_only_all_inits_median_px": 4.9183,
+   "pooled_frames": 400,
+   "inits": 3900
+  },
+  "stab_a": {
+   "seed": 23,
+   "C": [
+    45.20241438180324,
+    138.60310010090276,
+    -30.713599256262846
+   ],
+   "J": 2968335.559311829,
+   "pooled_median_px": 5.7784,
+   "pooled_median_px_at_start": 93.43,
+   "cost": 627178.5436832311,
+   "converged_at_chunk": 7,
+   "report_only_all_inits_median_px": 4.9202,
+   "pooled_frames": 400,
+   "inits": 3900
+  },
+  "stab_b": {
+   "seed": 28,
+   "C": [
+    45.68880610152664,
+    138.56580873442508,
+    -30.690619559225453
+   ],
+   "J": 2974968.8497084887,
+   "pooled_median_px": 5.5133,
+   "pooled_median_px_at_start": 95.24,
+   "cost": 556859.4532253449,
+   "converged_at_chunk": 2,
+   "report_only_all_inits_median_px": 4.9131,
+   "pooled_frames": 400,
+   "inits": 3900
+  }
+ },
+ "runs": {
+  "0": {
+   "set": "truth",
+   "C": [
+    46.63902421002711,
+    106.04253090681638,
+    -34.73291471287222
+   ],
+   "J": 5279584.455260491,
+   "pooled_median_px": 16.9369,
+   "converged_at_chunk": 2,
+   "seconds": 51.3
+  },
+  "1": {
+   "set": "truth",
+   "C": [
+    46.3223639642395,
+    111.03890429701936,
+    -32.62801169340792
+   ],
+   "J": 4466232.33056891,
+   "pooled_median_px": 12.3845,
+   "converged_at_chunk": 4,
+   "seconds": 61.6
+  },
+  "2": {
+   "set": "truth",
+   "C": [
+    45.527090355413605,
+    138.94823563792593,
+    -30.716929083360895
+   ],
+   "J": 2977607.20552387,
+   "pooled_median_px": 5.2813,
+   "converged_at_chunk": 3,
+   "seconds": 68.5
+  },
+  "3": {
+   "set": "truth",
+   "C": [
+    46.29712718310611,
+    106.23214223613417,
+    -33.98915431798253
+   ],
+   "J": 5140729.767170322,
+   "pooled_median_px": 12.1062,
+   "converged_at_chunk": 2,
+   "seconds": 42.5
+  },
+  "4": {
+   "set": "truth",
+   "C": [
+    45.70217265712076,
+    135.50267473320758,
+    -29.794308352304583
+   ],
+   "J": 3012554.7971037286,
+   "pooled_median_px": 6.0354,
+   "converged_at_chunk": 2,
+   "seconds": 55.5
+  },
+  "5": {
+   "set": "truth",
+   "C": [
+    46.79234936179345,
+    105.89824009508085,
+    -32.94608786532083
+   ],
+   "J": 4996705.446476935,
+   "pooled_median_px": 16.0532,
+   "converged_at_chunk": 3,
+   "seconds": 52.0
+  },
+  "6": {
+   "set": "truth",
+   "C": [
+    45.72813262425185,
+    136.31685556417713,
+    -30.400443076108782
+   ],
+   "J": 3008581.626005098,
+   "pooled_median_px": 5.4803,
+   "converged_at_chunk": 2,
+   "seconds": 46.3
+  },
+  "7": {
+   "set": "truth",
+   "C": [
+    46.695376243957554,
+    105.81173820265072,
+    -34.85184956995999
+   ],
+   "J": 5324388.69788298,
+   "pooled_median_px": 13.3266,
+   "converged_at_chunk": 3,
+   "seconds": 70.2
+  },
+  "16": {
+   "set": "stab_a",
+   "C": [
+    45.93376612404952,
+    112.21440234624565,
+    -34.771347480356056
+   ],
+   "J": 4694056.461005902,
+   "pooled_median_px": 14.4323,
+   "converged_at_chunk": 2,
+   "seconds": 49.5
+  },
+  "17": {
+   "set": "stab_a",
+   "C": [
+    46.648133996097364,
+    106.08533548970654,
+    -35.118455531647676
+   ],
+   "J": 5347963.197041562,
+   "pooled_median_px": 12.4056,
+   "converged_at_chunk": 2,
+   "seconds": 45.2
+  },
+  "18": {
+   "set": "stab_a",
+   "C": [
+    45.65784483514753,
+    139.1025958472706,
+    -31.12820541975854
+   ],
+   "J": 2975465.050517603,
+   "pooled_median_px": 4.9934,
+   "converged_at_chunk": 3,
+   "seconds": 55.0
+  },
+  "19": {
+   "set": "stab_a",
+   "C": [
+    46.64896910826874,
+    106.92241451017624,
+    -34.06855651885463
+   ],
+   "J": 5088429.617530003,
+   "pooled_median_px": 16.6411,
+   "converged_at_chunk": 2,
+   "seconds": 55.8
+  },
+  "20": {
+   "set": "stab_a",
+   "C": [
+    46.534762657811854,
+    108.76076005832435,
+    -33.576993324265466
+   ],
+   "J": 4799292.880707744,
+   "pooled_median_px": 11.5708,
+   "converged_at_chunk": 3,
+   "seconds": 57.9
+  },
+  "21": {
+   "set": "stab_a",
+   "C": [
+    46.486741201886524,
+    109.24258471119751,
+    -32.97541848772825
+   ],
+   "J": 4674639.157838424,
+   "pooled_median_px": 15.1107,
+   "converged_at_chunk": 2,
+   "seconds": 53.2
+  },
+  "22": {
+   "set": "stab_a",
+   "C": [
+    46.51890156166442,
+    106.44957033091943,
+    -34.74325930869454
+   ],
+   "J": 5245872.768989723,
+   "pooled_median_px": 17.433,
+   "converged_at_chunk": 2,
+   "seconds": 46.2
+  },
+  "23": {
+   "set": "stab_a",
+   "C": [
+    45.20241438180324,
+    138.60310010090276,
+    -30.713599256262846
+   ],
+   "J": 2968335.559311829,
+   "pooled_median_px": 5.7784,
+   "converged_at_chunk": 7,
+   "seconds": 81.6
+  },
+  "24": {
+   "set": "stab_b",
+   "C": [
+    45.247284587053514,
+    126.70818676589745,
+    -27.665353084222627
+   ],
+   "J": 3119003.695840269,
+   "pooled_median_px": 5.6284,
+   "converged_at_chunk": 4,
+   "seconds": 66.3
+  },
+  "25": {
+   "set": "stab_b",
+   "C": [
+    46.25207777559029,
+    115.72032365266905,
+    -30.044749909544606
+   ],
+   "J": 3745273.250667357,
+   "pooled_median_px": 8.0274,
+   "converged_at_chunk": 2,
+   "seconds": 42.0
+  },
+  "26": {
+   "set": "stab_b",
+   "C": [
+    46.479617990718985,
+    117.93786114060762,
+    -32.026303845140035
+   ],
+   "J": 3839521.352132864,
+   "pooled_median_px": 8.5685,
+   "converged_at_chunk": 2,
+   "seconds": 48.4
+  },
+  "27": {
+   "set": "stab_b",
+   "C": [
+    46.6541689597345,
+    105.68787905971534,
+    -34.34512278644027
+   ],
+   "J": 5251833.175321772,
+   "pooled_median_px": 11.7283,
+   "converged_at_chunk": 2,
+   "seconds": 51.6
+  },
+  "28": {
+   "set": "stab_b",
+   "C": [
+    45.68880610152664,
+    138.56580873442508,
+    -30.690619559225453
+   ],
+   "J": 2974968.8497084887,
+   "pooled_median_px": 5.5133,
+   "converged_at_chunk": 2,
+   "seconds": 53.7
+  },
+  "29": {
+   "set": "stab_b",
+   "C": [
+    46.46428608418853,
+    109.94334945538174,
+    -32.89245210437669
+   ],
+   "J": 4609351.255346416,
+   "pooled_median_px": 13.8149,
+   "converged_at_chunk": 3,
+   "seconds": 44.9
+  },
+  "30": {
+   "set": "stab_b",
+   "C": [
+    45.93853704319034,
+    114.3473844810238,
+    -31.523167374166654
+   ],
+   "J": 4026691.978325922,
+   "pooled_median_px": 9.3941,
+   "converged_at_chunk": 2,
+   "seconds": 42.0
+  },
+  "31": {
+   "set": "stab_b",
+   "C": [
+    46.13618067397736,
+    108.30859812627794,
+    -32.76497947970678
+   ],
+   "J": 4726329.319551197,
+   "pooled_median_px": 14.0644,
+   "converged_at_chunk": 2,
+   "seconds": 51.3
+  }
+ },
+ "report_only_converged_per_set": {
+  "truth": 8,
+  "stab_a": 8,
+  "stab_b": 8
+ },
+ "stability": {
+  "pairs": {
+   "stab_a|stab_b": {
+    "feet": 8546,
+    "median_ft": 0.0659
+   },
+   "stab_a|truth": {
+    "feet": 8546,
+    "median_ft": 0.053
+   },
+   "stab_b|truth": {
+    "feet": 8546,
+    "median_ft": 0.0325
+   }
+  },
+  "bar_ft": 0.25,
+  "passes": true,
+  "feet_per_selection": {
+   "truth": {
+    "feet_kept": 8546,
+    "inlier_feet_dropped": 25627
+   },
+   "stab_a": {
+    "feet_kept": 8546,
+    "inlier_feet_dropped": 25627
+   },
+   "stab_b": {
+    "feet_kept": 8546,
+    "inlier_feet_dropped": 25627
+   }
+  }
+ },
+ "report_only_pairwise_C_ft": {
+  "stab_a|stab_b": 0.488,
+  "stab_a|truth": 0.474,
+  "stab_b|truth": 0.416
+ },
+ "report_only_distance_from_frozen_C_ft": 33.169,
+ "anchor": {
+  "reproduced": true,
+  "recorded_C": [
+   46.63902070313915,
+   106.042497825095,
+   -34.73292293344888
+  ],
+  "inits": 3900,
+  "reproj_px_median_after": 18.35
+ },
+ "J_frozen": {
+  "J": 5279589.376118158,
+  "frames": 3900,
+  "fit_frame_failed": 0,
+  "report_only_all_inits_median_px": 10.3807,
+  "seconds": 14.0
+ },
+ "reading": {
+  "verdict": "same fragility",
+  "J_selected": 2977607.20552387,
+  "J_frozen": 5279589.376118158,
+  "J_ratio": 0.5639846195222799,
+  "distance_from_frozen_C_ft": 33.169,
+  "stable": true,
+  "limitation": "an MPS build with the tracker bug; a verdict here does not carry over to a CPU rebuild, which would be a separate registration"
+ },
+ "guard_manifest": {
+  "files": 1905,
+  "unchanged": true,
+  "workspace_files": 187,
+  "workspace_unchanged": true
+ },
+ "seconds": 1425.3
+}

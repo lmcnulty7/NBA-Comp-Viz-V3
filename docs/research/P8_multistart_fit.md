@@ -352,6 +352,28 @@ range of the good GSW fits on record (P8_cha_fit.md stage 1). (c) A on earlier g
 without the fix 7.06 px, CPU with the fix (frozen fit) 15.18 px; accepted frames 1,366, 2,459 and 971 against 2,924
 here.
 
+**gsw_bkn_2015 (stage 1, run from 6fe49156 after gsw_cha_2016 read "use", 2026-11-27).** Three steps under their
+own locks, the reference root's protected files unchanged after each: multipool 1,645 s of lock, truth step 218 s,
+acceptance 168 s. Records reports/research/p8_multistart_multipool_gsw_bkn_2015.json, p8_multistart_truth_gsw_bkn_2015.json
+and p8_multistart_accept_gsw_bkn_2015.json.
+
+- Kill rule 1: all 24 first chunks reproduced fit_game. J finite and no fit_frame failure for every run.
+- Selections: truth set seed 6, C (49.12, 137.81, -30.70), J 3,806,101, pooled median 5.3739 px; set {16..23} seed
+  18, C (49.34, 135.89, -30.52); set {24..31} seed 25, C (49.15, 138.32, -30.94).
+- Stability (11,262 unfitted feet, 31,778 inlier-pair feet dropped): pair medians 0.044, 0.100 and 0.117 ft, all at
+  most 0.25 ft: stable; kill rule 3 does not stop stage 2.
+- Truth step (multipool v1, work_ms): fit_game called once; 2,984 accepted frames.
+- Section 5, bars unchanged: A 5.37 px (pass); B 2,984 frames and 2,529 s (pass); C 77 of 83, median 0.48 s, share
+  0.6883 (pass, unchanged). Status: use.
+
+Report only, not ruled: convergence 8 of 8 per set (overstated under restarts, section 14); selected-set pairwise C
+distances 0.56 to 2.47 ft.
+
+Post hoc, not ruled: (a) 7 of the 24 runs ended with C y 104.6 to 115.8 ft (J 4.82 to 7.14 million, pooled medians 8.95
+to 17.18 px) and 17 with y 122.8 to 138.3 ft (J 3.81 to 4.23 million). (b) The selection is 15.1 ft from gsw_bkn_2015's
+frozen fixed fit, whose A (7.41 px) already passed; accepted frames 2,903 there against 2,984 here. (c) J was not
+computed at the frozen fixed C for this game, so the two are not compared on J.
+
 ## 17. Stage 2 code (2026-11-27, written while gsw_bkn_2015's stage 1 ran; not run)
 
 tools/p8_multistart_stage2.py with tests/test_p8_multistart_stage2.py. It runs stage 1's procedure (the same seed sets,
@@ -395,3 +417,48 @@ and reviewed for a later decision.
 - multipool, truth and accept refuse hou_cle_2016 and gsw_sac_2015 until a later amendment. gsw_ind_2016's estimate is
   4,640 s and its cap 6,960 s, enforced in the code between runs (kill rule 5).
 - The stage 2 per-seed loop duplicates stage 1's line for line apart from the cap check; a test pins that.
+
+**gsw_ind_2016 result (stage 2, report only, run from ffc571a7 after the gsw_bkn_2015 chain, 2026-11-27).** One step,
+1,428 s of lock (estimate 4,640 s, cap 6,960 s); the reference root's protected files and the P8 workspace's 187 files
+for this game unchanged. Record reports/research/p8_multistart_multipool_gsw_ind_2016.json.
+
+- Anchor: fit_game(frames, seed=0) reproduced D98's recorded fit exactly (C (46.64, 106.04, -34.73), 3,900 inits,
+  18.35 px).
+- Kill rule 1: all 24 first chunks reproduced fit_game. J finite and no fit_frame failure for every run.
+- Selections: truth set seed 2, C (45.53, 138.95, -30.72), J 2,977,607, pooled median 5.2813 px; set {16..23} seed 23,
+  C (45.20, 138.60, -30.71); set {24..31} seed 28, C (45.69, 138.57, -30.69).
+- Stability (8,546 unfitted feet, 25,627 inlier-pair feet dropped): pair medians 0.033, 0.053 and 0.066 ft: stable.
+- J at the recorded frozen C: J_F 5,279,589; the selection's J is 0.564 of J_F; the selection is 33.17 ft from the
+  frozen C.
+- Registered reading: "same fragility" (more than 5 ft, J at most 0.99 J_F, stable).
+- Limitation, as registered: gsw_ind_2016's build is an MPS build carrying the tracker bug, so this reading does not
+  carry over to a CPU rebuild; any rebuild of its truth is a separate registration. The record is report only, no truth
+  step ran, and D98's "apart" stands.
+
+Report only, not ruled: the selection's pooled median is 5.28 px against the frozen fit's 18.35 px (these are check A's
+quantity, read for the record only); convergence 8 of 8 per set (overstated under restarts); selected-set pairwise C
+distances 0.42 to 0.49 ft.
+
+Post hoc, not ruled: (a) 17 of the 24 runs ended with C y 105.7 to 117.9 ft (J 3.75 to 5.35 million, pooled medians
+8.03 to 17.43 px) and 7 with y 126.7 to 139.1 ft (J 2.97 to 3.12 million). (b) The three games' truth-set selections lie
+within 2.0 to 3.8 ft of each other (gsw_cha_2016 (47.23, 137.06, -30.72), gsw_bkn_2015 (49.12, 137.81, -30.70),
+gsw_ind_2016 (45.53, 138.95, -30.72)), as one broadcast camera position at one arena would; none of the rules read this.
+
+## 18. The switch: the proposed set for the lead's whole-set decision (2026-11-27)
+
+The registered rule (section 9, amendment S1-3): a game switches to multipool v1 if and only if it is stable and reads
+"use"; all games are decided at once, before any arm is scored on multipool v1, and each comparison uses one truth
+version. Applied to the records, this is the proposed set; the decision is the lead's and is not written here.
+
+| Game | Multipool v1 | Proposed version | Why |
+| --- | --- | --- | --- |
+| gsw_cha_2016 | stable; use (A 5.88 px, B 2,924, C pass) | multipool v1 | the rule is met; its fallback is its MPS truth (D191), which it would replace |
+| gsw_bkn_2015 | stable; use (A 5.37 px, B 2,984, C pass) | multipool v1 | the rule is met; its fallback is its reset-fixed CPU truth (use) |
+| hou_cle_2016 | not run (deferred, section 17) | reset-fixed CPU truth (frozen fit), acceptance pending | its status waits on its check C composite; the multipool step is deferred |
+| gsw_sac_2015 | not run (deferred, section 17) | reset-fixed CPU truth (frozen fit), apart | check C fails whatever the fit |
+| gsw_ind_2016 | report only, "same fragility" on its MPS build | none; apart under D98 | no truth step; a CPU rebuild would be a separate registration |
+
+Consequences to weigh with the decision, stated, not decided: within one comparison all games use one version, so a
+comparison that includes hou_cle_2016 or gsw_sac_2015 beside gsw_cha_2016 or gsw_bkn_2015 would mix multipool v1 with
+the frozen fit unless those games are left out or later get their own multipool truth; earlier results and the
+reset-fix arm's pinned scores stand as recorded (section 9), and any rescore on multipool v1 is its own registration.
