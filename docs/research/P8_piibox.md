@@ -263,6 +263,11 @@ The report took 17 s in system python. Written: 24 MB under work_ref/piibox/.
 - gsw_cha_2016: 482 without any match, 148 with a stage B box only, against 21,871 classified hits;
 - gsw_bkn_2015: 740 and 164, against 22,005.
 
+These 1,534 excluded hits are crowded hits by construction: their nearest foot is a referee's, or a box another player
+holds one to one. Their tracks would lean toward another's and switch. So leaving them out widens both gaps against
+P-ii (another's excess, own deficit), which makes the post hoc reading "P-ii tracks look like hit tracks" conservative.
+This is reasoning from the definition, not a measurement.
+
 **Class shares, P-ii boxes beside hit boxes** (pooled over gsw_cha_2016 and gsw_bkn_2015; window intervals; 6,596 P-ii
 boxes, 43,876 hit boxes):
 
@@ -322,8 +327,17 @@ So few another's and ghost tracks stay near the missed player: the own classes a
 **Scorer ghosts.** 0.571 [0.552, 0.589] of P-ii boxes are scorer ghosts on their frame (more than 3.0 ft from all ten
 players), against none of the hit boxes, as their 2.5 to 5 ft distance implies.
 
+Post hoc, not ruled:
+- About 0.571 times 6,596, or about 3,766, P-ii boxes are scorer ghosts. That is about 0.577 of the pooled
+  non-referee ghost row: 6,522 ghosts on 53,860 boxes, from D202's records.
+- Each such box counts once as a miss and once as a ghost (D195's pattern). Without them, ghosts per box would be about
+  0.051 rather than 0.121.
+- A fix moving these boxes within 2.5 ft of their players would therefore lower both rows. But moving a box is not
+  shown to be possible here, and this share is a ceiling, not a forecast.
+
 **Reading by the registered table (section 7).**
-- The P-ii row is mostly the player's own box: own (all four) 0.541 of P-ii boxes, 0.062 of in-frame players. That
+- The P-ii row is mostly the player's own box: own (all four) 0.541 of P-ii boxes, beside 0.595 among hits, and 0.062
+  of in-frame players. That
   points to a foot or per-box problem, and the own share (0.062) is a ceiling for that route, not a forecast.
 - Switch is 0.328, the same share as among hits: an identity pattern of tracks in general, not one particular to the
   P-ii row.
