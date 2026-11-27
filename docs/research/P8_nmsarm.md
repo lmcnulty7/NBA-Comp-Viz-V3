@@ -334,3 +334,49 @@ Beside, not gating: the 32 dropped windows (989 universe frames):
   [119, 236]. The pilot's mechanism check (arm-only hits by class) tests this.
 - On the one-to-one row 0.70 gains almost nothing over the baseline (-14, interval across 0): its extra boxes beyond 0.55
   are mostly duplicates (+420 against +175).
+
+## 14. Version 1.2: stage 1a and the pilot, 0.55 only (2026-11-27; after stage 0, before any stage 1 code or lock)
+
+Where this section differs from sections 7, 10 and 12, it rules. The confirmation (stage 2) is not written; it waits
+on the pilot's gate and its own amendment.
+
+**14.1 The build path.** tools/p8_nmsarm_stage1.py builds windows through sportvu.rebuild's build subprocess
+(tools.p8_frozen.safe_build with sportvu.autolabel.gate_args, as tools/p8_resetfix.py does), its subprocess rewritten to
+a child of this module when P8_NMSARM_DETECTOR is set. The child refuses any device setting other than
+P8_DEVICE_DETECTOR=cpu with P8_TRACKER_RESET_FIX=1 (the reference platform, D175), applies tools.p8_device's device
+patch, then its own IoU patch: PlayerTracker.__init__ is wrapped to pass iou=t, whatever other wrapper is in place,
+so the patch does not depend on a device flag. The device record carries "detector_iou": t, and the detector record
+r23's SHA-256. Outputs go to new folders of the reference root's builds/ (nmsarm_iou045_identity,
+nmsarm_iou055_control, nmsarm_iou055_pilot); builds/r23 is never written. Every window name passes the allow-list.
+
+**14.2 Stage 1a.** Identity: gsw_cha_2016_s05_w00, gsw_bkn_2015_s04_w00, gsw_cha_2016_s00_w00 and gsw_cha_2016_s02_w01
+at t = 0.45. Gate, per window: the sidecar equal to the composite's as canonical JSON without "source", the identity
+and trajectories files byte-identical (tools.p8_resetfix.compare_window's checks), and the scored rows (score_pair)
+equal to D202's record on every field of tools.p8_rebaseline.GATE_FIELDS. Positive control, after the identity gate:
+gsw_cha_2016_s05_w00 at t = 0.55. Gate: its device record says 0.55, its sidecar differs from the composite's, and its
+sidecar holds more boxes than the composite's. A failure stops the arm.
+
+**14.3 The pilot (0.55 only).** The 31 pilot windows of 12.8 (index divisible by 4 in each game's sorted list of
+scorable windows), built at 0.55 after stage 1a passes, then scored: per window, cache_gaps on the arm folder finds
+nothing, the arm's processed frames equal the composite's, score_pair gives both sides on the same scored frames, and
+the baseline side equals D202's record on every GATE_FIELDS field. Rows over the 31 windows, both games pooled,
+arm minus baseline with a paired window bootstrap (2,000 resamples, seed 0; tools.p8_rebaseline.change_rows, which
+also gives team and position p90), plus duplicates per in-frame player.
+
+**14.4 Pilot gate (fixed now).**
+- P1: the missed difference below 0 (point);
+- P2, the kill rule: the one-to-one net error difference at or above 0 (point): KILL;
+- P3: the one-to-one net error difference's bootstrap half-width times the square root of 31 / 90 under 0.7 times its
+  absolute value; else the arm stops as inconclusive;
+- duplicate guard: duplicates per in-frame player up by at most 0.005;
+- mechanism check, flag "duplicates suspected" when either holds: the missed fall per in-frame player exceeds 0.0098
+  (the larger measured C2 share, 12.7), or more than half of the arm-only hits (players missed in the baseline and hit
+  in the arm on the same scored frame) are D205 class P-ii;
+- PASS only when P1, P3, the guard and the check all hold and P2 does not kill; a pass allows the confirmation's
+  amendment and nothing else.
+Reported beside: arm-only hits and arm-only misses by D205 class, and, among P-i and D-i arm-only hits on frames with
+stored candidates, how many are D208's C2 (12.2's rule on those candidates); team and position p90 differences;
+ghosts per box with its denominator.
+
+**14.5 Cost.** Stage 1a: about 25 lock minutes (4 identity windows, 2,798 frames; the control, 1,053 frames; scoring).
+Pilot: about 85 minutes (10,923 frames) plus about 5 minutes of scoring. Each stage stops at 1.5 times its estimate.
