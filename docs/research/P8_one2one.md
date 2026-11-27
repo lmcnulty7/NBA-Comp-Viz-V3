@@ -1,6 +1,7 @@
-# P8: a one-to-one view of the missed row (design, registered before any number)
+# P8: a one-to-one view of the missed row (design, version 2, registered before any number)
 
-Written 2026-11-27 for PLAN.md D204's next item. Report only: nothing is fitted, tuned, trained or built, no truth or
+Version 2, 2026-11-27, after the design review of version 1 (commit 078fccb2, GO WITH CHANGES); it replaces version 1
+and section 10 maps each finding to its change. Report only: nothing is fitted, tuned, trained or built, no truth or
 score changes, and no Colab unit is used. No held-out game, no D85 test game and no test arena is read (CLAUDE.md
 rule 4). Committed before the tool computes any number.
 
@@ -8,103 +9,134 @@ rule 4). Committed before the tool computes any number.
 
 D202's missed row counts an in-frame SportVU player as missed when no box foot lies within 2.5 ft (the nearest foot,
 not one to one), and splits it into placement (nearest foot 2.5 to 5 ft) and detection (none within 5 ft). D204 found
-placement misses carried by a box nearest to two players: about a quarter of placement misses have a nearest box that
-is another player's one-to-one match. This item asks, for every missed player: does the player have a box of its own
-in a one-to-one assignment, and if so how far is it? That separates a missing own box (a detection problem, whatever
-the foot does) from an own box placed too far (a foot or geometry problem).
+placement misses carried by a box nearest to two players. This item asks, for every missed player, whether a box is
+left for it once the scorer's one-to-one assignment has given boxes to the players they fit within 2.5 ft, and if so how
+far it is. That separates a player with no box left (a detection problem as far as this view can tell) from a player
+with an unclaimed box placed too far (a foot or geometry problem as far as this view can tell).
 
-## 2. Universe, inputs and the count gate
+## 2. Known before this item
 
-- Games: gsw_cha_2016 and gsw_bkn_2015 on multipool v1 (D199), measured separately and pooled; hou_cle_2016 (fixed
-  CPU truth) gets the count gate only, and no class or share is computed for it, so it stays unspent (D188, D202
-  section 10.7, D204).
+- D204's report-only share: 0.230 [0.208, 0.251] of placement misses (pooled) have a nearest box that is another
+  in-frame player's one-to-one match, against 0.036 to 0.042 of hits. That used the scorer's score_window matching
+  (sportvu.truth._match: Hungarian on raw distances over all boxes, referees included, then pairs kept within 2.5 ft).
+  It is related to P-i below but not equal to it: a different gate order, a different box set and a different player
+  set.
+- D202's records carry, per window, missed_1to1 (tools.p8_resetfix.one_to_one_missed: in-frame players only, against
+  all box feet including referees, within 2.5 ft) and unmatched_1to1 (tools.p8_resetfix.unmatched_1to1: non-referee box
+  feet against all ten players, within 2.5 ft, counting unmatched in-frame players plus unmatched non-referee boxes);
+  the latter gives net_error_1to1, 0.410 [0.387, 0.435] pooled on gsw_cha_2016 and gsw_bkn_2015.
+- D202's rows: missed 0.214, placement 0.155, detection 0.059 (pooled); Level 2's development targets are about 0.05
+  missed and 0.05 ghosts per box.
+
+## 3. Universe, inputs and the count gate
+
+- Games: gsw_cha_2016 and gsw_bkn_2015 on multipool v1 (D199), measured separately and pooled; hou_cle_2016 (fixed CPU
+  truth) gets the count gate only, and no class or share is computed for it, so it stays unspent (D188, D202 section
+  10.7, D204).
 - Inputs: exactly D202's score run (reports/research/p8_rebaseline.json, run 20261127T171848Z), read as
-  tools/p8_placecause.py's reviewed collect step reads them (D204): each window's sidecar, time map, labels and
-  identity file checked against work_ref/rebaseline/score__<game>__current.json's SHA-256 (all three of sidecar,
-  time map and labels required); the scorecard cache checked complete before scoring; the pinned scorer
-  (tools.p8_scorecard.score_window, truth mode camera) called per window as D202 called it; its observation frames are
-  the scored frames.
-- Count gate, first, one game at a time, per window, against D202's score record: in_frame, missed, far and nr_boxes
-  (as D204), and also missed_1to1 and unmatched_1to1, the latter two computed by calling the scorer's own functions
-  (tools.p8_resetfix.one_to_one_missed and unmatched_1to1, as tools.p8_resetfix.frame_extra calls them) on every scored
-  frame and summing. Any difference stops the tool before any share is computed.
-- The run record stores the git head it ran from and the tool's own timings beside the lock times.
+  tools/p8_placecause.py's reviewed collect step reads them (D204): each window's sidecar, time map and labels hash
+  required in work_ref/rebaseline/score__<game>__current.json and equal (N2), the identity file compared when hashed;
+  the scorecard cache checked complete before scoring (N1); the pinned scorer (tools.p8_scorecard.score_window, truth
+  mode camera) called per window as D202 called it; its observation frames are the scored frames.
+- Count gate, first, one game at a time, per window, against D202's score record: in_frame, missed, far, nr_boxes,
+  missed_1to1 and unmatched_1to1, the last two by calling the scorer's own functions (tools.p8_resetfix
+  one_to_one_missed and unmatched_1to1, as frame_extra calls them) on every scored frame and summing. Any difference
+  stops the tool before any share is computed.
+- The record stores the git head it ran from and the tool's own timings beside the lock times.
 
-## 3. The one-to-one assignment, from the scorer's code
+## 4. The assignment
 
-The one-to-one rule is the one net_error_1to1 uses (tools.p8_resetfix.unmatched_1to1, P8_resetfix.md section 21):
-non-referee box feet (the scorer's referee rule) against every SportVU player of the frame (all ten, in frame or not),
-Hungarian by distance (scipy linear_sum_assignment) on a cost matrix where pairs farther than the gate cost 1e6, and a
-pair counts as a match only when its distance is at most the gate.
+Main convention (net_error_1to1's): non-referee box feet (the scorer's referee rule) against every SportVU player of the
+frame (all ten, in frame or not), Hungarian by distance (scipy linear_sum_assignment) on a cost matrix where pairs beyond
+the gate cost 1e6, a pair counting as a match only when within the gate.
 
-That function returns counts, not pairs, and its gate is 2.5 ft; a match at 2.5 to 5 ft needs the same rule at a 5 ft
-gate. The tool therefore holds a pairs-returning copy of the function's assignment, assign_1to1(feet, sv, is_ref,
-gate), whose lines are those of unmatched_1to1 with the pairs kept, and an equivalence check run on every scored frame
-before any class is counted: at gate 2.5 ft, assign_1to1's unmatched in-frame players plus unmatched non-referee boxes
-must equal unmatched_1to1's return value exactly; a difference stops the tool. The classes use the same function at
-gate 5.0 ft (the "NEAR_FT" of D184's split). No other matching is reimplemented: the nearest-foot distances, the
-in-frame rule and the hit, placement and detection classes are D204's, which reproduced D202 on every window.
+- Stage A: exactly the scorer's 2.5 ft assignment (unmatched_1to1's).
+- Stage B: only the players still unmatched after stage A against only the non-referee boxes still unmatched, with the
+  same rule at a 5 ft gate. A stage B match is "a box no one claims within 2.5 ft, lying 2.5 to 5 ft away".
+- unmatched_1to1 returns counts, not pairs, so the tool holds a pairs-returning copy, assign_1to1(feet, sv, is_ref,
+  gate), whose lines are unmatched_1to1's with the pairs kept. Equivalence check on every scored frame, at both gates:
+  assign_1to1's unmatched in-frame players plus unmatched non-referee boxes must equal unmatched_1to1(..., miss_ft=2.5)
+  at 2.5 ft and unmatched_1to1(..., miss_ft=5.0) at 5.0 ft; a difference stops the tool. Stage B applies the same
+  function to the reduced sets.
 
-## 4. Classes, exhaustive
+Sensitivities, reported beside the main split, never ruled:
+- Single-stage 5 ft: one assignment at 5 ft over all players and non-referee boxes (version 1's split).
+- In-frame-only convention for P-i (missed_1to1's): in-frame players only, against all box feet including referees,
+  stage A at 2.5 ft (one_to_one_missed's assignment, held as a pairs-returning copy checked against
+  one_to_one_missed's count on every frame) and stage B at 5 ft on the remainder.
 
-For an in-frame player j with nearest-foot distance n (all boxes, D202's missed rule) and its one-to-one match at the
-5 ft gate, at distance m (none if unmatched):
+## 5. Classes, exhaustive
+
+For an in-frame player j with nearest-foot distance n (all boxes, D202's missed rule):
 
 Placement misses (2.5 < n <= 5 ft):
-- P-i, no own box: j is unmatched at 5 ft, and j's nearest box is another player's one-to-one match (in frame or not).
-- P-ii, own box misplaced: j is matched at 2.5 < m <= 5 ft.
-- P-iii, other, in two exhaustive parts: P-iii-ref, j is unmatched and its nearest box is a referee box (outside the
-  assignment); P-iii-free, j is unmatched and its nearest box is a non-referee box matched to no one.
-- m <= 2.5 cannot occur for a placement miss (that box would make n <= 2.5); the tool counts it and stops if it is
-  ever non-zero.
+- P-i, no box left: j is unmatched after both stages, and j's nearest box was claimed by another player (in either
+  stage; the other player in frame or not).
+- P-ii, an unclaimed box 2.5 to 5 ft away: j is matched in stage B.
+- P-iii-ref: j is unmatched after both stages and its nearest box is a referee box (outside the assignment).
+- Impossibility counters, each stopping the tool if non-zero: (1) j matched in stage A (that box would make n <= 2.5);
+  (2) P-iii-free, j unmatched after both stages with its nearest box a non-referee box claimed by no one (by stage B's
+  optimality that pair, within 5 ft and both unmatched, would have been matched).
 
 Detection misses (n > 5 ft, or no box on the frame):
-- D-i, neighbour's box nearest: j's nearest box is another player's one-to-one match.
-- D-iii, other: D-iii-ref (nearest box is a referee box), D-iii-free (nearest box matched to no one), D-iii-none (no
-  box on the frame).
-- An own box within 5 ft cannot exist for a detection miss (D-ii is empty by definition); counted and stops if
-  non-zero.
+- D-i, neighbour's box nearest: j's nearest box was claimed by another player.
+- D-iii-ref: the nearest box is a referee box. D-iii-free: the nearest box is an unclaimed non-referee box (possible:
+  it lies beyond 5 ft). D-iii-none: no box on the frame.
+- Impossibility counter (3): j matched in either stage (no box lies within 5 ft); stops the tool if non-zero.
 
-Hits (n <= 2.5) are counted for context: matched within 2.5 ft at the 2.5 ft gate, or not (a hit whose nearest box went
-to someone else), reported only.
+Hits (n <= 2.5) are counted for context only: matched in stage A or not.
 
-## 5. Measures
+## 6. Measures
 
-Per game and pooled (gsw_cha_2016 and gsw_bkn_2015), each class's count, its share of the placement (or detection)
-misses, and its rate over in-frame players (so the classes add up to D202's placement and detection rows, 0.155 and
-0.059 pooled), each with a window-cluster bootstrap (2,000 resamples, seed 0, windows resampled whole within each game).
-Report only, beside them: for P-ii, the median m; for P-i and D-i, whether the neighbour whose match took the box is
-in frame, and the median distance between j and that neighbour.
+Per game and pooled (gsw_cha_2016 and gsw_bkn_2015): each class's count, its share of the placement (or detection)
+misses, and its rate over in-frame players (the classes add up to D202's placement and detection rows, 0.155 and 0.059
+pooled), each with a window-cluster bootstrap (2,000 resamples, seed 0, windows resampled whole within each game).
+Report only, beside them: for P-ii, the median distance of the stage B box; for P-i and D-i, whether the claiming player
+is in frame and the median distance between j and the claiming player; the share of P-i and D-i players with an
+unclaimed non-referee box 5 to 10 ft away; and the two sensitivities of section 4.
 
-## 6. What each share would mean for the Level 2 targets (descriptive; no rule decides anything)
-
-Level 2's development targets are about 0.05 missed and 0.05 ghosts per box, against D202's 0.214 and 0.121 pooled.
+## 7. What each share would mean for the Level 2 targets (descriptive; no rule decides anything)
 
 | Class | What it says | Which fix could move it, and its ceiling |
 | --- | --- | --- |
-| P-i and D-i (no own box; a neighbour's box nearest) | the player has no box of its own in a one-to-one sense; the nearest box belongs to someone else | detection recall where players overlap (separating merged boxes, keeping a box through occlusion, the tracker's confirmation); a foot or geometry fix cannot move it. Ceiling: the class's rate |
-| P-ii (own box 2.5 to 5 ft away) | the player has a box, placed too far | the foot model, the box bottom, or the court geometry (the D186 to D188 line, which failed non-inferiority on detection); ceiling: P-ii's rate |
+| P-i and D-i (no box left; a neighbour's box nearest) | once boxes go to the players they fit, none is left within 5 ft of this player | detection recall where players overlap (separating merged boxes, keeping a box through occlusion, the tracker's confirmation); a foot or geometry fix moves P-i only where the player's own box lies beyond 5 ft (the 5 to 10 ft report gives a sense of how often an unclaimed box lies there). Ceiling: the class's rate |
+| P-ii (an unclaimed box 2.5 to 5 ft away) | a box no one claims within 2.5 ft lies 2.5 to 5 ft from the player | the foot model, the box bottom or the court geometry (the D186 to D188 line, which failed non-inferiority on detection). Its ceiling and its reading as the player's "own box" depend on the assignment choice (section 4's sensitivities) |
 | P-iii-ref and D-iii-ref (a referee box nearest) | referee and player boxes interact near the player | the referee rule or class confusion; ceiling: its rate |
-| P-iii-free and D-iii-free (an unmatched box nearest, the player unmatched) | an assignment edge case, expected rare | none as such; reported to show the split is exhaustive |
+| D-iii-free (an unclaimed box beyond 5 ft nearest) | the nearest box is no one's and far | detection or a gross placement error; ceiling: its rate |
 | D-iii-none (no box on the frame) | an empty frame for the detector | detection on that frame type |
 
 A ceiling is the most the class could lower the missed row if a fix removed all of it without new misses or ghosts;
 it is not a forecast.
 
-## 7. What it can and cannot tell
+## 8. What it can and cannot tell
 
-It can tell how many missed players have no box of their own in the scorer's one-to-one sense and how many have one
-placed too far, on these truths and this build. It cannot tell why a box is missing (merged, occluded, never detected)
-or whether a misplaced box is the build's error or the truth's; the build's and the truth's errors are not independent
-(D204 section 3: truth frames were selected by, and the multipool camera fitted to, the same detector's feet). The one
-to one assignment is a convention: a different rule could give a box to the other player of a close pair.
+It can tell how many missed players are left without a box once the scorer's one-to-one assignment has run, and how
+many have an unclaimed box placed too far, on these truths and this build. It cannot tell why a box is missing (merged,
+occluded, never detected), whose a box really is, or whether a misplaced box is the build's error or the truth's; the
+build's and the truth's errors are not independent (D204 section 3: truth frames were selected by, and the multipool
+camera fitted to, the same detector's feet). One-to-one assignment is a convention: another rule could give a box to the
+other player of a close pair, which is why the sensitivities are reported.
 
-## 8. Cost and guards
+## 9. Cost and guards
 
 Stored files only, the pinned scorer per window, no model, no video decode beyond clip sizes. Under the heavy-job lock
-anyway (cheap), one game at a time ("p8 one2one <game>"), as D204's collect took 53 to 57 s of lock per measured game
-and 106 s for hou_cle_2016: estimate 2 minutes a game, cap 10 minutes a game; a report step in system python, no lock.
-0 Colab units. tools.p8_common.guard and tools.research_testset.refuse_cv_test on the tags, SportVU ids, video ids and
+anyway (cheap), one game at a time ("p8 one2one <game>"); D204's collect took 53 to 57 s of lock per measured game and
+106 s for hou_cle_2016: estimate 2 minutes a game, cap 10 minutes a game; a report step in system python, no lock. 0
+Colab units. tools.p8_common.guard and tools.research_testset.refuse_cv_test on the tags, SportVU ids, video ids and
 every window; the reference root's and work_ms's labels, builds and cache hashed before and after each game. Code:
-tools/p8_one2one.py with tests on synthetic frames (the assignment's equivalence with unmatched_1to1, each class, the
-impossibility counters, the gate), reviewed before it runs. Record reports/research/p8_one2one.json, with the git head.
+tools/p8_one2one.py with tests on synthetic frames, reviewed before it runs. Record reports/research/p8_one2one.json,
+with the git head.
+
+## 10. Changes from version 1 (review findings)
+
+1. Two-stage assignment: stage A is the scorer's 2.5 ft assignment exactly, stage B the still-unmatched players against
+   the still-unmatched non-referee boxes at 5 ft; P-ii means an unclaimed box 2.5 to 5 ft away; the single-stage 5 ft
+   split is a sensitivity.
+2. The equivalence check runs at both gates on every frame, against unmatched_1to1 at 2.5 and at 5.0 ft.
+3. P-iii-free is impossible by optimality and is the third impossibility counter; D-iii-free stays.
+4. The conventions are stated (missed_1to1: in-frame players against all boxes including referees; D204's 0.230: _match
+   at 2.5 ft); P-i under the in-frame-only convention is a sensitivity.
+5. "A foot or geometry fix moves P-i only where the player's own box lies beyond 5 ft"; the 5 to 10 ft unclaimed-box
+   share is reported; the P-ii row notes that its ceiling and "own box" reading depend on the assignment.
+6. D204's 0.230 and D202's missed_1to1, unmatched_1to1 and net_error_1to1 stated as known; hou_cle_2016 gate only; N1
+   and N2 reused.
