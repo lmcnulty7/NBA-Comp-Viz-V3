@@ -167,3 +167,11 @@ lever could lower missed, with the ghost cost of more boxes not measured.
 settled for this pipeline by D192 (the bug was the tracker, not the detector's runtime). Cap 75 minutes. Writes: the
 reference root's recallcause/ folder (the raw candidates per frame, not committed) and
 reports/research/p8_recallcause.json; nothing else, with a test that patches the writers.
+
+**8.9 Tool (2026-11-27, written, not run).** tools/p8_recallcause.py run (one lock job) and
+tests/test_p8_recallcause.py. Two details fixed with the code: C3's late start is read on the D205 rows of player j at
+the later scored frames within 1.0 s (a sidecar foot within 2.5 ft of j there); with no such frame the miss is
+"C3_undetermined", reported apart. The gate windows read the composite's processed frames, which equal the old
+builds' (equal frame sets, P8_resetfix.md 14.3). Tests: box matching and the stored-box equality, suppression clusters
+and C2 (a duplicate of j's own box does not count), the class order, the alignment rule, the share table, groups and
+the main-loss rule, and an AST check that the only writes are the record and the raw folder.
