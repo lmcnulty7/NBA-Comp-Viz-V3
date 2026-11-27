@@ -178,23 +178,24 @@ build and truth errors are not independent and that the box-based conditions des
 ## 11. Result (2026-11-27, run from fda5e5b5; record reports/research/p8_placecause.json)
 
 **Run.** Three collect steps, one game at a time under the lock: gsw_cha_2016 57 s, gsw_bkn_2015 53 s, hou_cle_2016
-106 s (count gate only); the report step in system python, about 2 s. The count gate passed on every window (73, 83
+106 s (count gate only), lock times from the heavy-job lines of work_ref/logs/placecause.log (the tool's own timings,
+inside the lock, are 50.8, 47.1 and 100.2 s); the report step in system python, about 2 s. The count gate passed on every window (73, 83
 and 93 windows: in_frame, missed, far and nr_boxes equal to D202's score records, and the scorer's own in_frame and
 missed equal to the tool's); the manifests of work_ref and work_ms were unchanged. hou_cle_2016: no condition was
 computed; it stays unspent.
 
-**Verdict by the registered rule (C1 to C6): carried by C3a, on both games.** C3a (build-side overlap: the nearest box
-overlaps another box with IoU at least 0.3, or the nearest box is also the nearest box of another in-frame player) has
-enrichment 1.76 [1.67, 1.87] on gsw_cha_2016 and 1.78 [1.65, 1.91] on gsw_bkn_2015, with shares among placement misses
-0.457 and 0.511. No other condition carries. The verdict is therefore not SCATTERED.
+**Verdict by the registered rule (C1 to C6): carried by C3a, on both games, through its shared-box clause, which reads
+the truth (nearest and in-frame are defined through SportVU and the truth H) and shares the nearest-box rule with the
+outcome; the IoU clause, which reads only the build, is not enriched (0.92 [0.83, 1.05] and 0.95 [0.85, 1.06]).** C3a
+(the nearest box overlaps another box with IoU at least 0.3, or the nearest box is also the nearest box of another
+in-frame player) has enrichment 1.76 [1.67, 1.87] on gsw_cha_2016 and 1.78 [1.65, 1.91] on gsw_bkn_2015, with shares
+among placement misses 0.457 and 0.511; the shared-box clause alone has enrichment 2.60 [2.43, 2.80] and 2.49
+[2.23, 2.76] (shares 0.388 and 0.442). No other condition carries; the verdict is not SCATTERED.
 
-Known definitional link, beside the verdict: C3a includes "a box nearest to two players", and for a placement miss the
-nearest box is often another player's box (section 3's own caveat), so part of C3a's enrichment may be mechanical: a
-player whose nearest box belongs to someone else is, by construction, more likely to be 2.5 to 5 ft from it. The
-clauses show where it sits: the shared-box clause has enrichment 2.60 [2.43, 2.80] and 2.49 [2.23, 2.76] (shares 0.388
-and 0.442), while the IoU clause is not enriched (0.92 [0.83, 1.05] and 0.95 [0.85, 1.06]). The share of placement
-misses whose nearest box is another in-frame player's one-to-one match (report only) is 0.215 [0.183, 0.249] on
-gsw_cha_2016 and 0.246 [0.218, 0.272] on gsw_bkn_2015 (pooled 0.230 [0.208, 0.251]), against 0.036 to 0.042 among hits.
+Beside the verdict, the attributable fractions (pooled) locate it: the shared-box clause 0.232 [0.206, 0.255], C3a 0.221
+[0.193, 0.249], the IoU clause -0.007 [-0.016, 0.004]. The one-to-one view (report only): 0.230 [0.208, 0.251] of
+placement misses (0.215 [0.183, 0.249] on gsw_cha_2016, 0.246 [0.218, 0.272] on gsw_bkn_2015) have a nearest box that is
+another in-frame player's one-to-one match, against 0.036 to 0.042 of hits, enrichment 5.85 [5.19, 6.57] pooled.
 
 **Attributable fractions** (share among placement misses times (1 - 1/RR); pooled gsw_cha_2016 and gsw_bkn_2015, window
 intervals; per game in the record):
@@ -204,7 +205,7 @@ intervals; per game in the record):
 | C1 near third | -0.022 [-0.045, 0.002] | 0.264 | 0.290 | 0.91 [0.84, 0.98] |
 | C2 frame edge | 0.002 [-0.000, 0.004] | 0.010 | 0.008 | 1.30 [0.97, 1.69] |
 | C3 (C3a or C3b) | 0.193 [0.163, 0.220] | 0.501 | 0.327 | 1.54 [1.47, 1.60] |
-| C3a overlap (build) | 0.221 [0.193, 0.249] | 0.484 | 0.274 | 1.77 [1.69, 1.85] |
+| C3a overlap (shared-box clause reads the truth) | 0.221 [0.193, 0.249] | 0.484 | 0.274 | 1.77 [1.69, 1.85] |
 | C3b crowding (truth) | 0.016 [-0.000, 0.031] | 0.173 | 0.166 | 1.05 [0.95, 1.15] |
 | C4 box height or foot | 0.126 [0.102, 0.149] | 0.422 | 0.315 | 1.34 [1.26, 1.42] |
 | C5 reset or cut | 0.004 [0.001, 0.009] | 0.012 | 0.007 | 1.66 [1.29, 2.21] |
@@ -223,16 +224,22 @@ C1 [0.065, 0.264], C2 [0.003, 0.010], C3 [0.185, 0.501], C4 [0.092, 0.422], C5 [
 0.288 against 0.179 among hits, enrichment 1.61 [1.50, 1.72], AF 0.109 [0.095, 0.126] (pooled).
 
 Report only, not ruled: C4's clauses: the truth-side height clause is enriched (2.15 [1.87, 2.46] pooled) but covers
-only 0.037 of placement misses; the build-side foot-move clause covers 0.405 at 1.32 [1.24, 1.40]. C5a and C5b
-coincide on every row of both games (the reset-like frames fall at or within the horizon of the logged resets in these
-windows). The scorer's since-cut under 1 s is not enriched (0.85 [0.72, 1.01]). C1's depth description, placement
+only 0.037 of placement misses; the foot-move clause covers 0.405 at 1.32 [1.24, 1.40]. C5a and C5b coincide on every
+row of both games: the logged and reset-like frame sets are identical in 72 of 73 windows (gsw_cha_2016) and 80 of 83
+(gsw_bkn_2015), and in the other windows the extra reset-like frames lie inside the 30-frame horizon of a logged reset
+(checked on the sidecars after the run). The scorer's since-cut under 1 s is not enriched (0.85 [0.72, 1.01]). C1's depth description, placement
 misses' median depth offset along the camera ray: near +1.15 and +1.30 ft (beyond the player), middle -2.12 and -1.90
 ft, far -1.91 and -2.46 ft (gsw_cha_2016, gsw_bkn_2015), the known pattern (D184, D186). C6 by third: 0.24 to 0.26 of
 placement misses against 0.17 to 0.20 of hits in every third.
 
 Post hoc, not ruled: (a) the near third is under-represented among placement misses (C1 enrichment 0.91, interval
-below 1 pooled), against the expectation that near-field bias would concentrate misses near the camera; (b) most of
-C3a's enrichment sits in the shared-box clause, which is the definitional link above, so this item does not show
-whether crowded scenes cause boxes to be shared or whether the nearest-box rule assigns a neighbour's box to a player
-whose own box is missing or misplaced; telling those apart would need the one-to-one view (the 0.23 share above) in a
-separately registered design. Nothing here is adopted, fitted or acted on.
+below 1 pooled), against the expectation that near-field bias would concentrate misses near the camera; (b) C3b
+(another SportVU player within 3 ft) at 1.05 [0.95, 1.15] argues against scene crowding at 3 ft as the driver; the
+verdict mostly restates that a quarter to two fifths of placement misses are assigned a neighbour's box, plausibly
+because the player's own box is missing, merged or misplaced. Telling those apart needs a separately registered design.
+Nothing here is adopted, fitted or acted on.
+
+Dated note (2026-11-27, after the ml-review of 01b4502f): section 5 labels C3a "Overlap, build side"; that label was
+wrong for its shared-box clause, which defines "nearest" and "in-frame" through SportVU and the truth H, and so reads
+the truth. The registered text of section 5 is left unchanged; section 11 uses the corrected label. Next time the
+record also stores the git head it ran from (this run's head, fda5e5b5, is in the commit history and the log).
