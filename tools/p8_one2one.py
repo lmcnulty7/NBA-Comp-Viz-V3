@@ -138,6 +138,9 @@ def frame_classes(feet, sv, inside, is_ref) -> dict:
     D = np.sqrt(((sv[:, None, :] - feet[None, :, :]) ** 2).sum(-1)) if nb else np.zeros((len(sv), 0))
     nonref = [int(b) for b in np.where(~is_ref)[0]]
     main, claimed = two_stage(feet, sv, range(len(sv)), nonref, _assign_all)
+    stage_a = {p: m[0] for p, m in main.items() if m[2] == "A"}
+    if stage_a != {p: b for p, (b, _) in assign_1to1(feet, sv, is_ref, MISS_FT).items()}:     # M1
+        raise SystemExit(f"{WHO}: stage A's pairs differ from assign_1to1 at 2.5 ft")
     single = {p: (b, d, "B" if d > MISS_FT else "A") for p, (b, d) in assign_1to1(feet, sv, is_ref, NEAR_FT).items()}
     claimed_single = {m[0]: p for p, m in single.items()}
     ins = [int(j) for j in np.where(np.asarray(inside, bool))[0]]
@@ -255,7 +258,7 @@ def collect(game: str) -> dict:
     if sorted(score["windows"]) != stems:
         raise SystemExit(f"{WHO}: {game}: the windows differ from D202's score record")
     measured = game in MEASURED
-    rows, counters = [], {c: 0 for c in COUNTERS}
+    rows, counters = [], {key: {c: 0 for c in COUNTERS} for key in ("class", "single", "inframe")}
     for wi, w in enumerate(wins):
         s = w["window"]
         for key, p in (("sidecar", comp / f"{s}_frames.json"), ("timemap", P_t["label_build"] / f"{s}_timemap.json"),
@@ -313,14 +316,15 @@ def collect(game: str) -> dict:
             if not measured:
                 continue
             for j, rec in frame_classes(ft, svf, inside, is_ref).items():
-                if rec["class"] in COUNTERS:
-                    counters[rec["class"]] += 1
+                for key in counters:                       # the main split and both sensitivities (M2)
+                    if rec[key] in COUNTERS:
+                        counters[key][rec[key]] += 1
                 rows.append([wi, rec])
         want = score["windows"][s]
         mine = {**c, "nr_boxes": st["nr_boxes"]}
         if any(mine[k] != want.get(k) for k in mine) or st["in_frame"] != c["in_frame"] or st["missed"] != c["missed"]:
             raise SystemExit(f"{WHO}: count gate failed on {s}: mine {mine}, D202 {[want.get(k) for k in mine]}")
-        if any(counters.values()):
+        if any(v for cnt in counters.values() for v in cnt.values()):
             raise SystemExit(f"{WHO}: an impossibility counter is not zero: {counters}")
     after = {k: RB.manifest(r[k], ("labels", "builds", "cache")) for k in ("ref", "ms")}
     out = {"game": game, "design": "docs/research/P8_one2one.md version 2", "git": head,

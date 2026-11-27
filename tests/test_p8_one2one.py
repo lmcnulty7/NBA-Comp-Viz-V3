@@ -98,3 +98,10 @@ def test_constants_git_and_refusals():
         O.collect("gsw_sac_2015")
     with pytest.raises(SystemExit, match="heavy-job lock"):
         O.collect("gsw_cha_2016")
+
+
+def test_stage_a_pairs_equal_assign_1to1_on_random_frames():
+    rng = np.random.default_rng(3)
+    for _ in range(200):
+        feet, sv, inside, is_ref = random_frame(rng)
+        O.frame_classes(feet, sv, inside, is_ref)                   # raises on a stage A mismatch (M1)

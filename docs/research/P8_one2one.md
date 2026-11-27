@@ -125,7 +125,7 @@ anyway (cheap), one game at a time ("p8 one2one <game>"); D204's collect took 53
 Colab units. tools.p8_common.guard and tools.research_testset.refuse_cv_test on the tags, SportVU ids, video ids and
 every window; the reference root's and work_ms's labels, builds and cache hashed before and after each game. Code:
 tools/p8_one2one.py with tests on synthetic frames, reviewed before it runs. Record reports/research/p8_one2one.json,
-with the git head.
+with the git head; per-game rows and gate records under work_ref/one2one/ (M3).
 
 ## 10. Changes from version 1 (review findings)
 
@@ -140,3 +140,8 @@ with the git head.
    share is reported; the P-ii row notes that its ceiling and "own box" reading depend on the assignment.
 6. D204's 0.230 and D202's missed_1to1, unmatched_1to1 and net_error_1to1 stated as known; hou_cle_2016 gate only; N1
    and N2 reused.
+
+**Code check fixes (2026-11-27, the check of f6a02bad, GO; before the run).** M1: on every frame, stage A's pairs must
+equal assign_1to1's pairs at 2.5 ft, or the tool stops. M2: the three impossibility counters are counted for both
+sensitivities as well as the main split, and any non-zero counter stops the tool. M3: section 9 names work_ref/one2one/.
+
