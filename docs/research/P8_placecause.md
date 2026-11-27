@@ -41,8 +41,11 @@ shown to be better.
 It can tell which observable conditions co-occur with placement misses more often than with hits, on these truths and
 this build, and what share of the placement row is attributable to each under the stated arithmetic. It cannot
 apportion a miss between the build and the truth: every distance is the build's foot through the truth's camera, and
-both can be wrong on the same frame. It cannot see frames the truth fit rejected (they are outside the scorer's
-universe), so conditions that make the truth reject a frame are undercounted. The conditions overlap, and an
+both can be wrong on the same frame. The build's and the truth's errors are not independent either: the truth's
+frames were selected by, and the multi-pool camera fitted to, the same detector's feet, which is why D is partly
+mechanical. It cannot see frames the truth fit rejected (they are outside the scorer's universe), so conditions that
+make the truth reject a frame are undercounted. The box-based conditions (C2's box clause, C3a, C4) describe the nearest
+box, which for a placement miss is often another player's box, not the missed player's own. The conditions overlap, and an
 association is not a cause: a condition that carries is a place to look in a later, separately registered design, not
 a diagnosis. It cannot tell whether the decided truths are closer to the real positions than the earlier ones.
 
@@ -126,7 +129,10 @@ condition that carries would point to, for a later, separately registered design
 | C4 | box extent or the foot model |
 | C5 | tracker behaviour after resets or cuts that the reset fix did not remove |
 | C6 | truth-side weakness (few line matches), where part of the row may be the truth's |
-| D | a frame where feet and the camera disagree, by the build or the truth (not separable) |
+| D | a frame where feet and the camera disagree, by the build or the truth (not separable); reported with the same measures, never part of the verdict |
+
+The verdict (SCATTERED, or carried by named conditions) reads C1 to C6 only (C1, C2, C3a, C3b, C4, C5, C6); D is
+reported and never ruled.
 
 ## 8. Cost
 
@@ -161,3 +167,10 @@ the tool. Writes: reports/research/p8_placecause.json, work_ref/placecause/ (per
    time.
 8. The guard and refuse_cv_test calls named on tags, SportVU ids, video ids and windows.
 9. Each clause's enrichment reported beside its condition, not ruled.
+
+**Re-check fixes (2026-11-27, the review of 85731c25, GO; before the run).** N1: before scoring a window the tool stops
+if its cache lacks a live frame's wide score, a needed referee frame or the cut signal. N2: the sidecar, time map and
+labels hashes must be present in D202's record (no silent skip). N3: the verdict reads C1 to C6 only; D is reported,
+not ruled. N4: hou_cle_2016 compares counts only, with no condition, depth or percentile computed. Section 3 adds that
+build and truth errors are not independent and that the box-based conditions describe the nearest box.
+

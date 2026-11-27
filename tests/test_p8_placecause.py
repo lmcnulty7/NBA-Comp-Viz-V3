@@ -129,3 +129,15 @@ def test_refusals():
         C.collect("gsw_sac_2015")
     with pytest.raises(SystemExit, match="heavy-job lock"):
         C.collect("gsw_cha_2016")
+
+
+def test_counts_only_matches_the_conditions_classes():
+    sv = np.array([[10.0, 10.0], [13.5, 10.0], [40.0, 30.0]])
+    inside = np.array([True, True, False])
+    ct = np.array([[10.5, 10.0], [43.5, 30.0]])
+    assert C.counts_only(sv, inside, ct) == [(0, "hit"), (1, "placement")]
+    assert C.counts_only(sv, inside, np.zeros((0, 2))) == [(0, "detection"), (1, "detection")]
+
+
+def test_d_is_reported_but_not_in_the_verdict():
+    assert "D" not in C.RULED and set(C.RULED) == {"C1", "C2", "C3a", "C3b", "C4", "C5", "C6"}

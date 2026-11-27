@@ -42,7 +42,7 @@ LINE_PCT, RESID_PCT = 20, 80
 CARRY_RATIO, CARRY_SHARE = 1.5, 0.10
 BOOT_N, SEED = 2000, 0
 SIX = ("C1", "C2", "C3", "C4", "C5", "C6")
-RULED = ("C1", "C2", "C3a", "C3b", "C4", "C5", "C6", "D")
+RULED = ("C1", "C2", "C3a", "C3b", "C4", "C5", "C6")      # the verdict reads C1 to C6 only; D is reported, not ruled
 CLAUSES = {"C2": ("C2_box", "C2_foot_truth"), "C3": ("C3a", "C3b"), "C3a": ("C3a_iou", "C3a_shared"),
            "C4": ("C4_height_truth", "C4_foot"), "C5": ("C5a", "C5b"), "C6": ("C6",), "D": ("D",), "C1": ("C1",)}
 FLAGS = ("C1", "C2_box", "C2_foot_truth", "C3a_iou", "C3a_shared", "C3b", "C4_height_truth", "C4_foot", "C5a", "C5b",
@@ -192,7 +192,39 @@ def carries(ci_enrichment, share: float) -> bool:
     return ci_enrichment[0] > CARRY_RATIO and share >= CARRY_SHARE
 
 
-# ── data (frozen CV python, under the lock) ────────────────────────────────────────────────────────────────────────
+def counts_only(sv, inside, ct) -> list:
+    """(index, class) of the in-frame players of one frame, distances only (hou_cle_2016's gate, N4)."""
+    ins = [int(j) for j in np.where(inside)[0]]
+    if not len(ct):
+        return [(j, "detection") for j in ins]
+    D = np.sqrt(((np.asarray(sv)[:, None, :] - np.asarray(ct)[None, :, :]) ** 2).sum(-1))
+    return [(j, classify(float(D[j].min()), float(D[j].min()))) for j in ins]
+
+
+def cache_gaps(P_t: dict, game: str, w: dict, comp: Path, mom, mirror: str) -> str | None:
+    """What the window's scorecard cache lacks before scoring (N1): a live frame's wide score, a needed referee frame
+    (truth frames, when the sidecar has no class), or the cut signal; None when complete."""
+    from tools import p8_scorecard as S
+    s = w["window"]
+    cp = P_t["cache"] / "scorecard" / f"{s}.json"
+    if not cp.exists():
+        return "the cache file"
+    c = json.loads(cp.read_text())
+    tm = json.loads((P_t["label_build"] / f"{s}_timemap.json").read_text())
+    side = json.loads((comp / f"{s}_frames.json").read_text())
+    live = {int(f) for f, _, _ in tm["frames"]}
+    rows, _ = S.truth_rows(P_t, game, w, "camera", mom.index, mirror)
+    sidecar_cls = any("cls" in b for x in side["frames"] for b in x["boxes"])
+    need_ref = set() if sidecar_cls else {int(x["frame"]) for x in rows}
+    wide = live - {int(k) for k in c.get("wide", {})}
+    refs = need_ref - {int(k) for k in c.get("referees", {})}
+    gaps = [f"{len(wide)} live wide frames" if wide else "", f"{len(refs)} referee frames" if refs else "",
+            "the cut signal" if not c.get("corr") else ""]
+    gaps = [g for g in gaps if g]
+    return ", ".join(gaps) if gaps else None
+
+
+# ── data (frozen CV python, under the lock) ───────────────────────────────────────────────────────────────────────────
 def collect(game: str) -> dict:
     import cv2
     from sportvu import bench as B
@@ -238,10 +270,13 @@ def collect(game: str) -> dict:
     guard(stems, WHO)
     if sorted(score["windows"]) != stems:
         raise SystemExit(f"{WHO}: {game}: the windows differ from D202's score record")
-    # percentiles over all of the game's truth rows (never split by outcome)
-    lab = [json.loads(x) for s in stems for x in (P_t["labels"] / game / f"{s}.jsonl").read_text().splitlines() if x.strip()]
-    line_p = float(np.percentile([x["line_matches"] for x in lab if x.get("line_matches") is not None], LINE_PCT))
-    resid_p = float(np.percentile([x["feet_resid_ft"] for x in lab if x.get("feet_resid_ft") is not None], RESID_PCT))
+    measured = game in MEASURED                    # hou_cle_2016: counts only, no condition, depth or percentile (N4)
+    line_p = resid_p = None
+    if measured:                                   # percentiles over all of the game's truth rows (never by outcome)
+        lab = [json.loads(x) for s in stems for x in (P_t["labels"] / game / f"{s}.jsonl").read_text().splitlines()
+               if x.strip()]
+        line_p = float(np.percentile([x["line_matches"] for x in lab if x.get("line_matches") is not None], LINE_PCT))
+        resid_p = float(np.percentile([x["feet_resid_ft"] for x in lab if x.get("feet_resid_ft") is not None], RESID_PCT))
     gate, rows, depth = {}, [], []
     for wi, w in enumerate(wins):
         s = w["window"]
@@ -250,8 +285,13 @@ def collect(game: str) -> dict:
         for key, p in (("sidecar", comp / f"{s}_frames.json"), ("timemap", P_t["label_build"] / f"{s}_timemap.json"),
                        ("labels", P_t["labels"] / game / f"{s}.jsonl"), ("identity", comp / f"{s}_identity.json")):
             want = (score.get("hashes") or {}).get(s, {}).get(key)
+            if want is None and key in ("sidecar", "timemap", "labels"):      # required, never skipped (N2)
+                raise SystemExit(f"{WHO}: {s} has no {key} hash in D202's record")
             if want is not None and RB.sha256(p) != want:
                 raise SystemExit(f"{WHO}: {s} {key} differs from D202's record")
+        why = cache_gaps(P_t, game, w, comp, mom, mirror)                    # N1: complete cache before scoring
+        if why:
+            raise SystemExit(f"{WHO}: {s}: the scorecard cache lacks {why}")
         full = S.score_window(P_t, game, w, comp, "camera", mom, mirror, refs, events)
         if "skipped" in full[0]:
             raise SystemExit(f"{WHO}: {s} skipped: {full[0]['skipped']}")
@@ -291,6 +331,10 @@ def collect(game: str) -> dict:
             feet = np.array([b["foot_stab"] for b in boxes], np.float32).reshape(-1, 1, 2)
             ct32 = cv2.perspectiveTransform(feet, Ht).reshape(-1, 2) if len(boxes) else np.zeros((0, 2), np.float32)
             ct64 = ct32.astype(np.float64)
+            if not measured:                       # counts only (N4)
+                for j, cls in counts_only(sv, inside, ct32.astype(np.float64)):
+                    c["in_frame"] += 1; c["missed"] += cls != "hit"; c["far"] += cls == "detection"
+                continue
             nh = near_side(Ht)
             third = [S.third_of(sv[j][1], nh) for j in range(len(sv))]
             crowd = S.crowding(sv)
