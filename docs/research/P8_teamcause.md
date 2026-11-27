@@ -100,3 +100,62 @@ id; the manifests and content checks of D202 (labels, label_build and truth_acce
 content) before and after stage B; V3_HEAVY_HELD required for stage B; the scorecard pin compared on every field.
 Lessons applied: identity is tested on content (time maps by frames and spans); stage A states what the stored
 summaries already decide before any rescore; each stage has one output path.
+
+## 8. Version 2 (2026-11-27; the review of 8b60a184, GO WITH CHANGES; before any number)
+
+Where this section differs from sections 1 to 7, it rules.
+
+**8.1 What the majority mapping hides (adds to section 2).** The mapping is chosen per label within each window, so:
+a window's two labels may map to the same team; a label's errors are at most half its rows, so the error count is a
+lower bound on mixing; a label held by one track is always correct; nothing checks that a team keeps its label across
+windows; and pairs whose track abstained, or whose track is missing from team_by_track, give no row (they are counted
+per bin as abstentions, section 8.5). The one-to-one "fixed" mapping (window_team's fixed) is reported beside majority.
+team_vetoed is read from the identity file's identity block.
+
+**8.2 hou_cle_2016 (the lead's decision, self-decided).** hou_cle_2016 is left out of stage B entirely and out of stage
+A's per-window lists, concentration and correlations, so it stays unspent for a later team arm's held-back test (in
+the spirit of D188 and D202 10.7). Only its aggregate team row, already seen in D202 (0.7558), is quoted. Units are
+gsw_cha_2016, gsw_bkn_2015 and their pool.
+
+**8.3 Stage A is a readout** of the D202 score records and the composite's identity files. Facts already known from
+the review, which stage A re-derives and states: no window is below 0.5 (impossible under the majority mapping), and
+majority equals fixed in every window except one of gsw_bkn_2015's. The "below 0.5" count is replaced by windows at or
+below **0.6**: a label set whose rows are at most 60 percent its majority team, that is labels mixing the two teams
+nearly evenly.
+
+**8.4 Worst windows (replaces section 4's worst tenth).** Windows are ranked by team-error count (n minus majority);
+windows with no team rows are left out (the review counts 17 in gsw_cha_2016 and 18 in gsw_bkn_2015, re-derived); the
+worst tenth is the ceiling of a tenth of the remaining windows. Reported: their share of all team errors, beside their
+share of all team rows (the null). Stage B's row-level bins are also read with these windows left out.
+
+**8.5 Features (changes section 5).**
+- The light-kit feature is now build side only: whether the row's label equals the window's light_team. (Mapping
+  light_team through the label's majority team would use the outcome.)
+- Added, **scorer pairing:** the pair's distance (sportvu.truth._match), at most 2.5 ft against 2.5 to 5 ft.
+- Added, **identity switches:** whether the row's canonical track is paired with two or more SportVU player ids in the
+  window (by player id, not by team).
+- Per bin, beside rows and errors: abstentions (pairs whose track has no label) and the fixed-mapping errors.
+- Tie rule for row-level errors: within a window, a label's majority team is the SportVU team with more of its rows;
+  on a tie, the team with the smaller SportVU team id. The rows of the other team are its errors. (The count equals
+  window_team's majority either way.)
+
+**8.6 Readings with uncertainty (replaces section 6's rule; its table of directions stands, with two rows added).**
+Read on pooled gsw_cha_2016 and gsw_bkn_2015 only; each game is shown, not read. A bin carries team errors when all
+hold: at least 0.25 of the pool's team errors; its error rate at least 1.5 times the pool's (point); the lower end of
+a window-cluster bootstrap (2,000 resamples, seed 0, windows in sorted name order) of that ratio above 1; rows from at
+least 10 windows. Several carrying bins are ranked by excess errors (errors minus rows times the pool's error rate); the
+top one is named, the rest listed. Feature pairs whose rank correlation over rows exceeds 0.5 in absolute value are
+cross-tabulated, and carrying bins in such a pair are reported "not separated" from each other. Added directions:
+
+| carrying bin | points to |
+|---|---|
+| pair distance 2.5 to 5 ft, or crowding under 3 ft | an error carried here may be the scorer's pairing, not the labelling |
+| rows of tracks paired with two or more player ids | tracking or merges (identity switches), not the colour model |
+
+**8.7 Gate and guards (adds to section 7).** Before any stage B number: the D202 score records are pinned by SHA-256
+and their run_id must be 20261127T171848Z; per window, the recomputed team-row tuples must equal score_window's own
+team_rows (same order), and n, majority and fixed must equal the D202 record; otherwise nothing is reported. Missing
+cache entries are counted for every window before scoring, and stage B stops if any is non-zero (it computes nothing
+new). The manifests cover labels/, label_build/, truth_accept/ and cache/scorecard in every root read. A clean
+`git status -- tools sportvu` is required and HEAD recorded. At the cap the run stops, reports nothing and is not
+retried without a new go. Stage B now covers 156 windows (73 and 83): about 3 minutes, cap 20.
