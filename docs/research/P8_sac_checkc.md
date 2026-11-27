@@ -345,3 +345,31 @@ The lead's decision, narrow by design:
 - Stage 2 does not run: its trigger (Fix, Joint or Neither) is met on neither the registered reading (Clock) nor the
   post hoc one (Platform).
 
+
+## 11. Version 2.2 result (2026-11-27; 1 s under the lock "sac checkc stage 1 v2.2 side"; record reports/research/p8_sac_checkc_v22.json)
+
+The content clock test holds: all 82 gsw_sac_2015 time maps have equal frames and spans in the two roots, and the
+moments file and the mirror are identical. On the 73 common check C windows (MPS median 0.52 s, share 0.7945; fixed
+0.64 s, 0.8219):
+
+| swap | median of d | share over 0.2 s | moves the median halfway | moves the share halfway |
+|---|---|---|---|---|
+| V3 swap (fixed V3, MPS r23) | 0.64 s | 0.7945 | yes (all of it) | no (none of it) |
+| r23 swap (MPS V3, fixed r23) | 0.56 s | 0.8082 | no (a third) | yes (exactly half) |
+
+**Side reading, as registered (7.3): not separated.** The median names the V3 side and the share the r23 side; they
+disagree. Stage 2 does not run (section 10).
+
+## 12. Close (2026-11-27)
+
+- Registered readings: the decomposition reads Clock (section 8), a false alarm of the SHA-256 rule on "ocr_seconds";
+  the side reads "not separated" (section 11); against the controls (absolute changes, common windows) gsw_sac_2015's
+  change is within their range on the share and outside it on the median (+0.12 s against at most 0.04 s).
+- What this says (the post hoc Platform reading and the crossings, labelled as such): gsw_sac_2015's check C change
+  sits in windows with no reset in any of the four builds (the none class nets the whole +2 windows; swapping in the
+  fixed record's d there alone reproduces the fixed share and median), so it comes with the platform move (MPS to CPU
+  builds), not with the reset fix. Which side carries it is not separated.
+- Unchanged: gsw_sac_2015 stays "apart" (D199); no window is excluded from check C, nothing is adopted, and any change
+  of its status would be a new registration.
+- Lesson: an identity test on whole files reacts to run metadata (here a read duration); a clock test should compare
+  the content the measurement uses.
