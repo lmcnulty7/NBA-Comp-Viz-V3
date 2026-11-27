@@ -1,0 +1,1291 @@
+{
+ "what": "docs/research/P8_footfix.md version 1.2, stage 0 (smoke, reproduction, 0c audit, F1 and F2 in sample); G0 reads F1 only; F2 is the predicted-null control",
+ "run_id": "20261127T195746Z",
+ "git": {
+  "head": "1ff4a9b94ac2eb59a1a53d2b5742414bfd16f975",
+  "tools_and_sportvu_clean": true
+ },
+ "versions": {
+  "cv2": "4.13.0",
+  "numpy": "1.26.4",
+  "python": "3.12.2"
+ },
+ "seconds": 470.9,
+ "smoke_and_reproduction": {
+  "gsw_cha_2016": {
+   "smoke": {
+    "window": "gsw_cha_2016_s00_w00",
+    "identity_equal": true,
+    "f2_moved": 3192
+   },
+   "reproduction": {
+    "windows": 73,
+    "passes": true
+   },
+   "label_boxes": {
+    "frames": 2911,
+    "label_boxes_equal": 2911
+   }
+  },
+  "gsw_bkn_2015": {
+   "smoke": {
+    "window": "gsw_bkn_2015_s00_w00",
+    "identity_equal": true,
+    "f2_moved": 2165
+   },
+   "reproduction": {
+    "windows": 83,
+    "passes": true
+   },
+   "label_boxes": {
+    "frames": 2982,
+    "label_boxes_equal": 2982
+   }
+  }
+ },
+ "audit": {
+  "gsw_cha_2016": {
+   "fit_rows": 25369,
+   "stage_b_share": 0.13788482005597383,
+   "inlier_share": 0.7725176396389294,
+   "stage_by_inlier": {
+    "A|inlier": 18232,
+    "A|non_inlier": 3639,
+    "B|inlier": 1366,
+    "B|non_inlier": 2132
+   },
+   "tables": {
+    "all": {
+     "F1": {
+      "200-250|middle": -0.3036448258843515,
+      "150-200|far": -0.33213837163670823,
+      "<150|far": -0.21255625657697527,
+      "200-250|near": -0.2993456370125867,
+      "150-200|middle": -0.44080808395574356,
+      "150-200|near": -0.2443473896449106,
+      "<150|middle": -0.5765079417389344,
+      "<150|near": -0.23055484459336376,
+      "200-250|far": -0.10047107873390128,
+      ">=250|near": -0.26243317240747804,
+      ">=250|middle": -0.4163965138103725
+     },
+     "F2": {
+      "200-250": -0.012891634140469246,
+      "150-200": -0.01541097152636247,
+      "<150": -0.01578784590007878,
+      ">=250": -0.013733881784567933
+     },
+     "counts": {
+      "F1": {
+       "200-250|middle": 1272,
+       "150-200|far": 2999,
+       "<150|far": 2807,
+       "200-250|near": 2153,
+       "150-200|middle": 8252,
+       "150-200|near": 5335,
+       "<150|middle": 1858,
+       "<150|near": 388,
+       "200-250|far": 123,
+       ">=250|near": 121,
+       ">=250|middle": 61
+      },
+      "F2": {
+       "200-250": 3548,
+       "150-200": 16586,
+       "<150": 5053,
+       ">=250": 182
+      }
+     }
+    },
+    "inlier_only": {
+     "F1": {
+      "200-250|middle": -0.28020026822054694,
+      "<150|far": -0.27061178431086763,
+      "200-250|near": -0.3075338127238616,
+      "150-200|far": -0.3723715492923535,
+      "150-200|middle": -0.4870631558069349,
+      "150-200|near": -0.3124454143265531,
+      "<150|middle": -0.5746792152250614,
+      "200-250|far": 0.014207223263377589,
+      ">=250|middle": -0.368105016070295,
+      "<150|near": -0.38142637135954005,
+      ">=250|near": -0.10851918704866159
+     },
+     "F2": {
+      "200-250": -0.012202172730099502,
+      "<150": -0.01683523097714245,
+      "150-200": -0.01746209748169613,
+      ">=250": -0.010842041951029693
+     },
+     "counts": {
+      "F1": {
+       "200-250|middle": 994,
+       "<150|far": 2193,
+       "200-250|near": 1648,
+       "150-200|far": 2414,
+       "150-200|middle": 6435,
+       "150-200|near": 4009,
+       "<150|middle": 1413,
+       "200-250|far": 95,
+       ">=250|middle": 51,
+       "<150|near": 252,
+       ">=250|near": 94
+      },
+      "F2": {
+       "200-250": 2737,
+       "<150": 3858,
+       "150-200": 12858,
+       ">=250": 145
+      }
+     }
+    },
+    "non_inlier_only": {
+     "F1": {
+      "150-200|far": -0.04905876517630087,
+      "200-250|middle": -0.39248353655726936,
+      "200-250|near": -0.26537139043228014,
+      "150-200|middle": -0.19409669942928331,
+      "<150|far": 0.02596434336683346,
+      "150-200|near": 0.30847097959090536,
+      "<150|near": 0.16408801530986547,
+      "<150|middle": -0.6018060050505512
+     },
+     "F2": {
+      "150-200": -0.002249978732542191,
+      "200-250": -0.014942609346829928,
+      "<150": -0.009089116449956294
+     },
+     "counts": {
+      "F1": {
+       "150-200|far": 585,
+       "200-250|middle": 278,
+       "200-250|near": 505,
+       "150-200|middle": 1817,
+       "<150|far": 614,
+       "150-200|near": 1326,
+       "<150|near": 136,
+       ">=250|near": 27,
+       "200-250|far": 28,
+       "<150|middle": 445,
+       ">=250|middle": 10
+      },
+      "F2": {
+       "150-200": 3728,
+       "200-250": 811,
+       "<150": 1195,
+       ">=250": 37
+      }
+     }
+    }
+   },
+   "f2_null_in_sample": {
+    "bins": {
+     "150-200": -0.01541097152636247,
+     "200-250": -0.012891634140469246,
+     "<150": -0.01578784590007878,
+     ">=250": -0.013733881784567933
+    },
+    "holds": false
+   },
+   "same_row": {
+    "150-200|far": {
+     "n": 2999,
+     "p_ii_rows": 402,
+     "median_d1_toward_T": -0.33213837163670823,
+     "median_dB_toward_sportvu_under_B": -1.0542068455910576,
+     "median_difference": 0.6048800750288299,
+     "opposite_sign_share": 0.2960986995665222
+    },
+    "150-200|middle": {
+     "n": 8252,
+     "p_ii_rows": 1081,
+     "median_d1_toward_T": -0.44080808395574356,
+     "median_dB_toward_sportvu_under_B": -1.015883415334109,
+     "median_difference": 0.45472936806791847,
+     "opposite_sign_share": 0.25521085797382453
+    },
+    "150-200|near": {
+     "n": 5335,
+     "p_ii_rows": 704,
+     "median_d1_toward_T": -0.2443473896449106,
+     "median_dB_toward_sportvu_under_B": -0.4960357547791411,
+     "median_difference": 0.18378608265061847,
+     "opposite_sign_share": 0.21537019681349578
+    },
+    "200-250|far": {
+     "n": 123,
+     "p_ii_rows": 16,
+     "median_d1_toward_T": -0.10047107873390128,
+     "median_dB_toward_sportvu_under_B": -0.8123452415080477,
+     "median_difference": 0.6783007443384959,
+     "opposite_sign_share": 0.36585365853658536
+    },
+    "200-250|middle": {
+     "n": 1272,
+     "p_ii_rows": 135,
+     "median_d1_toward_T": -0.3036448258843515,
+     "median_dB_toward_sportvu_under_B": -0.8519392369000195,
+     "median_difference": 0.4714302640384044,
+     "opposite_sign_share": 0.28773584905660377
+    },
+    "200-250|near": {
+     "n": 2153,
+     "p_ii_rows": 270,
+     "median_d1_toward_T": -0.2993456370125867,
+     "median_dB_toward_sportvu_under_B": -0.5007652860608905,
+     "median_difference": 0.1529739452298689,
+     "opposite_sign_share": 0.2652113330236879
+    },
+    "<150|far": {
+     "n": 2807,
+     "p_ii_rows": 459,
+     "median_d1_toward_T": -0.21255625657697527,
+     "median_dB_toward_sportvu_under_B": -1.0345639033104677,
+     "median_difference": 0.7002641992951868,
+     "opposite_sign_share": 0.31528322052012825
+    },
+    "<150|middle": {
+     "n": 1858,
+     "p_ii_rows": 322,
+     "median_d1_toward_T": -0.5765079417389344,
+     "median_dB_toward_sportvu_under_B": -1.1705841964600476,
+     "median_difference": 0.4904496170207037,
+     "opposite_sign_share": 0.2109795479009688
+    },
+    "<150|near": {
+     "n": 388,
+     "p_ii_rows": 87,
+     "median_d1_toward_T": -0.23055484459336376,
+     "median_dB_toward_sportvu_under_B": -0.26084046205138484,
+     "median_difference": -0.006460171756651804,
+     "opposite_sign_share": 0.2345360824742268
+    },
+    ">=250|middle": {
+     "n": 61,
+     "p_ii_rows": 7,
+     "median_d1_toward_T": -0.4163965138103725,
+     "median_dB_toward_sportvu_under_B": -0.5015774016155546,
+     "median_difference": 0.18040857710624303,
+     "opposite_sign_share": 0.16393442622950818
+    },
+    ">=250|near": {
+     "n": 121,
+     "p_ii_rows": 15,
+     "median_d1_toward_T": -0.26243317240747804,
+     "median_dB_toward_sportvu_under_B": -0.442831171465922,
+     "median_difference": 0.17365513427446472,
+     "opposite_sign_share": 0.2727272727272727
+    }
+   },
+   "p_ii_distance_ft": {
+    "2.5-3.0": 1344,
+    "3.0-3.5": 863,
+    "3.5-4.0": 589,
+    "4.0-4.5": 416,
+    "4.5-5.0": 286
+   }
+  },
+  "gsw_bkn_2015": {
+   "fit_rows": 25415,
+   "stage_b_share": 0.13417273263820578,
+   "inlier_share": 0.7812709030100334,
+   "stage_by_inlier": {
+    "A|inlier": 18387,
+    "A|non_inlier": 3618,
+    "B|inlier": 1469,
+    "B|non_inlier": 1941
+   },
+   "tables": {
+    "all": {
+     "F1": {
+      "150-200|near": -0.3033626402013161,
+      "150-200|middle": -0.4567251972959533,
+      "<150|far": -0.2333358122955156,
+      "<150|middle": -0.44155427418568427,
+      "150-200|far": -0.3943326390764713,
+      "200-250|near": -0.27655851499618006,
+      "200-250|middle": -0.5269128834978608,
+      "200-250|far": -0.3070431801934682,
+      ">=250|near": -0.8666492840018278,
+      ">=250|middle": -0.3631014942753271,
+      "<150|near": -0.09302369349237988
+     },
+     "F2": {
+      "150-200": -0.017683906478701078,
+      "<150": -0.013277039047359496,
+      "200-250": -0.016305915414029537,
+      ">=250": -0.02519927153716216
+     },
+     "counts": {
+      "F1": {
+       "150-200|near": 4717,
+       "150-200|middle": 8853,
+       "<150|far": 2668,
+       "<150|middle": 1933,
+       "150-200|far": 2688,
+       "200-250|near": 2504,
+       "200-250|middle": 1403,
+       "200-250|far": 108,
+       ">=250|near": 90,
+       ">=250|middle": 109,
+       "<150|near": 342
+      },
+      "F2": {
+       "150-200": 16258,
+       "<150": 4943,
+       "200-250": 4015,
+       ">=250": 199
+      }
+     }
+    },
+    "inlier_only": {
+     "F1": {
+      "150-200|near": -0.3804503194713412,
+      "150-200|middle": -0.48574653517002847,
+      "<150|far": -0.2632070108030232,
+      "<150|middle": -0.5019599106084817,
+      "150-200|far": -0.40781022146783696,
+      "200-250|near": -0.2689830828571112,
+      "200-250|middle": -0.5458179925597838,
+      "200-250|far": -0.4520088648160766,
+      ">=250|near": -0.7288013987919807,
+      ">=250|middle": -0.4556522324192373,
+      "<150|near": -0.09302369349237988
+     },
+     "F2": {
+      "150-200": -0.019566961804275994,
+      "<150": -0.015501128452983402,
+      "200-250": -0.01669120612549955,
+      ">=250": -0.025938439412399844
+     },
+     "counts": {
+      "F1": {
+       "150-200|near": 3650,
+       "150-200|middle": 7109,
+       "<150|far": 2010,
+       "<150|middle": 1428,
+       "150-200|far": 2105,
+       "200-250|near": 1995,
+       "200-250|middle": 1057,
+       "200-250|far": 94,
+       ">=250|near": 67,
+       ">=250|middle": 87,
+       "<150|near": 254
+      },
+      "F2": {
+       "150-200": 12864,
+       "<150": 3692,
+       "200-250": 3146,
+       ">=250": 154
+      }
+     }
+    },
+    "non_inlier_only": {
+     "F1": {
+      "<150|far": -0.08158886340099136,
+      "<150|middle": -0.07779220266265108,
+      "150-200|middle": -0.21855912638137007,
+      "150-200|near": 0.21966211300980237,
+      "150-200|far": -0.2955284853964013,
+      "200-250|near": -0.29423500771402766,
+      "200-250|middle": -0.4056121515639428,
+      "<150|near": -0.03650996100386142
+     },
+     "F2": {
+      "<150": -0.004186030034418706,
+      "150-200": -0.005423335569450655,
+      "200-250": -0.015623919731747787
+     },
+     "counts": {
+      "F1": {
+       "<150|far": 658,
+       "<150|middle": 505,
+       "150-200|middle": 1744,
+       "150-200|near": 1067,
+       "150-200|far": 583,
+       "200-250|near": 509,
+       "200-250|middle": 346,
+       "200-250|far": 14,
+       ">=250|near": 23,
+       ">=250|middle": 22,
+       "<150|near": 88
+      },
+      "F2": {
+       "<150": 1251,
+       "150-200": 3394,
+       "200-250": 869,
+       ">=250": 45
+      }
+     }
+    }
+   },
+   "f2_null_in_sample": {
+    "bins": {
+     "150-200": -0.017683906478701078,
+     "200-250": -0.016305915414029537,
+     "<150": -0.013277039047359496,
+     ">=250": -0.02519927153716216
+    },
+    "holds": false
+   },
+   "same_row": {
+    "150-200|far": {
+     "n": 2688,
+     "p_ii_rows": 411,
+     "median_d1_toward_T": -0.3943326390764713,
+     "median_dB_toward_sportvu_under_B": -1.3459222002038742,
+     "median_difference": 0.8989384824337151,
+     "opposite_sign_share": 0.3013392857142857
+    },
+    "150-200|middle": {
+     "n": 8853,
+     "p_ii_rows": 1022,
+     "median_d1_toward_T": -0.4567251972959533,
+     "median_dB_toward_sportvu_under_B": -0.9035148352208654,
+     "median_difference": 0.4026476566332655,
+     "opposite_sign_share": 0.23551338529312096
+    },
+    "150-200|near": {
+     "n": 4717,
+     "p_ii_rows": 611,
+     "median_d1_toward_T": -0.3033626402013161,
+     "median_dB_toward_sportvu_under_B": -0.305693531754589,
+     "median_difference": -0.09103396015421228,
+     "opposite_sign_share": 0.23680305278778885
+    },
+    "200-250|far": {
+     "n": 108,
+     "p_ii_rows": 5,
+     "median_d1_toward_T": -0.3070431801934682,
+     "median_dB_toward_sportvu_under_B": -1.0027879442421106,
+     "median_difference": 0.4721651093695286,
+     "opposite_sign_share": 0.25
+    },
+    "200-250|middle": {
+     "n": 1403,
+     "p_ii_rows": 210,
+     "median_d1_toward_T": -0.5269128834978608,
+     "median_dB_toward_sportvu_under_B": -0.8873784458289609,
+     "median_difference": 0.3140454437142668,
+     "opposite_sign_share": 0.24376336421952957
+    },
+    "200-250|near": {
+     "n": 2504,
+     "p_ii_rows": 285,
+     "median_d1_toward_T": -0.27655851499618006,
+     "median_dB_toward_sportvu_under_B": -0.3036389239917927,
+     "median_difference": -0.01979425563891117,
+     "opposite_sign_share": 0.30471246006389774
+    },
+    "<150|far": {
+     "n": 2668,
+     "p_ii_rows": 427,
+     "median_d1_toward_T": -0.2333358122955156,
+     "median_dB_toward_sportvu_under_B": -1.4590124278833763,
+     "median_difference": 1.290358630152677,
+     "opposite_sign_share": 0.34070464767616193
+    },
+    "<150|middle": {
+     "n": 1933,
+     "p_ii_rows": 331,
+     "median_d1_toward_T": -0.44155427418568427,
+     "median_dB_toward_sportvu_under_B": -1.1348858118757819,
+     "median_difference": 0.6546116799914541,
+     "opposite_sign_share": 0.2529746508018624
+    },
+    "<150|near": {
+     "n": 342,
+     "p_ii_rows": 75,
+     "median_d1_toward_T": -0.09302369349237988,
+     "median_dB_toward_sportvu_under_B": -0.5122245055706154,
+     "median_difference": 0.05653378181092253,
+     "opposite_sign_share": 0.17251461988304093
+    },
+    ">=250|middle": {
+     "n": 109,
+     "p_ii_rows": 12,
+     "median_d1_toward_T": -0.3631014942753271,
+     "median_dB_toward_sportvu_under_B": -1.0843485796549868,
+     "median_difference": 0.5234513078722007,
+     "opposite_sign_share": 0.22018348623853212
+    },
+    ">=250|near": {
+     "n": 90,
+     "p_ii_rows": 21,
+     "median_d1_toward_T": -0.8666492840018278,
+     "median_dB_toward_sportvu_under_B": -0.5975728634477102,
+     "median_difference": -0.33206795201223055,
+     "opposite_sign_share": 0.2
+    }
+   },
+   "p_ii_distance_ft": {
+    "2.5-3.0": 1295,
+    "3.0-3.5": 852,
+    "3.5-4.0": 576,
+    "4.0-4.5": 396,
+    "4.5-5.0": 291
+   }
+  }
+ },
+ "in_sample": {
+  "gsw_cha_2016": {
+   "F1": {
+    "table": {
+     "200-250|middle": -0.3036448258843515,
+     "150-200|far": -0.33213837163670823,
+     "<150|far": -0.21255625657697527,
+     "200-250|near": -0.2993456370125867,
+     "150-200|middle": -0.44080808395574356,
+     "150-200|near": -0.2443473896449106,
+     "<150|middle": -0.5765079417389344,
+     "<150|near": -0.23055484459336376,
+     "200-250|far": -0.10047107873390128,
+     ">=250|near": -0.26243317240747804,
+     ">=250|middle": -0.4163965138103725
+    },
+    "boxes_moved": 146429,
+    "changes": {
+     "missed": {
+      "change": -0.0038695606289795015,
+      "interval": [
+       -0.00823,
+       -0.00034
+      ]
+     },
+     "detection": {
+      "change": -0.0017237133710908611,
+      "interval": [
+       -0.00272,
+       -0.00075
+      ]
+     },
+     "placement": {
+      "change": -0.0021458472578886334,
+      "interval": [
+       -0.00641,
+       0.00139
+      ]
+     },
+     "ghosts_per_box": {
+      "change": 0.000333432128037936,
+      "interval": [
+       -0.0034,
+       0.00367
+      ]
+     },
+     "ghosts_per_player": {
+      "change": 0.00031660041509831705,
+      "interval": [
+       -0.00325,
+       0.00351
+      ]
+     },
+     "net_error": {
+      "change": -0.0035529602138811844,
+      "interval": [
+       -0.01089,
+       0.00266
+      ]
+     },
+     "net_error_1to1": {
+      "change": -0.0030956485031836123,
+      "interval": [
+       -0.01187,
+       0.0044
+      ]
+     },
+     "coverage": {
+      "change": 0.0,
+      "interval": [
+       0.0,
+       0.0
+      ]
+     },
+     "position_p50_ft": {
+      "change": -0.15757614374160767,
+      "interval": [
+       -0.17197,
+       -0.14169
+      ],
+      "players": "matched under both truths"
+     },
+     "position_p90_ft": {
+      "change": -0.11026692390441895,
+      "interval": [
+       -0.14374,
+       -0.07902
+      ],
+      "players": "matched under both truths"
+     },
+     "nearfield_bias_ft": {
+      "change": -0.28559577465057373,
+      "interval": [
+       -0.30549,
+       -0.27374
+      ],
+      "players": "matched under both truths"
+     },
+     "team": {
+      "change": -0.0007073556577553708,
+      "interval": [
+       -0.00174,
+       0.00021
+      ],
+      "players": "each truth's own matched players, on the windows both score"
+     },
+     "missed_1to1": {
+      "change": -0.0017940690188904818,
+      "interval": [
+       -0.00626,
+       0.0019
+      ]
+     },
+     "near_p90_ft": {
+      "change": 0.02795357704162571,
+      "interval": [
+       -0.005465060472489447,
+       0.1029199868440628
+      ]
+     }
+    },
+    "inlier_split": {
+     "inlier": {
+      "missed": {
+       "change": -0.0031263957123715946,
+       "interval": [
+        -0.008643877502440427,
+        0.0012896341359861746
+       ]
+      },
+      "position_p50_ft": {
+       "change": -0.17300000000000004,
+       "interval": [
+        -0.18799999999999994,
+        -0.15500000000000003
+       ]
+      },
+      "players": 20151
+     },
+     "non_inlier": {
+      "missed": {
+       "change": -0.005679072015466409,
+       "interval": [
+        -0.0107451782358197,
+        0.0
+       ]
+      },
+      "position_p50_ft": {
+       "change": -0.09850000000000003,
+       "interval": [
+        -0.11999999999999988,
+        -0.06500000000000017
+       ]
+      },
+      "players": 8276
+     }
+    },
+    "g0": {
+     "points": {
+      "missed": false,
+      "ghosts_per_box": true,
+      "nearfield_bias_ft": true,
+      "position_p90_ft": true,
+      "near_p90_ft": true,
+      "team": true,
+      "rule7_one2one": false
+     },
+     "passes": false
+    }
+   },
+   "F2": {
+    "table": {
+     "200-250": -0.012891634140469246,
+     "150-200": -0.01541097152636247,
+     "<150": -0.01578784590007878,
+     ">=250": -0.013733881784567933
+    },
+    "boxes_moved": 147198,
+    "changes": {
+     "missed": {
+      "change": -0.0032363597987828396,
+      "interval": [
+       -0.00718,
+       6e-05
+      ]
+     },
+     "detection": {
+      "change": -0.00189960249058993,
+      "interval": [
+       -0.00294,
+       -0.00096
+      ]
+     },
+     "placement": {
+      "change": -0.0013367573081929096,
+      "interval": [
+       -0.00512,
+       0.00192
+      ]
+     },
+     "ghosts_per_box": {
+      "change": 0.0016301126259632426,
+      "interval": [
+       -0.00192,
+       0.0048
+      ]
+     },
+     "ghosts_per_player": {
+      "change": 0.0015478242515917923,
+      "interval": [
+       -0.00182,
+       0.00459
+      ]
+     },
+     "net_error": {
+      "change": -0.0016885355471910612,
+      "interval": [
+       -0.00816,
+       0.00366
+      ]
+     },
+     "net_error_1to1": {
+      "change": -0.0016533577232912267,
+      "interval": [
+       -0.00976,
+       0.00526
+      ]
+     },
+     "coverage": {
+      "change": 0.0,
+      "interval": [
+       0.0,
+       0.0
+      ]
+     },
+     "position_p50_ft": {
+      "change": -0.16304677724838257,
+      "interval": [
+       -0.17731,
+       -0.14735
+      ],
+      "players": "matched under both truths"
+     },
+     "position_p90_ft": {
+      "change": -0.11095981597900373,
+      "interval": [
+       -0.14439,
+       -0.07484
+      ],
+      "players": "matched under both truths"
+     },
+     "nearfield_bias_ft": {
+      "change": -0.39548397064208984,
+      "interval": [
+       -0.40936,
+       -0.39066
+      ],
+      "players": "matched under both truths"
+     },
+     "team": {
+      "change": -0.0005935857092528307,
+      "interval": [
+       -0.00147,
+       0.00022
+      ],
+      "players": "each truth's own matched players, on the windows both score"
+     },
+     "missed_1to1": {
+      "change": -0.0010905125408942062,
+      "interval": [
+       -0.00526,
+       0.00234
+      ]
+     },
+     "near_p90_ft": {
+      "change": 0.0466719627380372,
+      "interval": [
+       -0.004267595410346725,
+       0.10369981527328487
+      ]
+     }
+    },
+    "inlier_split": {
+     "inlier": {
+      "missed": {
+       "change": -0.0019850131507121237,
+       "interval": [
+        -0.007317958770318298,
+        0.002269834999592728
+       ]
+      },
+      "position_p50_ft": {
+       "change": -0.17900000000000005,
+       "interval": [
+        -0.19399999999999995,
+        -0.16199999999999992
+       ]
+      },
+      "players": 20151
+     },
+     "non_inlier": {
+      "missed": {
+       "change": -0.006283228612856452,
+       "interval": [
+        -0.011891116155539293,
+        -0.00015008825065770796
+       ]
+      },
+      "position_p50_ft": {
+       "change": -0.11749999999999994,
+       "interval": [
+        -0.14449999999999985,
+        -0.07700000000000018
+       ]
+      },
+      "players": 8276
+     }
+    },
+    "g0": {
+     "points": {
+      "missed": false,
+      "ghosts_per_box": true,
+      "nearfield_bias_ft": true,
+      "position_p90_ft": true,
+      "near_p90_ft": true,
+      "team": true,
+      "rule7_one2one": false
+     },
+     "passes": false
+    }
+   }
+  },
+  "gsw_bkn_2015": {
+   "F1": {
+    "table": {
+     "150-200|near": -0.3033626402013161,
+     "150-200|middle": -0.4567251972959533,
+     "<150|far": -0.2333358122955156,
+     "<150|middle": -0.44155427418568427,
+     "150-200|far": -0.3943326390764713,
+     "200-250|near": -0.27655851499618006,
+     "200-250|middle": -0.5269128834978608,
+     "200-250|far": -0.3070431801934682,
+     ">=250|near": -0.8666492840018278,
+     ">=250|middle": -0.3631014942753271,
+     "<150|near": -0.09302369349237988
+    },
+    "boxes_moved": 160169,
+    "changes": {
+     "missed": {
+      "change": -0.003506979911474306,
+      "interval": [
+       -0.00761,
+       0.00094
+      ]
+     },
+     "detection": {
+      "change": -0.001532175689479054,
+      "interval": [
+       -0.00291,
+       -0.00029
+      ]
+     },
+     "placement": {
+      "change": -0.0019748042219952244,
+      "interval": [
+       -0.00578,
+       0.00235
+      ]
+     },
+     "ghosts_per_box": {
+      "change": -0.001079350900699716,
+      "interval": [
+       -0.00372,
+       0.00181
+      ]
+     },
+     "ghosts_per_player": {
+      "change": -0.000987402110997626,
+      "interval": [
+       -0.00339,
+       0.00167
+      ]
+     },
+     "net_error": {
+      "change": -0.004494382022471932,
+      "interval": [
+       -0.01068,
+       0.00234
+      ]
+     },
+     "net_error_1to1": {
+      "change": -0.0033707865168539075,
+      "interval": [
+       -0.01149,
+       0.00505
+      ]
+     },
+     "coverage": {
+      "change": 0.0,
+      "interval": [
+       0.0,
+       0.0
+      ]
+     },
+     "position_p50_ft": {
+      "change": -0.1449769139289856,
+      "interval": [
+       -0.16293,
+       -0.12471
+      ],
+      "players": "matched under both truths"
+     },
+     "position_p90_ft": {
+      "change": -0.11691572666168248,
+      "interval": [
+       -0.15025,
+       -0.07751
+      ],
+      "players": "matched under both truths"
+     },
+     "nearfield_bias_ft": {
+      "change": -0.3399934768676758,
+      "interval": [
+       -0.35894,
+       -0.31888
+      ],
+      "players": "matched under both truths"
+     },
+     "team": {
+      "change": -0.0015649939052159167,
+      "interval": [
+       -0.0026,
+       -0.00033
+      ],
+      "players": "each truth's own matched players, on the windows both score"
+     },
+     "missed_1to1": {
+      "change": -0.001770514130064682,
+      "interval": [
+       -0.00589,
+       0.00247
+      ]
+     },
+     "near_p90_ft": {
+      "change": 0.09746723175048766,
+      "interval": [
+       0.05047873139381305,
+       0.15919743359088898
+      ]
+     }
+    },
+    "inlier_split": {
+     "inlier": {
+      "missed": {
+       "change": -0.0035689840617972035,
+       "interval": [
+        -0.008554939791089887,
+        0.001816187741951639
+       ]
+      },
+      "position_p50_ft": {
+       "change": -0.1625000000000001,
+       "interval": [
+        -0.18399999999999994,
+        -0.13400000000000012
+       ]
+      },
+      "players": 20454
+     },
+     "non_inlier": {
+      "missed": {
+       "change": -0.0033647375504710633,
+       "interval": [
+        -0.008575106946435086,
+        0.0025645308229577867
+       ]
+      },
+      "position_p50_ft": {
+       "change": -0.08800000000000008,
+       "interval": [
+        -0.12251250000000005,
+        -0.052999999999999936
+       ]
+      },
+      "players": 8916
+     }
+    },
+    "g0": {
+     "points": {
+      "missed": false,
+      "ghosts_per_box": true,
+      "nearfield_bias_ft": true,
+      "position_p90_ft": true,
+      "near_p90_ft": false,
+      "team": true,
+      "rule7_one2one": false
+     },
+     "passes": false
+    }
+   },
+   "F2": {
+    "table": {
+     "150-200": -0.017683906478701078,
+     "<150": -0.013277039047359496,
+     "200-250": -0.016305915414029537,
+     ">=250": -0.02519927153716216
+    },
+    "boxes_moved": 160930,
+    "changes": {
+     "missed": {
+      "change": -0.0028260129383724797,
+      "interval": [
+       -0.00692,
+       0.0016
+      ]
+     },
+     "detection": {
+      "change": -0.001395982294858697,
+      "interval": [
+       -0.00269,
+       -0.00023
+      ]
+     },
+     "placement": {
+      "change": -0.0014300306435137689,
+      "interval": [
+       -0.00522,
+       0.00278
+      ]
+     },
+     "ghosts_per_box": {
+      "change": -0.0012654458835789778,
+      "interval": [
+       -0.00405,
+       0.00187
+      ]
+     },
+     "ghosts_per_player": {
+      "change": -0.0011576438542730688,
+      "interval": [
+       -0.00368,
+       0.00172
+      ]
+     },
+     "net_error": {
+      "change": -0.003983656792645562,
+      "interval": [
+       -0.00998,
+       0.00307
+      ]
+     },
+     "net_error_1to1": {
+      "change": -0.00303030303030305,
+      "interval": [
+       -0.01097,
+       0.00516
+      ]
+     },
+     "coverage": {
+      "change": 0.0,
+      "interval": [
+       0.0,
+       0.0
+      ]
+     },
+     "position_p50_ft": {
+      "change": -0.15228486061096191,
+      "interval": [
+       -0.17065,
+       -0.12776
+      ],
+      "players": "matched under both truths"
+     },
+     "position_p90_ft": {
+      "change": -0.11548519134521484,
+      "interval": [
+       -0.15224,
+       -0.0748
+      ],
+      "players": "matched under both truths"
+     },
+     "nearfield_bias_ft": {
+      "change": -0.38660240173339844,
+      "interval": [
+       -0.40572,
+       -0.3738
+      ],
+      "players": "matched under both truths"
+     },
+     "team": {
+      "change": -0.0015935408662061112,
+      "interval": [
+       -0.00258,
+       -0.00043
+      ],
+      "players": "each truth's own matched players, on the windows both score"
+     },
+     "missed_1to1": {
+      "change": -0.0014981273408239681,
+      "interval": [
+       -0.00544,
+       0.0026
+      ]
+     },
+     "near_p90_ft": {
+      "change": 0.09511551856994638,
+      "interval": [
+       0.04532957196235458,
+       0.17335502922534946
+      ]
+     }
+    },
+    "inlier_split": {
+     "inlier": {
+      "missed": {
+       "change": -0.002835631172386819,
+       "interval": [
+        -0.007720627025421181,
+        0.002394750772323345
+       ]
+      },
+      "position_p50_ft": {
+       "change": -0.16700000000000004,
+       "interval": [
+        -0.18700000000000006,
+        -0.14000000000000012
+       ]
+      },
+      "players": 20454
+     },
+     "non_inlier": {
+      "missed": {
+       "change": -0.002803947958725886,
+       "interval": [
+        -0.008161853411470535,
+        0.003287374830081199
+       ]
+      },
+      "position_p50_ft": {
+       "change": -0.09000000000000008,
+       "interval": [
+        -0.12951249999999995,
+        -0.05400000000000005
+       ]
+      },
+      "players": 8916
+     }
+    },
+    "g0": {
+     "points": {
+      "missed": false,
+      "ghosts_per_box": true,
+      "nearfield_bias_ft": true,
+      "position_p90_ft": true,
+      "near_p90_ft": false,
+      "team": true,
+      "rule7_one2one": false
+     },
+     "passes": false
+    }
+   }
+  }
+ },
+ "g0": {
+  "verdict": "FAIL",
+  "action": "KILL",
+  "per_game": {
+   "gsw_cha_2016": {
+    "points": {
+     "missed": false,
+     "ghosts_per_box": true,
+     "nearfield_bias_ft": true,
+     "position_p90_ft": true,
+     "near_p90_ft": true,
+     "team": true,
+     "rule7_one2one": false
+    },
+    "passes": false
+   },
+   "gsw_bkn_2015": {
+    "points": {
+     "missed": false,
+     "ghosts_per_box": true,
+     "nearfield_bias_ft": true,
+     "position_p90_ft": true,
+     "near_p90_ft": false,
+     "team": true,
+     "rule7_one2one": false
+    },
+    "passes": false
+   }
+  }
+ },
+ "f2_null_in_sample": {
+  "gsw_cha_2016": {
+   "bins": {
+    "150-200": -0.01541097152636247,
+    "200-250": -0.012891634140469246,
+    "<150": -0.01578784590007878,
+    ">=250": -0.013733881784567933
+   },
+   "holds": false
+  },
+  "gsw_bkn_2015": {
+   "bins": {
+    "150-200": -0.017683906478701078,
+    "200-250": -0.016305915414029537,
+    "<150": -0.013277039047359496,
+    ">=250": -0.02519927153716216
+   },
+   "holds": false
+  }
+ },
+ "audit_readings": {
+  "per_game": {
+   "gsw_cha_2016": {
+    "A_share_within_0.3ft": 0.43072253537782335,
+    "A": false,
+    "B_conflict_cells": [],
+    "B_p_ii_share": 0.0,
+    "B": false,
+    "C_opposite_cells": [
+     "150-200|near",
+     "<150|far",
+     "<150|near"
+    ],
+    "C_row_share": 0.33623713981631126,
+    "C": false,
+    "D": false,
+    "E_edge_rate": 0.047278995321349424,
+    "E": false,
+    "F_box_share": 1.0,
+    "F": false
+   },
+   "gsw_bkn_2015": {
+    "A_share_within_0.3ft": 0.21695848908125123,
+    "A": false,
+    "B_conflict_cells": [],
+    "B_p_ii_share": 0.0,
+    "B": false,
+    "C_opposite_cells": [
+     "150-200|near"
+    ],
+    "C_row_share": 0.18559905567578203,
+    "C": false,
+    "D": false,
+    "E_edge_rate": 0.044092611508341845,
+    "E": false,
+    "F_box_share": 1.0,
+    "F": false
+   }
+  },
+  "A_absorbed": false,
+  "B_frame_conflict_on": [],
+  "C_T_residual_dominates_on": [],
+  "D_f2_null_holds": false,
+  "E_bar_out_of_reach_on": [],
+  "F_split_descriptive_on": [],
+  "closes_toward_T_line": false
+ }
+}
