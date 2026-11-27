@@ -160,3 +160,26 @@ def test_constants_match_the_design():
     assert (M.CROSS_FRAC, M.SHORT_FRAMES, M.PROX_FT, M.PROX_SHARE) == (0.2, 3, 5.0, 0.5)
     assert (M.RATIO_BINS, M.IOU_BAR, M.INSIDE_BAR, M.PERSON_FT) == ((0.75, 1.25), 0.3, 0.5, 6.5)
     assert M.MEASURED == (M.CHA, M.BKN) and M.GATE_ONLY == (M.HOU,)
+
+
+def test_a_hit_by_the_nearest_rule_can_lack_a_stage_a_box():
+    """The run-1 failure: player 2 is a hit (a foot within 2.5 ft) but that box is player 1's in stage A, so main has
+    no entry, or only a stage B box, for player 2."""
+    from tools import p8_one2one as O
+    sv = np.array([[10.0, 10.0], [12.0, 10.0], [11.0, 10.5]] + [[90.0, 45.0]] * 7)
+    feet = np.array([[10.0, 10.0], [12.0, 10.0]])          # one box on player 0, one on player 1; player 2 between
+    inside = np.array([True, True, True] + [False] * 7)
+    is_ref = np.array([False, False])
+    cls = O.frame_classes(feet, sv, inside, is_ref)
+    main, _ = O.two_stage(feet, sv, range(10), [0, 1], O._assign_all)
+    assert cls[2]["class"] == "hit" and 2 not in main
+    picked, why = M.select_items(cls, main)
+    assert sorted(p[0] for p in picked) == [0, 1] and why["hit_without_stage_A_box"] == 1
+    feet3 = np.vstack([feet, [[11.0, 14.0]]])               # a third box 3.5 ft from player 2: its stage B box
+    cls3 = O.frame_classes(feet3, sv, inside, np.zeros(3, bool))
+    main3, _ = O.two_stage(feet3, sv, range(10), [0, 1, 2], O._assign_all)
+    assert cls3[2]["class"] == "hit" and main3[2][2] == "B"
+    picked3, why3 = M.select_items(cls3, main3)
+    assert why3["hit_with_stage_B_box_only"] == 1 and all(p[1] == "hit" for p in picked3)
+    with pytest.raises(SystemExit):
+        M.select_items({5: {"class": "P-ii", "stage_b_ft": 3.0}}, {})

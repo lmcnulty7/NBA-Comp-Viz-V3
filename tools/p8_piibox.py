@@ -126,6 +126,29 @@ def evidence(track: dict, pid: int, f: int, sv_of: dict, fps: float) -> dict:
             "prox_share": near / both if both else None}
 
 
+def select_items(cls: dict, main: dict) -> tuple:
+    """The boxes this item classifies on one frame (amendment 12): each P-ii player's stage B box (it must be stage B
+    at frame_classes' distance), and each hit player's stage A box. A hit is the scorer's nearest-foot rule, so a hit
+    player can have no stage A box (its nearest foot is a referee's, or another player claimed that box) or only a
+    stage B box; such hits are counted, not classified. -> ([(player, kind, box)], {counter: n})."""
+    picked, why = [], {"hit_without_stage_A_box": 0, "hit_with_stage_B_box_only": 0}
+    for j, rec in sorted(cls.items()):
+        if rec["class"] == "P-ii":
+            m = main.get(j)
+            if m is None or m[2] != "B" or abs(m[1] - rec["stage_b_ft"]) > 1e-12:
+                raise SystemExit(f"{WHO}: player {j}: two_stage's stage B box disagrees with frame_classes")
+            picked.append((j, "P-ii", m[0]))
+        elif rec["class"] == "hit":
+            m = main.get(j)
+            if m is None:
+                why["hit_without_stage_A_box"] += 1
+            elif m[2] != "A":
+                why["hit_with_stage_B_box_only"] += 1
+            else:
+                picked.append((j, "hit", m[0]))
+    return picked, why
+
+
 # ── pure: geometry ─────────────────────────────────────────────────────────────────────────────────────────────────
 def expected_height(cam: dict, foot_ft, W: int, H: int) -> float | None:
     """Pixel distance between a court point projected at height 0 and at PERSON_FT through the label row's camera."""
@@ -355,7 +378,8 @@ def collect(game: str) -> dict:
         if d205.get("windows") != len(stems):
             raise SystemExit(f"{WHO}: {game}: D205's record covers {d205.get('windows')} windows, not {len(stems)}")
         want_counts, want_sb = d205_window_counts(d205["rows"], len(stems))
-    rows, counters = [], {"no_track": 0, "camera_mismatch": 0, "stage_b_disagrees": 0}
+    rows, counters = [], {"no_track": 0, "camera_mismatch": 0, "hit_without_stage_A_box": 0,
+                          "hit_with_stage_B_box_only": 0}
     for wi, w in enumerate(wins):
         s = w["window"]
         for key, p in (("sidecar", comp / f"{s}_frames.json"), ("timemap", P_t["label_build"] / f"{s}_timemap.json"),
@@ -431,23 +455,19 @@ def collect(game: str) -> dict:
             bbs = [b["bbox"] for b in x["boxes"]]
             for j, rec in cls.items():
                 mine_counts[rec["class"]] = mine_counts.get(rec["class"], 0) + 1
-                if rec["class"] not in ("P-ii", "hit"):
-                    continue
-                bk, dd, stg = main[j]
                 if rec["class"] == "P-ii":
                     mine_sb.append(rec["stage_b_ft"])
-                    if stg != "B" or abs(dd - rec["stage_b_ft"]) > 1e-12:
-                        counters["stage_b_disagrees"] += 1
-                        raise SystemExit(f"{WHO}: {s} frame {f}: two_stage's stage B box disagrees with frame_classes")
-                elif stg != "A":
-                    raise SystemExit(f"{WHO}: {s} frame {f}: a hit's box is not a stage A match")
+            picked, why = select_items(cls, main)
+            for k_, v_ in why.items():
+                counters[k_] = counters.get(k_, 0) + v_
+            for j, kind, bk in picked:
                 bb = bbs[bk]
                 h = float(bb[3] - bb[1])
                 e = expected_height(row, ft[bk], W, H)
                 iou, ins = overlap(bbs, bk)
                 tb, to = truncation(bb, W, H)
                 dep, lat = depth_lateral(row["camera_C"], ft[bk], svf[j])
-                items.append({"wi": wi, "kind": rec["class"], "f": f, "pid": pids[j], "cid": cids[bk], "h": h,
+                items.append({"wi": wi, "kind": kind, "f": f, "pid": pids[j], "cid": cids[bk], "h": h,
                               "ratio": h / e if e else None, "trunc_bottom": tb, "trunc_other": to,
                               "iou": iou, "inside": ins, "depth": dep, "lateral": lat,
                               "scorer_ghost": bool(np.sqrt(((svf - ft[bk]) ** 2).sum(1)).min() > GHOST_FT),

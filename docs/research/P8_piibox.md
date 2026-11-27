@@ -224,3 +224,16 @@ hits as among P-ii boxes says less about the P-ii row than one concentrated in i
    The class joins the list after another's and before own, misplaced, and it joins the own group ("own (all four)").
 2. **The camera check** is relative: every entry of the two normalised matrices agrees within 1e-9 of its size (numpy
    allclose, rtol 1e-9, atol 1e-15). An absolute 1e-6 would be loose for the third-row entries, which are about 6e-5.
+
+## 12. Amendment (2026-11-27, after run 1 stopped; before any number)
+
+Run 1 stopped after 10 s on gsw_cha_2016's first window with a KeyError: a player of class hit had no entry in the
+two-stage assignment. Nothing was written under work_ref/piibox/, and no file under the watched folders of work_ref or
+work_ms changed after the run started (checked by modification time).
+
+Cause: "hit" is the scorer's nearest-foot rule (some foot, referee boxes included, within 2.5 ft), not a stage A match.
+So a hit player can have no stage A box: the nearest foot is a referee's, or another player claimed that box one to one.
+Such a player then has either no match or only a stage B box. Section 4's hits baseline ("every stage A box of an
+in-frame player of class hit") does not cover these players. They are now counted, not classified, as two report-only
+counters: hits without a stage A box, and hits with a stage B box only. No class, geometry or gate changes. The P-ii
+check (a P-ii player's box must be a stage B match at frame_classes' distance) stays a stop.
