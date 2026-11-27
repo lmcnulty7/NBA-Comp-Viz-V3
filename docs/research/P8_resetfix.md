@@ -811,3 +811,98 @@ and their error, matched only in the baseline, label-build consistency, reset co
 (or "not scored" before a pool pass); and a closing part written by hand afterwards (against the forecasts of
 sections 17 and 19, diagnosis by cause, the lesson, the ledger row), which quotes only numbers that are in a record.
 Tested on a synthetic record.
+
+## 23. Note (2026-11-27, before any score; the lead's decision, self-decided): gsw_cha_2016's fixed truth fails acceptance
+
+truth-rebuild reports that gsw_cha_2016's camera truth rebuilt with the fix fails P8_truth_arenas.md section 5's checks
+A (median reprojection 15.18 px against a bar of 10.0) and B (971 accepted frames against a bar of 1,000), so its final
+status will be "unused". The lead weighed stopping the arm's builds (saving about 2 lock hours) against continuing,
+and decided to continue: the fixed builds of gsw_cha_2016, gsw_bkn_2015 and gsw_sac_2015 and their equivalence checks
+go ahead as planned, because D193 needs fixed-tracker builds of both sides for every later arm. Registered now, before
+any score:
+
+1. Once the accept phase confirms gsw_cha_2016's status as "unused", this arm's verdict is fixed by the rule of
+   sections 14.6 and 18: "no pass: partial pool (gsw_cha_2016 truth unused)". A partial pool never passes, so the fixed
+   r23 pipeline does not replace r23's registered rows as the reported reference baseline (section 20).
+2. gsw_bkn_2015 and gsw_sac_2015, if their truth is accepted with "use", are pinned and scored as registered
+   (pin-truth, cache-copy, score, report and render unchanged), and their rows are reported only: they decide nothing.
+3. hou_cle_2016 stays unscored (it is scored only after a pool pass).
+
+The code already enforces all three: score refuses a game whose pinned status is not "use"; report marks the pool
+partial when a pool game's truth is not in use and sets the pass to false; hou scoring needs a pool pass in
+resetfix/report.json.
+
+**Addendum (2026-11-27, before any score; the lead's record of the final statuses).** The accept phase gives
+(work_ref/truth_accept): gsw_cha_2016 "unused" (fails A and B); gsw_bkn_2015 "use" (C: median 0.48 s, share over
+0.2 s 0.688, n share 77 of 83); gsw_sac_2015 "apart" (C fails: median 0.64 s against the bar 0.54, share over 0.2 s
+0.822 against 0.7945). Only one pool game is in use, and under section 14.6 fewer than two pool games in use means no
+pool. The arm's verdict is therefore fixed as "no pass: no pool (one pool game in use; cha unused, sac apart)". The
+fixed r23 pipeline does not replace r23's registered rows as the reported baseline (section 20); it stays the
+development standard (D193). gsw_bkn_2015 alone is pinned and scored as registered, reported only, with the bracket and
+the report-only rows; gsw_sac_2015 is not scored (its truth is "apart"), and hou_cle_2016 stays unscored.
+
+Two mechanics, registered with this addendum: (1) score's gate requires every pool game's truth to be pinned final, so
+pin-truth is also run for gsw_cha_2016 and gsw_sac_2015 to record their final non-use statuses and file hashes; nothing
+of theirs is scored. (2) report had no path for fewer than two pool games in use (it stopped); it now writes a no-pool
+record (no_pool_report): the verdict text above, adoption false, and for the game in use its rows, its version 2.3
+per-game reading (deciding nothing), the bracket and the report-only rows; render prints the verdict text first.
+Tested on a synthetic record with one game in use.
+
+## 24. Result (2026-11-27): no pass, no pool; gsw_bkn_2015 reported only
+
+The generated result page is reports/research/p8_resetfix_result.md (from the reference root's resetfix/report.json,
+copied to reports/research/p8_resetfix.json); every number below is in those records or in the score file's record.
+
+**What ran.** Pins: gsw_bkn_2015 "use" (83 label windows with the fix, checks A, B and C pass), gsw_cha_2016 "unused"
+(A and B fail) and gsw_sac_2015 "apart" (C fails), each with its label builds' device records and reset logs checked
+(v2.4). Cache copies: 83 of 83 gsw_bkn_2015 windows from the workspace (same clips), so no cache entry was computed
+(cache seconds 0). Score: gsw_bkn_2015 only, 146 s (the score record's seconds), 83 windows, all also scored on
+the bracket's frames. Builds before it: 1.80 lock hours for the three pool games (section 23's chain), smoke 0.33.
+
+**Verdict, fixed in advance (section 23 addendum): no pass: no pool (1 pool game in use; cha unused, sac apart).**
+Not adopted; r23's registered rows stay the reported baseline and carry the bug; the fixed pipeline stays the
+development standard (D193). hou_cle_2016 is not scored.
+
+**gsw_bkn_2015, reported only** (arm minus baseline on the truth rebuilt with the fix; window intervals): net error E
+0.428 to 0.379, -0.049 [-0.087, -0.012]; missed 0.313 to 0.253, -0.060 [-0.107, -0.016]; one-to-one missed -0.060
+[-0.108, -0.016]; one-to-one net error -0.042 [-0.076, -0.010]; detection row -0.067 [-0.120, -0.017]; ghosts +0.0008
+[-0.0024, +0.0033]; position p50 -0.002 and p90 -0.006 ft, bias about 0, team +0.007 [-0.003, +0.019]; coverage equal.
+Its version 2.3 per-game reading passes every condition; it decides nothing. The truth was built from the same fixed
+label builds as the arm (detector and tracker shared; sidecar boxes equal on all 20,644 shared frames), which can
+favour the arm (section 14.6). The whole difference sits in 9 of the 83 windows (windows with a nonzero difference in
+missed or ghosts).
+
+**Bracket** (the frames the bug-carrying workspace truth also accepted: 13,769 of the 28,554 in-frame players): E
+-0.020 [-0.061, 0.000], missed -0.023 [-0.071, 0.000], ghosts -0.0002, one-to-one net error -0.017 [-0.052, 0.000].
+On these frames, which a truth built on the buggy tracker selected, the point estimates still improve, with
+intervals that reach zero (windows with a nonzero difference: 9 of 83 on the full truth, 2 of 83 on the bracket).
+
+**Report only.** Boxes per in-frame player 0.836 to 0.914, ghosts per in-frame player 0.115 to 0.126, duplicates
+0.044 to 0.050; 2,101 players are matched only in the arm (their error p50 1.59 ft, p90 3.45 ft, close to the
+baseline's 1.58 and 3.41 on players matched in both); 32 only in the baseline. The arm's sidecar boxes equal the fixed
+label build's on all 20,644 shared frames, which confirms the shared input of section 16 (A2): the new truth selects
+frames by the arm's own boxes.
+
+**Against the forecast (section 19).** The version 2.3 simulations forecast gsw_bkn_2015's E change at a median of
+-0.105 (registered scaling) and -0.030 (processed-share sensitivity), and missed at -0.136 and -0.039. The observed
+-0.049 and -0.060 lie between the two, nearer the sensitivity, as section 17's post hoc note on the registered
+scaling's overshoot on gsw_bkn_2015 suggested. gsw_bkn_2015's own ghost forecasts were a centre
+difference of +0.0128 (registered scaling) and +0.0031 (sensitivity), with window upper ends at a median of +0.0251
+and +0.0083 (reports/research/p8_resetfix_simulate_v23_under.json and _processed.json); the ghost row came out at
++0.0008 [-0.0024, +0.0033], below both. Post hoc, not registered: the r23 boxes that the fixed truth lets in after a
+reset may be mostly players, since the truth accepts frames whose boxes fit the court.
+
+**Lesson.** A truth built from the same detector and tracker as the arm must pass acceptance on its own before an arm
+can be judged on it: two of three pool games' fixed truths failed acceptance here (one on registration and coverage,
+one on offset stability), which left no pool. The fix itself is confirmed in the build (smoke, equivalence) and, on
+the one game in use, lowers missed and net error; the ghost share per box is unchanged (+0.0008 [-0.0024, +0.0033]),
+while ghost boxes per in-frame player rise from 0.115 to 0.126 (report only, point values), and net error still falls.
+That is a report, not a verdict.
+
+Review notes (2026-11-27, the ml-review of d2e7638f..8b83899e, FAIL on wording): "without a ghost cost" withdrawn (section
+18 withdrew any claim of no ghost harm) in favour of the per-box and per-player ghost figures; the forecast comparison
+now uses gsw_bkn_2015's own ghost forecasts; the shared-input sentence and the counts of windows with a nonzero
+difference (now in the report record, windows_differing) are added; the lock time and peak memory, which came from the
+heavy-job log rather than a record, are dropped; render prints the per-game reading as deciding nothing and points to
+this section; report only reports games whose pinned truth is "use".
+
