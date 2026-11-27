@@ -650,3 +650,47 @@ f0948913 and 208c846a, which left the composing to the arm after crossed message
 **Version 4.3 (2026-11-26, the re-review of dc8cf478, PASS with one accept-phase leftover).** compose also requires
 that every <window>_* file of a window's source (the arm's folder or the workspace baseline) is present in builds/r23
 for a window already there, so a copy with a missing file stops the step (test added). The truth phase is unchanged.
+
+## 17. Result (2026-11-27): CPU-detector truth with the reset fix (section 16 version 4.3)
+
+**What ran.** The truth phase (2026-11-26 21:04 to 2026-11-27 10:05 UTC, from r-p8-truth-cpu f005e78e, with two
+pauses for other jobs at the lead's STOP), then the accept phase (2026-11-27 12:18 to 12:27 UTC, from 125a5a77), each
+heavy step under its own lock. No step failed and none was retried. Every label window of the four games passed the
+label-check (device record and reset log); every r23 window of check C's composite resolves the detector to cpu.
+
+**Lock time.** Truth phase 42,033 s: gsw_cha_2016 8,916, hou_cle_2016 11,386, gsw_bkn_2015 10,737 and gsw_sac_2015
+10,994 s, each under its estimate and cap. Accept phase 477 s (measure-dev 152, 166 and 159 s).
+
+**Check C's r23 side** (tools/p8_truth_cpu_r23.py compose, after the arm's equivalence passed for each pool game):
+gsw_cha_2016 12 reset windows from the arm and 61 from the baseline (73 of 73 label windows covered), gsw_bkn_2015 17
+and 66 (83 of 83), gsw_sac_2015 10 and 72 (82 of 82); nothing refused.
+
+**Section 5, with its bars unchanged** (records reports/research/p8_truth_accept_<game>_fix.json and
+p8_truth_moved_<game>_fix.json):
+
+| Game | A: reprojection (bar 10.0 px) | B: frames (1,000), clock (1,500 s) | C: windows used of measured (0.8), median (0.54 s), share over 0.2 s (0.7945) | Use |
+| --- | --- | --- | --- | --- |
+| gsw_cha_2016 | 15.18 px, fails | 971 frames, fails; 2,308 s | 64 of 73, 0.50 s, 0.7188, passes | unused |
+| gsw_bkn_2015 | 7.41 px, passes | 2,903, 2,529 s, passes | 77 of 83, 0.48 s, 0.6883, passes | use |
+| gsw_sac_2015 | 6.65 px, passes | 2,949, 2,317 s, passes | 73 of 82, 0.64 s, 0.8219, fails both | apart |
+| hou_cle_2016 | 5.54 px, passes | 7,447, 2,635 s, passes | not run | pending |
+
+hou_cle_2016's acceptance is pending: the reset-fix arm has no plan or equivalence record for it yet (its hou builds
+have not run), so compose refused it and check C was not measured. It is decided when the arm's hou equivalence passes
+and the accept phase runs again for that game; nothing else about it changes.
+
+**Moved against the MPS truth** (section 0's bars; the reading carries the platform and the fix together, section 16
+version 4): all four MOVED, on accepted frames in every game (gsw_cha_2016 1,366 to 971, hou_cle_2016 4,427 to 7,447,
+gsw_bkn_2015 2,075 to 2,903, gsw_sac_2015 2,151 to 2,949); reprojection and the median per-window offset difference
+stay under their bars except gsw_cha_2016's reprojection (7.65 to 15.18 px).
+
+**What this decides, by section 5 and D98 as registered.** gsw_bkn_2015's CPU truth with the fix reads "use".
+gsw_sac_2015's reads "apart": check C fails (the frozen offset rule's median and share between the fixed V3 label build
+and the fixed r23 composite are above the worst in-use pooled game's), so it is reported apart and flagged and not used
+to tune anything. gsw_cha_2016's reads "unused" (B fails), so its MPS truth stays in use (D191); why its fit broke is
+docs/research/P8_cha_fit.md. Which truth each game uses from here is the lead's decision.
+
+Report only, post hoc, not ruled: gsw_sac_2015's check C was not measured on the unfixed CPU truth (no such truth
+exists for it), so whether the fix or the platform moved its offset stability over the bar is not known from these
+records; gsw_cha_2016's C on the unfixed CPU truth was 0.48 s and 0.7619 (reports/research/p8_truth_accept_
+gsw_cha_2016_nofix.json) against 0.50 s and 0.7188 with the fix.

@@ -188,3 +188,48 @@ CPU fit's C (46.9, 127.8, -31.4).
 
 Several readings may hold; the result section states each measurement and the causes it supports or rules out. The
 accept phase, the truth verdicts and every bar are unaffected.
+
+## 9. Stage 2 results (computed 2026-11-27, after section 8 was committed in c2e0a494)
+
+Run under the lock as "p8 cha fit stage2": 419 s of lock (418 s measured inside), from r-p8-truth-cpu 125a5a77, the
+frozen window_truth, frames_from_rows and fit_game called through tools/p8_cha_fit.py; outputs work_ref/diag/cha_fit/
+stage2.json and reports/research/p8_cha_fit_stage2.json; nothing else written.
+
+**F0, reproduction: passed for both builds.** The frozen fit_game with seed 0 on the rebuilt inputs gives the recorded
+fits exactly: fixed C (47.08, 104.32, -34.56), 4,943 inits, 15.18 px; unfixed C (46.91, 127.75, -31.37), 4,123 inits,
+7.06 px. The tools-side copy gives the same C. Both runs end at the 200-evaluation cap (scipy status 0, "maximum
+number of function evaluations exceeded"), the fixed at cost 1,100,742 and the unfixed at 795,646.
+
+**F1, seeds 1 to 10.** Fixed build: 7 of 10 runs leave their start, 4 of them good (seeds 1, 4, 7 and 10: 6.66, 9.36,
+7.80 and 5.81 px, 27.3, 12.8, 27.0 and 34.1 ft from C0); seeds 5, 6 and 8 stay within 4 ft of C0 at 13.1 to 13.4 px.
+Unfixed build: 6 of 10 leave their start, all 6 good (5.45 to 9.88 px); seeds 2, 3, 4 and 6 stay within 5 ft of C0 at
+11.8 to 15.8 px. Registered reading: the fit is fragile on both builds; the fix exposed it.
+
+**F2, two starts on the fixed seed-0 pool.** From C_old the run ends at (47.3, 125.7, -30.2), within 5 ft of C_old,
+at 10.05 px but a higher cost (1,290,761) than the frozen run from C0 (1,100,742). Registered reading: the pool prefers
+the near position (H3 or H5, by F3 and F4). Report only: from C0 with 2,000 evaluations the run stays at C0 (0.98 ft
+from it) at 14.86 px and cost 1,062,115, so the cap is not what held it there.
+
+**F3, init subsets (seed 0).** Old inits only (4,083 frames): leaves its start (9.49 ft) and is good (9.05 px), but
+ends at (45.9, 111.3, -29.7), not near C_old. No post-reset frames (4,060 inits): stays at its start (3.77 ft), 14.29
+px. Registered reading: mixed (no registered pattern).
+
+**F4, pairs on shared frames.** 4,083 frames are inits in both builds; 211 (0.0517) have different inlier pairs; 860
+inits are new with the fix and 40 were lost. Registered reading: not H5.
+
+**Readings together, by the registered rules.** H4 was ruled out in stage 1. H5 is ruled out by F4. F1 shows the
+frozen pooled fit stays at its start for some pools on both builds (4 of 10 unfixed seeds, 3 of 10 fixed), so the
+failure is a property of the fit that the fixed build's seed-0 pool happened to hit, not of the fix alone. F2 shows
+that, on that pool, the soft-L1 cost is lower at the near position than at the old one, so the near position is not a
+start the optimizer failed to leave for a better minimum (not H2 in the registered sense). F3 does not isolate the
+post-reset frames (H3 not shown): removing them leaves the fit at its start, keeping only old inits moves it.
+
+**Report only, post hoc, not ruled.** (a) The soft-L1 cost and the median reprojection disagree on the fixed pool: the
+near position has the lower cost and the higher median, which suggests that it fits a subset of pairs very well and
+the rest poorly; which frames those are is not measured. (b) Both reproduced frozen fits (fixed and unfixed, seed 0) and the
+F2 run from C_old stop at the 200-evaluation cap, so on this game the frozen fit does not reach its convergence test
+(the F1 runs' evaluation counts were not recorded). (c) gsw_ind_2016's broken MPS fit
+(D98) shows the same end-at-start pattern (stage 1). None of this changes a truth or a verdict: gsw_cha_2016's CPU
+truth with the fix stays "unused" and its MPS truth stays in use. A remedy (several starts or pools with a selection
+rule fixed in advance, a convergence criterion, or an arena-level camera position) would be a new registered design
+for the lead's decision; no seed, start or subset seen here is adopted.
