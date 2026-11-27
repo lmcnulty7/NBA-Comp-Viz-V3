@@ -118,3 +118,92 @@ def test_g4_is_fixed_seed_10_in_the_record():
     d = json.loads(M.STAGE2_RECORD.read_text())
     seed10 = [r["C"] for r in d["F1"]["fix"] if r["seed"] == 10][0]
     assert np.allclose(M.recorded_positions()["positions"]["G4"], seed10)
+
+
+# ── stage 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+def chunk(C, cost, status=0):
+    return {"C": list(C), "cost": cost, "status": status}
+
+
+def test_converged_at():
+    assert M.converged_at([chunk((0, 0, 0), 10), chunk((0, 1, 0), 9), chunk((0, 1, 0), 9, status=2)]) == 3
+    assert M.converged_at([chunk((0, 0, 0), 10), chunk((0, 0.04, 0), 9.995)]) == 2           # 0.04 ft and 0.05 percent
+    assert M.converged_at([chunk((0, 0, 0), 10), chunk((0, 0.06, 0), 9.999)]) is None        # moved 0.06 ft
+    assert M.converged_at([chunk((0, 0, 0), 10), chunk((0, 0.01, 0), 9.98)]) is None         # cost fell 0.2 percent
+    assert M.converged_at([chunk((0, 0, 0), 10, status=1)]) == 1
+
+
+def test_select_lowest_j_ties_to_the_lower_seed_and_every_run_competes():
+    runs = [{"seed": 3, "J": 5.0, "converged_at_chunk": None}, {"seed": 1, "J": 7.0, "converged_at_chunk": 2},
+            {"seed": 0, "J": 5.0 * (1 + 1e-12), "converged_at_chunk": 1}]
+    assert M.select(runs)["seed"] == 0                                    # equal within 1e-9: the lower seed
+    runs[2]["J"] = 6.0
+    assert M.select(runs)["seed"] == 3                                    # not converged, lowest J, still selected
+
+
+def test_stability_in_truth_space():
+    a = {("w", 1): np.array([[0.0, 0.0], [10.0, 0.0]]), ("w", 2): np.array([[5.0, 5.0]])}
+    b = {k: v + [0.1, 0.0] for k, v in a.items()}
+    c = {k: v + [0.0, 0.3] for k, v in a.items()}
+    assert np.allclose(M.foot_distances(a, b), 0.1)
+    s = M.stability({"truth": a, "stab_a": b})
+    assert s["passes"] and s["pairs"]["stab_a|truth"]["feet"] == 3
+    s = M.stability({"truth": a, "stab_a": b, "stab_b": c})
+    assert not s["passes"]                                                # c is 0.3 ft from a
+    assert not M.stability({"truth": a})["passes"]                        # no pair, no pass
+
+
+def test_kill4():
+    assert M.kill4((47.0, 110.0, -34.0), (47.0, 104.3, -34.5))["stage2_runs"]
+    assert not M.kill4((47.0, 108.0, -34.5), (47.0, 104.3, -34.5))["stage2_runs"]
+
+
+def test_replaced_fit_game_asserts_and_restores():
+    from sportvu import camera as cam
+    orig = cam.fit_game
+    frames = [{"window": "w", "frame": 1}, {"window": "w", "frame": 2}]
+    with M.replaced_fit_game({"status": "ok", "C": [1, 2, 3]}, M.keys_hash(frames)) as rp:
+        assert cam.fit_game(frames)["C"] == [1, 2, 3]
+    assert cam.fit_game is orig and rp.calls == 1
+    with pytest.raises(SystemExit, match="not the frames"):
+        with M.replaced_fit_game({"C": [0, 0, 0]}, M.keys_hash(frames)):
+            cam.fit_game(frames[:1])
+    assert cam.fit_game is orig
+    with pytest.raises(SystemExit, match="2 times"):
+        with M.replaced_fit_game({"C": [0, 0, 0]}, M.keys_hash(frames)):
+            cam.fit_game(frames); cam.fit_game(frames)
+    assert cam.fit_game is orig
+    with pytest.raises(SystemExit, match="0 times"):
+        with M.replaced_fit_game({"C": [0, 0, 0]}, M.keys_hash(frames)):
+            pass
+    assert cam.fit_game is orig
+
+
+def test_three_distinct_roots_and_the_work_ms_links(tmp_path):
+    work, ref, ms = tmp_path / "work", tmp_path / "work_ref", tmp_path / "work_ms"
+    for p in (work, ref):
+        p.mkdir()
+    M.check_roots(work, ref, ms)
+    with pytest.raises(SystemExit, match="three different"):
+        M.check_roots(work, ref, ref)
+    (tmp_path / "alias").symlink_to(ref)
+    with pytest.raises(SystemExit, match="three different"):
+        M.check_roots(work, ref, tmp_path / "alias")
+    for d in ("label_build", "video", "sync", "sportvu", "meta/done", "reports"):
+        (ref / d).mkdir(parents=True)
+    (ref / "meta" / "done" / "label__gsw_cha_2016__gsw_cha_2016_s00.json").write_text("{}")
+    (ref / "meta" / "done" / "label__gsw_bkn_2015__gsw_bkn_2015_s00.json").write_text("{}")
+    P = M.setup_ms(ref, ms, "gsw_cha_2016")
+    assert (ms / "label_build").is_symlink() and P["labels"].is_dir()
+    assert (ms / "meta" / "done" / "label__gsw_cha_2016__gsw_cha_2016_s00.json").exists()
+    assert not (ms / "meta" / "done" / "label__gsw_bkn_2015__gsw_bkn_2015_s00.json").exists()
+    M.setup_ms(ref, ms, "gsw_cha_2016")                                  # idempotent
+    (ms / "video").unlink(); (ms / "video").symlink_to(tmp_path)
+    with pytest.raises(SystemExit, match="not the link"):
+        M.setup_ms(ref, ms, "gsw_cha_2016")
+
+
+def test_stage1_constants_are_the_registered_ones():
+    assert M.SEED_SETS == {"truth": tuple(range(8)), "stab_a": tuple(range(16, 24)), "stab_b": tuple(range(24, 32))}
+    assert (M.CHUNKS, M.CONV_FT, M.CONV_COST, M.STAB_FT, M.KILL4_FT) == (20, 0.05, 0.001, 0.25, 5.0)
+    assert M.STAGE1_GAMES == ("gsw_cha_2016", "gsw_bkn_2015")

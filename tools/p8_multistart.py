@@ -1,4 +1,9 @@
-"""tools/p8_multistart.py: the multi-pool camera fit (docs/research/P8_multistart_fit.md, version 2). Stage 0 only.
+"""tools/p8_multistart.py: the multi-pool camera fit (docs/research/P8_multistart_fit.md, version 2). Stages 0 and 1.
+
+    <frozen CV python> -m tools.p8_multistart multipool GAME   (V3_P8_ROOT = work_ref; lock "p8 multistart stage1 GAME
+        multipool") -> work_ms/multistart/GAME/ and reports/research/p8_multistart_multipool_GAME.json
+    <frozen CV python> -m tools.p8_multistart truth GAME       (V3_P8_ROOT = work_ms; lock "p8 multistart stage1 GAME
+        truth") -> the multipool v1 truth in work_ms/labels and reports/research/p8_multistart_truth_GAME.json
 
     <frozen CV python> -m tools.p8_multistart stage0     (under the heavy-job lock, name
         "p8 multistart stage0 gsw_cha_2016"; V3_P8_ROOT set to the reference root)
@@ -315,12 +320,303 @@ def stage0() -> dict:
     return out
 
 
+# ── stage 1 (design sections 4 to 6, 9, 10, 13) ──────────────────────────────────────────────────────────────────
+SEED_SETS = {"truth": tuple(range(0, 8)), "stab_a": tuple(range(16, 24)), "stab_b": tuple(range(24, 32))}
+CHUNKS = 20                        # 20 chunks of 200 = the 4,000-evaluation cap
+CONV_FT, CONV_COST = 0.05, 0.001   # chunk-rule convergence: C within 0.05 ft and cost within 0.1 percent
+STAB_FT = 0.25                     # stability bar, median foot distance between selections
+KILL4_FT = 5.0                     # stage 2 runs only if gsw_cha_2016's selection is more than 5 ft from its frozen C
+STAGE1_GAMES = ("gsw_cha_2016", "gsw_bkn_2015")
+TIE_REL = 1e-9
+
+
+def converged_at(chunks: list, ft: float = CONV_FT, rel: float = CONV_COST):
+    """Index (1-based) of the first chunk end that counts as converged, or None: scipy status 1 to 4, or C within `ft`
+    and cost within `rel` of the previous chunk end."""
+    for i, c in enumerate(chunks):
+        if 1 <= c["status"] <= 4:
+            return i + 1
+        if i > 0:
+            p = chunks[i - 1]
+            if np.linalg.norm(np.asarray(c["C"]) - np.asarray(p["C"])) < ft and abs(p["cost"] - c["cost"]) < rel * p["cost"]:
+                return i + 1
+    return None
+
+
+def select(runs: list) -> dict:
+    """The run with the lowest J; a tie (relative difference under TIE_REL) goes to the lower seed. Every run competes,
+    converged or not."""
+    best = None
+    for r in sorted(runs, key=lambda r: r["seed"]):
+        if best is None or r["J"] < best["J"] * (1.0 - TIE_REL):
+            best = r
+    return best
+
+
+def foot_distances(maps_a: dict, maps_b: dict) -> np.ndarray:
+    """maps_*: {(window, frame): court ft of every box foot pixel, (n, 2)} -> the distances of the same feet."""
+    out = [np.linalg.norm(np.asarray(maps_a[k]) - np.asarray(maps_b[k]), axis=1) for k in sorted(set(maps_a) & set(maps_b))
+           if len(maps_a[k])]
+    return np.concatenate(out) if out else np.zeros(0)
+
+
+def stability(maps: dict, bar: float = STAB_FT) -> dict:
+    """maps: {set name: per-frame foot maps}; pairwise median foot distance, each at most `bar`."""
+    names, pairs = sorted(maps), {}
+    for i in range(len(names)):
+        for j in range(i + 1, len(names)):
+            d = foot_distances(maps[names[i]], maps[names[j]])
+            pairs[f"{names[i]}|{names[j]}"] = {"feet": int(len(d)), "median_ft": round(float(np.median(d)), 4) if len(d) else None}
+    ok = bool(pairs) and all(v["median_ft"] is not None and v["median_ft"] <= bar for v in pairs.values())
+    return {"pairs": pairs, "bar_ft": bar, "passes": ok}
+
+
+def kill4(selected_C, frozen_C, ft: float = KILL4_FT) -> dict:
+    d = float(np.linalg.norm(np.asarray(selected_C) - np.asarray(frozen_C)))
+    return {"distance_ft": round(d, 3), "bar_ft": ft, "stage2_runs": d > ft}
+
+
+def keys_hash(frames: list) -> str:
+    return hashlib.sha256(json.dumps([(f["window"], int(f["frame"])) for f in frames]).encode()).hexdigest()
+
+
+class replaced_fit_game:
+    """Within the block, sportvu.camera.fit_game returns `result` (the selected run) instead of fitting; it asserts the
+    original function at entry, the frames' (window, frame) hash at the call and exactly one call, and restores the
+    original in a finally block (design section 10)."""
+    def __init__(self, result: dict, frames_hash: str):
+        self.result, self.frames_hash, self.calls = result, frames_hash, 0
+
+    def __enter__(self):
+        from sportvu import camera as cam
+        self.cam, self.orig = cam, cam.fit_game
+        if getattr(self.orig, "__module__", None) != "sportvu.camera" or self.orig.__name__ != "fit_game":
+            raise SystemExit(f"{WHO}: sportvu.camera.fit_game is not the original at entry")
+
+        def repl(frames, seed=0):
+            if keys_hash(frames) != self.frames_hash:
+                raise SystemExit(f"{WHO}: the fit step's frames are not the frames the selection used")
+            self.calls += 1
+            return dict(self.result)
+        cam.fit_game = repl
+        return self
+
+    def __exit__(self, *exc):
+        self.cam.fit_game = self.orig
+        if self.cam.fit_game is not self.orig:
+            raise SystemExit(f"{WHO}: the original fit_game was not restored")
+        if exc[0] is None and self.calls != 1:
+            raise SystemExit(f"{WHO}: the fit step called fit_game {self.calls} times, not once")
+        return False
+
+
+def roots_ms() -> tuple:
+    base = Path.home() / "Developer" / "nba-v3-worktrees" / "_p8-data"
+    work, ref, ms = base / "work", check_outside(base / "work_ref"), check_outside(base / "work_ms")
+    check_roots(work, ref, ms)
+    return work, ref, ms
+
+
+def check_roots(work: Path, ref: Path, ms: Path) -> None:
+    rp = [Path(os.path.realpath(x)) for x in (work, ref, ms)]
+    if len(set(rp)) != 3:
+        raise SystemExit(f"{WHO}: work, work_ref and work_ms must be three different folders")
+
+
+def setup_ms(ref: Path, ms: Path, game: str) -> dict:
+    """work_ms: directory links to work_ref's label builds, clips, time maps, sync maps and moments; file links to the
+    game's mirror and layout records; copies of the game's label done markers. Returns the layout."""
+    import shutil
+    from tools import p8_frozen as F
+    ms.mkdir(parents=True, exist_ok=True)
+    for name in ("label_build", "video", "sync", "sportvu"):
+        dst = ms / name
+        if not dst.exists():
+            dst.symlink_to(ref / name, target_is_directory=True)
+        elif not dst.is_symlink() or Path(os.path.realpath(dst)) != Path(os.path.realpath(ref / name)):
+            raise SystemExit(f"{WHO}: {dst} is not the link to {ref / name}")
+    P = F.layout(ms)
+    for k in ("reports", "meta", "labels"):
+        P[k].mkdir(parents=True, exist_ok=True)
+    for src, dst in ((ref / "reports" / f"sportvu_direction_{game}.json", P["reports"] / f"sportvu_direction_{game}.json"),
+                     (ref / "meta" / f"{game}_layout.json", P["meta"] / f"{game}_layout.json")):
+        if src.exists() and not dst.exists():
+            dst.symlink_to(src)
+    (P["meta"] / "done").mkdir(parents=True, exist_ok=True)
+    for m in sorted((ref / "meta" / "done").glob(f"label__{game}__*.json")):
+        if not (P["meta"] / "done" / m.name).exists():
+            shutil.copy2(m, P["meta"] / "done" / m.name)
+    return P
+
+
+def foot_maps(C, init_frames: list, sol: list, sidecars: dict) -> dict:
+    """Every sidecar box foot_stab pixel of each init frame mapped to court ft through the frame's per-frame H at C
+    (fit_frame's solution) -> {(window, frame): (n, 2)}; pixels the per-frame fit was not fitted to (amendment S1-1)."""
+    import cv2
+    from sportvu.camera import h_px2ft
+    out = {}
+    for fr, (rv, f) in zip(init_frames, sol):
+        if rv is None:
+            continue
+        boxes = sidecars.get(fr["window"], {}).get(int(fr["frame"]), [])
+        px = np.array([b["foot_stab"] for b in boxes], np.float64).reshape(-1, 1, 2)
+        if not len(px):
+            continue
+        H = h_px2ft(np.asarray(C, float), rv, f, fr["w"], fr["h"])
+        out[(fr["window"], int(fr["frame"]))] = cv2.perspectiveTransform(px, H).reshape(-1, 2)
+    return out
+
+
+def per_frame(C, init_frames: list) -> list:
+    sol = []
+    for fr in init_frames:
+        _, rv, f = frame_cost(C, fr)
+        sol.append((rv, f))
+    return sol
+
+
+def multipool(game: str) -> dict:
+    """Section 4 and 6 for one game: three seed sets of 8 runs (each run's first chunk checked against fit_game), J at
+    every run's final C, the selection per set, and stability at unfitted pixels. Resumable: each run is saved."""
+    from sportvu import camera as cam
+    from sportvu.sync import SportVUIndex
+    from tools import p8_frozen as F
+    from tools.p8_cha_fit import inits_of
+    if game not in STAGE1_GAMES:
+        raise SystemExit(f"{WHO}: {game} is not a stage 1 game")
+    refuse_cv_test([game], WHO)
+    guard([game], WHO)
+    work, ref, ms = roots_ms()
+    if Path(os.environ.get("V3_P8_ROOT", "")).expanduser().resolve() != ref.resolve():
+        raise SystemExit(f"{WHO}: run with V3_P8_ROOT set to the reference root")
+    before, t0 = manifest(ref), time.time()
+    P = F.install_paths()
+    g = F.game_of(game)
+    mirror = F.mirror_of(P, game)
+    index = SportVUIndex(json.loads((P["sportvu"] / f"{g['sportvu']}_moments.json").read_text())["moments"])
+    secs = [s for s in F.sections(P, game) if (P["sync"] / f"{s}_local_timemap.json").exists()]
+    wins = [w for s in secs for w in F.label_windows(P, game, s)]
+    guard([w["window"] for w in wins], WHO)
+    frames = build_inputs(P, wins, index, mirror, ref / "label_build")
+    inits = inits_of(frames)
+    init_frames = [fr for fr, _ in inits]
+    C0 = np.median(np.array([p[2] for _, p in inits]), axis=0)
+    d = ms / "multistart" / game
+    d.mkdir(parents=True, exist_ok=True)
+    runs = {}
+    for set_name, seeds in SEED_SETS.items():
+        for seed in seeds:
+            rp = d / f"seed_{seed:02d}.json"
+            if rp.exists():
+                runs[seed] = json.loads(rp.read_text())
+                continue
+            t = time.time()
+            fz = cam.fit_game(frames, seed=seed)
+            pool = pool_of(inits, seed)
+            resid, _ = problem(pool)
+            x0 = start_vector(pool, C0)
+            chunks, x = run_chunks(pool, x0, CHUNKS)
+            diff = float(np.linalg.norm(np.asarray(chunks[0]["C"]) - np.asarray(fz["C"])))
+            if diff > REPRO_FT:
+                raise SystemExit(f"{WHO}: kill rule 1, {game} seed {seed}: first chunk {diff:.4f} ft from fit_game")
+            jr = common_objective(x[:3], init_frames)
+            r = {"seed": seed, "set": set_name, "C": x[:3].tolist(), "C0": C0.tolist(), "J": jr["J"],
+                 "fit_frame_failed": jr["fit_frame_failed"], "report_only_all_inits_median_px": jr["report_only_all_inits_median_px"],
+                 "pooled_median_px": chunks[-1]["pooled_median_px"],
+                 "pooled_median_px_at_start": round(float(np.median(np.abs(resid(x0)))), 2),
+                 "cost": chunks[-1]["cost"], "converged_at_chunk": converged_at(chunks), "first_chunk_vs_fit_game_ft": diff,
+                 "inits": len(inits), "pooled_frames": len(pool), "chunks": chunks, "seconds": round(time.time() - t, 1)}
+            atomic_write(rp, json.dumps(r, indent=1))
+            runs[seed] = r
+    bad_j = [s for s, r in runs.items() if not np.isfinite(r["J"]) or r["fit_frame_failed"]]
+    if bad_j:
+        raise SystemExit(f"{WHO}: invalid J (non-finite or fit_frame failures) for seeds {bad_j}")
+    sel = {name: select([runs[s] for s in seeds]) for name, seeds in SEED_SETS.items()}
+    sidecars = {}
+    for w in wins:
+        sp = ref / "label_build" / (w["window"] + "_frames.json")
+        if sp.exists():
+            sidecars[w["window"]] = {int(r["frame"]): r["boxes"] for r in json.loads(sp.read_text())["frames"]}
+    maps = {name: foot_maps(r["C"], init_frames, per_frame(r["C"], init_frames), sidecars) for name, r in sel.items()}
+    stab = stability(maps)
+    out = {"game": game, "design": "docs/research/P8_multistart_fit.md version 2 with sections 13 and 14",
+           "inits": len(inits), "frames_hash": keys_hash(frames), "C0": C0.tolist(),
+           "selected": {name: {k: r[k] for k in ("seed", "C", "J", "pooled_median_px", "pooled_median_px_at_start", "cost",
+                                                 "converged_at_chunk", "report_only_all_inits_median_px")} for name, r in sel.items()},
+           "runs": {s: {k: r[k] for k in ("set", "C", "J", "pooled_median_px", "converged_at_chunk", "seconds")} for s, r in sorted(runs.items())},
+           "converged_per_set": {name: sum(1 for s in seeds if runs[s]["converged_at_chunk"]) for name, seeds in SEED_SETS.items()},
+           "stability": stab,
+           "report_only_pairwise_C_ft": {f"{a}|{b}": round(float(np.linalg.norm(np.asarray(sel[a]["C"]) - np.asarray(sel[b]["C"]))), 3)
+                                         for i, a in enumerate(sorted(sel)) for b in sorted(sel)[i + 1:]}}
+    if game == "gsw_cha_2016":
+        frozen = json.loads((ref / "labels" / f"{game}_result.json").read_text())["camera"]["C"]
+        out["kill4"] = kill4(sel["truth"]["C"], frozen)
+    if game == "gsw_bkn_2015":
+        out["kill3_bkn_stable"] = stab["passes"]
+    after = manifest(ref)
+    out["guard_manifest"] = {"files": len(before), "unchanged": before == after}
+    out["seconds"] = round(time.time() - t0, 1)
+    atomic_write(d / "multipool.json", json.dumps(out, indent=1, default=str))
+    atomic_write(REPO / "reports" / "research" / f"p8_multistart_multipool_{game}.json", json.dumps(out, indent=1, default=str))
+    print(json.dumps({k: out[k] for k in ("game", "selected", "converged_per_set", "stability", "guard_manifest", "seconds")}
+                     | ({"kill4": out["kill4"]} if "kill4" in out else {}), indent=1, default=str))
+    if before != after:
+        raise SystemExit(f"{WHO}: the reference root's protected files changed")
+    return out
+
+
+def truth(game: str) -> dict:
+    """The truth step in work_ms: tools.p8_frozen.step_fit unchanged, with fit_game replaced by the selected run of the
+    truth seed set (section 4.4). Refuses unless the game's multipool record exists and is stable."""
+    from tools import p8_frozen as F
+    if game not in STAGE1_GAMES:
+        raise SystemExit(f"{WHO}: {game} is not a stage 1 game")
+    refuse_cv_test([game], WHO)
+    guard([game], WHO)
+    work, ref, ms = roots_ms()
+    if Path(os.environ.get("V3_P8_ROOT", "")).expanduser().resolve() != ms.resolve():
+        raise SystemExit(f"{WHO}: run the truth step with V3_P8_ROOT set to work_ms")
+    rec_p = ms / "multistart" / game / "multipool.json"
+    if not rec_p.exists():
+        raise SystemExit(f"{WHO}: {game} has no multipool record")
+    rec = json.loads(rec_p.read_text())
+    if not rec["stability"]["passes"]:
+        raise SystemExit(f"{WHO}: {game} is not stable; no multipool truth is written (section 6)")
+    if (ms / "labels" / f"{game}_result.json").exists():
+        raise SystemExit(f"{WHO}: {game} already has a truth in work_ms")
+    before, t0 = manifest(ref), time.time()
+    setup_ms(ref, ms, game)
+    P = F.install_paths(ms)
+    s = rec["selected"]["truth"]
+    result = {"status": "ok", "C": s["C"], "C0": rec["C0"], "pooled_frames": 400, "inits": rec["inits"],
+              "reproj_px_median_before": s["pooled_median_px_at_start"], "reproj_px_median_after": s["pooled_median_px"],
+              "cost": s["cost"], "multipool": {"seed": s["seed"], "J": s["J"], "converged_at_chunk": s["converged_at_chunk"]}}
+    with replaced_fit_game(result, rec["frames_hash"]) as rp:
+        res = F.step_fit(P, game)
+    hashes = {}
+    for p in sorted([*(P["labels"] / game).glob("*.jsonl"), *P["labels"].glob(f"{game}_*")]):
+        hashes[str(p.relative_to(ms))] = hashlib.sha256(p.read_bytes()).hexdigest()
+    after = manifest(ref)
+    out = {"game": game, "truth_version": "multipool v1", "selected": s, "fit_step": res, "fit_game_calls": rp.calls,
+           "labels_sha256": hashes, "guard_manifest": {"files": len(before), "unchanged": before == after},
+           "seconds": round(time.time() - t0, 1)}
+    atomic_write(ms / "multistart" / game / "truth.json", json.dumps(out, indent=1, default=str))
+    atomic_write(REPO / "reports" / "research" / f"p8_multistart_truth_{game}.json", json.dumps(out, indent=1, default=str))
+    print(json.dumps({k: out[k] for k in ("game", "fit_step", "fit_game_calls", "guard_manifest", "seconds")}, indent=1, default=str))
+    if before != after:
+        raise SystemExit(f"{WHO}: the reference root's protected files changed")
+    return out
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog=f"python -m {WHO}")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("stage0")
-    ap.parse_args(argv)
-    stage0()
+    for name in ("multipool", "truth"):
+        sp = sub.add_parser(name)
+        sp.add_argument("game")
+    a = ap.parse_args(argv)
+    {"stage0": lambda: stage0(), "multipool": lambda: multipool(a.game), "truth": lambda: truth(a.game)}[a.cmd]()
 
 
 if __name__ == "__main__":

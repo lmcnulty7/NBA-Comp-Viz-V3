@@ -250,3 +250,55 @@ Stage 1, for its code and review (no stage 1 code yet):
   the whole set of switches at once, not game by game.
 - S1-4, cost (adds to section 8): the reproduction calls (one fit_game call per seed per game, 24 a game, about one
   200-evaluation chunk each) are part of the stage 1 and 2 estimates; the stage 1 code review checks them.
+
+## 14. Stage 0 result (2026-11-27, run from 0a0f6b15 after sections 3 and 13 were committed)
+
+Under the lock as "p8 multistart stage0 gsw_cha_2016": 232 s of lock (229.9 s measured inside) against an estimate of
+900 s. Record reports/research/p8_multistart_stage0.json; the SHA-256 manifest of the reference root's 1,905
+protected files was unchanged.
+
+- Gates: 4,943 inits; fit_game(seed 0) reproduces the recorded fixed C exactly (0.0000 ft).
+- J at the five positions: B 8,004,559; G1 4,358,047; G2 4,138,085; G3 4,595,408; G4 4,036,694. J is finite everywhere
+  and fit_frame failed on no init at any position.
+- Reading by the rule: the lowest good position (G4) is below J_B by 0.496 of J_B, more than 1 percent: CONTINUE.
+- Optimality: at B (seed-0 pool) 2 of 400 frames (0.005) have a fit_frame cost more than 1 percent above the pooled
+  pose's; at G4 (seed-10 pool) 1 of 400 (0.0025); both under 5 percent. The copy's first-chunk C equals fit_game's and
+  the recorded C at B and G4 (0.0000 ft).
+- Timings: inputs 45.7 s, fit_game 8.2 s, one 200-evaluation chunk 8.18 s, J 18.5 to 23.5 s a position.
+
+Report only, not ruled: the chunked-continuation smoke (10 chunks from C0 on the seed-0 pool) ended 0.037 ft from the
+recorded single 2,000-evaluation run with a cost 0.84 percent lower; scipy reported a tolerance met (status 2) at the
+end of chunk 3 and status 3 from chunk 5 on, and the chunks after that took 0.2 to 1.3 s each.
+
+Post hoc, not ruled: the all-inits median |residual| (from J's per-frame solutions) is 11.95 px at B and 5.20 to 6.71
+px at the good positions. These are not check A (which reads a run's pooled median) and are not used by any rule.
+
+## 15. Stage 1 and 2 estimates, caps and commands (dated amendment, 2026-11-27, after stage 0, before stage 1)
+
+From stage 0's timing, worst case (every run to all 20 chunks at 8.2 s a chunk; stage 0's smoke suggests chunks after
+convergence are much faster), per game: inputs 46 s; 24 reproduction calls of fit_game, 197 s (amendment S1-4); 24 runs
+of 20 chunks, 3,936 s; J at 24 final positions, 21 s each for about 4,900 inits (scaled by the game's inits); the
+stability maps at three selections, three more J-sized passes; the truth step 178 s (the truth phase's fit step).
+
+| Stage | Games and steps | Estimate | Cap |
+| --- | --- | --- | --- |
+| 1 | gsw_cha_2016 multipool (4,746 s) and truth (178 s); then kill rule 4; then gsw_bkn_2015 multipool (4,746 s) and truth (178 s) | 9,850 s | 14,775 s |
+| 2 | hou_cle_2016 multipool and truth (about 5,700 s, 10,804 inits), gsw_sac_2015 multipool (about 4,750 s), gsw_ind_2016 multipool on its MPS build (about 4,640 s), report only | 15,090 s | 22,635 s |
+
+Stage 2's code (the games of section 7's stage 2, including gsw_ind_2016's read-only MPS inputs) is written and
+reviewed before it runs; its estimate is fixed here from stage 0's timing.
+
+Stage 1 commands, in this order, each under its own lock, stopping on the first failure (code: tools/p8_multistart.py
+multipool and truth, tests in tests/test_p8_multistart.py):
+
+1. `multipool gsw_cha_2016` (V3_P8_ROOT = work_ref; lock "p8 multistart stage1 gsw_cha_2016 multipool"): three seed
+   sets, every first chunk checked against fit_game (kill rule 1), J at every final C (a non-finite J or a fit_frame
+   failure stops), selection per set, stability at every sidecar box's foot pixel (amendment S1-1), kill rule 4.
+2. `truth gsw_cha_2016` (V3_P8_ROOT = work_ms; lock "p8 multistart stage1 gsw_cha_2016 truth") only if it is stable:
+   the frozen step_fit with fit_game replaced by the selected truth-set run, in work_ms.
+3. Only if kill rule 4 says stage 2 runs: `multipool gsw_bkn_2015`, then `truth gsw_bkn_2015` if stable. If
+   gsw_bkn_2015 is not stable, kill rule 3 stops before stage 2.
+
+Each run's chunks are recorded, and a run counts as converged at its first chunk end that meets section 4.2. Every run
+goes to all 20 chunks and competes in the selection whatever its convergence (as section 4 states); its final C is
+the C after chunk 20.
