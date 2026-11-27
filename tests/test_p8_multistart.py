@@ -207,3 +207,64 @@ def test_stage1_constants_are_the_registered_ones():
     assert M.SEED_SETS == {"truth": tuple(range(8)), "stab_a": tuple(range(16, 24)), "stab_b": tuple(range(24, 32))}
     assert (M.CHUNKS, M.CONV_FT, M.CONV_COST, M.STAB_FT, M.KILL4_FT) == (20, 0.05, 0.001, 0.25, 5.0)
     assert M.STAGE1_GAMES == ("gsw_cha_2016", "gsw_bkn_2015")
+
+
+def test_inlier_pair_boxes_are_excluded_from_the_stability_feet():
+    fr = {"window": "w", "frame": 1, "w": 1280, "h": 720,
+          "row": {"pairs": [{"box": 0, "inlier": True}, {"box": 2, "inlier": False}, {"box": 3, "inlier": True}]}}
+    boxes = [{"foot_stab": [i * 10.0, 400.0]} for i in range(5)]
+    kept = M.unfitted_boxes(fr, boxes)
+    assert [b["foot_stab"][0] for b in kept] == [10.0, 20.0, 40.0]
+    counts = {}
+    rv, f = np.array([-1.2, 0.0, 0.0]), 2000.0
+    maps = M.foot_maps((47.0, 125.0, -30.0), [fr], [(rv, f)], {"w": {1: boxes}}, counts)
+    assert maps[("w", 1)].shape == (3, 2) and counts == {"feet_kept": 3, "inlier_feet_dropped": 2}
+
+
+def test_truth_result_rounds_like_fit_game_and_takes_pool_size_from_the_run():
+    s = {"seed": 3, "C": [1, 2, 3], "J": 9.0, "pooled_median_px": 6.6649, "pooled_median_px_at_start": 101.23456,
+         "cost": 5.0, "converged_at_chunk": 4, "pooled_frames": 372, "inits": 372}
+    r = M.truth_result(s, {"C0": [0, 0, 0]})
+    assert r["reproj_px_median_after"] == 6.66 and r["reproj_px_median_before"] == 101.23
+    assert r["multipool"]["pooled_median_px_4dp"] == 6.6649 and r["pooled_frames"] == 372 and r["inits"] == 372
+
+
+def test_stale_run_files_are_refused():
+    r = {"frames_hash": "h", "inits": 10, "C0": [1.0, 2.0, 3.0]}
+    assert M.stale_run(r, "h", np.array([1.0, 2.0, 3.0]), 10) is None
+    assert M.stale_run(r, "x", np.array([1.0, 2.0, 3.0]), 10) == "frames hash differs"
+    assert M.stale_run(r, "h", np.array([1.0, 2.0, 3.0]), 11) == "inits differ"
+    assert M.stale_run(r, "h", np.array([1.0, 2.0, 3.1]), 10) == "C0 differs"
+    assert M.stale_run({}, "h", np.zeros(3), 10) == "frames hash differs"
+
+
+def test_labels_must_be_inside_work_ms_and_not_links(tmp_path):
+    ms, elsewhere = tmp_path / "work_ms", tmp_path / "work_ref"
+    (ms / "labels").mkdir(parents=True)
+    (elsewhere / "labels" / "gsw_cha_2016").mkdir(parents=True)
+    M.check_labels_inside({"labels": ms / "labels"}, ms, "gsw_cha_2016")
+    (ms / "labels" / "gsw_cha_2016").symlink_to(elsewhere / "labels" / "gsw_cha_2016")
+    with pytest.raises(SystemExit, match="link or lies outside"):
+        M.check_labels_inside({"labels": ms / "labels"}, ms, "gsw_cha_2016")
+    with pytest.raises(SystemExit, match="link or lies outside|not inside"):
+        M.check_labels_inside({"labels": elsewhere / "labels"}, ms, "gsw_cha_2016")
+
+
+def test_bkn_waits_for_cha_to_pass_kill4_stability_and_use(tmp_path):
+    ms = tmp_path / "work_ms"
+    with pytest.raises(SystemExit, match="waits"):
+        M.gate_bkn(ms)
+    mp = ms / "multistart" / "gsw_cha_2016" / "multipool.json"
+    mp.parent.mkdir(parents=True)
+    mp.write_text(json.dumps({"kill4": {"stage2_runs": False}, "stability": {"passes": True}}))
+    with pytest.raises(SystemExit, match="kill rule 4 or stability"):
+        M.gate_bkn(ms)
+    mp.write_text(json.dumps({"kill4": {"stage2_runs": True}, "stability": {"passes": True}}))
+    with pytest.raises(SystemExit, match="does not read use"):
+        M.gate_bkn(ms)
+    (ms / "truth_accept").mkdir()
+    (ms / "truth_accept" / "gsw_cha_2016.json").write_text(json.dumps({"use": "apart"}))
+    with pytest.raises(SystemExit, match="does not read use"):
+        M.gate_bkn(ms)
+    (ms / "truth_accept" / "gsw_cha_2016.json").write_text(json.dumps({"use": "use"}))
+    M.gate_bkn(ms)

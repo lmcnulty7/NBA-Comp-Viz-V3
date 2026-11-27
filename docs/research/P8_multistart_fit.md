@@ -267,16 +267,18 @@ protected files was unchanged.
 - Timings: inputs 45.7 s, fit_game 8.2 s, one 200-evaluation chunk 8.18 s, J 18.5 to 23.5 s a position.
 
 Report only, not ruled: the chunked-continuation smoke (10 chunks from C0 on the seed-0 pool) ended 0.037 ft from the
-recorded single 2,000-evaluation run with a cost 0.84 percent lower; scipy reported a tolerance met (status 2) at the
-end of chunk 3 and status 3 from chunk 5 on, and the chunks after that took 0.2 to 1.3 s each.
+recorded single 2,000-evaluation run with a cost 0.84 percent lower. scipy reported a tolerance met at the end of chunk
+3 (status 2, after 52 evaluations), yet chunk 4, restarted from that point, used all 200 evaluations (9.35 s) and
+lowered the cost further, and chunk 8 used 142 evaluations (6.61 s) after reporting status 3 in chunks 5 to 7. Under
+restarts a scipy status therefore overstates convergence: the convergence counts of stage 1 (converged_per_set and
+each run's converged_at_chunk in the multipool records) are report only and are read with that in mind.
 
 Post hoc, not ruled: the all-inits median |residual| (from J's per-frame solutions) is 11.95 px at B and 5.20 to 6.71
 px at the good positions. These are not check A (which reads a run's pooled median) and are not used by any rule.
 
 ## 15. Stage 1 and 2 estimates, caps and commands (dated amendment, 2026-11-27, after stage 0, before stage 1)
 
-From stage 0's timing, worst case (every run to all 20 chunks at 8.2 s a chunk; stage 0's smoke suggests chunks after
-convergence are much faster), per game: inputs 46 s; 24 reproduction calls of fit_game, 197 s (amendment S1-4); 24 runs
+From stage 0's timing, worst case (every run to all 20 chunks at 8.2 s a chunk), per game: inputs 46 s; 24 reproduction calls of fit_game, 197 s (amendment S1-4); 24 runs
 of 20 chunks, 3,936 s; J at 24 final positions, 21 s each for about 4,900 inits (scaled by the game's inits); the
 stability maps at three selections, three more J-sized passes; the truth step 178 s (the truth phase's fit step).
 
@@ -296,8 +298,21 @@ multipool and truth, tests in tests/test_p8_multistart.py):
    failure stops), selection per set, stability at every sidecar box's foot pixel (amendment S1-1), kill rule 4.
 2. `truth gsw_cha_2016` (V3_P8_ROOT = work_ms; lock "p8 multistart stage1 gsw_cha_2016 truth") only if it is stable:
    the frozen step_fit with fit_game replaced by the selected truth-set run, in work_ms.
-3. Only if kill rule 4 says stage 2 runs: `multipool gsw_bkn_2015`, then `truth gsw_bkn_2015` if stable. If
-   gsw_bkn_2015 is not stable, kill rule 3 stops before stage 2.
+3. `accept gsw_cha_2016` (V3_P8_ROOT = work_ms; lock "p8 multistart stage1 gsw_cha_2016 accept"): stage 3 for
+   gsw_cha_2016 brought forward (copies of work_ref's check C composite for the game, then tools.p8_truth_v2
+   measure-dev and tools.p8_truth_accept unchanged, in work_ms).
+4. Only if gsw_cha_2016's multipool record shows kill rule 4's "stage 2 runs" and stability passing, and its multipool
+   truth reads "use" (the code refuses gsw_bkn_2015 otherwise): `multipool gsw_bkn_2015`, then `truth gsw_bkn_2015` if
+   stable. If gsw_bkn_2015 is not stable, kill rule 3 stops before stage 2.
+
+Dated line (2026-11-27, review of 41241fe5, self-decided): gsw_bkn_2015 is refused unless gsw_cha_2016 passes kill rule
+4 and stability, and gsw_cha_2016's truth step and acceptance run before gsw_bkn_2015, which runs only if gsw_cha_2016
+reads "use". This saves about 1.4 to 2.7 lock hours when gsw_cha_2016 cannot switch, and it gates the ladder, not the
+selection. Also from that review: the stability feet exclude each frame's inlier-pair boxes (the boxes the per-frame
+fit was fitted to), with the feet kept and dropped recorded; the written reproj_px_median_after is the pooled median
+rounded to 2 places as fit_game rounds it (4 places kept in the record) and pooled frames come from the run; kill rule
+1 is checked after chunk 1; run files carry the frames hash, C0 and inits and a stale one is refused; the truth step
+asserts that the labels folders lie inside work_ms and are not links.
 
 Each run's chunks are recorded, and a run counts as converged at its first chunk end that meets section 4.2. Every run
 goes to all 20 chunks and competes in the selection whatever its convergence (as section 4 states); its final C is

@@ -449,16 +449,27 @@ def setup_ms(ref: Path, ms: Path, game: str) -> dict:
     return P
 
 
-def foot_maps(C, init_frames: list, sol: list, sidecars: dict) -> dict:
-    """Every sidecar box foot_stab pixel of each init frame mapped to court ft through the frame's per-frame H at C
-    (fit_frame's solution) -> {(window, frame): (n, 2)}; pixels the per-frame fit was not fitted to (amendment S1-1)."""
+def unfitted_boxes(fr: dict, boxes: list) -> list:
+    """The frame's sidecar boxes minus those of its inlier pairs (the boxes the per-frame fit was fitted to; review R1)."""
+    fitted = {p["box"] for p in (fr.get("row") or {}).get("pairs", []) if p.get("inlier")}
+    return [b for i, b in enumerate(boxes) if i not in fitted]
+
+
+def foot_maps(C, init_frames: list, sol: list, sidecars: dict, counts: dict | None = None) -> dict:
+    """Every sidecar box foot_stab pixel of each init frame, except the boxes of its inlier pairs, mapped to court ft
+    through the frame's per-frame H at C (fit_frame's solution) -> {(window, frame): (n, 2)} (amendment S1-1, review
+    R1). counts, if given, receives the feet kept and the inlier-pair feet dropped."""
     import cv2
     from sportvu.camera import h_px2ft
     out = {}
     for fr, (rv, f) in zip(init_frames, sol):
         if rv is None:
             continue
-        boxes = sidecars.get(fr["window"], {}).get(int(fr["frame"]), [])
+        all_boxes = sidecars.get(fr["window"], {}).get(int(fr["frame"]), [])
+        boxes = unfitted_boxes(fr, all_boxes)
+        if counts is not None:
+            counts["feet_kept"] = counts.get("feet_kept", 0) + len(boxes)
+            counts["inlier_feet_dropped"] = counts.get("inlier_feet_dropped", 0) + len(all_boxes) - len(boxes)
         px = np.array([b["foot_stab"] for b in boxes], np.float64).reshape(-1, 1, 2)
         if not len(px):
             continue
@@ -475,6 +486,84 @@ def per_frame(C, init_frames: list) -> list:
     return sol
 
 
+def stale_run(r: dict, frames_hash: str, C0, inits: int) -> str | None:
+    """Why a saved run does not belong to these inputs, or None (review R5)."""
+    if r.get("frames_hash") != frames_hash:
+        return "frames hash differs"
+    if r.get("inits") != inits:
+        return "inits differ"
+    if r.get("C0") is None or np.linalg.norm(np.asarray(r["C0"]) - np.asarray(C0)) > 1e-9:
+        return "C0 differs"
+    return None
+
+
+def truth_result(s: dict, rec: dict) -> dict:
+    """fit_game's return value for the selected run (review R2): the pooled medians rounded to 2 places as fit_game
+    rounds them (the 4-place value stays in the multipool record), pooled frames and inits from the run."""
+    return {"status": "ok", "C": s["C"], "C0": rec["C0"], "pooled_frames": s["pooled_frames"], "inits": s["inits"],
+            "reproj_px_median_before": round(float(s["pooled_median_px_at_start"]), 2),
+            "reproj_px_median_after": round(float(s["pooled_median_px"]), 2), "cost": s["cost"],
+            "multipool": {"seed": s["seed"], "J": s["J"], "converged_at_chunk": s["converged_at_chunk"],
+                          "pooled_median_px_4dp": s["pooled_median_px"]}}
+
+
+def check_labels_inside(P: dict, ms: Path, game: str) -> None:
+    """P["labels"] and labels/<game> resolve inside work_ms and are not links (review R5)."""
+    for p in (P["labels"], P["labels"] / game):
+        if p.exists() and (p.is_symlink() or not Path(os.path.realpath(p)).is_relative_to(Path(os.path.realpath(ms)))):
+            raise SystemExit(f"{WHO}: {p} is a link or lies outside work_ms")
+    if not Path(os.path.realpath(P["labels"])).is_relative_to(Path(os.path.realpath(ms))):
+        raise SystemExit(f"{WHO}: the labels folder is not inside work_ms")
+
+
+def gate_bkn(ms: Path) -> None:
+    """gsw_bkn_2015 runs only if gsw_cha_2016's multipool record shows stage 2 runs (kill rule 4) and stability passes,
+    and gsw_cha_2016's multipool truth in work_ms reads "use" (review R3, section 15)."""
+    mp = ms / "multistart" / "gsw_cha_2016" / "multipool.json"
+    ac = ms / "truth_accept" / "gsw_cha_2016.json"
+    if not mp.exists():
+        raise SystemExit(f"{WHO}: gsw_bkn_2015 waits for gsw_cha_2016's multipool record")
+    rec = json.loads(mp.read_text())
+    if not (rec.get("kill4") or {}).get("stage2_runs") or not rec["stability"]["passes"]:
+        raise SystemExit(f"{WHO}: gsw_bkn_2015 does not run: gsw_cha_2016 failed kill rule 4 or stability")
+    if not ac.exists() or json.loads(ac.read_text()).get("use") != "use":
+        raise SystemExit(f"{WHO}: gsw_bkn_2015 does not run: gsw_cha_2016's multipool truth does not read use")
+
+
+def accept(game: str) -> dict:
+    """Stage 3 for one game in work_ms (section 9): copies of work_ref's check C composite for the game, then
+    tools.p8_truth_v2 measure-dev and tools.p8_truth_accept, unchanged, with section 5's bars."""
+    import shutil
+    from tools import p8_truth_accept as TA
+    from tools import p8_truth_v2 as TV
+    if game not in STAGE1_GAMES:
+        raise SystemExit(f"{WHO}: {game} is not a stage 1 game")
+    refuse_cv_test([game], WHO)
+    guard([game], WHO)
+    work, ref, ms = roots_ms()
+    if Path(os.environ.get("V3_P8_ROOT", "")).expanduser().resolve() != ms.resolve():
+        raise SystemExit(f"{WHO}: run accept with V3_P8_ROOT set to work_ms")
+    if not (ms / "labels" / f"{game}_result.json").exists():
+        raise SystemExit(f"{WHO}: {game} has no multipool truth in work_ms")
+    before, t0 = manifest(ref), time.time()
+    (ms / "builds" / "r23").mkdir(parents=True, exist_ok=True)
+    for src in [*sorted((ref / "builds" / "r23").glob(f"{game}_s[0-9][0-9]_w[0-9][0-9]_*")),
+                ref / "builds" / f"r23_checkc_{game}.json"]:
+        dst = (ms / "builds" / "r23" / src.name) if src.parent.name == "r23" else (ms / "builds" / src.name)
+        if not dst.exists():
+            shutil.copy2(src, dst)
+    TV.cmd_measure_dev(argparse.Namespace(tag=game))
+    out = TA.accept(game, ms)
+    after = manifest(ref)
+    rec = {"game": game, "truth_version": "multipool v1", "acceptance": out,
+           "guard_manifest": {"files": len(before), "unchanged": before == after}, "seconds": round(time.time() - t0, 1)}
+    atomic_write(ms / "multistart" / game / "accept.json", json.dumps(rec, indent=1, default=str))
+    atomic_write(REPO / "reports" / "research" / f"p8_multistart_accept_{game}.json", json.dumps(rec, indent=1, default=str))
+    if before != after:
+        raise SystemExit(f"{WHO}: the reference root's protected files changed")
+    return rec
+
+
 def multipool(game: str) -> dict:
     """Section 4 and 6 for one game: three seed sets of 8 runs (each run's first chunk checked against fit_game), J at
     every run's final C, the selection per set, and stability at unfitted pixels. Resumable: each run is saved."""
@@ -489,6 +578,8 @@ def multipool(game: str) -> dict:
     work, ref, ms = roots_ms()
     if Path(os.environ.get("V3_P8_ROOT", "")).expanduser().resolve() != ref.resolve():
         raise SystemExit(f"{WHO}: run with V3_P8_ROOT set to the reference root")
+    if game == "gsw_bkn_2015":
+        gate_bkn(ms)
     before, t0 = manifest(ref), time.time()
     P = F.install_paths()
     g = F.game_of(game)
@@ -503,24 +594,31 @@ def multipool(game: str) -> dict:
     C0 = np.median(np.array([p[2] for _, p in inits]), axis=0)
     d = ms / "multistart" / game
     d.mkdir(parents=True, exist_ok=True)
+    fh = keys_hash(frames)
     runs = {}
     for set_name, seeds in SEED_SETS.items():
         for seed in seeds:
             rp = d / f"seed_{seed:02d}.json"
             if rp.exists():
-                runs[seed] = json.loads(rp.read_text())
+                r = json.loads(rp.read_text())
+                stale = stale_run(r, fh, C0, len(inits))
+                if stale:
+                    raise SystemExit(f"{WHO}: {rp.name} is stale ({stale}); move it aside before resuming")
+                runs[seed] = r
                 continue
             t = time.time()
             fz = cam.fit_game(frames, seed=seed)
             pool = pool_of(inits, seed)
             resid, _ = problem(pool)
             x0 = start_vector(pool, C0)
-            chunks, x = run_chunks(pool, x0, CHUNKS)
-            diff = float(np.linalg.norm(np.asarray(chunks[0]["C"]) - np.asarray(fz["C"])))
-            if diff > REPRO_FT:
+            first, x1 = run_chunks(pool, x0, 1)
+            diff = float(np.linalg.norm(np.asarray(first[0]["C"]) - np.asarray(fz["C"])))
+            if diff > REPRO_FT:                          # kill rule 1, checked before the other 19 chunks (review R4)
                 raise SystemExit(f"{WHO}: kill rule 1, {game} seed {seed}: first chunk {diff:.4f} ft from fit_game")
+            rest, x = run_chunks(pool, x1, CHUNKS - 1)
+            chunks = first + rest
             jr = common_objective(x[:3], init_frames)
-            r = {"seed": seed, "set": set_name, "C": x[:3].tolist(), "C0": C0.tolist(), "J": jr["J"],
+            r = {"seed": seed, "set": set_name, "frames_hash": fh, "C": x[:3].tolist(), "C0": C0.tolist(), "J": jr["J"],
                  "fit_frame_failed": jr["fit_frame_failed"], "report_only_all_inits_median_px": jr["report_only_all_inits_median_px"],
                  "pooled_median_px": chunks[-1]["pooled_median_px"],
                  "pooled_median_px_at_start": round(float(np.median(np.abs(resid(x0)))), 2),
@@ -537,12 +635,16 @@ def multipool(game: str) -> dict:
         sp = ref / "label_build" / (w["window"] + "_frames.json")
         if sp.exists():
             sidecars[w["window"]] = {int(r["frame"]): r["boxes"] for r in json.loads(sp.read_text())["frames"]}
-    maps = {name: foot_maps(r["C"], init_frames, per_frame(r["C"], init_frames), sidecars) for name, r in sel.items()}
+    counts = {name: {} for name in sel}
+    maps = {name: foot_maps(r["C"], init_frames, per_frame(r["C"], init_frames), sidecars, counts[name])
+            for name, r in sel.items()}
     stab = stability(maps)
+    stab["feet_per_selection"] = counts
     out = {"game": game, "design": "docs/research/P8_multistart_fit.md version 2 with sections 13 and 14",
            "inits": len(inits), "frames_hash": keys_hash(frames), "C0": C0.tolist(),
            "selected": {name: {k: r[k] for k in ("seed", "C", "J", "pooled_median_px", "pooled_median_px_at_start", "cost",
-                                                 "converged_at_chunk", "report_only_all_inits_median_px")} for name, r in sel.items()},
+                                                 "converged_at_chunk", "report_only_all_inits_median_px", "pooled_frames",
+                                                 "inits")} for name, r in sel.items()},
            "runs": {s: {k: r[k] for k in ("set", "C", "J", "pooled_median_px", "converged_at_chunk", "seconds")} for s, r in sorted(runs.items())},
            "converged_per_set": {name: sum(1 for s in seeds if runs[s]["converged_at_chunk"]) for name, seeds in SEED_SETS.items()},
            "stability": stab,
@@ -584,15 +686,17 @@ def truth(game: str) -> dict:
         raise SystemExit(f"{WHO}: {game} is not stable; no multipool truth is written (section 6)")
     if (ms / "labels" / f"{game}_result.json").exists():
         raise SystemExit(f"{WHO}: {game} already has a truth in work_ms")
+    if game == "gsw_bkn_2015":
+        gate_bkn(ms)
     before, t0 = manifest(ref), time.time()
     setup_ms(ref, ms, game)
     P = F.install_paths(ms)
     s = rec["selected"]["truth"]
-    result = {"status": "ok", "C": s["C"], "C0": rec["C0"], "pooled_frames": 400, "inits": rec["inits"],
-              "reproj_px_median_before": s["pooled_median_px_at_start"], "reproj_px_median_after": s["pooled_median_px"],
-              "cost": s["cost"], "multipool": {"seed": s["seed"], "J": s["J"], "converged_at_chunk": s["converged_at_chunk"]}}
+    result = truth_result(s, rec)
+    check_labels_inside(P, ms, game)
     with replaced_fit_game(result, rec["frames_hash"]) as rp:
         res = F.step_fit(P, game)
+    check_labels_inside(P, ms, game)
     hashes = {}
     for p in sorted([*(P["labels"] / game).glob("*.jsonl"), *P["labels"].glob(f"{game}_*")]):
         hashes[str(p.relative_to(ms))] = hashlib.sha256(p.read_bytes()).hexdigest()
@@ -612,11 +716,12 @@ def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog=f"python -m {WHO}")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("stage0")
-    for name in ("multipool", "truth"):
+    for name in ("multipool", "truth", "accept"):
         sp = sub.add_parser(name)
         sp.add_argument("game")
     a = ap.parse_args(argv)
-    {"stage0": lambda: stage0(), "multipool": lambda: multipool(a.game), "truth": lambda: truth(a.game)}[a.cmd]()
+    {"stage0": lambda: stage0(), "multipool": lambda: multipool(a.game), "truth": lambda: truth(a.game),
+     "accept": lambda: accept(a.game)}[a.cmd]()
 
 
 if __name__ == "__main__":
