@@ -60,8 +60,8 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
    boxes (D207). Foot median shift killed (D206); the raw box bottom is no better than the smoothed foot (posefoot 0a).
    The no-box misses are lost mostly at the detector on kept windows (D208), with NMS about 0.12 of them.
    Running: posefoot (a per-box ankle foot, hybrid arm), stage A alignment next, then licence, smoke and falsifier.
-   Next candidates, to rank after posefoot: an NMS setting arm (report only, cheap, bounded near 0.12 of no-box
-   misses, with duplicate ghosts as its cost); a detector recall arm under the training protocol (C1, crowding).
+   NMS threshold arm inconclusive at its pilot (D209). Running: the D208 supplement (51 windows re-read through the
+   build's path). A detector recall arm stays paused under D183 until a new label source reaches the C1 misses.
 2. Deferred: the gsw_ind_2016 CPU rebuild (D200); the tracker-fix question on a real pool (D198, decides only the
    reported baseline under D193).
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
@@ -139,7 +139,8 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 - Check what sets the fitted statistic before fitting. A cell median of fit rows that are 86 percent hits is set by the
   hits, not by the misses the correction targets, so it moved position but not the missed row (D206).
 - A relayed estimate is not a record. A reviewer's figure passed on in a lead message entered a result section and failed review for traceability (D208); cite only committed records, or compute the figure into one.
-- A strict tie rule over-drops when the compared states barely differ: "above both neighbours" with ties as failures dropped 32 of 120 windows, 20 on ties (D208). Put the burden of proof on the failure, with a margin, and dry-run any rule on stored data before a lock.
+- Reproduce the build's read path before judging alignment. D208's strict tie rule dropped 32 of 120 windows; the later build-path replay (posefoot stage A) and a stored-file check showed 13 of the 32, and 2 to 4 kept windows, were misread where the build seeks, while 19 were aligned windows the rule dropped on ties (recallcause supplement design). Both the read and the rule mattered: put the burden of proof on misalignment with a margin, and copy the build's reads.
+- A pre-tracker screen on miss frames does not predict the build (D209): the NMS arm passed its screen and was inconclusive through the tracker, with misses falling more than the mechanism could explain.
 - Chain the steps, do not wait for a wake-up. A teammate waiting on a completion notice left the Mac idle 20 minutes
   twice in a day; one background script for the whole sequence, plus a lead-side watcher on the lock, removed it.
 
