@@ -1,6 +1,6 @@
 # P8: the upper bound on the team row for label-level fixes (design, version 1, registered before any number)
 
-Version 1, 2026-11-28. Report only, from stored files only: nothing is fitted, tuned, trained or built, no model runs
+Version 1, 2026-11-27. Report only, from stored files only: nothing is fitted, tuned, trained or built, no model runs
 and no video is decoded. No Colab unit is used. No held-out game, no D85 test game and no test arena is read
 (CLAUDE.md rule 4). hou_cle_2016 is not read; it stays held back for a team arm's single test (D203). No lock is taken
 until this design is reviewed.
@@ -133,3 +133,118 @@ oracle has no sampling error beyond the rows themselves.
 - Writes go only to work_ref/teambound/<game>.json and reports/research/p8_teambound.json. A test checks that these
   are the only writes.
 - One chain, reported the moment it ends.
+
+## 9. Version 1.1 (2026-11-27, after the design review of 4effde21, GO WITH CHANGES; before any code or number)
+
+The review confirmed the code reading (section 2) and the exact split. Where this section differs from sections 1 to
+8, it rules.
+
+### 9.1 Reading table (replaces section 6's table)
+
+The bar B_arm is set in 9.5. Gains are on the team row, per game, as point values, with intervals beside them.
+
+| pattern | condition | reading |
+|---|---|---|
+| colour headroom | O1 - current at least B_arm on both games | a per-track colour fix could carry at least B_arm on both games; a colour arm deserves a design |
+| tracking headroom | O2_swap - O1 at least B_arm on both games (9.2: swap cuts only) | splitting at sustained swaps could add at least B_arm beyond perfect colour on both games; a track-splitting or re-ID arm deserves a design |
+| combined | O2_swap - current at least B_arm on both games, while neither row above holds on both | only colour and splitting together reach the bar; one arm would have to change both |
+| split by kind | colour clears on one game and tracking on the other | the headroom is game-specific by kind; no single-kind arm is justified on both games, and a joint arm is the only one the bounds support |
+| one game only | a kind clears on one game and nothing clears on the other | game-specific; it does not justify an arm alone |
+| neither | O2_swap - current below B_arm on both games | the two label-level fixes measured here (per-track colour, splitting at sustained swaps) add less than B_arm on these rows; it claims nothing about other causes |
+
+Stated before any number: the reviewer expects colour headroom on gsw_cha_2016 and tracking headroom on gsw_bkn_2015,
+from D203's bins (tracks paired with a single id hold 0.050 of gsw_cha_2016's errors but 0.013 of gsw_bkn_2015's).
+That is a prior, not a test.
+
+### 9.2 Tagging O2's cuts (adds to section 5)
+
+The scorer's pairing (sportvu.truth._match, lines 59 to 63) runs the Hungarian assignment before the 5 ft gate. A ghost
+box can therefore push a near box onto the wrong player. Every O2 cut is tagged:
+- **swap:** within the first 1.0 s of the new run, the old SportVU id is paired within 2.5 ft with another canonical
+  track. The two players' tracks exchanged ids.
+- **orphan:** in that span, the old id is paired with no track.
+- **fragment boundary:** whether the cut falls where the canonical track's fragment tid changes (a re-ID link).
+
+**Tracking headroom is read on swap cuts only (O2_swap).** O2 with all cuts is reported beside it.
+
+Diagnostic, report only (the scorer stays frozen): the count of rows whose pair would change if the distances were
+capped at 5 ft before the assignment (pairs beyond the gate given a large cost).
+
+### 9.3 The per-bin split (replaces section 4's per-track min())
+
+- **Tracking errors in a bin:** O1's leftover errors in that bin.
+- **Colour errors in a bin:** current errors minus O1's errors in that bin. This can be negative in a bin.
+- The per-track min() rule is dropped.
+- m_c's majority team takes D203 8.5's tie rule: on a tie, the smaller SportVU team id.
+
+### 9.4 Reachability (report only)
+
+- **O1c:** each track is labelled by the true majority team of its rows on crop frames only, the frames the build's
+  collector could take a crop from (detect/reid.py):
+  - every 3rd processed frame of the window, by the sidecar's processed order;
+  - at most the first 40 per fragment tid;
+  - only a box whose inner jersey patch is at least 14 px on each side (width times 0.56, height times 0.47).
+
+  A track with no scored row on a crop frame keeps its current label. This bounds what a perfect classifier could do
+  from the evidence the build actually collects.
+- **O1f:** perfect colour per fragment. Each fragment tid is labelled with its majority team, which bounds a colour fix
+  applied before re-ID linking.
+
+### 9.5 The bar (replaces section 6's +0.03)
+
+- **Expected recovery fraction, registered:** f = 0.5. A practical fix is assumed to recover half of its oracle
+  ceiling. For reference, E1b's ledger lesson found placement gains keeping about 0.3 at build level, so 0.5 is an
+  optimistic assumption for colour, where the classifier is weak and simple.
+- **The minimum detectable effect of a one-game test at hou_cle_2016's window count (93 windows):**
+  1. For each fix, a per-window paired difference d_w = f x (oracle - current) is computed on each window of
+     gsw_cha_2016 and gsw_bkn_2015.
+  2. 93 windows are drawn with replacement from the pooled cha and bkn windows, 2,000 times (seed 0), and the
+     row-weighted mean of d_w is taken each time.
+  3. MDE = 2.8 x the standard deviation of those means: 5 percent two-sided, 80 percent power.
+  - Only cha and bkn's per-window variability is used. hou_cle_2016 is never read.
+- **B_arm = max(0.03, MDE / f) per fix.** The requirement is ceiling x f at least the MDE. When MDE / f exceeds 0.03,
+  the bar is raised to it, and the record says so and why.
+
+### 9.6 O2's rule, exact (replaces section 5's O2 wording)
+
+- Time is real time: seconds = frame difference / fps, measured between rows that have an id (a 2.5 ft identity
+  pair).
+- A run is a maximal sequence of a track's id-rows with the same SportVU id. A run lasting at least L seconds, from its
+  first to its last id-row, is **sustained**.
+- **Cuts are placed at the first row of each sustained run that follows a sustained run of a different id.**
+  - A-B-A returns: a sustained B between two A runs gives two cuts.
+  - A short B (under L) gives none, and its rows stay in the A segment as noise.
+- Rows with no id (pairs between 2.5 and 5 ft) are assigned to the segment that spans their frame.
+- **L is 1.0 s for the rule.** The readings are also computed at L = 0.5, 0.75, 1.5 and 2.0 s. A reading that changes
+  anywhere between 0.5 and 2.0 s is **fragile**, and a fragile reading cannot justify an arm alone.
+
+### 9.7 The rows and the gate (replaces section 3's gate)
+
+- A copy of tools.p8_teamcause.window_rows, extended to output each row's SportVU id and the box's fragment tid. It is
+  copied, not edited, so D203's merged tool is unchanged.
+- The gate, as D203 8.7, per window: the recomputed (canonical track, label, team) tuples equal score_window's own
+  team_rows in order, and n, majority and fixed equal D202's record. D202's records are pinned by SHA-256 and run id.
+  Otherwise nothing is reported.
+
+### 9.8 Oracle labels and O3
+
+- Every oracle encodes its labels as 0 and 1 by sorted SportVU team id within the window. Window_team's majority mapping
+  then reads them as intended.
+- O3 relabels each pure track to the build label that the window's current majority mapping sends to the track's
+  team. Mixed tracks are left as they are.
+
+### 9.9 Coverage and abstention
+
+- Any later colour arm that changes abstention needs a coverage non-inferiority rule, since abstained tracks give no
+  team rows. That is flagged now for such an arm.
+- Reported here:
+  - the abstained tracks, and among them those with fewer than 2 crop frames by 9.4's rule (crop-less);
+  - the rows those tracks would have given.
+
+### 9.10 Guards and outputs
+
+- The tool refuses hou_cle_2016 explicitly, before any file is read, since tools.p8_common.guard does not refuse it. A
+  test checks this.
+- It never calls tools.p8_teamcause.cmd_stored, which reads hou_cle_2016's record.
+- find_private runs on both outputs: work_ref/teambound/<game>.json and reports/research/p8_teambound.json.
+- The date of version 1 is corrected to 2026-11-27.
