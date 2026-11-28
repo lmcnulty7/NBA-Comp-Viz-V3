@@ -248,3 +248,15 @@ capped at 5 ft before the assignment (pairs beyond the gate given a large cost).
 - It never calls tools.p8_teamcause.cmd_stored, which reads hou_cle_2016's record.
 - find_private runs on both outputs: work_ref/teambound/<game>.json and reports/research/p8_teambound.json.
 - The date of version 1 is corrected to 2026-11-27.
+
+### 9.11 Note on the code (2026-11-27, before any number)
+
+- **The reading table's order of precedence**, as coded: both; colour headroom; tracking headroom; split by kind;
+  combined; one game only; neither.
+  - "Split by kind" comes before "combined": when colour clears on one game and tracking on the other, combined
+    usually holds too, and "split by kind" says more.
+  - "Combined" then covers the case where no single kind clears on a game but colour and splitting together do on
+    both.
+- **Abstained rows are left out of every oracle's denominator,** as section 5 states. The abstained view (O1 with
+  abstained tracks labelled too, a larger denominator) is reported apart, with the counts of abstained tracks,
+  crop-less ones and their rows.
