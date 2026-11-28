@@ -361,6 +361,12 @@ measured rate, under the lock; the report on the system python. hou_cle_2016: no
 
 Where this section differs from section 12, it rules.
 
+**13.0 The prior, first.** Stage 1's H on gsw_cha_2016 (-0.0086) is the ceiling of a source that reaches every
+C1a_other and C1c miss that neither r23's floor nor the in-domain held teacher reaches. To make the -0.0042 bar, CrowdDet
+would need to reach about 49 percent of exactly those misses; to make 0.0069, the gap under the transfer model's
+residual, about 80 percent. They are the misses an in-domain player detector already fails on, and CrowdDet is an
+out-of-domain (web images) person detector; that is the honest prior for this stage.
+
 **13.1 The choice.** Stage 2 is S2-C, CrowdDet. Options weighed by the lead: waiting for Lucien's ruling on
 Iter-Deformable-DETR's README-only grant would leave the machine idle until morning; CrowdDet has an MIT LICENSE file,
 and its weights fall under the MixSort precedent of D150 (1), so it is within current rules. Iter-Deformable-DETR stays a
