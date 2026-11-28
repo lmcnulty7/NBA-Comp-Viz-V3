@@ -384,3 +384,23 @@ The limit is carried in every reading line of the result and in the bounds.
 - tools.p8_frozen.R13_TAGS is ("gsw_bkn_2015", "gsw_cha_2016", "gsw_ind_2016", "gsw_sac_2015").
 - tools.p8_scorecard flags r23's rows on those games "IN SAMPLE: the r23 court model was trained on this game's R1.3
   labels".
+
+## 12. Version 1.3 (2026-11-28, after the code was written and before any run; self-decided by the lead)
+
+Where this differs from sections 10 and 11, it rules.
+
+- **The timing statistic is now the share of off windows.** It is the share of windows with |tau_B - tau_0| at least
+  0.1 s, tau_0 being the across-window median. It is compared, per game, with the null's distribution of that same
+  share: the share in each simulation, against its own median, over 2,000 simulations of 11.1's null.
+  - **Answered** needs the observed share at or below the null's 97.5th percentile on both games, with the power check
+    passing.
+  - Otherwise the enrichment test runs, unchanged (10.2 and 11.4: at least 5 off windows, the own P-ii rate ratio of
+    at least 1.5 with its interval excluding 1, on both games).
+- **The power check stays.** It still injects plus or minus 0.1 s into a quarter of windows, 2,000 simulations, seed
+  1. It now uses this statistic: "answered" may be read only if at least 80 percent of the injected simulations exceed
+  the null's 97.5th percentile of the share.
+- **The across-window IQR stays as report only.** It was replaced because it is robust to a quarter of windows: the
+  middle half of the windows sets it, so errors confined to a quarter of them barely move it. A test shows this. With
+  zero noise, a quarter-injection leaves the IQR at 0 in most simulations, while the share of off windows catches it in
+  every simulation.
+- The readings of 11.6 are unchanged.

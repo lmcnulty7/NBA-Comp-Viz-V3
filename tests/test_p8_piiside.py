@@ -35,22 +35,32 @@ def test_window_tau_needs_thirty_moving_rows():
     assert M.window_tau(mk_rows(29, 0.05)) is None
 
 
-def test_null_without_noise_has_no_spread_and_injection_is_caught():
+def test_null_without_noise_has_no_spread_and_the_iqr_misses_a_quarter():
     wins = {f"w{i}": {"rows": mk_rows(40, 0.05)} for i in range(12)}
-    null = M.simulate_null(wins, 0.05, {}, n=50)
+    null = M.sims_stat(M.simulate_null(wins, 0.05, {}, n=50), M.iqr)
     assert np.allclose(null, 0.0)
-    inj = M.simulate_null(wins, 0.05, {}, n=50, inject=(0.5, 0.1, 1))
+    inj = M.sims_stat(M.simulate_null(wins, 0.05, {}, n=50, inject=(0.5, 0.1, 1)), M.iqr)
     assert (inj > 0.0).mean() > 0.9
-    # the IQR is robust to a minority of windows: a quarter injected often leaves it at 0 (flagged in the report)
-    quarter = M.simulate_null(wins, 0.05, {}, n=200, inject=(0.25, 0.1, 1))
+    # the IQR is robust to a minority of windows: a quarter injected often leaves it at 0 (why v1.3 replaced it)
+    quarter = M.sims_stat(M.simulate_null(wins, 0.05, {}, n=200, inject=(0.25, 0.1, 1)), M.iqr)
     assert (quarter > 0.0).mean() < 0.6
+
+
+def test_the_off_share_catches_a_quarter_injection_at_zero_noise():
+    wins = {f"w{i}": {"rows": mk_rows(40, 0.05)} for i in range(12)}
+    null = M.sims_stat(M.simulate_null(wins, 0.05, {}, n=50), M.off_share)
+    assert np.allclose(null, 0.0)
+    q975 = np.percentile(null, 97.5)
+    inj = M.sims_stat(M.simulate_null(wins, 0.05, {}, n=200, inject=(0.25, 0.1, 1)), M.off_share)
+    assert (inj > q975).mean() >= 0.99 and np.allclose(inj, 0.25)
+    assert M.off_share([0.0, 0.0, 0.1, -0.12]) == pytest.approx(0.5)
 
 
 def test_null_falls_back_to_the_games_third_pool():
     rows = mk_rows(40, 0.0, noise=0.0)
     rows = [r for r in rows if r["speed"] >= M.MOVING]          # no slow rows in the window
-    null = M.simulate_null({"w0": {"rows": rows}, "w1": {"rows": rows}}, 0.0, {"middle": [[1.0, 0.0]] * 5}, n=10)
-    assert np.allclose(null, 0.0)                               # the same fallback offset in both windows
+    sims = M.simulate_null({"w0": {"rows": rows}, "w1": {"rows": rows}}, 0.0, {"middle": [[1.0, 0.0]] * 5}, n=10)
+    assert np.allclose(M.sims_stat(sims, M.iqr), 0.0)                               # the same fallback offset in both windows
 
 
 def test_timing_reading_branches():

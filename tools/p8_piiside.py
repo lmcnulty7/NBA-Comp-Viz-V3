@@ -87,8 +87,9 @@ def simulate_null(wins: dict, tau0: float, game_slow: dict, n: int = N_SIM, seed
                   inject: tuple | None = None) -> np.ndarray:
     """11.1: per simulation, each window's moving rows get tau0 x speed + (a slow row's offset vector . v_hat), the slow
     row drawn from the same window (at least MIN_SLOW_WINDOW slow rows) or else the game's slow rows of the same third;
-    the window's simulated tau is the median of along / speed; the statistic is the across-window IQR. inject: (share,
-    shift_s, seed) adds +-shift_s to a random share of windows in each simulation (11.2's power check)."""
+    the window's simulated tau is the median of along / speed. -> the (n, windows) simulated taus (v1.3: the statistic
+    is applied by the caller). inject: (share, shift_s, seed) adds +-shift_s to a random share of windows in each
+    simulation (11.2's power check)."""
     rng = np.random.default_rng(seed)
     irng = np.random.default_rng(inject[2]) if inject else None
     keys = sorted(wins)
@@ -118,16 +119,28 @@ def simulate_null(wins: dict, tau0: float, game_slow: dict, n: int = N_SIM, seed
         for s in range(n):
             pick = irng.choice(len(keys), m, replace=False)
             sims[s, pick] += shift * irng.choice([-1.0, 1.0], m)
-    return np.array([np.nanpercentile(r, 75) - np.nanpercentile(r, 25) for r in sims])
+    return sims
 
 
-def timing_reading(obs_iqr: float, null_iqr: np.ndarray, power: float, shift_ok: bool, n_off: int, enrich: dict) -> dict:
-    """11.2, 11.4 and 11.6 on one game."""
-    q975 = float(np.percentile(null_iqr, 97.5))
-    out = {"iqr_observed": obs_iqr, "iqr_null_97_5": q975, "power": power, "shift_check": shift_ok, "off_windows": n_off}
+def off_share(taus) -> float:
+    """v1.3's timing statistic: the share of windows with |tau - median(tau)| at least OFF_S."""
+    t = np.asarray([v for v in taus if v is not None and np.isfinite(v)], float)
+    return float(np.mean(np.abs(t - np.median(t)) >= OFF_S)) if len(t) else float("nan")
+
+
+def sims_stat(sims: np.ndarray, fn) -> np.ndarray:
+    return np.array([fn(row) for row in sims])
+
+
+def timing_reading(obs_stat: float, null_stat: np.ndarray, power: float, shift_ok: bool, n_off: int,
+                   enrich: dict) -> dict:
+    """11.2, 11.4, 11.6 and 12 (v1.3: the statistic is the share of off windows) on one game."""
+    q975 = float(np.nanpercentile(null_stat, 97.5))
+    out = {"off_share_observed": obs_stat, "off_share_null_97_5": q975, "power": power, "shift_check": shift_ok,
+           "off_windows": n_off}
     if not shift_ok:
         return {**out, "reading": "not resolvable (the synthetic shift was not recovered)"}
-    if obs_iqr <= q975:
+    if obs_stat <= q975:
         if power >= POWER_BAR:
             return {**out, "reading": "answered: no window timing error beyond B's noise; " + LIMIT}
         return {**out, "reading": "not resolvable at this noise (power under 0.8)"}
@@ -437,11 +450,14 @@ def game_report(rec: dict) -> dict:
             if SLOW_LO <= r["speed"] < MOVING:
                 game_slow.setdefault(r["third"], []).append(r["o_raw"])
     sim_w = {k: wins[k] for k in have}
-    null = simulate_null(sim_w, tau0, game_slow) if have else np.array([np.nan])
-    power_iqr = simulate_null(sim_w, tau0, game_slow, seed=SEED, inject=(POWER_FRAC, POWER_SHIFT_S, SEED_POWER)) \
-        if have else np.array([np.nan])
-    q975 = float(np.percentile(null, 97.5)) if have else float("nan")
-    power = float(np.mean(power_iqr > q975)) if have else 0.0
+    sims = simulate_null(sim_w, tau0, game_slow) if have else np.full((1, 1), np.nan)
+    sims_inj = simulate_null(sim_w, tau0, game_slow, seed=SEED, inject=(POWER_FRAC, POWER_SHIFT_S, SEED_POWER)) \
+        if have else np.full((1, 1), np.nan)
+    null = sims_stat(sims, off_share)                        # v1.3: the share of off windows
+    q975 = float(np.nanpercentile(null, 97.5)) if have else float("nan")
+    power = float(np.mean(sims_stat(sims_inj, off_share) > q975)) if have else 0.0
+    obs_share = off_share(have.values())
+    iqr_null = sims_stat(sims, iqr)                          # report only (v1.3 note)
     shifts = {}
     for key, expect in (("a_plus", -SHIFT_MOMENTS / 25.0), ("a_minus", SHIFT_MOMENTS / 25.0)):
         d = [window_tau(wins[k]["rows"], key) - tau[k] for k in have if window_tau(wins[k]["rows"], key) is not None]
@@ -453,7 +469,10 @@ def game_report(rec: dict) -> dict:
     own_rows = {k: sum(1 for r in w["outcome"] if r["kind"] == "P-ii" and r["class"] in OWN) for k, w in wins.items()}
     enrich = boot_ratio([(own_rows[k], wins[k]["in_frame"]) for k in off],
                         [(own_rows[k], wins[k]["in_frame"]) for k in have if k not in off])   # windows with a tau only
-    timing = timing_reading(obs, null, power, shift_ok, len(off), enrich)
+    timing = timing_reading(obs_share, null, power, shift_ok, len(off), enrich)
+    timing["iqr_report_only"] = {"observed": obs, "null_97_5": float(np.nanpercentile(iqr_null, 97.5)) if have else None,
+                                 "note": "replaced as the statistic by v1.3: the IQR is robust to a quarter of windows, "
+                                         "so a minority of mistimed windows barely moves it"}
     ema = [window_tau(w["rows"], "a_stab") - tau[k] for k, w in wins.items()
            if tau[k] is not None and window_tau(w["rows"], "a_stab") is not None]
     ema_pred = [window_tau(w["rows"], "a_pred_ema") for w in wins.values() if window_tau(w["rows"], "a_pred_ema") is not None]
