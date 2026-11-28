@@ -427,3 +427,77 @@ Where this differs from sections 10 to 12, it rules.
 6. **10.1, added.** The in-frame test and the third both use T: the in-frame test is T^-1(SportVU) inside the 10 px
    margin, and the third is the scorer's under T. Neither tracks a time error, since both place SportVU's own position,
    so neither biases tau_B toward or away from one.
+
+## 13. Result (2026-11-28, from dd3a5e81; record reports/research/p8_piiside.json)
+
+**Run.** The fast suite ran first under the lock: 2,669 passed, 7 skipped, 65 deselected. Then one collect per game
+under the lock: 65 s for gsw_cha_2016 and 61 s for gsw_bkn_2015, from the heavy-job lines of work_ref/logs/piiside.log.
+The report took 31 s.
+
+- D202's and D207's gates passed on every window, and the manifests were unchanged.
+- Every scored frame had an accepted B.
+- Velocity was missing on 3 and 1 rows.
+- Shifted rows left out (the clock did not move 0.12 s, or a moment was missing): 233 and 433.
+- hou_cle_2016 was not read and stays unspent.
+
+**Readings, as registered (11.6): timing, camera and overall read "not shown",** each with the limit: "B is not
+independent of SportVU on these games (r23 trained in sample on R1.3 labels written through H_truth); never read as
+evidence that the row is build-side". The record's reading strings repeat "not shown" once, because the limit text
+begins with it; the meaning is unchanged.
+
+**Timing** (gsw_cha_2016 / gsw_bkn_2015; on rows without the frame's P-ii players, 12.1 (1)):
+
+| quantity | gsw_cha_2016 | gsw_bkn_2015 |
+|---|---|---|
+| windows with a tau_B (at least 30 moving rows) | 36 of 73 | 41 of 83 |
+| tau_0 | 0.118 s | 0.108 s |
+| synthetic shift, +3 and -3 moments (expected -0.12 and +0.12 s) | -0.120, +0.121 s: ok | -0.121, +0.121 s: ok |
+| share of off windows (at least 0.1 s from tau_0) | 0.583 | 0.707 |
+| the null's 97.5th percentile of that share | 0.028 | 0.049 |
+| power (quarter-injection above the null's 97.5th) | 0.980 | 0.949 |
+| off windows | 21 | 29 |
+| enrichment, own P-ii rate in off windows over the rest (bar 1.5, interval excluding 1) | 1.31 [1.00, 1.75] | 1.13 [0.90, 1.42] |
+
+- The window-level spread lies far beyond the null on both games, with power above 0.8, so timing is **not
+  answered**.
+- The enrichment test then fails its bar on both games, so timing is **not shown** (with the limit).
+- Beside it:
+  - the TRACK-only off share is 0.583 / 0.707, and the lateral estimator's is 0.600 / 0.484;
+  - with the P-ii players included, the off share is 0.605 / 0.761, with tau_0 0.148 / 0.105 s;
+  - the IQR (report only) is 0.231 / 0.283 s, against its null's 0.036 / 0.049 s;
+  - tau_B against the window's offset_s: Spearman 0.32 / 0.42;
+  - the EMA difference (a units check) is -0.047 / -0.044 s.
+
+**Camera:**
+- **(a), within third:** the ratio of own P-ii to same-frame hit d_TB is 1.41 [1.25, 1.69] and 1.35 [1.23, 1.46],
+  against the 1.5 bar. It fails on both games.
+- **(b):** own P-ii boxes within 2.5 ft under B are 0.463 and 0.428, against the build-side null's 97.5th percentile of
+  0.261 and 0.258. It passes on both games. Hits' own d_B share, the T-side reference, is 0.820 and 0.810.
+- The pattern needs (a) and (b), so camera is **not shown** (with the limit).
+- By third, the median d_TB at own P-ii boxes against hits is:
+  - near: 1.22 against 0.87 ft, and 1.31 against 0.97 ft;
+  - middle: 1.20 against 0.93, and 1.21 against 0.92;
+  - far: 2.10 against 1.05, and 1.98 against 1.44.
+
+**Bounds, each a bound and not a forecast:**
+
+| | gsw_cha_2016 | gsw_bkn_2015 |
+|---|---|---|
+| own P-ii rate | 0.064 | 0.059 |
+| timing, upper bound | 0.008 | 0.005 |
+| camera, upper bound | 0.030 | 0.025 |
+| neither, lower bound on the build-side share | 0.027 | 0.029 |
+
+The lower bound is read with the limit: not shown, B is not independent of SportVU on these games, and it is never
+evidence that the row is build-side.
+
+**Post hoc, not ruled. The near-misses are not passes, and nothing is re-ruled.**
+- (i) Most windows carry a tau_B more than 0.1 s from the game's median. Either the truth's per-window time map or B
+  (in sample, through the tracker's Kalman state, and with camera pan) varies by window at that scale. The truth's
+  offset solve is known to be fragile: D99 found offsets moving 0.3 to 0.8 s with small build differences, and D166
+  found the median offset difference between builds fell only from 0.52 to 0.367 s under truth v2. But P-ii is only
+  weakly enriched in those windows (1.31 and 1.13).
+- (ii) The camera numbers point the same way on both games, short of the 1.5 bar. Under B, nearly half of the own P-ii
+  boxes lie within 2.5 ft, above the build-side null. Read with the limit, a shared error between B and T would only
+  hide a disagreement. So a camera-side share of up to about 0.03 of in-frame players (the camera upper bound) is
+  plausible, but not shown.
