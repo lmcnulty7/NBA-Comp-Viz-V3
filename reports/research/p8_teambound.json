@@ -1,0 +1,327 @@
+{
+ "what": "docs/research/P8_teambound.md versions 1 and 1.1; report only; oracles use the truth",
+ "per_game": {
+  "gsw_cha_2016": {
+   "rows": 24708,
+   "accuracy": {
+    "current": 0.8101424639792779,
+    "O1": 0.9048891047434029,
+    "O1f": 0.9209972478549457,
+    "O1c": 0.8935567427553829,
+    "O3": 0.8556742755382872,
+    "O2_all": 0.9521207706006152,
+    "O2_swap": 0.9473854621984782,
+    "O1_with_abstained_report_only": 0.9052524382123692
+   },
+   "gains": {
+    "colour": 0.09474664076412498,
+    "tracking": 0.042496357455075295,
+    "combined": 0.13724299821920027
+   },
+   "gain_intervals": {
+    "colour": [
+     0.07552260044617397,
+     0.11749848774810463
+    ],
+    "tracking": [
+     0.031624500620808314,
+     0.05302991082214509
+    ],
+    "combined": [
+     0.11466002564347147,
+     0.16157657450931576
+    ]
+   },
+   "O2_all_minus_O1": 0.04723166585721228,
+   "gap_to_0_95_under_O2_swap": 0.0026145378015217657,
+   "cuts": {
+    "swap": 172,
+    "orphan": 19,
+    "on_fragment_boundary": 51
+   },
+   "bin_split_by_crowding": {
+    "<3": {
+     "rows": 3438,
+     "errors": 1040,
+     "tracking": 785,
+     "colour": 255
+    },
+    "3-6": {
+     "rows": 8114,
+     "errors": 1673,
+     "tracking": 905,
+     "colour": 768
+    },
+    ">6": {
+     "rows": 13156,
+     "errors": 1978,
+     "tracking": 660,
+     "colour": 1318
+    }
+   },
+   "purity_bands": {
+    "1.0": {
+     "rows": 10908,
+     "errors": 1125
+    },
+    "0.9-1.0": {
+     "rows": 6082,
+     "errors": 772
+    },
+    "0.5-0.9": {
+     "rows": 7718,
+     "errors": 2794
+    }
+   },
+   "unlabelled": {
+    "abstained_tracks": 70,
+    "no_team_entry_tracks": 9,
+    "abstained_crop_less": 27,
+    "no_entry_crop_less": 9,
+    "abstained_rows": 823
+   },
+   "capped_diagnostic": {
+    "capped_team_rows_changed": 250,
+    "capped_team_rows_changed_errors": 97
+   },
+   "tracks_multi_id_no_sustained_run": 86,
+   "git": {
+    "head": "5a2e1cd8b4c8bd867cb2e19ddf9a5b6658079e63",
+    "tools_and_sportvu_clean": true
+   },
+   "seconds": 46.5
+  },
+  "gsw_bkn_2015": {
+   "rows": 24966,
+   "accuracy": {
+    "current": 0.8572458543619322,
+    "O1": 0.8979812545061283,
+    "O1f": 0.9095970519907074,
+    "O1c": 0.8872466554514139,
+    "O3": 0.8664583834014259,
+    "O2_all": 0.9484899463270047,
+    "O2_swap": 0.9423616117920371,
+    "O1_with_abstained_report_only": 0.8965503830747092
+   },
+   "gains": {
+    "colour": 0.04073540014419608,
+    "tracking": 0.044380357285908834,
+    "combined": 0.08511575743010491
+   },
+   "gain_intervals": {
+    "colour": [
+     0.031217750632813155,
+     0.05176379107075012
+    ],
+    "tracking": [
+     0.034220353873971134,
+     0.053471839714853045
+    ],
+    "combined": [
+     0.07235453423276782,
+     0.09980608020999986
+    ]
+   },
+   "O2_all_minus_O1": 0.05050869182087636,
+   "gap_to_0_95_under_O2_swap": 0.00763838820796281,
+   "cuts": {
+    "swap": 163,
+    "orphan": 24,
+    "on_fragment_boundary": 36
+   },
+   "bin_split_by_crowding": {
+    "3-6": {
+     "rows": 8360,
+     "errors": 1313,
+     "tracking": 1023,
+     "colour": 290
+    },
+    ">6": {
+     "rows": 12885,
+     "errors": 1142,
+     "tracking": 652,
+     "colour": 490
+    },
+    "<3": {
+     "rows": 3721,
+     "errors": 1109,
+     "tracking": 872,
+     "colour": 237
+    }
+   },
+   "purity_bands": {
+    "1.0": {
+     "rows": 11001,
+     "errors": 230
+    },
+    "0.9-1.0": {
+     "rows": 5569,
+     "errors": 376
+    },
+    "0.5-0.9": {
+     "rows": 8396,
+     "errors": 2958
+    }
+   },
+   "unlabelled": {
+    "abstained_tracks": 62,
+    "no_team_entry_tracks": 8,
+    "abstained_crop_less": 22,
+    "no_entry_crop_less": 8,
+    "abstained_rows": 747
+   },
+   "capped_diagnostic": {
+    "capped_team_rows_changed": 227,
+    "capped_team_rows_changed_errors": 93
+   },
+   "tracks_multi_id_no_sustained_run": 81,
+   "git": {
+    "head": "5a2e1cd8b4c8bd867cb2e19ddf9a5b6658079e63",
+    "tools_and_sportvu_clean": true
+   },
+   "seconds": 48.0
+  }
+ },
+ "mde_one_game_93_windows": {
+  "colour": 0.024831224570734375,
+  "tracking": 0.01295843200702416,
+  "combined": 0.027828205061548632
+ },
+ "bars": {
+  "colour": 0.04966244914146875,
+  "tracking": 0.03,
+  "combined": 0.055656410123097265
+ },
+ "recovery_fraction": 0.5,
+ "reading": "tracking headroom",
+ "fragile_between_0_5_and_2_0_s": true,
+ "fragile_by_game_and_kind": {
+  "gsw_cha_2016|tracking": true,
+  "gsw_bkn_2015|tracking": true,
+  "gsw_cha_2016|combined": false,
+  "gsw_bkn_2015|combined": false
+ },
+ "bars_fixed_at_L": 1.0,
+ "fragility": {
+  "0.5": {
+   "reading": "tracking headroom",
+   "gains": {
+    "gsw_cha_2016": {
+     "colour": 0.09474664076412498,
+     "tracking": 0.05257406508013607,
+     "combined": 0.14732070584426105
+    },
+    "gsw_bkn_2015": {
+     "colour": 0.04073540014419608,
+     "tracking": 0.05395337659216537,
+     "combined": 0.09468877673636145
+    }
+   },
+   "O2_swap": {
+    "gsw_cha_2016": 0.957463169823539,
+    "gsw_bkn_2015": 0.9519346310982937
+   },
+   "O2_all": {
+    "gsw_cha_2016": 0.9632102962603205,
+    "gsw_bkn_2015": 0.9593847632780581
+   }
+  },
+  "0.75": {
+   "reading": "tracking headroom",
+   "gains": {
+    "gsw_cha_2016": {
+     "colour": 0.09474664076412498,
+     "tracking": 0.04739355674275547,
+     "combined": 0.14214019750688045
+    },
+    "gsw_bkn_2015": {
+     "colour": 0.04073540014419608,
+     "tracking": 0.046703516782824694,
+     "combined": 0.08743891692702077
+    }
+   },
+   "O2_swap": {
+    "gsw_cha_2016": 0.9522826614861584,
+    "gsw_bkn_2015": 0.944684771288953
+   },
+   "O2_all": {
+    "gsw_cha_2016": 0.9576655334304679,
+    "gsw_bkn_2015": 0.9512937595129376
+   }
+  },
+  "1.0": {
+   "reading": "tracking headroom",
+   "gains": {
+    "gsw_cha_2016": {
+     "colour": 0.09474664076412498,
+     "tracking": 0.042496357455075295,
+     "combined": 0.13724299821920027
+    },
+    "gsw_bkn_2015": {
+     "colour": 0.04073540014419608,
+     "tracking": 0.044380357285908834,
+     "combined": 0.08511575743010491
+    }
+   },
+   "O2_swap": {
+    "gsw_cha_2016": 0.9473854621984782,
+    "gsw_bkn_2015": 0.9423616117920371
+   },
+   "O2_all": {
+    "gsw_cha_2016": 0.9521207706006152,
+    "gsw_bkn_2015": 0.9484899463270047
+   }
+  },
+  "1.5": {
+   "reading": "tracking headroom",
+   "gains": {
+    "gsw_cha_2016": {
+     "colour": 0.09474664076412498,
+     "tracking": 0.03375424963574558,
+     "combined": 0.12850089039987056
+    },
+    "gsw_bkn_2015": {
+     "colour": 0.04073540014419608,
+     "tracking": 0.03524793719458463,
+     "combined": 0.07598333733878071
+    }
+   },
+   "O2_swap": {
+    "gsw_cha_2016": 0.9386433543791485,
+    "gsw_bkn_2015": 0.933229191700713
+   },
+   "O2_all": {
+    "gsw_cha_2016": 0.9418406993686256,
+    "gsw_bkn_2015": 0.9385163822799006
+   }
+  },
+  "2.0": {
+   "reading": "combined",
+   "gains": {
+    "gsw_cha_2016": {
+     "colour": 0.09474664076412498,
+     "tracking": 0.02986886838271008,
+     "combined": 0.12461550914683506
+    },
+    "gsw_bkn_2015": {
+     "colour": 0.04073540014419608,
+     "tracking": 0.02507410077705685,
+     "combined": 0.06580950092125293
+    }
+   },
+   "O2_swap": {
+    "gsw_cha_2016": 0.934757973126113,
+    "gsw_bkn_2015": 0.9230553552831852
+   },
+   "O2_all": {
+    "gsw_cha_2016": 0.9378338999514327,
+    "gsw_bkn_2015": 0.9281823279660338
+   }
+  }
+ },
+ "O2_all_at_L0_outer_bound_report_only": {
+  "gsw_cha_2016": 0.986401165614376,
+  "gsw_bkn_2015": 0.9855803893294881
+ },
+ "prior_stated_before_the_run": "colour headroom on gsw_cha_2016, tracking headroom on gsw_bkn_2015"
+}
