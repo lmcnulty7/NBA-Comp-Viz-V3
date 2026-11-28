@@ -79,7 +79,9 @@ def test_scaled_and_ceilings():
     assert c["gsw_cha_2016"]["C"] == pytest.approx(-3 * 0.5 / 1000)
     assert c["gsw_cha_2016"]["H"] == pytest.approx(-3 * 0.25 / 1000)
     assert c["gsw_cha_2016"]["C_all_plc"] == pytest.approx(-3 * 0.25 / 1000)
-    assert c["gsw_cha_2016"]["C_with_residual"] == pytest.approx(c["gsw_cha_2016"]["C"] + C.CHA_RESIDUAL)
+    assert "C_with_residual" not in c["gsw_cha_2016"]
+    ub = C.union_baseline(-0.0079)
+    assert ub["gap"] == pytest.approx(0.0021) and ub["gap_with_residual"] == pytest.approx(0.0069)
     assert c["pooled"]["C"] == pytest.approx((-1.5 - 0.6) / 2000)
 
 

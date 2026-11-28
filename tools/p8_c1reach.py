@@ -40,6 +40,7 @@ COURT_L, COURT_W, COURT_MARGIN = 94.0, 50.0, 3.0
 POS_CTRL_MIN = 0.90
 R1_MAX_FAIL = 0.05
 BAR, KILL = -0.0042, -0.0021
+CAP_A_S, CAP_B_S = 45 * 60, 20 * 60          # 10.12: step A between windows, step B between frames
 CHA_RESIDUAL = 0.0048                  # P8_E1B.md 2b: gsw_cha_2016's transfer-model residual
 BOOT_N, BOOT_SEED = 2000, 0
 SUBCLASSES = ("C1a_own", "C1a_other", "C1b", "C1c")
@@ -163,7 +164,8 @@ def e1_fractions(per_window_e1: dict, keys: list) -> dict:
 # ── E1's per-window transfer counts (stored files only; cha and bkn) ───────────────────────────────────────────────
 def e1_per_window(work_root: Path) -> dict:
     """tools/p8_e1b_bound.py cmd_transfer's per-window counts, for gsw_cha_2016 and gsw_bkn_2015 only (E1's third game
-    is apart), on its stored files; checked against its record's per-game counts by the caller."""
+    is apart), on its stored files; checked against its record's per-game counts by the caller. The corpus preds
+    chunks hold every game's predictions and are loaded whole; only cha and bkn frames are used."""
     from sportvu.sync import MIRRORS, SportVUIndex, apply_mirror
     from tools import p8_e1b_bound as EB
     from tools import p8_teachers as T
@@ -307,6 +309,11 @@ def cmd_prepare(args) -> dict:
     refs = B.References()
     comp = P["builds"] / "r23"
     raw = RC.Raw(weights)
+    import torch
+    import ultralytics
+    versions = {"opencv": cv2.__version__, "torch": torch.__version__, "ultralytics": ultralytics.__version__}
+    if versions != RC.VERSIONS:
+        raise SystemExit(f"{WHO}: versions {versions} are not {RC.VERSIONS}")
     from gate.backbones import get_backbone
     from gate.trained_head import TrainedHeadGate
     mc = main_checkout() / "models"
@@ -324,10 +331,13 @@ def cmd_prepare(args) -> dict:
     out_d = c1_dir(r["ref"])
     fr_d = out_d / ("frames_smoke" if args.smoke else "frames")
     fr_d.mkdir(parents=True, exist_ok=True)
-    all_misses, frames_out, per_window, r1_fail, undetermined = [], [], {}, [], []
+
+    def cap():
+        if time.time() - t0 > CAP_A_S:
+            raise SystemExit(f"{WHO}: step A passed its {CAP_A_S // 60}-minute cap; nothing is recorded")
+    # pass 1 (code check 3): D205's rows, the classes and R0 for every window, before any frame is read
+    all_misses, per_window, work = [], {}, {}
     for g in RC.POOL:
-        if args.smoke and not any(s.startswith(g + "_") for s in todo):
-            continue
         gd = F.game_of(g)
         guard([gd["sportvu"], gd["video_id"]], WHO)
         mirror = F.mirror_of(P, g)
@@ -338,6 +348,7 @@ def cmd_prepare(args) -> dict:
         for s in [x for x in windows if x.startswith(g + "_")]:
             if args.smoke and s not in todo:
                 continue
+            cap()
             _, wi, w = by_name[s]
             rows = RC.d205_rows(g, P_t, w, comp, ctx, d202[g]["windows"][s], (d202[g].get("hashes") or {}).get(s, {}))
             mine = [[wi, {k: x["rec"][k] for k in ("class", "single", "inframe")}] for x in rows]
@@ -354,50 +365,12 @@ def cmd_prepare(args) -> dict:
             per_window[s] = {"game": g, "n": len(c1),
                              "by": {f"{u}|{c}": sum(1 for m in c1 if m["d205"] == u and m["class"] == c)
                                     for u in RC.UNIVERSE for c in SUBCLASSES}}
-            if not c1:
-                continue
-            pick = sample_frames([m["frame"] for m in c1])
-            byf = {}
-            for x in uni:
-                byf.setdefault(x["frame"], x)
-            dev = ((RC.read_json(comp / f"{s}_device.json") if (comp / f"{s}_device.json").exists() else {})
-                   .get("resolved") or {}).get("gate") or "cpu"
-            stride = int(side.get("stride") or 1)
-            if build_stride(w["fps"]) != stride:
-                raise SystemExit(f"{WHO}: {s}: the sidecar stride is not the build's")
-            max_frames = (w["f_end"] - w["f_start"]) // stride + 2
-            (fr_d / s).mkdir(exist_ok=True)
-
-            def predict(idx, img, s=s):
-                p = fr_d / s / f"{int(idx):06d}.png"
-                if not cv2.imwrite(str(p), img):
-                    raise SystemExit(f"{WHO}: {s} frame {idx}: the frame could not be written")
-                return {"post": raw.run(img)["post"], "frame": int(idx), "sha256": sha256_file(p),
-                        "png": str(p.relative_to(out_d)), "size": [int(img.shape[1]), int(img.shape[0])]}
-            br = RS.build_read(P["label_build"] / f"{s}.mp4", side, max_frames, gate_for(dev).is_court_visible,
-                               set(pick), predict)
-            if not br["validation"]["passes"] or set(pick) - set(br["preds"]):
-                undetermined.append(s)
-                continue
-            for f in pick:
-                v = br["preds"][f]
-                if v["frame"] != f:
-                    raise SystemExit(f"{WHO}: {s}: a capture is keyed to another frame")
-                ok = json.loads(json.dumps(v["post"])) == stored[f]["post"]
-                if not ok:
-                    r1_fail.append(f"{s}/{f}")
-                    continue
-                x = byf[f]
-                frames_out.append({"game": g, "window": s, "frame": f, "png": v["png"], "sha256": v["sha256"],
-                                   "size": v["size"], "sv": np.asarray(x["sv"]).tolist(),
-                                   "Ht": np.asarray(x["Ht"]).tolist(), "px": np.asarray(x["px"]).tolist(),
-                                   "inside": [bool(i) for i in _inside(x["px"], v["size"])],
-                                   "r23_post": stored[f]["post"], "r23_low": stored[f]["low"],
-                                   "c1": [{"player": m["player"], "pid": m["pid"], "unit": m["d205"],
-                                           "subclass": m["class"]} for m in c1 if m["frame"] == f]})
-    n_frames = len(frames_out) + len(r1_fail)
-    if n_frames and len(r1_fail) > R1_MAX_FAIL * n_frames:
-        raise SystemExit(f"{WHO}: R1 fails on {len(r1_fail)} of {n_frames} sampled frames; nothing is reported")
+            if c1:
+                byf = {}
+                for x in uni:
+                    byf.setdefault(x["frame"], x)
+                work[s] = {"g": g, "w": w, "side": side, "stored": stored, "c1": c1,
+                           "byf": {f: byf[f] for f in {m["frame"] for m in c1}}}
     r0 = None
     if not args.smoke:                               # R0: the supplement's 120-window C1 counts, unit and game
         mine_u = RS.unit_tables(all_misses)
@@ -407,10 +380,56 @@ def cmd_prepare(args) -> dict:
         if bad:
             raise SystemExit(f"{WHO}: R0 fails: the C1 recount differs from the supplement in {bad[:5]}")
         r0 = "passed"
+    # pass 2: the sampled frames read the build's way, r23's capture (R1), the frames written and read back
+    frames_out, r1_fail, undetermined = [], [], []
+    for s in sorted(work):
+        cap()
+        g, w, side, stored, c1, byf = (work[s][k] for k in ("g", "w", "side", "stored", "c1", "byf"))
+        pick = sample_frames([m["frame"] for m in c1])
+        dev = ((RC.read_json(comp / f"{s}_device.json") if (comp / f"{s}_device.json").exists() else {})
+               .get("resolved") or {}).get("gate") or "cpu"
+        stride = int(side.get("stride") or 1)
+        if build_stride(w["fps"]) != stride:
+            raise SystemExit(f"{WHO}: {s}: the sidecar stride is not the build's")
+        max_frames = (w["f_end"] - w["f_start"]) // stride + 2
+        (fr_d / s).mkdir(exist_ok=True)
+
+        def predict(idx, img, s=s):
+            p = fr_d / s / f"{int(idx):06d}.png"
+            if not cv2.imwrite(str(p), img):
+                raise SystemExit(f"{WHO}: {s} frame {idx}: the frame could not be written")
+            back = cv2.imread(str(p), cv2.IMREAD_UNCHANGED)
+            if back is None or not np.array_equal(back, img):
+                raise SystemExit(f"{WHO}: {s} frame {idx}: the PNG does not read back equal")
+            return {"post": raw.run(img)["post"], "frame": int(idx), "sha256": sha256_file(p),
+                    "png": str(p.relative_to(out_d)), "size": [int(img.shape[1]), int(img.shape[0])]}
+        br = RS.build_read(P["label_build"] / f"{s}.mp4", side, max_frames, gate_for(dev).is_court_visible,
+                           set(pick), predict)
+        if not br["validation"]["passes"] or set(pick) - set(br["preds"]):
+            undetermined.append(s)
+            continue
+        for f in pick:
+            v = br["preds"][f]
+            if v["frame"] != f:
+                raise SystemExit(f"{WHO}: {s}: a capture is keyed to another frame")
+            if json.loads(json.dumps(v["post"])) != stored[f]["post"]:
+                r1_fail.append({"frame": f"{s}/{f}", "c1": sum(1 for m in c1 if m["frame"] == f)})
+                continue
+            x = byf[f]
+            frames_out.append({"game": g, "window": s, "frame": f, "png": v["png"], "sha256": v["sha256"],
+                               "size": v["size"], "sv": np.asarray(x["sv"]).tolist(),
+                               "Ht": np.asarray(x["Ht"]).tolist(), "px": np.asarray(x["px"]).tolist(),
+                               "inside": [bool(i) for i in _inside(x["px"], v["size"])],
+                               "r23_post": stored[f]["post"], "r23_low": stored[f]["low"],
+                               "c1": [{"player": m["player"], "pid": m["pid"], "unit": m["d205"],
+                                       "subclass": m["class"]} for m in c1 if m["frame"] == f]})
+    n_frames = len(frames_out) + len(r1_fail)
+    if n_frames and len(r1_fail) > R1_MAX_FAIL * n_frames:
+        raise SystemExit(f"{WHO}: R1 fails on {len(r1_fail)} of {n_frames} sampled frames; nothing is reported")
     if watch() != before:
         raise SystemExit(f"{WHO}: a watched folder changed; nothing is recorded")
     out = {"what": "P8 C1 reach stage 1, step A (docs/research/P8_c1reach.md v1.1)", "head": head, "smoke": args.smoke,
-           "supplement_sha256": RC.sha256(supp_p), "r0": r0, "r1_failed": r1_fail, "undetermined": undetermined,
+           "versions": versions, "supplement_sha256": RC.sha256(supp_p), "r0": r0, "r1_failed": r1_fail, "undetermined": undetermined,
            "per_window": per_window, "frames": frames_out, "r2": r2,
            "teacher": {"name": TEACHER, "weights_sha256": TEACHER_SHA, "conf": TEACHER_CONF},
            "seconds": round(time.time() - t0, 1)}
@@ -447,6 +466,9 @@ def cmd_teacher(args) -> dict:
     ws = T.workspace()
     if sha256_file(ws / "weights" / T.TEACHERS[TEACHER]["weights"]) != TEACHER_SHA:
         raise SystemExit(f"{WHO}: the teacher's weights are not the pinned ones")
+    watch_t = lambda: {"preds": sha256_file(ws / "preds" / f"{TEACHER}.json"),
+                       "weights": sha256_file(ws / "weights" / T.TEACHERS[TEACHER]["weights"])}
+    before_t = watch_t()
     torch.set_num_threads(THREADS)
     t0 = time.time()
     detect, versions = T.load_runner(TEACHER, ws, "cpu")
@@ -460,11 +482,15 @@ def cmd_teacher(args) -> dict:
         raise SystemExit(f"{WHO}: R2 fails on {len(r2_bad)} of {len(inp['r2'])} frames (first {r2_bad[:3]})")
     boxes = {}
     for x in inp["frames"]:
+        if time.time() - t0 > CAP_B_S:
+            raise SystemExit(f"{WHO}: step B passed its {CAP_B_S // 60}-minute cap; nothing is recorded")
         img = cv2.imread(str(out_d / x["png"]))
         if img is None:
             raise SystemExit(f"{WHO}: cannot read {x['png']}")
         boxes[f"{x['window']}/{x['frame']}"] = rnd(detect(img))
-    out = {"what": "P8 C1 reach stage 1, step B (the held teacher)", "inputs_head": inp["head"], "smoke": args.smoke,
+    if watch_t() != before_t:
+        raise SystemExit(f"{WHO}: the teachers workspace changed during step B; nothing is recorded")
+    out = {"what": "P8 C1 reach stage 1, step B (the held teacher)", "teachers_workspace": before_t, "inputs_head": inp["head"], "smoke": args.smoke,
            "versions": {**versions, "opencv": cv2.__version__}, "threads": THREADS, "device": "cpu",
            "weights_sha256": TEACHER_SHA, "r2": {"frames": len(inp["r2"]), "equal": True}, "boxes": boxes,
            "seconds": round(time.time() - t0, 1)}
@@ -503,8 +529,16 @@ def ceilings(agg: dict, f: dict, n_in: dict) -> dict:
             tot[k] += r[k] * n_in[g]
     n = sum(n_in[g] for g in ALLOWED)
     out["pooled"] = {k: v / n for k, v in tot.items()}
-    out["gsw_cha_2016"]["C_with_residual"] = out["gsw_cha_2016"]["C"] + CHA_RESIDUAL
     return out
+
+
+def union_baseline(e1b_C_cha: float) -> dict:
+    """10.12: the gap stage 2 would face on gsw_cha_2016, from E1b's C (the held teacher's labels) to the -0.010 bar,
+    registered and with the transfer model's residual added."""
+    from tools.p8_e1b_bound import GATE_GAME
+    with_res = e1b_C_cha + CHA_RESIDUAL
+    return {"E1b_C_cha": e1b_C_cha, "E1b_C_cha_with_residual": with_res, "gap": e1b_C_cha - GATE_GAME,
+            "gap_with_residual": with_res - GATE_GAME}
 
 
 def cmd_report(args) -> dict:
@@ -512,7 +546,6 @@ def cmd_report(args) -> dict:
     from tools import p8_recallcause as RC
     from tools.p8_common import REPO, atomic_write
     from tools.p8_e1b_bound import TKEYS
-    from tools.p8_resetfix import resample_picks
     r = RB.roots()
     out_d = c1_dir(r["ref"])
     sfx = "__smoke" if args.smoke else ""
@@ -532,9 +565,18 @@ def cmd_report(args) -> dict:
             for kk, vv in v.items():
                 cost[k][kk] += vv
     pos = hits_r / hits if hits else None
+    total_c1 = sum(v["n"] for v in inp["per_window"].values())
+    drop_w = sum(inp["per_window"][s]["n"] for s in inp["undetermined"])
+    drop_f = sum(x["c1"] for x in inp["r1_failed"])
+    sampled_c1 = sum(len(x["c1"]) for x in inp["frames"])
+    windows_used = {x["window"] for x in inp["frames"]}
+    represented = sum(inp["per_window"][s]["n"] for s in windows_used)
     out = {"what": "P8 C1 reach stage 1 (docs/research/P8_c1reach.md v1.1); report only; the held-teacher reference set",
            "inputs_head": inp["head"], "smoke": args.smoke, "r0": inp["r0"], "r1_failed": len(inp["r1_failed"]),
            "undetermined": inp["undetermined"], "frames": len(inp["frames"]),
+           "denominators": {"c1_misses": total_c1, "in_undetermined_windows": drop_w, "on_r1_failed_frames": drop_f,
+                            "sampled": sampled_c1, "in_windows_with_frames": represented,
+                            "share_represented": (represented / total_c1) if total_c1 else None},
            "positive_control": {"r23_hits": hits, "teacher_reached": hits_r, "share": pos,
                                 "passes": pos is not None and pos >= POS_CTRL_MIN},
            "cost_rows": cost, "versions_teacher": tea["versions"]}
@@ -547,9 +589,19 @@ def cmd_report(args) -> dict:
     def share(rows, key):
         n = sum(1 for m in rows)
         return (sum(1 for m in rows if m[key]) / n) if n else None
-    picks = resample_picks(len(ws), BOOT_N, BOOT_SEED) if len(ws) >= 2 else None
     tab = {}
+    by_g = {g: [i for i, s in enumerate(ws) if s.startswith(g + "_")] for g in ALLOWED}
+
+    def strat_picks(scope):
+        """10.12: the share bootstrap stratified by scope: a game's windows within the game; pooled, within each."""
+        rng = np.random.default_rng(BOOT_SEED)
+        groups = [by_g[scope]] if scope in by_g else [by_g[g] for g in ALLOWED]
+        if sum(len(x) for x in groups) < 2:
+            return None
+        return np.array([np.concatenate([np.asarray(gr)[rng.integers(0, len(gr), len(gr))] for gr in groups if gr])
+                         for _ in range(BOOT_N)])
     for scope in ALLOWED + ("pooled",):
+        picks = strat_picks(scope)
         for u in ("P-i", "D-i", "both"):
             for c in SUBCLASSES + ("C1",):
                 sel = lambda m: ((u == "both" or m["unit"] == u) and (c == "C1" or m["subclass"] == c))
@@ -601,6 +653,7 @@ def cmd_report(args) -> dict:
                            round(float(np.percentile([x[g][k] for x in rs], 97.5)), 5)]
     out["ceilings"] = {g: {k: {"point": round(v, 5), "interval": iv(reps, g, k), "f_only_interval": iv(reps_f, g, k)}
                            for k, v in point[g].items()} for g in point}
+    out["union_baseline"] = {k: round(v, 5) for k, v in union_baseline(rec["rates"]["gsw_cha_2016"]["C"]).items()}
     out["fractions"] = f_point
     out["in_frame"] = n_in
     out["stage2_bar"] = {"bar": BAR, "kill": KILL, "note": "stage 1 decides nothing (10.2); H is reported"}

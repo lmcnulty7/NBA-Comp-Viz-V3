@@ -214,3 +214,27 @@ disclosed, as for every use of it.
 A's build read, the frames dumped with their hashes, R1 on every sampled frame; then step B's hash check, R2, the teacher
 and the positive control. The 35-minute job runs only after the smoke passes and the lead's go. Cost of the frames: about
 960 PNG frames of 1280 by 720, about 1.5 GB in the reference root.
+
+**10.12 The code check of 826d5d06 (2026-11-27; GO WITH CHANGES; after the smoke, before the full run).** Where this
+differs from 10.1 to 10.11, it rules.
+- **The union-baseline sensitivity (replaces 10.5's residual row).** E1b's C on gsw_cha_2016 for the held teacher's
+  labels is -0.0079; with the transfer model's +0.0048 residual it is -0.0031, so the gap stage 2 would face is 0.0069
+  instead of 0.0021. The record reports that pair (union_baseline), and stage 2's reading (10.6) is also shown under the
+  larger gap.
+- **Order.** D205's rows, the classes and R0 run for every window before any frame is read.
+- **Caps in code.** Step A stops past 45 minutes (checked between windows), step B past 20 minutes (checked between
+  frames).
+- **Watches.** Step B hashes the teachers workspace's preds/yolox_x_sportsmot.json and the weights before and after;
+  any change stops it. Step A checks and records the library versions against D208's pinned set.
+- **The PNG round trip.** Each written frame is read back and must equal the decoded array exactly.
+- **Bootstrap.** The share intervals are stratified by scope: a game's windows within the game; pooled, within each
+  game.
+- **Denominators.** Windows left out by the read validation, frames failing R1, and the C1 misses on them are
+  reported, with the share of C1 misses in windows that have sampled frames.
+- **Corrections.** R2's box-truth frames come from the games 201206070BOS and 201602270OKC (the teachers workspace's
+  frames.json), not gsw_ind_2016 as 10.3 said. tools/p8_c1reach.py e1_per_window loads the E1 corpus prediction chunks
+  whole (they include gsw_sac_2015's) but uses only gsw_cha_2016 and gsw_bkn_2015 frames.
+- **The smoke** (gsw_cha_2016_s07_w00, at 826d5d06; reports/research/p8_c1reach_stage1_smoke.json, its report step
+  rerun with this version's code): R1 0 of 8 failed, every hash equal, R2 20 of 20 equal, positive control 58 of 59
+  (0.983). Its reach numbers are one window and are not read.
+- The full run: steps A and B chained under one lock command, then step C.
