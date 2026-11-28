@@ -142,3 +142,56 @@ def test_constants_match_the_design():
     assert (M.L_RULE, M.L_GRID, M.SWAP_SPAN_S) == (1.0, (0.5, 0.75, 1.0, 1.5, 2.0), 1.0)
     assert (M.CROP_EVERY, M.CROP_CAP, M.CROP_MIN_PX, M.MIN_CROP_FRAMES) == (3, 40, 14, 2)
     assert (M.F_RECOVERY, M.BAR_MIN, M.HOU_WINDOWS, M.N_BOOT, M.SEED) == (0.5, 0.03, 93, 2000, 0)
+
+
+# ── 9.12 ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+def test_the_bar_divides_the_mde_by_f_so_f_does_not_cancel():
+    gw = [(10, 100), (0, 100), (0, 0)] * 40                    # empty windows add zero rows
+    m = M.mde(gw, n_draw=93, n=500)
+    assert m > 0
+    assert M.bar_of(m, f=0.5) == pytest.approx(max(0.03, m / 0.5))
+    assert M.bar_of(0.04, f=0.5) == pytest.approx(0.08) and M.bar_of(0.04, f=1.0) == pytest.approx(0.04)
+    assert M.bar_of(0.001, f=0.5) == 0.03
+
+
+def test_pattern_one_game_combined_and_unclassified():
+    bars = {"colour": 0.03, "tracking": 0.03, "combined": 0.03}
+    g = lambda c, t, k: {"colour": c, "tracking": t, "combined": k}
+    assert M.pattern({1: g(0.02, 0.02, 0.04), 2: g(0.0, 0.0, 0.01)}, bars) == "one game only"
+    assert M.pattern({1: g(0.01, 0.01, 0.02), 2: g(0.0, 0.0, 0.02)}, bars) == "neither"
+    assert M.pattern({1: g(0.01, 0.01, None), 2: g(0.0, 0.0, 0.02)}, bars) == "unclassified"
+
+
+def test_o3_relabels_pure_tracks_only_at_row_level():
+    rows = [row(f, 1, 11, 0, A, 101) for f in range(10)]          # pure A, label 0 -> A (correct)
+    rows += [row(f, 2, 21, 0, B, 201) for f in range(4)]          # pure B with label 0 (wrong): O3 fixes it
+    rows += [row(f, 3, 31, 1, B, 301) for f in range(6)] + [row(f, 3, 32, 1, A, 102) for f in range(6, 9)]
+    o = M.window_oracles(rows, 10.0)
+    cur, o3 = o["current"], o["O3"]
+    idx2 = [i for i, r in enumerate([x for x in rows if x["label"] is not None]) if r["cid"] == 2]
+    idx3a = [i for i, r in enumerate([x for x in rows if x["label"] is not None]) if r["cid"] == 3 and r["team"] == A]
+    assert not any(cur[i] for i in idx2) and all(o3[i] for i in idx2)
+    assert [o3[i] for i in idx3a] == [cur[i] for i in idx3a]      # the mixed track keeps its label
+
+
+def test_o1c_uses_crop_rows_only():
+    # track 1's crop rows are team B, its other rows team A: O1c labels it B, O1 labels it A
+    rows = [row(f, 1, 11, 0, A, 101) for f in range(10)] + [row(f, 1, 11, 0, B, 201, crop=True) for f in range(10, 13)]
+    rows += [row(f, 2, 21, 1, B, 202) for f in range(5)]
+    o = M.window_oracles(rows, 10.0)
+    assert sum(o["O1"]) > sum(o["O1c"])
+
+
+def test_tracks_with_two_ids_and_no_sustained_run():
+    rows = [row(f, 1, 11, 0, A, 101 if f % 2 else 102) for f in range(6)] + [row(f, 2, 21, 1, B, 201) for f in range(30)]
+    assert M.window_oracles(rows, 10.0)["tracks_multi_id_no_sustained_run"] == 1
+
+
+def test_report_refuses_unchecked_records():
+    ok = {"git": {"head": "h", "tools_and_sportvu_clean": True}, "manifest_unchanged": True, "d202": {"sha256": "x"}}
+    pinned = {M.CHA: "x", M.BKN: "x"}
+    M.check_records({M.CHA: ok, M.BKN: ok}, pinned)
+    for bad in ({**ok, "manifest_unchanged": False}, {**ok, "git": {"head": "other", "tools_and_sportvu_clean": True}},
+                {**ok, "d202": {"sha256": "y"}}, {**ok, "git": {"head": "h", "tools_and_sportvu_clean": False}}):
+        with pytest.raises(SystemExit):
+            M.check_records({M.CHA: ok, M.BKN: bad}, pinned)

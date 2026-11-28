@@ -162,6 +162,12 @@ def window_oracles(rows: list, fps: float, L: float = L_RULE) -> dict:
         seg_label["O2_swap" if swap_only else "O2_all"] = score(lambda r, lab_of=lab_of: lab_of[id(r)])
     out.update(seg_label)
     out["cut_tags"] = tags
+    multi = 0                                          # 9.12 (7): two or more ids and no sustained run
+    for c, rr in by_c.items():
+        idr = sorted((x["frame"] / fps, x["pid"]) for x in rr if x["id_pair"])
+        if len({p for _, p in idr}) >= 2 and not [u for u in runs(idr) if u[2] - u[1] >= L]:
+            multi += 1
+    out["tracks_multi_id_no_sustained_run"] = multi
     # section 5's abstained view (report only): O1 with abstained tracks labelled too; the denominator grows
     allr = [r for r in rows]
     maj_all = {}
@@ -184,7 +190,7 @@ def frag_boundary(rr: list, t_cut: float, fps: float) -> bool:
 
 
 def pattern(gains: dict, bars: dict) -> str:
-    """9.1: gains[g] = {"colour", "tracking", "combined"}; bars[kind] = B_arm. -> the registered pattern."""
+    """9.1 with 9.11 and 9.12 (2): gains[g] = {"colour", "tracking", "combined"}; bars[kind] = B_arm."""
     gs = list(gains)
     ok = {k: {g: gains[g][k] is not None and gains[g][k] >= bars[k] for g in gs} for k in ("colour", "tracking",
                                                                                          "combined")}
@@ -197,25 +203,32 @@ def pattern(gains: dict, bars: dict) -> str:
         return "tracking headroom"
     c_games = {g for g in gs if ok["colour"][g]}
     t_games = {g for g in gs if ok["tracking"][g]}
-    if c_games and t_games and not (c_games & t_games):     # precedence (9.11): split by kind before combined
+    if c_games and t_games and not (c_games & t_games):
         return "split by kind"
     if all(ok["combined"].values()):
         return "combined"
-    if c_games or t_games:
+    if c_games or t_games or any(ok["combined"].values()):
         return "one game only"
-    return "neither"
+    if all(gains[g]["combined"] is not None and gains[g]["combined"] < bars["combined"] for g in gs):
+        return "neither"
+    return "unclassified"
 
 
-def mde(gains_w: list, n_draw: int = HOU_WINDOWS, n: int = N_BOOT, seed: int = SEED, f: float = F_RECOVERY) -> float:
-    """9.5: gains_w = [(oracle correct - current correct, rows)] per window of cha and bkn. 93 windows drawn with
-    replacement, the row-weighted mean of f x gain, 2,000 times; MDE = 2.8 x its standard deviation."""
+def mde(gains_w: list, n_draw: int = HOU_WINDOWS, n: int = N_BOOT, seed: int = SEED) -> float:
+    """9.12 (1): gains_w = [(oracle correct - current correct, rows)] for every window of cha and bkn (a window with no
+    rows adds zero to both). 93 windows drawn with replacement, the row-weighted mean gain d (no f), 2,000 times;
+    MDE = 2.8 x its standard deviation. The bar is then max(0.03, MDE / f)."""
     a = np.asarray(gains_w, float).reshape(-1, 2)
     rng = np.random.default_rng(seed)
     means = []
     for _ in range(n):
         idx = rng.integers(0, len(a), n_draw)
-        means.append(f * a[idx, 0].sum() / a[idx, 1].sum() if a[idx, 1].sum() else np.nan)
+        means.append(a[idx, 0].sum() / a[idx, 1].sum() if a[idx, 1].sum() else np.nan)
     return float(2.8 * np.nanstd(means))
+
+
+def bar_of(mde_value: float, f: float = F_RECOVERY) -> float:
+    return max(BAR_MIN, mde_value / f)
 
 
 # ── data (frozen CV python, under the lock) ────────────────────────────────────────────────────────────────────────
@@ -269,7 +282,7 @@ def window_rows(P, game, w, comp, ctx) -> tuple:
     Wd, Hd = int(cap.get(3)), int(cap.get(4))
     cap.release()
     crops = crop_frames(side, Wd, Hd)
-    tuples, out, capped_changed = [], [], 0
+    tuples, out = [], []
     for row in rows:
         f, q, i = row["frame"], row["q"], row["moment"]
         dq = ctx["mom"].index.q[q]
@@ -280,11 +293,11 @@ def window_rows(P, game, w, comp, ctx) -> tuple:
         ct = cv2.perspectiveTransform(feet.reshape(-1, 1, 2), Ht).reshape(-1, 2) if len(feet) else \
             np.zeros((0, 2), np.float32)
         pairs = _match(ct, sv, B.MATCH_FT) if len(ct) else []
-        if len(ct):                                    # 9.2's diagnostic: distances capped before the assignment
+        alt_of = {}
+        if len(ct):                                    # 9.12 (6): each box's partner with distances capped first
             D = np.sqrt(((ct[:, None, :] - sv[None, :, :]) ** 2).sum(-1))
             ri, ci = linear_sum_assignment(np.where(D <= B.MATCH_FT, D, 1e6))
-            alt = {(int(a), int(b)) for a, b in zip(ri, ci) if D[a, b] <= B.MATCH_FT}
-            capped_changed += len({(bi, j) for bi, j, _ in pairs} ^ alt)
+            alt_of = {int(a): int(b) for a, b in zip(ri, ci) if D[a, b] <= B.MATCH_FT}
         cr = S.crowding(sv)
         for bi, j, dist in pairs:
             b = boxes[bi]
@@ -294,16 +307,24 @@ def window_rows(P, game, w, comp, ctx) -> tuple:
                 tuples.append((cid, lab, int(team[j])))
             out.append({"frame": int(f), "cid": int(cid), "tid": int(b["tid"]), "label": lab, "team": int(team[j]),
                         "pid": int(pid[j]), "id_pair": bool(dist <= B.ID_MATCH_FT),
-                        "crop": (int(f), int(b["tid"])) in crops,
+                        "crop": (int(f), int(b["tid"])) in crops, "capped_diff": alt_of.get(int(bi)) != int(j),
                         "crowd_sv": bin_of(float(cr[j]), (3.0, 6.0), ("<3", "3-6", ">6"))})
     crop_count = {}
     for (f_, t_) in crops:
         c_ = idmap.get(t_, t_)
         crop_count[c_] = crop_count.get(c_, 0) + 1
-    abst = {c for c, v in team_of.items() if v is None}
-    return tuples, out, {"fps": fps, "capped_pairs_changed": capped_changed,
-                         "abstained_tracks": len(abst),
+    in_rows = {r["cid"] for r in out}
+    abst = {c for c in in_rows if c in team_of and team_of[c] is None}          # 9.12 (8): abstained
+    no_entry = {c for c in in_rows if c not in team_of}                          # no team_by_track entry
+    lab = [r for r in out if r["label"] is not None]
+    ok = dict(zip(range(len(lab)), correct([(r["cid"], r["label"], r["team"]) for r in lab]))) if lab else {}
+    capped_rows = [i for i, r in enumerate(lab) if r["capped_diff"]]
+    return tuples, out, {"fps": fps,
+                         "capped_team_rows_changed": len(capped_rows),
+                         "capped_team_rows_changed_errors": sum(1 for i in capped_rows if not ok[i]),
+                         "abstained_tracks": len(abst), "no_team_entry_tracks": len(no_entry),
                          "abstained_crop_less": sum(1 for c in abst if crop_count.get(c, 0) < MIN_CROP_FRAMES),
+                         "no_entry_crop_less": sum(1 for c in no_entry if crop_count.get(c, 0) < MIN_CROP_FRAMES),
                          "abstained_rows": sum(1 for r in out if r["label"] is None)}
 
 
@@ -341,7 +362,16 @@ def collect(game: str) -> dict:
     rec = RB.read_json(recp)
     if rec.get("run_id") != RUN_ID:
         raise SystemExit(f"{WHO}: {recp.name} is not run {RUN_ID}")
-    watched = {k: RB.manifest(r[k], ("labels", "builds", "cache")) for k in ("ref", "ms")}
+    def watch():                                       # 9.12 (5): this game's pool windows' files only, no hou file
+        files = []
+        for s_ in sorted(rec["windows"]):
+            files += sorted((r["ref"] / "builds" / "r23").glob(f"{s_}_*"))
+            files += sorted((r["ref"] / "label_build").glob(f"{s_}*"))
+            files += [r["ref"] / "cache" / "scorecard" / f"{s_}.json",
+                      RB.truths(r)[game]["current"] / "labels" / game / f"{s_}.jsonl"]
+        files += [r["ms"] / "truth_accept" / f"{game}.json", r["ref"] / "truth_accept" / f"{game}.json"]
+        return {str(p.relative_to(p.anchor)): RB.sha256(p) for p in files}
+    watched = watch()
     t0 = time.time()
     P = F.install_paths()
     S.load_fixed_constants()
@@ -377,8 +407,10 @@ def collect(game: str) -> dict:
         if any(len({x["label"] for x in rws if x["cid"] == c}) > 1 for c in {x["cid"] for x in rws}):
             raise SystemExit(f"{WHO}: {s}: a canonical track carries two labels (section 2 says it cannot)")
         out_w[s] = {**info, "rows": rws}
-    after = {k: RB.manifest(r[k], ("labels", "builds", "cache")) for k in ("ref", "ms")}
-    out = {"game": game, "design": "docs/research/P8_teambound.md versions 1 and 1.1", "git": head,
+    after = watch()
+    if after != watched:                               # 9.12 (4): checked before anything is written
+        raise SystemExit(f"{WHO}: protected files changed; nothing is written")
+    out = {"game": game, "design": "docs/research/P8_teambound.md versions 1, 1.1 and 9.12", "git": head,
            "d202": {"run_id": RUN_ID, "sha256": D202_SHA[game]}, "windows": out_w,
            "manifest_unchanged": after == watched, "seconds": round(time.time() - t0, 1)}
     text = json.dumps(out)
@@ -388,8 +420,6 @@ def collect(game: str) -> dict:
     dd.mkdir(parents=True, exist_ok=True)
     atomic_write(dd / f"{game}.json", text)
     print(json.dumps({k: out[k] for k in ("game", "manifest_unchanged", "seconds")} | {"windows": len(out_w)}))
-    if after != watched:
-        raise SystemExit(f"{WHO}: protected files changed")
     return out
 
 
@@ -459,23 +489,36 @@ def purity_bands(rec: dict) -> dict:
     return {k: {"rows": v[0], "errors": v[1]} for k, v in out.items()}
 
 
+def check_records(recs: dict, pinned: dict) -> None:
+    """9.12 (4): both game records have manifest_unchanged true, the same clean head, and the pinned D202 hash."""
+    heads = {recs[g]["git"]["head"] for g in POOL}
+    if len(heads) != 1 or not all(recs[g]["git"]["tools_and_sportvu_clean"] for g in POOL):
+        raise SystemExit(f"{WHO}: the game records come from different or unclean heads")
+    for g in POOL:
+        if recs[g].get("manifest_unchanged") is not True:
+            raise SystemExit(f"{WHO}: {g}'s record does not read manifest_unchanged true")
+        if recs[g].get("d202", {}).get("sha256") != pinned[g]:
+            raise SystemExit(f"{WHO}: {g}'s record is not from the pinned D202 record")
+
+
 def report() -> dict:
     from tools import p8_rebaseline as RB
     from tools.p8_placecause import clean
     from export.schemas import find_private
+    from tools.p8_teamcause import D202_SHA
     r = RB.roots()
     recs = {g: RB.read_json(r["ref"] / "teambound" / f"{g}.json") for g in POOL}
+    check_records(recs, D202_SHA)
     res = {g: game_tables(recs[g]) for g in POOL}
     gains = {g: {"colour": res[g]["acc"]["O1"] - res[g]["acc"]["current"],
                  "tracking": res[g]["acc"]["O2_swap"] - res[g]["acc"]["O1"],
                  "combined": res[g]["acc"]["O2_swap"] - res[g]["acc"]["current"]} for g in POOL}
     pairs = {"colour": ("O1", "current"), "tracking": ("O2_swap", "O1"), "combined": ("O2_swap", "current")}
     mdes, bars = {}, {}
-    for k, (a, b) in pairs.items():
-        gw = [(sum(res[g]["per_window"][s][a]) - sum(res[g]["per_window"][s][b]), res[g]["per_window"][s]["n"])
-              for g in POOL for s in res[g]["per_window"] if res[g]["per_window"][s]["n"]]
+    for k, (a, b) in pairs.items():                    # 9.12 (1): every window, empty ones adding zero rows
+        gw = [((sum(o[a]) - sum(o[b])) if o["n"] else 0, o["n"]) for g in POOL for o in res[g]["per_window"].values()]
         mdes[k] = mde(gw)
-        bars[k] = max(BAR_MIN, mdes[k] / F_RECOVERY)
+        bars[k] = bar_of(mdes[k])
     reading = pattern(gains, bars)
     fragility = {}
     for L in L_GRID:
@@ -486,7 +529,14 @@ def report() -> dict:
         fragility[str(L)] = {"reading": pattern(gl, bars), "gains": gl,
                              "O2_swap": {g: rl[g]["acc"]["O2_swap"] for g in POOL},
                              "O2_all": {g: rl[g]["acc"]["O2_all"] for g in POOL}}
-    fragile = len({v["reading"] for v in fragility.values()}) > 1
+    # 9.12 (3): fragility per kind, tracking and combined only (O1 does not depend on L); bars fixed at L = 1.0
+    frag_kind = {}
+    for k in ("tracking", "combined"):
+        for g in POOL:
+            states = {v["gains"][g][k] >= bars[k] for v in fragility.values()}
+            frag_kind[f"{g}|{k}"] = len(states) > 1
+    fragile = any(frag_kind.values())
+    outer = {g: game_tables(recs[g], 0.0)["acc"]["O2_all"] for g in POOL}       # 9.12 (7): L = 0, report only
     per_game = {}
     for g in POOL:
         pw = res[g]["per_window"]
@@ -499,13 +549,17 @@ def report() -> dict:
             "cuts": {"swap": sum(t["tag"] == "swap" for t in tags), "orphan": sum(t["tag"] == "orphan" for t in tags),
                      "on_fragment_boundary": sum(t["fragment_boundary"] for t in tags)},
             "bin_split_by_crowding": bin_split(recs[g], pw), "purity_bands": purity_bands(recs[g]),
-            "abstention": {k: sum(w[k] for w in recs[g]["windows"].values())
-                           for k in ("abstained_tracks", "abstained_crop_less", "abstained_rows")},
-            "capped_pairs_changed_diagnostic": sum(w["capped_pairs_changed"] for w in recs[g]["windows"].values()),
+            "unlabelled": {k: sum(w[k] for w in recs[g]["windows"].values())
+                           for k in ("abstained_tracks", "no_team_entry_tracks", "abstained_crop_less",
+                                     "no_entry_crop_less", "abstained_rows")},
+            "capped_diagnostic": {k: sum(w[k] for w in recs[g]["windows"].values())
+                                  for k in ("capped_team_rows_changed", "capped_team_rows_changed_errors")},
+            "tracks_multi_id_no_sustained_run": sum(o.get("tracks_multi_id_no_sustained_run", 0) for o in pw.values()),
             "git": recs[g]["git"], "seconds": recs[g]["seconds"]}
     out = {"what": "docs/research/P8_teambound.md versions 1 and 1.1; report only; oracles use the truth",
            "per_game": per_game, "mde_one_game_93_windows": mdes, "bars": bars, "recovery_fraction": F_RECOVERY,
-           "reading": reading, "fragile_between_0_5_and_2_0_s": fragile, "fragility": fragility,
+           "reading": reading, "fragile_between_0_5_and_2_0_s": fragile, "fragile_by_game_and_kind": frag_kind,
+           "bars_fixed_at_L": L_RULE, "fragility": fragility, "O2_all_at_L0_outer_bound_report_only": outer,
            "prior_stated_before_the_run": "colour headroom on gsw_cha_2016, tracking headroom on gsw_bkn_2015"}
     res_c = clean(out)
     text = json.dumps(res_c, indent=1)

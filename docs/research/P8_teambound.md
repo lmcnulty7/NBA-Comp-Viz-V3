@@ -260,3 +260,44 @@ capped at 5 ft before the assignment (pairs beyond the gate given a large cost).
 - **Abstained rows are left out of every oracle's denominator,** as section 5 states. The abstained view (O1 with
   abstained tracks labelled too, a larger denominator) is reported apart, with the counts of abstained tracks,
   crop-less ones and their rows.
+
+### 9.12 Amendment (2026-11-27, after the code check of 23d51419, GO WITH CHANGES; before the run)
+
+Where this differs from sections 1 to 9.11, it rules.
+
+1. **The MDE takes no f.** As written in 9.5, f cancelled: the code multiplied each gain by f, then divided the MDE by
+   f. Now:
+   - d_w = oracle - current, without f;
+   - 93 windows are drawn with replacement from **all** cha and bkn windows (an empty window adds zero rows), 2,000
+     times;
+   - MDE = 2.8 x the standard deviation of the row-weighted mean gain.
+   - The bar stays B_arm = max(0.03, MDE / f), with f = 0.5. A test checks that f changes the bar.
+2. **The reading table's last rows** (replacing 9.11's tail):
+   - a combined clear on one game only reads "one game only", never "neither";
+   - "neither" is read only when the combined part lies below its bar on both games;
+   - anything else reads "unclassified".
+
+   Tests cover each case.
+3. **Fragility per kind.** Only the tracking and combined parts can be fragile, since O1 does not depend on L. Each is
+   checked per game across L = 0.5, 0.75, 1.0, 1.5 and 2.0 s. **The bars are fixed at L = 1.0**, and the other L values
+   reuse them.
+4. **Write order and checks.** collect checks the manifests before writing anything. report refuses unless both game
+   records:
+   - read manifest_unchanged true;
+   - come from the same clean head;
+   - carry the pinned D202 hash.
+5. **The watch** covers this game's pool windows' files only, as D203 did, so no hou_cle_2016 file is hashed. Per window:
+   - builds/r23/<window>_*, label_build/<window>*, cache/scorecard/<window>.json and the truth's labels file;
+   - per game, both truth_accept records.
+6. **The capped-pairing diagnostic** counts the team rows whose box's partner differs when distances are capped before
+   the assignment, and how many of those rows are errors. The scorer stays frozen.
+7. **Report only:**
+   - O2_all at L = 0, the outer bound (a cut at every id change);
+   - the count of tracks with two or more ids and no sustained run at L = 1.0.
+   - O2 is a **rule value**: it depends on L by construction.
+8. **The two kinds of unlabelled track are counted apart:**
+   - abstained: a team_by_track entry of None;
+   - no entry at all in team_by_track.
+
+   Each also gets its crop-less count.
+9. **New tests:** O3 at row level (a pure track relabelled, a mixed one kept) and O1c on crop rows.
