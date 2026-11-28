@@ -1,0 +1,129 @@
+{
+ "what": "P8 NMS arm pilot gate (docs/research/P8_nmsarm.md 14.4); report only",
+ "pilot_head": "8929a031dc6ad4e8b20f82c13693af648272c348",
+ "gates": {
+  "P1_missed_falls": true,
+  "P2_kill": false,
+  "P3_powered": false,
+  "duplicate_guard": true,
+  "mechanism_flag": true
+ },
+ "outcome": "STOP",
+ "rows": {
+  "missed": {
+   "change": -0.00645120081757794,
+   "interval": [
+    -0.00916,
+    -0.00344
+   ]
+  },
+  "detection": {
+   "change": -0.004982115482881959,
+   "interval": [
+    -0.00672,
+    -0.00308
+   ]
+  },
+  "placement": {
+   "change": -0.0014690853346959742,
+   "interval": [
+    -0.00338,
+    0.00044
+   ]
+  },
+  "ghosts_per_box": {
+   "change": 0.0015754246530679528,
+   "interval": [
+    -0.00034,
+    0.00365
+   ]
+  },
+  "ghosts_per_player": {
+   "change": 0.003321410321921292,
+   "interval": [
+    0.00119,
+    0.00556
+   ]
+  },
+  "net_error": {
+   "change": -0.0031297904956565925,
+   "interval": [
+    -0.00685,
+    0.00069
+   ]
+  },
+  "net_error_1to1": {
+   "change": -0.0016607051609606183,
+   "interval": [
+    -0.00586,
+    0.00255
+   ]
+  },
+  "coverage": {
+   "change": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ]
+  },
+  "position_p50_ft": {
+   "change": -0.0030805468559265137,
+   "interval": [
+    -0.01037,
+    0.00833
+   ],
+   "players": "matched under both truths"
+  },
+  "position_p90_ft": {
+   "change": -0.004597711563110618,
+   "interval": [
+    -0.02407,
+    0.01424
+   ],
+   "players": "matched under both truths"
+  },
+  "nearfield_bias_ft": {
+   "change": 0.00032520294189453125,
+   "interval": [
+    -0.0119,
+    0.01644
+   ],
+   "players": "matched under both truths"
+  },
+  "team": {
+   "change": 0.015103248705775618,
+   "interval": [
+    -0.01285,
+    0.04453
+   ],
+   "players": "each truth's own matched players, on the windows both score"
+  }
+ },
+ "duplicates_per_in_frame": {
+  "change": 0.0036407766990291315,
+  "interval": [
+   0.0019,
+   0.00495
+  ]
+ },
+ "p3_projected_half": 0.002467888830109205,
+ "mechanism": {
+  "arm_only_hits_by_class": {
+   "D-i": 55,
+   "P-i": 69,
+   "P-ii": 66,
+   "D-iii-free": 2
+  },
+  "ceiling": 0.0037685232498722533,
+  "ceiling_counts": {
+   "c2_recoverable_055": 59,
+   "in_frame": 15656,
+   "ceiling": 0.0037685232498722533
+  },
+  "arm_only_misses": 91,
+  "c2_hits_on_stored_frames": 52,
+  "flag_ceiling": true,
+  "flag_pii": false
+ },
+ "windows": 31
+}
