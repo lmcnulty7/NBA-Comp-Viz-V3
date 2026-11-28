@@ -351,3 +351,53 @@ The reading follows 10.6 with every zone's action, shown under both gaps.
 
 **12.4 Cost.** No lock time for the frames' decode (they are stored). The crowd detector on 775 frames at the probe's
 measured rate, under the lock; the report on the system python. hou_cle_2016: no data read.
+
+## 13. Stage 2 registered: S2-C, CrowdDet (2026-11-28; the lead's ruling; before any download or number)
+
+Where this section differs from section 12, it rules.
+
+**13.1 The choice.** Stage 2 is S2-C, CrowdDet. Options weighed by the lead: waiting for Lucien's ruling on
+Iter-Deformable-DETR's README-only grant would leave the machine idle until morning; CrowdDet has an MIT LICENSE file,
+and its weights fall under the MixSort precedent of D150 (1), so it is within current rules. Iter-Deformable-DETR stays a
+possible later S2-I if Lucien accepts its grant; it would then be reported beside CrowdDet as a second source, never
+as a rescue of a failed S2-C.
+
+**13.2 The source, read verbatim on 2026-11-28** (raw files fetched with curl, not a summarising fetch):
+- Code: github.com/xg-chu/CrowdDet (Purkialo/CrowdDet now resolves there), default branch master; LICENSE "MIT
+  License", "Copyright (c) 2020 Megvii Technology", the standard MIT grant over "this software and associated
+  documentation files" (raw.githubusercontent.com/xg-chu/CrowdDet/master/LICENSE; identical bytes from the Purkialo raw
+  URL and the GitHub API, spdx_id MIT). The code is cloned at the commit current at download, whose SHA is recorded.
+- Weights: "RCNN EMD with RM (trained with PyTorch)", AP 0.9030, MR 0.4128, JI 0.8263, rcnn_emd_refine.pth
+  (README.md's Google Drive link). Chosen over the MegEngine-converted row (0.9097, 0.4102, 0.8271) because it was
+  trained by the code that will run it. The README states no licence for the weights and does not name their training
+  data in words; its table is CrowdHuman's. SHA-256 recorded at download.
+- Training data's terms (www.crowdhuman.org/download.html): "You will use the data only for non-commercial research and
+  educational purposes." and "You will NOT distribute the above images." Use here is non-commercial research, and the
+  weights are never redistributed or committed.
+- The docs/DATA_SOURCES.md row is written in this commit, marked not downloaded.
+- Held-out screen: CrowdHuman is web images whose games cannot be identified; a residual risk that a held-out game's
+  image is among them is disclosed (D150 (2)).
+
+**13.3 The environment.** A separate venv outside iCloud and outside the repository, with the CrowdDet code and weights
+in the P8 data folder; nothing is installed into the frozen python or the teachers venv. Its Python, torch, torchvision
+and OpenCV versions are recorded. CrowdDet's test path may assume CUDA; the runner maps it to the CPU through the
+loader's map_location and the model's device only. Any further change to CrowdDet's code is listed in the record; a
+change to its model or post-processing logic stops stage 2 for a dated amendment.
+
+**13.4 The 5-frame probe (under the lock, before the full stage 2).** The first 5 frames of stage 1's inputs, hash-checked;
+CrowdDet's own inference and post-processing (its test configuration's thresholds and set NMS, unchanged) on the CPU
+with 4 threads; seconds per frame, boxes per frame, and that every frame yields boxes. Gate: the projection for the
+775 frames is at most 60 lock minutes, else the lead decides. The probe's boxes are not scored.
+
+**13.5 What runs (after the probe and the lead's go).** Stage 1's 775 stored frames and inputs (hash-checked); CrowdDet's
+boxes with score at least 0.5, court-filtered (10.8); sensitivities at 0.3 and 0.7. The same statistics as stage 1:
+one-to-one reach (assign_1to1), the floor, the cost rows, the positive control on r23's hits (gate 0.90). The increment
+is the C1 misses CrowdDet reaches that neither the floor nor the held teacher reaches (stage 1's stored teacher boxes);
+its ceiling C with the joint and f-only intervals, the extremes, and the union-baseline pair. The reading is 10.6's,
+every zone with its action, shown under the gap of 0.0021 and under 0.0069. The ghost condition compares CrowdDet's
+ghost proxy per sampled frame with the held teacher's on the same frames. Stage 2 runs only after stage 1's ml-review
+passes, or after its fixes, if any, leave stage 1's inputs and teacher boxes unchanged.
+
+**13.6 Cost and writes.** The probe about 2 lock minutes; the full pass at the probe's rate, cap 60; the report on the
+system python. Records: reports/research/p8_c1reach_stage2_probe.json and p8_c1reach_stage2.json; CrowdDet's boxes in
+the reference root's c1reach/. hou_cle_2016: no data read.
