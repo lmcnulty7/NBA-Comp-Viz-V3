@@ -78,6 +78,53 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
 8. Level 4 watch, weekly.
 9. Level 3 (E4 identity, E7 ball) once Level 2's detector question settles; it needs a cap proposal for GPU.
 
+## Watch (Levels 1 and 4, queue items 7 and 8)
+
+### 2026-11-28
+
+Research only: nothing downloaded, nothing signed up for, no League Pass recording (D128). Every fact below was read at
+its source on 2026-11-28 (raw pages fetched with curl, quoted verbatim), and is new relative to P8_level4.md,
+P8_step0.md and P8_datasets.md.
+
+**Level 4 (a licensed source of uncut modern broadcasts): none found; Level 4 stays closed (D159).**
+- NBA creator footage program. The NBA's release of 2024-10-21 (pr.nba.com/nba-announces-its-most-expansive-creator-
+  program-to-date-for-2024-25-season/): "The league will directly provide select influencers unprecedented access to
+  more than 25,000 hours of NBA game footage and AI-driven editing tools." Digiday (2024-10-24,
+  digiday.com/marketing/why-the-nba-is-helping-basketball-creators-make-longer-youtube-videos): the footage spans "from
+  2014 to the 2023-24 season, plus an additional 2,500 hours for the current season"; it is shared "with six YouTube
+  creators"; "The NBA will review content produced with the footage before release", and creators "would be dissuaded
+  from uploading entire games". A partner programme for named creators, reviewed, not a research licence and not
+  open; it changes nothing here. A 2026 release (pr.nba.com, 2026-10-19) mentions "hundreds of creators who have been
+  granted access to NBA game highlights this season", highlights only.
+- NBA Content Network terms (content.nba.com/terms_of_service): use is "solely to access NBA Content in accordance
+  with a Content License"; without one, the grant is "a one-time reproduction of the Footage and/or Photos ... solely
+  for news reporting purposes". No research use.
+- choucsan/NBA_Games (huggingface.co/datasets/choucsan/NBA_Games, created 2026-05-18, "license: mit"): 189 YouTube
+  "full-length NBA game videos" listed by id, with NBA.com box scores and play-by-play; "Video files are not included;
+  only YouTube IDs and URLs are provided", with use left to "YouTube's Terms of Service, copyright rules". The MIT
+  licence covers the metadata, not the videos. It lists 12 games of 2024-25 (uploaders not checked); across
+  all 189, durations run 4,801 to 10,131 s (median 6,454 s), shorter than a full broadcast, and 77 descriptions carry the
+  NBA channel's text, so most are likely the NBA's edited "Classic Game" uploads, the case D157 and D159 already closed
+  (inference from durations; not checked game by game).
+- NBA.com's own 2015-16 game pages offer "condensed fullgame" replays (for example nba.com/watch/video/jazz-warriors-
+  12-23-2015-condensed-fullgame), condensed by name and behind a League Pass prompt; excluded.
+
+**Level 1 (broadcasts syncable to the 2015-16 SportVU games): nothing new inside the SportVU window.**
+- choucsan/NBA_Games holds 4 regular-season 2015-16 games: 2016-02-19 GSW at POR (0021500815, NBA channel), 2016-02-22
+  LAL at MIL (0021500837, NBA channel), 2016-02-27 GSW at OKC (0021500874, NBA channel) and 2016-04-13 MEM at GSW
+  (0021501227, a fan upload). All fall after 2016-01-23, the end of the SportVU logs this project holds
+  (docs/DATA_SOURCES.md), so none can be synced to tracking truth. None is a held-out game (sportvu/splits.json:
+  12.16.2015 PHX at GSW, the Cleveland arena, the 2013 GSW at NYK era game) or a D85 test home (MIA, TOR, LAC, LAL).
+- NSVA (github.com/jackwu502/NSVA, CC BY-NC for its code and data): play-by-play event clips from "132 games ... in NBA
+  season 2018-2019", not continuous broadcast and not 2015-16.
+- An NBA YouTube description says "More than 500 Classic Games now available in the Watch tab of the NBA App"; that is a
+  streaming service whose terms were not read here; recording it is excluded on the same grounds as League Pass until
+  its terms are read.
+- NUST-NBA181 still waits on Lucien's email (D163 (3)).
+
+Next watch: the same sources weekly, plus a fresh YouTube and Bilibili search for SportVU-window games (P8_step0.md's
+method) if a new full-game collection appears.
+
 ## Lessons and priors
 
 - Measure the platform before the model. On this Mac, ultralytics 8.4.48 on MPS pins the x of the most confident
