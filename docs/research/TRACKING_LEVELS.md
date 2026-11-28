@@ -59,8 +59,8 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
    The 0.114 row is mostly the player's own box placed off on that frame, and about 0.58 of the ghost row is these same
    boxes (D207). Foot median shift killed (D206); the raw box bottom is no better than the smoothed foot (posefoot 0a).
    The no-box misses are lost mostly at the detector on kept windows (D208), with NMS about 0.12 of them.
-   The per-box ankle foot failed its falsifier (D210); every per-box foot route tried is closed. Next: whether the
-   own-box row is partly truth-side (P8_piiside, measured through B, since T absorbs truth errors by its per-frame fit).
+   The per-box ankle foot failed its falsifier (D210); every per-box foot route tried is closed. Whether the own-box
+   row is truth-side is not shown either way (D212); window time offsets vary beyond noise but P-ii barely follows.
    NMS threshold arm inconclusive at its pilot (D209). The detector stage is the main no-box loss on all misses, 0.69
    (D211). Running: a label-source survey for crowded players (P8_labelsource), since a detector recall arm stays
    paused under D183 until a new label source reaches the C1 misses.
@@ -142,6 +142,7 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
   hits, not by the misses the correction targets, so it moved position but not the missed row (D206).
 - A relayed estimate is not a record. A reviewer's figure passed on in a lead message entered a result section and failed review for traceability (D208); cite only committed records, or compute the figure into one.
 - Check a check's independence before calling it fair. The build's court mapping B was treated as independent of SportVU (D206, D210 rule 3), but on the pool games r23's court model was trained in sample on R1.3 labels written through an earlier SportVU-fitted truth (ROADMAP_LOG pass 13; found by the piiside design, 2026-11-28). B readings on cha and bkn are therefore not independent of SportVU: a shared error biases them toward agreement with the truth, so a disagreement found through B still counts, while an agreement does not prove independence.
+- Test a statistic's power on synthetic data before the run. The IQR of per-window offsets could not see errors in a quarter of windows by construction; a zero-noise test caught it before any data, and the share of off windows replaced it (D212).
 - Reproduce the build's read path before judging alignment. D208's strict tie rule dropped 32 of 120 windows; the later build-path replay (posefoot stage A) and a stored-file check showed 13 of the 32, and 2 to 4 kept windows, were misread where the build seeks, while 19 were aligned windows the rule dropped on ties (recallcause supplement design). Both the read and the rule mattered: put the burden of proof on misalignment with a margin, and copy the build's reads.
 - A pre-tracker screen on miss frames does not predict the build (D209): the NMS arm passed its screen and was inconclusive through the tracker, with misses falling more than the mechanism could explain.
 - Chain the steps, do not wait for a wake-up. A teammate waiting on a completion notice left the Mac idle 20 minutes
