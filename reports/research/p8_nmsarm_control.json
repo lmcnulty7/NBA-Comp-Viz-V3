@@ -1,0 +1,31 @@
+{
+ "stage": "control",
+ "iou": 0.55,
+ "head": "8929a031dc6ad4e8b20f82c13693af648272c348",
+ "windows": {
+  "gsw_cha_2016_s05_w00": {
+   "device": {
+    "requested": {
+     "detector": "cpu",
+     "court": "auto",
+     "gate": "auto"
+    },
+    "resolved": {
+     "detector": "cpu",
+     "court": "mps",
+     "gate": "mps"
+    },
+    "reset_fix": true,
+    "reset_fix_patched": "detect.tracker.PlayerTracker.reset",
+    "detector_iou": 0.55,
+    "iou_patched": "detect.tracker.PlayerTracker.__init__"
+   },
+   "differs": true,
+   "boxes_composite": 8371,
+   "boxes_arm": 8518,
+   "passed": true
+  }
+ },
+ "passed": true,
+ "seconds": 22.0
+}

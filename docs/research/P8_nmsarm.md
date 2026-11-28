@@ -400,3 +400,62 @@ differs from 14.1 to 14.5, it rules.
   pilot scores each side twice, once through score_pair for the rows and once through score_window for the
   observations, since score_pair does not return them).
 - All four identity windows and the control stay (the lead's decision).
+
+
+## 15. Stage 1 result (2026-11-27; run at 8929a031; reports/research/p8_nmsarm_identity.json, _control.json, _pilot.json and _pilot_gate.json)
+
+**15.1 Stage 1a.** Identity at 0.45 (build 1,207 s against an estimate of 1,231 s; scoring 36 s): all
+four windows (gsw_bkn_2015_s04_w00, gsw_cha_2016_s00_w00, gsw_cha_2016_s02_w01, gsw_cha_2016_s05_w00) equal the composite (sidecar as
+canonical JSON, identity and trajectories byte for byte), and both scored sides equal D202's record on every gate
+field. Positive control at 0.55 on gsw_cha_2016_s05_w00 (build 460 s): its device record says 0.55 and its
+sidecar differs, holding 8,518 boxes against the composite's 8,371. Both gates passed: the arm path reproduces the
+composite at 0.45 and moves the boxes at 0.55.
+
+**15.2 The pilot (0.55).** 31 windows built in 5,131 s (estimate 4,806 s, ratio 1.07) and scored in
+134 s; every baseline side equals D202's record. Arm minus baseline over 15,656 in-frame players, paired window
+bootstrap (2,000 resamples, seed 0):
+
+| row | change | 95 percent interval |
+|---|---|---|
+| missed | -0.0065 | [-0.0092, -0.0034] |
+| detection (no foot within 5 ft) | -0.0050 | [-0.0067, -0.0031] |
+| placement | -0.0015 | [-0.0034, +0.0004] |
+| ghosts per in-frame player | +0.0033 | [+0.0012, +0.0056] |
+| ghosts per box | +0.0016 | [-0.0003, +0.0037] |
+| net error (nearest rule) | -0.0031 | [-0.0069, +0.0007] |
+| one-to-one net error (primary) | -0.0017 | [-0.0059, +0.0026] |
+| position p50 (ft) | -0.0031 | [-0.0104, +0.0083] |
+| position p90 (ft) | -0.0046 | [-0.0241, +0.0142] |
+| near-field bias (ft) | +0.0003 | [-0.0119, +0.0164] |
+| team | +0.0151 | [-0.0129, +0.0445] |
+| duplicates per in-frame player | +0.0036 | [+0.0019, +0.0050] |
+
+**15.3 The gate, as registered (14.4 with 14.6).**
+- P1, missed falls: yes (-0.0065).
+- P2, kill: no; the one-to-one net error change is -0.0017, below 0.
+- P3, power: fails. The projected half-width on the 90 confirmation windows is 0.0025, above 0.7 times
+  |-0.0017| = 0.0012.
+- Duplicate guard: holds (+0.0036, at most +0.005).
+- Mechanism check: the flag fires. Missed falls by 0.0065 per in-frame player against a ceiling of
+  0.0038 (59 C2 misses recoverable at 0.55 over 15,656 in-frame players). The P-ii share of arm-only
+  hits is 66 of 192, under half, so that part of the check does not fire.
+
+**Outcome: STOP.** The arm stops at the pilot: no confirmation, no other threshold and nothing rerun (the protocol:
+never scale up to rescue a failed gate). hou_cle_2016 stays unspent.
+
+**15.4 Reading.**
+- The missed fall is larger than suppression recovery can explain. Arm-only hits are 192 (P-i 69, P-ii 66, D-i 55, D-iii-free 2), against
+  91 arm-only misses. On frames with stored candidates, 52 of the P-i and D-i arm-only hits are D208's C2.
+  Of the 124 P-i and D-i arm-only hits, the classes C2 belongs to, 52 are C2, and P-ii players (a box 2.5 to 5 ft away
+  already) gain almost as many (66). The reading, post hoc and not separated: part of the fall comes from tracker or
+  duplicate effects (a second box near a player, or a track that moves), not from recovered suppressed candidates.
+- Net error is not shown to fall: the one-to-one row -0.0017 [-0.0059, +0.0026] and the nearest-rule row -0.0031
+  [-0.0069, +0.0007] both span 0, while ghosts per in-frame player rise (+0.0033 [+0.0012, +0.0056]) and duplicates
+  rise.
+- The screen's pass did not carry to the build, as 13.3 warned: before the tracker, on universe frames only, the
+  one-to-one net fell clearly; through the tracker, on all scored frames, it does not.
+- The team row (+0.0151 [-0.0129, +0.0445]) is reported and not read: its interval spans 0.
+- Each number is on the 31 pilot windows of two games against a truth selected with r23's boxes at 0.45 (12.9).
+
+**15.5 Cost.** Lock time (the lock's own durations): stage 0 174 s (replay 42, screen 132); stage 1a 1,841 s (builds
+1,742, scoring 99); the pilot 5,326 s (build 5,170, scoring 156); 7,341 s, about 2.0 lock hours, 0 Colab units.
