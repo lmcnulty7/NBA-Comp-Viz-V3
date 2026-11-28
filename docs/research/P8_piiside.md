@@ -456,7 +456,7 @@ begins with it; the meaning is unchanged.
 | the null's 97.5th percentile of that share | 0.028 | 0.049 |
 | power (quarter-injection above the null's 97.5th) | 0.980 | 0.949 |
 | off windows | 21 | 29 |
-| enrichment, own P-ii rate in off windows over the rest (bar 1.5, interval excluding 1) | 1.31 [1.00, 1.75] | 1.13 [0.90, 1.42] |
+| enrichment, own P-ii rate in off windows over the rest (bar 1.5, interval excluding 1) | 1.31 [1.0009, 1.75]: the lower end just above 1 | 1.13 [0.90, 1.42] |
 
 - The window-level spread lies far beyond the null on both games, with power above 0.8, so timing is **not
   answered**.
@@ -492,12 +492,11 @@ The lower bound is read with the limit: not shown, B is not independent of Sport
 evidence that the row is build-side.
 
 **Post hoc, not ruled. The near-misses are not passes, and nothing is re-ruled.**
-- (i) Most windows carry a tau_B more than 0.1 s from the game's median. Either the truth's per-window time map or B
+- (i) Most of the windows with a tau_B (36 of 73 and 41 of 83) carry one more than 0.1 s from the game's median. Either the truth's per-window time map or B
   (in sample, through the tracker's Kalman state, and with camera pan) varies by window at that scale. The truth's
   offset solve is known to be fragile: D99 found offsets moving 0.3 to 0.8 s with small build differences, and D166
   found the median offset difference between builds fell only from 0.52 to 0.367 s under truth v2. But P-ii is only
   weakly enriched in those windows (1.31 and 1.13).
-- (ii) The camera numbers point the same way on both games, short of the 1.5 bar. Under B, nearly half of the own P-ii
-  boxes lie within 2.5 ft, above the build-side null. Read with the limit, a shared error between B and T would only
-  hide a disagreement. So a camera-side share of up to about 0.03 of in-frame players (the camera upper bound) is
-  plausible, but not shown.
+- (ii) The camera upper bound is 0.030 and 0.025. Above the build-side null's 97.5th percentile, the excess is about
+  0.013 and 0.010 of in-frame players. Neither is a plausible size: B's in-sample R1.3 lineage could hide a camera error
+  or create a disagreement. Not shown.
