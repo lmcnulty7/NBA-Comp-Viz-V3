@@ -151,7 +151,7 @@ measures the held teacher's reach and cost and validates the measurement (R0, R1
 decides nothing by itself; stage 2 is designed after it as section 7 says, with the rule of 10.6.
 
 **10.3 The environments (blocker).** The teacher cannot import in the frozen CV python (no loguru), and R2's record was
-made in ~/Developer/p8-teachers-venv (Python 3.13.3, torch 2.15.0). Nothing is installed into the frozen python. One
+made in the teachers venv, kept outside the repository (Python 3.13.3, torch 2.15.0). Nothing is installed into the frozen python. One
 lock job runs two processes in sequence:
 - **Step A, the frozen CV python:** the guards; D205's rows with the row gate; R0; the sample; build_read on the 120
   windows with r23's capture on every sampled frame (R1, 10.8); every sampled frame written losslessly (PNG) to the
