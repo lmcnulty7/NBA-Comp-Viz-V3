@@ -319,3 +319,35 @@ Union baseline (10.12): E1b's C on gsw_cha_2016 for the held teacher's labels -0
   referees, but some of those reaches may be a box on the referee assigned to the player (10.8's caveat). It draws more
   boxes and duplicates than r23 at 0.40 (7,628 against 7,053; 540 against 397) at about the same ghost proxy.
 - Limits as in section 8: raw reach, E1's transfer, post hoc classes, truth bias, the sample.
+
+## 12. Stage 2 design draft (2026-11-28; not registered; held for Lucien's licence ruling; nothing downloaded)
+
+A draft for the lead, to be registered by a dated amendment before any stage 2 download or number. It takes one of two
+crowd detectors, chosen by that amendment:
+- **S2-I, Iter-Deformable-DETR R-50 (CrowdHuman)**, if Lucien accepts the MIT grant that rests on its README sentence
+  alone (no LICENSE file; P8_labelsource.md section 7; D160 puts a weights-licence question like this to him);
+- **S2-C, CrowdDet RCNN EMD with RM (CrowdHuman)** otherwise: an MIT LICENSE file is present, and its weights, with no
+  stated licence and trained on non-commercial data, follow the held teacher's MixSort precedent under D150 (1).
+
+**12.1 Before any download.** A docs/DATA_SOURCES.md row with the chosen repository's licence text and CrowdHuman's
+terms re-read verbatim (P8_labelsource.md section 2); the weights' URL and, after download, their SHA-256; a separate
+environment outside the repository, with nothing installed into the frozen python or the teachers venv. A feasibility
+probe on 5 of the stored frames, timed, comes first: Iter-Deformable-DETR's deformable attention is a CUDA op upstream,
+so on this Mac it needs the pure PyTorch path, which may be slow; CrowdDet is a plain Faster R-CNN FPN. If the probe
+projects more than 60 lock minutes for the 775 frames, the amendment says so and the lead decides.
+
+**12.2 The operating point (fixed before any number).** P8_teachers.md's qualification (recall at r23's precision on
+the 50 box-truth frames) failed the COCO person detectors (recall 0.035 and 0.060), which box spectators and benches
+as well as players. A CrowdHuman detector boxes every person too, so that rule is likely to fail it for the same
+reason, and choosing a threshold on the C1 frames is not allowed. Proposed instead: a fixed score of 0.5, set now, with
+0.3 and 0.7 reported as sensitivities, and the court filter of 10.8 before everything. The ghost proxy and the near-no-
+player count carry the cost of non-player boxes.
+
+**12.3 What runs.** The 775 stored PNG frames (hash-checked against stage 1's inputs), the same C1 misses, the same
+one-to-one reach, floor, cost rows and transfer; the positive control on r23's hits at 0.90 again. The increment is the
+C1 misses the crowd detector reaches that neither the floor nor the held teacher reaches; its ceiling is C of that
+increment, with the joint and f-only intervals, the extremes, and the union-baseline pair (gaps 0.0021 and 0.0069).
+The reading follows 10.6 with every zone's action, shown under both gaps.
+
+**12.4 Cost.** No lock time for the frames' decode (they are stored). The crowd detector on 775 frames at the probe's
+measured rate, under the lock; the report on the system python. hou_cle_2016: no data read.
