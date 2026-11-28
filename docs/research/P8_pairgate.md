@@ -71,7 +71,8 @@ are D202's (truth frames selected with r23's boxes).
 Where this section differs from sections 1 to 7, it rules. Dates in this item are local time.
 
 **8.1 What is nearly decided already, stated first.** Team "insensitive" is nearly certain: D214 found at most 477 of
-49,674 team rows change under a gate-first rule (0.0096), against a D202 pooled half-width of 0.0155 for team. The open
+49,674 team rows change under a gate-first rule (0.0096; P8_teambound.md's capped diagnostic, 250 on cha plus 227 on
+bkn), against a D202 pooled half-width of 0.0155 for team. The open
 rows are position p90 and the near-field bias. The reading of section 5 is a practical-size rule, not a test: a row is
 scorer-sensitive when the absolute pooled change exceeds D202's half-width, (hi - lo) / 2 of its pooled interval.
 
@@ -120,8 +121,9 @@ difference is the net change. The tool reads only the pool keys of reports/resea
 
 ## 9. Result (2026-11-27, local; run at d2a06798; reports/research/p8_pairgate.json)
 
-**9.1 The run.** The fast suite under the lock first ("p8 pairgate fast tests", 357 s, passed), then one lock job ("p8
-pairgate", 502 s from the lock's log; the record's 489.7 s). hou_cle_2016: no file read or hashed.
+**9.1 The run.** The fast suite under the lock first ("p8 pairgate fast tests", 357 s from the lock's "done in" line in the chain
+log, passed), then one lock job ("p8 pairgate", 502 s from the lock's "done in" line; the record's own seconds are
+489.7). hou_cle_2016: no file read or hashed.
 - G1: the uncapped path reproduces D202's GATE_FIELDS on every one of the 156 windows. The D202 records hashed as pinned,
   every window's inputs hashed as D202 recorded them, and cache_gaps found nothing; the watched files were unchanged.
 - The swap: the frozen _match ran 5,893 times in the uncapped pass, the capped function 5,893 times in the capped
@@ -153,6 +155,9 @@ D202 half-width and the label. The eight rows of section 2 are 0 in every scope 
 | pooled | near-field bias (ft) | 1.4107 | 1.4043 | -0.0063 | -0.0067 [-0.0095, -0.0010] | 0.0919 | insensitive |
 | pooled | team | 0.8338 | 0.8311 | -0.0027 | -0.0027 [-0.0041, -0.0013] | 0.0155 | insensitive |
 
+Note: for team, the "paired" column is the own-rule difference (change_rows' team row uses each rule's own matched
+players); only the three position rows are paired on players matched under both rules.
+
 **Every row reads insensitive** in every scope: no change comes within a third of its D202 half-width. As 8.1
 expected, team was nearly certain to; position p90 and the near-field bias, the open rows, also read insensitive.
 
@@ -164,5 +169,6 @@ expected, team was nearly certain to; position p90 and the near-field bias, the 
   equals the own-rule difference; only the three position rows are on players matched under both.
 - The own-rule p90 difference (-0.029 ft pooled) is about twice the paired one (-0.013 ft), since each rule's own set
   includes the pairs only it keeps.
-- For Lucien's option (d): on cha and bkn, the scorer's order of gate and assignment is not what limits any D202 row.
-  The frozen rule stays the reported one.
+- For Lucien's option (d): under the capped rule, applying the gate before the assignment moves no D202 row by more
+  than about a sixth of its half-width on cha and bkn (the 1e6 rule was not scored). The frozen rule stays the reported
+  one.
