@@ -225,6 +225,16 @@ def strict_208(side: dict, preds: dict, uframes: list) -> dict:
     return {"frames": len(shares), "shares": shares, "aligned": RC.alignment_ok(shares)}
 
 
+def read_status(validation_passes: bool, all_frames_read: bool, verdict_build: str | None) -> str:
+    """9.9: a re-read window is left out and counted when the build's read path is not reproduced, or when 14.2 reads
+    the build read misaligned; a window undetermined only for too few eligible frames is kept (stage A covers it)."""
+    if not (validation_passes and all_frames_read):
+        return "undetermined: the build's read path is not reproduced"
+    if verdict_build == "misaligned":
+        return "excluded: misaligned on the build read"
+    return "classified"
+
+
 def seeks_past_zero(stage_a_window: dict) -> bool:
     return any(int(x) > 0 for x in stage_a_window.get("seeks_main") or [])
 
@@ -561,21 +571,24 @@ def cmd_run(args) -> dict:
             rec = {"kept": s in kept, "misses": len(uni), "gate_device": dev, "backend": br["backend"],
                    "seeks_main": br["seeks_main"], "seeks_pregate": len(br["seeks_pregate"]),
                    "read_validation": br["validation"]}
-            if not br["validation"]["passes"] or set(uframes) - set(br["preds"]):
-                per_window[s] = {**rec, "status": "undetermined: the build's read path is not reproduced"}
+            ok_read = bool(br["validation"]["passes"]) and not (set(uframes) - set(br["preds"]))
+            if not ok_read:
+                per_window[s] = {**rec, "status": read_status(False, False, None)}
                 continue
             res = br["preds"]
-            rec.update({"status": "classified",
+            v_build = verdict_142(side, {f: v["post"] for f, v in res.items()})
+            rec.update({"status": read_status(True, True, v_build["verdict"]),
                         "verdict_142": {"stored": verdict_142(side, {f: v["post"] for f, v in stored.items()}),
-                                        "build": verdict_142(side, {f: v["post"] for f, v in res.items()})},
+                                        "build": v_build},
                         "strict_208": {"stored": strict_208(side, {f: v["post"] for f, v in stored.items()}, uframes),
                                        "build": strict_208(side, {f: v["post"] for f, v in res.items()}, uframes)}})
             if s in kept:                            # diagnostic (9.3): stored against build-read candidates
                 rec["frames_differing_from_stored"] = sum(1 for f in uframes if not same_candidates(res[f], stored[f]))
             atomic_write(sup_d / f"{s}.json", json.dumps({str(f): {k: v[k] for k in ("post", "pre", "other", "low")}
                                                           for f, v in res.items()}))
-            build_m[s] = classify_window(g, s, uni, rows, res, side["fps"])
             per_window[s] = rec
+            if rec["status"] == "classified":
+                build_m[s] = classify_window(g, s, uni, rows, res, side["fps"])
     bad = counts_differ(unit_tables([m for s in kept for m in stored_m[s]]), rc["units"])   # G3 (9.5)
     if bad:
         raise SystemExit(f"{WHO}: G3 fails: the recomputed 88-window counts differ from D208's in {bad[:5]}")
@@ -583,7 +596,7 @@ def cmd_run(args) -> dict:
         raise SystemExit(f"{WHO}: a build-read miss reads 'other' (expected 0); a code fault")
     if watch() != before:
         raise SystemExit(f"{WHO}: a watched folder changed; nothing is reported")
-    undet = sorted(s for s, v in per_window.items() if v["status"] != "classified")
+    undet = sorted(s for s, v in per_window.items() if v["status"] != "classified")     # left out and counted (9.9)
     pick = lambda names, src: [m for s in names if s in src for m in src[s]]
     out = {"what": "P8 recall-cause supplement: D208's windows re-read the build's way "
                    "(docs/research/P8_recallcause_supp.md, version 1.1); report only; beside P8_recallcause.md 9.3",

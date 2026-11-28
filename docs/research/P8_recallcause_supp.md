@@ -165,3 +165,9 @@ gate v2 as stage A loads it). The allow-list refuses hou_cle_2016 and gsw_sac_20
 windows' universe frames (1,659 stored universe frames: 989 dropped, 670 kept), G1's 242 frames, the pre-gate pass on 53
 windows, and D205's rows on all 120 windows: about 25 to 30 lock minutes (D208 ran 3,631 frames in 2,243 s; stage A
 read 156 windows in 1,236 s). Cap 50 minutes. 0 Colab units. hou_cle_2016 unspent.
+
+**9.9 The code check of 2dc8a852 (2026-11-27; G0 may run; the lock job GO WITH CHANGES; before the run).** A re-read
+window whose build-read 14.2 verdict is "misaligned" is left out of every reading and counted, like a window whose read
+path is not reproduced. A window that 14.2 reads undetermined only because fewer than 10 of its universe frames are
+eligible is kept: stage A's own verdict covers it. The run's order: G0 from the clean tree (system python, no lock),
+its record committed, then the lock job.

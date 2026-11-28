@@ -103,6 +103,14 @@ def test_eligible_and_verdict_142():
     assert SU.verdict_142(side, {f: good[f] for f in fr[:9]})["verdict"] == "undetermined"
 
 
+def test_read_status():
+    assert SU.read_status(True, True, "aligned") == "classified"
+    assert SU.read_status(True, True, "undetermined") == "classified"          # too few frames only: kept (9.9)
+    assert SU.read_status(True, True, "misaligned").startswith("excluded")
+    assert SU.read_status(False, True, "aligned").startswith("undetermined")
+    assert SU.read_status(True, False, None).startswith("undetermined")
+
+
 def test_reread_sets():
     kept, dropped = ["a_k1", "a_k2", "a_k3"], ["a_d1", "a_d2"]
     seek = {"a_k1": True, "a_k2": False, "a_k3": False, "a_d1": True, "a_d2": False}
