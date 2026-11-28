@@ -352,3 +352,7 @@ court projection on these same games. B is not a frame free of SportVU here.
     ROADMAP R2.2 is "far behind V3", and V3's own grid model was trained on Roboflow nbacourt frames only, per FIX_PLAN.md's
     provenance note);
   - (iii) close the item as not measurable with an independent frame.
+- A SportVU-free H does exist for every frame: the V3 label build's H (label_build/<window>_frames.json; V3's grid
+  model, trained on Roboflow nbacourt frames only). But it sits a median 6.9 ft from the truth at the feet (D186's
+  decomposition), far too coarse for a 2.5 ft question. The truth T was also initialised from it (sportvu/camera.py,
+  pose_from_h of H_v3). So it is not a usable independent frame either.
