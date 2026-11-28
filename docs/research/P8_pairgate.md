@@ -116,3 +116,53 @@ gained and lost are reported, not assumed to rise.
 row by row: each rule's team n (counts.team_n_uncapped and counts.team_n_capped per scope) stands in for them, and their
 difference is the net change. The tool reads only the pool keys of reports/research/p8_rebaseline.json
 (pooled_cha_bkn and per_game gsw_cha_2016__current and gsw_bkn_2015__current); no hou key is read.
+
+
+## 9. Result (2026-11-27, local; run at d2a06798; reports/research/p8_pairgate.json)
+
+**9.1 The run.** The fast suite under the lock first ("p8 pairgate fast tests", 357 s, passed), then one lock job ("p8
+pairgate", 502 s from the lock's log; the record's 489.7 s). hou_cle_2016: no file read or hashed.
+- G1: the uncapped path reproduces D202's GATE_FIELDS on every one of the 156 windows. The D202 records hashed as pinned,
+  every window's inputs hashed as D202 recorded them, and cache_gaps found nothing; the watched files were unchanged.
+- The swap: the frozen _match ran 5,893 times in the uncapped pass, the capped function 5,893 times in the capped
+  pass and 0 times in the uncapped one.
+- The rows that do not use _match (missed, detection, placement, both ghost rows, net error, one-to-one net error,
+  coverage) changed by exactly 0 on every window, as section 2 predicted.
+
+**9.2 Pairs.** The frozen rule kept 51,244 pairs and the capped rule 51,522: 953 gained and 675 lost, on 745 of
+the 5,893 scored frames with boxes. Team n: 49,674 uncapped against 49,948 capped (gsw_cha_2016 24,708
+and 24,862; gsw_bkn_2015 24,966 and 25,086). Report only (8.2): the capped and the 1e6 assignments differ on 181 frames and in 588
+pairs.
+
+**9.3 Rows, as registered (8.1, 8.7).** Own-rule values (each rule's own matched players and team n) and their
+difference; beside them the paired change on players matched under both rules with its window-bootstrap interval, the
+D202 half-width and the label. The eight rows of section 2 are 0 in every scope and are not repeated here.
+
+| scope | row | own, uncapped | own, capped | own difference | paired change [interval] | D202 half-width | reading |
+|---|---|---|---|---|---|---|---|
+| gsw_cha_2016 | position p50 (ft) | 1.5664 | 1.5594 | -0.0070 | -0.0023 [-0.0047, -0.0001] | 0.0827 | insensitive |
+| gsw_cha_2016 | position p90 (ft) | 3.3038 | 3.2663 | -0.0376 | -0.0148 [-0.0303, -0.0061] | 0.1659 | insensitive |
+| gsw_cha_2016 | near-field bias (ft) | 1.2171 | 1.2121 | -0.0050 | -0.0051 [-0.0112, +0.0004] | 0.0961 | insensitive |
+| gsw_cha_2016 | team | 0.8101 | 0.8067 | -0.0034 | -0.0034 [-0.0057, -0.0012] | 0.0242 | insensitive |
+| gsw_bkn_2015 | position p50 (ft) | 1.5931 | 1.5869 | -0.0062 | -0.0035 [-0.0061, -0.0013] | 0.0641 | insensitive |
+| gsw_bkn_2015 | position p90 (ft) | 3.4304 | 3.4186 | -0.0118 | -0.0105 [-0.0231, -0.0032] | 0.1489 | insensitive |
+| gsw_bkn_2015 | near-field bias (ft) | 1.5954 | 1.5895 | -0.0058 | -0.0059 [-0.0146, -0.0011] | 0.1064 | insensitive |
+| gsw_bkn_2015 | team | 0.8572 | 0.8553 | -0.0019 | -0.0019 [-0.0036, -0.0004] | 0.0146 | insensitive |
+| pooled | position p50 (ft) | 1.5803 | 1.5727 | -0.0076 | -0.0026 [-0.0044, -0.0012] | 0.0547 | insensitive |
+| pooled | position p90 (ft) | 3.3705 | 3.3419 | -0.0286 | -0.0135 [-0.0237, -0.0073] | 0.1167 | insensitive |
+| pooled | near-field bias (ft) | 1.4107 | 1.4043 | -0.0063 | -0.0067 [-0.0095, -0.0010] | 0.0919 | insensitive |
+| pooled | team | 0.8338 | 0.8311 | -0.0027 | -0.0027 [-0.0041, -0.0013] | 0.0155 | insensitive |
+
+**Every row reads insensitive** in every scope: no change comes within a third of its D202 half-width. As 8.1
+expected, team was nearly certain to; position p90 and the near-field bias, the open rows, also read insensitive.
+
+**9.4 Post hoc, not registered.**
+- Under the capped rule every matched-position row moves slightly toward smaller errors, and team moves slightly down
+  (pooled -0.0027, interval [-0.0041, -0.0013]) while team n rises by 274: the pairs the capped rule adds or reassigns
+  are, on these numbers, a little less often team-correct than the rest. Not tested.
+- change_rows' team row uses each rule's own matched players (its label says so), so for team the "paired" column
+  equals the own-rule difference; only the three position rows are on players matched under both.
+- The own-rule p90 difference (-0.029 ft pooled) is about twice the paired one (-0.013 ft), since each rule's own set
+  includes the pairs only it keeps.
+- For Lucien's option (d): on cha and bkn, the scorer's order of gate and assignment is not what limits any D202 row.
+  The frozen rule stays the reported one.

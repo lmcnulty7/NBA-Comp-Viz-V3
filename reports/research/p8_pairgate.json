@@ -1,0 +1,835 @@
+{
+ "what": "P8 pair gate: the scorer's rows with the gate applied before the assignment (docs/research/P8_pairgate.md v1.1); report only; the frozen rule stays reported",
+ "head": "d2a0679804e64abf4bb48fe01c5182d03c57beb3",
+ "d202": {
+  "run_id": "20261127T171848Z",
+  "sha256": {
+   "gsw_cha_2016": "24c3b7d9d58da5fa5b080a200dc295b42cf4e47cc3af7ffc6a793f07374c32b0",
+   "gsw_bkn_2015": "151c27f549711322bdff4cfbb0294ebc2a4e41604bc30c4182dafc828305498c"
+  }
+ },
+ "g1": "passed",
+ "calls": {
+  "uncapped_pass_frozen": 5893,
+  "capped_pass_capped": 5893
+ },
+ "pairs": {
+  "frozen": 51244,
+  "capped": 51522,
+  "gained": 953,
+  "lost": 675,
+  "frames_differ": 745,
+  "capped_vs_1e6_frames_differ": 181,
+  "capped_vs_1e6_pairs_differ": 588
+ },
+ "rows": {
+  "gsw_cha_2016": {
+   "paired_common_players": {
+    "missed": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "detection": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "placement": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "ghosts_per_box": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "ghosts_per_player": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "net_error": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "net_error_1to1": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "coverage": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "position_p50_ft": {
+     "change": -0.0022803544998168945,
+     "interval": [
+      -0.0047,
+      -6e-05
+     ],
+     "players": "matched under both truths"
+    },
+    "position_p90_ft": {
+     "change": -0.014780616760253995,
+     "interval": [
+      -0.0303,
+      -0.00608
+     ],
+     "players": "matched under both truths"
+    },
+    "nearfield_bias_ft": {
+     "change": -0.005079746246337891,
+     "interval": [
+      -0.0112,
+      0.00043
+     ],
+     "players": "matched under both truths"
+    },
+    "team": {
+     "change": -0.00340929689698366,
+     "interval": [
+      -0.00575,
+      -0.00123
+     ],
+     "players": "each truth's own matched players, on the windows both score"
+    }
+   },
+   "own_rule_values": {
+    "missed": {
+     "uncapped": 0.20846378443029515,
+     "capped": 0.20846378443029515,
+     "difference": 0.0
+    },
+    "detection": {
+     "uncapped": 0.05230942413902276,
+     "capped": 0.05230942413902276,
+     "difference": 0.0
+    },
+    "placement": {
+     "uncapped": 0.1561543602912724,
+     "capped": 0.1561543602912724,
+     "difference": 0.0
+    },
+    "ghosts_per_box": {
+     "uncapped": 0.12451837581505631,
+     "capped": 0.12451837581505631,
+     "difference": 0.0
+    },
+    "ghosts_per_player": {
+     "uncapped": 0.11823266612727337,
+     "capped": 0.11823266612727337,
+     "difference": 0.0
+    },
+    "net_error": {
+     "uncapped": 0.3266964505575685,
+     "capped": 0.3266964505575685,
+     "difference": 0.0
+    },
+    "net_error_1to1": {
+     "uncapped": 0.4063390438667464,
+     "capped": 0.4063390438667464,
+     "difference": 0.0
+    },
+    "coverage": {
+     "uncapped": 0.9930358524632446,
+     "capped": 0.9930358524632446,
+     "difference": 0.0
+    },
+    "position_p50_ft": {
+     "uncapped": 1.566381812095642,
+     "capped": 1.5594288110733032,
+     "difference": -0.006953001022338867
+    },
+    "position_p90_ft": {
+     "uncapped": 3.3038411140441895,
+     "capped": 3.26627106666565,
+     "difference": -0.03757004737853942
+    },
+    "nearfield_bias_ft": {
+     "uncapped": 1.2170639038085938,
+     "capped": 1.212071418762207,
+     "difference": -0.004992485046386719
+    },
+    "team": {
+     "uncapped": 0.8101424639792779,
+     "capped": 0.8067331670822943,
+     "difference": -0.00340929689698366
+    }
+   },
+   "reading": {
+    "missed": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.01831,
+     "label": "insensitive"
+    },
+    "detection": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.00582,
+     "label": "insensitive"
+    },
+    "placement": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.01477,
+     "label": "insensitive"
+    },
+    "ghosts_per_box": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.0151,
+     "label": "insensitive"
+    },
+    "ghosts_per_player": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.01486,
+     "label": "insensitive"
+    },
+    "net_error": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.03189,
+     "label": "insensitive"
+    },
+    "net_error_1to1": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.03621,
+     "label": "insensitive"
+    },
+    "coverage": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.00879,
+     "label": "insensitive"
+    },
+    "position_p50_ft": {
+     "change": -0.0022803544998168945,
+     "interval": [
+      -0.0047,
+      -6e-05
+     ],
+     "d202_half_width": 0.08274,
+     "label": "insensitive"
+    },
+    "position_p90_ft": {
+     "change": -0.014780616760253995,
+     "interval": [
+      -0.0303,
+      -0.00608
+     ],
+     "d202_half_width": 0.16593,
+     "label": "insensitive"
+    },
+    "nearfield_bias_ft": {
+     "change": -0.005079746246337891,
+     "interval": [
+      -0.0112,
+      0.00043
+     ],
+     "d202_half_width": 0.09611,
+     "label": "insensitive"
+    },
+    "team": {
+     "change": -0.00340929689698366,
+     "interval": [
+      -0.00575,
+      -0.00123
+     ],
+     "d202_half_width": 0.02417,
+     "label": "insensitive"
+    }
+   },
+   "counts": {
+    "windows": 73,
+    "team_n_uncapped": 24708,
+    "team_n_capped": 24862
+   }
+  },
+  "gsw_bkn_2015": {
+   "paired_common_players": {
+    "missed": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "detection": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "placement": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "ghosts_per_box": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "ghosts_per_player": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "net_error": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "net_error_1to1": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "coverage": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "position_p50_ft": {
+     "change": -0.0034726858139038086,
+     "interval": [
+      -0.00608,
+      -0.00128
+     ],
+     "players": "matched under both truths"
+    },
+    "position_p90_ft": {
+     "change": -0.01050381660461408,
+     "interval": [
+      -0.02308,
+      -0.0032
+     ],
+     "players": "matched under both truths"
+    },
+    "nearfield_bias_ft": {
+     "change": -0.005916595458984375,
+     "interval": [
+      -0.01455,
+      -0.00114
+     ],
+     "players": "matched under both truths"
+    },
+    "team": {
+     "change": -0.0019082158384530201,
+     "interval": [
+      -0.00355,
+      -0.00038
+     ],
+     "players": "each truth's own matched players, on the windows both score"
+    }
+   },
+   "own_rule_values": {
+    "missed": {
+     "uncapped": 0.21998638066053797,
+     "capped": 0.21998638066053797,
+     "difference": 0.0
+    },
+    "detection": {
+     "uncapped": 0.06520258767449778,
+     "capped": 0.06520258767449778,
+     "difference": 0.0
+    },
+    "placement": {
+     "uncapped": 0.15478379298604017,
+     "capped": 0.15478379298604017,
+     "difference": 0.0
+    },
+    "ghosts_per_box": {
+     "uncapped": 0.11764924817626916,
+     "capped": 0.11764924817626916,
+     "difference": 0.0
+    },
+    "ghosts_per_player": {
+     "uncapped": 0.10762683009874022,
+     "capped": 0.10762683009874022,
+     "difference": 0.0
+    },
+    "net_error": {
+     "uncapped": 0.3276132107592782,
+     "capped": 0.3276132107592782,
+     "difference": 0.0
+    },
+    "net_error_1to1": {
+     "uncapped": 0.413585291113381,
+     "capped": 0.413585291113381,
+     "difference": 0.0
+    },
+    "coverage": {
+     "uncapped": 0.998061463025258,
+     "capped": 0.998061463025258,
+     "difference": 0.0
+    },
+    "position_p50_ft": {
+     "uncapped": 1.593109369277954,
+     "capped": 1.5868866443634033,
+     "difference": -0.006222724914550781
+    },
+    "position_p90_ft": {
+     "uncapped": 3.430398941040039,
+     "capped": 3.4185577392578144,
+     "difference": -0.011841201782224697
+    },
+    "nearfield_bias_ft": {
+     "uncapped": 1.5953503847122192,
+     "capped": 1.5895328521728516,
+     "difference": -0.005817532539367676
+    },
+    "team": {
+     "uncapped": 0.8572458543619322,
+     "capped": 0.8553376385234792,
+     "difference": -0.0019082158384530201
+    }
+   },
+   "reading": {
+    "missed": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.01559,
+     "label": "insensitive"
+    },
+    "detection": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.0091,
+     "label": "insensitive"
+    },
+    "placement": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.01179,
+     "label": "insensitive"
+    },
+    "ghosts_per_box": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.01298,
+     "label": "insensitive"
+    },
+    "ghosts_per_player": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.0122,
+     "label": "insensitive"
+    },
+    "net_error": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.02542,
+     "label": "insensitive"
+    },
+    "net_error_1to1": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.03005,
+     "label": "insensitive"
+    },
+    "coverage": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.00191,
+     "label": "insensitive"
+    },
+    "position_p50_ft": {
+     "change": -0.0034726858139038086,
+     "interval": [
+      -0.00608,
+      -0.00128
+     ],
+     "d202_half_width": 0.0641,
+     "label": "insensitive"
+    },
+    "position_p90_ft": {
+     "change": -0.01050381660461408,
+     "interval": [
+      -0.02308,
+      -0.0032
+     ],
+     "d202_half_width": 0.14894,
+     "label": "insensitive"
+    },
+    "nearfield_bias_ft": {
+     "change": -0.005916595458984375,
+     "interval": [
+      -0.01455,
+      -0.00114
+     ],
+     "d202_half_width": 0.10636,
+     "label": "insensitive"
+    },
+    "team": {
+     "change": -0.0019082158384530201,
+     "interval": [
+      -0.00355,
+      -0.00038
+     ],
+     "d202_half_width": 0.01462,
+     "label": "insensitive"
+    }
+   },
+   "counts": {
+    "windows": 83,
+    "team_n_uncapped": 24966,
+    "team_n_capped": 25086
+   }
+  },
+  "pooled": {
+   "paired_common_players": {
+    "missed": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "detection": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "placement": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "ghosts_per_box": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "ghosts_per_player": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "net_error": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "net_error_1to1": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "coverage": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "position_p50_ft": {
+     "change": -0.0025898218154907227,
+     "interval": [
+      -0.00443,
+      -0.00123
+     ],
+     "players": "matched under both truths"
+    },
+    "position_p90_ft": {
+     "change": -0.01347031593322745,
+     "interval": [
+      -0.02365,
+      -0.00733
+     ],
+     "players": "matched under both truths"
+    },
+    "nearfield_bias_ft": {
+     "change": -0.006666660308837891,
+     "interval": [
+      -0.00945,
+      -0.00105
+     ],
+     "players": "matched under both truths"
+    },
+    "team": {
+     "change": -0.002672093306466672,
+     "interval": [
+      -0.00414,
+      -0.00128
+     ],
+     "players": "each truth's own matched players, on the windows both score"
+    }
+   },
+   "own_rule_values": {
+    "missed": {
+     "uncapped": 0.21431908230530997,
+     "capped": 0.21431908230530997,
+     "difference": 0.0
+    },
+    "detection": {
+     "uncapped": 0.05886118656677682,
+     "capped": 0.05886118656677682,
+     "difference": 0.0
+    },
+    "placement": {
+     "uncapped": 0.15545789573853314,
+     "capped": 0.15545789573853314,
+     "difference": 0.0
+    },
+    "ghosts_per_box": {
+     "uncapped": 0.12109171927218715,
+     "capped": 0.12109171927218715,
+     "difference": 0.0
+    },
+    "ghosts_per_player": {
+     "uncapped": 0.11284322715711888,
+     "capped": 0.11284322715711888,
+     "difference": 0.0
+    },
+    "net_error": {
+     "uncapped": 0.32716230946242886,
+     "capped": 0.32716230946242886,
+     "difference": 0.0
+    },
+    "net_error_1to1": {
+     "uncapped": 0.4100212813813866,
+     "capped": 0.4100212813813866,
+     "difference": 0.0
+    },
+    "coverage": {
+     "uncapped": 0.995703089539141,
+     "capped": 0.995703089539141,
+     "difference": 0.0
+    },
+    "position_p50_ft": {
+     "uncapped": 1.5802611112594604,
+     "capped": 1.5726932883262634,
+     "difference": -0.0075678229331970215
+    },
+    "position_p90_ft": {
+     "uncapped": 3.37046115398407,
+     "capped": 3.3418893575668336,
+     "difference": -0.028571796417236506
+    },
+    "nearfield_bias_ft": {
+     "uncapped": 1.4106624126434326,
+     "capped": 1.404341697692871,
+     "difference": -0.0063207149505615234
+    },
+    "team": {
+     "uncapped": 0.833816483472239,
+     "capped": 0.8311443901657724,
+     "difference": -0.002672093306466672
+    }
+   },
+   "reading": {
+    "missed": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.01186,
+     "label": "insensitive"
+    },
+    "detection": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.00552,
+     "label": "insensitive"
+    },
+    "placement": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.00939,
+     "label": "insensitive"
+    },
+    "ghosts_per_box": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.0105,
+     "label": "insensitive"
+    },
+    "ghosts_per_player": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.01002,
+     "label": "insensitive"
+    },
+    "net_error": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.02075,
+     "label": "insensitive"
+    },
+    "net_error_1to1": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.02355,
+     "label": "insensitive"
+    },
+    "coverage": {
+     "change": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "d202_half_width": 0.00442,
+     "label": "insensitive"
+    },
+    "position_p50_ft": {
+     "change": -0.0025898218154907227,
+     "interval": [
+      -0.00443,
+      -0.00123
+     ],
+     "d202_half_width": 0.05466,
+     "label": "insensitive"
+    },
+    "position_p90_ft": {
+     "change": -0.01347031593322745,
+     "interval": [
+      -0.02365,
+      -0.00733
+     ],
+     "d202_half_width": 0.11665,
+     "label": "insensitive"
+    },
+    "nearfield_bias_ft": {
+     "change": -0.006666660308837891,
+     "interval": [
+      -0.00945,
+      -0.00105
+     ],
+     "d202_half_width": 0.09191,
+     "label": "insensitive"
+    },
+    "team": {
+     "change": -0.002672093306466672,
+     "interval": [
+      -0.00414,
+      -0.00128
+     ],
+     "d202_half_width": 0.0155,
+     "label": "insensitive"
+    }
+   },
+   "counts": {
+    "windows": 156,
+    "team_n_uncapped": 49674,
+    "team_n_capped": 49948
+   }
+  }
+ },
+ "seconds": 489.7
+}
