@@ -180,7 +180,7 @@ Everything in this section sits beside P8_recallcause.md 9.3, which stands as D2
 
 **10.1 The run.** G0 ran on stored files at eaa8c072 (no lock). The lock job ("p8 recallsupp", frozen CV python,
 stage A's environment, the gate on mps as each window's build record resolved it, backend AVFOUNDATION in every window)
-took 1,074 s of lock (the record's 1,051 s). The manifests, recallcause/ included, were unchanged.
+took 1,074 s of lock (the lock's "done in" line in the chain's log; the record's own seconds are 1,051). The manifests, recallcause/ included, were unchanged.
 
 **10.2 G0.** 14.2 on the stored R_post: of the 88 kept windows, 57 aligned, 2 misaligned (gsw_cha_2016_s07_w00, M_0
 0.557, and gsw_cha_2016_s06_w01, M_0 0.786; both seek windows) and 29 undetermined for fewer than 10 eligible stored
@@ -223,6 +223,8 @@ D208's main-loss rule on the pooled units).**
 | all 120 windows (46 stored, 74 build-read), post hoc | D-i | 2,541 (115) | 0.765 [0.738, 0.792] | 0.096 [0.079, 0.117] | 0.078 [0.065, 0.091] | 0.061 [0.050, 0.073] | C1: main loss (lower 0.738) |
 | all 120 windows (46 stored, 74 build-read), post hoc | both | 4,882 (120) | 0.693 [0.667, 0.719] | 0.124 [0.107, 0.142] | 0.069 [0.059, 0.078] | 0.114 [0.102, 0.127] | C1: main loss (lower 0.667) |
 
+The sensitivity row used 46 stored plus 42 build-read windows (9.2's sets), not 9.6's 69 plus 19; the result is the
+same, since the 23 kept windows without a seek that it also re-read match the stored candidates on every frame (10.4).
 The per-game units carry no reading (D208 reads the main loss on the pooled units only); their tables are in the record.
 Other is 0 in every unit.
 
@@ -231,7 +233,7 @@ Other is 0 in every unit.
   candidate of its own) is the main loss by D208's rule for P-i (0.615, lower bound 0.577), D-i (0.765, lower bound
   0.738) and both (0.693, lower bound 0.667). D208's worst case of 0.496 for C1 did not happen.
 - The sensitivity moves D208's registered shares little: C1 for both units from 0.674 to 0.688, P-i from 0.588 to 0.602,
-  D-i from 0.749 to 0.763.
+  D-i from 0.749 to 0.763. C3 moves most (both units 0.094 to 0.073).
 - The 32 dropped windows alone read like the kept ones (C1 0.706 for both units).
 - Limits: two games, a truth selected with r23's boxes (D202's limit), and the 32's drop may correlate with the scene.
   hou_cle_2016 stays unspent.

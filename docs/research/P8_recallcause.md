@@ -332,3 +332,12 @@ If version 2.2 is adopted, its result is reported beside 9.3, which stands as th
 **9.6 Plan (2026-11-27; not registered).** Posefoot's stage A will give an independent alignment verdict for all 156
 windows under its own registered rule. A supplement may then score the 32 dropped windows with those verdicts,
 reported beside 9.3; the decision is the lead's after stage A.
+
+**9.7 Correction (2026-11-27; append-only; from P8_recallcause_supp.md section 10).** D208's a3run read does not
+reproduce the build where the build seeks. Read the build's way, 2 of the 88 kept windows read misaligned on the a3run
+read (gsw_cha_2016_s07_w00 and gsw_cha_2016_s06_w01, aligned on the build read), and 15 of the 19 kept windows whose
+build read seeks have candidates that differ from the build's on some or all stored frames (the 2 among them). So 15 of
+the 88 windows were classified on candidates that are not the build's detections. 9.3 stands as registered. The
+supplement's sensitivity (the 88 with those windows read the build's way) keeps C1 the main loss (both units 0.674 to
+0.688, lower bound 0.658); C3 moves most (0.094 to 0.073).
+
