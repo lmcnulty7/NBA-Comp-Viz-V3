@@ -1,0 +1,531 @@
+{
+ "what": "P8 C1 reach stage 1 (docs/research/P8_c1reach.md v1.1); report only; the held-teacher reference set",
+ "inputs_head": "826d5d0656edf721017ade44e21e7849079d8b1d",
+ "smoke": true,
+ "r0": null,
+ "r1_failed": 0,
+ "undetermined": [],
+ "frames": 8,
+ "denominators": {
+  "c1_misses": 70,
+  "in_undetermined_windows": 0,
+  "on_r1_failed_frames": 0,
+  "sampled": 9,
+  "in_windows_with_frames": 70,
+  "share_represented": 1.0
+ },
+ "positive_control": {
+  "r23_hits": 59,
+  "teacher_reached": 58,
+  "share": 0.9830508474576272,
+  "passes": true
+ },
+ "cost_rows": {
+  "teacher": {
+   "boxes": 80,
+   "ghosts": 8,
+   "near_no_player": 13,
+   "duplicates": 6
+  },
+  "r23_040": {
+   "boxes": 73,
+   "ghosts": 8,
+   "near_no_player": 14,
+   "duplicates": 2
+  },
+  "r23_floor": {
+   "boxes": 74,
+   "ghosts": 9,
+   "near_no_player": 15,
+   "duplicates": 2
+  }
+ },
+ "versions_teacher": {
+  "torch": "2.15.0",
+  "opencv": "5.1.0"
+ },
+ "shares": {
+  "P-i|C1a_own|gsw_cha_2016": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "P-i|C1a_other|gsw_cha_2016": {
+   "n": 1,
+   "teacher": 0.0,
+   "floor": 0.0,
+   "teacher_with_band": 0.0,
+   "beyond": 0.0
+  },
+  "P-i|C1b|gsw_cha_2016": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "P-i|C1c|gsw_cha_2016": {
+   "n": 5,
+   "teacher": 0.6,
+   "floor": 0.0,
+   "teacher_with_band": 0.6,
+   "beyond": 0.6
+  },
+  "P-i|C1|gsw_cha_2016": {
+   "n": 6,
+   "teacher": 0.5,
+   "floor": 0.0,
+   "teacher_with_band": 0.5,
+   "beyond": 0.5
+  },
+  "D-i|C1a_own|gsw_cha_2016": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "D-i|C1a_other|gsw_cha_2016": {
+   "n": 2,
+   "teacher": 0.5,
+   "floor": 0.0,
+   "teacher_with_band": 0.5,
+   "beyond": 0.5
+  },
+  "D-i|C1b|gsw_cha_2016": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "D-i|C1c|gsw_cha_2016": {
+   "n": 1,
+   "teacher": 0.0,
+   "floor": 0.0,
+   "teacher_with_band": 0.0,
+   "beyond": 0.0
+  },
+  "D-i|C1|gsw_cha_2016": {
+   "n": 3,
+   "teacher": 0.3333333333333333,
+   "floor": 0.0,
+   "teacher_with_band": 0.3333333333333333,
+   "beyond": 0.3333333333333333
+  },
+  "both|C1a_own|gsw_cha_2016": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "both|C1a_other|gsw_cha_2016": {
+   "n": 3,
+   "teacher": 0.3333333333333333,
+   "floor": 0.0,
+   "teacher_with_band": 0.3333333333333333,
+   "beyond": 0.3333333333333333
+  },
+  "both|C1b|gsw_cha_2016": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "both|C1c|gsw_cha_2016": {
+   "n": 6,
+   "teacher": 0.5,
+   "floor": 0.0,
+   "teacher_with_band": 0.5,
+   "beyond": 0.5
+  },
+  "both|C1|gsw_cha_2016": {
+   "n": 9,
+   "teacher": 0.4444444444444444,
+   "floor": 0.0,
+   "teacher_with_band": 0.4444444444444444,
+   "beyond": 0.4444444444444444
+  },
+  "P-i|C1a_own|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "P-i|C1a_other|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "P-i|C1b|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "P-i|C1c|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "P-i|C1|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "D-i|C1a_own|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "D-i|C1a_other|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "D-i|C1b|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "D-i|C1c|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "D-i|C1|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "both|C1a_own|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "both|C1a_other|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "both|C1b|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "both|C1c|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "both|C1|gsw_bkn_2015": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "P-i|C1a_own|pooled": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "P-i|C1a_other|pooled": {
+   "n": 1,
+   "teacher": 0.0,
+   "floor": 0.0,
+   "teacher_with_band": 0.0,
+   "beyond": 0.0
+  },
+  "P-i|C1b|pooled": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "P-i|C1c|pooled": {
+   "n": 5,
+   "teacher": 0.6,
+   "floor": 0.0,
+   "teacher_with_band": 0.6,
+   "beyond": 0.6
+  },
+  "P-i|C1|pooled": {
+   "n": 6,
+   "teacher": 0.5,
+   "floor": 0.0,
+   "teacher_with_band": 0.5,
+   "beyond": 0.5
+  },
+  "D-i|C1a_own|pooled": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "D-i|C1a_other|pooled": {
+   "n": 2,
+   "teacher": 0.5,
+   "floor": 0.0,
+   "teacher_with_band": 0.5,
+   "beyond": 0.5
+  },
+  "D-i|C1b|pooled": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "D-i|C1c|pooled": {
+   "n": 1,
+   "teacher": 0.0,
+   "floor": 0.0,
+   "teacher_with_band": 0.0,
+   "beyond": 0.0
+  },
+  "D-i|C1|pooled": {
+   "n": 3,
+   "teacher": 0.3333333333333333,
+   "floor": 0.0,
+   "teacher_with_band": 0.3333333333333333,
+   "beyond": 0.3333333333333333
+  },
+  "both|C1a_own|pooled": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "both|C1a_other|pooled": {
+   "n": 3,
+   "teacher": 0.3333333333333333,
+   "floor": 0.0,
+   "teacher_with_band": 0.3333333333333333,
+   "beyond": 0.3333333333333333
+  },
+  "both|C1b|pooled": {
+   "n": 0,
+   "teacher": null,
+   "floor": null,
+   "teacher_with_band": null,
+   "beyond": null
+  },
+  "both|C1c|pooled": {
+   "n": 6,
+   "teacher": 0.5,
+   "floor": 0.0,
+   "teacher_with_band": 0.5,
+   "beyond": 0.5
+  },
+  "both|C1|pooled": {
+   "n": 9,
+   "teacher": 0.4444444444444444,
+   "floor": 0.0,
+   "teacher_with_band": 0.4444444444444444,
+   "beyond": 0.4444444444444444
+  }
+ },
+ "ceilings": {
+  "gsw_cha_2016": {
+   "C": {
+    "point": -0.0003,
+    "interval": [
+     -0.00035,
+     -0.00024
+    ],
+    "f_only_interval": [
+     -0.00035,
+     -0.00024
+    ]
+   },
+   "C_all_plc": {
+    "point": -0.00026,
+    "interval": [
+     -0.00031,
+     -0.00021
+    ],
+    "f_only_interval": [
+     -0.00031,
+     -0.00021
+    ]
+   },
+   "C_all_pres": {
+    "point": -0.0004,
+    "interval": [
+     -0.00059,
+     -0.00022
+    ],
+    "f_only_interval": [
+     -0.00059,
+     -0.00022
+    ]
+   },
+   "H": {
+    "point": -0.0004,
+    "interval": [
+     -0.00049,
+     -0.0003
+    ],
+    "f_only_interval": [
+     -0.00049,
+     -0.0003
+    ]
+   }
+  },
+  "gsw_bkn_2015": {
+   "C": {
+    "point": -0.0,
+    "interval": [
+     -0.0,
+     0.0
+    ],
+    "f_only_interval": [
+     -0.0,
+     0.0
+    ]
+   },
+   "C_all_plc": {
+    "point": -0.0,
+    "interval": [
+     -0.0,
+     0.0
+    ],
+    "f_only_interval": [
+     -0.0,
+     0.0
+    ]
+   },
+   "C_all_pres": {
+    "point": -0.0,
+    "interval": [
+     -0.0,
+     0.0
+    ],
+    "f_only_interval": [
+     -0.0,
+     0.0
+    ]
+   },
+   "H": {
+    "point": -0.0,
+    "interval": [
+     -0.0,
+     0.0
+    ],
+    "f_only_interval": [
+     -0.0,
+     0.0
+    ]
+   }
+  },
+  "pooled": {
+   "C": {
+    "point": -0.00015,
+    "interval": [
+     -0.00017,
+     -0.00012
+    ],
+    "f_only_interval": [
+     -0.00017,
+     -0.00012
+    ]
+   },
+   "C_all_plc": {
+    "point": -0.00013,
+    "interval": [
+     -0.00015,
+     -0.0001
+    ],
+    "f_only_interval": [
+     -0.00015,
+     -0.0001
+    ]
+   },
+   "C_all_pres": {
+    "point": -0.0002,
+    "interval": [
+     -0.00029,
+     -0.00011
+    ],
+    "f_only_interval": [
+     -0.00029,
+     -0.00011
+    ]
+   },
+   "H": {
+    "point": -0.00019,
+    "interval": [
+     -0.00024,
+     -0.00015
+    ],
+    "f_only_interval": [
+     -0.00024,
+     -0.00015
+    ]
+   }
+  }
+ },
+ "union_baseline": {
+  "E1b_C_cha": -0.00791,
+  "E1b_C_cha_with_residual": -0.00311,
+  "gap": 0.00209,
+  "gap_with_residual": 0.00689
+ },
+ "fractions": {
+  "gsw_cha_2016": {
+   "f_pres": 0.36363636363636365,
+   "f_plc": 0.2399103139013453,
+   "f_loss": 0.3956043956043956
+  },
+  "gsw_bkn_2015": {
+   "f_pres": 0.6162790697674418,
+   "f_plc": 0.37814070351758794,
+   "f_loss": 0.4326241134751773
+  }
+ },
+ "in_frame": {
+  "gsw_cha_2016": 28427,
+  "gsw_bkn_2015": 29370
+ },
+ "stage2_bar": {
+  "bar": -0.0042,
+  "kill": -0.0021,
+  "note": "stage 1 decides nothing (10.2); H is reported"
+ }
+}
