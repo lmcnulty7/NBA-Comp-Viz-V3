@@ -404,3 +404,26 @@ Where this differs from sections 10 and 11, it rules.
   zero noise, a quarter-injection leaves the IQR at 0 in most simulations, while the share of off windows catches it in
   every simulation.
 - The readings of 11.6 are unchanged.
+
+### 12.1 Amendment (2026-11-28, after the code check of 1752d07d, GO WITH CHANGES; before the run)
+
+Where this differs from sections 10 to 12, it rules.
+
+1. **tau_B's estimation rows leave out the players who are P-ii on that frame** (D205's class on the frame). The rule
+   reads this version. The version with them is reported beside it (tau, tau_0 and the off share).
+2. **"Timing found" reads:** "a window-level along-velocity error; the truth's time map is the likelier side; build
+   lag not excluded". The off share of the TRACK-only tau and of the lateral-axis estimator are reported beside it.
+3. **The EMA prediction is dropped.** Per row, tau(foot_stab) - tau(foot_raw) is B's pixel offset stab - raw along the
+   velocity, by construction, so the "prediction" equals the difference. The difference stays, described as a units
+   check only.
+4. **11.2's roles are restated.**
+   - The plus and minus 3 moment shift confirms the sign and the units of tau. Resolvability comes from the power
+     check.
+   - A shifted row is accepted only when the game clock moved 0.12 s across those 3 moments, within 0.02 s. Rows across
+     a moment gap or a stopped clock are left out and counted.
+5. **11.3 (b)'s wording is corrected.** The null B offset of an own P-ii row is its own T offset **minus** a same-frame
+   hit's T-minus-B disagreement vector (11.3 said "plus"; B(foot) - SV = (T(foot) - SV) - (T(foot) - B(foot))). The
+   null's hit is drawn from the same third when the frame has one, else from any hit on the frame.
+6. **10.1, added.** The in-frame test and the third both use T: the in-frame test is T^-1(SportVU) inside the 10 px
+   margin, and the third is the scorer's under T. Neither tracks a time error, since both place SportVU's own position,
+   so neither biases tau_B toward or away from one.

@@ -50,6 +50,10 @@ LIMIT = ("not shown; B is not independent of SportVU on these games (r23 trained
          "IN SAMPLE flag); never read as evidence that the row is build-side")
 
 
+TIMING_FOUND = ("timing found: a window-level along-velocity error; the truth's time map is the likelier side; build "
+                "lag not excluded (read conservatively)")
+
+
 def refuse_game(game: str) -> None:
     if game not in POOL:
         raise SystemExit(f"{WHO}: {game} is refused; this item reads gsw_cha_2016 and gsw_bkn_2015 only")
@@ -76,6 +80,11 @@ def window_tau(rows: list, key: str = "a_raw") -> float | None:
     """tau_B of one window: the median of a key over its moving rows; None with fewer than MIN_MOVING_ROWS."""
     v = [r[key] for r in rows if r["speed"] >= MOVING and r.get(key) is not None]
     return float(np.median(v)) if len(v) >= MIN_MOVING_ROWS else None
+
+
+def shift_clock_ok(clock_i: float, clock_ii: float, sh: int, tol: float = 0.02) -> bool:
+    """12.1 (4): moving sh moments must move the game clock (which counts down) by sh / 25 s, within tol."""
+    return abs((clock_i - clock_ii) - sh / 25.0) <= tol
 
 
 def iqr(x) -> float:
@@ -149,7 +158,7 @@ def timing_reading(obs_stat: float, null_stat: np.ndarray, power: float, shift_o
     found = enrich["value"] is not None and enrich["interval"] is not None and enrich["value"] >= ENRICH \
         and enrich["interval"][0] > 1
     return {**out, "enrichment": enrich,
-            "reading": "timing found (read conservatively)" if found else "timing not shown; " + LIMIT}
+            "reading": (TIMING_FOUND if found else "timing not shown; " + LIMIT)}
 
 
 def weighted_median(values, weights) -> float | None:
@@ -335,15 +344,16 @@ def collect(game: str) -> dict:
                 o_raw, o_stab = raw[bk] - svf[j], stb[bk] - svf[j]
                 rec = {"f": f, "speed": speed, "v": [float(v[0]), float(v[1])],
                        "o_raw": [float(o_raw[0]), float(o_raw[1])], "third": third[j],
-                       "state": x.get("state"), "a_raw": None, "a_stab": None, "a_plus": None, "a_minus": None,
-                       "a_pred_ema": None, "lat": None}
+                       "state": x.get("state"), "pii": cls.get(j, {}).get("class") == "P-ii",
+                       "a_raw": None, "a_stab": None, "a_plus": None, "a_minus": None, "lat": None}
                 if speed >= DIR_MIN:
                     rec["a_raw"], rec["a_stab"] = along(o_raw, v), along(o_stab, v)
-                    rec["a_pred_ema"] = along(stb[bk] - raw[bk], v)
                     for name, sh in (("a_plus", SHIFT_MOMENTS), ("a_minus", -SHIFT_MOMENTS)):
                         ii = i + sh
                         p_sh = sv_at(d, ii, pids[j]) if 0 <= ii < len(d["clock"]) else None
-                        if p_sh is None:
+                        # 12.1 (4): a shifted row counts only when the game clock moved 0.12 s across those moments
+                        ok_clock = p_sh is not None and shift_clock_ok(d["clock"][i], d["clock"][ii], sh)
+                        if not ok_clock:
                             counters["no_shift"] += 1
                         else:
                             rec[name] = along(raw[bk] - p_sh, v)
@@ -439,7 +449,11 @@ def spearman(a, b) -> float | None:
 
 
 def game_report(rec: dict) -> dict:
-    wins = rec["windows"]
+    """12.1 (1): tau_B is ruled on estimation rows without the frame's P-ii players; the version with them is
+    reported beside it."""
+    all_wins = rec["windows"]
+    wins = {k: {**w, "rows": [r for r in w["rows"] if not r.get("pii")]} for k, w in all_wins.items()}
+    tau_with_pii = {k: window_tau(w["rows"]) for k, w in all_wins.items()}
     tau = {k: window_tau(w["rows"]) for k, w in wins.items()}
     have = {k: v for k, v in tau.items() if v is not None}
     tau0 = float(np.median(list(have.values()))) if have else None
@@ -475,7 +489,6 @@ def game_report(rec: dict) -> dict:
                                          "so a minority of mistimed windows barely moves it"}
     ema = [window_tau(w["rows"], "a_stab") - tau[k] for k, w in wins.items()
            if tau[k] is not None and window_tau(w["rows"], "a_stab") is not None]
-    ema_pred = [window_tau(w["rows"], "a_pred_ema") for w in wins.values() if window_tau(w["rows"], "a_pred_ema") is not None]
     track = {k: window_tau([r for r in w["rows"] if r["state"] == "TRACK"]) for k, w in wins.items()}
     lat = {k: (float(np.median([r["lat"] for r in w["rows"] if r["lat"] is not None]))
                if sum(r["lat"] is not None for r in w["rows"]) >= MIN_MOVING_ROWS else None) for k, w in wins.items()}
@@ -499,17 +512,19 @@ def game_report(rec: dict) -> dict:
             reps.append(v)
     ratio_iv = [float(np.percentile(reps, 2.5)), float(np.percentile(reps, 97.5))] if reps else None
     share_own = float(np.mean([r["d_B"] <= MISS_FT for r in own])) if own else None
-    hits_by_f = {}
+    hits_by_f, hits_by_ft = {}, {}
     for r in outc:
         if r["kind"] == "hit":
             hits_by_f.setdefault(r["f"], []).append(r["tb"])
+            hits_by_ft.setdefault((r["f"], r["third"]), []).append(r["tb"])
     rng2 = np.random.default_rng(SEED)
     own_n = [r for r in own if hits_by_f.get(r["f"])]
     null_shares = []
     for _ in range(N_SIM):
         ok = 0
         for r in own_n:
-            tb = hits_by_f[r["f"]][int(rng2.integers(0, len(hits_by_f[r["f"]])))]
+            pool = hits_by_ft.get((r["f"], r["third"])) or hits_by_f[r["f"]]     # 12.1 (5): same third when one exists
+            tb = pool[int(rng2.integers(0, len(pool)))]
             ok += float(np.hypot(r["o_T"][0] - tb[0], r["o_T"][1] - tb[1])) <= MISS_FT
         null_shares.append(ok / len(own_n) if own_n else np.nan)
     share_own_n = float(np.mean([r["d_B"] <= MISS_FT for r in own_n])) if own_n else None
@@ -554,10 +569,17 @@ def game_report(rec: dict) -> dict:
                            "median_along_s_raw": float(np.median([r["a_raw"] for r in rr])) if rr else None,
                            "median_stab_minus_raw_s": float(np.median([r["a_stab"] - r["a_raw"] for r in rr
                                                                        if r["a_stab"] is not None])) if rr else None}
+    tw = {k: v for k, v in tau_with_pii.items() if v is not None}
+    timing["beside"] = {"tau_track_only_off_share": off_share([v for v in track.values() if v is not None]),
+                        "lateral_estimator_off_share": off_share([v for v in lat.values() if v is not None]),
+                        "with_P-ii_players_off_share": off_share(tw.values()),
+                        "with_P-ii_players_tau_0": float(np.median(list(tw.values()))) if tw else None}
     return {"windows": len(wins), "windows_with_tau": len(have), "tau_0": tau0, "tau_by_window": tau,
+            "tau_by_window_with_P-ii_players": tau_with_pii,
             "timing": timing, "shift_check": shifts,
             "report_only": {"ema_difference_median_s": float(np.median(ema)) if ema else None,
-                            "ema_predicted_from_pixel_offsets_median_s": float(np.median(ema_pred)) if ema_pred else None,
+                            "ema_difference_note": "a units check only: per row, tau(stab) - tau(raw) is the B pixel offset "
+                                                   "stab - raw along the velocity, by construction",
                             "ema_nominal_s": -EMA_LAG_S,
                             "tau_track_only_by_window": track, "lateral_estimator_by_window": lat,
                             "tau_against_offset_s_spearman": spearman([tau[k] for k in wins],
@@ -570,7 +592,7 @@ def game_report(rec: dict) -> dict:
 def readings(per: dict) -> dict:
     """11.6's asymmetric reading over both games."""
     t = [per[g]["timing"]["reading"] for g in POOL]
-    timing = "timing found (read conservatively)" if all(x.startswith("timing found") for x in t) else \
+    timing = TIMING_FOUND if all(x.startswith("timing found") for x in t) else \
         ("not resolvable" if any(x.startswith("not resolvable") for x in t) else "timing not shown; " + LIMIT)
     camera = "camera found (read conservatively): T's camera is the likelier side at own P-ii boxes" \
         if all(per[g]["camera"]["holds"] for g in POOL) else "camera not shown; " + LIMIT

@@ -128,3 +128,35 @@ def test_constants_match_the_design():
     assert (M.OFF_S, M.MIN_OFF_WINDOWS, M.ENRICH, M.CAM_RATIO) == (0.1, 5, 1.5, 1.5)
     assert (M.SHIFT_MOMENTS, M.SHIFT_TOL_S, M.POWER_BAR, M.POWER_SHIFT_S, M.POWER_FRAC) == (3, 0.02, 0.8, 0.1, 0.25)
     assert (M.N_SIM, M.SEED, M.SEED_POWER, M.LATERAL_MIN) == (2000, 0, 1, 5.0)
+
+
+def test_shift_rows_need_the_clock_to_move_0_12_s():
+    assert M.shift_clock_ok(100.00, 99.88, 3) and M.shift_clock_ok(100.00, 100.12, -3)
+    assert not M.shift_clock_ok(100.00, 99.80, 3)             # a moment gap: the clock moved 0.2 s
+    assert not M.shift_clock_ok(100.00, 100.00, 3)            # a stopped clock
+
+
+def test_timing_found_reading_names_the_build_lag():
+    assert "build lag not excluded" in M.TIMING_FOUND and M.TIMING_FOUND.startswith("timing found")
+    null = np.zeros(100)
+    r = M.timing_reading(0.3, null, 0.9, True, 6, {"value": 2.0, "interval": [1.2, 3.0]})
+    assert r["reading"] == M.TIMING_FOUND
+
+
+def mini_rec(pii_flag):
+    rows = mk_rows(40, 0.05)
+    for r in rows:
+        r.update({"state": "TRACK", "a_stab": r["a_raw"], "a_plus": r["a_raw"] - 0.12 if r["a_raw"] is not None else None,
+                  "a_minus": r["a_raw"] + 0.12 if r["a_raw"] is not None else None, "lat": None, "pii": False, "f": 0})
+    bad = mk_rows(40, 0.5)                                     # P-ii players far ahead: excluded from the ruled tau
+    for r in bad:
+        r.update({"state": "TRACK", "a_stab": r["a_raw"], "a_plus": None, "a_minus": None, "lat": None,
+                  "pii": pii_flag, "f": 0})
+    return {"rows": rows + bad, "outcome": [], "in_frame": 100, "offset_s": 0.0}
+
+
+def test_the_ruled_tau_leaves_p_ii_players_out():
+    rec = {"windows": {f"w{i}": mini_rec(True) for i in range(6)}, "counters": {}, "seconds": 0, "git": {}}
+    out = M.game_report(rec)
+    assert out["tau_0"] == pytest.approx(0.05)
+    assert out["timing"]["beside"]["with_P-ii_players_tau_0"] > 0.05
