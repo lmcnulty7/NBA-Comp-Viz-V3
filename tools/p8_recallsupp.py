@@ -1,16 +1,19 @@
-"""tools/p8_recallsupp.py: D208's 32 dropped windows read the build's way (docs/research/P8_recallcause_supp.md,
-version 1). Report only: nothing is fitted, tuned or adopted; D208's capture and classes, with the build's read path in
-place of the a3run read.
+"""tools/p8_recallsupp.py: D208's dropped and seek windows read the build's way (docs/research/P8_recallcause_supp.md,
+version 1.1). Report only: nothing is fitted, tuned or adopted; D208's capture and classes, with the build's read path
+in place of the a3run read.
 
+    python3 -m tools.p8_recallsupp precheck         G0, stored files only, no lock ->
+                                                    reports/research/p8_recallcause_supp_g0.json
     <frozen CV python> -m tools.p8_recallsupp run   inside the heavy-job lock ("p8 recallsupp"; V3_P8_ROOT = the
                                                     reference root; HF_HUB_OFFLINE=1, PYTORCH_ENABLE_MPS_FALLBACK=1)
                                                     -> reports/research/p8_recallcause_supp.json, raw candidates in the
                                                     reference root's recallsupp/
 
-The read functions SeekCount, pregate_intervals, main_reads, open_like_build and build_read are copied from
-tools/p8_posefoot.py at 53c44192 (branch r-p8-posefoot, P8_posefoot.md 14.2), which copied the read path from
-build_trajectories.py; the lead chose the copy since posefoot has not reached v4-research. A test checks that they
-equal posefoot's at that commit, docstrings aside.
+Copied from tools/p8_posefoot.py at 53c44192 (branch r-p8-posefoot, P8_posefoot.md 14.2; its read path itself copied
+from build_trajectories.py), by the lead's decision since posefoot has not reached v4-research: SeekCount,
+pregate_intervals, main_reads (with one change, 9.7: predict receives the frame index), open_like_build and
+build_read; box_iou, frame_ious, align_stats, align_verdict and the alignment constants. Tests check them against
+posefoot's at that commit.
 """
 
 from __future__ import annotations
@@ -25,17 +28,22 @@ import numpy as np
 
 WHO = "tools.p8_recallsupp"
 POSEFOOT_COMMIT = "53c44192"
-COPIED = ("SeekCount", "pregate_intervals", "main_reads", "open_like_build", "build_read")
-CHECK_WINDOWS = ("gsw_cha_2016_s05_w00", "gsw_bkn_2015_s02_w01")      # G1: kept windows, from frame 0 and a seek to 300
+COPIED = ("SeekCount", "pregate_intervals", "main_reads", "open_like_build", "build_read", "box_iou", "frame_ious",
+          "align_stats", "align_verdict")
+ALIGN_MIN_ELIGIBLE, ALIGN_MIN_BOXES = 10, 4            # posefoot 53c44192 (section 14, v1.3)
+ALIGN_MARGIN, ALIGN_LEVEL = 0.05, 0.85
+ALIGN_M0 = 0.82
+PAIR_FLOOR, LEVEL_PAIR = 0.1, 0.3
+CHECK_WINDOWS = ("gsw_cha_2016_s05_w00", "gsw_bkn_2015_s04_w00")      # G1 (9.3): kept windows without a seek
 ENV_NEEDED = {"HF_HUB_OFFLINE": "1", "PYTORCH_ENABLE_MPS_FALLBACK": "1"}
-CAP_S = 40 * 60
+CAP_S = 50 * 60
 RC_SHA = "794f808ab905252e569a67285aec06528e69a6fd10bbb0228eb2b81de2637a9b"   # reports/research/p8_recallcause.json
 ALLOWED = ("gsw_cha_2016", "gsw_bkn_2015")
 UNIT_NAMES = ("P-i", "D-i", "both")
 SCOPES = ("gsw_cha_2016", "gsw_bkn_2015", "pooled")
 
 
-# ── copied from tools/p8_posefoot.py at 53c44192 (credit: P8_posefoot.md 14.2; itself from build_trajectories.py) ──
+# ── copied from tools/p8_posefoot.py at 53c44192 (credit: P8_posefoot.md 14.2; the read path from build_trajectories.py)
 class SeekCount:
     """videoseq.SeqReader's seek rule, counted: a read seeks when the index is behind the decoder or more than
     SEEK_MIN_GAP ahead (videoseq.py)."""
@@ -90,7 +98,7 @@ def main_reads(reader, total: int, intervals: list, stride: int, accepted: set, 
             break
         reads.append(int(idx))
         if idx in need:
-            out[idx] = predict(frame)
+            out[idx] = predict(idx, frame)              # v1.1 (9.7): the frame index goes to predict
         if idx in accepted:
             n += 1
         idx += stride
@@ -135,7 +143,101 @@ def build_read(clip, side: dict, max_frames: int, is_live, need: set, predict) -
         cap.release()
 
 
-# ── pure: D208's per-miss classification, as one function (its cmd_run loop body, P8_recallcause.md 8.3 to 8.10) ────
+def box_iou(a, b) -> float:
+    x1, y1, x2, y2 = max(a[0], b[0]), max(a[1], b[1]), min(a[2], b[2]), min(a[3], b[3])
+    inter = max(0.0, x2 - x1) * max(0.0, y2 - y1)
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union > 0 else 0.0
+
+
+def frame_ious(side_boxes: list, pred: list) -> list:
+    """Per sidecar box, the IoU of its Hungarian pair with a prediction (0 if unmatched or below PAIR_FLOOR)."""
+    if not side_boxes:
+        return []
+    if not pred:
+        return [0.0] * len(side_boxes)
+    from scipy.optimize import linear_sum_assignment
+    M = np.array([[box_iou(a, b) for b in pred] for a in side_boxes])
+    ri, ci = linear_sum_assignment(-M)
+    out = [0.0] * len(side_boxes)
+    for i, j in zip(ri, ci):
+        if M[i, j] >= PAIR_FLOOR:
+            out[int(i)] = float(M[i, j])
+    return out
+
+
+def align_stats(per_frame: list) -> dict:
+    """per_frame: [{"-1": ious, "0": ious, "+1": ious}] -> M_k pooled over frames and L_0."""
+    M = {}
+    for k in ("-1", "0", "+1"):
+        v = [x for fr in per_frame for x in fr[k]]
+        M[k] = float(np.mean(v)) if v else None
+    lv = [x for fr in per_frame for x in fr["0"] if x >= LEVEL_PAIR]
+    return {"M": M, "L0": float(np.median(lv)) if lv else None}
+
+
+def align_verdict(st: dict) -> str:
+    M, L0 = st["M"], st["L0"]
+    if M["0"] is None or L0 is None:
+        return "undetermined"
+    for k in ("-1", "+1"):
+        if M[k] is not None and M[k] >= M["0"] + ALIGN_MARGIN:
+            return "misaligned"
+    if L0 < ALIGN_LEVEL or M["0"] < ALIGN_M0:
+        return "misaligned"
+    return "aligned"
+
+
+# ── pure ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+def eligible(side: dict, frames) -> list:
+    """posefoot 14.2's eligibility rule (pick_frames at 53c44192, without the motion pick), on the given frames: both
+    neighbours in the sidecar, at least ALIGN_MIN_BOXES boxes at f, boxes at both neighbours."""
+    stride = int(side.get("stride") or 1)
+    srow = {int(r["frame"]): r for r in side["frames"]}
+    return [f for f in sorted(frames) if f in srow and f - stride in srow and f + stride in srow
+            and len(srow[f]["boxes"]) >= ALIGN_MIN_BOXES and srow[f - stride]["boxes"] and srow[f + stride]["boxes"]]
+
+
+def verdict_142(side: dict, preds: dict) -> dict:
+    """posefoot 14.2's statistic and verdict for one read: preds {frame: R_post boxes} on its eligible frames; fewer
+    than ALIGN_MIN_ELIGIBLE eligible frames reads undetermined."""
+    stride = int(side.get("stride") or 1)
+    srow = {int(r["frame"]): r for r in side["frames"]}
+    fr = eligible(side, preds)
+    if len(fr) < ALIGN_MIN_ELIGIBLE:
+        return {"eligible": len(fr), "verdict": "undetermined"}
+    per = [{k: frame_ious([b["bbox"] for b in srow[f + o * stride]["boxes"]], [b[:4] for b in preds[f]])
+            for k, o in (("-1", -1), ("0", 0), ("+1", 1))} for f in fr]
+    st = align_stats(per)
+    return {"eligible": len(fr), **st, "verdict": align_verdict(st)}
+
+
+def strict_208(side: dict, preds: dict, uframes: list) -> dict:
+    """D208's strict alignment (P8_recallcause.md 8.10) for one read: its first five universe frames with both
+    neighbours processed."""
+    from tools import p8_recallcause as RC
+    stride = int(side["stride"])
+    srow = {int(x["frame"]): x for x in side["frames"]}
+    al = [f for f in uframes if f - stride in srow and f + stride in srow][:RC.ALIGN_FRAMES]
+    shares = [RC.align_shares(preds[f], [b["bbox"] for b in srow[f - stride]["boxes"]],
+                              [b["bbox"] for b in srow[f]["boxes"]], [b["bbox"] for b in srow[f + stride]["boxes"]])
+              for f in al if f in preds]
+    return {"frames": len(shares), "shares": shares, "aligned": RC.alignment_ok(shares)}
+
+
+def seeks_past_zero(stage_a_window: dict) -> bool:
+    return any(int(x) > 0 for x in stage_a_window.get("seeks_main") or [])
+
+
+def reread_sets(kept: list, dropped: list, seek: dict, g0: dict) -> dict:
+    """9.2: the re-read set (every window whose build read seeks past 0, every dropped window, every kept window G0
+    does not read aligned) and the certified kept windows."""
+    reread = sorted({s for s in kept + dropped if seek[s]} | set(dropped) |
+                    {s for s in kept if g0[s]["verdict"] != "aligned"})
+    return {"reread": reread, "certified": sorted(s for s in kept if s not in reread),
+            "kept_reread": sorted(s for s in kept if s in reread)}
+
+
 def ids_of(pre: list, post: list) -> tuple:
     """(pre_ids, post_ids) by exact equality: R_post's boxes are R_pre's (the same anchors), so a box's index in R_pre
     stands for its anchor (the anchors were not stored)."""
@@ -221,7 +323,7 @@ def unit_tables(misses: list) -> dict:
 
 
 def counts_differ(mine: dict, d208: dict) -> list:
-    """G3: the units and classes whose miss counts differ from D208's recorded tables."""
+    """G3 (9.5): every unit, per game and pooled, and every class whose miss count differs from D208's tables."""
     from tools.p8_recallcause import CLASSES
     bad = []
     for u in (f"{n}__{s}" for n in UNIT_NAMES for s in SCOPES):
@@ -250,9 +352,61 @@ def allowed(names) -> list:
     return names
 
 
-def out_path() -> Path:
+def out_path(stage: str = "") -> Path:
     from tools.p8_common import REPO
-    return REPO / "reports" / "research" / "p8_recallcause_supp.json"
+    return REPO / "reports" / "research" / f"p8_recallcause_supp{'_' + stage if stage else ''}.json"
+
+
+def _write(path: Path, out: dict) -> None:
+    from export.schemas import find_private
+    from tools.p8_common import atomic_write
+    text = json.dumps(out, indent=1)
+    if find_private(text):
+        raise SystemExit(f"{WHO}: the record holds private data")
+    atomic_write(path, text)
+
+
+# ── G0 (system python, stored files, no lock) ──────────────────────────────────────────────────────────────────────
+def g0_compute() -> dict:
+    """9.2 on stored files: 14.2's verdict on each of the 120 windows' stored R_post, stage A's seeks, the sets."""
+    from tools import p8_rebaseline as RB
+    from tools import p8_recallcause as RC
+    r = RB.roots()
+    if RC.sha256(RC.out_path()) != RC_SHA:
+        raise SystemExit(f"{WHO}: reports/research/p8_recallcause.json is not D208's record")
+    rc = RC.read_json(RC.out_path())
+    dropped = sorted(rc["windows_dropped"])
+    kept = sorted(s for s in rc["alignment"] if s not in rc["windows_dropped"])
+    allowed(dropped + kept)
+    stage_a = {}
+    for g in ALLOWED:
+        stage_a.update(RC.read_json(r["ref"] / "posefoot" / "alignment" / f"{g}.json")["windows"])
+    comp = r["ref"] / "builds" / "r23"
+    raw = RC.raw_dir(r["ref"])
+    g0, seek = {}, {}
+    for s in kept + dropped:
+        side = RC.read_json(comp / f"{s}_frames.json")
+        stored = {int(f): v["post"] for f, v in RC.read_json(raw / f"{s}.json").items()}
+        g0[s] = verdict_142(side, stored)
+        seek[s] = seeks_past_zero(stage_a[s])
+        g0[s].update({"kept": s in kept, "seeks_main": stage_a[s].get("seeks_main"),
+                      "stage_a_verdict": stage_a[s].get("verdict")})
+    sets = reread_sets(kept, dropped, seek, g0)
+    return {"what": "P8 recall-cause supplement G0: posefoot 14.2 on D208's stored R_post per window "
+                    "(docs/research/P8_recallcause_supp.md 9.2); stored files only", "windows": g0, **sets,
+            "counts": {"kept": len(kept), "dropped": len(dropped), "reread": len(sets["reread"]),
+                       "certified": len(sets["certified"]), "kept_reread": len(sets["kept_reread"])}}
+
+
+def cmd_precheck(args) -> dict:
+    import subprocess
+    from tools.p8_common import REPO
+    out = g0_compute()
+    out["head"] = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True,
+                                 check=True).stdout.strip()
+    _write(out_path("g0"), out)
+    print(json.dumps(out["counts"]))
+    return out
 
 
 # ── run (frozen CV python, inside the lock) ────────────────────────────────────────────────────────────────────────
@@ -267,7 +421,6 @@ def cmd_run(args) -> dict:
     from tools import p8_recallcause as RC
     from tools import p8_scorecard as S
     from tools.p8_common import REPO, atomic_write, guard, main_checkout, p8_root
-    from export.schemas import find_private
     if os.environ.get("V3_HEAVY_HELD") is None:
         raise SystemExit(f"{WHO}: run inside the heavy-job lock")
     bad_env = {k: os.environ.get(k) for k, v in ENV_NEEDED.items() if os.environ.get(k) != v}
@@ -276,19 +429,23 @@ def cmd_run(args) -> dict:
     r = RB.roots()
     if p8_root().resolve() != r["ref"].resolve():
         raise SystemExit(f"{WHO}: V3_P8_ROOT must be the reference root")
-    st = subprocess.run(["git", "status", "--porcelain", "--", "tools", "sportvu"], cwd=REPO, capture_output=True,
-                        text=True, check=True).stdout.strip()
+    st = subprocess.run(["git", "status", "--porcelain", "--", "tools", "sportvu", "reports/research"], cwd=REPO,
+                        capture_output=True, text=True, check=True).stdout.strip()
     if st:
-        raise SystemExit(f"{WHO}: tools/ or sportvu/ has uncommitted changes")
+        raise SystemExit(f"{WHO}: tools/, sportvu/ or reports/research/ has uncommitted changes")
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True, check=True).stdout.strip()
+    g0 = g0_compute()                                # the committed G0 record must equal a fresh computation
+    g0_rec = RC.read_json(out_path("g0")) if out_path("g0").exists() else None
+    if not g0_rec or {k: g0_rec.get(k) for k in ("reread", "certified", "windows")} != \
+            json.loads(json.dumps({k: g0[k] for k in ("reread", "certified", "windows")})):
+        raise SystemExit(f"{WHO}: the committed G0 record is missing or differs from the stored files")
+    reread, certified, kept_reread = g0["reread"], g0["certified"], g0["kept_reread"]
     pinned, now = RC.read_json(p8_pin.PIN_FILE), p8_pin.current()
     if [k for k in now if now[k] != pinned.get(k)]:
         raise SystemExit(f"{WHO}: the scorecard does not match its pin")
     weights = (main_checkout() / "models" / "player_detector.pt").resolve()
     if RC.sha256(weights) != RC.R23_SHA:
         raise SystemExit(f"{WHO}: the detector is not r23")
-    if RC.sha256(RC.out_path()) != RC_SHA:
-        raise SystemExit(f"{WHO}: reports/research/p8_recallcause.json is not D208's record")
     one2one = {g: r["ref"] / "one2one" / f"{g}.json" for g in RC.POOL}
     if {g: RC.sha256(p) for g, p in one2one.items()} != RC.D205_SHA:
         raise SystemExit(f"{WHO}: D205's records are not the pinned ones")
@@ -299,9 +456,8 @@ def cmd_run(args) -> dict:
     rc = RC.read_json(RC.out_path())
     dropped = sorted(rc["windows_dropped"])
     kept = sorted(s for s in rc["alignment"] if s not in rc["windows_dropped"])
-    allowed(dropped + kept + list(CHECK_WINDOWS))
-    if any(s not in kept for s in CHECK_WINDOWS) or len(dropped) != 32 or len(kept) != 88:
-        raise SystemExit(f"{WHO}: the window sets are not D208's")
+    if any(s not in certified for s in CHECK_WINDOWS) or len(dropped) != 32 or len(kept) != 88:
+        raise SystemExit(f"{WHO}: the window sets are not D208's, or a G1 window is not certified")
     watch = lambda: {k: RB.manifest(r[k], ("labels", "label_build", "truth_accept", "cache")) for k in ("ref", "ms")} | \
         {"builds_r23": RB.manifest(r["ref"], ("builds/r23",)), "recallcause": RB.manifest(r["ref"], ("recallcause",))}
     before = watch()
@@ -334,18 +490,24 @@ def cmd_run(args) -> dict:
 
     def cap():
         if time.time() - t0 > CAP_S:
-            raise SystemExit(f"{WHO}: the 40-minute cap was reached; nothing is reported")
+            raise SystemExit(f"{WHO}: the 50-minute cap was reached; nothing is reported")
 
     def read_build(w, side, need):
         s = w["window"]
+        allowed([s])
         dev = ((RC.read_json(comp / f"{s}_device.json") if (comp / f"{s}_device.json").exists() else {})
                .get("resolved") or {}).get("gate") or "cpu"
         stride = int(side.get("stride") or 1)
         if build_stride(w["fps"]) != stride:
             raise SystemExit(f"{WHO}: {s}: the sidecar stride is not the build's")
         max_frames = (w["f_end"] - w["f_start"]) // stride + 2
+
+        def predict(idx, img):
+            return {**raw.run(img), "frame": int(idx)}
         br = build_read(P["label_build"] / f"{s}.mp4", side, max_frames, gate_for(dev).is_court_visible, set(need),
-                        raw.run)
+                        predict)
+        if any(v["frame"] != f for f, v in br["preds"].items()):
+            raise SystemExit(f"{WHO}: {s}: a capture is keyed to another frame")
         return br, dev
 
     wins_all = {g: sorted((w for w in F.label_windows(P, g) if (comp / f"{w['window']}_frames.json").exists()),
@@ -355,9 +517,9 @@ def cmd_run(args) -> dict:
         if sorted(d202[g]["windows"]) != [w["window"] for w in wins_all[g]]:
             raise SystemExit(f"{WHO}: {g}: the windows differ from D202's record")
     raw_old = RC.raw_dir(r["ref"])
-    # G1: the read check on two kept windows
     g1 = {}
-    for s in CHECK_WINDOWS:
+    for s in CHECK_WINDOWS:                          # G1 (9.3)
+        cap()
         g, wi, w = by_name[s]
         stored = RC.read_json(raw_old / f"{s}.json")
         side = RC.read_json(comp / f"{s}_frames.json")
@@ -368,8 +530,7 @@ def cmd_run(args) -> dict:
                  "backend": br["backend"], "seeks_main": br["seeks_main"], "read_validation": br["validation"]}
         if bad or not br["validation"]["passes"]:
             raise SystemExit(f"{WHO}: G1 fails on {s} ({len(bad)} of {len(stored)} frames differ); nothing is reported")
-    # per game: contexts, then the 32 (new reads) and the 88 (G3, stored candidates)
-    new_misses, old_misses, per_window = [], [], {}
+    stored_m, build_m, per_window = {}, {}, {}
     sup_d = r["ref"] / "recallsupp"
     sup_d.mkdir(exist_ok=True)
     for g in RC.POOL:
@@ -380,7 +541,7 @@ def cmd_run(args) -> dict:
         ctx = {"mom": mom, "mirror": mirror, "refs": refs, "events": S.pbp_events(gd["sportvu"]),
                "fx": MIRRORS[mirror][0], "fy": MIRRORS[mirror][1]}
         P_t = {**P, "labels": RB.truths(r)[g]["current"] / "labels"}
-        for s in [x for x in dropped + kept if x.startswith(g + "_")]:
+        for s in [x for x in sorted(kept + dropped) if x.startswith(g + "_")]:
             cap()
             _, wi, w = by_name[s]
             rows = RC.d205_rows(g, P_t, w, comp, ctx, d202[g]["windows"][s], (d202[g].get("hashes") or {}).get(s, {}))
@@ -389,65 +550,64 @@ def cmd_run(args) -> dict:
             if mine != want:
                 raise SystemExit(f"{WHO}: the D205 row gate fails on {s}; nothing is reported")
             uni = [x for x in rows if x["rec"]["class"] in RC.UNIVERSE]
-            side = RC.read_json(comp / f"{s}_frames.json")
-            if s in kept:                                  # G3: D208's classes from its stored candidates
-                stored = RC.read_json(raw_old / f"{s}.json")
-                old_misses += classify_window(g, s, uni, rows, {int(f): v for f, v in stored.items()}, side["fps"])
-                continue
             uframes = sorted({x["frame"] for x in uni})
-            stride = int(side["stride"])
-            fset = {int(x["frame"]) for x in side["frames"]}
-            al = [f for f in uframes if f - stride in fset and f + stride in fset][:RC.ALIGN_FRAMES]
+            side = RC.read_json(comp / f"{s}_frames.json")
+            stored = {int(f): v for f, v in RC.read_json(raw_old / f"{s}.json").items()}
+            if s in kept:                            # G3 input, and the certified windows' classes
+                stored_m[s] = classify_window(g, s, uni, rows, stored, side["fps"])
+            if s not in reread:
+                continue
             br, dev = read_build(w, side, uframes)
-            rec = {"misses": len(uni), "gate_device": dev, "backend": br["backend"], "seeks_main": br["seeks_main"],
-                   "seeks_pregate": len(br["seeks_pregate"]), "read_validation": br["validation"]}
+            rec = {"kept": s in kept, "misses": len(uni), "gate_device": dev, "backend": br["backend"],
+                   "seeks_main": br["seeks_main"], "seeks_pregate": len(br["seeks_pregate"]),
+                   "read_validation": br["validation"]}
             if not br["validation"]["passes"] or set(uframes) - set(br["preds"]):
                 per_window[s] = {**rec, "status": "undetermined: the build's read path is not reproduced"}
                 continue
             res = br["preds"]
-            srow = {int(x["frame"]): x for x in side["frames"]}
-            shares = [RC.align_shares(res[f]["post"], [b["bbox"] for b in srow[f - stride]["boxes"]],
-                                      [b["bbox"] for b in srow[f]["boxes"]], [b["bbox"] for b in srow[f + stride]["boxes"]])
-                      for f in al]
-            rec.update({"d208_alignment_on_build_read": {"frames": len(al), "shares": shares,
-                                                          "aligned": RC.alignment_ok(shares)},
-                        "status": "classified"})
+            rec.update({"status": "classified",
+                        "verdict_142": {"stored": verdict_142(side, {f: v["post"] for f, v in stored.items()}),
+                                        "build": verdict_142(side, {f: v["post"] for f, v in res.items()})},
+                        "strict_208": {"stored": strict_208(side, {f: v["post"] for f, v in stored.items()}, uframes),
+                                       "build": strict_208(side, {f: v["post"] for f, v in res.items()}, uframes)}})
+            if s in kept:                            # diagnostic (9.3): stored against build-read candidates
+                rec["frames_differing_from_stored"] = sum(1 for f in uframes if not same_candidates(res[f], stored[f]))
             atomic_write(sup_d / f"{s}.json", json.dumps({str(f): {k: v[k] for k in ("post", "pre", "other", "low")}
                                                           for f, v in res.items()}))
-            new_misses += classify_window(g, s, uni, rows, res, side["fps"])
+            build_m[s] = classify_window(g, s, uni, rows, res, side["fps"])
             per_window[s] = rec
-    # G3, then the tables
-    old_units = unit_tables(old_misses)
-    bad = counts_differ(old_units, rc["units"])
+    bad = counts_differ(unit_tables([m for s in kept for m in stored_m[s]]), rc["units"])   # G3 (9.5)
     if bad:
         raise SystemExit(f"{WHO}: G3 fails: the recomputed 88-window counts differ from D208's in {bad[:5]}")
-    if any(m["class"] == "other" for m in new_misses):
-        raise SystemExit(f"{WHO}: a miss of the 32 reads 'other' (expected 0); a code fault")
+    if any(m["class"] == "other" for ms in build_m.values() for m in ms):
+        raise SystemExit(f"{WHO}: a build-read miss reads 'other' (expected 0); a code fault")
     if watch() != before:
         raise SystemExit(f"{WHO}: a watched folder changed; nothing is reported")
-    out = {"what": "P8 recall-cause supplement: D208's 32 dropped windows read the build's way "
-                   "(docs/research/P8_recallcause_supp.md); report only; beside P8_recallcause.md 9.3", "head": head,
-           "versions": versions, "nms_backend": raw.backend, "gate": gate_rec, "g1": g1, "g3": "passed",
+    undet = sorted(s for s, v in per_window.items() if v["status"] != "classified")
+    pick = lambda names, src: [m for s in names if s in src for m in src[s]]
+    out = {"what": "P8 recall-cause supplement: D208's windows re-read the build's way "
+                   "(docs/research/P8_recallcause_supp.md, version 1.1); report only; beside P8_recallcause.md 9.3",
+           "head": head, "versions": versions, "nms_backend": raw.backend, "gate": gate_rec, "g1": g1, "g3": "passed",
+           "sets": {"reread": reread, "certified": certified, "kept_reread": kept_reread, "undetermined": undet},
            "windows": per_window,
-           "units_32": unit_tables(new_misses),
-           "units_120": unit_tables(old_misses + new_misses),
-           "counts": {"misses_32": len(new_misses), "misses_88": len(old_misses),
-                      "undetermined": sorted(s for s, v in per_window.items() if v["status"] != "classified")},
+           "units_120_post_hoc": unit_tables(pick(certified, stored_m) + pick(reread, build_m)),
+           "units_88_sensitivity": unit_tables(pick(certified, stored_m) + pick(kept_reread, build_m)),
+           "units_32": unit_tables(pick(dropped, build_m)),
+           "counts": {"misses_certified": len(pick(certified, stored_m)), "misses_reread": len(pick(reread, build_m)),
+                      "misses_32": len(pick(dropped, build_m))},
            "seconds": round(time.time() - t0, 1)}
-    text = json.dumps(out, indent=1)
-    if find_private(text):
-        raise SystemExit(f"{WHO}: the record holds private data")
-    atomic_write(out_path(), text)
-    print(json.dumps({u: out["units_120"][f"{u}__pooled"]["reading"] for u in UNIT_NAMES}, indent=1))
+    _write(out_path(), out)
+    print(json.dumps({u: out["units_120_post_hoc"][f"{u}__pooled"]["reading"] for u in UNIT_NAMES}, indent=1))
     return out
 
 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog=WHO)
     sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("precheck")
     sub.add_parser("run")
     args = ap.parse_args(argv)
-    {"run": cmd_run}[args.cmd](args)
+    {"precheck": cmd_precheck, "run": cmd_run}[args.cmd](args)
 
 
 if __name__ == "__main__":
