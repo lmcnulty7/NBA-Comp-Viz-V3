@@ -243,7 +243,8 @@ differs from 10.1 to 10.11, it rules.
 ## 11. Stage 1 result (2026-11-28; run at e75c0152; reports/research/p8_c1reach_stage1.json)
 
 **11.1 The run.** One lock job ("p8 c1reach stage1", 1,600 s from the lock's "done in" line, including a short wait for
-another job): step A 906 s, step B 664 s (the records' seconds); step C on the system python, no lock. hou_cle_2016: no
+another job): step A 906 s and step B 664 s (the seconds in the reference root's c1reach/inputs.json and
+c1reach/teacher.json, which also hold R1's and R2's results); step C on the system python, no lock. hou_cle_2016: no
 data read.
 - R0 passed: the C1 recount equals the supplement's tables in every unit, per game and pooled.
 - R1: 0 of 775 sampled frames failed; 0 windows undetermined; every one of the 3,384 C1 misses lies in a window
@@ -308,16 +309,20 @@ Union baseline (10.12): E1b's C on gsw_cha_2016 for the held teacher's labels -0
 - As registered (10.2), stage 1 decides nothing; it is the held-teacher reference set, and its measurement checks
   passed.
 - The held teacher reaches 0.349 of the sampled C1 misses, 0.316 beyond what lowering r23's threshold to 0.25 gives
-  (0.037). By subclass it reaches C1a_other 0.458 (D-i 0.540, P-i 0.299) and C1c 0.244.
+  (0.037). By subclass it reaches C1a_other 0.458 (D-i 0.540, P-i 0.299), 0.417 beyond the floor, and C1c 0.244.
 - H, the C1a_other and C1c misses neither the floor nor the held teacher reaches, is -0.0086 on gsw_cha_2016 (interval
-  [-0.0118, -0.0059]), beyond the -0.0042 bar of 10.4 even at the interval's upper end, and under the larger gap of
-  0.0069 its point is past that gap too. So a stage 2 design is worth writing; whether a crowd detector reaches those
-  misses is stage 2's question.
+  [-0.0118, -0.0059]), beyond the -0.0042 bar of 10.4 even at the interval's upper end; under the larger gap of
+  0.0069 its point is past that gap, but its interval's upper end (-0.0059) does not clear it. H is the ceiling of a
+  source that reaches every remaining C1a_other and C1c miss: a crowd detector would need about 49 percent of exactly
+  the misses the in-domain teacher fails on to make -0.0042 (0.0042 / 0.0086), and about 80 percent to make 0.0069. So a
+  stage 2 design is worth writing, with that as its prior; whether a crowd detector reaches those misses is stage 2's
+  question.
 - The held teacher's C on gsw_cha_2016 (-0.0053) is part of what E1b's whole-label ceiling already counted, on other frames
   and by the nearest rule; it is not added to E1b's -0.0079.
 - Post hoc, not tested: the teacher reaches C1b misses (a referee box near the player) at 0.679; its labels exclude
   referees, but some of those reaches may be a box on the referee assigned to the player (10.8's caveat). It draws more
-  boxes and duplicates than r23 at 0.40 (7,628 against 7,053; 540 against 397) at about the same ghost proxy.
+  boxes and duplicates than r23 at 0.40 (7,628 against 7,053; 540 against 397) at about the same ghost proxy. The
+  teacher's counts are after the court filter and r23's are not, so this comparison slightly favours the teacher.
 - Limits as in section 8: raw reach, E1's transfer, post hoc classes, truth bias, the sample.
 
 ## 12. Stage 2 design draft (2026-11-28; not registered; held for Lucien's licence ruling; nothing downloaded)
@@ -339,7 +344,7 @@ projects more than 60 lock minutes for the 775 frames, the amendment says so and
 **12.2 The operating point (fixed before any number).** P8_teachers.md's qualification (recall at r23's precision on
 the 50 box-truth frames) failed the COCO person detectors (recall 0.035 and 0.060), which box spectators and benches
 as well as players. A CrowdHuman detector boxes every person too, so that rule is likely to fail it for the same
-reason, and choosing a threshold on the C1 frames is not allowed. Proposed instead: a fixed score of 0.5, set now, with
+reason, and choosing a threshold on the C1 frames is not allowed. Proposed instead: a fixed score of 0.5, with
 0.3 and 0.7 reported as sensitivities, and the court filter of 10.8 before everything. The ghost proxy and the near-no-
 player count carry the cost of non-player boxes.
 
