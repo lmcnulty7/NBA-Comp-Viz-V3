@@ -52,9 +52,9 @@ D202's 0.155 and 0.059.
 
 | class | what it is | pooled rate | cha | bkn |
 | --- | --- | --- | --- | --- |
-| P-ii | an unclaimed box 2.5 to 5 ft away | 0.114 [0.106, 0.123] | 0.118 | 0.110 |
+| P-ii | an unclaimed box 2.5 to 5 ft away | 0.114 [0.106, 0.123] | 0.118 | 0.111 |
 | P-i | no box left within 5 ft; the nearest is a neighbour's, about 3.7 ft away | 0.041 [0.037, 0.044] | 0.038 | 0.043 |
-| D-i | no box within 5 ft; the nearest is a neighbour's, about 7.5 ft away | 0.044 [0.040, 0.050] | 0.037 | 0.050 |
+| D-i | no box within 5 ft; the nearest is a neighbour's, about 7.5 ft away | 0.044 [0.039, 0.049] | 0.037 | 0.050 |
 | D-iii-free | the nearest box is unclaimed but beyond 5 ft | 0.014 [0.012, 0.017] | 0.015 | 0.014 |
 | referee boxes (P-iii-ref, D-iii-ref) | the nearest box is a referee's | 0.001 (D205) | see record | see record |
 
@@ -71,16 +71,20 @@ D205 calls each rate a ceiling, not a forecast.
 Box geometry barely separates these boxes from hits' (height ratio 0.964 against 0.985). Post hoc, in D207: ordinary own
 boxes placed 2.5 to 5 ft off on that frame.
 
+D204, on the whole placement row: in 0.230 of placement misses the nearest box is another player's one-to-one match,
+against about 0.04 of hits. Post hoc, in D204: a quarter to two fifths of placement misses look like players scored
+against a neighbour's box, plausibly because their own box is missing, merged or misplaced.
+
 **Tried:**
 
 | D line | what | outcome |
 | --- | --- | --- |
-| D184 | a leave-one-game-out foot correction by depth | scattered: no correction passes on every game (-0.0123, -0.0146, +0.0041 on gsw_sac_2015); none adopted |
-| D188 | shift output court positions only | STOP: p50 falls 0.23 to 0.28 ft, but near-third p90 rises beyond +0.05 ft on every game; detection unchanged by construction |
+| D184 (older truth) | a leave-one-game-out foot correction by depth | scattered: no correction passes on every game (-0.0123, -0.0146, +0.0041 on gsw_sac_2015); none adopted |
+| D188 (older truth) | shift output court positions only | STOP: p50 falls 0.23 to 0.28 ft, but near-third p90 rises beyond +0.05 ft on every game; detection unchanged by construction |
 | D206 | a median foot shift per box-height and depth cell (F1) | killed at stage 0: missed fell 0.0039 and 0.0035 against the -0.010 bar, in sample |
 | D210, stage 0a | the raw box bottom instead of the smoothed foot | no nearer the truth (rescue over the null +0.016 and +0.034 against 0.10) |
 | D210, stage 2 | a per-box ankle foot from ViTPose-B | fails rules 1, 2, 4 and 5 on both games (rescue +0.047 and +0.063 against 0.10; hits lost 0.42 and 0.41); the pose line stops |
-| D212 | is the row truth-side (timing, camera)? | not shown truth-side and not shown build-side. Timing offsets vary beyond the null, but own P-ii is only weakly enriched (1.31 and 1.13 against 1.5). B is in sample on these games, so a null cannot read as build-side |
+| D212 | is the row truth-side (timing, camera)? | not shown truth-side and not shown build-side. Timing offsets vary beyond the null, but own P-ii is only weakly enriched (1.31 and 1.13 against 1.5). The build's court model (B) is in sample on these games, so a null cannot read as build-side |
 
 **Open.** TRACKING_LEVELS.md (current route) records every per-box foot route tried as closed. No record names a next
 lever for this class or costs one. D212 weighed waiting for an independent court model, but no record designs or costs
@@ -91,23 +95,32 @@ one.
 **Where they are lost.** D208 and D211, on all 4,882 misses on 120 windows (D211, post hoc beside D208's registered 9.3):
 - the detector stage (C1) carries 0.693 [0.667, 0.719] (P-i 0.615, D-i 0.765);
 - NMS suppression carries 0.154 (P-i) and 0.085 (D-i) on D208's 88 kept windows.
+- D211 corrects D208 (its 9.7): D208's read does not reproduce the build where the build seeks. D208's 9.3 stands, and
+  the re-read sensitivity moves C1 from 0.674 to 0.688 and C3 from 0.094 to 0.073.
 
 **Tried:**
 
 | D line | what | outcome |
 | --- | --- | --- |
 | D171 | E1, fine-tuned detector, seed 0 (older truth) | not adopted: missed rose +0.0278 [0.0115, 0.0534]; 17.30 units |
-| D182 | E1 on the reference platform | not adopted: missed -0.0067 pooled, but 2 of 3 folds on hou_cle_2016; gain below the expected 0.010 to 0.016 |
-| D183 | E1b, fine-tune r23 on teacher boxes | stopped before any unit: transfer-adjusted ceiling -0.0199 pooled and -0.0079 on gsw_cha_2016, against -0.020 and -0.010. Detector fine-tuning paused |
+| D182 (older truth) | E1 on the reference platform | not adopted: missed -0.0067 pooled, but 2 of 3 folds on hou_cle_2016; gain below the expected 0.010 to 0.016 |
+| D183 (older truth) | E1b, fine-tune r23 on teacher boxes | stopped before any unit: transfer-adjusted ceiling -0.0199 pooled and -0.0079 on gsw_cha_2016, against -0.020 and -0.010. Detector fine-tuning paused |
 | D209 | NMS threshold 0.55 | inconclusive at the pilot (P3 unpowered). Missed -0.0065 [-0.0092, -0.0034], ghosts per player +0.0033, duplicates +0.0036; net error not shown to fall. Missed fell more than the 0.0038 recoverable ceiling (mechanism flag). A confirmation to rescue it is barred |
 | D213 | survey of label sources for crowded players | ranking is reasoning: the held teacher first, then Iter-Deformable-DETR (CrowdHuman) |
 
 **Open.** The held teacher's reach on C1 misses: docs/research/P8_c1reach.md. This design is on branch r-p8-c1reach
 and is not merged, so its numbers are design-time bounds:
-- Bound: if a student reached every C1 miss, E1's transfer would give a build-level fall in missed of 0.0153 on
-  gsw_cha_2016, 0.0348 on gsw_bkn_2015 and 0.0252 pooled (its section 3).
-- Rule: stage 2 (Iter-Deformable-DETR) runs only if stage 1's increment is at most -0.0042 on gsw_cha_2016. A training
-  arm then needs E1b's full bound before any unit (its section 7).
+- Bound (its section 3, as corrected by 10.1): if a student reached every C1 miss, E1's transfer would give a
+  build-level fall in missed of 0.0153 on gsw_cha_2016, 0.0348 on gsw_bkn_2015 and 0.0252 pooled. 10.1 says that bound
+  has no loss term. What matters is the reach beyond what the held teacher's labels already give, under a union label
+  set (the held teacher's labels plus the new source's extra boxes).
+- Stage 1 (its 10.2): it measures the held teacher's reach and cost and checks the measurement. It decides nothing by
+  itself.
+- Stage 2's increment over the held teacher decides (its 10.6):
+  - a training-arm design is justified only if the increment is at most -0.0042 on gsw_cha_2016 with its interval
+    below -0.0021, below 0 pooled, and the ghost proxy is at most twice the held teacher's;
+  - otherwise the reading is "not shown" or "not resolvable with these truths", the detector line stays paused, or the
+    CrowdHuman-detector line is killed (an increment above -0.0021).
 - Cost: a smoke of about 2 lock minutes, then about 35 lock minutes (cap 60), 0 units (its sections 9 and 10.11).
 
 Rejected options, with their costs:
@@ -129,12 +142,12 @@ No item has targeted them. No lever is recorded.
   three games.
 
 **Tried:**
-- D198, the reset fix on gsw_bkn_2015: ghost share per box +0.0008 [-0.0024, +0.0033].
+- D198 (older truth: gsw_bkn_2015's fixed CPU truth), the reset fix on gsw_bkn_2015: ghost share per box +0.0008
+  [-0.0024, +0.0033].
 - D209, NMS 0.55: ghosts per player +0.0033 [+0.0012, +0.0056].
 - D182, E1 (older truth, not adopted): ghosts -0.0160.
 
-**Open.** No ghost-specific lever is recorded. The largest part of the row moves only with the P-ii boxes (section
-2.1).
+**Open.** No ghost-specific lever is recorded. The ghost row is mostly the P-ii boxes (D207, section 2.1).
 
 ## 4. Team (0.834 against 0.95)
 
@@ -151,7 +164,7 @@ No item has targeted them. No lever is recorded.
 
 | D line | what | outcome |
 | --- | --- | --- |
-| D153, D154 | team labels from CLIP and DINOv2 embeddings (E3) | not adopted: both arms lower the team row (14 to 21 points, TRACKING_LEVELS.md Level 2 step 4) |
+| D153, D154 (older truth) | team labels from CLIP and DINOv2 embeddings (E3) | not adopted: both arms lower the team row (14 to 21 points, TRACKING_LEVELS.md Level 2 step 4) |
 | D214 | upper bound from label-level fixes, report only | no arm licensed. Tracking headroom (0.042 and 0.044 against 0.030) is fragile: 0.0299 and 0.025 at L = 2.0. Colour clears on cha only (0.095 against 0.041, bar 0.050). The combined gain (0.137 and 0.085, bar 0.056) is not fragile, stated as a fact, not a pattern |
 
 **Open:**
@@ -165,11 +178,11 @@ No item has targeted them. No lever is recorded.
 timing signature, and varies by game.
 
 **Tried:**
-- D184, a depth correction: scattered, no correction passes on every game.
-- D188, output shift: STOP on near-third p90 growth, which D188 counts as harm. The scored near-third bias varies by game
-  (0.010, 0.367, 0.213 ft, post hoc).
-- D206, F1: lowered near-field bias and p50 under B by about 0.15 ft, while missed barely moved. Killed on missed, in
-  sample.
+- D184 (older truth), a depth correction: scattered, no correction passes on every game.
+- D188 (older truth), output shift: STOP on near-third p90 growth, which D188 counts as harm. The scored near-third bias
+  varies by game (0.010, 0.367, 0.213 ft, post hoc).
+- D206, F1: lowered near-field bias and p50 under the build's court model (B) by about 0.15 ft, while missed barely
+  moved. Killed on missed, in sample.
 - D210, pose foot: the line stops.
 - D182, E1 (older truth): near-field bias -0.1589 ft. E1 was not adopted.
 
@@ -186,14 +199,16 @@ This section reads the records above. It computes nothing new and ranks nothing.
 - **Missed, 0.05.**
   - The detection part alone is 0.059 pooled, above 0.05, before any placement miss.
   - The no-box classes (P-i and D-i) have one open lever. Its design-time bound at perfect reach is about 0.025 pooled
-    and 0.015 on gsw_cha_2016 (P8_c1reach.md section 3, unmerged).
+    and 0.015 on gsw_cha_2016 (P8_c1reach.md section 3, unmerged). 10.1 corrects it: what counts is the reach beyond the
+    held teacher, under union labels, which is no larger.
   - The placement part (0.155) has no open lever.
   - So the combined 5 percent target does not look reachable on these rows with any recorded lever.
 - **Ghosts, 0.05.** About 0.58 of the row is the same boxes as P-ii (D207), and the rest would be about 0.051. The
   ghost target is therefore tied to the placement row rather than independent of it.
 - **Team, 0.95.**
   - The oracle bound under label-level fixes sits 0.003 and 0.008 below 0.95 at the rule value.
-  - Colour headroom is reachable from the existing crops on cha.
+  - The colour oracle's headroom clears its bar on cha only and is not limited by which frames are cropped (O1c); no
+    fix is shown to reach it.
   - No arm is licensed yet.
   - Of the four targets, this one is the nearest to its bound. But the bound is an oracle, and no real fix is shown to
     reach it.
@@ -201,23 +216,27 @@ This section reads the records above. It computes nothing new and ranks nothing.
   (D210). The bias varies by game, and no lever is recorded.
 
 **Where the truths themselves limit what can be shown.**
-- **B is in sample.** On the pool games r23's court model was trained on labels written through an earlier
-  SportVU-fitted truth (D212). A truth-side placement error can be found through B, but a null cannot clear the build.
+- **The build's court model (B) is in sample.** On the pool games r23's court model was trained on labels written
+  through an earlier SportVU-fitted truth (D212). A truth-side placement error can be found through B,
+  but a null cannot clear the build.
   So whether the placement row is partly the truth's own error stays open (D212: not shown either way).
 - **Truth selected by r23.** The truth frames are r23's own selections (D202). The rows are optimistic, and a new
   detector is judged on frames r23 chose. A truth change alone moved missed by 0.083 on cha (D202), which is larger
-  than any arm's measured gain in this map.
+  than any arm's measured gain in this map. The largest is D198's report-only -0.060 on gsw_bkn_2015, on its fixed CPU
+  truth.
 - **Oracle-only ceilings.** Two of the ceilings are oracles, not reachable fixes: team O2_swap (D214) and the P-ii and
   ghost ceilings (D205, D207).
 - **Transfer.** Raw label gains kept only 0.24 to 0.38 (placement) and 0.36 to 0.62 (presence) at build level (D183).
   Every detector bound here passes through those fractions, which E1b found uncertain by about 0.0035 per game
-  (P8_c1reach.md section 8).
+  (P8_c1reach.md section 8, unmerged).
 - **Few games.** Two development games and one unspent new-arena game. D200 notes that only with four games does a
   game-bootstrap interval stop being the range of the game effects.
 - **The 2.5 ft criterion and one camera.** Position p90 is 3.37 ft, and TRACKING_LEVELS.md puts one
   broadcast camera at about 1.5 ft median error at best. A player counts as missed when no box sits within 2.5 ft. So
   part of the placement row may measure single-camera position error, not an absent player. D184 (a) already reports
   detection and placement apart. This is a reading, not a measurement.
+  - An alternative reading (D204): in 0.230 of placement misses the nearest box is another player's one-to-one match.
+    On that reading, part of the row is an own box missing, merged or misplaced, not position error.
 
 **Options Lucien could pick (unranked):**
 - **(a) Keep every Level 2 target as written.** Report the gap with its causes. Level 2 then stays open with no
@@ -232,6 +251,7 @@ This section reads the records above. It computes nothing new and ranks nothing.
   games (the gsw_ind_2016 rebuild, D200: about 7.5 lock hours, with a check that already fails). Then decide the
   targets.
 - **(e) Pursue the one licensed next step and decide after it.** c1reach stage 1 (about 35 lock minutes, 0 units,
-  unmerged design). Its rule then decides whether a crowd-detector stage and a detector arm are worth units.
+  unmerged design) measures the held teacher's reach and decides nothing by itself. Stage 2's increment over the held
+  teacher, under union labels, then decides whether a detector arm is worth units (P8_c1reach.md 10.6).
 - **(f) Close Level 2's modelling for some rows and report them as measured limits.** For example placement and
   near-camera bias, keeping the team and detection lines open.
