@@ -268,3 +268,87 @@ with the changes below.
 Unchanged from section 9 (about 3 lock minutes, stored files only), with two additions:
 - The selection gate of section 3 still runs, with D207's ordered rows and D202's fields.
 - The null simulation runs in the report step (system python, no lock).
+
+## 11. Version 1.2 (2026-11-28, after the second review of 432b7fed, GO WITH CHANGES; before any code or number)
+
+Where this differs from section 10, it rules. It adds no lock time.
+
+### 11.1 The null's noise (replaces 10.2's null)
+
+- For each moving estimation row, the noise is drawn as a resampled offset vector (B(foot_raw) - SportVU) from the
+  same window's slow estimation rows (speed 1 to 5 ft/s), projected onto the moving row's own v_hat.
+  - With fewer than 10 slow rows in the window, the draw falls back to the same game's slow rows in the same third
+    (the scorer's third of SportVU under T).
+  - Drawing the vector, not a centred scalar, keeps B's per-window bias and the depth-dependent short foot (D184, D186)
+    inside the null.
+- The null's tau_0 stays the across-window median of tau_B. The statistic stays the across-window interquartile
+  range.
+- **Report only:**
+  - tau_B on TRACK-state frames only, as a sensitivity;
+  - a lateral-axis estimator: the median over rows of (o . w) / (v . w), where w is the unit vector across the camera
+    ray (o is the offset, v the velocity), on rows with |v . w| at least 5 ft/s.
+
+### 11.2 Method check and power (replaces 10.3)
+
+- **Synthetic shift.** SportVU is re-read at plus and minus 3 moments (plus and minus 0.12 s at 25 Hz) on the same rows,
+  and tau_B is recomputed. The across-window median of tau_B must move by that shift, within 0.02 s, in both directions
+  on both games. If it does not, timing reads "not resolvable".
+- **Power.** A shift of plus or minus 0.1 s (sign at random) is injected into a quarter of each game's windows (chosen
+  at random), on top of the null's simulated rows, 2,000 times (seed 1). "Answered" (the spread inside the null) may be
+  read only if, in at least 80 percent of those simulations, the interquartile range exceeds the null's 97.5th
+  percentile. Otherwise timing reads "not resolvable at this noise".
+- **The EMA difference is report only:** the across-window median of tau_B(foot_stab) - tau_B(foot_raw), beside its
+  prediction from the stored foot_stab - foot_raw pixel offsets. The prediction is the same quantity computed with
+  those pixel offsets mapped through B in place of SportVU.
+
+### 11.3 Camera rule (replaces 10.4's rule)
+
+- **(a), within third.** The ratio of median d_TB at own P-ii boxes to median d_TB at hit boxes on the same frames is
+  computed within each third, then combined as the median of the per-third ratios, weighted by own P-ii rows. Its
+  window-cluster interval must exclude 1, with the point at least 1.5.
+- **(b), against a build-side null.** For each own P-ii row, a null T offset is its own T offset plus the T-minus-B
+  disagreement vector of a same-frame hit box drawn at random (seed 0, 2,000 draws). The share of own P-ii rows with
+  d_B at most 2.5 ft must exceed the null's 97.5th percentile of the same share.
+  - Hits' own d_B share is reported beside it as the T-side reference.
+- The camera pattern holds when (a) and (b) both hold on both games.
+
+### 11.4 Off windows and acceptance (adds to 10.2)
+
+- At least 5 off windows per game are needed for the enrichment test. With fewer, timing reads "not resolvable" on that
+  game.
+- Windows the truth's acceptance rejected cannot contribute: they have no truth rows. The offset solve is known to be
+  fragile across builds. D99: small build differences move a window's offset by 0.3 to 0.8 s. D166: the median offset
+  difference between builds that differ only in the court model fell from 0.52 to 0.367 s under truth v2, not to its
+  0.26 s bar. A window whose time error is large enough to fail acceptance is therefore not seen here.
+
+### 11.5 Is B independent of the truth on these games? It is not (item 6, checked against the training record)
+
+The r23 court model was **trained on labels derived from H_truth** on both pool games.
+- ROADMAP_LOG.md pass 13: sportvu/grid_dataset.py built r23's training set from "every 2nd kept R1.3 label", with
+  "labels written by generate_labels' own functions through H_truth".
+- R1.3's labels are the camera-model truth of the four training games, gsw_bkn_2015, gsw_cha_2016, gsw_ind_2016 and
+  gsw_sac_2015 (tools.p8_frozen.R13_TAGS; P8_FEASIBILITY.md section 2.3's table).
+- That truth placed one camera per game from pooled feet-to-SportVU pairs, then fitted pan, tilt and zoom per frame to
+  feet and painted lines.
+- tools.p8_scorecard already marks r23's rows on these games "IN SAMPLE".
+
+So B on gsw_cha_2016 and gsw_bkn_2015 comes from a court model trained to reproduce an earlier SportVU-fitted truth's
+court projection on these same games. B is not a frame free of SportVU here.
+
+- B's per-frame H still comes from the frame's own painted lines through the tracker. But its keypoints were learned
+  from truth-projected labels of these frames' games, possibly of these very windows (R1.3's kept frames).
+- The independence 10.1 claims for B does not hold on these games. The R1.3 truth is the old frozen camera fit, not
+  multipool v1. It shares the feet-to-SportVU construction, and its per-window offsets came from the same fragile solve
+  (11.4).
+- What this does to each test:
+  - **Timing:** a per-window time error in R1.3's truth would have moved that truth's per-frame camera, and so the
+    court labels r23 learned. Pooled training over many windows averages such errors, but r23 may have learned them in
+    sample. So tau_B could understate a truth-side timing error that B shares.
+  - **Camera:** T against B compares two descendants of SportVU-fitted truths on these games. Agreement between them
+    is weaker evidence of a correct camera than it would be from a model that never saw these games.
+- **This is a finding the lead must rule on before any code**, not a detail to note and pass over. The options:
+  - (i) run as registered, with this limit in every reading;
+  - (ii) wait for a court model not trained on these games (none exists in the repository: the public court model of
+    ROADMAP R2.2 is "far behind V3", and V3's own grid model was trained on Roboflow nbacourt frames only, per FIX_PLAN.md's
+    provenance note);
+  - (iii) close the item as not measurable with an independent frame.
