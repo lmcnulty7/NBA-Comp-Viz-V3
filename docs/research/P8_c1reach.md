@@ -132,3 +132,85 @@ minutes) and R2's 20 frames: about 35 minutes, cap 60. 0 Colab units. Writes: re
 (checked with find_private) and nothing else; the teacher's per-frame boxes stay in the reference root's c1reach/
 folder, not committed. Manifests watched before and after (labels, label_build, truth_accept, cache, builds/r23,
 recallcause/, recallsupp/, the teachers workspace); any change stops the run.
+
+## 10. Version 1.1 (2026-11-27; the design review of 658e3a98, GO WITH CHANGES; rebased on v4-research b4262d7d; before any code)
+
+Where this section differs from sections 1 to 9, it rules.
+
+**10.1 Section 3, corrected.** As written, section 3 is wrong: perfect C1 reach would lower missed by 0.0153 on
+gsw_cha_2016, which passes E1b's -0.010 bar, since that bound has no loss term. The quantity that matters is the reach
+beyond what the held teacher's labels already give, under a union label set (the held teacher's labels plus the new
+source's extra boxes). Section 3's numbers were computed at design time from stored records (the supplement's tables
+and D202's in-frame counts); they are bounds, not results. "Pooled" in this design is gsw_cha_2016 plus gsw_bkn_2015,
+not E1b's pooled with gsw_sac_2015.
+
+**10.2 Stage 1 recast.** Stage 1's rule cannot fail: the headroom H of the C1a_other and C1c misses on gsw_cha_2016 is at
+most -0.0142 if every one were reached (709 D-i and 607 P-i misses at f_pres 0.364 and f_plc 0.240 over 28,427 in-frame
+players), 3.4 times the bar. So stage 1 is the held-teacher reference set and a measurement check, not a gate: it
+measures the held teacher's reach and cost and validates the measurement (R0, R1, R2 and the positive control, 10.9). It
+decides nothing by itself; stage 2 is designed after it as section 7 says, with the rule of 10.6.
+
+**10.3 The environments (blocker).** The teacher cannot import in the frozen CV python (no loguru), and R2's record was
+made in ~/Developer/p8-teachers-venv (Python 3.13.3, torch 2.15.0). Nothing is installed into the frozen python. One
+lock job runs two processes in sequence:
+- **Step A, the frozen CV python:** the guards; D205's rows with the row gate; R0; the sample; build_read on the 120
+  windows with r23's capture on every sampled frame (R1, 10.8); every sampled frame written losslessly (PNG) to the
+  reference root's c1reach/frames/, with its SHA-256; one inputs file (per sampled frame: the ten SportVU positions,
+  in-frame flags, H_truth, the C1 misses with unit, subclass and pid, r23's stored R_post and conf 0.25 boxes, and the
+  frame's SHA-256). The frames stay for stage 2.
+- **Step B, the venv:** checks every frame's SHA-256 against the inputs file; R2 (section 5) on the box-truth frames of
+  the teachers workspace, which are exempt from the allow-list (they include gsw_ind_2016) and admitted only after
+  tools.p8_teachers' record check passes on them; then tools.p8_teachers.load_runner("yolox_x_sportsmot", ..., "cpu")
+  on every sampled frame with torch.set_num_threads(4). Never cmd_run, which would overwrite the R2 record. Writes the
+  teacher's boxes to c1reach/.
+- **Step C, the system python, no lock:** the statistics of section 6 and 10.4 to 10.9 and the record.
+
+**10.4 The bar and the noise floor (replaces section 7's "twice the gap").** From the review: gsw_cha_2016's window
+half-width on a build-level missed row is about 0.006 (P8_E1R.md), so a C1 increment must be about -0.0041 or better to
+stand out; the bar stays -0.0042, now justified by that noise floor rather than by doubling the gap. The -0.0021 line
+(the gap itself) stays as the kill line.
+
+**10.5 The transfer's uncertainty.**
+- The intervals include the uncertainty of f: in each bootstrap replicate, our windows are resampled and E1's corpus
+  windows are resampled within each game, and f_pres and f_plc are recomputed from E1's per-window counts, as E1b 2b
+  did (tools/p8_e1b_bound.py's transfer counts, from stored files).
+- A sensitivity row adds gsw_cha_2016's +0.0048 transfer-model residual (P8_E1B.md 2b) to its C.
+- Registered: if the stage-2 increment's interval necessarily spans the bar given f's spread (about +-0.0045 on
+  gsw_cha_2016 from f alone), the reading is "not resolvable with these truths" and the detector line stays paused.
+
+**10.6 Stage 2's outcomes (replaces section 7's rule after stage 2; every zone has an action).**
+- Increment at most -0.0042 on gsw_cha_2016, its interval below -0.0021, below 0 pooled, and the ghost proxy at most twice
+  the held teacher's: a training-arm design is justified (a union label set; it needs E1b 2b's full bound on all misses,
+  with a loss term if any design replaces the held teacher's labels instead of adding to them).
+- The same, but the interval crosses -0.0021: "not resolvable with these truths" (10.5) when f's spread alone forces
+  it; otherwise "not shown". Either way no arm; the detector line stays paused.
+- Increment between -0.0042 and -0.0021: short of the noise-floor bar; no arm; paused.
+- Increment above -0.0021: the CrowdHuman-detector line is closed for these sources (kill, as section 7).
+- The increment passes but the ghost proxy fails: no arm on its raw boxes; a filtered-label design may be registered
+  as a new item; paused meanwhile.
+
+**10.7 The P-i mapping and its extremes.** P-i misses count as placement (f_plc) and D-i as presence (f_pres), as
+registered; beside it, the two extremes (every C1 miss at f_plc; every one at f_pres) are reported.
+
+**10.8 A court filter, and R1 everywhere.** Before the ghost proxy and the reach, both teachers' boxes are kept only
+when their foot, through H_truth, lies inside the court lines plus 3 ft on every side (SportVU court coordinates, 94 by
+50 ft). The teacher may box referees (its labels exclude them, but the model is not prevented from boxing them); the
+cost rows report its boxes within 2.5 ft of no player separately from those near one. R1 runs on every sampled frame,
+not only the first: r23's capture must equal the stored R_post on each, a frame that fails is left out and counted, and
+more than 5 percent failing stops the run.
+
+**10.9 The assignment and a positive control.** Reach uses tools.p8_one2one.assign_1to1 (Hungarian on foot distance
+over all ten players, pairs beyond 2.5 ft cost 1e6, no referee boxes for the teacher): a single stage at 2.5 ft, unlike
+O.two_stage, which adds a second stage at 5 ft for the leftovers. Positive control: on the same frames, the teacher's
+one-to-one reach of r23's own hits (in-frame players assigned an r23 box at 0.40 by assign_1to1). Gate: at least 0.90;
+else the measurement is suspect and stage 1 reports nothing (E1b found the teacher reaching 97 percent of r23's finds by
+the nearest rule).
+
+**10.10 Wording.** hou_cle_2016: no data read. The held teacher carries its own residual risk under D150 (2): it was
+trained on SportsMOT, whose games cannot be identified, so a held-out game in its training set cannot be ruled out;
+disclosed, as for every use of it.
+
+**10.11 A smoke before the job.** Both environments on one seek window, gsw_cha_2016_s07_w00 (about 2 lock minutes): step
+A's build read, the frames dumped with their hashes, R1 on every sampled frame; then step B's hash check, R2, the teacher
+and the positive control. The 35-minute job runs only after the smoke passes and the lead's go. Cost of the frames: about
+960 PNG frames of 1280 by 720, about 1.5 GB in the reference root.
