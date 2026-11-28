@@ -811,3 +811,57 @@ gsw_cha_2016_s00_w00 and 107 s for gsw_bkn_2015_s00_w00, from the heavy-job line
 **Disclosure.** The smoke record computes the rule booleans for its two windows, for the mechanics. The lead saw
 them while reading the record. Nothing was changed on that basis, and every bar stays as registered. The teammate did
 not read them.
+
+## 16. Result of stage 2, the pose falsifier (2026-11-28, from ad68da1e; record reports/research/p8_posefoot_pose.json)
+
+**Run.** One lock per game, from work_ref/logs/posefoot.log's heavy-job lines: 2,018 s for gsw_cha_2016 and 1,976 s for
+gsw_bkn_2015, about 34 and 33 minutes against the 60-minute caps. The report took 7 s.
+
+- All 151 aligned windows were read: 2,911 and 2,982 frames, and 9,172 and 9,210 crops (the projected counts exactly).
+- Every read reproduced (read_not_reproduced 0).
+- Manifests were unchanged.
+- Both-ankle coverage was 0.948 and 0.957 (P-ii) and 0.973 and 0.974 (hits).
+- The mechanical check held at 0.996 and 0.997.
+- No sampled-hit null partner: 167 and 163 boxes.
+- hou_cle_2016 was not opened and stays unspent.
+
+**The five rules on the hybrid, both-ankle boxes (section 6 with 11.4, 11.5, 12.1, 15.1):** own P-ii boxes number
+1,743 and 1,673; hits 5,662 and 5,807.
+
+| rule | bar | gsw_cha_2016 | gsw_bkn_2015 | outcome |
+|---|---|---|---|---|
+| 1. R - R_null (same boxes) | at least 0.10 | 0.438 [0.388, 0.488] - 0.391 [0.347, 0.438] = +0.047 | 0.453 [0.395, 0.514] - 0.390 [0.339, 0.442] = +0.063 | fails both |
+| 2. median d_hyb - d_stab, T | at most -0.5 ft, upper end below 0 | -0.373 ft [-0.739, -0.020] | -0.449 ft [-0.906, +0.016] | fails both |
+| 3. median, B | at most 0 | -0.167 ft [-0.310, +0.006] | -0.160 ft [-0.514, +0.071] | passes both |
+| 4. hits: median d_hyb - d_stab, T; share lost | at most +0.10 ft; at most 0.05 | +1.287 ft [+1.153, +1.431]; 0.418 [0.386, 0.449] | +1.271 ft [+1.140, +1.426]; 0.414 [0.377, 0.455] | fails both |
+| 5. est (every selected row, 15.1 (2)) | at most -0.010 | +0.282 [+0.252, +0.310] | +0.275 [+0.244, +0.308] | fails both |
+
+- Beside est, the ghost change per box is +0.189 [+0.166, +0.211] and +0.175 [+0.148, +0.203].
+- s_hit is 3.865 and 3.841: two sampled hits per frame scaled to D205's hit counts.
+- On hits under B, the median is +0.483 and +0.543 ft.
+- Pooled, report only: R 0.445 against R_null 0.390; median -0.393 ft under T and -0.163 ft under B; hits lost 0.416;
+  est +0.279 [+0.257, +0.300].
+- **Pose-raw against foot_raw (report only, 11.4):** on hits, the median of d_poseraw - d_raw is +1.174 and +1.191
+  ft, with a share lost of 0.411 and 0.401.
+- One-ankle boxes (reported apart, 11.7 (7)): 69 and 51 own P-ii boxes, and 128 and 127 hits.
+
+**Reading by the registered rule: the pose line stops** (self-decided by the lead, per section 6). No other model,
+threshold, ankle height or crop scale is tried on these games. The registered failure-pattern readings that apply:
+- Rules 1 and 2 fail: ankles do not locate these feet better than foot_stab, by the registered margins.
+- Rule 4 fails: hits pay for any gain on P-ii boxes. On hits, the hybrid moves the foot a median of about 1.3 ft away
+  from the player under T, and 41 to 42 percent of hits leave 2.5 ft.
+- est is positive: replacing foot_stab by the hybrid would raise missed by about 0.28 of in-frame players, an estimate
+  and not the scorer's row. The ghost row would rise too.
+- Rule 3 passing (not farther under B on own P-ii boxes) does not change the stop.
+
+**Post hoc, not tested by a registered rule.**
+- The same-frame null alone brings 0.39 of own P-ii boxes within 2.5 ft. On hits, the hybrid's shift is large and
+  one-directional (+1.3 ft under T, +0.5 ft under B, in median).
+- Together these suggest that the ankle point carries a large frame-wide offset from the box bottom, which moves every
+  foot about a foot, rather than a per-box signal. The per-box gain over the null is about 0.05 (+0.047 and +0.063).
+- A bias-corrected ankle (the frame-wide offset removed) would be a new arm needing its own design and registration,
+  not a rescue of this one. It would also need to answer D206's lesson on population shifts.
+
+**What this rules out, on these truths and this build:** this pose model's ankle point, used as registered (hybrid or
+pose-raw), as a per-box foot for the missed row. Stage 0a ruled out foot_raw itself, and stage A cleared the decode as
+a cause: with the build's read path, 151 of 156 windows aligned.
