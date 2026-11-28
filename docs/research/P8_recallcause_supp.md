@@ -95,3 +95,15 @@ units. hou_cle_2016 unspent.
 The reference root's recallsupp/ folder (raw candidates, not committed) and reports/research/p8_recallcause_supp.json,
 checked with find_private; nothing else (an AST test checks the targets). builds/, labels/, label_build/, truth_accept/,
 cache/ and recallcause/ are watched by manifest before and after; any change stops the run with nothing reported.
+
+## 8. Code note (2026-11-27; written while the design is in review; nothing run)
+
+- The read functions (SeekCount, pregate_intervals, main_reads, open_like_build, build_read) are copied from
+  tools/p8_posefoot.py at 53c44192 with credit, by the lead's decision (posefoot reaches v4-research only when its item
+  closes). A test checks that each equals posefoot's at that commit, docstrings aside.
+- D208 classified misses inline in its run loop. tools/p8_recallsupp.py reproduces that loop body as one function,
+  classify_window, importing every rule it calls from tools/p8_recallcause.py. G3 is its check: on the 88 kept windows
+  it must give D208's recorded counts for every class, unit and game.
+- The stored candidates carry no anchor ids, so R_post's boxes are matched into R_pre by exact equality (both runs use
+  the same rule), as P8_nmsarm.md section 3 does.
+- The allow-list is implemented in the tool itself, since tools/p8_nmsarm.py is not on v4-research.
