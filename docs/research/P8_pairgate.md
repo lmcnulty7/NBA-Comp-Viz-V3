@@ -105,3 +105,9 @@ window by window.
 
 **8.8 Cost.** Re-estimated at about 3 to 5 lock minutes for the two passes (cap 15). Writes: reports/research/
 p8_pairgate.json only.
+
+**8.9 Code note (2026-11-27, local).** The test of section 3's "constructed case" is restated: capping does not keep
+more within-gate pairs than the frozen rule in general (it lowers the cost of pairs beyond the gate, so it can keep
+fewer as well as more). What it changes is which pairs: distances beyond the gate no longer steer the assignment. The
+test builds a case where the frozen rule keeps one within-gate pair and the capped rule another, and the pair counts
+gained and lost are reported, not assumed to rise.
