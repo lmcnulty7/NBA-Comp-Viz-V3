@@ -238,3 +238,84 @@ differs from 10.1 to 10.11, it rules.
   rerun with this version's code): R1 0 of 8 failed, every hash equal, R2 20 of 20 equal, positive control 58 of 59
   (0.983). Its reach numbers are one window and are not read.
 - The full run: steps A and B chained under one lock command, then step C.
+
+
+## 11. Stage 1 result (2026-11-28; run at e75c0152; reports/research/p8_c1reach_stage1.json)
+
+**11.1 The run.** One lock job ("p8 c1reach stage1", 1,600 s from the lock's "done in" line, including a short wait for
+another job): step A 906 s, step B 664 s (the records' seconds); step C on the system python, no lock. hou_cle_2016: no
+data read.
+- R0 passed: the C1 recount equals the supplement's tables in every unit, per game and pooled.
+- R1: 0 of 775 sampled frames failed; 0 windows undetermined; every one of the 3,384 C1 misses lies in a window
+  with sampled frames (1,012 of them on the sampled frames; windows with fewer than 8 C1 frames contribute all of
+  theirs, so 775 frames, not 960).
+- R2: 20 of 20 box-truth frames reproduce the stored teacher predictions exactly; every frame and image hash matched;
+  the teachers workspace was unchanged.
+- Positive control: the held teacher reaches 4,831 of r23's 5,057 in-frame hits on the same frames, 0.955
+  (gate 0.90): passed.
+
+**11.2 Reach on the sampled C1 misses (one to one at 2.5 ft; window bootstrap, stratified by game).** Shares of the
+sampled misses: the held teacher at 0.1471 (court-filtered), the floor (r23 at 0.25), beyond the floor (the teacher
+reaches, the floor does not) with its interval, and the teacher with its 0.05 to 0.1471 band.
+
+| unit | subclass | sampled misses | teacher | floor | beyond the floor [interval] | teacher with band |
+|---|---|---|---|---|---|---|
+| P-i | C1a_other | 137 | 0.299 | 0.022 | 0.277 [0.202, 0.356] | 0.299 |
+| P-i | C1c | 268 | 0.280 | 0.015 | 0.265 [0.204, 0.330] | 0.287 |
+| P-i | C1b | 11 | 0.545 | 0.091 | 0.455 [0.143, 0.800] | 0.545 |
+| P-i | C1a_own | 26 | 0.192 | 0.000 | 0.192 [0.048, 0.364] | 0.192 |
+| P-i | C1 | 442 | 0.287 | 0.018 | 0.269 [0.219, 0.320] | 0.292 |
+| D-i | C1a_other | 263 | 0.540 | 0.061 | 0.490 [0.426, 0.556] | 0.544 |
+| D-i | C1c | 236 | 0.203 | 0.038 | 0.169 [0.114, 0.231] | 0.203 |
+| D-i | C1b | 45 | 0.711 | 0.089 | 0.622 [0.467, 0.761] | 0.711 |
+| D-i | C1a_own | 26 | 0.154 | 0.000 | 0.154 [0.038, 0.296] | 0.154 |
+| D-i | C1 | 570 | 0.396 | 0.051 | 0.353 [0.300, 0.405] | 0.398 |
+| both | C1a_other | 400 | 0.458 | 0.048 | 0.417 [0.367, 0.468] | 0.460 |
+| both | C1c | 504 | 0.244 | 0.026 | 0.220 [0.176, 0.268] | 0.248 |
+| both | C1b | 56 | 0.679 | 0.089 | 0.589 [0.458, 0.705] | 0.679 |
+| both | C1a_own | 52 | 0.173 | 0.000 | 0.173 [0.080, 0.269] | 0.173 |
+| both | C1 | 1012 | 0.349 | 0.037 | 0.316 [0.276, 0.357] | 0.352 |
+
+By game, all C1:
+
+| game | sampled misses | teacher | floor | beyond the floor [interval] |
+|---|---|---|---|---|
+| gsw_cha_2016 | 457 | 0.274 | 0.031 | 0.247 [0.189, 0.310] |
+| gsw_bkn_2015 | 555 | 0.411 | 0.041 | 0.373 [0.320, 0.420] |
+
+**11.3 Transfer-adjusted C1 ceilings (beyond the floor, scaled to the full C1 counts; P-i at f_plc and D-i at f_pres,
+with the two extremes; joint bootstrap of our windows and E1's, and the f-only interval).** E1's per-window counts
+reproduced E1b's record on both games. Pooled is gsw_cha_2016 plus gsw_bkn_2015.
+
+| scope | C | C, f only | C, all at f_plc | C, all at f_pres | H (C1a_other and C1c left) | H, f only |
+|---|---|---|---|---|---|---|
+| gsw_cha_2016 | -0.0053 [-0.0082, -0.0029] | [-0.0069, -0.0035] | -0.0039 [-0.0056, -0.0023] | -0.0059 [-0.0098, -0.0029] | -0.0086 [-0.0118, -0.0059] | [-0.0108, -0.0064] |
+| gsw_bkn_2015 | -0.0157 [-0.0223, -0.0102] | [-0.0179, -0.0132] | -0.0115 [-0.0159, -0.0076] | -0.0187 [-0.0270, -0.0119] | -0.0157 [-0.0202, -0.0117] | [-0.0179, -0.0133] |
+| pooled | -0.0106 [-0.0142, -0.0074] | [-0.0120, -0.0090] | -0.0077 [-0.0101, -0.0056] | -0.0124 [-0.0169, -0.0084] | -0.0123 [-0.0149, -0.0097] | [-0.0138, -0.0106] |
+
+Union baseline (10.12): E1b's C on gsw_cha_2016 for the held teacher's labels -0.0079, with the transfer model's residual
+-0.0031; the gap to the -0.010 bar 0.0021, or 0.0069 with the residual.
+
+**11.4 Cost rows (all 775 sampled frames).**
+
+| box set | boxes | ghost proxy (no player within 3 ft) | near no player (beyond 2.5 ft) | duplicates |
+|---|---|---|---|---|
+| held teacher (0.1471, court-filtered) | 7,628 | 1,402 | 1,898 | 540 |
+| r23 at 0.40 | 7,053 | 1,441 | 1,879 | 397 |
+| r23 floor (0.25) | 7,258 | 1,577 | 2,027 | 413 |
+
+**11.5 Reading.**
+- As registered (10.2), stage 1 decides nothing; it is the held-teacher reference set, and its measurement checks
+  passed.
+- The held teacher reaches 0.349 of the sampled C1 misses, 0.316 beyond what lowering r23's threshold to 0.25 gives
+  (0.037). By subclass it reaches C1a_other 0.458 (D-i 0.540, P-i 0.299) and C1c 0.244.
+- H, the C1a_other and C1c misses neither the floor nor the held teacher reaches, is -0.0086 on gsw_cha_2016 (interval
+  [-0.0118, -0.0059]), beyond the -0.0042 bar of 10.4 even at the interval's upper end, and under the larger gap of
+  0.0069 its point is past that gap too. So a stage 2 design is worth writing; whether a crowd detector reaches those
+  misses is stage 2's question.
+- The held teacher's C on gsw_cha_2016 (-0.0053) is part of what E1b's whole-label ceiling already counted, on other frames
+  and by the nearest rule; it is not added to E1b's -0.0079.
+- Post hoc, not tested: the teacher reaches C1b misses (a referee box near the player) at 0.679; its labels exclude
+  referees, but some of those reaches may be a box on the referee assigned to the player (10.8's caveat). It draws more
+  boxes and duplicates than r23 at 0.40 (7,628 against 7,053; 540 against 397) at about the same ghost proxy.
+- Limits as in section 8: raw reach, E1's transfer, post hoc classes, truth bias, the sample.

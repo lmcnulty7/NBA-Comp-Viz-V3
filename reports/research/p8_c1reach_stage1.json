@@ -1,0 +1,711 @@
+{
+ "what": "P8 C1 reach stage 1 (docs/research/P8_c1reach.md v1.1); report only; the held-teacher reference set",
+ "inputs_head": "e75c01524cb074c96dfdbd774ef3ad9f9b556087",
+ "smoke": false,
+ "r0": "passed",
+ "r1_failed": 0,
+ "undetermined": [],
+ "frames": 775,
+ "denominators": {
+  "c1_misses": 3384,
+  "in_undetermined_windows": 0,
+  "on_r1_failed_frames": 0,
+  "sampled": 1012,
+  "in_windows_with_frames": 3384,
+  "share_represented": 1.0
+ },
+ "positive_control": {
+  "r23_hits": 5057,
+  "teacher_reached": 4831,
+  "share": 0.9553094720189836,
+  "passes": true
+ },
+ "cost_rows": {
+  "teacher": {
+   "boxes": 7628,
+   "ghosts": 1402,
+   "near_no_player": 1898,
+   "duplicates": 540
+  },
+  "r23_040": {
+   "boxes": 7053,
+   "ghosts": 1441,
+   "near_no_player": 1879,
+   "duplicates": 397
+  },
+  "r23_floor": {
+   "boxes": 7258,
+   "ghosts": 1577,
+   "near_no_player": 2027,
+   "duplicates": 413
+  }
+ },
+ "versions_teacher": {
+  "torch": "2.15.0",
+  "opencv": "5.1.0"
+ },
+ "shares": {
+  "P-i|C1a_own|gsw_cha_2016": {
+   "n": 12,
+   "teacher": 0.4166666666666667,
+   "floor": 0.0,
+   "teacher_with_band": 0.4166666666666667,
+   "beyond": 0.4166666666666667,
+   "beyond_interval": [
+    0.1333,
+    0.75
+   ]
+  },
+  "P-i|C1a_other|gsw_cha_2016": {
+   "n": 57,
+   "teacher": 0.17543859649122806,
+   "floor": 0.0,
+   "teacher_with_band": 0.17543859649122806,
+   "beyond": 0.17543859649122806,
+   "beyond_interval": [
+    0.0702,
+    0.3
+   ]
+  },
+  "P-i|C1b|gsw_cha_2016": {
+   "n": 3,
+   "teacher": 0.0,
+   "floor": 0.0,
+   "teacher_with_band": 0.0,
+   "beyond": 0.0,
+   "beyond_interval": [
+    0.0,
+    0.0
+   ]
+  },
+  "P-i|C1c|gsw_cha_2016": {
+   "n": 136,
+   "teacher": 0.18382352941176472,
+   "floor": 0.014705882352941176,
+   "teacher_with_band": 0.19852941176470587,
+   "beyond": 0.16911764705882354,
+   "beyond_interval": [
+    0.0876,
+    0.259
+   ]
+  },
+  "P-i|C1|gsw_cha_2016": {
+   "n": 208,
+   "teacher": 0.19230769230769232,
+   "floor": 0.009615384615384616,
+   "teacher_with_band": 0.20192307692307693,
+   "beyond": 0.18269230769230768,
+   "beyond_interval": [
+    0.1188,
+    0.2524
+   ]
+  },
+  "D-i|C1a_own|gsw_cha_2016": {
+   "n": 10,
+   "teacher": 0.1,
+   "floor": 0.0,
+   "teacher_with_band": 0.1,
+   "beyond": 0.1,
+   "beyond_interval": [
+    0.0,
+    0.3333
+   ]
+  },
+  "D-i|C1a_other|gsw_cha_2016": {
+   "n": 124,
+   "teacher": 0.532258064516129,
+   "floor": 0.056451612903225805,
+   "teacher_with_band": 0.532258064516129,
+   "beyond": 0.49193548387096775,
+   "beyond_interval": [
+    0.391,
+    0.586
+   ]
+  },
+  "D-i|C1b|gsw_cha_2016": {
+   "n": 8,
+   "teacher": 0.375,
+   "floor": 0.0,
+   "teacher_with_band": 0.375,
+   "beyond": 0.375,
+   "beyond_interval": [
+    0.0,
+    0.75
+   ]
+  },
+  "D-i|C1c|gsw_cha_2016": {
+   "n": 107,
+   "teacher": 0.14018691588785046,
+   "floor": 0.04672897196261682,
+   "teacher_with_band": 0.14018691588785046,
+   "beyond": 0.09345794392523364,
+   "beyond_interval": [
+    0.0413,
+    0.1589
+   ]
+  },
+  "D-i|C1|gsw_cha_2016": {
+   "n": 249,
+   "teacher": 0.3413654618473896,
+   "floor": 0.04819277108433735,
+   "teacher_with_band": 0.3413654618473896,
+   "beyond": 0.30120481927710846,
+   "beyond_interval": [
+    0.2252,
+    0.3837
+   ]
+  },
+  "both|C1a_own|gsw_cha_2016": {
+   "n": 22,
+   "teacher": 0.2727272727272727,
+   "floor": 0.0,
+   "teacher_with_band": 0.2727272727272727,
+   "beyond": 0.2727272727272727,
+   "beyond_interval": [
+    0.1,
+    0.4584
+   ]
+  },
+  "both|C1a_other|gsw_cha_2016": {
+   "n": 181,
+   "teacher": 0.4198895027624309,
+   "floor": 0.03867403314917127,
+   "teacher_with_band": 0.4198895027624309,
+   "beyond": 0.39226519337016574,
+   "beyond_interval": [
+    0.3129,
+    0.467
+   ]
+  },
+  "both|C1b|gsw_cha_2016": {
+   "n": 11,
+   "teacher": 0.2727272727272727,
+   "floor": 0.0,
+   "teacher_with_band": 0.2727272727272727,
+   "beyond": 0.2727272727272727,
+   "beyond_interval": [
+    0.0,
+    0.6667
+   ]
+  },
+  "both|C1c|gsw_cha_2016": {
+   "n": 243,
+   "teacher": 0.1646090534979424,
+   "floor": 0.02880658436213992,
+   "teacher_with_band": 0.1728395061728395,
+   "beyond": 0.13580246913580246,
+   "beyond_interval": [
+    0.0789,
+    0.1993
+   ]
+  },
+  "both|C1|gsw_cha_2016": {
+   "n": 457,
+   "teacher": 0.2735229759299781,
+   "floor": 0.030634573304157548,
+   "teacher_with_band": 0.2778993435448578,
+   "beyond": 0.24726477024070023,
+   "beyond_interval": [
+    0.1891,
+    0.3105
+   ]
+  },
+  "P-i|C1a_own|gsw_bkn_2015": {
+   "n": 14,
+   "teacher": 0.0,
+   "floor": 0.0,
+   "teacher_with_band": 0.0,
+   "beyond": 0.0,
+   "beyond_interval": [
+    0.0,
+    0.0
+   ]
+  },
+  "P-i|C1a_other|gsw_bkn_2015": {
+   "n": 80,
+   "teacher": 0.3875,
+   "floor": 0.0375,
+   "teacher_with_band": 0.3875,
+   "beyond": 0.35,
+   "beyond_interval": [
+    0.25,
+    0.4493
+   ]
+  },
+  "P-i|C1b|gsw_bkn_2015": {
+   "n": 8,
+   "teacher": 0.75,
+   "floor": 0.125,
+   "teacher_with_band": 0.75,
+   "beyond": 0.625,
+   "beyond_interval": [
+    0.25,
+    1.0
+   ]
+  },
+  "P-i|C1c|gsw_bkn_2015": {
+   "n": 132,
+   "teacher": 0.3787878787878788,
+   "floor": 0.015151515151515152,
+   "teacher_with_band": 0.3787878787878788,
+   "beyond": 0.36363636363636365,
+   "beyond_interval": [
+    0.2793,
+    0.451
+   ]
+  },
+  "P-i|C1|gsw_bkn_2015": {
+   "n": 234,
+   "teacher": 0.3717948717948718,
+   "floor": 0.02564102564102564,
+   "teacher_with_band": 0.3717948717948718,
+   "beyond": 0.34615384615384615,
+   "beyond_interval": [
+    0.2731,
+    0.4138
+   ]
+  },
+  "D-i|C1a_own|gsw_bkn_2015": {
+   "n": 16,
+   "teacher": 0.1875,
+   "floor": 0.0,
+   "teacher_with_band": 0.1875,
+   "beyond": 0.1875,
+   "beyond_interval": [
+    0.0,
+    0.375
+   ]
+  },
+  "D-i|C1a_other|gsw_bkn_2015": {
+   "n": 139,
+   "teacher": 0.5467625899280576,
+   "floor": 0.06474820143884892,
+   "teacher_with_band": 0.5539568345323741,
+   "beyond": 0.4892086330935252,
+   "beyond_interval": [
+    0.4,
+    0.5724
+   ]
+  },
+  "D-i|C1b|gsw_bkn_2015": {
+   "n": 37,
+   "teacher": 0.7837837837837838,
+   "floor": 0.10810810810810811,
+   "teacher_with_band": 0.7837837837837838,
+   "beyond": 0.6756756756756757,
+   "beyond_interval": [
+    0.5185,
+    0.825
+   ]
+  },
+  "D-i|C1c|gsw_bkn_2015": {
+   "n": 129,
+   "teacher": 0.2558139534883721,
+   "floor": 0.031007751937984496,
+   "teacher_with_band": 0.2558139534883721,
+   "beyond": 0.23255813953488372,
+   "beyond_interval": [
+    0.1391,
+    0.3252
+   ]
+  },
+  "D-i|C1|gsw_bkn_2015": {
+   "n": 321,
+   "teacher": 0.4392523364485981,
+   "floor": 0.0529595015576324,
+   "teacher_with_band": 0.4423676012461059,
+   "beyond": 0.3925233644859813,
+   "beyond_interval": [
+    0.3199,
+    0.456
+   ]
+  },
+  "both|C1a_own|gsw_bkn_2015": {
+   "n": 30,
+   "teacher": 0.1,
+   "floor": 0.0,
+   "teacher_with_band": 0.1,
+   "beyond": 0.1,
+   "beyond_interval": [
+    0.0,
+    0.2083
+   ]
+  },
+  "both|C1a_other|gsw_bkn_2015": {
+   "n": 219,
+   "teacher": 0.4885844748858447,
+   "floor": 0.0547945205479452,
+   "teacher_with_band": 0.4931506849315068,
+   "beyond": 0.4383561643835616,
+   "beyond_interval": [
+    0.3735,
+    0.4977
+   ]
+  },
+  "both|C1b|gsw_bkn_2015": {
+   "n": 45,
+   "teacher": 0.7777777777777778,
+   "floor": 0.1111111111111111,
+   "teacher_with_band": 0.7777777777777778,
+   "beyond": 0.6666666666666666,
+   "beyond_interval": [
+    0.5385,
+    0.7844
+   ]
+  },
+  "both|C1c|gsw_bkn_2015": {
+   "n": 261,
+   "teacher": 0.31800766283524906,
+   "floor": 0.022988505747126436,
+   "teacher_with_band": 0.31800766283524906,
+   "beyond": 0.2988505747126437,
+   "beyond_interval": [
+    0.236,
+    0.3588
+   ]
+  },
+  "both|C1|gsw_bkn_2015": {
+   "n": 555,
+   "teacher": 0.41081081081081083,
+   "floor": 0.04144144144144144,
+   "teacher_with_band": 0.4126126126126126,
+   "beyond": 0.372972972972973,
+   "beyond_interval": [
+    0.3198,
+    0.4201
+   ]
+  },
+  "P-i|C1a_own|pooled": {
+   "n": 26,
+   "teacher": 0.19230769230769232,
+   "floor": 0.0,
+   "teacher_with_band": 0.19230769230769232,
+   "beyond": 0.19230769230769232,
+   "beyond_interval": [
+    0.0476,
+    0.3636
+   ]
+  },
+  "P-i|C1a_other|pooled": {
+   "n": 137,
+   "teacher": 0.29927007299270075,
+   "floor": 0.021897810218978103,
+   "teacher_with_band": 0.29927007299270075,
+   "beyond": 0.2773722627737226,
+   "beyond_interval": [
+    0.2016,
+    0.3556
+   ]
+  },
+  "P-i|C1b|pooled": {
+   "n": 11,
+   "teacher": 0.5454545454545454,
+   "floor": 0.09090909090909091,
+   "teacher_with_band": 0.5454545454545454,
+   "beyond": 0.45454545454545453,
+   "beyond_interval": [
+    0.1429,
+    0.8
+   ]
+  },
+  "P-i|C1c|pooled": {
+   "n": 268,
+   "teacher": 0.2798507462686567,
+   "floor": 0.014925373134328358,
+   "teacher_with_band": 0.2873134328358209,
+   "beyond": 0.26492537313432835,
+   "beyond_interval": [
+    0.2036,
+    0.3304
+   ]
+  },
+  "P-i|C1|pooled": {
+   "n": 442,
+   "teacher": 0.2873303167420814,
+   "floor": 0.01809954751131222,
+   "teacher_with_band": 0.2918552036199095,
+   "beyond": 0.2692307692307692,
+   "beyond_interval": [
+    0.2188,
+    0.3202
+   ]
+  },
+  "D-i|C1a_own|pooled": {
+   "n": 26,
+   "teacher": 0.15384615384615385,
+   "floor": 0.0,
+   "teacher_with_band": 0.15384615384615385,
+   "beyond": 0.15384615384615385,
+   "beyond_interval": [
+    0.0385,
+    0.2963
+   ]
+  },
+  "D-i|C1a_other|pooled": {
+   "n": 263,
+   "teacher": 0.5399239543726235,
+   "floor": 0.060836501901140684,
+   "teacher_with_band": 0.5437262357414449,
+   "beyond": 0.49049429657794674,
+   "beyond_interval": [
+    0.4263,
+    0.556
+   ]
+  },
+  "D-i|C1b|pooled": {
+   "n": 45,
+   "teacher": 0.7111111111111111,
+   "floor": 0.08888888888888889,
+   "teacher_with_band": 0.7111111111111111,
+   "beyond": 0.6222222222222222,
+   "beyond_interval": [
+    0.4667,
+    0.7609
+   ]
+  },
+  "D-i|C1c|pooled": {
+   "n": 236,
+   "teacher": 0.2033898305084746,
+   "floor": 0.038135593220338986,
+   "teacher_with_band": 0.2033898305084746,
+   "beyond": 0.1694915254237288,
+   "beyond_interval": [
+    0.114,
+    0.2308
+   ]
+  },
+  "D-i|C1|pooled": {
+   "n": 570,
+   "teacher": 0.39649122807017545,
+   "floor": 0.05087719298245614,
+   "teacher_with_band": 0.39824561403508774,
+   "beyond": 0.3526315789473684,
+   "beyond_interval": [
+    0.3,
+    0.4054
+   ]
+  },
+  "both|C1a_own|pooled": {
+   "n": 52,
+   "teacher": 0.17307692307692307,
+   "floor": 0.0,
+   "teacher_with_band": 0.17307692307692307,
+   "beyond": 0.17307692307692307,
+   "beyond_interval": [
+    0.08,
+    0.2692
+   ]
+  },
+  "both|C1a_other|pooled": {
+   "n": 400,
+   "teacher": 0.4575,
+   "floor": 0.0475,
+   "teacher_with_band": 0.46,
+   "beyond": 0.4175,
+   "beyond_interval": [
+    0.3666,
+    0.4683
+   ]
+  },
+  "both|C1b|pooled": {
+   "n": 56,
+   "teacher": 0.6785714285714286,
+   "floor": 0.08928571428571429,
+   "teacher_with_band": 0.6785714285714286,
+   "beyond": 0.5892857142857143,
+   "beyond_interval": [
+    0.4583,
+    0.7049
+   ]
+  },
+  "both|C1c|pooled": {
+   "n": 504,
+   "teacher": 0.24404761904761904,
+   "floor": 0.025793650793650792,
+   "teacher_with_band": 0.24801587301587302,
+   "beyond": 0.22023809523809523,
+   "beyond_interval": [
+    0.1764,
+    0.2684
+   ]
+  },
+  "both|C1|pooled": {
+   "n": 1012,
+   "teacher": 0.34881422924901184,
+   "floor": 0.036561264822134384,
+   "teacher_with_band": 0.35177865612648224,
+   "beyond": 0.31620553359683795,
+   "beyond_interval": [
+    0.2764,
+    0.3569
+   ]
+  }
+ },
+ "ceilings": {
+  "gsw_cha_2016": {
+   "C": {
+    "point": -0.00525,
+    "interval": [
+     -0.00824,
+     -0.00293
+    ],
+    "f_only_interval": [
+     -0.00695,
+     -0.00352
+    ]
+   },
+   "C_all_plc": {
+    "point": -0.00389,
+    "interval": [
+     -0.00564,
+     -0.00232
+    ],
+    "f_only_interval": [
+     -0.00459,
+     -0.00308
+    ]
+   },
+   "C_all_pres": {
+    "point": -0.0059,
+    "interval": [
+     -0.00983,
+     -0.00291
+    ],
+    "f_only_interval": [
+     -0.00859,
+     -0.00325
+    ]
+   },
+   "H": {
+    "point": -0.00863,
+    "interval": [
+     -0.01179,
+     -0.00587
+    ],
+    "f_only_interval": [
+     -0.01078,
+     -0.00644
+    ]
+   }
+  },
+  "gsw_bkn_2015": {
+   "C": {
+    "point": -0.01574,
+    "interval": [
+     -0.02226,
+     -0.01018
+    ],
+    "f_only_interval": [
+     -0.01794,
+     -0.01325
+    ]
+   },
+   "C_all_plc": {
+    "point": -0.01149,
+    "interval": [
+     -0.01591,
+     -0.00765
+    ],
+    "f_only_interval": [
+     -0.01294,
+     -0.00998
+    ]
+   },
+   "C_all_pres": {
+    "point": -0.01872,
+    "interval": [
+     -0.02695,
+     -0.01189
+    ],
+    "f_only_interval": [
+     -0.02227,
+     -0.01476
+    ]
+   },
+   "H": {
+    "point": -0.01574,
+    "interval": [
+     -0.02019,
+     -0.01172
+    ],
+    "f_only_interval": [
+     -0.0179,
+     -0.01331
+    ]
+   }
+  },
+  "pooled": {
+   "C": {
+    "point": -0.01058,
+    "interval": [
+     -0.01419,
+     -0.00742
+    ],
+    "f_only_interval": [
+     -0.01199,
+     -0.00902
+    ]
+   },
+   "C_all_plc": {
+    "point": -0.00775,
+    "interval": [
+     -0.01012,
+     -0.00556
+    ],
+    "f_only_interval": [
+     -0.00859,
+     -0.00687
+    ]
+   },
+   "C_all_pres": {
+    "point": -0.01242,
+    "interval": [
+     -0.01694,
+     -0.00842
+    ],
+    "f_only_interval": [
+     -0.01464,
+     -0.01002
+    ]
+   },
+   "H": {
+    "point": -0.01225,
+    "interval": [
+     -0.01486,
+     -0.00971
+    ],
+    "f_only_interval": [
+     -0.01376,
+     -0.01058
+    ]
+   }
+  }
+ },
+ "union_baseline": {
+  "E1b_C_cha": -0.00791,
+  "E1b_C_cha_with_residual": -0.00311,
+  "gap": 0.00209,
+  "gap_with_residual": 0.00689
+ },
+ "fractions": {
+  "gsw_cha_2016": {
+   "f_pres": 0.36363636363636365,
+   "f_plc": 0.2399103139013453,
+   "f_loss": 0.3956043956043956
+  },
+  "gsw_bkn_2015": {
+   "f_pres": 0.6162790697674418,
+   "f_plc": 0.37814070351758794,
+   "f_loss": 0.4326241134751773
+  }
+ },
+ "in_frame": {
+  "gsw_cha_2016": 28427,
+  "gsw_bkn_2015": 29370
+ },
+ "stage2_bar": {
+  "bar": -0.0042,
+  "kill": -0.0021,
+  "note": "stage 1 decides nothing (10.2); H is reported"
+ }
+}
