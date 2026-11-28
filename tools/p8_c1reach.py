@@ -421,6 +421,7 @@ def cmd_prepare(args) -> dict:
                                "Ht": np.asarray(x["Ht"]).tolist(), "px": np.asarray(x["px"]).tolist(),
                                "inside": [bool(i) for i in _inside(x["px"], v["size"])],
                                "r23_post": stored[f]["post"], "r23_low": stored[f]["low"],
+                               "r23_ref": [b for b in stored[f]["other"] if b[5] == RC.REFEREE_CLASS],
                                "c1": [{"player": m["player"], "pid": m["pid"], "unit": m["d205"],
                                        "subclass": m["class"]} for m in c1 if m["frame"] == f]})
     n_frames = len(frames_out) + len(r1_fail)

@@ -412,3 +412,59 @@ passes, or after its fixes, if any, leave stage 1's inputs and teacher boxes unc
 **13.6 Cost and writes.** The probe about 2 lock minutes; the full pass at the probe's rate, cap 60; the report on the
 system python. Records: reports/research/p8_c1reach_stage2_probe.json and p8_c1reach_stage2.json; CrowdDet's boxes in
 the reference root's c1reach/. hou_cle_2016: no data read.
+
+**13.7 Code note (2026-11-28; tools/p8_c1reach_s2.py written; nothing downloaded or run).**
+- The clone is pinned to xg-chu/CrowdDet at e3620a6bb300256fb8b460948138839ca5dc7c5f (master on 2026-11-28, read
+  through the GitHub API), and the runner refuses a clone at another commit or with local changes. The weights' SHA-256
+  is a constant set by a dated amendment after the download; until then the runner refuses to start.
+- The runner calls CrowdDet's own tools/inference.py get_data (reading each stored PNG) and post_process unchanged,
+  with the rcnn_emd_refine test configuration as shipped: set NMS at 0.5, pred_cls_threshold 0.01, and
+  visulize_threshold 0.3, so CrowdDet itself returns nothing under 0.3 and the 0.3 sensitivity is its own output floor.
+  Its training boxes are CrowdHuman's full boxes (gt_boxes_name 'fbox' in that configuration). Its network uses
+  torchvision's roi_align and nms only, with no compiled extension, and the shipped loader already maps to the CPU.
+- The venv steps import nothing from the repository but the runner itself: the repository's top-level config.py would
+  otherwise shadow CrowdDet's config module. The report step, on the system python, runs every guard.
+- Under the larger gap (0.0069), the zones of 10.6 move with it: the kill line at -0.0069 and the bar 0.0021 below it,
+  at -0.0090, the same distance as under the registered gap.
+
+**13.8 The S2-C design review (2026-11-28; on 3777ec61, GO WITH CHANGES; before any download or number).** Where this
+differs from 13.1 to 13.7, it rules. Its first item (the 49 and 80 percent prior) is 13.0.
+- **The action follows the 0.0021 gap**; the 0.0069 gap is a sensitivity (kill at -0.0069, bar at -0.0090, the lead's
+  confirmation). An increment that passes under 0.0021 but not under 0.0069 reads "passes, not robust to the transfer
+  residual", and any training-arm design must carry that limit.
+- **The headline increment is on C1a_other plus C1c**, the population of H and of the prior; C1b and C1a_own are
+  reported apart. A registered sensitivity adds a referee mask: CrowdDet boxes at IoU 0.5 or more with r23's class-1
+  (referee) boxes at 0.40 are dropped. Those boxes come from the stored candidates' "other": step A's inputs now carry
+  them ("r23_ref"); for the stage 1 inputs already made, the report reads them from the same stored candidate files step
+  A read and checks, frame by frame, that their R_post equals step A's.
+- **The union merge rule.** A CrowdDet box joins the union only if no held-teacher box at 0.1471 has IoU 0.5 or more with
+  it. The increment is the C1 misses the union reaches (one to one) and neither the floor nor the held teacher reaches.
+  The ghost bar is on the union: at most twice the held teacher's ghost proxy per sampled frame (stage 1: 1,402 over
+  775 frames, 1.81); the union's duplicates are reported.
+- **The reading uses score 0.5 only**, applied after set NMS as upstream does; 0.3 and 0.7 are reported and cannot rescue
+  a failed 0.5.
+- **The port.** torch.load with weights_only=True first; if it fails, the run stops and the lead is told, with no
+  fallback to weights_only=False on the pickle. load_state_dict is strict. The record holds the weights path, the
+  checkpoint's keys and the use of its "state_dict" key, and the load method. The download records the file's SHA-256
+  and size, both registered as constants by a dated amendment before the probe.
+- **The probe's checks, besides timing:** (i) CrowdDet's one-to-one reach of r23's hits on its 5 frames, at least 0.90;
+  (ii) CrowdDet's boxes per frame before and after the court filter, and its in-court ghost proxy per frame; (iii) the
+  versions and the load method; (iv) the probe's boxes stored with a hash, and the full run's first 5 frames must
+  reproduce them exactly, else it stops.
+- **docs/DATA_SOURCES.md:** the weights' training data is "inferred" from the README's table, and D160 (Lucien treated a
+  repository's MIT licence as covering its released weights) is cited beside the MixSort precedent.
+
+**13.9 The code check of 656f88cd (2026-11-28; GO WITH CHANGES; before any download).** The venv, the clone and the
+download wait for Lucien's yes; nothing of CrowdDet's is fetched until then.
+- After its imports, the loader requires CrowdDet's config, network and nms_utils modules to come from the pinned
+  clone's src folder, and records their paths.
+- The probe passes only if every one of its frames yields boxes (13.4), besides the positive control and the timing.
+- The record reports each population's loss to the scaling beside its increment: misses in windows whose sampled
+  frames hold none of that population. From stage 1's inputs that is 61 of the 378 C1b and C1a_own misses, and 0 of the
+  3,006 C1a_other and C1c misses.
+- H is recomputed in the stage-2 record with the headline population's own scaling (H_per_population), since stage 1
+  scaled all C1 subclasses together.
+- Union losses are reported: C1 misses the held teacher reached that the union no longer reaches (a one-to-one
+  assignment can move when boxes are added).
+- Wording on 13.8's referee boxes: the frame-by-frame R_post check proves the stored candidate file is unchanged since
+  step A read it; the frame's identity rests on R1.
