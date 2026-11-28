@@ -335,6 +335,14 @@ Beside, not gating: the 32 dropped windows (989 universe frames):
 - On the one-to-one row 0.70 gains almost nothing over the baseline (-14, interval across 0): its extra boxes beyond 0.55
   are mostly duplicates (+420 against +175).
 
+
+**13.4 Correction (2026-11-27; added after the fact; nothing above is changed).** Stage 0's screen re-ran NMS on D208's
+stored candidates, and those were read the a3run way. P8_recallcause_supp.md section 10 later showed that on 15 of the
+88 kept windows (seek windows, gsw_cha_2016_s07_w00 and gsw_cha_2016_s06_w01 among them) the stored candidates are not
+the build's detections. So the screen's numbers on those windows were computed on candidates that are not the build's,
+and the screen carries that limit. The stage 0 choice of 0.55 and stage 1's result, which were built and scored through
+the real build, stand.
+
 ## 14. Version 1.2: stage 1a and the pilot, 0.55 only (2026-11-27; after stage 0, before any stage 1 code or lock)
 
 Where this section differs from sections 7, 10 and 12, it rules. The confirmation (stage 2) is not written; it waits
