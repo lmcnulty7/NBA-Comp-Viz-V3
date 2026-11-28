@@ -171,3 +171,148 @@ window whose build-read 14.2 verdict is "misaligned" is left out of every readin
 path is not reproduced. A window that 14.2 reads undetermined only because fewer than 10 of its universe frames are
 eligible is kept: stage A's own verdict covers it. The run's order: G0 from the clean tree (system python, no lock),
 its record committed, then the lock job.
+
+
+## 10. Result (2026-11-27; run at 47db520f; reports/research/p8_recallcause_supp_g0.json and p8_recallcause_supp.json)
+
+Everything in this section sits beside P8_recallcause.md 9.3, which stands as D208's registered result. The
+120-window reading is post hoc: D208's numbers and its 0.496 worst case were seen before it was registered.
+
+**10.1 The run.** G0 ran on stored files at eaa8c072 (no lock). The lock job ("p8 recallsupp", frozen CV python,
+stage A's environment, the gate on mps as each window's build record resolved it, backend AVFOUNDATION in every window)
+took 1,074 s of lock (the record's 1,051 s). The manifests, recallcause/ included, were unchanged.
+
+**10.2 G0.** 14.2 on the stored R_post: of the 88 kept windows, 57 aligned, 2 misaligned (gsw_cha_2016_s07_w00, M_0
+0.557, and gsw_cha_2016_s06_w01, M_0 0.786; both seek windows) and 29 undetermined for fewer than 10 eligible stored
+frames (stored frames are universe frames only); of the 32 dropped, 11 aligned, 9 misaligned and 12 undetermined. By 9.2
+as registered, 74 windows were re-read (the 19 kept and 21 dropped seek windows, the other 11 dropped, and 23 kept
+windows without a seek that G0 left undetermined) and 46 kept windows were certified. The review had expected 51; the
+difference is the 23 undetermined windows, which 9.2 re-reads and the review's count did not.
+
+**10.3 G1 and G3.** G1: build_read's R_pre and R_post equal the stored ones on every frame of gsw_cha_2016_s05_w00 (111
+of 111) and gsw_bkn_2015_s04_w00 (131 of 131), with every sidecar frame read. G3: the 88 kept windows' classes,
+recomputed from the stored candidates, equal D208's recorded counts for every class, unit and game. Both passed.
+
+**10.4 Reads.** Every one of the 74 re-read windows passed build_read's read validation, and none read misaligned on the
+build read, so none was left out under 9.9 (0 excluded). On the build read, 14.2 reads every re-read window aligned or
+(for too few eligible frames) undetermined; the 2 kept and 9 dropped windows that were misaligned on the stored read are
+aligned on the build read. D208's strict rule: all 42 kept re-read windows read aligned on both reads; of the 32 dropped,
+11 fail it on the stored read and pass on the build read, and 21 fail on both. Diagnostic (9.3): of the 42 kept re-read
+windows, the 23 without a seek match the stored candidates on every frame; 15 of the 19 seek windows differ on some
+or all of their stored frames (per window in 10.7).
+
+So D208's registered 88 included 2 windows misread by the a3run read (gsw_cha_2016_s07_w00 and gsw_cha_2016_s06_w01:
+misaligned on the stored read, aligned on the build read), and further seek windows whose candidates differ from the
+build's without reading misaligned.
+
+**10.5 Tables (group shares of the no-own-box misses, window-bootstrap 95 percent intervals, 2,000 resamples, seed 0;
+D208's main-loss rule on the pooled units).**
+
+| windows | unit | misses (windows) | C1 | C2 | C3 | C4 | main-loss rule |
+|---|---|---|---|---|---|---|---|
+| D208 9.3, 88 kept windows (registered) | P-i | 1,670 (85) | 0.588 [0.543, 0.632] | 0.154 [0.120, 0.188] | 0.078 [0.058, 0.100] | 0.180 [0.157, 0.207] | C1: main loss (lower 0.543) |
+| D208 9.3, 88 kept windows (registered) | D-i | 1,921 (85) | 0.749 [0.706, 0.788] | 0.085 [0.067, 0.107] | 0.108 [0.085, 0.134] | 0.057 [0.045, 0.072] | C1: main loss (lower 0.706) |
+| D208 9.3, 88 kept windows (registered) | both | 3,591 (88) | 0.674 [0.638, 0.711] | 0.117 [0.096, 0.140] | 0.094 [0.074, 0.115] | 0.114 [0.100, 0.130] | C1: main loss (lower 0.638) |
+| sensitivity: the 88 with the 42 kept re-read windows build-read | P-i | 1,670 (85) | 0.602 [0.559, 0.645] | 0.157 [0.127, 0.187] | 0.060 [0.048, 0.073] | 0.181 [0.159, 0.207] | C1: main loss (lower 0.559) |
+| sensitivity: the 88 with the 42 kept re-read windows build-read | D-i | 1,921 (85) | 0.763 [0.727, 0.795] | 0.094 [0.074, 0.117] | 0.084 [0.069, 0.099] | 0.058 [0.046, 0.072] | C1: main loss (lower 0.727) |
+| sensitivity: the 88 with the 42 kept re-read windows build-read | both | 3,591 (88) | 0.688 [0.658, 0.720] | 0.123 [0.104, 0.144] | 0.073 [0.063, 0.083] | 0.115 [0.101, 0.131] | C1: main loss (lower 0.658) |
+| the 32 dropped windows, build-read | P-i | 671 (28) | 0.647 [0.570, 0.719] | 0.148 [0.101, 0.199] | 0.057 [0.033, 0.081] | 0.149 [0.116, 0.181] | C1: main loss (lower 0.570) |
+| the 32 dropped windows, build-read | D-i | 620 (30) | 0.771 [0.726, 0.823] | 0.103 [0.053, 0.141] | 0.056 [0.032, 0.084] | 0.069 [0.043, 0.109] | C1: main loss (lower 0.726) |
+| the 32 dropped windows, build-read | both | 1,291 (32) | 0.706 [0.659, 0.756] | 0.126 [0.084, 0.163] | 0.057 [0.038, 0.078] | 0.111 [0.088, 0.136] | C1: main loss (lower 0.659) |
+| all 120 windows (46 stored, 74 build-read), post hoc | P-i | 2,341 (113) | 0.615 [0.577, 0.651] | 0.154 [0.128, 0.179] | 0.059 [0.048, 0.070] | 0.172 [0.154, 0.193] | C1: main loss (lower 0.577) |
+| all 120 windows (46 stored, 74 build-read), post hoc | D-i | 2,541 (115) | 0.765 [0.738, 0.792] | 0.096 [0.079, 0.117] | 0.078 [0.065, 0.091] | 0.061 [0.050, 0.073] | C1: main loss (lower 0.738) |
+| all 120 windows (46 stored, 74 build-read), post hoc | both | 4,882 (120) | 0.693 [0.667, 0.719] | 0.124 [0.107, 0.142] | 0.069 [0.059, 0.078] | 0.114 [0.102, 0.127] | C1: main loss (lower 0.667) |
+
+The per-game units carry no reading (D208 reads the main loss on the pooled units only); their tables are in the record.
+Other is 0 in every unit.
+
+**10.6 Reading, post hoc.**
+- On all 4,882 misses of the 120 windows, C1 (the detector stage: no box of its own after NMS, and not a suppressed
+  candidate of its own) is the main loss by D208's rule for P-i (0.615, lower bound 0.577), D-i (0.765, lower bound
+  0.738) and both (0.693, lower bound 0.667). D208's worst case of 0.496 for C1 did not happen.
+- The sensitivity moves D208's registered shares little: C1 for both units from 0.674 to 0.688, P-i from 0.588 to 0.602,
+  D-i from 0.749 to 0.763.
+- The 32 dropped windows alone read like the kept ones (C1 0.706 for both units).
+- Limits: two games, a truth selected with r23's boxes (D202's limit), and the 32's drop may correlate with the scene.
+  hou_cle_2016 stays unspent.
+
+**10.7 Per window (the 74 re-read windows).** Stage A's verdict, the build read's main seeks, 14.2's verdict and D208's
+strict verdict on the stored read and on the build read, and, for kept windows, the frames whose build-read candidates
+differ from the stored ones.
+
+| window | set | stage A | main seeks | 14.2 stored | 14.2 build | D208 strict stored | D208 strict build | frames differing |
+|---|---|---|---|---|---|---|---|---|
+| gsw_bkn_2015_s00_w01 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s00_w07 | dropped | aligned | 0 | aligned | aligned | not | not |  |
+| gsw_bkn_2015_s01_w00 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s01_w01 | dropped | aligned | 0 | aligned | aligned | not | not |  |
+| gsw_bkn_2015_s01_w02 | dropped | aligned | 0 | undetermined | undetermined | not | not |  |
+| gsw_bkn_2015_s01_w03 | dropped | aligned | 480 | misaligned | aligned | not | aligned |  |
+| gsw_bkn_2015_s01_w05 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s01_w07 | dropped | aligned | 150 | undetermined | undetermined | not | not |  |
+| gsw_bkn_2015_s02_w00 | dropped | aligned | 0 | aligned | aligned | not | not |  |
+| gsw_bkn_2015_s02_w01 | kept | aligned | 300 | aligned | aligned | aligned | aligned | 36 |
+| gsw_bkn_2015_s02_w02 | kept | aligned | 150 | aligned | aligned | aligned | aligned | 57 |
+| gsw_bkn_2015_s02_w04 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s03_w00 | dropped | aligned | 510 | misaligned | aligned | not | aligned |  |
+| gsw_bkn_2015_s03_w02 | dropped | aligned | 0,1140 | undetermined | undetermined | not | aligned |  |
+| gsw_bkn_2015_s03_w03 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s03_w05 | dropped | aligned | 510 | misaligned | aligned | not | not |  |
+| gsw_bkn_2015_s03_w06 | kept | aligned | 30 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s03_w07 | dropped | aligned | 240 | undetermined | undetermined | not | not |  |
+| gsw_bkn_2015_s04_w01 | dropped | aligned | 420 | misaligned | aligned | not | aligned |  |
+| gsw_bkn_2015_s04_w04 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s05_w01 | dropped | aligned | 420,2490 | misaligned | aligned | not | aligned |  |
+| gsw_bkn_2015_s05_w04 | dropped | aligned | 330 | misaligned | aligned | not | not |  |
+| gsw_bkn_2015_s05_w05 | dropped | aligned | 0 | aligned | aligned | not | not |  |
+| gsw_bkn_2015_s06_w00 | dropped | aligned | 450 | misaligned | aligned | not | aligned |  |
+| gsw_bkn_2015_s06_w01 | dropped | aligned | 210 | aligned | aligned | not | not |  |
+| gsw_bkn_2015_s06_w03 | dropped | aligned | 0 | aligned | aligned | not | not |  |
+| gsw_bkn_2015_s06_w05 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s07_w00 | dropped | aligned | 240 | aligned | aligned | not | not |  |
+| gsw_bkn_2015_s07_w02 | kept | aligned | 150 | aligned | aligned | aligned | aligned | 95 |
+| gsw_bkn_2015_s07_w04 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s07_w06 | kept | aligned | 120 | undetermined | undetermined | aligned | aligned | 8 |
+| gsw_bkn_2015_s08_w00 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s08_w01 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s08_w02 | dropped | aligned | 0 | aligned | aligned | not | not |  |
+| gsw_bkn_2015_s08_w05 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s09_w00 | dropped | aligned | 0 | undetermined | undetermined | not | not |  |
+| gsw_bkn_2015_s09_w03 | dropped | aligned | 330 | undetermined | undetermined | not | not |  |
+| gsw_bkn_2015_s10_w00 | dropped | aligned | 0 | undetermined | undetermined | not | not |  |
+| gsw_bkn_2015_s10_w02 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_bkn_2015_s10_w04 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s01_w01 | dropped | aligned | 0 | aligned | aligned | not | not |  |
+| gsw_cha_2016_s01_w02 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s01_w06 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s01_w07 | kept | aligned | 180 | undetermined | undetermined | aligned | aligned | 4 |
+| gsw_cha_2016_s01_w09 | kept | aligned | 150 | undetermined | undetermined | aligned | aligned | 3 |
+| gsw_cha_2016_s02_w00 | kept | aligned | 210 | aligned | aligned | aligned | aligned | 66 |
+| gsw_cha_2016_s02_w01 | dropped | aligned | 210 | aligned | aligned | not | aligned |  |
+| gsw_cha_2016_s02_w04 | kept | aligned | 30 | aligned | aligned | aligned | aligned | 0 |
+| gsw_cha_2016_s02_w05 | kept | aligned | 240 | undetermined | undetermined | aligned | aligned | 4 |
+| gsw_cha_2016_s03_w00 | kept | aligned | 180 | aligned | aligned | aligned | aligned | 60 |
+| gsw_cha_2016_s03_w07 | dropped | aligned | 870 | undetermined | undetermined | not | aligned |  |
+| gsw_cha_2016_s03_w08 | dropped | aligned | 0 | aligned | aligned | not | not |  |
+| gsw_cha_2016_s04_w01 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s04_w03 | kept | aligned | 30 | aligned | aligned | aligned | aligned | 0 |
+| gsw_cha_2016_s04_w06 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s05_w01 | dropped | aligned | 480,5730 | misaligned | aligned | not | aligned |  |
+| gsw_cha_2016_s05_w03 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s05_w04 | dropped | aligned | 270 | undetermined | undetermined | not | not |  |
+| gsw_cha_2016_s06_w00 | kept | aligned | 150 | aligned | aligned | aligned | aligned | 17 |
+| gsw_cha_2016_s06_w01 | kept | aligned | 330 | misaligned | aligned | aligned | aligned | 92 |
+| gsw_cha_2016_s06_w03 | dropped | aligned | 270 | undetermined | undetermined | not | aligned |  |
+| gsw_cha_2016_s06_w04 | kept | aligned | 60 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s06_w06 | dropped | aligned | 240 | undetermined | undetermined | not | not |  |
+| gsw_cha_2016_s06_w09 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s07_w00 | kept | aligned | 150,4440 | misaligned | aligned | aligned | aligned | 107 |
+| gsw_cha_2016_s07_w01 | kept | aligned | 180 | aligned | aligned | aligned | aligned | 25 |
+| gsw_cha_2016_s07_w02 | dropped | aligned | 60 | undetermined | undetermined | not | not |  |
+| gsw_cha_2016_s07_w03 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s07_w04 | kept | aligned | 150 | aligned | aligned | aligned | aligned | 33 |
+| gsw_cha_2016_s07_w05 | kept | aligned | 180 | aligned | aligned | aligned | aligned | 10 |
+| gsw_cha_2016_s08_w01 | dropped | aligned | 0,600 | misaligned | aligned | not | aligned |  |
+| gsw_cha_2016_s09_w00 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s09_w01 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
+| gsw_cha_2016_s09_w02 | kept | aligned | 0 | undetermined | undetermined | aligned | aligned | 0 |
