@@ -356,3 +356,31 @@ court projection on these same games. B is not a frame free of SportVU here.
   model, trained on Roboflow nbacourt frames only). But it sits a median 6.9 ft from the truth at the feet (D186's
   decomposition), far too coarse for a 2.5 ft question. The truth T was also initialised from it (sportvu/camera.py,
   pose_from_h of H_v3). So it is not a usable independent frame either.
+
+### 11.6 Ruling on 11.5 and the asymmetric reading (2026-11-28, self-decided by the lead; before any code)
+
+**Ruling: option (i).** The item runs as registered.
+- Option (ii) waits on a court model no one plans to train.
+- Option (iii) gives up a measure of about 3 lock minutes whose positive reading would still be informative.
+
+**Why the reading is one-sided.**
+- B learned court geometry from R1.3's H_truth. So an R1.3 timing error reaches B only second-hand, through R1.3's
+  camera fit.
+- tau_B pairs B's geometry with SportVU timed by the current multipool truth's time map, and the two truths' window
+  offsets are known to differ (D99, D166).
+- Errors that B and T share bias every reading toward "neither".
+
+**Registered asymmetric reading:**
+- A **timing** or **camera** finding is read as found, conservatively: a shared error could only have hidden it.
+- **"Timing answered", "neither" and the build-side lower bound** are read as "not shown; B is not independent of
+  SportVU on these games (r23 trained in sample on R1.3 labels)". They are never read as evidence that the row is
+  build-side.
+
+The limit is carried in every reading line of the result and in the bounds.
+
+**The facts, with their sources:**
+- ROADMAP_LOG.md pass 13: r23's training set is "every 2nd kept R1.3 label", with "labels written by generate_labels'
+  own functions through H_truth" (sportvu/grid_dataset.py).
+- tools.p8_frozen.R13_TAGS is ("gsw_bkn_2015", "gsw_cha_2016", "gsw_ind_2016", "gsw_sac_2015").
+- tools.p8_scorecard flags r23's rows on those games "IN SAMPLE: the r23 court model was trained on this game's R1.3
+  labels".
