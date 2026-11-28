@@ -1,0 +1,1740 @@
+{
+ "what": "P8 recall-cause supplement G0: posefoot 14.2 on D208's stored R_post per window (docs/research/P8_recallcause_supp.md 9.2); stored files only",
+ "windows": {
+  "gsw_bkn_2015_s00_w00": {
+   "eligible": 52,
+   "M": {
+    "-1": 0.7664876084492601,
+    "0": 0.9228181823827393,
+    "+1": 0.8260546079968104
+   },
+   "L0": 0.9328178871006844,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s00_w01": {
+   "eligible": 9,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s00_w02": {
+   "eligible": 83,
+   "M": {
+    "-1": 0.7394033856518486,
+    "0": 0.916000594471156,
+    "+1": 0.8032358659973371
+   },
+   "L0": 0.9300972638461437,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s00_w03": {
+   "eligible": 10,
+   "M": {
+    "-1": 0.7134245495094097,
+    "0": 0.8901333101812987,
+    "+1": 0.7666821806042335
+   },
+   "L0": 0.8924981350383645,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s00_w04": {
+   "eligible": 50,
+   "M": {
+    "-1": 0.7001678554252618,
+    "0": 0.9002450094507416,
+    "+1": 0.7642123054860677
+   },
+   "L0": 0.9083266667851115,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s00_w06": {
+   "eligible": 38,
+   "M": {
+    "-1": 0.6195553754049187,
+    "0": 0.8923005316876939,
+    "+1": 0.7235674230479606
+   },
+   "L0": 0.9075039744198331,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s00_w08": {
+   "eligible": 16,
+   "M": {
+    "-1": 0.6125908537956005,
+    "0": 0.8766993130203353,
+    "+1": 0.6681341885229114
+   },
+   "L0": 0.877188871360208,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w00": {
+   "eligible": 8,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w04": {
+   "eligible": 41,
+   "M": {
+    "-1": 0.7844966683216822,
+    "0": 0.923397027080033,
+    "+1": 0.8294083911387048
+   },
+   "L0": 0.9369590836932871,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w05": {
+   "eligible": 9,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w08": {
+   "eligible": 19,
+   "M": {
+    "-1": 0.671280969660863,
+    "0": 0.9033641431028627,
+    "+1": 0.7362016804574981
+   },
+   "L0": 0.9175742358533041,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w09": {
+   "eligible": 24,
+   "M": {
+    "-1": 0.6472375674509964,
+    "0": 0.8910369247567986,
+    "+1": 0.7115707651051258
+   },
+   "L0": 0.9095947310624823,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w11": {
+   "eligible": 11,
+   "M": {
+    "-1": 0.6473326050691628,
+    "0": 0.9029122374308722,
+    "+1": 0.7326772296053582
+   },
+   "L0": 0.920284746658623,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s02_w01": {
+   "eligible": 36,
+   "M": {
+    "-1": 0.838997112236391,
+    "0": 0.8259053728436498,
+    "+1": 0.6712031493324967
+   },
+   "L0": 0.8580694869186201,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    300
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s02_w02": {
+   "eligible": 57,
+   "M": {
+    "-1": 0.7440569021335457,
+    "0": 0.8643452629890862,
+    "+1": 0.6671526928470383
+   },
+   "L0": 0.8916380296493283,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    150
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s02_w03": {
+   "eligible": 28,
+   "M": {
+    "-1": 0.7057116670403506,
+    "0": 0.8970177530161314,
+    "+1": 0.7898830909579495
+   },
+   "L0": 0.9034277023751722,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s02_w04": {
+   "eligible": 7,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s03_w01": {
+   "eligible": 12,
+   "M": {
+    "-1": 0.7471436638837995,
+    "0": 0.9234158457347983,
+    "+1": 0.8126781278824691
+   },
+   "L0": 0.9323080043616969,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s03_w03": {
+   "eligible": 6,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s03_w04": {
+   "eligible": 33,
+   "M": {
+    "-1": 0.6716852506037513,
+    "0": 0.8976494328822294,
+    "+1": 0.7359762724903839
+   },
+   "L0": 0.9106534964542221,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s03_w06": {
+   "eligible": 3,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    30
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s04_w00": {
+   "eligible": 131,
+   "M": {
+    "-1": 0.7285495311690356,
+    "0": 0.9104959763121591,
+    "+1": 0.7926593777186524
+   },
+   "L0": 0.922366898305075,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s04_w03": {
+   "eligible": 50,
+   "M": {
+    "-1": 0.713894082056863,
+    "0": 0.9284343552653944,
+    "+1": 0.7613015464004983
+   },
+   "L0": 0.934874082469354,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s04_w04": {
+   "eligible": 3,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s05_w00": {
+   "eligible": 22,
+   "M": {
+    "-1": 0.6425921738294217,
+    "0": 0.8905042978352306,
+    "+1": 0.7665955416930442
+   },
+   "L0": 0.9037247929728285,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s05_w03": {
+   "eligible": 63,
+   "M": {
+    "-1": 0.6652886181709657,
+    "0": 0.898709558959986,
+    "+1": 0.7312708896178802
+   },
+   "L0": 0.9135265080162714,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s06_w02": {
+   "eligible": 28,
+   "M": {
+    "-1": 0.648968964412192,
+    "0": 0.8960056060534778,
+    "+1": 0.7403020684726931
+   },
+   "L0": 0.9115041745962742,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s06_w05": {
+   "eligible": 8,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s07_w01": {
+   "eligible": 33,
+   "M": {
+    "-1": 0.6993869371177445,
+    "0": 0.906079790456498,
+    "+1": 0.7634380425625988
+   },
+   "L0": 0.9145817143506765,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s07_w02": {
+   "eligible": 95,
+   "M": {
+    "-1": 0.7277388885119199,
+    "0": 0.8549862307021007,
+    "+1": 0.6736773233155197
+   },
+   "L0": 0.8946226970892062,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    150
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s07_w03": {
+   "eligible": 65,
+   "M": {
+    "-1": 0.6833440494406641,
+    "0": 0.8997480955195243,
+    "+1": 0.7568050620736162
+   },
+   "L0": 0.9143639545224552,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s07_w04": {
+   "eligible": 3,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s07_w06": {
+   "eligible": 8,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    120
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s08_w00": {
+   "eligible": 9,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s08_w01": {
+   "eligible": 5,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s08_w05": {
+   "eligible": 6,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s09_w01": {
+   "eligible": 31,
+   "M": {
+    "-1": 0.7185459866664324,
+    "0": 0.9024116762173173,
+    "+1": 0.8047326485407627
+   },
+   "L0": 0.9159500611042255,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s09_w02": {
+   "eligible": 55,
+   "M": {
+    "-1": 0.714257198593981,
+    "0": 0.9120107709195948,
+    "+1": 0.7809563015436131
+   },
+   "L0": 0.9269975225013818,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s09_w05": {
+   "eligible": 14,
+   "M": {
+    "-1": 0.657180993843603,
+    "0": 0.9027887943308561,
+    "+1": 0.7378966111823552
+   },
+   "L0": 0.9113765989057758,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s10_w02": {
+   "eligible": 1,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s10_w03": {
+   "eligible": 60,
+   "M": {
+    "-1": 0.7714753260457449,
+    "0": 0.9374415413825216,
+    "+1": 0.8235412165618877
+   },
+   "L0": 0.9462959722056771,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s10_w04": {
+   "eligible": 5,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s00_w00": {
+   "eligible": 36,
+   "M": {
+    "-1": 0.6942847892859095,
+    "0": 0.9037475234526867,
+    "+1": 0.7772494241273805
+   },
+   "L0": 0.9116034509115587,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s01_w00": {
+   "eligible": 34,
+   "M": {
+    "-1": 0.682195018133517,
+    "0": 0.8931343016914666,
+    "+1": 0.765718496320533
+   },
+   "L0": 0.8999923159322339,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s01_w02": {
+   "eligible": 2,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s01_w03": {
+   "eligible": 20,
+   "M": {
+    "-1": 0.6639957557693272,
+    "0": 0.8787782911361127,
+    "+1": 0.7450075654577731
+   },
+   "L0": 0.8936316502137402,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s01_w04": {
+   "eligible": 10,
+   "M": {
+    "-1": 0.7189416133004549,
+    "0": 0.8942361644900058,
+    "+1": 0.8034499709223552
+   },
+   "L0": 0.9104489276873619,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s01_w06": {
+   "eligible": 6,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s01_w07": {
+   "eligible": 4,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    180
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s01_w09": {
+   "eligible": 3,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    150
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s02_w00": {
+   "eligible": 66,
+   "M": {
+    "-1": 0.7603471714771609,
+    "0": 0.839102550124801,
+    "+1": 0.6367197384532255
+   },
+   "L0": 0.8684971407829525,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    210
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s02_w02": {
+   "eligible": 60,
+   "M": {
+    "-1": 0.6565686465880399,
+    "0": 0.8848166419621734,
+    "+1": 0.7550838289460867
+   },
+   "L0": 0.8937727541577873,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s02_w03": {
+   "eligible": 22,
+   "M": {
+    "-1": 0.7470902730788384,
+    "0": 0.9205910491189448,
+    "+1": 0.8246777318856063
+   },
+   "L0": 0.9335104468823964,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s02_w04": {
+   "eligible": 34,
+   "M": {
+    "-1": 0.6480387977074786,
+    "0": 0.8948370188402879,
+    "+1": 0.7384608312054517
+   },
+   "L0": 0.9138751653528325,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    30
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s02_w05": {
+   "eligible": 4,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    240
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s02_w07": {
+   "eligible": 20,
+   "M": {
+    "-1": 0.6248675181213584,
+    "0": 0.8722555520737446,
+    "+1": 0.7283105099551815
+   },
+   "L0": 0.8850112486404513,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s03_w00": {
+   "eligible": 60,
+   "M": {
+    "-1": 0.7259001731826208,
+    "0": 0.8720630115451085,
+    "+1": 0.6993191042191421
+   },
+   "L0": 0.901886516083455,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    180
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s03_w01": {
+   "eligible": 57,
+   "M": {
+    "-1": 0.632343073263595,
+    "0": 0.9008382698448504,
+    "+1": 0.6473025725767276
+   },
+   "L0": 0.912331336290646,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s03_w03": {
+   "eligible": 60,
+   "M": {
+    "-1": 0.692377596251297,
+    "0": 0.9081231869484128,
+    "+1": 0.7693657725008121
+   },
+   "L0": 0.9257925737894821,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s03_w04": {
+   "eligible": 47,
+   "M": {
+    "-1": 0.6280194410743676,
+    "0": 0.8851165310757999,
+    "+1": 0.7226197707420853
+   },
+   "L0": 0.8989015714615053,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s03_w05": {
+   "eligible": 16,
+   "M": {
+    "-1": 0.6943771479049443,
+    "0": 0.9128505611472563,
+    "+1": 0.7598674881916212
+   },
+   "L0": 0.9146317054624605,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s03_w06": {
+   "eligible": 40,
+   "M": {
+    "-1": 0.7009783075512315,
+    "0": 0.9091767360797877,
+    "+1": 0.7604735044840216
+   },
+   "L0": 0.9192162237717462,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s04_w00": {
+   "eligible": 23,
+   "M": {
+    "-1": 0.6838085742577615,
+    "0": 0.9033443516801376,
+    "+1": 0.75048153311097
+   },
+   "L0": 0.9140269394560496,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s04_w01": {
+   "eligible": 3,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s04_w02": {
+   "eligible": 17,
+   "M": {
+    "-1": 0.661243111047615,
+    "0": 0.8960284219439802,
+    "+1": 0.7478211215061598
+   },
+   "L0": 0.9070269965825476,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s04_w03": {
+   "eligible": 15,
+   "M": {
+    "-1": 0.7564855201310944,
+    "0": 0.92832638774096,
+    "+1": 0.7849810877121858
+   },
+   "L0": 0.9390009599219918,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    30
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s04_w05": {
+   "eligible": 24,
+   "M": {
+    "-1": 0.7071268229077983,
+    "0": 0.908420010107412,
+    "+1": 0.7564973594264247
+   },
+   "L0": 0.9201621533124841,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s04_w06": {
+   "eligible": 7,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s05_w00": {
+   "eligible": 111,
+   "M": {
+    "-1": 0.676414732334421,
+    "0": 0.8949033848589519,
+    "+1": 0.7472002165350703
+   },
+   "L0": 0.9059452383650184,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s05_w02": {
+   "eligible": 15,
+   "M": {
+    "-1": 0.6625068023728631,
+    "0": 0.8688394213952934,
+    "+1": 0.7083043201523798
+   },
+   "L0": 0.8781757956415023,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s05_w03": {
+   "eligible": 7,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s05_w05": {
+   "eligible": 24,
+   "M": {
+    "-1": 0.6534060494276521,
+    "0": 0.8882265504970983,
+    "+1": 0.7571494540686755
+   },
+   "L0": 0.9036698914947392,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s06_w00": {
+   "eligible": 17,
+   "M": {
+    "-1": 0.7605708208159181,
+    "0": 0.8605264524312219,
+    "+1": 0.7309336738280656
+   },
+   "L0": 0.9267241319129347,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    150
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s06_w01": {
+   "eligible": 92,
+   "M": {
+    "-1": 0.8412150493254884,
+    "0": 0.7863643098346194,
+    "+1": 0.6204763955661217
+   },
+   "L0": 0.8366888903959703,
+   "verdict": "misaligned",
+   "kept": true,
+   "seeks_main": [
+    330
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s06_w04": {
+   "eligible": 1,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    60
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s06_w05": {
+   "eligible": 18,
+   "M": {
+    "-1": 0.6194218694047812,
+    "0": 0.898905788599957,
+    "+1": 0.6859140508152106
+   },
+   "L0": 0.9148110914358663,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s06_w09": {
+   "eligible": 3,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s07_w00": {
+   "eligible": 107,
+   "M": {
+    "-1": 0.4997892178619888,
+    "0": 0.5569287102063736,
+    "+1": 0.45199248126436087
+   },
+   "L0": 0.859627399359555,
+   "verdict": "misaligned",
+   "kept": true,
+   "seeks_main": [
+    150,
+    4440
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s07_w01": {
+   "eligible": 25,
+   "M": {
+    "-1": 0.7675617973257841,
+    "0": 0.8721375796076394,
+    "+1": 0.7179370704952214
+   },
+   "L0": 0.9103356422427946,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    180
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s07_w03": {
+   "eligible": 6,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s07_w04": {
+   "eligible": 33,
+   "M": {
+    "-1": 0.7565949677007033,
+    "0": 0.8843091827712489,
+    "+1": 0.7205864790500484
+   },
+   "L0": 0.9010965181282669,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    150
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s07_w05": {
+   "eligible": 10,
+   "M": {
+    "-1": 0.687933346760794,
+    "0": 0.8211328958343925,
+    "+1": 0.5602932596697813
+   },
+   "L0": 0.8522765187707955,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    180
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s08_w00": {
+   "eligible": 117,
+   "M": {
+    "-1": 0.6954342501458032,
+    "0": 0.9017682118323016,
+    "+1": 0.7661182533074999
+   },
+   "L0": 0.9143564075667308,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s08_w02": {
+   "eligible": 76,
+   "M": {
+    "-1": 0.6764842852479598,
+    "0": 0.8921471850540241,
+    "+1": 0.7554867838547455
+   },
+   "L0": 0.9028551715529153,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s08_w07": {
+   "eligible": 19,
+   "M": {
+    "-1": 0.6998898534401351,
+    "0": 0.8984698929365916,
+    "+1": 0.794233739001601
+   },
+   "L0": 0.9204033229082073,
+   "verdict": "aligned",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s09_w00": {
+   "eligible": 9,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s09_w01": {
+   "eligible": 9,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s09_w02": {
+   "eligible": 6,
+   "verdict": "undetermined",
+   "kept": true,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s00_w07": {
+   "eligible": 11,
+   "M": {
+    "-1": 0.7561355749517475,
+    "0": 0.9154687819710062,
+    "+1": 0.8294216640280467
+   },
+   "L0": 0.9228729496582361,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w01": {
+   "eligible": 53,
+   "M": {
+    "-1": 0.7411573332234718,
+    "0": 0.9157760206180546,
+    "+1": 0.7964015609856697
+   },
+   "L0": 0.9276031046604617,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w02": {
+   "eligible": 1,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w03": {
+   "eligible": 22,
+   "M": {
+    "-1": 0.8763226476323172,
+    "0": 0.6937656793309849,
+    "+1": 0.5271167170213023
+   },
+   "L0": 0.7531596955987958,
+   "verdict": "misaligned",
+   "kept": false,
+   "seeks_main": [
+    480
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s01_w07": {
+   "eligible": 1,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    150
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s02_w00": {
+   "eligible": 150,
+   "M": {
+    "-1": 0.7416539963174545,
+    "0": 0.9162547544031463,
+    "+1": 0.8097759275416146
+   },
+   "L0": 0.9298677234208367,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s03_w00": {
+   "eligible": 52,
+   "M": {
+    "-1": 0.8534624316539581,
+    "0": 0.6865080408753897,
+    "+1": 0.5615169110650762
+   },
+   "L0": 0.7392459434207592,
+   "verdict": "misaligned",
+   "kept": false,
+   "seeks_main": [
+    510
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s03_w02": {
+   "eligible": 5,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    0,
+    1140
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s03_w05": {
+   "eligible": 22,
+   "M": {
+    "-1": 0.9113145407584745,
+    "0": 0.7934247783502676,
+    "+1": 0.685622483176458
+   },
+   "L0": 0.8150505270322952,
+   "verdict": "misaligned",
+   "kept": false,
+   "seeks_main": [
+    510
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s03_w07": {
+   "eligible": 3,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    240
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s04_w01": {
+   "eligible": 18,
+   "M": {
+    "-1": 0.8947734168505261,
+    "0": 0.7846185012635034,
+    "+1": 0.6499170339391698
+   },
+   "L0": 0.8176950081653296,
+   "verdict": "misaligned",
+   "kept": false,
+   "seeks_main": [
+    420
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s05_w01": {
+   "eligible": 71,
+   "M": {
+    "-1": 0.7432833495341246,
+    "0": 0.6095288277355304,
+    "+1": 0.4817782847245631
+   },
+   "L0": 0.7301021835935619,
+   "verdict": "misaligned",
+   "kept": false,
+   "seeks_main": [
+    420,
+    2490
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s05_w04": {
+   "eligible": 44,
+   "M": {
+    "-1": 0.8535775659677902,
+    "0": 0.7844331679675135,
+    "+1": 0.615669032950373
+   },
+   "L0": 0.8283326983617902,
+   "verdict": "misaligned",
+   "kept": false,
+   "seeks_main": [
+    330
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s05_w05": {
+   "eligible": 29,
+   "M": {
+    "-1": 0.7388555053101343,
+    "0": 0.9200215894644205,
+    "+1": 0.7909380584240231
+   },
+   "L0": 0.9309055120863622,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s06_w00": {
+   "eligible": 25,
+   "M": {
+    "-1": 0.8808235568254887,
+    "0": 0.6996399189772544,
+    "+1": 0.5587247836932284
+   },
+   "L0": 0.7260378577770698,
+   "verdict": "misaligned",
+   "kept": false,
+   "seeks_main": [
+    450
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s06_w01": {
+   "eligible": 37,
+   "M": {
+    "-1": 0.8201698767345044,
+    "0": 0.8808478276557076,
+    "+1": 0.7583294804410369
+   },
+   "L0": 0.9102840578175264,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    210
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s06_w03": {
+   "eligible": 35,
+   "M": {
+    "-1": 0.7026058737919362,
+    "0": 0.9034598653136503,
+    "+1": 0.7745316587254738
+   },
+   "L0": 0.9123924225016474,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s07_w00": {
+   "eligible": 117,
+   "M": {
+    "-1": 0.8409526705765875,
+    "0": 0.8923923613515328,
+    "+1": 0.7680158639110904
+   },
+   "L0": 0.9338704544596653,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    240
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s08_w02": {
+   "eligible": 22,
+   "M": {
+    "-1": 0.7651485206385263,
+    "0": 0.9297685834986147,
+    "+1": 0.8120193062636093
+   },
+   "L0": 0.9375864189911225,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s09_w00": {
+   "eligible": 9,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s09_w03": {
+   "eligible": 1,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    330
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_bkn_2015_s10_w00": {
+   "eligible": 1,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s01_w01": {
+   "eligible": 40,
+   "M": {
+    "-1": 0.6865313307604437,
+    "0": 0.8990414997189625,
+    "+1": 0.770504099719734
+   },
+   "L0": 0.9151973481313207,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s02_w01": {
+   "eligible": 60,
+   "M": {
+    "-1": 0.7795467673834394,
+    "0": 0.853531039813516,
+    "+1": 0.6757213502443113
+   },
+   "L0": 0.8869346521172559,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    210
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s03_w07": {
+   "eligible": 1,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    870
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s03_w08": {
+   "eligible": 19,
+   "M": {
+    "-1": 0.690070369986584,
+    "0": 0.9097007632005437,
+    "+1": 0.7756993529008107
+   },
+   "L0": 0.9179196809854911,
+   "verdict": "aligned",
+   "kept": false,
+   "seeks_main": [
+    0
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s05_w01": {
+   "eligible": 86,
+   "M": {
+    "-1": 0.834803190164931,
+    "0": 0.6775880818766328,
+    "+1": 0.5280254231433502
+   },
+   "L0": 0.7473618079447069,
+   "verdict": "misaligned",
+   "kept": false,
+   "seeks_main": [
+    480,
+    5730
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s05_w04": {
+   "eligible": 1,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    270
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s06_w03": {
+   "eligible": 8,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    270
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s06_w06": {
+   "eligible": 2,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    240
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s07_w02": {
+   "eligible": 2,
+   "verdict": "undetermined",
+   "kept": false,
+   "seeks_main": [
+    60
+   ],
+   "stage_a_verdict": "aligned"
+  },
+  "gsw_cha_2016_s08_w01": {
+   "eligible": 41,
+   "M": {
+    "-1": 0.8605130965545426,
+    "0": 0.6943280245498836,
+    "+1": 0.5601757482015642
+   },
+   "L0": 0.77171800413884,
+   "verdict": "misaligned",
+   "kept": false,
+   "seeks_main": [
+    0,
+    600
+   ],
+   "stage_a_verdict": "aligned"
+  }
+ },
+ "reread": [
+  "gsw_bkn_2015_s00_w01",
+  "gsw_bkn_2015_s00_w07",
+  "gsw_bkn_2015_s01_w00",
+  "gsw_bkn_2015_s01_w01",
+  "gsw_bkn_2015_s01_w02",
+  "gsw_bkn_2015_s01_w03",
+  "gsw_bkn_2015_s01_w05",
+  "gsw_bkn_2015_s01_w07",
+  "gsw_bkn_2015_s02_w00",
+  "gsw_bkn_2015_s02_w01",
+  "gsw_bkn_2015_s02_w02",
+  "gsw_bkn_2015_s02_w04",
+  "gsw_bkn_2015_s03_w00",
+  "gsw_bkn_2015_s03_w02",
+  "gsw_bkn_2015_s03_w03",
+  "gsw_bkn_2015_s03_w05",
+  "gsw_bkn_2015_s03_w06",
+  "gsw_bkn_2015_s03_w07",
+  "gsw_bkn_2015_s04_w01",
+  "gsw_bkn_2015_s04_w04",
+  "gsw_bkn_2015_s05_w01",
+  "gsw_bkn_2015_s05_w04",
+  "gsw_bkn_2015_s05_w05",
+  "gsw_bkn_2015_s06_w00",
+  "gsw_bkn_2015_s06_w01",
+  "gsw_bkn_2015_s06_w03",
+  "gsw_bkn_2015_s06_w05",
+  "gsw_bkn_2015_s07_w00",
+  "gsw_bkn_2015_s07_w02",
+  "gsw_bkn_2015_s07_w04",
+  "gsw_bkn_2015_s07_w06",
+  "gsw_bkn_2015_s08_w00",
+  "gsw_bkn_2015_s08_w01",
+  "gsw_bkn_2015_s08_w02",
+  "gsw_bkn_2015_s08_w05",
+  "gsw_bkn_2015_s09_w00",
+  "gsw_bkn_2015_s09_w03",
+  "gsw_bkn_2015_s10_w00",
+  "gsw_bkn_2015_s10_w02",
+  "gsw_bkn_2015_s10_w04",
+  "gsw_cha_2016_s01_w01",
+  "gsw_cha_2016_s01_w02",
+  "gsw_cha_2016_s01_w06",
+  "gsw_cha_2016_s01_w07",
+  "gsw_cha_2016_s01_w09",
+  "gsw_cha_2016_s02_w00",
+  "gsw_cha_2016_s02_w01",
+  "gsw_cha_2016_s02_w04",
+  "gsw_cha_2016_s02_w05",
+  "gsw_cha_2016_s03_w00",
+  "gsw_cha_2016_s03_w07",
+  "gsw_cha_2016_s03_w08",
+  "gsw_cha_2016_s04_w01",
+  "gsw_cha_2016_s04_w03",
+  "gsw_cha_2016_s04_w06",
+  "gsw_cha_2016_s05_w01",
+  "gsw_cha_2016_s05_w03",
+  "gsw_cha_2016_s05_w04",
+  "gsw_cha_2016_s06_w00",
+  "gsw_cha_2016_s06_w01",
+  "gsw_cha_2016_s06_w03",
+  "gsw_cha_2016_s06_w04",
+  "gsw_cha_2016_s06_w06",
+  "gsw_cha_2016_s06_w09",
+  "gsw_cha_2016_s07_w00",
+  "gsw_cha_2016_s07_w01",
+  "gsw_cha_2016_s07_w02",
+  "gsw_cha_2016_s07_w03",
+  "gsw_cha_2016_s07_w04",
+  "gsw_cha_2016_s07_w05",
+  "gsw_cha_2016_s08_w01",
+  "gsw_cha_2016_s09_w00",
+  "gsw_cha_2016_s09_w01",
+  "gsw_cha_2016_s09_w02"
+ ],
+ "certified": [
+  "gsw_bkn_2015_s00_w00",
+  "gsw_bkn_2015_s00_w02",
+  "gsw_bkn_2015_s00_w03",
+  "gsw_bkn_2015_s00_w04",
+  "gsw_bkn_2015_s00_w06",
+  "gsw_bkn_2015_s00_w08",
+  "gsw_bkn_2015_s01_w04",
+  "gsw_bkn_2015_s01_w08",
+  "gsw_bkn_2015_s01_w09",
+  "gsw_bkn_2015_s01_w11",
+  "gsw_bkn_2015_s02_w03",
+  "gsw_bkn_2015_s03_w01",
+  "gsw_bkn_2015_s03_w04",
+  "gsw_bkn_2015_s04_w00",
+  "gsw_bkn_2015_s04_w03",
+  "gsw_bkn_2015_s05_w00",
+  "gsw_bkn_2015_s05_w03",
+  "gsw_bkn_2015_s06_w02",
+  "gsw_bkn_2015_s07_w01",
+  "gsw_bkn_2015_s07_w03",
+  "gsw_bkn_2015_s09_w01",
+  "gsw_bkn_2015_s09_w02",
+  "gsw_bkn_2015_s09_w05",
+  "gsw_bkn_2015_s10_w03",
+  "gsw_cha_2016_s00_w00",
+  "gsw_cha_2016_s01_w00",
+  "gsw_cha_2016_s01_w03",
+  "gsw_cha_2016_s01_w04",
+  "gsw_cha_2016_s02_w02",
+  "gsw_cha_2016_s02_w03",
+  "gsw_cha_2016_s02_w07",
+  "gsw_cha_2016_s03_w01",
+  "gsw_cha_2016_s03_w03",
+  "gsw_cha_2016_s03_w04",
+  "gsw_cha_2016_s03_w05",
+  "gsw_cha_2016_s03_w06",
+  "gsw_cha_2016_s04_w00",
+  "gsw_cha_2016_s04_w02",
+  "gsw_cha_2016_s04_w05",
+  "gsw_cha_2016_s05_w00",
+  "gsw_cha_2016_s05_w02",
+  "gsw_cha_2016_s05_w05",
+  "gsw_cha_2016_s06_w05",
+  "gsw_cha_2016_s08_w00",
+  "gsw_cha_2016_s08_w02",
+  "gsw_cha_2016_s08_w07"
+ ],
+ "kept_reread": [
+  "gsw_bkn_2015_s00_w01",
+  "gsw_bkn_2015_s01_w00",
+  "gsw_bkn_2015_s01_w05",
+  "gsw_bkn_2015_s02_w01",
+  "gsw_bkn_2015_s02_w02",
+  "gsw_bkn_2015_s02_w04",
+  "gsw_bkn_2015_s03_w03",
+  "gsw_bkn_2015_s03_w06",
+  "gsw_bkn_2015_s04_w04",
+  "gsw_bkn_2015_s06_w05",
+  "gsw_bkn_2015_s07_w02",
+  "gsw_bkn_2015_s07_w04",
+  "gsw_bkn_2015_s07_w06",
+  "gsw_bkn_2015_s08_w00",
+  "gsw_bkn_2015_s08_w01",
+  "gsw_bkn_2015_s08_w05",
+  "gsw_bkn_2015_s10_w02",
+  "gsw_bkn_2015_s10_w04",
+  "gsw_cha_2016_s01_w02",
+  "gsw_cha_2016_s01_w06",
+  "gsw_cha_2016_s01_w07",
+  "gsw_cha_2016_s01_w09",
+  "gsw_cha_2016_s02_w00",
+  "gsw_cha_2016_s02_w04",
+  "gsw_cha_2016_s02_w05",
+  "gsw_cha_2016_s03_w00",
+  "gsw_cha_2016_s04_w01",
+  "gsw_cha_2016_s04_w03",
+  "gsw_cha_2016_s04_w06",
+  "gsw_cha_2016_s05_w03",
+  "gsw_cha_2016_s06_w00",
+  "gsw_cha_2016_s06_w01",
+  "gsw_cha_2016_s06_w04",
+  "gsw_cha_2016_s06_w09",
+  "gsw_cha_2016_s07_w00",
+  "gsw_cha_2016_s07_w01",
+  "gsw_cha_2016_s07_w03",
+  "gsw_cha_2016_s07_w04",
+  "gsw_cha_2016_s07_w05",
+  "gsw_cha_2016_s09_w00",
+  "gsw_cha_2016_s09_w01",
+  "gsw_cha_2016_s09_w02"
+ ],
+ "counts": {
+  "kept": 88,
+  "dropped": 32,
+  "reread": 74,
+  "certified": 46,
+  "kept_reread": 42
+ },
+ "head": "eaa8c07299e4dbfee1370f2b153cbee3e179fd73"
+}
