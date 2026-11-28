@@ -107,3 +107,61 @@ cache/ and recallcause/ are watched by manifest before and after; any change sto
 - The stored candidates carry no anchor ids, so R_post's boxes are matched into R_pre by exact equality (both runs use
   the same rule), as P8_nmsarm.md section 3 does.
 - The allow-list is implemented in the tool itself, since tools/p8_nmsarm.py is not on v4-research.
+
+## 9. Version 1.1 (2026-11-27; the design review of 90e21279, GO WITH CHANGES, one blocker; before any run)
+
+Where this section differs from sections 1 to 8, it rules.
+
+**9.1 The review's finding.** From stored files only, the reviewer scored each of D208's 120 windows' stored R_post (the
+a3run read) against its sidecar with posefoot's 14.2 rule:
+- every window whose build read does not seek past frame 0 reads aligned (69 kept, 11 dropped);
+- 4 kept windows whose build read seeks read misaligned or undetermined: gsw_cha_2016_s07_w00 (M_0 0.557),
+  gsw_cha_2016_s06_w01 (one stride off), gsw_cha_2016_s02_w05 and gsw_cha_2016_s06_w04 (too few frames);
+- of the 32 dropped, 13 are misread and 19 aligned, dropped by D208's strict rule.
+So D208's registered 88 windows include 2 to 4 misread windows. D208 9.3 stands as registered; this supplement says so
+and reports beside it.
+
+**9.2 G0, a stored-file pre-check (new; no lock, no detector).** For each of the 120 windows, posefoot 14.2's statistic
+and verdict on the stored R_post: on the stored frames that 14.2's eligibility rule admits (both neighbours in the
+sidecar, at least 4 boxes at f, boxes at both neighbours), M_-1, M_0 and M_+1 (Hungarian pairs, unmatched and pairs
+under IoU 0.1 as 0) and L_0, then 14.2's verdict (misaligned when M_0 is under 0.82, L_0 under 0.85, or a neighbour
+beats M_0 by 0.05; fewer than 10 eligible frames reads undetermined). posefoot's pure functions (box_iou, frame_ious,
+align_stats, align_verdict, its eligibility rule and constants) are copied from 53c44192 with credit and tested equal.
+G0 fixes the re-read set and certifies the windows not re-read:
+- re-read: every window whose build read seeks past frame 0 (from stage A's per-window records: 19 kept, 21 dropped),
+  every other dropped window (11), and any other kept window G0 does not read aligned; 51 windows if G0 certifies the
+  other 69 kept windows;
+- certified: the kept windows without a seek that G0 reads aligned; their stored candidates are used as D208 used them.
+G0's record is committed before the lock job.
+
+**9.3 G1 (replaces section 3's G1).** Exact R_pre and R_post equality, every stored frame, on two kept windows without a
+seek: gsw_cha_2016_s05_w00 (111 frames) and gsw_bkn_2015_s04_w00 (131). A failure stops the item. Diagnostic, not
+gated: for the 19 kept windows with a seek, the number of stored frames whose build-read R_pre or R_post differs from the
+stored one.
+
+**9.4 Verdicts on both reads.** For every re-read window: 14.2's verdict and D208's strict verdict, each on the stored
+read and on the build read.
+
+**9.5 G3 (completes section 4).** The 88 kept windows' classes recomputed from the stored candidates must equal D208's
+recorded counts for every class, in every unit, per game and pooled; else the run stops.
+
+**9.6 Readings (replaces section 4's (3)).**
+- **The supplement's reading, post hoc:** D208's main-loss rule on 120 windows, the 69 certified windows from their
+  stored candidates plus the 51 build-read windows, P-i and D-i separately and pooled, with the pooled C1 share and its
+  interval. Post hoc: D208's numbers and its 0.496 worst case were seen before this reading was registered.
+- **Sensitivity, beside 9.3, not replacing it:** D208's 88 windows with the 19 seek windows re-read (69 stored plus 19
+  build-read).
+- The 32 alone (all build-read), and the 32 against the 88, as before.
+Windows undetermined by build_read's read validation are left out of every reading and counted.
+
+**9.7 The read code (amends section 8).** The copy of build_read passes the frame index to predict (predict(idx,
+frame)), so every capture records the frame it was made on. The copies therefore differ from posefoot's in that call,
+and the equality test checks behaviour instead: on a fake reader, the copied and posefoot's functions give the same
+read sequence, the same seeks (pre-gate and main), the same intervals and the same predicted frames. The run sets stage
+A's environment (HF_HUB_OFFLINE=1, PYTORCH_ENABLE_MPS_FALLBACK=1, the gate device from each window's build record,
+gate v2 as stage A loads it). The allow-list refuses hou_cle_2016 and gsw_sac_2015 before any file or frame is read.
+
+**9.8 Cost (replaces section 6).** G0: stored files, seconds, no lock. The lock job: build reads and capture on 51
+windows' universe frames (1,659 stored universe frames: 989 dropped, 670 kept), G1's 242 frames, the pre-gate pass on 53
+windows, and D205's rows on all 120 windows: about 25 to 30 lock minutes (D208 ran 3,631 frames in 2,243 s; stage A
+read 156 windows in 1,236 s). Cap 50 minutes. 0 Colab units. hou_cle_2016 unspent.
