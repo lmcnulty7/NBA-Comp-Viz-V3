@@ -3,7 +3,10 @@
 The pre-training label audit for any detector arm (docs/research/TRAINING_PROTOCOL.md, ml-training-rigor section 2:
 what a label source teaches, measured against independent truth before any training). Report only: nothing is fitted,
 tuned or trained. No download in stage 1. hou_cle_2016 stays unspent and gsw_sac_2015 apart; the allow-list
-{gsw_cha_2016, gsw_bkn_2015} and the P8 guards (tools.p8_common.guard, refuse_cv_test) run on every name.
+{gsw_cha_2016, gsw_bkn_2015} and the P8 guards (tools.p8_common.guard, refuse_cv_test) run on every name. The held-out
+list (sportvu/splits.json) is never read or scored: heldout_game 12.16.2015 PHX at GSW, heldout_arena the Cleveland
+arena, heldout_era the 2013 GSW at NYK game (video 6sAFbDBBAZc). Any outside label source a later stage brings in is
+screened against the same list, and against the D85 test homes (MIA, TOR, LAC, LAL), before it is used (D150 (2)).
 
 ## 1. Question and mechanism
 
