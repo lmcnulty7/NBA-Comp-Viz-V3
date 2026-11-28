@@ -55,7 +55,9 @@ source of uncut modern broadcasts, reopened only if one appears.
 Ranked by expected information per unit of cost; the lead re-ranks it each iteration.
 
 1. Level 2 map (D202 to D207), development standard rows on cha and bkn: missed 0.214 = own box 2.5 to 5 ft off
-   (0.114) + no box left near a close neighbour (0.041) + no box within 5 ft (0.044 + 0.014); ghosts 0.121; team 0.834.
+   (0.114) + no box left near a close neighbour (0.041) + no box within 5 ft (0.044 + 0.014); ghosts 0.121; team 0.834
+   (oracle label fixes reach 0.947 and 0.942 on the two games, D214; no arm licensed yet: tracking is fragile, colour
+   clears on cha only).
    The 0.114 row is mostly the player's own box placed off on that frame, and about 0.58 of the ghost row is these same
    boxes (D207). Foot median shift killed (D206); the raw box bottom is no better than the smoothed foot (posefoot 0a).
    The no-box misses are lost mostly at the detector on kept windows (D208), with NMS about 0.12 of them.
