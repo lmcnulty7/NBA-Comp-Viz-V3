@@ -1,0 +1,829 @@
+{
+ "what": "docs/research/P8_posefoot.md section 15, the pose smoke; report only",
+ "smoke": true,
+ "git": {
+  "gsw_cha_2016": {
+   "head": "53c441921d49e38ba97bc61b5ab0fde7f3a46bcf",
+   "tools_and_sportvu_clean": true
+  },
+  "gsw_bkn_2015": {
+   "head": "53c441921d49e38ba97bc61b5ab0fde7f3a46bcf",
+   "tools_and_sportvu_clean": true
+  }
+ },
+ "model": {
+  "repo": "usyd-community/vitpose-base-simple",
+  "revision": "a93ac0c67e0b7e2c55287d21d4c460c8f3c54d45",
+  "transformers": "4.49.0"
+ },
+ "counters": {
+  "gsw_cha_2016": {
+   "no_partner_pose": 4,
+   "no_B_pose": 0,
+   "frames": 60,
+   "crops": 235,
+   "crops_all_aligned": 9172,
+   "read_not_reproduced": 0,
+   "read_not_reproduced_windows": []
+  },
+  "gsw_bkn_2015": {
+   "no_partner_pose": 6,
+   "no_B_pose": 0,
+   "frames": 57,
+   "crops": 176,
+   "crops_all_aligned": 9210,
+   "read_not_reproduced": 0,
+   "read_not_reproduced_windows": []
+  }
+ },
+ "rates": {
+  "gsw_cha_2016": [
+   {
+    "window": "gsw_cha_2016_s00_w00",
+    "seconds": 53.9,
+    "pose_seconds": 47.28,
+    "frames": 60,
+    "crops": 235
+   }
+  ],
+  "gsw_bkn_2015": [
+   {
+    "window": "gsw_bkn_2015_s00_w00",
+    "seconds": 43.8,
+    "pose_seconds": 38.19,
+    "frames": 57,
+    "crops": 176
+   }
+  ]
+ },
+ "seconds": {
+  "gsw_cha_2016": 110.5,
+  "gsw_bkn_2015": 100.4
+ },
+ "coverage": {
+  "gsw_cha_2016|P-ii": {
+   "2": 0.9739130434782609,
+   "1": 0.017391304347826087,
+   "0": 0.008695652173913044
+  },
+  "gsw_cha_2016|hit": {
+   "2": 0.9666666666666667,
+   "1": 0.025,
+   "0": 0.008333333333333333
+  },
+  "gsw_bkn_2015|P-ii": {
+   "2": 0.967741935483871,
+   "1": 0.03225806451612903,
+   "0": 0.0
+  },
+  "gsw_bkn_2015|hit": {
+   "2": 0.9473684210526315,
+   "1": 0.043859649122807015,
+   "0": 0.008771929824561403
+  }
+ },
+ "mechanical": {
+  "gsw_cha_2016": {
+   "share": 1.0,
+   "n": 233,
+   "passes": true
+  },
+  "gsw_bkn_2015": {
+   "share": 0.9942857142857143,
+   "n": 175,
+   "passes": true
+  }
+ },
+ "hybrid": {
+  "gsw_cha_2016": {
+   "P-ii own": {
+    "n": 56,
+    "R": 0.25,
+    "R_interval": [
+     0.25,
+     0.25
+    ],
+    "R_null": 0.39285714285714285,
+    "R_null_interval": [
+     0.39285714285714285,
+     0.39285714285714285
+    ],
+    "R_all_boxes": {
+     "value": 0.25,
+     "interval": [
+      0.25,
+      0.25
+     ]
+    },
+    "cross_frame_null": {
+     "R": {
+      "value": null,
+      "interval": null
+     },
+     "R_xnull": {
+      "value": null,
+      "interval": null
+     }
+    },
+    "med_T": {
+     "value": 0.4773781583667589,
+     "interval": [
+      0.4773781583667589,
+      0.4773781583667589
+     ]
+    },
+    "med_B": {
+     "value": -0.16919132099814382,
+     "interval": [
+      -0.16919132099814382,
+      -0.16919132099814382
+     ]
+    }
+   },
+   "P-ii all": {
+    "n": 112,
+    "R": {
+     "value": 0.2857142857142857,
+     "interval": [
+      0.2857142857142857,
+      0.2857142857142857
+     ]
+    }
+   },
+   "hits": {
+    "n": 116,
+    "lost": 0.43103448275862066,
+    "lost_interval": [
+     0.43103448275862066,
+     0.43103448275862066
+    ],
+    "med_T": {
+     "value": 1.5158140589220241,
+     "interval": [
+      1.5158140589220241,
+      1.5158140589220241
+     ]
+    },
+    "med_B": {
+     "value": 0.15930123113895667,
+     "interval": [
+      0.15930123113895667,
+      0.15930123113895667
+     ]
+    }
+   },
+   "est": {
+    "value": 0.3352772012523305,
+    "interval": [
+     0.0,
+     1.1319150180426771
+    ]
+   },
+   "ghost_change_per_box": {
+    "value": 0.22950411232957912,
+    "interval": [
+     0.0,
+     0.7780362354705591
+    ]
+   },
+   "s_hit": 187.50833333333333,
+   "R_by_speed": {
+    "under 5": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "5 to 10": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "10 and over": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    }
+   },
+   "no_speed_rows": 56,
+   "est_rows": "every selected row; a missing pose foot reads as no change"
+  },
+  "gsw_bkn_2015": {
+   "P-ii own": {
+    "n": 32,
+    "R": 0.5625,
+    "R_interval": [
+     0.5625,
+     0.5625
+    ],
+    "R_null": 0.5,
+    "R_null_interval": [
+     0.5,
+     0.5
+    ],
+    "R_all_boxes": {
+     "value": 0.5625,
+     "interval": [
+      0.5625,
+      0.5625
+     ]
+    },
+    "cross_frame_null": {
+     "R": {
+      "value": null,
+      "interval": null
+     },
+     "R_xnull": {
+      "value": null,
+      "interval": null
+     }
+    },
+    "med_T": {
+     "value": -1.6059529111554167,
+     "interval": [
+      -1.6059529111554167,
+      -1.6059529111554167
+     ]
+    },
+    "med_B": {
+     "value": -0.6064169974985969,
+     "interval": [
+      -0.6064169974985969,
+      -0.6064169974985969
+     ]
+    }
+   },
+   "P-ii all": {
+    "n": 60,
+    "R": {
+     "value": 0.48333333333333334,
+     "interval": [
+      0.48333333333333334,
+      0.48333333333333334
+     ]
+    }
+   },
+   "hits": {
+    "n": 108,
+    "lost": 0.4537037037037037,
+    "lost_interval": [
+     0.4537037037037037,
+     0.4537037037037037
+    ],
+    "med_T": {
+     "value": 1.3428177792802152,
+     "interval": [
+      1.3428177792802152,
+      1.3428177792802152
+     ]
+    },
+    "med_B": {
+     "value": 0.796850911987922,
+     "interval": [
+      0.796850911987922,
+      0.796850911987922
+     ]
+    }
+   },
+   "est": {
+    "value": 0.34796605917244594,
+    "interval": [
+     0.0,
+     1.2124193788540107
+    ]
+   },
+   "ghost_change_per_box": {
+    "value": 0.19427793840713142,
+    "interval": [
+     0.0,
+     0.6827438176585885
+    ]
+   },
+   "s_hit": 200.9561403508772,
+   "R_by_speed": {
+    "under 5": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "5 to 10": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "10 and over": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    }
+   },
+   "no_speed_rows": 32,
+   "est_rows": "every selected row; a missing pose foot reads as no change"
+  },
+  "pooled": {
+   "P-ii own": {
+    "n": 88,
+    "R": 0.36363636363636365,
+    "R_interval": [
+     0.25,
+     0.5625
+    ],
+    "R_null": 0.4318181818181818,
+    "R_null_interval": [
+     0.39285714285714285,
+     0.5
+    ],
+    "R_all_boxes": {
+     "value": 0.36363636363636365,
+     "interval": [
+      0.25,
+      0.5625
+     ]
+    },
+    "cross_frame_null": {
+     "R": {
+      "value": null,
+      "interval": null
+     },
+     "R_xnull": {
+      "value": null,
+      "interval": null
+     }
+    },
+    "med_T": {
+     "value": -0.2097986659284321,
+     "interval": [
+      -1.6059529111554167,
+      0.4773781583667589
+     ]
+    },
+    "med_B": {
+     "value": -0.33899805076403505,
+     "interval": [
+      -0.6064169974985969,
+      -0.16919132099814382
+     ]
+    }
+   },
+   "P-ii all": {
+    "n": 172,
+    "R": {
+     "value": 0.3546511627906977,
+     "interval": [
+      0.2857142857142857,
+      0.48333333333333334
+     ]
+    }
+   },
+   "hits": {
+    "n": 224,
+    "lost": 0.4419642857142857,
+    "lost_interval": [
+     0.43103448275862066,
+     0.4537037037037037
+    ],
+    "med_T": {
+     "value": 1.455480767486719,
+     "interval": [
+      1.3428177792802152,
+      1.5158140589220241
+     ]
+    },
+    "med_B": {
+     "value": 0.5578662874462955,
+     "interval": [
+      0.15930123113895667,
+      0.796850911987922
+     ]
+    }
+   },
+   "est": {
+    "value": 0.34142087935537424,
+    "interval": [
+     0.0,
+     0.9373508747248906
+    ]
+   },
+   "ghost_change_per_box": {
+    "value": 0.21261659700204075,
+    "interval": [
+     0.0,
+     0.5761686978573526
+    ]
+   },
+   "s_hit": 194.05982905982907,
+   "R_by_speed": {
+    "under 5": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "5 to 10": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "10 and over": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    }
+   },
+   "no_speed_rows": 88,
+   "est_rows": "every selected row; a missing pose foot reads as no change"
+  }
+ },
+ "pose_raw_rule4_against_foot_raw": {
+  "gsw_cha_2016": {
+   "n": 116,
+   "median_d_poseraw_minus_d_raw_T": 1.3877506443386687,
+   "share_lost": 0.41379310344827586
+  },
+  "gsw_bkn_2015": {
+   "n": 108,
+   "median_d_poseraw_minus_d_raw_T": 1.0881390318801871,
+   "share_lost": 0.46296296296296297
+  },
+  "pooled": {
+   "n": 224,
+   "median_d_poseraw_minus_d_raw_T": 1.2779861988951935,
+   "share_lost": 0.4375
+  }
+ },
+ "one_ankle": {
+  "gsw_cha_2016": {
+   "P-ii own": {
+    "n": 1,
+    "R": 0.0,
+    "R_interval": [
+     0.0,
+     0.0
+    ],
+    "R_null": 1.0,
+    "R_null_interval": [
+     1.0,
+     1.0
+    ],
+    "R_all_boxes": {
+     "value": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "cross_frame_null": {
+     "R": {
+      "value": null,
+      "interval": null
+     },
+     "R_xnull": {
+      "value": null,
+      "interval": null
+     }
+    },
+    "med_T": {
+     "value": -0.3026678977795485,
+     "interval": [
+      -0.3026678977795485,
+      -0.3026678977795485
+     ]
+    },
+    "med_B": {
+     "value": 0.01964962463431874,
+     "interval": [
+      0.01964962463431874,
+      0.01964962463431874
+     ]
+    }
+   },
+   "P-ii all": {
+    "n": 2,
+    "R": {
+     "value": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "hits": {
+    "n": 3,
+    "lost": 0.3333333333333333,
+    "lost_interval": [
+     0.3333333333333333,
+     0.3333333333333333
+    ],
+    "med_T": {
+     "value": 1.2112492696843058,
+     "interval": [
+      1.2112492696843058,
+      1.2112492696843058
+     ]
+    },
+    "med_B": {
+     "value": 1.1423487967510493,
+     "interval": [
+      1.1423487967510493,
+      1.1423487967510493
+     ]
+    }
+   },
+   "est": {
+    "value": 0.2638454051899016,
+    "interval": [
+     0.0,
+     0.8907571867710733
+    ]
+   },
+   "ghost_change_per_box": {
+    "value": 3.704801422643746e-05,
+    "interval": [
+     0.0,
+     0.0001255955600438368
+    ]
+   },
+   "s_hit": 7500.333333333333,
+   "R_by_speed": {
+    "under 5": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "5 to 10": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "10 and over": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    }
+   },
+   "no_speed_rows": 1
+  },
+  "gsw_bkn_2015": {
+   "P-ii own": {
+    "n": 1,
+    "R": 0.0,
+    "R_interval": [
+     0.0,
+     0.0
+    ],
+    "R_null": 1.0,
+    "R_null_interval": [
+     1.0,
+     1.0
+    ],
+    "R_all_boxes": {
+     "value": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "cross_frame_null": {
+     "R": {
+      "value": null,
+      "interval": null
+     },
+     "R_xnull": {
+      "value": null,
+      "interval": null
+     }
+    },
+    "med_T": {
+     "value": 0.6563505089052772,
+     "interval": [
+      0.6563505089052772,
+      0.6563505089052772
+     ]
+    },
+    "med_B": {
+     "value": 0.9773269258671196,
+     "interval": [
+      0.9773269258671196,
+      0.9773269258671196
+     ]
+    }
+   },
+   "P-ii all": {
+    "n": 2,
+    "R": {
+     "value": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "hits": {
+    "n": 5,
+    "lost": 0.4,
+    "lost_interval": [
+     0.4,
+     0.4
+    ],
+    "med_T": {
+     "value": -0.09588919831160103,
+     "interval": [
+      -0.09588919831160103,
+      -0.09588919831160103
+     ]
+    },
+    "med_B": {
+     "value": -0.8853912238493336,
+     "interval": [
+      -0.8853912238493336,
+      -0.8853912238493336
+     ]
+    }
+   },
+   "est": {
+    "value": 0.3120054477357848,
+    "interval": [
+     0.0,
+     1.087121692393045
+    ]
+   },
+   "ghost_change_per_box": {
+    "value": 0.0,
+    "interval": [
+     0.0,
+     0.0
+    ]
+   },
+   "s_hit": 4581.8,
+   "R_by_speed": {
+    "under 5": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "5 to 10": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "10 and over": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    }
+   },
+   "no_speed_rows": 1
+  },
+  "pooled": {
+   "P-ii own": {
+    "n": 2,
+    "R": 0.0,
+    "R_interval": [
+     0.0,
+     0.0
+    ],
+    "R_null": 1.0,
+    "R_null_interval": [
+     1.0,
+     1.0
+    ],
+    "R_all_boxes": {
+     "value": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    },
+    "cross_frame_null": {
+     "R": {
+      "value": null,
+      "interval": null
+     },
+     "R_xnull": {
+      "value": null,
+      "interval": null
+     }
+    },
+    "med_T": {
+     "value": 0.17684130556286437,
+     "interval": [
+      -0.3026678977795485,
+      0.6563505089052772
+     ]
+    },
+    "med_B": {
+     "value": 0.49848827525071915,
+     "interval": [
+      0.01964962463431874,
+      0.9773269258671196
+     ]
+    }
+   },
+   "P-ii all": {
+    "n": 4,
+    "R": {
+     "value": 0.0,
+     "interval": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "hits": {
+    "n": 8,
+    "lost": 0.375,
+    "lost_interval": [
+     0.3333333333333333,
+     0.4
+    ],
+    "med_T": {
+     "value": 1.0256548152746343,
+     "interval": [
+      -0.09588919831160103,
+      1.2112492696843058
+     ]
+    },
+    "med_B": {
+     "value": -0.14806389352510352,
+     "interval": [
+      -0.8853912238493336,
+      1.1423487967510493
+     ]
+    }
+   },
+   "est": {
+    "value": 0.29463034413550876,
+    "interval": [
+     0.0,
+     0.8427800663974085
+    ]
+   },
+   "ghost_change_per_box": {
+    "value": 1.856665428889714e-05,
+    "interval": [
+     0.0,
+     6.317878014769368e-05
+    ]
+   },
+   "s_hit": 5676.25,
+   "R_by_speed": {
+    "under 5": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "5 to 10": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    },
+    "10 and over": {
+     "value": null,
+     "interval": null,
+     "n": 0
+    }
+   },
+   "no_speed_rows": 2
+  }
+ },
+ "rules_hybrid": {
+  "gsw_cha_2016": {
+   "candidate": "hybrid",
+   "rule1_null_margin": false,
+   "rule2_median_T": false,
+   "rule3_median_B": true,
+   "rule4_hits": false,
+   "rule5_est": false,
+   "all": false
+  },
+  "gsw_bkn_2015": {
+   "candidate": "hybrid",
+   "rule1_null_margin": false,
+   "rule2_median_T": true,
+   "rule3_median_B": true,
+   "rule4_hits": false,
+   "rule5_est": false,
+   "all": false
+  }
+ },
+ "note": "smoke: two windows; the rules are computed for the mechanics only and are not read",
+ "projection": {
+  "pose_seconds_per_crop": 0.20795620437956205,
+  "per_game": {
+   "gsw_cha_2016": {
+    "crops_all_aligned": 9172,
+    "stage_A_decode_and_gate_s": 564.7,
+    "selection_s": 46.0,
+    "pose_s": 1907.3743065693432,
+    "total_s": 2518.074306569343
+   },
+   "gsw_bkn_2015": {
+    "crops_all_aligned": 9210,
+    "stage_A_decode_and_gate_s": 643.0,
+    "selection_s": 46.9,
+    "pose_s": 1915.2766423357666,
+    "total_s": 2605.1766423357667
+   }
+  },
+  "total_min": 85.38751581508517,
+  "over_120_min": false
+ }
+}

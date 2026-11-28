@@ -787,3 +787,27 @@ Where this differs from section 15, it rules.
    both ankles. Hits stay at 2 per frame. This replaces section 15's two-partner rule and roughly halves the crops.
    - If the projection still exceeds 120 minutes in total, the registered second step is 1 hit per frame.
    - If that is still over, the item stops and the lead is told.
+
+### 15.2 Stage 1 smoke result (2026-11-28, from 53c44192; record reports/research/p8_posefoot_pose_smoke.json)
+
+**Run.** The fast suite ran first under the lock, and the smoke started after it. Lock times: 118 s for
+gsw_cha_2016_s00_w00 and 107 s for gsw_bkn_2015_s00_w00, from the heavy-job lines. The report took 2 s.
+
+**Mechanical gate: passes.**
+- The ankle point lies inside its box, or within 0.2 box heights below it, for 1.000 of 233 boxes (gsw_cha_2016) and
+  0.994 of 175 (gsw_bkn_2015). The bar is 0.95.
+- Both-ankle coverage is 0.974 (P-ii) and 0.967 (hits) on gsw_cha_2016, and 0.968 and 0.947 on gsw_bkn_2015. No ankle
+  was found on 0.000 to 0.009 of boxes.
+- No read failed to reproduce.
+- No null partner: 4 and 6 boxes.
+
+**Cost projection (15.1 (4)): under the cap, so stage 2 runs with 2 hits per frame and no fallback.**
+- Pose took 0.208 s per crop (85.5 s for 411 crops).
+- Crops over the aligned windows: 9,172 (gsw_cha_2016) and 9,210 (gsw_bkn_2015).
+- Projected totals: 42.0 and 43.4 minutes. Each adds stage A's measured decode and gate seconds (564.7 and 643.0) and
+  the selection seconds (46.0 and 46.9) to the pose seconds.
+- 85.4 minutes in all, against 120.
+
+**Disclosure.** The smoke record computes the rule booleans for its two windows, for the mechanics. The lead saw
+them while reading the record. Nothing was changed on that basis, and every bar stays as registered. The teammate did
+not read them.
