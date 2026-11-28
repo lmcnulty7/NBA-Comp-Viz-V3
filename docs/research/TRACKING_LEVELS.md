@@ -59,7 +59,8 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
    The 0.114 row is mostly the player's own box placed off on that frame, and about 0.58 of the ghost row is these same
    boxes (D207). Foot median shift killed (D206); the raw box bottom is no better than the smoothed foot (posefoot 0a).
    The no-box misses are lost mostly at the detector on kept windows (D208), with NMS about 0.12 of them.
-   Running: posefoot (a per-box ankle foot, hybrid arm), stage A alignment next, then licence, smoke and falsifier.
+   The per-box ankle foot failed its falsifier (D210); every per-box foot route tried is closed. Next: whether the
+   own-box row is partly truth-side (P8_piiside, measured through B, since T absorbs truth errors by its per-frame fit).
    NMS threshold arm inconclusive at its pilot (D209). Running: the D208 supplement (51 windows re-read through the
    build's path). A detector recall arm stays paused under D183 until a new label source reaches the C1 misses.
 2. Deferred: the gsw_ind_2016 CPU rebuild (D200); the tracker-fix question on a real pool (D198, decides only the
