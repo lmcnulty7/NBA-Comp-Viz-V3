@@ -1,0 +1,182 @@
+{
+ "what": "docs/research/P8_posefoot.md section 14 with 14.2 (v1.3), stage A: decode alignment of the pool windows (the six-window smoke); report only",
+ "smoke": true,
+ "git": {
+  "gsw_cha_2016": {
+   "head": "7584a1096e96311618e89a46913ba22929e5fe12",
+   "tools_and_sportvu_clean": true
+  },
+  "gsw_bkn_2015": {
+   "head": "7584a1096e96311618e89a46913ba22929e5fe12",
+   "tools_and_sportvu_clean": true
+  }
+ },
+ "seconds": {
+  "gsw_cha_2016": 53.7,
+  "gsw_bkn_2015": 52.5
+ },
+ "versions": {
+  "gsw_cha_2016": {
+   "opencv": "4.13.0",
+   "torch": "2.2.2",
+   "ultralytics": "8.4.48"
+  },
+  "gsw_bkn_2015": {
+   "opencv": "4.13.0",
+   "torch": "2.2.2",
+   "ultralytics": "8.4.48"
+  }
+ },
+ "per_game": {
+  "gsw_cha_2016": {
+   "summary": {
+    "windows": 3,
+    "aligned": 3,
+    "misaligned": 0,
+    "undetermined": 0,
+    "share_not_aligned": 0.0,
+    "stop": false
+   },
+   "cross_table_a3align": {
+    "aligned|a3align_aligned": 3
+   },
+   "not_aligned": [],
+   "M_and_L0": {
+    "gsw_cha_2016_s05_w00": {
+     "M": {
+      "-1": 0.4927893622716159,
+      "0": 0.8853365912935193,
+      "+1": 0.5154688596962825
+     },
+     "L0": 0.9044197396681772,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 1053,
+      "sidecar_frames": 1053,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s05_w03": {
+     "M": {
+      "-1": 0.6041473894791947,
+      "0": 0.8864077533701785,
+      "+1": 0.6464426858841223
+     },
+     "L0": 0.9043375242930661,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 206,
+      "sidecar_frames": 206,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_cha_2016_s07_w00": {
+     "M": {
+      "-1": 0.5902331119536468,
+      "0": 0.8866181170441649,
+      "+1": 0.6048644302465692
+     },
+     "L0": 0.8945613698492121,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 968,
+      "sidecar_frames": 968,
+      "passes": true
+     },
+     "seeks_main": [
+      150,
+      4440
+     ],
+     "backend": "AVFOUNDATION"
+    }
+   },
+   "manifest_unchanged": true
+  },
+  "gsw_bkn_2015": {
+   "summary": {
+    "windows": 3,
+    "aligned": 3,
+    "misaligned": 0,
+    "undetermined": 0,
+    "share_not_aligned": 0.0,
+    "stop": false
+   },
+   "cross_table_a3align": {
+    "aligned|a3align_aligned": 3
+   },
+   "not_aligned": [],
+   "M_and_L0": {
+    "gsw_bkn_2015_s00_w07": {
+     "M": {
+      "-1": 0.637387529130166,
+      "0": 0.9028772152785184,
+      "+1": 0.7415542676344922
+     },
+     "L0": 0.9154617758243044,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 114,
+      "sidecar_frames": 114,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s04_w00": {
+     "M": {
+      "-1": 0.5736772221920073,
+      "0": 0.8944496502709718,
+      "+1": 0.5888021784807971
+     },
+     "L0": 0.9082172841009951,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 1102,
+      "sidecar_frames": 1102,
+      "passes": true
+     },
+     "seeks_main": [
+      0
+     ],
+     "backend": "AVFOUNDATION"
+    },
+    "gsw_bkn_2015_s07_w00": {
+     "M": {
+      "-1": 0.5760052126378798,
+      "0": 0.8902080979110659,
+      "+1": 0.6053748557694268
+     },
+     "L0": 0.9055031939862443,
+     "verdict": "aligned",
+     "why": null,
+     "read_validation": {
+      "sidecar_frames_read": 910,
+      "sidecar_frames": 910,
+      "passes": true
+     },
+     "seeks_main": [
+      240
+     ],
+     "backend": "AVFOUNDATION"
+    }
+   },
+   "manifest_unchanged": true
+  }
+ },
+ "stop": false
+}
