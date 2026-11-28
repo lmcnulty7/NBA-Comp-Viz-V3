@@ -152,3 +152,119 @@ Each ceiling is read beside D205's 0.114 and D207's own-box 0.062.
 - Writes go only to work_ref/piiside/<game>.json and reports/research/p8_piiside.json. A test checks that these are
   the only writes.
 - One chain, reported the moment it ends.
+
+## 10. Version 1.1 (2026-11-28, after the design review of a9b6b41b, NO-GO as version 1; before any number)
+
+The review confirmed a circularity in version 1. The truth camera T is refit per frame to foot_stab, and each window's
+offset_s is solved to minimise the feet residual. So under T, a window's time error is near zero by construction, and
+"neither" was near certain whatever the truth. Version 1.1 replaces sections 4 to 7. Sections 1 to 3, 8 and 9 stand,
+with the changes below.
+
+### 10.1 The frame and the foot
+
+- **The primary frame is B:** the sidecar's accepted per-frame H from the r23 court model. It is fitted to the
+  frame's painted lines, with no SportVU and no feet.
+- **The primary foot is foot_raw:** the tracked box's bottom centre, without the foot stabiliser's EMA.
+- Under B and foot_raw, neither the truth's camera nor its time solve enters the offset. T enters only through the
+  selection of the outcome rows (D207's classes), and the timing estimate below uses rows T does not select.
+- **Acceptance pre-selects the frames where T fits the feet** (feet residual at most 2.0 ft). So the camera question
+  is answered only through B, never through T's own residual.
+
+### 10.2 Timing (replaces section 5 (1))
+
+- **Estimation rows (non-outcome rows).** On each scored frame, in-frame players are matched one to one to non-referee
+  box feet B(foot_raw) within 5 ft (the Hungarian assignment of tools.p8_one2one.assign_1to1, at 5 ft, on B's
+  feet). T has no part in this selection.
+- **Moving rows:** SportVU speed at least 5 ft/s, with velocity v from the moments over plus or minus 0.2 s
+  (section 4's definition, mirror applied).
+- **Per-window time offset:** tau_B = the median over the window's moving estimation rows of
+  ((B(foot_raw) - SportVU) . v_hat) / speed, in seconds. Positive means the box lies ahead of the SportVU position in
+  the direction of motion. A window with fewer than 30 moving estimation rows has no tau_B and is counted.
+- **The null, registered now.** With no window-level timing error, every window shares one constant lag tau_0 (the
+  tracker's, plus any constant along-velocity bias of B). The across-window spread then comes only from B's
+  measurement noise. The null is simulated per game, 2,000 times (numpy default_rng(0)):
+  - tau_0 is the across-window median of tau_B;
+  - each window's moving rows are given along-velocity offsets tau_0 x speed + e. The e are resampled from the game's
+    pooled along-velocity offsets of slow estimation rows (speed 1 to 5 ft/s, direction defined), centred on their
+    median;
+  - each simulated window gets the same row count and speeds as the real one, and its simulated tau is computed the
+    same way;
+  - the statistic is the across-window interquartile range of tau, and the null is its distribution over the
+    simulations.
+- **Timing rule (fixed now).**
+  - **Answered, no window timing error:** the observed interquartile range of tau_B is at or below the null's 97.5th
+    percentile on both games.
+  - **Otherwise,** the enrichment test runs. A window is "off" when |tau_B - tau_0| is at least 0.1 s. Timing
+    contributes when the own P-ii rate in off windows is at least 1.5 times its rate in the other windows, with the
+    window-cluster interval of the ratio excluding 1, on both games.
+  - Otherwise timing is not shown.
+- **Report only:**
+  - tau_B against each window's offset_s, with their rank correlation per game;
+  - check C's quantities as a predictor (per window where stored, else the game-level values of the acceptance
+    record: n, median and share over 0.2 s);
+  - the speed-bin rates of version 1's (1), descriptive only.
+
+### 10.3 The build's own lag (the method check)
+
+- foot_stab's EMA (alpha 0.6 at stride 6) lags foot_raw by about 0.067 s. That gives a one-signed along-velocity
+  offset of about 0.067 s times speed.
+- tau_B is computed twice per window, from foot_raw and from foot_stab on the same rows. The registered check: the
+  across-window median of tau_B(foot_stab) - tau_B(foot_raw) lies within 0.03 s of -0.067 s, the sign being the lag
+  behind the motion.
+  - If it does, the method resolves a lag of this size.
+  - If it does not, the timing result is reported as "not resolvable at this noise". It is not read as "answered".
+- Under the null, a constant lag (the stabiliser's, the tracker's, or a constant truth offset) cannot make a timing
+  pattern. A truth timing pattern must show window-to-window spread beyond the null: different sizes or sign changes
+  across windows.
+
+### 10.4 Camera (replaces section 5 (2))
+
+- **Disagreement:** d_TB = |T(foot_raw) - B(foot_raw)| at each own P-ii box and each hit box on the same frames.
+- **B's own error beside it:** d_B = |B(foot_raw) - SportVU_j| at the same boxes.
+- Both are reported by third (the scorer's third of SportVU_j under T) and pooled.
+- **Camera rule (fixed now).** A camera pattern holds when both hold on both games:
+  - (a) the median d_TB at own P-ii boxes is at least 1.5 times the median d_TB at hit boxes on the same frames, with
+    the window-cluster interval of the ratio excluding 1;
+  - (b) at own P-ii boxes, the share with d_B at most 2.5 ft is at least 0.5. Where T and B disagree, B places the
+    foot near the player.
+
+  When it holds, T's camera is the likelier side at those boxes; that is the reading. It is not a proof, since B has
+  its own error.
+
+### 10.5 Dropped, and decided
+
+- **The residual branch** (T's feet residual) is circular, because acceptance and the per-frame refit both minimise
+  it. It is reported descriptively only, with no rule.
+- **The depth-share test** is dropped. The depth shares were seen during the review: 0.764 and 0.785 for own P-ii rows
+  against 0.727 and 0.725 for hits. That condition is decided, not a test. It is quoted here and in the result as
+  seen.
+- **The 1.3 times the hits factor** is replaced by build-side controls, reported beside the speed-bin rates and not
+  ruled:
+  - foot_raw against foot_stab by speed bin: the median along-velocity difference, expected near 0.067 s times
+    speed;
+  - B offsets by speed bin on the estimation rows: the median along-velocity and across-velocity components.
+
+### 10.6 Reading table (replaces section 6)
+
+| pattern | condition | reading |
+|---|---|---|
+| timing | 10.2's enrichment holds on both games, with 10.3's method check passing | a window-level time-map error carries part of P-ii; the next step is the truth's time map |
+| timing answered | 10.2's spread is inside the null on both games, with 10.3 passing | no window-level timing error beyond B's noise; timing is ruled out at this resolution |
+| timing not resolvable | 10.3's method check fails | no timing reading |
+| camera | 10.4's rule holds | T's camera is the likelier side at own P-ii boxes; the next step is the truth's camera fit |
+| neither | neither timing nor camera holds | not shown truth-side by these tests |
+
+### 10.7 Bounds (replaces section 7; each is a bound, not a forecast)
+
+- **Timing, an upper bound:** the own P-ii rows in off windows, less what the other windows' own P-ii rate predicts
+  for them, over in-frame players.
+- **Camera, an upper bound:** the own P-ii rows whose B foot lies within 2.5 ft of the player (d_B at most 2.5 ft),
+  over in-frame players. These are the most a T-side camera error could explain.
+- **Neither, a lower bound on the build-side share:** the own P-ii rate (0.062) less the two upper bounds.
+- All are read beside D205's 0.114 and D207's own-box 0.062.
+
+### 10.8 Cost and gates
+
+Unchanged from section 9 (about 3 lock minutes, stored files only), with two additions:
+- The selection gate of section 3 still runs, with D207's ordered rows and D202's fields.
+- The null simulation runs in the report step (system python, no lock).
