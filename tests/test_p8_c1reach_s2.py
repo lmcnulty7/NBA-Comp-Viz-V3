@@ -92,3 +92,24 @@ def test_writes():
     assert w == ["out_d / ('crowddet_probe.json' if probe else 'crowddet.json')"]
     assert a == ["REPO / 'reports' / 'research' / name"]
     assert "gsw_sac" not in src and "hou_cle" not in src
+
+
+def test_increment_table_losses_and_h():
+    sv = np.array([[10.0, 10.0], [12.0, 10.0], [20.0, 20.0]] + [[60.0 + 3 * k, 40.0] for k in range(7)])
+    fr = {"window": "gsw_cha_2016_s00_w00", "frame": 6, "sv": sv.tolist(), "Ht": np.eye(3).tolist(),
+          "inside": [True] * 10, "r23_post": [_box(10.1, 10.0)], "r23_low": [],
+          "c1": [{"player": 1, "pid": 7, "unit": "D-i", "subclass": "C1a_other"},
+                 {"player": 2, "pid": 8, "unit": "P-i", "subclass": "C1c"}]}
+    inp = {"frames": [fr], "per_window": {
+        "gsw_cha_2016_s00_w00": {"game": "gsw_cha_2016", "n": 2, "by": {"D-i|C1a_other": 1, "P-i|C1c": 1}},
+        "gsw_bkn_2015_s00_w00": {"game": "gsw_bkn_2015", "n": 3, "by": {"D-i|C1b": 3}}}}
+    tea = {"boxes": {"gsw_cha_2016_s00_w00/6": [_box(10.1, 10.0), _box(12.1, 10.0)]}}
+    crowd = {"boxes": {"gsw_cha_2016_s00_w00/6": [[*_box(20.1, 20.0)[:4], 0.6, "person"]]}}
+    f = {"gsw_cha_2016": {"f_pres": 0.5, "f_plc": 0.25}, "gsw_bkn_2015": {"f_pres": 0.6, "f_plc": 0.4}}
+    t = S2.increment_table(inp, tea, crowd, 0.5, None, None, None, f, {"gsw_cha_2016": 1000, "gsw_bkn_2015": 1000},
+                           False)
+    assert t["population_loss"]["apart"] == {"lost": 3, "of": 3}          # bkn's C1b has no sampled frame
+    assert t["population_loss"]["headline"] == {"lost": 0, "of": 2}
+    assert t["headline_increment"]["gsw_cha_2016"]["point"] == -0.00025   # player 2 (P-i) at f_plc
+    assert t["H_per_population"]["gsw_cha_2016"]["point"] == -0.00025     # player 2 was unreached before CrowdDet
+    assert sum(t["union_losses_sampled"].values()) == 0

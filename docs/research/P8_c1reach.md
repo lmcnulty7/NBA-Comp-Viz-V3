@@ -453,3 +453,18 @@ differs from 13.1 to 13.7, it rules. Its first item (the 49 and 80 percent prior
   reproduce them exactly, else it stops.
 - **docs/DATA_SOURCES.md:** the weights' training data is "inferred" from the README's table, and D160 (Lucien treated a
   repository's MIT licence as covering its released weights) is cited beside the MixSort precedent.
+
+**13.9 The code check of 656f88cd (2026-11-28; GO WITH CHANGES; before any download).** The venv, the clone and the
+download wait for Lucien's yes; nothing of CrowdDet's is fetched until then.
+- After its imports, the loader requires CrowdDet's config, network and nms_utils modules to come from the pinned
+  clone's src folder, and records their paths.
+- The probe passes only if every one of its frames yields boxes (13.4), besides the positive control and the timing.
+- The record reports each population's loss to the scaling beside its increment: misses in windows whose sampled
+  frames hold none of that population. From stage 1's inputs that is 61 of the 378 C1b and C1a_own misses, and 0 of the
+  3,006 C1a_other and C1c misses.
+- H is recomputed in the stage-2 record with the headline population's own scaling (H_per_population), since stage 1
+  scaled all C1 subclasses together.
+- Union losses are reported: C1 misses the held teacher reached that the union no longer reaches (a one-to-one
+  assignment can move when boxes are added).
+- Wording on 13.8's referee boxes: the frame-by-frame R_post check proves the stored candidate file is unchanged since
+  step A read it; the frame's identity rests on R1.

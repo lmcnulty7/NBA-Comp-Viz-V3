@@ -105,6 +105,14 @@ def load_detector(home: Path):
     spec = importlib.util.spec_from_file_location("crowddet_inference", str(src / "tools" / "inference.py"))
     inf = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(inf)
+    import network as _network
+    nms_mod = sys.modules.get("utils.nms_utils")
+    files = {"config": getattr(sys.modules.get("config"), "__file__", None), "network": _network.__file__,
+             "nms_utils": getattr(nms_mod, "__file__", None)}
+    root = str(src.resolve())
+    bad = {k: v for k, v in files.items() if not v or not str(Path(v).resolve()).startswith(root + os.sep)}
+    if bad:
+        raise SystemExit(f"{WHO}: CrowdDet modules not from the pinned clone: {bad}")
     torch.set_num_threads(THREADS)
     net = Network()
     net.eval()
@@ -130,7 +138,8 @@ def load_detector(home: Path):
                 "numpy": np.__version__, "python": sys.version.split()[0],
                 "post_process": {"test_nms_method": config.test_nms_method, "test_nms": config.test_nms,
                                  "pred_cls_threshold": config.pred_cls_threshold,
-                                 "visulize_threshold": config.visulize_threshold}, "load": load}
+                                 "visulize_threshold": config.visulize_threshold}, "load": load,
+                "module_files": {k: str(Path(v).resolve().relative_to(src.resolve())) for k, v in files.items()}}
     return detect, versions
 
 
@@ -311,7 +320,8 @@ def increment_table(inp, tea, crowd, score, referees, e1, e1_keys, f_point, n_in
     """One configuration (score, with or without the referee mask): the headline increment on HEADLINE, the APART
     subclasses, the positive controls, the cost rows and the ghost bar on the union."""
     from tools import p8_c1reach as C
-    ws_h, ws_a, hits, hu, hc, frames = {}, {}, 0, 0, 0, 0
+    ws_h, ws_a, ws_H, hits, hu, hc, frames = {}, {}, {}, 0, 0, 0, 0
+    union_loss = {c: 0 for c in HEADLINE + APART}
     cost = {k: {"boxes": 0, "ghosts": 0, "near_no_player": 0, "duplicates": 0} for k in ("crowd", "union", "teacher")}
     before_court = after_court = 0
     for x in inp["frames"]:
@@ -320,6 +330,12 @@ def increment_table(inp, tea, crowd, score, referees, e1, e1_keys, f_point, n_in
                              None if referees is None else referees[key])
         ws_h.setdefault(x["window"], {"misses": []})["misses"] += as_reach(st["misses"], HEADLINE)
         ws_a.setdefault(x["window"], {"misses": []})["misses"] += as_reach(st["misses"], APART)
+        ws_H.setdefault(x["window"], {"misses": []})["misses"] += [   # 13.9: H with the headline's own k
+            {"unit": m["unit"], "subclass": m["subclass"], "teacher": not m["teacher"] and not m["floor"], "floor": False}
+            for m in st["misses"] if m["subclass"] in HEADLINE]
+        for m in st["misses"]:                       # 13.9: what the union loses of the teacher's reach
+            if m["teacher"] and not m["union"]:
+                union_loss[m["subclass"]] += 1
         hits += st["hits"]; hu += st["hits_reached_union"]; hc += st["hits_reached_crowd"]; frames += 1
         before_court += st["crowd_boxes_before_court"]; after_court += st["crowd_boxes_after_court"]
         for k, v in st["cost"].items():
@@ -354,7 +370,16 @@ def increment_table(inp, tea, crowd, score, referees, e1, e1_keys, f_point, n_in
         return out
     ghost_pf = {k: cost[k]["ghosts"] / frames for k in cost} if frames else {}
     ghost_ok = frames > 0 and ghost_pf["union"] <= GHOST_FACTOR * ghost_pf["teacher"]
+    def lost(ws, subclasses):
+        """Misses of the population in windows whose sampled frames hold none of it (scaled away, k = 0)."""
+        tot = sum(inp["per_window"][s]["by"].get(f"{u}|{c}", 0) for s in inp["per_window"] for u in ("P-i", "D-i")
+                  for c in subclasses)
+        gone = sum(inp["per_window"][s]["by"].get(f"{u}|{c}", 0) for s in inp["per_window"]
+                   for u in ("P-i", "D-i") for c in subclasses if not (ws.get(s) or {}).get("misses"))
+        return {"lost": gone, "of": tot}
     return {"headline_increment": ceil(ws_h, HEADLINE), "apart_increment": ceil(ws_a, APART),
+            "H_per_population": ceil(ws_H, HEADLINE), "union_losses_sampled": union_loss,
+            "population_loss": {"headline": lost(ws_h, HEADLINE), "apart": lost(ws_a, APART)},
             "increment_sampled": {"headline": sum(m["teacher"] for w in ws_h.values() for m in w["misses"]),
                                   "apart": sum(m["teacher"] for w in ws_a.values() for m in w["misses"])},
             "positive_control": {"r23_hits": hits, "union_reached": hu, "crowd_reached": hc,
@@ -404,7 +429,9 @@ def cmd_report(args) -> dict:
                           "in_court_ghosts_per_frame": gh / n if n else None,
                           "timing": {"projected_minutes": round(crowd["projected_full_s"] / 60, 1),
                                      "passes": crowd["projected_full_s"] <= CAP_DETECT_S}}}
-        out["passes"] = out["checks"]["positive_control"]["passes"] and out["checks"]["timing"]["passes"]
+        out["checks"]["every_frame_has_boxes"] = all(v > 0 for v in crowd["boxes_per_frame"])     # 13.4
+        out["passes"] = (out["checks"]["positive_control"]["passes"] and out["checks"]["timing"]["passes"]
+                         and out["checks"]["every_frame_has_boxes"])
         name = "p8_c1reach_stage2_probe.json"
     else:
         if crowd["frames"] != len(inp["frames"]) or not crowd.get("probe_reproduced"):
