@@ -111,3 +111,8 @@ more within-gate pairs than the frozen rule in general (it lowers the cost of pa
 fewer as well as more). What it changes is which pairs: distances beyond the gate no longer steer the assignment. The
 test builds a case where the frozen rule keeps one within-gate pair and the capped rule another, and the pair counts
 gained and lost are reported, not assumed to rise.
+
+**8.10 Before the run (2026-11-27, local; the code check of 3a642ba5, GO).** Team rows gained and lost are not counted
+row by row: each rule's team n (counts.team_n_uncapped and counts.team_n_capped per scope) stands in for them, and their
+difference is the net change. The tool reads only the pool keys of reports/research/p8_rebaseline.json
+(pooled_cha_bkn and per_game gsw_cha_2016__current and gsw_bkn_2015__current); no hou key is read.
