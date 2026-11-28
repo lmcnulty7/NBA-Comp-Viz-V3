@@ -61,8 +61,9 @@ Ranked by expected information per unit of cost; the lead re-ranks it each itera
    The no-box misses are lost mostly at the detector on kept windows (D208), with NMS about 0.12 of them.
    The per-box ankle foot failed its falsifier (D210); every per-box foot route tried is closed. Next: whether the
    own-box row is partly truth-side (P8_piiside, measured through B, since T absorbs truth errors by its per-frame fit).
-   NMS threshold arm inconclusive at its pilot (D209). Running: the D208 supplement (51 windows re-read through the
-   build's path). A detector recall arm stays paused under D183 until a new label source reaches the C1 misses.
+   NMS threshold arm inconclusive at its pilot (D209). The detector stage is the main no-box loss on all misses, 0.69
+   (D211). Running: a label-source survey for crowded players (P8_labelsource), since a detector recall arm stays
+   paused under D183 until a new label source reaches the C1 misses.
 2. Deferred: the gsw_ind_2016 CPU rebuild (D200); the tracker-fix question on a real pool (D198, decides only the
    reported baseline under D193).
 3. Court output against camera truth: done (D181), no change; court device stays as in D175.
