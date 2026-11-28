@@ -439,23 +439,28 @@ bootstrap (2,000 resamples, seed 0):
 - Mechanism check: the flag fires. Missed falls by 0.0065 per in-frame player against a ceiling of
   0.0038 (59 C2 misses recoverable at 0.55 over 15,656 in-frame players). The P-ii share of arm-only
   hits is 66 of 192, under half, so that part of the check does not fire.
+- The flag fires only under 14.6's ceiling, which was set knowing stage 0's per-window fall on these windows; the
+  outcome rests on P3 either way.
 
-**Outcome: STOP.** The arm stops at the pilot: no confirmation, no other threshold and nothing rerun (the protocol:
+**Outcome: inconclusive at the pilot (P3), with the mechanism flag; no arm passed the pilot.** The gate record's label
+is "STOP". The arm stops at the pilot: no confirmation, no other threshold and nothing rerun (the protocol:
 never scale up to rescue a failed gate). hou_cle_2016 stays unspent.
 
 **15.4 Reading.**
 - The missed fall is larger than suppression recovery can explain. Arm-only hits are 192 (P-i 69, P-ii 66, D-i 55, D-iii-free 2), against
   91 arm-only misses. On frames with stored candidates, 52 of the P-i and D-i arm-only hits are D208's C2.
-  Of the 124 P-i and D-i arm-only hits, the classes C2 belongs to, 52 are C2, and P-ii players (a box 2.5 to 5 ft away
-  already) gain almost as many (66). The reading, post hoc and not separated: part of the fall comes from tracker or
+  Of the 124 P-i and D-i arm-only hits (69 plus 55), 52 are D208's C2; P-ii players (a box 2.5 to 5 ft away already)
+  gain 66. The reading, post hoc and not separated: part of the fall comes from tracker or
   duplicate effects (a second box near a player, or a track that moves), not from recovered suppressed candidates.
 - Net error is not shown to fall: the one-to-one row -0.0017 [-0.0059, +0.0026] and the nearest-rule row -0.0031
   [-0.0069, +0.0007] both span 0, while ghosts per in-frame player rise (+0.0033 [+0.0012, +0.0056]) and duplicates
   rise.
 - The screen's pass did not carry to the build, as 13.3 warned: before the tracker, on universe frames only, the
-  one-to-one net fell clearly; through the tracker, on all scored frames, it does not.
+  one-to-one net fell clearly; through the tracker, on all scored frames, it is not shown to fall.
 - The team row (+0.0151 [-0.0129, +0.0445]) is reported and not read: its interval spans 0.
 - Each number is on the 31 pilot windows of two games against a truth selected with r23's boxes at 0.45 (12.9).
 
-**15.5 Cost.** Lock time (the lock's own durations): stage 0 174 s (replay 42, screen 132); stage 1a 1,841 s (builds
+**15.5 Cost.** Build seconds in 15.1 and 15.2 are the build records' (the reference root's nmsarm/build__identity.json,
+build__control.json and build__pilot.json); scoring seconds are the score records'. Lock time (the lock's own durations,
+from its "done in" lines in the chain's log): stage 0 174 s (replay 42, screen 132); stage 1a 1,841 s (builds
 1,742, scoring 99); the pilot 5,326 s (build 5,170, scoring 156); 7,341 s, about 2.0 lock hours, 0 Colab units.
