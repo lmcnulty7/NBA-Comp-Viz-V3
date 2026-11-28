@@ -703,7 +703,8 @@ gsw_bkn_2015, and no neighbour came within 0.05 of f.
 8 of gsw_bkn_2015) read aligned here, under the build's own read path. So a3align's misalignment was a property of the
 corpus's sequential read, not of the build. This fits P8_a3run.md's controls, where a sequential read matched the corpus
 and not the sidecars. It bears on the analyses a3align listed (the E1 labels, the E1b bound, M1 to M4, detrow), which
-scored the corpus JPEGs. Those may carry the offset; the build-side rows do not.
+scored the corpus JPEGs. Those may carry the offset; the build-side rows decode no images, so this offset cannot
+enter them.
 
 ## 15. The pose stages, as coded (2026-11-27, before any pose number; tools/p8_posefoot_pose.py)
 
@@ -855,13 +856,61 @@ threshold, ankle height or crop scale is tried on these games. The registered fa
 - Rule 3 passing (not farther under B on own P-ii boxes) does not change the stop.
 
 **Post hoc, not tested by a registered rule.**
-- The same-frame null alone brings 0.39 of own P-ii boxes within 2.5 ft. On hits, the hybrid's shift is large and
-  one-directional (+1.3 ft under T, +0.5 ft under B, in median).
-- Together these suggest that the ankle point carries a large frame-wide offset from the box bottom, which moves every
-  foot about a foot, rather than a per-box signal. The per-box gain over the null is about 0.05 (+0.047 and +0.063).
-- A bias-corrected ankle (the frame-wide offset removed) would be a new arm needing its own design and registration,
+- The same-frame null alone brings 0.39 of own P-ii boxes within 2.5 ft. On hits, the hybrid's median shift is large
+  and one-directional (+1.3 ft under T, +0.5 ft under B).
+- Together these suggest that the ankle point carries a large systematic offset from the box bottom, not a per-box
+  signal. Whether that offset is frame-wide or global is not separated, because the cross-frame null was not computed
+  for the pose stage. The per-box gain over the null is about 0.05 (+0.047 and +0.063).
+- A bias-corrected ankle (the systematic offset removed) would be a new arm needing its own design and registration,
   not a rescue of this one. It would also need to answer D206's lesson on population shifts.
 
-**What this rules out, on these truths and this build:** this pose model's ankle point, used as registered (hybrid or
-pose-raw), as a per-box foot for the missed row. Stage 0a ruled out foot_raw itself, and stage A cleared the decode as
+**What this rules out, on these truths and this build:** the hybrid, by the registered rule, as a per-box foot for
+the missed row. Pose-raw's report-only rows point the same way (hits lost 0.41 and 0.40). Stage 0a ruled out foot_raw itself, and stage A cleared the decode as
 a cause: with the build's read path, 151 of 156 windows aligned.
+
+### 16.1 Registered report-only rows, added (2026-11-28, after the ml-review of 184d94fa; record regenerated, no rescore)
+
+The close review found that registered report-only rows were missing from the record. report() now adds them over
+the stored per-game rows, as report_only_added_2026_11_28, under no lock. Every existing field of the record is
+identical to 184d94fa's; only report_only_added_2026_11_28 and not_produced were added. The rows are on both-ankle
+boxes, as the rules are.
+
+**Lift sensitivity** (under T; gsw_cha_2016, gsw_bkn_2015):
+
+| foot | compared with | own P-ii within 2.5 ft | own P-ii median change | hits lost | hits median change |
+|---|---|---|---|---|---|
+| hybrid, 0.25 ft (ruled) | foot_stab | 0.438, 0.453 | -0.373, -0.449 ft | 0.418, 0.414 | +1.287, +1.271 ft |
+| hybrid, 0.35 ft | foot_stab | 0.442, 0.452 | -0.498, -0.562 ft | 0.319, 0.308 | +0.947, +0.922 ft |
+| hybrid, 0 ft | foot_stab | 0.392, 0.397 | +0.164, +0.109 ft | 0.699, 0.696 | +2.175, +2.187 ft |
+| pose-raw, 0.25 ft | foot_raw | 0.394, 0.424 | -0.095, -0.163 ft | 0.411, 0.401 | +1.174, +1.191 ft |
+| pose-raw, 0.35 ft | foot_raw | 0.408, 0.435 | -0.274, -0.362 ft | 0.327, 0.312 | +0.836, +0.840 ft |
+| pose-raw, 0 ft | foot_raw | 0.345, 0.357 | +0.552, +0.492 ft | 0.684, 0.686 | +2.073, +2.115 ft |
+
+**Per D207 class** (P-ii boxes; the hybrid's R and the null's R on the same boxes, and the median change under T),
+gsw_cha_2016 then gsw_bkn_2015:
+- own: n 1,086 and 1,008; R 0.430 and 0.435 against 0.371 and 0.371; median change -0.35 and -0.26 ft.
+- own, with crossings: n 620 and 620; R 0.468 and 0.492 against 0.440 and 0.431; -0.61 and -0.81 ft.
+- switch: n 1,068 and 998; R 0.456 and 0.497 against 0.371 and 0.488; -0.63 and -0.93 ft.
+- another's, with crossings: n 202 and 246; R 0.243 and 0.370 against 0.257 and 0.382; +0.67 and -0.20 ft.
+- another's: n 125 and 159; R 0.208 and 0.270 against 0.240 and 0.270; +0.44 and +0.18 ft.
+- own, misplaced: n 37 and 40; R 0.162 and 0.250 against 0.135 and 0.175.
+- The ghost classes and own, misplaced, with crossings hold at most 29 boxes each; they are in the record.
+
+**The 3.0 ft ghost view** (scorer ghosts under T among both-ankle boxes, foot_stab against the hybrid):
+- P-ii boxes: 0.570 and 0.570 under foot_stab, 0.456 and 0.418 under the hybrid.
+- Hit boxes: 0 and 0 under foot_stab, 0.243 and 0.225 under the hybrid.
+
+**Coverage by box height** (the share of boxes with both ankles):
+- P-ii: 0.887 and 0.933 under 150 px, 0.965 and 0.963 at 150 to 200, 0.987 and 0.979 at 200 to 250, 0.952 and 0.933
+  at 250 and over.
+- Hits: 0.938 and 0.963, 0.979 and 0.973, 0.984 and 0.985, 1.000 and 1.000.
+
+**Registered but not produced.**
+- Coverage by third, and the offset vector from foot_stab to the pose foot along and across the ray (section 6's
+  report-only list). The pose rows store no third and no offset vector, only distances.
+- R by speed is not computed for the pose stage, because its rows store no speed. Those fields in the record are
+  empty by design.
+
+Post hoc, not ruled: the hits' loss falls as the lift rises (0.70 unlifted, 0.42 at 0.25 ft, 0.31 at 0.35 ft). That fits
+a large systematic offset that the lift partly cancels. It changes no bar, and a lift chosen on these rows would be a
+fork.

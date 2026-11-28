@@ -483,6 +483,12 @@ def report(smoke: bool = False) -> dict:
         out["pose_raw_rule4_against_foot_raw"][g] = {
             "n": len(hit), "median_d_poseraw_minus_d_raw_T": float(np.median(dv)) if dv else None,
             "share_lost": float(np.mean([x["dT"]["poseraw"] > PF.MISS_FT for x in hit])) if hit else None}
+    out["report_only_added_2026_11_28"] = report_only_rows(both, per)
+    out["not_produced"] = {"coverage_by_third": "registered (section 6) but not produced: the pose rows store no third",
+                           "offset_vector_along_and_across_the_ray": "registered (section 6) but not produced: the pose "
+                                                                     "rows store distances, not the offset vector",
+                           "R_by_speed_and_no_speed_rows": "not computed for the pose stage: its rows store no speed "
+                                                           "(the fields in hybrid and one_ankle are empty by design)"}
     out["rules_hybrid"] = {g: PF.rule_set(out["hybrid"][g]["P-ii own"], out["hybrid"][g]["hits"], out["hybrid"][g]["est"],
                                           "hybrid") for g in PF.POOL}
     if smoke:
@@ -496,6 +502,77 @@ def report(smoke: bool = False) -> dict:
     atomic_write(RECORD.with_name("p8_posefoot_pose_smoke.json") if smoke else RECORD, text)
     print(json.dumps({k: out[k] for k in ("coverage", "mechanical", "rules_hybrid")}, indent=1))
     return out
+
+
+def report_only_rows(both: dict, per: dict) -> dict:
+    """The registered report-only rows the close review found missing (2026-11-28): the 0.35 ft and 0 ft lifts for the
+    hybrid and pose-raw, rows per D207 class, the 3.0 ft ghost view, and coverage by box-height bin. Point estimates,
+    with window intervals for the shares."""
+    from tools.p8_piibox import median_iv, per_window, picks_for, ratio_iv, values_by_window
+    out = {}
+    sets = {**{g: [g] for g in PF.POOL}, "pooled": list(PF.POOL)}
+    for name, gs in sets.items():
+        n_w = [both[g]["windows"] for g in gs]
+        picks = picks_for(n_w)
+        rows_g = [both[g]["rows"] for g in gs]
+        own = [[x for x in rs if x["kind"] == "P-ii" and x["class"] in PF.OWN] for rs in rows_g]
+        hit = [[x for x in rs if x["kind"] == "hit"] for rs in rows_g]
+
+        def share(rs_g, fn, need):
+            return ratio_iv([per_window([x for x in rs if need(x)], nw, fn) for rs, nw in zip(rs_g, n_w)],
+                            [per_window([x for x in rs if need(x)], nw, lambda x: 1) for rs, nw in zip(rs_g, n_w)],
+                            picks)
+
+        def med(rs_g, key, ref):
+            return median_iv([values_by_window([{"wi": x["wi"], "v": x["dT"][key] - x["dT"][ref]} for x in rs
+                                                if x["dT"].get(key) is not None], nw, "v")
+                              for rs, nw in zip(rs_g, n_w)], picks)
+        lifts = {}
+        for key, ref in (("hyb", "stab"), ("hyb_035", "stab"), ("hyb_0", "stab"),
+                         ("poseraw", "raw"), ("poseraw_035", "raw"), ("poseraw_0", "raw")):
+            has = lambda x, key=key: x["dT"].get(key) is not None
+            lifts[key] = {"against": ref,
+                          "own_P-ii_R_within_2.5ft": share(own, lambda x, key=key: x["dT"][key] <= PF.MISS_FT, has),
+                          "own_P-ii_median_change_T": med(own, key, ref),
+                          "hits_share_lost": share(hit, lambda x, key=key: x["dT"][key] > PF.MISS_FT, has),
+                          "hits_median_change_T": med(hit, key, ref)}
+        classes = {}
+        for c in PB_CLASSES:
+            rc = [[x for x in rs if x["kind"] == "P-ii" and x["class"] == c] for rs in rows_g]
+            if not any(rc):
+                continue
+            paired = lambda x: x["dT"].get("hyb") is not None and x["dT"].get("null") is not None
+            classes[c] = {"n": sum(len(x) for x in rc),
+                          "R_hyb": share(rc, lambda x: x["dT"]["hyb"] <= PF.MISS_FT, paired),
+                          "R_null": share(rc, lambda x: x["dT"]["null"] <= PF.MISS_FT, paired),
+                          "median_change_T": med(rc, "hyb", "stab")}
+        ghosts = {}
+        for kind, rs_g in (("P-ii", [[x for x in rs if x["kind"] == "P-ii"] for rs in rows_g]), ("hit", hit)):
+            hasg = lambda x: x["gT"].get("hyb") is not None
+            ghosts[kind] = {"scorer_ghost_share_stab": share(rs_g, lambda x: bool(x["gT"]["stab"]), hasg),
+                            "scorer_ghost_share_hyb": share(rs_g, lambda x: bool(x["gT"]["hyb"]), hasg)}
+        out[name] = {"lift_sensitivity": lifts, "per_D207_class": classes, "ghost_view_3ft": ghosts}
+    cov = {}
+    for g in PF.POOL:
+        for kind in ("P-ii", "hit"):
+            rk = [x for x in per[g]["rows"] if x["kind"] == kind]
+            for hb in ("<150", "150-200", "200-250", ">=250"):
+                rr = [x for x in rk if hbin_px(x["h"]) == hb]
+                cov[f"{g}|{kind}|{hb}"] = {"n": len(rr), **{str(a): (sum(x["ankles"] == a for x in rr) / len(rr)
+                                                                     if rr else None) for a in (2, 1, 0)}}
+    out["coverage_by_height_bin"] = cov
+    return out
+
+
+def hbin_px(h: float) -> str:
+    """D186's box-height bins (tools.p8_placement.hbin's edges)."""
+    from tools.p8_placement import hbin
+    return hbin(h)
+
+
+PB_CLASSES = ("own", "own, with crossings", "another's, with crossings", "switch", "another's",
+              "own, misplaced, with crossings", "own, misplaced", "ghost, referee-flagged", "ghost, short",
+              "ghost, persistent")
 
 
 def project_stage2(per: dict, align_games: dict) -> dict:
