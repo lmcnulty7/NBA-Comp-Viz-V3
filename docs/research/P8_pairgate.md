@@ -1,4 +1,4 @@
-# P8 pair gate: the scorer's matching with the gate applied before the assignment (design, version 1, 2026-11-28)
+# P8 pair gate: the scorer's matching with the gate applied before the assignment (design, version 1, 2026-11-27)
 
 Report only, registered before any number. A measured sensitivity for Lucien's option (d) ("work on the truths and
 scorer first"): the frozen scorer stays the reported rule, and nothing here changes a reported row. No frozen file is
@@ -65,3 +65,43 @@ label_build, truth_accept, cache and builds/r23 watched before and after. hou_cl
 The capped rule is one of several gated assignments (a 1e6 cost beyond the gate, as tools.p8_one2one.assign_1to1 uses,
 maximises the count of within-gate pairs instead); only the capped rule is registered. The truth set and its limits
 are D202's (truth frames selected with r23's boxes).
+
+## 8. Version 1.1 (2026-11-27, local; the design review of 60f143d5, GO WITH CHANGES; before any code)
+
+Where this section differs from sections 1 to 7, it rules. Dates in this item are local time.
+
+**8.1 What is nearly decided already, stated first.** Team "insensitive" is nearly certain: D214 found at most 477 of
+49,674 team rows change under a gate-first rule (0.0096), against a D202 pooled half-width of 0.0155 for team. The open
+rows are position p90 and the near-field bias. The reading of section 5 is a practical-size rule, not a test: a row is
+scorer-sensitive when the absolute pooled change exceeds D202's half-width, (hi - lo) / 2 of its pooled interval.
+
+**8.2 The "about 1 percent" came from a different rule.** D214's diagnostic used the 1e6 rule (pairs beyond the gate
+cost 1e6, tools/p8_teambound.py), not the cap registered here. Report only: the frames and pairs where the capped and
+1e6 assignments differ are counted.
+
+**8.3 Watch (replaces section 6's).** As P8_teambound.md 9.12 (5): per pool window, builds/r23/<window>_*,
+label_build/<window>*, cache/scorecard/<window>.json and the current truth's labels file; per game, both truth_accept
+records. No hou_cle_2016 file is hashed.
+
+**8.4 The cache.** cache_gaps (tools.p8_placecause) runs on every window before scoring, and any gap stops the run, since
+a missing entry would make frame_refs write the cache.
+
+**8.5 G1 (replaces section 4's).** G1 calls tools.p8_resetfix.score_pair directly, as score_set's loop does
+(tools/p8_rebaseline.py lines 248 to 275), never D202's command (which moves score_run.json). D202's per-window hashes
+(sidecar, time map, labels, identity where recorded) and its record's SHA-256 and run id are checked first.
+
+**8.6 The swap took effect.**
+- Calls are counted: in the uncapped pass the frozen _match runs under a counting wrapper that calls it unchanged, and
+  the capped function is called 0 times; in the capped pass the capped function is called exactly as many times as the
+  frozen one was in the uncapped pass (the same scored frames with boxes).
+- At least one pair must differ between the two rules over the run, else the run stops ("the swap had no effect").
+- The original is restored in a finally block, and a test checks it.
+
+**8.7 Rows, two ways (completes section 4).** Each rule's own D202 values (its own matched players and its own team n,
+tools.p8_rebaseline.unit_rows on that rule's windows) and their difference, labelled "own rule values"; beside them the
+paired change on players matched under both (tools.p8_rebaseline.change_rows), labelled "paired, common players". The
+reading of 8.1 uses the paired change; both are reported. The rows that must not move (section 2) are checked equal
+window by window.
+
+**8.8 Cost.** Re-estimated at about 3 to 5 lock minutes for the two passes (cap 15). Writes: reports/research/
+p8_pairgate.json only.
