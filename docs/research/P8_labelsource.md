@@ -129,4 +129,6 @@ https://github.com/hsiangwei0903/Deep-EIoU. Hugging Face hub search (queries "ba
 openaccess.thecvf.com (HTTP 403), Iter-Deformable-DETR's LICENSE paths (HTTP 404), Roboflow Universe (403, per
 P8_datasets.md). The detector quotes came through WebFetch's page summaries; the two that a design would rest on
 (Iter-Deformable-DETR's licence sentence and its CrowdHuman table) are to be re-read verbatim before its
-DATA_SOURCES.md row.
+DATA_SOURCES.md row. A second, independent read the same day gave the same licence sentence and table and added that
+the GitHub API reports "license": null for that repository (https://api.github.com/repos/zyayoung/Iter-Deformable-DETR);
+the sister repository megvii-research/Iter-E2EDET has a LICENSE file (https://github.com/megvii-research/Iter-E2EDET).
