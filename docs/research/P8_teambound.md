@@ -301,3 +301,77 @@ Where this differs from sections 1 to 9.11, it rules.
 
    Each also gets its crop-less count.
 9. **New tests:** O3 at row level (a pure track relabelled, a mixed one kept) and O1c on crop rows.
+
+## 10. Result (2026-11-28, from 5a2e1cd8; record reports/research/p8_teambound.json)
+
+**Run.** The fast suite ran first under the lock: 2,735 passed, 7 skipped, 65 deselected. Then one collect per game
+under the lock: 54 s each, from the heavy-job lines of work_ref/logs/teambound.log. The report took 2 s.
+
+- The gate (score_window's team_rows in order, and D202's n, majority and fixed) passed on every window.
+- Each canonical track carried one label.
+- The pool windows' files were unchanged.
+- hou_cle_2016 was not read and stays unspent.
+
+**The team row under each oracle** (team rows: 24,708 on gsw_cha_2016 and 24,966 on gsw_bkn_2015, unchanged across
+oracles):
+
+| | gsw_cha_2016 | gsw_bkn_2015 |
+|---|---|---|
+| current (reproduces D202) | 0.810 | 0.857 |
+| O1, perfect per-track colour | 0.905 | 0.898 |
+| O2_swap (rule value, L = 1.0 s) | 0.947 | 0.942 |
+| O2_all (L = 1.0 s) | 0.952 | 0.949 |
+| gap to 0.95 under O2_swap | 0.003 | 0.008 |
+
+**Gains and bars.** f = 0.5. Each bar is max(0.03, MDE / f), with the MDE from 93 windows drawn from cha and bkn,
+fixed at L = 1.0.
+
+| part | gsw_cha_2016 | gsw_bkn_2015 | MDE | bar | clears |
+|---|---|---|---|---|---|
+| colour (O1 - current) | 0.095 [0.076, 0.117] | 0.041 [0.031, 0.052] | 0.025 | 0.050 | gsw_cha_2016 only |
+| tracking (O2_swap - O1) | 0.042 [0.032, 0.053] | 0.044 [0.034, 0.053] | 0.013 | 0.030 | both games |
+| combined (O2_swap - current) | 0.137 [0.115, 0.162] | 0.085 [0.072, 0.100] | 0.028 | 0.056 | both games |
+
+**Reading, as registered: tracking headroom.**
+- Tracking clears its bar on both games at the rule's L = 1.0 s. Colour clears on gsw_cha_2016 only.
+- **But the tracking part is fragile on both games** (9.6 and 9.12 (3)). It clears at L = 0.5, 0.75, 1.0 and 1.5 s
+  and falls below its bar at L = 2.0 s: 0.030 and 0.025 against 0.030. By 9.6, **a fragile reading cannot justify an
+  arm on its own.**
+- **The combined part is not fragile.** It clears on both games at every L from 0.5 to 2.0 s, its lowest value being
+  0.066 on gsw_bkn_2015 at 2.0 s against 0.056.
+- The table registers no arm for a fragile tracking reading. "Combined", as a pattern, applies only when neither single
+  kind clears on both games, which is not the case at L = 1.0. So this item licenses no arm by itself. The combined
+  part's robustness is reported as a fact, not a pattern.
+
+**Report only:**
+
+| | gsw_cha_2016 | gsw_bkn_2015 |
+|---|---|---|
+| O1c (crop frames only) | 0.894 (+0.083 over current) | 0.887 (+0.030) |
+| O1f (perfect per fragment) | 0.921 | 0.910 |
+| O3 (pure tracks relabelled) | 0.856 | 0.867 |
+| O2_all at L = 0, the outer bound | 0.986 | 0.986 |
+| O1 with abstained tracks labelled (larger denominator) | 0.905 | 0.897 |
+| O2 cuts at L = 1.0: swap / orphan / on a fragment boundary | 172 / 19 / 51 | 163 / 24 / 36 |
+| tracks with two or more ids and no sustained run | 86 | 81 |
+| capped diagnostic: team rows whose partner changes; of them errors | 250; 97 | 227; 93 |
+| unlabelled: abstained (crop-less) / no team entry (crop-less) | 70 (27) / 9 (9) | 62 (22) / 8 (8) |
+| abstained rows | 823 | 747 |
+
+- **Errors by crowding** (SportVU's nearest other player), split by 9.3 into tracking and colour:
+  - under 3 ft: 1,040 errors (785 tracking, 255 colour) and 1,109 (872, 237);
+  - 3 to 6 ft: 1,673 (905, 768) and 1,313 (1,023, 290);
+  - over 6 ft: 1,978 (660, 1,318) and 1,142 (652, 490).
+- **Errors by track purity:**
+  - pure: 1,125 of 10,908 rows and 230 of 11,001;
+  - 0.9 to 1.0: 772 of 6,082 and 376 of 5,569;
+  - 0.5 to 0.9: 2,794 of 7,718 and 2,958 of 8,396.
+
+**Post hoc, not ruled; no arm is proposed here beyond what the table licenses.**
+- Under these oracles, label-level fixes come within 0.01 of 0.95 on both games (O2_swap 0.947 and 0.942).
+- Most of gsw_cha_2016's colour headroom is reachable from the crops the build already collects: O1c recovers +0.083 of
+  O1's +0.095. On gsw_bkn_2015 it recovers +0.030 of +0.041.
+- The capped diagnostic shows the scorer's pairing order matters for about 1 percent of team rows (250 of 24,708 and
+  227 of 24,966), about 40 percent of which are errors.
+- The reviewer's prior (colour on gsw_cha_2016, tracking on gsw_bkn_2015) held for colour. Tracking cleared on both
+  games, though fragilely.
