@@ -2,7 +2,8 @@
 
 A survey only: nothing was downloaded, signed up for, run or trained. Every fact below was read at its source on
 2026-11-27 by read-only fetch agents (WebFetch) or through the Hugging Face hub API; the URL is given with each fact.
-Quotes are short and verbatim as returned. Where a page states nothing, the entry says "not stated". The ranking and
+Quotes are as returned by a summarising fetch, not checked verbatim, except the values read from the Hugging Face hub
+API. Every licence quote is to be re-read verbatim when its docs/DATA_SOURCES.md row is written. Where a page states nothing, the entry says "not stated". The ranking and
 the proposed measurement are reasoning, not results; the measurement is a later design under
 docs/research/TRAINING_PROTOCOL.md.
 
@@ -12,12 +13,13 @@ docs/research/TRAINING_PROTOCOL.md.
   the detector stage (C1: no box of its own after NMS, and not a suppressed candidate of its own) holds about 0.69 of
   the no-own-box misses (0.693 for both units; P-i 0.615, D-i 0.765).
 - C1a_other, a player whose image position lies inside only another player's box, is about 0.40 of D-i (D208 9.3,
-  0.400 on the kept windows). That is the case one box covering two players produces.
-- D183 paused detector fine-tuning until a label source reaches these misses. E1b's teacher (YOLOX-X trained on
+  0.400 on the kept windows), consistent with one box covering two players (an inference from the geometry; D208 9.4).
+- D183: "Detector fine-tuning is paused until a new label source or a placement result changes the bound." E1b's teacher (YOLOX-X trained on
   SportsMOT) reached 31.2 percent of r23's raw misses, four fifths of it foot placement on players r23 already boxes
   (D183); its reach on C1 specifically was not measured.
-- The NMS arm (P8_nmsarm.md section 15) showed that keeping more of r23's own candidates adds duplicates as fast as it
-  finds players. A label source has to teach separate boxes for overlapping players, not looser suppression.
+- The NMS arm (P8_nmsarm.md section 15) showed that keeping more of r23's own candidates adds duplicates and ghosts
+  about as fast as it finds players, so net error was not shown to fall (D209). Reasoning, not a result: a label source
+  has to teach separate boxes for overlapping players, not looser suppression.
 
 What a source must give for C1, in order of weight: (a) a separate box for each person even when partly hidden behind
 another (the property C1a_other needs); (b) a full-body (amodal) box, so the foot sits where the feet are, not where
@@ -27,8 +29,8 @@ spectators, or at least no harm from them.
 ## 2. Conditions (D150, Lucien, 2026-11-22)
 
 (1) A licence row in docs/DATA_SOURCES.md before any download; non-commercial is acceptable; nothing redistributed.
-(2) Screening before any training: every clip of a spent held-out game (12.16.2015 PHX at GSW; the Cleveland arena,
-sportvu/splits.json heldout_game and heldout_arena) and of a home game of MIA, TOR, LAC or LAL in any season (D85,
+(2) Screening before any training: every clip of a spent held-out game (sportvu/splits.json: heldout_game 12.16.2015
+PHX at GSW; heldout_arena, the Cleveland arena; heldout_era, the 2013 GSW at NYK game, video 6sAFbDBBAZc) and of a home game of MIA, TOR, LAC or LAL in any season (D85,
 D129) is dropped; a set whose games cannot be identified is used with that residual risk disclosed. (3) Adoption
 unchanged: the pinned scorecard on training games with a game-bootstrap interval excluding zero (D5); the D85 test set
 once at the end of P8. (4) Every training run records the datasets and versions it used.
@@ -39,12 +41,16 @@ once at the end of P8. (4) Every training run records the datasets and versions 
 |---|---|---|---|---|
 | CrowdHuman | "non-commercial research and educational purposes"; "You will NOT distribute the above images" (crowdhuman.org/download.html) | yes, full, visible and head boxes: "If the individual is partly occluded, the annotator is required to complete the invisible part and draw a full bounding box" (arxiv.org/html/1805.00123, 3.2) | 15,000 train, 4,370 val, 5,000 test images; 22.64 persons per training image; 2.40 person pairs per image at IoU above 0.5 (Table 4); web images by search keyword, "numerous viewpoints", keywords include "students playing basketball" (3.1); resolution not stated | web images, games not identifiable; held-out risk negligible, disclosed |
 | SportsMOT | "CC BY-NC 4.0"; "You agree not to distribute the SportsMOT dataset without prior written permission" (github.com/MCG-NJU/SportsMOT) | yes, players only: "The annotators are asked to predict the bounding box of the athlete in the case of occlusion," "as long as the athletes have a visible part of body" (arxiv.org/html/2304.05170v2, 3.1) | 240 clips of basketball, football and volleyball, 45 train and 45 val labelled; basketball averages 845.4 frames and 10 tracks per clip; "720P resolution, 25 FPS"; "Only the overhead shots of sports game scenes are used" (README, paper) | sequence names look like YouTube ids; games not listed; already in DATA_SOURCES.md and used with the risk disclosed (D150 (2)) |
-| SHOT | annotations "CC BY-NC 4.0"; footage "excluded" (huggingface.co/datasets/muyu111/basketball, LICENSE) | each of the 10 players has its own id and box on keyframes (README); box extent under occlusion not stated; boxes propagated by MixSort between keyframes (arxiv.org/html/2509.20715v3) | 1,861 cases on the card (1,979 clips in the paper), 5 views, NBA via Tencent Sports, 1080p | team codes in clip names (for example "CLEvsGS-49-view1-5"); already downloaded and screened conservatively (P8_datasets.md: CLE, PHX with GSW, MIA, TOR, LAC, LAL dropped) |
+| SHOT | annotations "CC BY-NC 4.0"; footage "excluded" (huggingface.co/datasets/muyu111/basketball, LICENSE) | each of the 10 players has its own id and box on keyframes (README); box extent under occlusion not stated; boxes propagated by MixSort between keyframes (arxiv.org/html/2509.20715v3) | 1,861 cases on the card (1,979 clips in the paper), 5 views, NBA via Tencent Sports, 1080p | team codes in clip names (for example "CLEvsGS-49-view1-5"); already downloaded and screened conservatively (P8_datasets.md: CLE, PHX with GSW, MIA, TOR, LAC, LAL dropped); its screen record has no GS-NY pair to check against the 2013 GSW at NYK game, which any use screens out by the safe rule |
 | E-BARD detection | "cc-by-4.0" tag; footage rights not addressed (huggingface.co/datasets/GabrieleGiudici/E-BARD-detection, github.com/GabrieleGiudic/E-BARD) | "22,210 manual, object-level annotations"; occlusion rule not stated | 1,800 frames, 30 per game, 60 games of 2024-25; BARD footage 720p | game ids; already downloaded and screened (P8_datasets.md: 51 of 60 games kept) |
 | MOT17, MOT20 | "CC BY-NC-SA 3.0" (motchallenge.net/data/MOT17/, /MOT20/) | yes, full extent: "If the person is partially occluded, the extent is estimated" (arxiv.org/html/1603.00831, II-B); no visible box, a visibility ratio per box | MOT17 7 train sequences, 5,316 frames, mostly 1920x1080; MOT20 8,931 train frames, 127 pedestrians per frame; street, mall and station scenes, elevated views | no sport; none |
 | CityPersons | no licence in the repository; images under the Cityscapes terms, non-commercial, no redistribution (github.com/cvgroup-njust/CityPersons, cityscapes-dataset.com/license/) | pedestrians and riders: full box from a head-to-feet line at "a fixed aspect ratio (0.41)", plus a visible box from the mask; groups get one box (arxiv.org/html/1702.05693, 3.1) | 5,000 images, about 7 persons per image; car-mounted street views | none |
 | DeepSportradar instants | "CC BY-NC-ND 4.0" (GitHub README); Kaggle metadata says CC BY-NC-SA 4.0, a conflict to resolve with the owner | one mask per person, visible part only ("leading each other to be split in disconnected parts", arxiv.org/html/2208.08190v1, 3.3): no full-body extent | 223 train images (1,674 annotations); fixed sideline arena cameras of the French LNB Pro A, 2 to 5 megapixels | French arenas named; none of ours |
 | TeamTrack (basketball part) | "MIT License", text names "Software" (github.com/AtomScott/TeamTrack) | occlusion rule not stated | fisheye 6K indoor and drone 4K outdoor views of university games | not broadcast; none |
+
+The held-out list of section 2 applies to every row: the 2013 GSW at NYK game (heldout_era) cannot appear in the
+2024-25 E-BARD games or in the non-basketball sets, and any SportsMOT or SHOT use screens out clips that match it or
+cannot be cleared (SportsMOT's clip names look like YouTube ids and are checked against the held-out video ids first).
 
 Not verifiable on 2026-11-27: Roboflow Universe projects (P8_datasets.md: HTTP 403 to automated reads);
 huggingface.co/datasets/koppolusameer/basketball-coco-player-detection (no licence and no source stated on the hub
@@ -71,15 +77,17 @@ file), a gap to record in its row.
 Reach is unmeasured for every candidate on C1. The ranking weighs (a) to (d) of section 1 against the cost to get a
 first measurement.
 
-1. **The held teacher, YOLOX-X SportsMOT (MixSort).** In domain (broadcast-style basketball, players only), trained on
-   labels that box an occluded athlete in full. No acquisition cost: weights and code already pass D150 and D131. Its
+1. **The held teacher, YOLOX-X SportsMOT (MixSort).** In domain (broadcast-style basketball, players only), trained,
+   by its weights' name, on SportsMOT train (the MixSort README does not state the split), whose labels box an occluded
+   athlete in full. No acquisition cost: weights and code already pass D150 and D131. Its
    C1 reach is the cheapest unknown to remove, and the bar any new source must beat.
 2. **Iter-Deformable-DETR, CrowdHuman (R-50, then Swin-L).** Built for exactly the C1a_other case (overlapping people
    without NMS), full-body boxes learned from CrowdHuman's amodal labels. Out of domain (web images), and it boxes
    every person (spectators, referees, coaches), so reach must be read against SportVU positions. One weights
    download after a DATA_SOURCES.md row.
 3. **CrowdDet, CrowdHuman.** The same target by a different mechanism (one proposal, several boxes; set NMS); a clean
-   MIT licence file. Ranked under Iter-Deformable-DETR on its own table's numbers.
+   MIT licence file. Ranked under Iter-Deformable-DETR on that repository's table, a cross-repository comparison, not a
+   matched benchmark.
 4. **ByteTrack YOLOX-X (CrowdHuman, MOT17, CityPersons, ETHZ).** Amodal crowd training but ordinary NMS; a cheap
    second baseline beside the held teacher (same architecture), to separate the effect of crowd training data from
    that of the overlap mechanism.
